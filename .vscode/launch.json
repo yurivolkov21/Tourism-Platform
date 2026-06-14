@@ -4,9 +4,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug @org/api with Nx",
+      "name": "Debug @tourism/api with Nx",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["exec", "nx", "serve", "@org/api"],
+      "runtimeArgs": ["exec", "nx", "serve", "@tourism/api"],
       "env": {
         "NODE_OPTIONS": "--inspect=9229"
       },

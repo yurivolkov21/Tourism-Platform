@@ -10,7 +10,7 @@ const swcJestConfig = JSON.parse(
 swcJestConfig.swcrc = false;
 
 module.exports = {
-  displayName: '@org/core',
+  displayName: '@tourism/core',
   preset: '../../../jest.preset.js',
   testEnvironment: 'node',
   transform: {

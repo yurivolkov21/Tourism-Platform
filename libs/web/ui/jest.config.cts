@@ -1,5 +1,5 @@
 module.exports = {
-  displayName: '@org/ui',
+  displayName: '@tourism/ui',
   preset: '../../../jest.preset.js',
   transform: {
     '^(?!.*\\.(js|jsx|ts|tsx|css|json)$)': '@nx/react/plugins/jest',

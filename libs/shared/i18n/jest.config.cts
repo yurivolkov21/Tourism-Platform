@@ -10,7 +10,7 @@ const swcJestConfig = JSON.parse(
 swcJestConfig.swcrc = false;
 
 module.exports = {
-  displayName: '@org/i18n',
+  displayName: '@tourism/i18n',
   preset: '../../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
