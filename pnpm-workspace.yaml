@@ -1,2 +1,14 @@
 packages:
+  - 'apps/*'
+  - 'libs/*'
   - 'packages/*'
+  - 'libs/shared/*'
+  - 'libs/web/*'
+  - 'libs/mobile/ui'
+allowBuilds:
+  '@parcel/watcher': true
+  detox: true
+  dtrace-provider: false
+  less: false
+  sharp: true
+  unrs-resolver: true
