@@ -1,40 +1,45 @@
-name: CI
+name: ci
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
+    branches: [main]
 
-permissions:
-  actions: read
-  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  main:
+  build:
+    name: lint · typecheck · test · build
     runs-on: ubuntu-latest
+
+    # NOTE: Backend (Prisma generate/validate, Joi env placeholders) and the
+    # Postman/Newman harness steps are added in P1, once apps/api has a schema.
+
     steps:
       - uses: actions/checkout@v4
-        with:
-          filter: tree:0
-          fetch-depth: 0
 
-      # This enables task distribution via Nx Cloud
-      # Run this command as early as possible, before dependencies are installed
-      # Learn more at https://nx.dev/ci/reference/nx-cloud-cli#npx-nxcloud-startcirun
-      - run: npx nx start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="e2e-ci"
+      # No `version:` — pnpm/action-setup@v4 reads it from the `packageManager`
+      # field in package.json (specifying both triggers ERR_PNPM_BAD_PM_VERSION).
+      - uses: pnpm/action-setup@v4
 
-      # Cache node_modules
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 22
+          cache: pnpm
 
-      - run: npm ci
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      # Prepend any command with "nx record --" to record its logs to Nx Cloud
-      - run: npx nx record -- npx nx format:check  --base="remotes/origin/main"
-      - run: npx nx run-many -t lint test build typecheck e2e-ci
-      # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
-      - run: npx nx fix-ci
-        if: always()
+      # Greenfield: run every project. Switch to `nx affected` (+ nrwl/nx-set-shas)
+      # once the graph is large enough for it to pay off.
+      - name: Lint · typecheck · test
+        run: pnpm nx run-many -t lint typecheck test
+
+      # The mobile app's `build` target is an Expo EAS cloud build (needs eas-cli
+      # + credentials) — not a per-push CI concern. Mobile is still covered by
+      # lint/typecheck/test above.
+      - name: Build
+        run: pnpm nx run-many -t build --exclude=@tourism/mobile
