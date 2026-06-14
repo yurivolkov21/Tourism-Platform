@@ -47,7 +47,7 @@ and the reference-site study ([reference-sites-analysis](../research/2026-06-14-
 Nx splits **`apps/`** (deployables) and **`libs/`** (shared code), with **tags**
 that the `@nx/enforce-module-boundaries` lint rule uses to *forbid* bad imports.
 
-```
+```structure
 tourism-platform/            # new Nx workspace (pnpm)
 ├── apps/
 │   ├── api                  # NestJS         tags: scope:api,  type:app
@@ -72,6 +72,7 @@ tourism-platform/            # new Nx workspace (pnpm)
 ```
 
 ### Module-boundary rules (the "control chặt" Yuri wants)
+
 Enforced in the root **`eslint.config.mjs`** (ESLint flat config, Nx 22) via
 `@nx/enforce-module-boundaries`, using two independent axes that the rule **ANDs**
 (an import must satisfy both its `scope:` and its `type:` constraint).
@@ -146,6 +147,7 @@ Lily fields. **Entities** (Prisma):
 - **Trust content** (awards / stats / guarantees / value-props / testimonials) — start **static/config** in FE; promote to a small `Content` model later if it needs editing.
 
 **Open product decisions baked into the model (recommended defaults):**
+
 - **D1 — Multi-destination packages:** *recommend YES* (Lily-aligned) → `Tour ↔ Destination` **M:N** with `isPrimary`. If you only ever sell single-place tours, we keep 1:N and drop the join.
 - **D2 — Enquiry/"Inquire Now":** *recommend YES, lightweight* → adds a `contact-for-custom` lead channel on top of self-serve checkout (on-brand, cheap). If not wanted, omit `Enquiry`.
 
