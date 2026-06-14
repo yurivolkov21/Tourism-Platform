@@ -72,12 +72,27 @@ tourism-platform/            # new Nx workspace (pnpm)
 ```
 
 ### Module-boundary rules (the "control chặt" Yuri wants)
-Enforced in `.eslintrc` via tags — examples:
-- `type:app` may import `type:feature|ui|data-access|util`; **apps cannot import other apps**.
-- `scope:web` cannot import `scope:mobile` (and vice-versa); both may import `scope:shared`.
-- `scope:shared` (core/tokens/i18n) may import **only** `scope:shared` → keeps the reuse engine clean and platform-agnostic.
+Enforced in the root **`eslint.config.mjs`** (ESLint flat config, Nx 22) via
+`@nx/enforce-module-boundaries`, using two independent axes that the rule **ANDs**
+(an import must satisfy both its `scope:` and its `type:` constraint).
 
-→ A bad import **fails lint/CI**, not just code review. This is the architectural guardrail the current repo lacks.
+**Scope axis — platform isolation:**
+
+- `scope:shared` (core/tokens/i18n) → **only** `scope:shared` → keeps the reuse engine platform-agnostic.
+- `scope:api` → `scope:api`, `scope:shared`.
+- `scope:web` → `scope:web`, `scope:shared` (cannot import `scope:mobile`).
+- `scope:mobile` → `scope:mobile`, `scope:shared` (cannot import `scope:web`).
+- `scope:admin` → `scope:admin`, **`scope:web`**, `scope:shared` — admin (Next.js) reuses the web design system (`web/ui`). *(decision D3, 2026-06-14)*
+
+**Type axis — layering:**
+
+- `type:app` → `type:feature|ui|data-access|util`; **apps cannot import other apps**.
+- `type:feature` → `type:feature|ui|data-access|util`.
+- `type:ui` → `type:ui|data-access|util`.
+- `type:data-access` → `type:data-access|util`.
+- `type:util` → `type:util`.
+
+→ A bad import **fails lint/CI**, not just code review. This is the architectural guardrail the current repo lacks. *(Implemented in P0.6 — commit on `chore/p0.6-module-boundaries`; verified `nx run-many -t lint` green + negative tests.)*
 
 ---
 
@@ -203,5 +218,6 @@ changed some defaults; we read the live docs at scaffold time.)*
 2. **D1 — multi-destination packages:** ✅ **YES** → `Tour ↔ Destination` **M:N** with `isPrimary`.
 3. **D2 — Enquiry/"Inquire Now":** ✅ **YES, lightweight** → `Enquiry` model + lead form, self-serve booking stays primary.
 4. Further model additions (gift cards / private toggle / seasons): none for now — revisit during P1.
+5. **D3 — admin module boundary:** ✅ admin (Next.js) **may reuse `web/ui`** → `scope:admin` → `scope:admin`, `scope:web`, `scope:shared` (no separate `admin/ui` lib for now). *(decided during P0.6, 2026-06-14)*
 
 → **P0 (scaffold) is unblocked.**
