@@ -37,8 +37,9 @@ and the reference-site study ([reference-sites-analysis](../research/2026-06-14-
 | Backend | **NestJS** — *fresh clean Prisma schema* + **port** proven infra patterns |
 | Web / Admin | **Next.js** (App Router), Lily-style design |
 | Visual direction | Lily-adapted (warm, trust-forward) — keep our **self-serve online booking** edge that Lily lacks |
-| i18n | EN/VI from day one (carry the parity discipline) |
-| Auth / payments | Supabase Auth + Stripe (port) |
+| i18n | **English-only** (ADR-0005, 2026-06-15 — was EN/VI). `@tourism/i18n` kept as EN scaffold |
+| Auth / payments | Supabase Auth + **Stripe + MoMo** (multi-gateway, ADR-0006) |
+| Reliability / security | **pg-boss** outbox/jobs (ADR-0007) · **security & integrity hardening** incl. RLS (ADR-0008) |
 
 ---
 
@@ -106,7 +107,7 @@ This is the part the current repo never had (logic is scattered inside
 | --- | --- | --- |
 | `shared/core` | domain **types**, typed **API client** (OpenAPI), **zod** request/response schemas, pure **business logic** (pricing, status maps, validation) | web · admin · mobile · (api can share types) |
 | `shared/tokens` | color / typography / spacing / radius tokens, one source → **web** (CSS variables) + **mobile** (JS theme object) | web ui · mobile ui |
-| `shared/i18n` | EN/VI catalogs + parity-checked keys + `t()` helpers | web · admin · mobile |
+| `shared/i18n` | EN copy catalog + `t()` helpers (EN-only, ADR-0005) | web · admin · mobile |
 
 `web/ui` and `mobile/ui` are **separate** (DOM vs native primitives) but both
 consume `shared/tokens` so the Lily design language is identical across platforms.
@@ -128,6 +129,13 @@ consume `shared/tokens` so the Lily design language is identical across platform
 ---
 
 ## 6. New data model (clean, Lily-informed)
+
+> **Updated 2026-06-15 (ADRs 0005–0008):** the model below is **English-only** —
+> ignore the `(en/vi)` notations (drop all `*_vi`; array content → `text[]`).
+> Payments are **multi-gateway** (`Booking.paymentProvider` + generic
+> `providerSessionId`/`providerPaymentId`). Integrity/security hardened (FK
+> `refundedById→User SetNull`, RLS, CHECK constraints). Canonical current map:
+> [architecture/data-model.md](architecture/data-model.md).
 
 Current schema is ~80% there. The new model keeps the strong bones and adds the
 Lily fields. **Entities** (Prisma):
@@ -209,7 +217,7 @@ changed some defaults; we read the live docs at scaffold time.)*
 - **Expo + Nx + Next version drift** → pin versions; scaffold against current docs, not memory.
 - **Don't re-derive solved infra** → port from donor (auth/webhook/pooler) rather than rewrite.
 - **Reuse engine discipline** → `shared/*` must stay platform-agnostic (boundary lint enforces it).
-- **Keep EN/VI parity + TDD-on-logic + spec→plan** disciplines from day one.
+- **Keep TDD-on-logic + spec→plan** disciplines from day one. *(EN/VI parity dropped — EN-only since ADR-0005.)*
 - **Donor repo stays untouched/running** as reference + fallback.
 
 ---
@@ -222,4 +230,11 @@ changed some defaults; we read the live docs at scaffold time.)*
 4. Further model additions (gift cards / private toggle / seasons): none for now — revisit during P1.
 5. **D3 — admin module boundary:** ✅ admin (Next.js) **may reuse `web/ui`** → `scope:admin` → `scope:admin`, `scope:web`, `scope:shared` (no separate `admin/ui` lib for now). *(decided during P0.6, 2026-06-14)*
 
-→ **P0 (scaffold) is unblocked.**
+### Added 2026-06-15 (see [decisions/](decisions/README.md))
+
+1. **ADR-0005 — English-only:** ✅ drop EN/VI bilingual (supersedes the i18n parity decision). `@tourism/i18n` kept as EN scaffold; `*_vi` columns dropped; array content → `text[]`.
+2. **ADR-0006 — Multi-gateway payments:** ✅ **Stripe + MoMo** (VN domestic). `Booking` becomes provider-neutral.
+3. **ADR-0007 — pg-boss** outbox + jobs (email retry, cleanup/reconcile crons).
+4. **ADR-0008 — Security & integrity hardening:** ✅ RLS backstop, real FKs where cheap, CHECK constraints, webhook HMAC (both gateways), email-unique at DB, Sentry.
+
+→ **P0 done. P1 (backend) is next — needs D-P1.1, D-P1.3–D-P1.6 chốt.**

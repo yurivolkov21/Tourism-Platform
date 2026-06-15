@@ -42,13 +42,13 @@ the rules; deep plan detail lives in [`HANDOFF.md`](HANDOFF.md) and
 
 | Project | Path | Stack | Tags | Status |
 | --- | --- | --- | --- | --- |
-| `@tourism/api` | `apps/api` | NestJS 11 · Prisma · Supabase · Stripe · Resend | `scope:api,type:app` | 🚧 scaffold |
+| `@tourism/api` | `apps/api` | NestJS 11 · Prisma · Supabase · Stripe + MoMo · Resend · pg-boss | `scope:api,type:app` | 🚧 scaffold |
 | `@tourism/web` | `apps/web` | Next.js 16 · React | `scope:web,type:app` | 🚧 scaffold |
 | `@tourism/admin` | `apps/admin` | Next.js 16 | `scope:admin,type:app` | 🚧 scaffold |
 | `@tourism/mobile` | `apps/mobile` | Expo SDK 54 / RN | `scope:mobile,type:app` | 🚧 scaffold |
 | `@tourism/core` | `libs/shared/core` | types · API client · zod · domain logic | `scope:shared,type:data-access` | 🚧 scaffold |
 | `@tourism/tokens` | `libs/shared/tokens` | design tokens → web CSS vars + RN theme | `scope:shared,type:ui` | 🚧 scaffold |
-| `@tourism/i18n` | `libs/shared/i18n` | EN/VI catalogs + helpers | `scope:shared,type:util` | 🚧 scaffold |
+| `@tourism/i18n` | `libs/shared/i18n` | EN copy catalog (EN-only) | `scope:shared,type:util` | 🚧 scaffold |
 | `@tourism/ui` | `libs/web/ui` | web design system (React) | `scope:web,type:ui` | 🚧 scaffold |
 | `@tourism/mobile-ui` | `libs/mobile/ui` | mobile design system (RN) | `scope:mobile,type:ui` | 🚧 scaffold |
 
@@ -74,8 +74,9 @@ Non-negotiable unless the user says otherwise in the moment.
    target ≥80% on new logic. Visual/layout is covered by e2e.
 5. **Frontend = layout-first, theme tokens only.** No hex colors — use
    `@tourism/tokens`. **Reuse `@tourism/ui` first** before building new.
-6. **EN/VI parity is enforced.** Every user-facing string lives in
-   `@tourism/i18n` with identical EN/VI key sets (parity-checked).
+6. **English-only** (ADR-0005). User-facing copy is centralized in
+   `@tourism/i18n` (EN-only scaffold); no VI / parity check. Schema is
+   single-language (no `*_vi`).
 7. **Run `/gate` before declaring green** (lint + typecheck + test + build).
 8. **Commits:** Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`,
    `test:`, `chore:`). No AI attribution (disabled globally).

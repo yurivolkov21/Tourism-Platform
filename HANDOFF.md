@@ -28,7 +28,7 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | Backend | **NestJS** — *fresh clean Prisma schema* + **PORT** donor's proven infra |
 | Web / Admin | **Next.js 16** App Router, Lily-style |
 | Data model | multi-destination **M:N**, lightweight **Enquiry** ("Inquire Now"), + highlights / FAQ / policies / price-anchor (`compareAtPrice`) |
-| i18n | EN/VI from day one (parity enforced) |
+| i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
 ## Current state — P0 scaffold DONE (commit `d720036` on `main`)
@@ -76,7 +76,7 @@ In `c:\develop\Apps\Main-Projects\tourism-be-api\apps\api\src\`:
 
 ## Working conventions (carry from donor)
 
-- **Spec → plan → execute** for multi-step features (`docs/` specs+plans); **TDD on pure logic**; **EN/VI parity** enforced; **one feature = one branch**, confirm before merge.
+- **Spec → plan → execute** for multi-step features (`docs/` specs+plans); **TDD on pure logic**; **English-only** (ADR-0005); **one feature = one branch**, confirm before merge.
 - Run **`/gate`** before declaring green (lint+typecheck+test+build). For Nx: `pnpm nx run-many -t lint typecheck test build` (or affected).
 - Windows: CRLF warnings on commit are harmless. pnpm 11 active; Node ≥ 22.
 

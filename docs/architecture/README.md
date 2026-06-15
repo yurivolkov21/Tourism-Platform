@@ -22,7 +22,7 @@ libs/   shared/{core,tokens,i18n} · web/ui · mobile/ui
 | `@tourism/mobile` | `scope:mobile,type:app` | Expo / React Native app |
 | `@tourism/core` | `scope:shared,type:data-access` | types · zod · API client · domain logic |
 | `@tourism/tokens` | `scope:shared,type:ui` | design tokens → web CSS vars + RN theme |
-| `@tourism/i18n` | `scope:shared,type:util` | EN/VI catalogs + helpers |
+| `@tourism/i18n` | `scope:shared,type:util` | EN copy catalog (EN-only) |
 | `@tourism/ui` | `scope:web,type:ui` | web design system |
 | `@tourism/mobile-ui` | `scope:mobile,type:ui` | mobile design system |
 
@@ -45,10 +45,23 @@ The thing the donor never had. `shared/core` (types/zod/client/logic) +
 ## 4. Auth & payments
 
 - **Auth = Supabase** — API verifies JWT (JWKS + HS256 fallback), mirrors users locally; `ADMIN_EMAILS` allowlist + RolesGuard. Port from donor. Detail: [backend.md](backend.md).
-- **Payments = Stripe** — Checkout + webhook (raw-body + HMAC + `PaymentEvent` idempotency). Port from donor.
+- **Payments = Stripe + MoMo** (multi-gateway, [ADR-0006](../decisions/0006-multi-gateway-momo.md)) — Stripe (international) + MoMo (VN domestic). Each: own webhook/IPN (raw-body + HMAC), shared `PaymentEvent` idempotency + seat-reservation core. Port Stripe from donor.
 
 ## 5. Cross-cutting
 
 - **Response envelope:** `{ data, error, meta }` on every response (success via interceptor, failure via filter).
 - **Pooler gotcha:** Supabase transaction pooler (`connection_limit=1`) → `Promise.all` for parallel reads, not `$transaction`.
 - **CI:** `nx run-many -t lint typecheck test` + `build --exclude=@tourism/mobile` (Expo EAS build excluded).
+
+## 6. Security & integrity ([ADR-0008](../decisions/0008-security-integrity-hardening.md))
+
+Tighter than the donor. RLS on all tables (defense-in-depth) + API-layer auth ·
+real FKs where cheap (`refundedById→User SetNull`) · MediaAsset polymorphic +
+reconcile job · CHECK constraints · email-unique at DB · webhook HMAC (Stripe +
+MoMo) · secrets via Joi fail-fast · helmet/CORS/HSTS · Sentry. Risk register:
+[risks.md](risks.md).
+
+## 7. Reliability ([ADR-0007](../decisions/0007-pgboss-outbox-jobs.md))
+
+**pg-boss** on the same Postgres: transactional outbox (emails), retries, and
+cron jobs (abandoned-booking cleanup, Cloudinary orphan reconcile).
