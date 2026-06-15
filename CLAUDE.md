@@ -104,9 +104,10 @@ docs/   README.md (index + reading path) · BLUEPRINT.md · roadmap.md
 
 ## Gotchas (load-bearing, non-obvious)
 
-- **pnpm 11: `allowBuilds` lives in `pnpm-workspace.yaml`, but `overrides` lives
-  in root `package.json` `pnpm.overrides`** (a top-level `overrides:` in
-  pnpm-workspace.yaml is silently ignored — verified 2026-06-15).
+- **pnpm 11 reads `overrides` + `allowBuilds` from `pnpm-workspace.yaml`, NOT
+  `package.json`** (`pnpm.overrides` there is ignored with a warning). Gotcha:
+  editing `overrides` alone often does **not** re-resolve — also touch
+  `package.json` or delete the lockfile to force it (verified 2026-06-15).
 - **Nx generators run `pnpm install` internally** — an un-approved build script
   blocks them (governed by `allowBuilds` in `pnpm-workspace.yaml`).
 - **Two libs can't share a leaf name** (e.g. `ui`) → mobile's lib is the Nx

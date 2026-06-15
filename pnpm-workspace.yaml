@@ -5,6 +5,12 @@ packages:
   - 'libs/shared/*'
   - 'libs/web/*'
   - 'libs/mobile/ui'
+# Transitive security pins (Dependabot). pnpm 11 reads `overrides` HERE, not
+# package.json. Editing this alone may not re-resolve — also touch package.json
+# or delete the lockfile. Remove an entry once the parent ships a patched range.
+overrides:
+  postcss: '^8.5.10' # GHSA-qx2v-qp2m-jg93 (XSS in CSS stringify), patched 8.5.10
+  '@hono/node-server': '^1.19.13' # GHSA-92pp-h63x-v22m (serveStatic bypass), patched 1.19.13
 allowBuilds:
   '@parcel/watcher': true
   '@prisma/client': true
