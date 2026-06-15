@@ -19,16 +19,18 @@ decisions also fold into [../BLUEPRINT.md](../BLUEPRINT.md) / [../architecture/]
 
 ## Open ⬜ (block P1)
 
-| ID | Question | Recommendation |
+| ID | Question | Decision |
 | --- | --- | --- |
-| **D-P1.1** | `TourPolicy` — separate model or text fields on `Tour`? | text fields; promote later if structured |
-| **D-P1.3** | `compareAtPrice` at Tour and/or Departure level? | both, optional |
-| **D-P1.4** | `Enquiry.status` enum values? | `NEW` / `CONTACTED` / `CLOSED` |
-| **D-P1.5** | `TourCategory` enum — keep, revise, or lookup table? (risk R8) | start enum, revisit lookup if churny |
-| **D-P1.6** | Supabase project + DB + **MoMo/Stripe/Cloudinary/Resend** secrets — new or reuse? | new project (clean); supply `.env` |
+| **D-P1.6** | Supabase project + DB + **MoMo/Stripe/Cloudinary/Resend** secrets | **Design-first** (2026-06-15): build schema/migration now, run migrate when creds in `.env`. New Supabase project TBD. |
 
-> Resolved: **D-P1.2** (array content) → `text[]` via [ADR-0005](0005-en-only.md);
-> **D-P1.7** (VN gateway) → [ADR-0006](0006-multi-gateway-momo.md);
-> **D-P1.8** (jobs) → [ADR-0007](0007-pgboss-outbox-jobs.md).
+> **Resolved 2026-06-15** (in P1.1):
+>
+> - **D-P1.1** `TourPolicy` → **separate model** (structured, reusable).
+> - **D-P1.3** `compareAtPrice` → **both Tour + Departure**.
+> - **D-P1.4** `Enquiry.status` → **NEW / CONTACTED / QUOTED / WON / LOST** (CRM).
+> - **D-P1.5** `TourCategory` → **lookup table** (not enum; resolves R8).
+> - **D-P1.2** (array content) → `text[]` ([ADR-0005](0005-en-only.md)) ·
+>   **D-P1.7** → [ADR-0006](0006-multi-gateway-momo.md) ·
+>   **D-P1.8** → [ADR-0007](0007-pgboss-outbox-jobs.md).
 
 📝 *Promote an open row to a numbered ADR when decided.*
