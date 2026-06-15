@@ -21,7 +21,7 @@ decisions also fold into [../BLUEPRINT.md](../BLUEPRINT.md) / [../architecture/]
 
 | ID | Question | Decision |
 | --- | --- | --- |
-| **D-P1.6** | Supabase project + DB + **MoMo/Stripe/Cloudinary/Resend** secrets | **Design-first** (2026-06-15): build schema/migration now, run migrate when creds in `.env`. New Supabase project TBD. |
+| **D-P1.6** | Supabase project + DB + secrets | **Resolved 2026-06-15: NEW Supabase project** (donor untouched & still running — keeps ADR-0001 intact). Reusable secrets (Stripe/Cloudinary/Resend) copied from donor; Supabase keys = new project; MoMo/Sentry to fill. `migrate` runs once `.env` populated. |
 
 > **Resolved 2026-06-15** (in P1.1):
 >
