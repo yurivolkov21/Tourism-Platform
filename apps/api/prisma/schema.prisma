@@ -83,9 +83,10 @@ enum PolicyKind {
 model User {
   id         String   @id @default(uuid()) @db.Uuid
   supabaseId String   @unique @map("supabase_id") @db.Uuid
-  // Email uniqueness is enforced case-insensitively at the DB (citext) in
-  // hardening.sql; the column is unique here too. (ADR-0008)
-  email      String   @unique @db.VarChar(255)
+  // Case-insensitive unique email via Postgres citext (ADR-0008). The citext
+  // extension is created in the hardening migration (CREATE EXTENSION) ahead of
+  // the column ALTER.
+  email      String   @unique @db.Citext
   fullName   String?  @map("full_name") @db.VarChar(120)
   phone      String?  @db.VarChar(20)
   // EN-only (ADR-0005) — kept as a default-"en" door-opener, no enum.
