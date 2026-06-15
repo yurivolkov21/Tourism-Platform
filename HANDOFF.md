@@ -1,7 +1,7 @@
 # HANDOFF — tourism-platform (resume here)
 
 **Read this first when opening a new session.** Full plan: [`docs/BLUEPRINT.md`](docs/BLUEPRINT.md).
-Design references study: [`docs/reference-sites-analysis.md`](docs/reference-sites-analysis.md).
+Design references study: [`docs/reference/reference-sites-analysis.md`](docs/reference/reference-sites-analysis.md).
 
 ## What this is
 
