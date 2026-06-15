@@ -28,8 +28,8 @@ EN-only ([ADR-0005](decisions/0005-en-only.md)); security/integrity hardened
 
 | Sub | Scope | Notes |
 | --- | --- | --- |
-| **P1.1** | Prisma schema (EN-only, M:N, multi-gateway, FKs/CHECK) + migration + **RLS** + PrismaService (PrismaPg) + `prisma.config.ts` + Joi env (Stripe/MoMo/Cloudinary/Resend/Sentry) | do first; migrate (DIRECT_URL) vs runtime (DATABASE_URL) |
-| **P1.2** | Envelope + filters + decorators/types → `shared/core`; helmet/CORS/HSTS; **Sentry** | port from donor |
+| ✅ **P1.1** | Prisma schema (EN-only, M:N, multi-gateway, FKs/CHECK) + migration + **RLS** + PrismaService (PrismaPg) + `prisma.config.ts` + Joi env | **done** — migrated to new Supabase project (SG) |
+| ✅ **P1.2** | Envelope (`ApiResponse`→`@tourism/core`) + TransformInterceptor + HttpExceptionFilter + `@SkipTransform`; helmet/CORS; Swagger; **Sentry** | **done** — smoke-tested (DB connect + envelope). Raw-body→P1.5, auth decorators→P1.3 |
 | **P1.3** | Auth: SupabaseJwtGuard + RolesGuard + decorators + users/auth sync | `ADMIN_EMAILS` allowlist |
 | **P1.4** | CRUD: destinations · tours (+itinerary, **+M:N**) · departures | M:N changes DTO/zod shape vs donor |
 | **P1.5** | Bookings + **multi-gateway payments (Stripe + MoMo)** + outbox email | webhook/IPN HMAC; `toProviderAmount` (zero-decimal/VND, R1) |

@@ -48,14 +48,16 @@ export const envValidationSchema = Joi.object({
   FRONTEND_URL: Joi.string().uri().required(),
 
   // ── MoMo (VN domestic — ADR-0006) ────────────────────────────────────────
-  MOMO_PARTNER_CODE: Joi.string().required(),
-  MOMO_ACCESS_KEY: Joi.string().required(),
-  MOMO_SECRET_KEY: Joi.string().required(),
+  // Optional until the payments module lands (P1.5) — tighten to `.required()`
+  // then so a misconfigured gateway fails fast.
+  MOMO_PARTNER_CODE: Joi.string().allow('').optional(),
+  MOMO_ACCESS_KEY: Joi.string().allow('').optional(),
+  MOMO_SECRET_KEY: Joi.string().allow('').optional(),
   MOMO_ENDPOINT: Joi.string()
     .uri()
     .default('https://test-payment.momo.vn/v2/gateway/api/create'),
-  MOMO_REDIRECT_URL: Joi.string().uri().required(),
-  MOMO_IPN_URL: Joi.string().uri().required(),
+  MOMO_REDIRECT_URL: Joi.string().uri().allow('').optional(),
+  MOMO_IPN_URL: Joi.string().uri().allow('').optional(),
 
   // ── Email (Resend) ─────────────────────────────────────────────────────────
   RESEND_API_KEY: Joi.string().required(),
