@@ -1,8 +1,10 @@
 -- Hardening DDL that Prisma's schema can't express (ADR-0008).
--- DESIGN-FIRST: not applied yet — folded into the init migration when the DB
--- lands (D-P1.6). After the first `prisma migrate`, run this as a follow-up
--- migration (or append to the init migration's SQL before first apply), then
--- update schema.prisma where noted so Prisma doesn't report drift.
+-- ✅ APPLIED (2026-06-15) via migration `20260615071228_hardening` (citext +
+-- CHECK + RLS on the 15 app tables). RLS on `_prisma_migrations` was applied
+-- separately via a Supabase migration (rls_on_prisma_migrations_table) because
+-- referencing that table inside a Prisma migration fails in the shadow DB.
+-- This file is now REFERENCE-ONLY — the migration is the source of truth.
+-- Note: after a `prisma migrate reset`, re-run the `_prisma_migrations` RLS line.
 
 -- ── citext: case-insensitive unique email (ADR-0008) ─────────────────────────
 -- After enabling, change User.email to `@db.Citext` in schema.prisma + add
