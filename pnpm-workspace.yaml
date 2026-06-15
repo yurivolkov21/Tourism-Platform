@@ -15,6 +15,7 @@ allowBuilds:
   '@parcel/watcher': true
   '@prisma/client': true
   '@prisma/engines': true
+  '@scarf/scarf': false # telemetry only — no build needed
   '@swc/core': true
   detox: true
   dtrace-provider: false
