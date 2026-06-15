@@ -73,3 +73,8 @@ cache/
 # Agent skills — restore with: pnpm dlx skills install (lockfile is tracked)
 .agents/skills/
 .claude/skills/
+
+# Environment files — never commit secrets
+.env
+.env.*
+!.env.example
