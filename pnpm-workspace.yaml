@@ -7,8 +7,10 @@ packages:
   - 'libs/mobile/ui'
 allowBuilds:
   '@parcel/watcher': true
+  '@swc/core': true
   detox: true
   dtrace-provider: false
   less: false
+  nx: true
   sharp: true
   unrs-resolver: true
