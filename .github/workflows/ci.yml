@@ -33,6 +33,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Prisma client isn't committed — generate before typecheck/build (no DB needed).
+      - name: Generate Prisma client
+        run: pnpm --filter @tourism/api exec prisma generate
+
       # Greenfield: run every project. Switch to `nx affected` (+ nrwl/nx-set-shas)
       # once the graph is large enough for it to pay off.
       - name: Lint · typecheck · test
