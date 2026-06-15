@@ -69,3 +69,7 @@ web-build/
 cache/
 # TS incremental build info
 *.tsbuildinfo
+
+# Agent skills — restore with: pnpm dlx skills install (lockfile is tracked)
+.agents/skills/
+.claude/skills/
