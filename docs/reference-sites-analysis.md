@@ -8,14 +8,16 @@ styles). The goal is to make `apps/web` look as professional as these two,
 done **incrementally** (no big-bang rewrite).
 
 References:
-- **Lily's Travel Agency** — https://lilystravelagency.com/ *(primary reference)*
-- **Nom Nom Travel** — https://www.nomnomtravel.com/hanoi-city-tour
+
+- **Lily's Travel Agency** — <https://lilystravelagency.com/> *(primary reference)*
+- **Nom Nom Travel** — <https://www.nomnomtravel.com/hanoi-city-tour>
 
 ---
 
 ## 1. Design tokens (measured from computed styles)
 
 ### Lily's — warm, trust, conventional travel-agency
+
 - **Brand red:** `#AF2227` (rgb 175,34,39) — dominant accent (buttons, bands, headings on hover). Secondary lighter red `#FF6060`.
 - **Neutrals:** text `#111`, muted `#555`, surfaces white / `#EEEEEE` / `#FBFCFD`.
 - **Type:** headings **DM Sans** (700/400, H1 ~35px — dense, not oversized); body system/Open Sans; buttons Open Sans/Raleway 500.
@@ -23,6 +25,7 @@ References:
 - **Imagery:** photo-saturated; bold text overlays on destination photos.
 
 ### Nom Nom — earthy, editorial, storytelling
+
 - **Palette:** sage/olive — `#C7CEC9` (pale sage), `#DBE2DD` (light sage), `#5C6756` (olive), `#485342` (dark olive), near-black `#1D1E20`, white.
 - **Accent CTA:** deep blue `#00327F`.
 - **Type:** display **Jacques François** (serif, H1 ~112px — big, elegant); body **DM Sans**; buttons **Poppins** 500.
@@ -52,7 +55,9 @@ References:
 ## 3. Tour/package DETAIL anatomy
 
 ### Lily's package detail (`/product/...`) — comprehensive sales+trust template
+
 Section order:
+
 1. **Overview** (intro/summary)
 2. **Value of the package** (highlights / why this one)
 3. **Itinerary** (Day 1, Day 2, … day-by-day)
@@ -63,10 +68,12 @@ Section order:
 8. **Price and policy** — **price anchoring** (~~$1,209~~ → **$1,070**)
 9. **FAQ** — ~10 Q&A (what's included, airfare, vegetarian, modify itinerary, cancellation/refund, weather, insurance, payment, airport pickup, documents)
 10. **Related Tours** (cross-sell)
+
 - **CTAs (multi-channel):** Book Here · **WhatsApp** · **Inquire Now** · Contact Us — buy OR enquire.
 - 50 images, embedded map.
 
 ### Nom Nom detail — storytelling
+
 - Full-bleed hero photo + big serif title + intro ("we can help create a personalized itinerary — Get in touch").
 - **Zigzag image↔text blocks** with emotive headings ("ROADS FULL OF SIGHTS", "LIKE A LOCAL, FROM A LOCAL").
 - Inclusion/Exclusion lists + real photos.
@@ -74,6 +81,7 @@ Section order:
 - Single **testimonial** quote.
 
 ### Our detail today
+
 Has: Information block (destination/duration/group/meeting/included-excluded — *genuinely strong*), Tour Plan (itinerary), Location, Gallery, Reviews.
 **Missing vs them:** Overview/Value highlights, Policies, Why-us stats, FAQ, Related tours, price anchoring, Inquire/contact CTA, storytelling blocks, real hero/gallery imagery.
 
