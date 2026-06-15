@@ -7,10 +7,13 @@ packages:
   - 'libs/mobile/ui'
 allowBuilds:
   '@parcel/watcher': true
+  '@prisma/client': true
+  '@prisma/engines': true
   '@swc/core': true
   detox: true
   dtrace-provider: false
   less: false
   nx: true
+  prisma: true
   sharp: true
   unrs-resolver: true
