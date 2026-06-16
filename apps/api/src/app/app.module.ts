@@ -7,6 +7,7 @@ import { SupabaseJwtGuard } from '../common/guards/supabase-jwt.guard';
 import { TransformInterceptor } from '../common/interceptors/transform.interceptor';
 import { configurations, envValidationSchema } from '../config';
 import { AuthModule } from '../modules/auth/auth.module';
+import { DestinationsModule } from '../modules/destinations/destinations.module';
 import { UsersModule } from '../modules/users/users.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AppController } from './app.controller';
@@ -23,6 +24,7 @@ import { AppService } from './app.service';
     PrismaModule,
     AuthModule,
     UsersModule,
+    DestinationsModule,
   ],
   controllers: [AppController],
   providers: [

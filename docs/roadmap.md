@@ -31,7 +31,7 @@ EN-only ([ADR-0005](decisions/0005-en-only.md)); security/integrity hardened
 | ✅ **P1.1** | Prisma schema (EN-only, M:N, multi-gateway, FKs/CHECK) + migration + **RLS** + PrismaService (PrismaPg) + `prisma.config.ts` + Joi env | **done** — migrated to new Supabase project (SG) |
 | ✅ **P1.2** | Envelope (`ApiResponse`→`@tourism/core`) + TransformInterceptor + HttpExceptionFilter + `@SkipTransform`; helmet/CORS; Swagger; **Sentry** | **done** — smoke-tested (DB connect + envelope). Raw-body→P1.5, auth decorators→P1.3 |
 | ✅ **P1.3** | Auth: SupabaseJwtGuard + RolesGuard + decorators (`@Public`/`@Roles`/`@CurrentUser`) + auth/users sync (`/auth/sync`, `/auth/admin/sync`, `/users/me`) | **done** — global guards; smoke-tested (public 200 / protected 401). `ADMIN_EMAILS` allowlist |
-| **P1.4** | CRUD: destinations · tours (+itinerary, **+M:N**) · departures | M:N changes DTO/zod shape vs donor |
+| 🚧 **P1.4** | CRUD: **destinations ✅** · tours (+itinerary, **+M:N**) · departures | sub-phased: P1.4a destinations done; tours/departures next. M:N changes DTO shape vs donor |
 | **P1.5** | Bookings + **multi-gateway payments (Stripe + MoMo)** + outbox email | webhook/IPN HMAC; `toProviderAmount` (zero-decimal/VND, R1) |
 | **P1.6** | Media (Cloudinary) + uploads (signed URL) + reconcile job | store `public_id`, derive URLs |
 | **P1.7** | Reviews + wishlist + **enquiry** + admin-stats | |
