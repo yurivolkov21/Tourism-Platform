@@ -36,10 +36,11 @@ enum BookingStatus {
   REFUNDED
 }
 
-/// Payment rail for a booking (ADR-0006). Stripe = international, MoMo = VN.
+/// Payment rail for a booking (ADR-0006, amended). Stripe = cards/wallets,
+/// PayPal = international travellers (replaced MoMo — audience is inbound foreign).
 enum PaymentProvider {
   STRIPE
-  MOMO
+  PAYPAL
 }
 
 /// Lead lifecycle for "Inquire Now" (ADR-0003, D-P1.4 — CRM).

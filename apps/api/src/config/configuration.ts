@@ -43,15 +43,13 @@ export const stripeConfig = registerAs('stripe', () => ({
   defaultCurrency: process.env.STRIPE_DEFAULT_CURRENCY ?? 'usd',
 }));
 
-export const momoConfig = registerAs('momo', () => ({
-  partnerCode: process.env.MOMO_PARTNER_CODE,
-  accessKey: process.env.MOMO_ACCESS_KEY,
-  secretKey: process.env.MOMO_SECRET_KEY,
-  endpoint:
-    process.env.MOMO_ENDPOINT ??
-    'https://test-payment.momo.vn/v2/gateway/api/create',
-  redirectUrl: process.env.MOMO_REDIRECT_URL,
-  ipnUrl: process.env.MOMO_IPN_URL,
+// PayPal (international rail — ADR-0006 amended; replaced MoMo). Values land in
+// P1.5c; the namespace exists now so the booking flow can reference the provider.
+export const paypalConfig = registerAs('paypal', () => ({
+  clientId: process.env.PAYPAL_CLIENT_ID,
+  clientSecret: process.env.PAYPAL_CLIENT_SECRET,
+  mode: process.env.PAYPAL_MODE ?? 'sandbox',
+  webhookId: process.env.PAYPAL_WEBHOOK_ID,
 }));
 
 export const emailConfig = registerAs('email', () => ({
@@ -74,7 +72,7 @@ export const configurations = [
   supabaseConfig,
   cloudinaryConfig,
   stripeConfig,
-  momoConfig,
+  paypalConfig,
   emailConfig,
   sentryConfig,
   throttlerConfig,

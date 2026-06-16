@@ -43,7 +43,7 @@ async function bootstrap(): Promise<void> {
   const corsOrigins = config.get<string[]>('app.corsOrigins') ?? [];
   const isProduction = config.get<boolean>('app.isProduction') ?? false;
 
-  // NOTE (P1.5): payment webhooks (Stripe HMAC / MoMo IPN) need express.raw()
+  // NOTE (P1.5): payment webhooks (Stripe HMAC / PayPal webhook) need express.raw()
   // mounted on their exact paths BEFORE the global JSON parser. Added with the
   // payments module — those routes also use @SkipTransform().
 

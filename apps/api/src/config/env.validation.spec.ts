@@ -14,11 +14,9 @@ const validEnv = {
   STRIPE_SECRET_KEY: 'sk_test_x',
   STRIPE_WEBHOOK_SECRET: 'whsec_x',
   FRONTEND_URL: 'https://app.example.com',
-  MOMO_PARTNER_CODE: 'MOMOXXXX',
-  MOMO_ACCESS_KEY: 'access',
-  MOMO_SECRET_KEY: 'secret',
-  MOMO_REDIRECT_URL: 'https://app.example.com/checkout/return',
-  MOMO_IPN_URL: 'https://api.example.com/api/v1/payments/momo/ipn',
+  PAYPAL_CLIENT_ID: 'client',
+  PAYPAL_CLIENT_SECRET: 'secret',
+  PAYPAL_WEBHOOK_ID: 'wh_x',
   RESEND_API_KEY: 're_x',
   RESEND_FROM_EMAIL: 'Tourism <noreply@example.com>',
 };
@@ -32,7 +30,7 @@ describe('envValidationSchema', () => {
     expect(value.API_PREFIX).toBe('api/v1');
     expect(value.STRIPE_DEFAULT_CURRENCY).toBe('usd');
     expect(value.THROTTLE_LIMIT).toBe(100);
-    expect(value.MOMO_ENDPOINT).toContain('momo.vn');
+    expect(value.PAYPAL_MODE).toBe('sandbox');
   });
 
   it('fails fast when a required secret is missing', () => {

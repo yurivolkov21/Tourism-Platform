@@ -5,7 +5,7 @@ import * as Joi from 'joi';
  * `@nestjs/config` runs this BEFORE any module initializes; any failure aborts
  * startup with the full list of violations.
  *
- * Ported from the donor, extended with MoMo (ADR-0006) + Sentry (ADR-0008).
+ * Ported from the donor, extended with PayPal (ADR-0006) + Sentry (ADR-0008).
  */
 export const envValidationSchema = Joi.object({
   // ── App ──────────────────────────────────────────────────────────────────
@@ -47,17 +47,13 @@ export const envValidationSchema = Joi.object({
   STRIPE_DEFAULT_CURRENCY: Joi.string().length(3).lowercase().default('usd'),
   FRONTEND_URL: Joi.string().uri().required(),
 
-  // ── MoMo (VN domestic — ADR-0006) ────────────────────────────────────────
-  // Optional until the payments module lands (P1.5) — tighten to `.required()`
-  // then so a misconfigured gateway fails fast.
-  MOMO_PARTNER_CODE: Joi.string().allow('').optional(),
-  MOMO_ACCESS_KEY: Joi.string().allow('').optional(),
-  MOMO_SECRET_KEY: Joi.string().allow('').optional(),
-  MOMO_ENDPOINT: Joi.string()
-    .uri()
-    .default('https://test-payment.momo.vn/v2/gateway/api/create'),
-  MOMO_REDIRECT_URL: Joi.string().uri().allow('').optional(),
-  MOMO_IPN_URL: Joi.string().uri().allow('').optional(),
+  // ── PayPal (international — ADR-0006 amended; replaced MoMo) ──────────────
+  // Optional until the PayPal integration lands (P1.5c) — tighten to
+  // `.required()` then so a misconfigured gateway fails fast.
+  PAYPAL_CLIENT_ID: Joi.string().allow('').optional(),
+  PAYPAL_CLIENT_SECRET: Joi.string().allow('').optional(),
+  PAYPAL_MODE: Joi.string().valid('sandbox', 'live').default('sandbox'),
+  PAYPAL_WEBHOOK_ID: Joi.string().allow('').optional(),
 
   // ── Email (Resend) ─────────────────────────────────────────────────────────
   RESEND_API_KEY: Joi.string().required(),
