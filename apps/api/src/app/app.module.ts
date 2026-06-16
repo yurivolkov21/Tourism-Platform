@@ -8,6 +8,8 @@ import { TransformInterceptor } from '../common/interceptors/transform.intercept
 import { configurations, envValidationSchema } from '../config';
 import { AuthModule } from '../modules/auth/auth.module';
 import { DestinationsModule } from '../modules/destinations/destinations.module';
+import { TourCategoriesModule } from '../modules/tour-categories/tour-categories.module';
+import { ToursModule } from '../modules/tours/tours.module';
 import { UsersModule } from '../modules/users/users.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AppController } from './app.controller';
@@ -25,6 +27,8 @@ import { AppService } from './app.service';
     AuthModule,
     UsersModule,
     DestinationsModule,
+    TourCategoriesModule,
+    ToursModule,
   ],
   controllers: [AppController],
   providers: [
