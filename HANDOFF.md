@@ -31,36 +31,48 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P0 scaffold DONE (commit `d720036` on `main`)
+## Current state — P0 + P1.1–P1.4 DONE (`main` @ `f6f20f1`)
 
 ```text
 apps/   api (NestJS 11) · web + admin (Next 16) · mobile (Expo SDK 54)
 libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
 ```
 
-- 9 projects, tags `scope:*` + `type:*` set. `api` build verified (webpack).
-- pnpm `allowBuilds` policy is in **`pnpm-workspace.yaml`** (NOT package.json — pnpm 11 ignores the package.json `pnpm` field).
-
-### P0.6 + P0.8 DONE (branch `chore/p0.8-conventions`, stacked on `chore/p0.6-module-boundaries`)
-
-- **P0.6** — module boundaries enforced via root `eslint.config.mjs` +
-  `@nx/enforce-module-boundaries` (scope + type axes; admin reuses web/ui = **D3**).
-  `nx run-many -t lint` green; negative tests confirm bad imports fail.
-- **P0.8** — renamed `@org/*` → `@tourism/*` (all 9 projects); ported donor
-  conventions (CLAUDE.md, `.claude/commands/` `/gate`·`/seed`·`/regen-types`·
-  `/new-feature`, `.github/workflows/ci.yml` on Nx); removed unused AI configs
-  (`.codex/.cursor/.gemini/.opencode/.agents/.github/{agents,prompts,skills}` +
-  `opencode.json`). Fixed mobile-ui scaffold typecheck (TS6133/TS6307).
-- **Gate:** `nx run-many -t lint typecheck test` + `build --exclude=@tourism/mobile`
-  all green (mobile `build` is an Expo EAS cloud build → excluded from CI).
-- Both branches **not yet merged to `main`** — awaiting review.
+- **P0 / P0.6 / P0.8** — 9-project scaffold; module boundaries enforced
+  (`@nx/enforce-module-boundaries`, scope+type); `@tourism/*` scope; donor
+  conventions ported; AI cruft removed. pnpm `overrides`/`allowBuilds` live in
+  **`pnpm-workspace.yaml`** (pnpm 11 ignores the package.json `pnpm` field).
+- **P1.1** — fresh Prisma schema (9 enum / 15 model, EN-only, M:N, multi-gateway,
+  FK/CHECK) + migration + **RLS** + PrismaService (PrismaPg) + Joi env. Migrated to
+  a **live Supabase project** (`tourism-platform`, SG, ref `zxryyqhczgrbidjocwly`;
+  creds in gitignored `apps/api/.env`). Donor "tour-booking" untouched (ADR-0001).
+- **P1.2** — response envelope (`ApiResponse` → `@tourism/core`) + TransformInterceptor
+  + HttpExceptionFilter + bootstrap (helmet/CORS/Swagger/Sentry/dotenv).
+- **P1.3** — auth: SupabaseJwtGuard (jose JWKS) + RolesGuard + `@Public`/`@Roles`/
+  `@CurrentUser` + `/auth/sync`, `/auth/admin/sync`, `/users/me` (global guards).
+- **P1.4** — CRUD epic, all merged: **P1.4a** destinations · **P1.4b** tours +
+  tour-categories (M:N `destinationSlugs[]`+`primaryDestinationSlug`, nested
+  itinerary/FAQs/policies, slug refs) · **P1.4c** departures (nested under tour,
+  seat/date guards). Pattern: public + admin controllers, `Promise.all` pagination
+  (departures = arrays, bounded), slugify, `P2002→409` / `P2003→409`, class-validator
+  DTOs, service unit tests, `/gate`, smoke.
+- **Tests:** 58 passing (api). CI green (lint·typecheck·test·build + CodeQL +
+  GitGuardian). **Dependabot: 0 open** (js-yaml DoS resolved via `^4.2.0` override).
+- **Gate:** `nx run-many -t lint typecheck test` + `build` green; mobile `build`
+  is an Expo EAS cloud build (needs global `eas-cli`) → excluded from the local gate.
 
 ## Next steps (resume order)
 
-1. ✅ **P0.6 — Module boundaries** — DONE (see "P0.6 + P0.8 DONE" above).
-2. ✅ **P0.8 — Port conventions + cleanup** — DONE (see above). `@tourism/*` scope live; conventions ported; AI cruft removed.
-3. **P1 — Backend:** fresh Prisma schema (data model above, BLUEPRINT §6) + **port infra** from donor (paths below) + seed.
-4. Then P2 design system → P3 web → P4 admin → P5 mobile (BLUEPRINT §7).
+1. **P1.5 — Bookings + multi-gateway payments (Stripe + MoMo)** + outbox email —
+   *next*. Port donor `modules/payments` (raw-body + HMAC webhook + idempotency) +
+   bookings flow (seat lock on `TourDeparture.seatsBooked` under tx); `toProviderAmount`
+   for zero-decimal/VND (R1). `DeparturesService` already exported for the seat lock.
+2. **P1.6** media (Cloudinary) · **P1.7** reviews + wishlist + enquiry + admin-stats ·
+   **P1.x** pg-boss jobs (outbox/cron) · **P1.8** seed + Swagger + `shared/core` client.
+3. Then P2 design system → P3 web → P4 admin → P5 mobile (BLUEPRINT §7).
+
+> Live resume buffer with finer detail: [`.remember/remember.md`](.remember/remember.md).
+> Per-phase specs/plans: [`docs/specs/`](docs/specs/) + [`docs/plans/`](docs/plans/).
 
 ## Donor code worth porting (read, adapt — don't import across repos)
 

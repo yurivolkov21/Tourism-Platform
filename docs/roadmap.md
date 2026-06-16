@@ -12,7 +12,7 @@ Founding phase list: [BLUEPRINT §7](BLUEPRINT.md#7-phased-roadmap). Decisions: 
 | **P0** | Nx scaffold: apps + libs + tags | ✅ done (`d720036`) |
 | **P0.6** | Module boundaries (ESLint flat-config + enforce-module-boundaries) | ✅ done |
 | **P0.8** | Port donor conventions + rename `@org`→`@tourism` + AI cleanup | ✅ done |
-| **P1** | **Backend:** fresh Prisma schema + port infra + seed | ⬜ next |
+| **P1** | **Backend:** fresh Prisma schema + port infra + seed | 🚧 in progress — P1.1–P1.4 done; **P1.5 next** (see breakdown) |
 | **P2** | Design system: `shared/tokens` + `web/ui` + `mobile/ui` | ⬜ |
 | **P3** | Web (customer): home → destinations → tours → detail → booking → account | ⬜ |
 | **P4** | Admin: manage tours/destinations/departures/media/reviews/bookings | ⬜ |

@@ -42,7 +42,7 @@ the rules; deep plan detail lives in [`HANDOFF.md`](HANDOFF.md) and
 
 | Project | Path | Stack | Tags | Status |
 | --- | --- | --- | --- | --- |
-| `@tourism/api` | `apps/api` | NestJS 11 · Prisma · Supabase · Stripe + MoMo · Resend · pg-boss | `scope:api,type:app` | 🚧 scaffold |
+| `@tourism/api` | `apps/api` | NestJS 11 · Prisma · Supabase · Stripe + MoMo · Resend · pg-boss | `scope:api,type:app` | 🟢 P1.1–P1.4 done (schema+RLS, envelope, auth, CRUD: destinations/tours/categories/departures); P1.5 next |
 | `@tourism/web` | `apps/web` | Next.js 16 · React | `scope:web,type:app` | 🚧 scaffold |
 | `@tourism/admin` | `apps/admin` | Next.js 16 | `scope:admin,type:app` | 🚧 scaffold |
 | `@tourism/mobile` | `apps/mobile` | Expo SDK 54 / RN | `scope:mobile,type:app` | 🚧 scaffold |
