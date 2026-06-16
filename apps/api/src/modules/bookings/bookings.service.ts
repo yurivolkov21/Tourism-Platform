@@ -1,21 +1,33 @@
 import {
+  BadGatewayException,
   BadRequestException,
   ConflictException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   Booking,
   BookingStatus,
   DepartureStatus,
+  PaymentProvider,
   Prisma,
   TourDeparture,
   UserRole,
 } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { toStripeMinorUnits } from '../payments/money';
+import { StripeService } from '../payments/stripe.service';
 import { mintBookingCode } from './booking-code';
 import { CreateBookingDto } from './dto/create-booking.dto';
+
+/** Result of `startCheckout` — the FE redirects the buyer to `checkoutUrl`. */
+export interface CheckoutStarted {
+  checkoutUrl: string;
+  bookingCode: string;
+  status: BookingStatus;
+}
 
 /** Relations embedded on a booking payload (EN-only: single `title`). */
 const BOOKING_INCLUDE: Prisma.BookingInclude = {
@@ -45,7 +57,11 @@ interface Caller {
 export class BookingsService {
   private readonly logger = new Logger(BookingsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly stripe: StripeService,
+    private readonly config: ConfigService,
+  ) {}
 
   // ── Mutations ───────────────────────────────────────────────────────────────
 
@@ -129,6 +145,100 @@ export class BookingsService {
   }
 
   /**
+   * Mints a Stripe Checkout session for the caller's PENDING booking and returns
+   * the redirect URL. Owner-or-admin (else 404); must be PENDING (409); provider
+   * must be STRIPE (400 until PayPal lands in P1.5c). The Stripe call runs outside
+   * any DB write (its HTTP latency must not hold a pooler connection);
+   * `providerSessionId` is persisted after. A Stripe failure leaves the booking
+   * PENDING (retryable) and surfaces 502 `CHECKOUT_FAILED`.
+   */
+  async startCheckout(code: string, caller: Caller): Promise<CheckoutStarted> {
+    const booking = await this.prisma.booking.findUnique({
+      where: { code },
+      select: {
+        id: true,
+        code: true,
+        status: true,
+        userId: true,
+        paymentProvider: true,
+        currency: true,
+        totalAmount: true,
+        contactEmail: true,
+        numAdults: true,
+        numChildren: true,
+        tour: { select: { title: true } },
+      },
+    });
+    if (
+      !booking ||
+      (booking.userId !== caller.id && caller.role !== UserRole.ADMIN)
+    ) {
+      throw new NotFoundException({
+        code: 'BOOKING_NOT_FOUND',
+        message: `Booking "${code}" not found`,
+      });
+    }
+    if (booking.status !== BookingStatus.PENDING) {
+      throw new ConflictException({
+        code: 'BOOKING_NOT_PENDING',
+        message: `Booking is ${booking.status}; only PENDING bookings can start checkout`,
+      });
+    }
+    if (booking.paymentProvider !== PaymentProvider.STRIPE) {
+      throw new BadRequestException({
+        code: 'PROVIDER_NOT_AVAILABLE',
+        message: `Checkout for ${booking.paymentProvider} is not available yet`,
+      });
+    }
+
+    const frontendUrl = this.config.getOrThrow<string>('app.frontendUrl');
+    const totalSeats = booking.numAdults + booking.numChildren;
+    const unitAmount = toStripeMinorUnits(booking.totalAmount, booking.currency);
+
+    let session: Awaited<ReturnType<StripeService['createCheckoutSession']>>;
+    try {
+      session = await this.stripe.createCheckoutSession({
+        bookingId: booking.id,
+        bookingCode: booking.code,
+        customerEmail: booking.contactEmail,
+        currency: booking.currency.toLowerCase(),
+        unitAmount,
+        quantity: 1,
+        productName: booking.tour.title,
+        productDescription: `Booking ${booking.code} — ${totalSeats} seat(s)`,
+        successUrl: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${frontendUrl}/checkout/cancel?code=${booking.code}`,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'unknown';
+      this.logger.error(`Stripe checkout failed for ${booking.code}: ${message}`);
+      throw new BadGatewayException({
+        code: 'CHECKOUT_FAILED',
+        message: 'Could not start the payment session — please retry.',
+      });
+    }
+    if (!session.url) {
+      throw new BadGatewayException({
+        code: 'CHECKOUT_FAILED',
+        message: 'Stripe returned a session without a redirect URL.',
+      });
+    }
+
+    await this.prisma.booking.update({
+      where: { id: booking.id },
+      data: { providerSessionId: session.id },
+    });
+    this.logger.log(
+      `Started checkout for ${booking.code} (session=${session.id})`,
+    );
+    return {
+      checkoutUrl: session.url,
+      bookingCode: booking.code,
+      status: booking.status,
+    };
+  }
+
+  /**
    * Cancels the caller's **PENDING** booking. Owner-or-admin (else 404). PAID
    * bookings go through the admin refund flow (P1.5b), not here — so a non-PENDING
    * booking is a 409. No seat change (none held at PENDING).
@@ -147,6 +257,101 @@ export class BookingsService {
       include: BOOKING_INCLUDE,
     });
     this.logger.log(`Cancelled booking ${booking.code} (by ${caller.id})`);
+    return updated;
+  }
+
+  /**
+   * Admin refund (`/admin/bookings/:code/refund`). The booking must be PAID with a
+   * `providerPaymentId`. Calls Stripe **first** (authoritative — never flip the DB
+   * for a refund that didn't happen); converges if Stripe says it's already
+   * refunded. Then atomically releases seats + flips to REFUNDED (gated on PAID, so
+   * a retry is a no-op). A Stripe failure surfaces 400 `REFUND_FAILED` and leaves
+   * the booking PAID for the operator to retry.
+   */
+  async refundByAdmin(args: {
+    code: string;
+    reason?: string;
+    adminUserId: string;
+  }): Promise<Booking> {
+    const booking = await this.prisma.booking.findUnique({
+      where: { code: args.code },
+      select: {
+        id: true,
+        code: true,
+        status: true,
+        providerPaymentId: true,
+        departureId: true,
+        numAdults: true,
+        numChildren: true,
+      },
+    });
+    if (!booking) {
+      throw new NotFoundException({
+        code: 'BOOKING_NOT_FOUND',
+        message: `Booking "${args.code}" not found`,
+      });
+    }
+    if (booking.status !== BookingStatus.PAID || !booking.providerPaymentId) {
+      throw new BadRequestException({
+        code: 'BOOKING_NOT_REFUNDABLE',
+        message: `Booking is ${booking.status}; only a PAID booking with a captured payment can be refunded`,
+      });
+    }
+
+    try {
+      await this.stripe.createRefund({
+        paymentIntentId: booking.providerPaymentId,
+        reason: args.reason ?? 'requested_by_customer',
+      });
+    } catch (err) {
+      if (!this.isAlreadyRefundedError(err)) {
+        const message = err instanceof Error ? err.message : 'unknown';
+        this.logger.error(`Stripe refund failed for ${booking.code}: ${message}`);
+        throw new BadRequestException({
+          code: 'REFUND_FAILED',
+          message: `Stripe refund failed: ${message}`,
+        });
+      }
+      this.logger.warn(
+        `Stripe reports booking ${booking.code} already refunded — converging DB state`,
+      );
+    }
+
+    const seats = booking.numAdults + booking.numChildren;
+    // Atomic, idempotent (gated on status='PAID'): release seats + flip REFUNDED.
+    await this.prisma.$queryRaw(Prisma.sql`
+      WITH released AS (
+        UPDATE tour_departures
+        SET seats_booked = GREATEST(seats_booked - ${seats}, 0)
+        WHERE id = ${booking.departureId}::uuid
+          AND EXISTS (
+            SELECT 1 FROM bookings
+            WHERE id = ${booking.id}::uuid AND status = 'PAID'::"BookingStatus"
+          )
+        RETURNING id
+      )
+      UPDATE bookings
+      SET status = 'REFUNDED'::"BookingStatus",
+          cancelled_at = now(),
+          refund_reason = ${args.reason ?? null},
+          refunded_by = ${args.adminUserId}::uuid
+      WHERE id = ${booking.id}::uuid AND status = 'PAID'::"BookingStatus"
+      RETURNING id
+    `);
+
+    const updated = await this.prisma.booking.findUnique({
+      where: { id: booking.id },
+      include: BOOKING_INCLUDE,
+    });
+    if (!updated) {
+      throw new NotFoundException({
+        code: 'BOOKING_NOT_FOUND',
+        message: `Booking "${args.code}" not found`,
+      });
+    }
+    this.logger.log(
+      `Admin refunded booking ${booking.code} (${seats} seat(s) released, by ${args.adminUserId})`,
+    );
     return updated;
   }
 
@@ -188,6 +393,17 @@ export class BookingsService {
       });
     }
     return booking;
+  }
+
+  /**
+   * Stripe rejects a double-refund with `code: 'charge_already_refunded'` (on the
+   * error object or its `raw`). That means the money is already back — converge.
+   */
+  private isAlreadyRefundedError(err: unknown): boolean {
+    const code =
+      (err as { code?: string })?.code ??
+      (err as { raw?: { code?: string } })?.raw?.code;
+    return code === 'charge_already_refunded';
   }
 
   /** Best-effort capacity guard at create time (not a reservation). */

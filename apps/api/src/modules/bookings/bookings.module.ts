@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common';
+import { PaymentsModule } from '../payments/payments.module';
+import { AdminBookingsController } from './admin-bookings.controller';
 import { BookingsController } from './bookings.controller';
 import { BookingsService } from './bookings.service';
 
 /**
- * Customer bookings (P1.5a — lifecycle up to payment). `BookingsService` is
- * exported so the payments module (P1.5b/c) can confirm a booking + reserve
- * seats on `checkout.session.completed` / PayPal capture.
+ * Customer bookings. Imports `PaymentsModule` for `StripeService` (checkout +
+ * refund). `BookingsService` is exported so the payments webhook (P1.5b) can be
+ * tested against it; the webhook itself talks to Prisma directly (no cycle).
  */
 @Module({
-  controllers: [BookingsController],
+  imports: [PaymentsModule],
+  controllers: [BookingsController, AdminBookingsController],
   providers: [BookingsService],
   exports: [BookingsService],
 })
