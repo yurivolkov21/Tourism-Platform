@@ -6,6 +6,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as Sentry from '@sentry/node';
 import { config as loadEnv } from 'dotenv';
+import express from 'express';
 import helmet from 'helmet';
 import { join } from 'node:path';
 import { AppModule } from './app/app.module';
@@ -43,9 +44,15 @@ async function bootstrap(): Promise<void> {
   const corsOrigins = config.get<string[]>('app.corsOrigins') ?? [];
   const isProduction = config.get<boolean>('app.isProduction') ?? false;
 
-  // NOTE (P1.5): payment webhooks (Stripe HMAC / PayPal webhook) need express.raw()
-  // mounted on their exact paths BEFORE the global JSON parser. Added with the
-  // payments module — those routes also use @SkipTransform().
+  // Stripe webhook needs the RAW body for signature verification — mount
+  // express.raw() on its exact path BEFORE Nest's global JSON parser (registered
+  // at app.init/listen, after this). `req.body` is then the untouched Buffer
+  // Stripe signed. The route also uses @Public() + @SkipTransform(). PayPal's
+  // webhook path joins here in P1.5c.
+  app.use(
+    `/${apiPrefix}/payments/stripe/webhook`,
+    express.raw({ type: 'application/json' }),
+  );
 
   app.use(helmet());
   // `origin: true` reflects the request origin (local dev). In prod the

@@ -18,8 +18,9 @@ import {
 } from '@nestjs/swagger';
 import { Booking, User } from '@prisma/client';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { BookingsService } from './bookings.service';
+import { BookingsService, CheckoutStarted } from './bookings.service';
 import { BookingDto } from './dto/booking.dto';
+import { CheckoutSessionDto } from './dto/checkout-session.dto';
 import { CreateBookingDto } from './dto/create-booking.dto';
 
 /**
@@ -70,6 +71,26 @@ export class BookingsController {
   ): Promise<Booking> {
     const caller = this.requireUser(user);
     return this.bookingsService.cancelOwnPending(code, {
+      id: caller.id,
+      role: caller.role,
+    });
+  }
+
+  @Post(':code/checkout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Start a Stripe Checkout session for a PENDING booking' })
+  @ApiOkResponse({ type: CheckoutSessionDto })
+  @ApiResponse({ status: 400, description: 'Payment provider not available' })
+  @ApiResponse({ status: 401, description: 'User not synced' })
+  @ApiResponse({ status: 404, description: 'Booking not found or not owned' })
+  @ApiResponse({ status: 409, description: 'Booking not PENDING' })
+  @ApiResponse({ status: 502, description: 'Checkout could not be started' })
+  checkout(
+    @CurrentUser() user: User | null,
+    @Param('code') code: string,
+  ): Promise<CheckoutStarted> {
+    const caller = this.requireUser(user);
+    return this.bookingsService.startCheckout(code, {
       id: caller.id,
       role: caller.role,
     });
