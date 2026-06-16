@@ -7,6 +7,7 @@ import { SupabaseJwtGuard } from '../common/guards/supabase-jwt.guard';
 import { TransformInterceptor } from '../common/interceptors/transform.interceptor';
 import { configurations, envValidationSchema } from '../config';
 import { AuthModule } from '../modules/auth/auth.module';
+import { BookingsModule } from '../modules/bookings/bookings.module';
 import { DeparturesModule } from '../modules/departures/departures.module';
 import { DestinationsModule } from '../modules/destinations/destinations.module';
 import { TourCategoriesModule } from '../modules/tour-categories/tour-categories.module';
@@ -31,6 +32,7 @@ import { AppService } from './app.service';
     TourCategoriesModule,
     ToursModule,
     DeparturesModule,
+    BookingsModule,
   ],
   controllers: [AppController],
   providers: [
