@@ -1,18 +1,19 @@
 import { Module } from '@nestjs/common';
 import { PaymentsController } from './payments.controller';
 import { PaymentsService } from './payments.service';
+import { PayPalService } from './paypal.service';
 import { StripeService } from './stripe.service';
 
 /**
- * Payment gateways. `StripeService` (thin SDK wrapper) is exported so the
- * bookings module can mint Checkout sessions + issue refunds. `PaymentsController`
- * is the Stripe webhook receiver; `PaymentsService` is its idempotent brain
- * (talks to Prisma directly — no BookingsService dependency, so no import cycle).
- * PayPal joins here in P1.5c.
+ * Payment gateways (Stripe + PayPal). The SDK wrappers + `PaymentsService` (webhook
+ * brain + the shared `claimSeatsForPaid`) are exported so the bookings module can
+ * mint sessions/orders, capture, refund, and reserve seats. `PaymentsController`
+ * receives both providers' webhooks. `PaymentsService` talks to Prisma directly —
+ * no BookingsService dependency, so Bookings→Payments stays a one-way edge.
  */
 @Module({
   controllers: [PaymentsController],
-  providers: [StripeService, PaymentsService],
-  exports: [StripeService],
+  providers: [StripeService, PayPalService, PaymentsService],
+  exports: [StripeService, PayPalService, PaymentsService],
 })
 export class PaymentsModule {}

@@ -23,3 +23,14 @@ export function toStripeMinorUnits(
   const scaled = isZeroDecimal ? amount : amount.mul(100);
   return Math.round(scaled.toNumber());
 }
+
+/**
+ * Formats a `Decimal` as the PayPal `amount.value` string — the major-unit value
+ * with the currency's decimal places (`"150.00"` for USD, `"150"` for zero-decimal
+ * currencies like JPY/VND). PayPal rejects a value whose precision doesn't match
+ * the currency.
+ */
+export function toPayPalAmount(amount: Prisma.Decimal, currency: string): string {
+  const decimals = ZERO_DECIMAL_CURRENCIES.has(currency.toUpperCase()) ? 0 : 2;
+  return amount.toFixed(decimals);
+}

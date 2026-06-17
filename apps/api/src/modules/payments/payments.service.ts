@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BookingStatus, PaymentProvider, Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { PayPalService } from './paypal.service';
 import { StripeService, StripeWebhookEvent } from './stripe.service';
 
 /** Minimal shape we read off a `checkout.session.*` event object. */
@@ -43,8 +44,59 @@ export class PaymentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly stripe: StripeService,
+    private readonly paypal: PayPalService,
     private readonly config: ConfigService,
   ) {}
+
+  // ── Idempotency helpers (shared by both providers) ────────────────────────────
+
+  /**
+   * Records the event (`processedAt` NULL). Returns `true` to process, `false` to
+   * skip a true duplicate. A `P2002` with `processedAt` already set = duplicate;
+   * with NULL = a prior attempt crashed → re-run (handlers are idempotent).
+   */
+  private async beginEvent(
+    provider: PaymentProvider,
+    eventId: string,
+    type: string,
+    payload: unknown,
+  ): Promise<boolean> {
+    try {
+      await this.prisma.paymentEvent.create({
+        data: {
+          provider,
+          eventId,
+          type,
+          payload: payload as Prisma.InputJsonValue,
+        },
+      });
+      return true;
+    } catch (err) {
+      if (!this.isUniqueConstraintError(err)) throw err;
+      const existing = await this.prisma.paymentEvent.findUnique({
+        where: { provider_eventId: { provider, eventId } },
+        select: { processedAt: true },
+      });
+      if (existing?.processedAt) {
+        this.logger.log(`Skipping duplicate ${provider} event ${eventId} (${type})`);
+        return false;
+      }
+      this.logger.warn(
+        `Re-processing ${provider} event ${eventId} (${type}) — prior attempt never finished`,
+      );
+      return true;
+    }
+  }
+
+  private async finishEvent(
+    provider: PaymentProvider,
+    eventId: string,
+  ): Promise<void> {
+    await this.prisma.paymentEvent.update({
+      where: { provider_eventId: { provider, eventId } },
+      data: { processedAt: new Date() },
+    });
+  }
 
   async handleStripeEvent(
     rawBody: Buffer,
@@ -65,36 +117,9 @@ export class PaymentsService {
       });
     }
 
-    // 2. Idempotency — insert first (processedAt NULL until the handler finishes).
-    try {
-      await this.prisma.paymentEvent.create({
-        data: {
-          provider: PaymentProvider.STRIPE,
-          eventId: event.id,
-          type: event.type,
-          payload: event as unknown as Prisma.InputJsonValue,
-        },
-      });
-    } catch (err) {
-      if (!this.isUniqueConstraintError(err)) throw err;
-      const existing = await this.prisma.paymentEvent.findUnique({
-        where: {
-          provider_eventId: {
-            provider: PaymentProvider.STRIPE,
-            eventId: event.id,
-          },
-        },
-        select: { processedAt: true },
-      });
-      if (existing?.processedAt) {
-        this.logger.log(
-          `Skipping duplicate Stripe event ${event.id} (${event.type}) — already processed`,
-        );
-        return { received: true, eventId: event.id, type: event.type };
-      }
-      this.logger.warn(
-        `Re-processing Stripe event ${event.id} (${event.type}) — prior attempt never finished`,
-      );
+    // 2. Idempotency — record first; skip a true duplicate (processedAt set).
+    if (!(await this.beginEvent(PaymentProvider.STRIPE, event.id, event.type, event))) {
+      return { received: true, eventId: event.id, type: event.type };
     }
 
     // 3. Dispatch.
@@ -110,17 +135,59 @@ export class PaymentsService {
     }
 
     // 4. Mark done — further retries of this id become pure no-ops.
-    await this.prisma.paymentEvent.update({
-      where: {
-        provider_eventId: {
-          provider: PaymentProvider.STRIPE,
-          eventId: event.id,
-        },
-      },
-      data: { processedAt: new Date() },
-    });
-
+    await this.finishEvent(PaymentProvider.STRIPE, event.id);
     return { received: true, eventId: event.id, type: event.type };
+  }
+
+  /**
+   * PayPal webhook receiver. Verifies the signature (via the PayPal verify API),
+   * then the same idempotency + atomic seat-claim as Stripe. Acts as the backstop
+   * for the capture-on-return flow.
+   */
+  async handlePayPalEvent(
+    headers: Record<string, string | undefined>,
+    body: unknown,
+  ): Promise<WebhookAck> {
+    const event = (body ?? {}) as {
+      id?: string;
+      event_type?: string;
+      resource?: { id?: string; custom_id?: string; status?: string };
+    };
+    if (!event.id || !event.event_type) {
+      throw new BadRequestException({
+        code: 'PAYPAL_WEBHOOK_INVALID',
+        message: 'Malformed PayPal webhook payload',
+      });
+    }
+
+    const verified = await this.paypal.verifyWebhookSignature(headers, body);
+    if (!verified) {
+      this.logger.warn(`Rejected PayPal webhook ${event.id} — signature invalid`);
+      throw new BadRequestException({
+        code: 'PAYPAL_WEBHOOK_INVALID',
+        message: 'Signature verification failed',
+      });
+    }
+
+    if (
+      !(await this.beginEvent(
+        PaymentProvider.PAYPAL,
+        event.id,
+        event.event_type,
+        event,
+      ))
+    ) {
+      return { received: true, eventId: event.id, type: event.event_type };
+    }
+
+    if (event.event_type === 'PAYMENT.CAPTURE.COMPLETED') {
+      await this.onPayPalCaptureCompleted(event.resource);
+    } else {
+      this.logger.log(`Ignoring PayPal event type: ${event.event_type}`);
+    }
+
+    await this.finishEvent(PaymentProvider.PAYPAL, event.id);
+    return { received: true, eventId: event.id, type: event.event_type };
   }
 
   // ── Event handlers ───────────────────────────────────────────────────────────
@@ -143,7 +210,41 @@ export class PaymentsService {
       return;
     }
     const paymentIntentId = this.extractPaymentIntentId(session);
+    const outcome = await this.claimSeatsForPaid(bookingId, paymentIntentId);
 
+    if (outcome === 'paid') {
+      this.logger.log(
+        `Booking ${bookingCode} confirmed PAID (payment_intent=${paymentIntentId ?? 'n/a'})`,
+      );
+      // Confirmation email is deferred to the pg-boss outbox (ADR-0007, P1.x).
+    } else if (outcome === 'overbooked') {
+      await this.refundOverbookedAndCancel({
+        bookingId,
+        bookingCode,
+        paymentIntentId,
+      });
+    } else {
+      this.logger.log(
+        `Booking ${bookingCode} already in a terminal state — skipping`,
+      );
+    }
+  }
+
+  /**
+   * Provider-agnostic atomic seat reservation (shared by the Stripe webhook, the
+   * PayPal capture endpoint, and the PayPal webhook). One data-modifying CTE
+   * claims seats **only if** they fit AND the booking is still PENDING, then flips
+   * it to PAID with `providerPaymentId`. Pooler-safe (single statement, no
+   * interactive `FOR UPDATE`); idempotent on retries (gated on PENDING).
+   *
+   * @returns `'paid'` (claimed + flipped) · `'overbooked'` (still PENDING but seats
+   *   didn't fit — the caller issues a provider-specific refund) ·
+   *   `'already_processed'` (a terminal-state booking — no-op).
+   */
+  async claimSeatsForPaid(
+    bookingId: string,
+    providerPaymentId: string | undefined,
+  ): Promise<'paid' | 'overbooked' | 'already_processed'> {
     const claimed = await this.prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
       WITH booking_check AS (
         SELECT id, departure_id, (num_adults + num_children) AS seats
@@ -160,35 +261,19 @@ export class PaymentsService {
       UPDATE bookings
       SET status = 'PAID'::"BookingStatus",
           paid_at = now(),
-          provider_payment_id = ${paymentIntentId ?? null}
+          provider_payment_id = ${providerPaymentId ?? null}
       WHERE id = (SELECT booking_id FROM seat_claim)
       RETURNING id
     `);
+    if (claimed.length === 1) return 'paid';
 
-    if (claimed.length === 1) {
-      this.logger.log(
-        `Booking ${bookingCode} confirmed PAID (payment_intent=${paymentIntentId ?? 'n/a'})`,
-      );
-      // Confirmation email is deferred to the pg-boss outbox (ADR-0007, P1.x).
-      return;
-    }
-
-    // No row claimed: distinguish "already processed" from "lost the seat race".
     const booking = await this.prisma.booking.findUnique({
       where: { id: bookingId },
       select: { status: true },
     });
-    if (booking?.status === BookingStatus.PENDING) {
-      await this.refundOverbookedAndCancel({
-        bookingId,
-        bookingCode,
-        paymentIntentId,
-      });
-    } else {
-      this.logger.log(
-        `Booking ${bookingCode} already in a terminal state — skipping`,
-      );
-    }
+    return booking?.status === BookingStatus.PENDING
+      ? 'overbooked'
+      : 'already_processed';
   }
 
   /**
@@ -213,6 +298,52 @@ export class PaymentsService {
     this.logger.log(
       `Booking ${booking.code} expired (Stripe session ${session.id}) — marked CANCELLED`,
     );
+  }
+
+  /**
+   * PayPal capture webhook (backstop for capture-on-return). Reserves seats + PAID
+   * via the shared claim; if the buyer lost the seat race, refund the capture and
+   * mark REFUNDED. `custom_id` carries our `bookingId`; `id` is the capture id.
+   */
+  private async onPayPalCaptureCompleted(
+    resource: { id?: string; custom_id?: string } | undefined,
+  ): Promise<void> {
+    const bookingId = resource?.custom_id;
+    const captureId = resource?.id;
+    if (!bookingId) {
+      this.logger.warn(
+        'PayPal capture webhook missing resource.custom_id — ignoring',
+      );
+      return;
+    }
+    const outcome = await this.claimSeatsForPaid(bookingId, captureId);
+    if (outcome === 'paid') {
+      this.logger.log(
+        `PayPal capture ${captureId} confirmed booking ${bookingId} PAID`,
+      );
+    } else if (outcome === 'overbooked') {
+      if (captureId) {
+        await this.paypal.refundCapture(captureId).catch((err: unknown) => {
+          const m = err instanceof Error ? err.message : 'unknown';
+          this.logger.error(
+            `Overbook auto-refund failed (capture ${captureId}): ${m}`,
+          );
+        });
+      }
+      await this.prisma.booking.update({
+        where: { id: bookingId },
+        data: {
+          status: BookingStatus.REFUNDED,
+          cancelledAt: new Date(),
+          providerPaymentId: captureId,
+        },
+      });
+      this.logger.warn(`Auto-refunded overbooked PayPal booking ${bookingId}`);
+    } else {
+      this.logger.log(
+        `PayPal booking ${bookingId} already terminal — skipping`,
+      );
+    }
   }
 
   // ── Internals ─────────────────────────────────────────────────────────────────
