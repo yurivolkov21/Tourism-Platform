@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { toStripeMinorUnits } from './money';
+import { toPayPalAmount, toStripeMinorUnits } from './money';
 
 const D = (v: string) => new Prisma.Decimal(v);
 
@@ -18,5 +18,17 @@ describe('toStripeMinorUnits', () => {
 
   it('rounds to the nearest minor unit', () => {
     expect(toStripeMinorUnits(D('49.999'), 'USD')).toBe(5000);
+  });
+});
+
+describe('toPayPalAmount', () => {
+  it('formats two-decimal currencies with 2 places', () => {
+    expect(toPayPalAmount(D('150'), 'USD')).toBe('150.00');
+    expect(toPayPalAmount(D('49.5'), 'eur')).toBe('49.50');
+  });
+
+  it('formats zero-decimal currencies with no places', () => {
+    expect(toPayPalAmount(D('250000'), 'VND')).toBe('250000');
+    expect(toPayPalAmount(D('5000'), 'JPY')).toBe('5000');
   });
 });

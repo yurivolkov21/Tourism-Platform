@@ -88,12 +88,35 @@ function makeConfig() {
   } as unknown as import('@nestjs/config').ConfigService;
 }
 
+function makePayPal(over: Record<string, unknown> = {}) {
+  return {
+    createOrder: jest.fn().mockResolvedValue({
+      orderId: 'ord_1',
+      approveUrl: 'https://paypal.test/approve/ord_1',
+    }),
+    captureOrder: jest
+      .fn()
+      .mockResolvedValue({ captureId: 'cap_1', status: 'COMPLETED' }),
+    refundCapture: jest.fn().mockResolvedValue({ id: 'rf_1', status: 'COMPLETED' }),
+    ...over,
+  } as unknown as import('../payments/paypal.service').PayPalService;
+}
+
+function makePayments(over: Record<string, unknown> = {}) {
+  return {
+    claimSeatsForPaid: jest.fn().mockResolvedValue('paid'),
+    ...over,
+  } as unknown as import('../payments/payments.service').PaymentsService;
+}
+
 function svcWith(
   prisma: PrismaService,
   stripe = makeStripe(),
+  paypal = makePayPal(),
+  payments = makePayments(),
   config = makeConfig(),
 ): BookingsService {
-  return new BookingsService(prisma, stripe, config);
+  return new BookingsService(prisma, stripe, paypal, payments, config);
 }
 
 describe('BookingsService', () => {
@@ -344,28 +367,13 @@ describe('BookingsService', () => {
     ).rejects.toThrow(ConflictException);
   });
 
-  it('startCheckout rejects a non-Stripe provider until P1.5c (400)', async () => {
-    const svc = svcWith(
-      makePrisma({
-        booking: {
-          findUnique: jest.fn().mockResolvedValue({
-            ...pendingForCheckout,
-            paymentProvider: PaymentProvider.PAYPAL,
-          }),
-        },
-      }),
-    );
-    await expect(
-      svc.startCheckout('BK-1', { id: 'user-1', role: UserRole.CUSTOMER }),
-    ).rejects.toThrow(BadRequestException);
-  });
-
   // ── refundByAdmin ─────────────────────────────────────────────────────────────
 
   const paidBooking = {
     id: 'bk-1',
     code: 'BK-1',
     status: BookingStatus.PAID,
+    paymentProvider: PaymentProvider.STRIPE,
     providerPaymentId: 'pi_1',
     departureId: 'dep-1',
     numAdults: 2,
@@ -463,5 +471,146 @@ describe('BookingsService', () => {
     await expect(
       svc.refundByAdmin({ code: 'BK-1', adminUserId: 'admin-1' }),
     ).rejects.toThrow(BadRequestException);
+  });
+
+  it('refundByAdmin uses PayPal for a PayPal booking', async () => {
+    const paypal = makePayPal();
+    const svc = svcWith(
+      makePrisma({
+        booking: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValueOnce({ ...paidBooking, paymentProvider: PaymentProvider.PAYPAL })
+            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.REFUNDED }),
+        },
+        $queryRaw: jest.fn().mockResolvedValue([{ id: 'bk-1' }]),
+      }),
+      makeStripe(),
+      paypal,
+    );
+
+    await svc.refundByAdmin({ code: 'BK-1', adminUserId: 'admin-1' });
+    expect(paypal.refundCapture).toHaveBeenCalledWith('pi_1');
+  });
+
+  // ── startCheckout (PayPal) + capturePayPal ─────────────────────────────────────
+
+  const paypalPending = {
+    id: 'bk-1',
+    code: 'BK-1',
+    status: BookingStatus.PENDING,
+    userId: 'user-1',
+    paymentProvider: PaymentProvider.PAYPAL,
+    providerSessionId: 'ord_1',
+  };
+
+  it('startCheckout (PayPal) creates an order and returns the approve url', async () => {
+    const update = jest.fn().mockResolvedValue({});
+    const paypal = makePayPal();
+    const svc = svcWith(
+      makePrisma({
+        booking: {
+          findUnique: jest.fn().mockResolvedValue({
+            ...pendingForCheckout,
+            paymentProvider: PaymentProvider.PAYPAL,
+          }),
+          update,
+        },
+      }),
+      makeStripe(),
+      paypal,
+    );
+
+    const res = await svc.startCheckout('BK-1', {
+      id: 'user-1',
+      role: UserRole.CUSTOMER,
+    });
+
+    expect(res.checkoutUrl).toBe('https://paypal.test/approve/ord_1');
+    expect(paypal.createOrder).toHaveBeenCalledTimes(1);
+    expect(update.mock.calls[0][0].data.providerSessionId).toBe('ord_1');
+  });
+
+  it('capturePayPal captures, claims seats, and returns the booking', async () => {
+    const paypal = makePayPal();
+    const payments = makePayments({
+      claimSeatsForPaid: jest.fn().mockResolvedValue('paid'),
+    });
+    const svc = svcWith(
+      makePrisma({
+        booking: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValueOnce(paypalPending)
+            .mockResolvedValueOnce({ code: 'BK-1', userId: 'user-1' }),
+        },
+      }),
+      makeStripe(),
+      paypal,
+      payments,
+    );
+
+    await svc.capturePayPal('BK-1', { id: 'user-1', role: UserRole.CUSTOMER });
+
+    expect(paypal.captureOrder).toHaveBeenCalledWith('ord_1');
+    expect(payments.claimSeatsForPaid).toHaveBeenCalled();
+  });
+
+  it('capturePayPal refunds and raises 409 when overbooked', async () => {
+    const paypal = makePayPal();
+    const payments = makePayments({
+      claimSeatsForPaid: jest.fn().mockResolvedValue('overbooked'),
+    });
+    const svc = svcWith(
+      makePrisma({
+        booking: {
+          findUnique: jest.fn().mockResolvedValue(paypalPending),
+          update: jest.fn().mockResolvedValue({}),
+        },
+      }),
+      makeStripe(),
+      paypal,
+      payments,
+    );
+
+    await expect(
+      svc.capturePayPal('BK-1', { id: 'user-1', role: UserRole.CUSTOMER }),
+    ).rejects.toThrow(ConflictException);
+    expect(paypal.refundCapture).toHaveBeenCalledWith('cap_1');
+  });
+
+  it('capturePayPal rejects a non-PayPal booking (400)', async () => {
+    const svc = svcWith(
+      makePrisma({
+        booking: {
+          findUnique: jest.fn().mockResolvedValue({
+            ...paypalPending,
+            paymentProvider: PaymentProvider.STRIPE,
+          }),
+        },
+      }),
+    );
+    await expect(
+      svc.capturePayPal('BK-1', { id: 'user-1', role: UserRole.CUSTOMER }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('capturePayPal is idempotent when already PAID (no capture call)', async () => {
+    const paypal = makePayPal();
+    const svc = svcWith(
+      makePrisma({
+        booking: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValueOnce({ ...paypalPending, status: BookingStatus.PAID })
+            .mockResolvedValueOnce({ code: 'BK-1', userId: 'user-1' }),
+        },
+      }),
+      makeStripe(),
+      paypal,
+    );
+
+    await svc.capturePayPal('BK-1', { id: 'user-1', role: UserRole.CUSTOMER });
+    expect(paypal.captureOrder).not.toHaveBeenCalled();
   });
 });

@@ -17,7 +17,9 @@ import {
   UserRole,
 } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
-import { toStripeMinorUnits } from '../payments/money';
+import { toPayPalAmount, toStripeMinorUnits } from '../payments/money';
+import { PaymentsService } from '../payments/payments.service';
+import { PayPalService } from '../payments/paypal.service';
 import { StripeService } from '../payments/stripe.service';
 import { mintBookingCode } from './booking-code';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -60,6 +62,8 @@ export class BookingsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly stripe: StripeService,
+    private readonly paypal: PayPalService,
+    private readonly payments: PaymentsService,
     private readonly config: ConfigService,
   ) {}
 
@@ -184,58 +188,147 @@ export class BookingsService {
         message: `Booking is ${booking.status}; only PENDING bookings can start checkout`,
       });
     }
-    if (booking.paymentProvider !== PaymentProvider.STRIPE) {
-      throw new BadRequestException({
-        code: 'PROVIDER_NOT_AVAILABLE',
-        message: `Checkout for ${booking.paymentProvider} is not available yet`,
-      });
-    }
-
     const frontendUrl = this.config.getOrThrow<string>('app.frontendUrl');
     const totalSeats = booking.numAdults + booking.numChildren;
-    const unitAmount = toStripeMinorUnits(booking.totalAmount, booking.currency);
 
-    let session: Awaited<ReturnType<StripeService['createCheckoutSession']>>;
+    // Dispatch on the chosen provider; both yield { providerSessionId, checkoutUrl }.
+    // The outbound provider call is the only thing in the try — a failure leaves
+    // the booking PENDING (retryable) and surfaces 502 CHECKOUT_FAILED.
+    let providerSessionId: string;
+    let checkoutUrl: string | null;
     try {
-      session = await this.stripe.createCheckoutSession({
-        bookingId: booking.id,
-        bookingCode: booking.code,
-        customerEmail: booking.contactEmail,
-        currency: booking.currency.toLowerCase(),
-        unitAmount,
-        quantity: 1,
-        productName: booking.tour.title,
-        productDescription: `Booking ${booking.code} — ${totalSeats} seat(s)`,
-        successUrl: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${frontendUrl}/checkout/cancel?code=${booking.code}`,
-      });
+      if (booking.paymentProvider === PaymentProvider.STRIPE) {
+        const session = await this.stripe.createCheckoutSession({
+          bookingId: booking.id,
+          bookingCode: booking.code,
+          customerEmail: booking.contactEmail,
+          currency: booking.currency.toLowerCase(),
+          unitAmount: toStripeMinorUnits(booking.totalAmount, booking.currency),
+          quantity: 1,
+          productName: booking.tour.title,
+          productDescription: `Booking ${booking.code} — ${totalSeats} seat(s)`,
+          successUrl: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${frontendUrl}/checkout/cancel?code=${booking.code}`,
+        });
+        providerSessionId = session.id;
+        checkoutUrl = session.url;
+      } else {
+        const order = await this.paypal.createOrder({
+          bookingId: booking.id,
+          bookingCode: booking.code,
+          currency: booking.currency.toUpperCase(),
+          amount: toPayPalAmount(booking.totalAmount, booking.currency),
+          returnUrl: `${frontendUrl}/checkout/success?code=${booking.code}`,
+          cancelUrl: `${frontendUrl}/checkout/cancel?code=${booking.code}`,
+        });
+        providerSessionId = order.orderId;
+        checkoutUrl = order.approveUrl;
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'unknown';
-      this.logger.error(`Stripe checkout failed for ${booking.code}: ${message}`);
+      this.logger.error(`Checkout failed for ${booking.code}: ${message}`);
       throw new BadGatewayException({
         code: 'CHECKOUT_FAILED',
         message: 'Could not start the payment session — please retry.',
       });
     }
-    if (!session.url) {
+    if (!checkoutUrl) {
       throw new BadGatewayException({
         code: 'CHECKOUT_FAILED',
-        message: 'Stripe returned a session without a redirect URL.',
+        message: 'Payment provider returned no redirect URL.',
       });
     }
 
     await this.prisma.booking.update({
       where: { id: booking.id },
-      data: { providerSessionId: session.id },
+      data: { providerSessionId },
     });
     this.logger.log(
-      `Started checkout for ${booking.code} (session=${session.id})`,
+      `Started ${booking.paymentProvider} checkout for ${booking.code} (ref=${providerSessionId})`,
     );
-    return {
-      checkoutUrl: session.url,
-      bookingCode: booking.code,
-      status: booking.status,
-    };
+    return { checkoutUrl, bookingCode: booking.code, status: booking.status };
+  }
+
+  /**
+   * Captures an approved PayPal order (called when the buyer returns from PayPal),
+   * then reserves seats + marks PAID via the shared atomic claim. Owner-or-admin
+   * (else 404). Idempotent: an already-PAID booking is returned as-is (the webhook
+   * may have won the race). If seats sold out while the buyer was paying, the
+   * capture is refunded and a 409 is raised.
+   */
+  async capturePayPal(code: string, caller: Caller): Promise<Booking> {
+    const booking = await this.prisma.booking.findUnique({
+      where: { code },
+      select: {
+        id: true,
+        code: true,
+        status: true,
+        userId: true,
+        paymentProvider: true,
+        providerSessionId: true,
+      },
+    });
+    if (
+      !booking ||
+      (booking.userId !== caller.id && caller.role !== UserRole.ADMIN)
+    ) {
+      throw new NotFoundException({
+        code: 'BOOKING_NOT_FOUND',
+        message: `Booking "${code}" not found`,
+      });
+    }
+    if (booking.paymentProvider !== PaymentProvider.PAYPAL) {
+      throw new BadRequestException({
+        code: 'PROVIDER_MISMATCH',
+        message: 'Capture is only valid for PayPal bookings',
+      });
+    }
+    if (booking.status === BookingStatus.PAID) {
+      return this.loadOwnedOr404(code, caller); // idempotent — already confirmed
+    }
+    if (booking.status !== BookingStatus.PENDING) {
+      throw new ConflictException({
+        code: 'BOOKING_NOT_PENDING',
+        message: `Booking is ${booking.status}; cannot capture`,
+      });
+    }
+    if (!booking.providerSessionId) {
+      throw new BadRequestException({
+        code: 'NO_ORDER',
+        message: 'No PayPal order to capture — start checkout first',
+      });
+    }
+
+    const capture = await this.paypal.captureOrder(booking.providerSessionId);
+    const outcome = await this.payments.claimSeatsForPaid(
+      booking.id,
+      capture.captureId ?? undefined,
+    );
+
+    if (outcome === 'overbooked') {
+      // Won payment but lost the seat race — refund and surface a clear 409.
+      if (capture.captureId) {
+        await this.paypal.refundCapture(capture.captureId).catch((err: unknown) => {
+          const m = err instanceof Error ? err.message : 'unknown';
+          this.logger.error(`Auto-refund failed for ${booking.code}: ${m}`);
+        });
+      }
+      await this.prisma.booking.update({
+        where: { id: booking.id },
+        data: {
+          status: BookingStatus.REFUNDED,
+          cancelledAt: new Date(),
+          providerPaymentId: capture.captureId,
+        },
+      });
+      throw new ConflictException({
+        code: 'SEATS_NOT_AVAILABLE',
+        message: 'Seats sold out while paying — your payment was refunded.',
+      });
+    }
+
+    this.logger.log(`Captured PayPal booking ${booking.code} (${outcome})`);
+    return this.loadOwnedOr404(code, caller);
   }
 
   /**
@@ -279,6 +372,7 @@ export class BookingsService {
         id: true,
         code: true,
         status: true,
+        paymentProvider: true,
         providerPaymentId: true,
         departureId: true,
         numAdults: true,
@@ -298,22 +392,28 @@ export class BookingsService {
       });
     }
 
+    // Provider-specific refund FIRST (authoritative — never flip the DB for a
+    // refund that didn't happen). Converge if the provider says it's already done.
     try {
-      await this.stripe.createRefund({
-        paymentIntentId: booking.providerPaymentId,
-        reason: args.reason ?? 'requested_by_customer',
-      });
+      if (booking.paymentProvider === PaymentProvider.STRIPE) {
+        await this.stripe.createRefund({
+          paymentIntentId: booking.providerPaymentId,
+          reason: args.reason ?? 'requested_by_customer',
+        });
+      } else {
+        await this.paypal.refundCapture(booking.providerPaymentId);
+      }
     } catch (err) {
       if (!this.isAlreadyRefundedError(err)) {
         const message = err instanceof Error ? err.message : 'unknown';
-        this.logger.error(`Stripe refund failed for ${booking.code}: ${message}`);
+        this.logger.error(`Refund failed for ${booking.code}: ${message}`);
         throw new BadRequestException({
           code: 'REFUND_FAILED',
-          message: `Stripe refund failed: ${message}`,
+          message: `Provider refund failed: ${message}`,
         });
       }
       this.logger.warn(
-        `Stripe reports booking ${booking.code} already refunded — converging DB state`,
+        `Provider reports booking ${booking.code} already refunded — converging DB state`,
       );
     }
 
@@ -396,14 +496,20 @@ export class BookingsService {
   }
 
   /**
-   * Stripe rejects a double-refund with `code: 'charge_already_refunded'` (on the
-   * error object or its `raw`). That means the money is already back — converge.
+   * Detects a "money already back" provider error so the DB can converge to
+   * REFUNDED: Stripe `charge_already_refunded` (on the error or its `raw`), or
+   * PayPal `CAPTURE_FULLY_REFUNDED` (in the ApiError body/result).
    */
   private isAlreadyRefundedError(err: unknown): boolean {
     const code =
       (err as { code?: string })?.code ??
       (err as { raw?: { code?: string } })?.raw?.code;
-    return code === 'charge_already_refunded';
+    if (code === 'charge_already_refunded') return true;
+    const raw =
+      typeof (err as { body?: unknown })?.body === 'string'
+        ? (err as { body: string }).body
+        : JSON.stringify((err as { result?: unknown })?.result ?? '');
+    return raw.includes('CAPTURE_FULLY_REFUNDED');
   }
 
   /** Best-effort capacity guard at create time (not a reservation). */

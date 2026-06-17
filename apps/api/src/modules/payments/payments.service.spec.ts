@@ -57,8 +57,20 @@ function makePrisma(o: PrismaOver = {}): PrismaService {
   } as unknown as PrismaService;
 }
 
-function svc(prisma: PrismaService, stripe = makeStripe()): PaymentsService {
-  return new PaymentsService(prisma, stripe, makeConfig());
+function makePayPal(over: Record<string, unknown> = {}) {
+  return {
+    verifyWebhookSignature: jest.fn().mockResolvedValue(true),
+    refundCapture: jest.fn().mockResolvedValue({ id: 'rf_1', status: 'COMPLETED' }),
+    ...over,
+  } as unknown as import('./paypal.service').PayPalService;
+}
+
+function svc(
+  prisma: PrismaService,
+  stripe = makeStripe(),
+  paypal = makePayPal(),
+): PaymentsService {
+  return new PaymentsService(prisma, stripe, paypal, makeConfig());
 }
 
 const RAW = Buffer.from('{}');
@@ -188,6 +200,97 @@ describe('PaymentsService.handleStripeEvent', () => {
 
     const res = await service.handleStripeEvent(RAW, 'sig');
     expect(res.type).toBe('payment_intent.created');
+    expect(queryRaw).not.toHaveBeenCalled();
+  });
+});
+
+describe('PaymentsService.claimSeatsForPaid (shared)', () => {
+  it('returns "paid" when the atomic CTE claims a row', async () => {
+    const service = svc(
+      makePrisma({ $queryRaw: jest.fn().mockResolvedValue([{ id: 'bk-1' }]) }),
+    );
+    await expect(service.claimSeatsForPaid('bk-1', 'pay_1')).resolves.toBe('paid');
+  });
+
+  it('returns "overbooked" when nothing claimed but booking still PENDING', async () => {
+    const service = svc(
+      makePrisma({
+        $queryRaw: jest.fn().mockResolvedValue([]),
+        booking: {
+          findUnique: jest.fn().mockResolvedValue({ status: BookingStatus.PENDING }),
+        },
+      }),
+    );
+    await expect(service.claimSeatsForPaid('bk-1', 'pay_1')).resolves.toBe(
+      'overbooked',
+    );
+  });
+
+  it('returns "already_processed" for a terminal-state booking', async () => {
+    const service = svc(
+      makePrisma({
+        $queryRaw: jest.fn().mockResolvedValue([]),
+        booking: {
+          findUnique: jest.fn().mockResolvedValue({ status: BookingStatus.PAID }),
+        },
+      }),
+    );
+    await expect(service.claimSeatsForPaid('bk-1', 'pay_1')).resolves.toBe(
+      'already_processed',
+    );
+  });
+});
+
+describe('PaymentsService.handlePayPalEvent', () => {
+  const headers = { 'paypal-transmission-id': 't', 'paypal-transmission-sig': 's' };
+  const captureEvent = {
+    id: 'wh_1',
+    event_type: 'PAYMENT.CAPTURE.COMPLETED',
+    resource: { id: 'cap_1', custom_id: 'bk-1' },
+  };
+
+  it('rejects an invalid signature with 400', async () => {
+    const paypal = makePayPal({
+      verifyWebhookSignature: jest.fn().mockResolvedValue(false),
+    });
+    await expect(
+      svc(makePrisma(), makeStripe(), paypal).handlePayPalEvent(headers, captureEvent),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('rejects a malformed payload with 400', async () => {
+    await expect(
+      svc(makePrisma()).handlePayPalEvent(headers, { foo: 'bar' }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('on CAPTURE.COMPLETED claims seats and marks the event processed', async () => {
+    const queryRaw = jest.fn().mockResolvedValue([{ id: 'bk-1' }]);
+    const evtUpdate = jest.fn().mockResolvedValue({});
+    const service = svc(
+      makePrisma({ $queryRaw: queryRaw, paymentEvent: { update: evtUpdate } }),
+    );
+
+    await service.handlePayPalEvent(headers, captureEvent);
+
+    expect(queryRaw).toHaveBeenCalledTimes(1);
+    expect(evtUpdate.mock.calls[0][0].data.processedAt).toBeInstanceOf(Date);
+  });
+
+  it('skips a duplicate already-processed PayPal event', async () => {
+    const queryRaw = jest.fn();
+    const service = svc(
+      makePrisma({
+        paymentEvent: {
+          create: jest.fn().mockRejectedValue(knownError('P2002')),
+          findUnique: jest.fn().mockResolvedValue({ processedAt: new Date() }),
+        },
+        $queryRaw: queryRaw,
+      }),
+    );
+
+    const res = await service.handlePayPalEvent(headers, captureEvent);
+    expect(res.eventId).toBe('wh_1');
     expect(queryRaw).not.toHaveBeenCalled();
   });
 });

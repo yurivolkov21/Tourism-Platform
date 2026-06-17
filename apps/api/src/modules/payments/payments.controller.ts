@@ -58,4 +58,20 @@ export class PaymentsController {
     }
     return this.paymentsService.handleStripeEvent(rawBody, signature);
   }
+
+  @Post('paypal/webhook')
+  @Public()
+  @SkipTransform()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'PayPal webhook receiver (signature-verified)' })
+  @ApiResponse({ status: 200, description: 'Event processed or ignored' })
+  @ApiResponse({ status: 400, description: 'Signature verification failed' })
+  async handlePayPal(
+    @Req() req: Request,
+    @Headers() headers: Record<string, string | undefined>,
+  ): Promise<{ received: true; eventId: string; type: string }> {
+    // PayPal verification uses the parsed event + transmission headers, so the
+    // normal JSON body is fine (no express.raw needed, unlike Stripe).
+    return this.paymentsService.handlePayPalEvent(headers, req.body);
+  }
 }

@@ -96,6 +96,25 @@ export class BookingsController {
     });
   }
 
+  @Post(':code/capture')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Capture an approved PayPal order (on buyer return)' })
+  @ApiOkResponse({ type: BookingDto, description: 'Booking confirmed PAID' })
+  @ApiResponse({ status: 400, description: 'Not a PayPal booking / no order' })
+  @ApiResponse({ status: 401, description: 'User not synced' })
+  @ApiResponse({ status: 404, description: 'Booking not found or not owned' })
+  @ApiResponse({ status: 409, description: 'Not capturable, or seats sold out (refunded)' })
+  capture(
+    @CurrentUser() user: User | null,
+    @Param('code') code: string,
+  ): Promise<Booking> {
+    const caller = this.requireUser(user);
+    return this.bookingsService.capturePayPal(code, {
+      id: caller.id,
+      role: caller.role,
+    });
+  }
+
   @Get(':code')
   @ApiOperation({ summary: 'Get one booking by code (owner or admin)' })
   @ApiOkResponse({ type: BookingDto })
