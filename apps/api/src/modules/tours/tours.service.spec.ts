@@ -21,7 +21,7 @@ interface PrismaMocks {
 }
 
 function makePrisma(m: PrismaMocks = {}): PrismaService {
-  return {
+  const p: Record<string, unknown> = {
     tour: {
       create: jest.fn(),
       findMany: jest.fn().mockResolvedValue([]),
@@ -45,7 +45,33 @@ function makePrisma(m: PrismaMocks = {}): PrismaService {
         ]),
       ...m.destination,
     },
-  } as unknown as PrismaService;
+  };
+  // Interactive tx runs its callback against the same mock (tx.tour.delete etc.).
+  p.$transaction = jest.fn((cb: (tx: unknown) => unknown) => cb(p));
+  return p as unknown as PrismaService;
+}
+
+/** MediaService stub — attach passes media:[] through; writes are no-ops. */
+function makeMedia(over: Record<string, unknown> = {}) {
+  return {
+    syncAssets: jest.fn().mockResolvedValue(undefined),
+    deleteForOwner: jest.fn().mockResolvedValue(undefined),
+    attachToOwner: jest
+      .fn()
+      .mockImplementation((_t: unknown, owner: object) =>
+        Promise.resolve({ ...owner, media: [] }),
+      ),
+    attachToOwners: jest
+      .fn()
+      .mockImplementation((_t: unknown, owners: object[]) =>
+        Promise.resolve(owners.map((o) => ({ ...o, media: [] }))),
+      ),
+    ...over,
+  } as unknown as import('../media/media.service').MediaService;
+}
+
+function makeService(prisma: PrismaService, media = makeMedia()): ToursService {
+  return new ToursService(prisma, media);
 }
 
 /** Minimal valid create body (two destinations, primary = hoi-an). */
@@ -66,7 +92,7 @@ describe('ToursService', () => {
     const create = jest
       .fn()
       .mockImplementation(({ data }) => Promise.resolve({ id: 't-1', ...data }));
-    const svc = new ToursService(makePrisma({ tour: { create } }));
+    const svc = makeService(makePrisma({ tour: { create } }));
 
     await svc.create(body());
 
@@ -82,14 +108,14 @@ describe('ToursService', () => {
   });
 
   it('create rejects an unknown category slug (400)', async () => {
-    const svc = new ToursService(
+    const svc = makeService(
       makePrisma({ tourCategory: { findUnique: jest.fn().mockResolvedValue(null) } }),
     );
     await expect(svc.create(body())).rejects.toThrow(BadRequestException);
   });
 
   it('create rejects an unknown destination slug (400)', async () => {
-    const svc = new ToursService(
+    const svc = makeService(
       makePrisma({
         destination: {
           findMany: jest.fn().mockResolvedValue([{ id: 'd-1', slug: 'hoi-an' }]),
@@ -100,7 +126,7 @@ describe('ToursService', () => {
   });
 
   it('create rejects a primary slug not in destinationSlugs (400)', async () => {
-    const svc = new ToursService(makePrisma());
+    const svc = makeService(makePrisma());
     await expect(
       svc.create(body({ primaryDestinationSlug: 'sapa' })),
     ).rejects.toThrow(BadRequestException);
@@ -108,14 +134,14 @@ describe('ToursService', () => {
 
   it('create maps a unique-constraint (P2002) to 409', async () => {
     const create = jest.fn().mockRejectedValue(knownError('P2002'));
-    const svc = new ToursService(makePrisma({ tour: { create } }));
+    const svc = makeService(makePrisma({ tour: { create } }));
     await expect(svc.create(body())).rejects.toThrow(ConflictException);
   });
 
   it('findPublicList forces isPublished=true and computes pagination meta', async () => {
     const findMany = jest.fn().mockResolvedValue([{ id: 't-1' }]);
     const count = jest.fn().mockResolvedValue(21);
-    const svc = new ToursService(makePrisma({ tour: { findMany, count } }));
+    const svc = makeService(makePrisma({ tour: { findMany, count } }));
 
     const res = await svc.findPublicList({ page: 2, pageSize: 10 });
 
@@ -132,7 +158,7 @@ describe('ToursService', () => {
     const findUnique = jest
       .fn()
       .mockResolvedValue({ id: 't-1', slug: 'x', isPublished: true });
-    const svc = new ToursService(makePrisma({ tour: { findUnique } }));
+    const svc = makeService(makePrisma({ tour: { findUnique } }));
     await expect(svc.remove('x')).rejects.toThrow(ConflictException);
   });
 
@@ -141,7 +167,7 @@ describe('ToursService', () => {
       .fn()
       .mockResolvedValue({ id: 't-1', slug: 'x', isPublished: false });
     const del = jest.fn().mockRejectedValue(knownError('P2003'));
-    const svc = new ToursService(
+    const svc = makeService(
       makePrisma({ tour: { findUnique, delete: del } }),
     );
     await expect(svc.remove('x')).rejects.toThrow(ConflictException);
@@ -149,7 +175,7 @@ describe('ToursService', () => {
 
   it('findPublicBySlug throws 404 when missing', async () => {
     const findFirst = jest.fn().mockResolvedValue(null);
-    const svc = new ToursService(makePrisma({ tour: { findFirst } }));
+    const svc = makeService(makePrisma({ tour: { findFirst } }));
     await expect(svc.findPublicBySlug('nope')).rejects.toThrow(
       NotFoundException,
     );

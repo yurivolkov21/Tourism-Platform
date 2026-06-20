@@ -5,9 +5,11 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, Tour } from '@prisma/client';
+import { MediaOwnerType, Prisma, Tour } from '@prisma/client';
 import { slugify } from '../../common/slugify';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MediaItemDto, MediaInputDto } from '../media/dto/media.dto';
+import { MediaService } from '../media/media.service';
 import { CreateTourDto } from './dto/create-tour.dto';
 import { ListToursQueryDto } from './dto/list-tours-query.dto';
 import { TourFaqInput } from './dto/nested/tour-faq.input';
@@ -34,9 +36,12 @@ const DETAIL_INCLUDE: Prisma.TourInclude = {
   policies: { orderBy: { order: 'asc' } },
 };
 
+/** A tour row enriched with its media set (delivery URLs built at read time). */
+export type TourWithMedia = Tour & { media: MediaItemDto[] };
+
 /** Pagination envelope; `TransformInterceptor` hoists `meta` to the top level. */
 export interface PaginatedTours {
-  items: Tour[];
+  items: TourWithMedia[];
   meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
 
@@ -58,7 +63,31 @@ export class ToursService {
   /** DB column cap for `Tour.slug` (`@db.VarChar(120)`). */
   private static readonly SLUG_MAX = 120;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly media: MediaService,
+  ) {}
+
+  /**
+   * Replace-all the tour's media set (admin). Resolves slug→id, syncs in a
+   * transaction (admin, low-concurrency → pooler-safe), and returns the new set
+   * with built delivery URLs.
+   */
+  async setMedia(slug: string, media: MediaInputDto[]): Promise<MediaItemDto[]> {
+    const tour = await this.prisma.tour.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+    if (!tour) throw this.notFound(slug);
+    await this.prisma.$transaction((tx) =>
+      this.media.syncAssets(tx, MediaOwnerType.TOUR, tour.id, media),
+    );
+    const withMedia = await this.media.attachToOwner(MediaOwnerType.TOUR, {
+      id: tour.id,
+    });
+    this.logger.log(`Set ${media.length} media on tour ${slug}`);
+    return withMedia.media;
+  }
 
   // ── Public reads ──────────────────────────────────────────────────────────
 
@@ -66,13 +95,13 @@ export class ToursService {
     return this.list(query, true);
   }
 
-  async findPublicBySlug(slug: string): Promise<Tour> {
+  async findPublicBySlug(slug: string): Promise<TourWithMedia> {
     const tour = await this.prisma.tour.findFirst({
       where: { slug, isPublished: true },
       include: DETAIL_INCLUDE,
     });
     if (!tour) throw this.notFound(slug);
-    return tour;
+    return this.media.attachToOwner(MediaOwnerType.TOUR, tour);
   }
 
   // ── Admin reads + mutations ───────────────────────────────────────────────
@@ -81,17 +110,17 @@ export class ToursService {
     return this.list(query, false);
   }
 
-  async findBySlug(slug: string): Promise<Tour> {
+  async findBySlug(slug: string): Promise<TourWithMedia> {
     const tour = await this.prisma.tour.findUnique({
       where: { slug },
       include: DETAIL_INCLUDE,
     });
     if (!tour) throw this.notFound(slug);
-    return tour;
+    return this.media.attachToOwner(MediaOwnerType.TOUR, tour);
   }
 
   /** Create. Resolves refs (400 on bad ones), slugifies, nested-writes children. */
-  async create(body: CreateTourDto): Promise<Tour> {
+  async create(body: CreateTourDto): Promise<TourWithMedia> {
     const categoryId = await this.resolveCategory(body.categorySlug);
     const destinations = await this.resolveDestinationLinks(
       body.destinationSlugs,
@@ -133,7 +162,7 @@ export class ToursService {
         include: DETAIL_INCLUDE,
       });
       this.logger.log(`Created tour ${tour.slug}`);
-      return tour;
+      return this.media.attachToOwner(MediaOwnerType.TOUR, tour);
     } catch (err) {
       if (this.isUniqueConstraintError(err)) throw this.slugConflict(slug);
       throw err;
@@ -145,7 +174,7 @@ export class ToursService {
    * array (or `destinationSlugs`) **replaces** that whole set via a nested
    * `deleteMany` + `create` (atomic implicit transaction — pooler-safe).
    */
-  async update(slug: string, body: UpdateTourDto): Promise<Tour> {
+  async update(slug: string, body: UpdateTourDto): Promise<TourWithMedia> {
     await this.findBySlug(slug); // 404 early
 
     const data: Prisma.TourUpdateInput = {};
@@ -206,7 +235,7 @@ export class ToursService {
         include: DETAIL_INCLUDE,
       });
       this.logger.log(`Updated tour ${updated.slug}`);
-      return updated;
+      return this.media.attachToOwner(MediaOwnerType.TOUR, updated);
     } catch (err) {
       if (this.isUniqueConstraintError(err)) {
         throw this.slugConflict(String(data.slug ?? slug));
@@ -228,7 +257,12 @@ export class ToursService {
       });
     }
     try {
-      const deleted = await this.prisma.tour.delete({ where: { slug } });
+      // Polymorphic media has no FK cascade — delete it in the same tx as the
+      // tour so a failed delete (P2003) rolls media back too.
+      const deleted = await this.prisma.$transaction(async (tx) => {
+        await this.media.deleteForOwner(tx, MediaOwnerType.TOUR, tour.id);
+        return tx.tour.delete({ where: { slug } });
+      });
       this.logger.log(`Deleted tour ${deleted.slug}`);
       return deleted;
     } catch (err) {
@@ -295,7 +329,7 @@ export class ToursService {
     ]);
 
     return {
-      items,
+      items: await this.media.attachToOwners(MediaOwnerType.TOUR, items),
       meta: {
         page,
         pageSize,

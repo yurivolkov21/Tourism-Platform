@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { MediaItemDto } from '../../media/dto/media.dto';
 import {
   TourCategoryRefDto,
   TourDestinationLinkDto,
@@ -54,6 +55,9 @@ export class TourSummaryDto {
 
   @ApiProperty({ type: [TourDestinationLinkDto] })
   destinations!: TourDestinationLinkDto[];
+
+  @ApiProperty({ type: [MediaItemDto] })
+  media!: MediaItemDto[];
 
   @ApiProperty({ format: 'date-time' })
   createdAt!: string;

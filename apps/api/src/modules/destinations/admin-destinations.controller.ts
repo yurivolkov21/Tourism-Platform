@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import {
@@ -20,6 +21,8 @@ import {
 } from '@nestjs/swagger';
 import { Destination, UserRole } from '@prisma/client';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { MediaItemDto } from '../media/dto/media.dto';
+import { SetMediaDto } from '../media/dto/set-media.dto';
 import {
   DestinationsService,
   PaginatedDestinations,
@@ -80,6 +83,18 @@ export class AdminDestinationsController {
     @Body() body: UpdateDestinationDto,
   ): Promise<Destination> {
     return this.destinationsService.update(slug, body);
+  }
+
+  @Put(':slug/media')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Admin: replace a destination’s media set' })
+  @ApiOkResponse({ type: [MediaItemDto], description: 'New media set with URLs' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  setMedia(
+    @Param('slug') slug: string,
+    @Body() body: SetMediaDto,
+  ): Promise<MediaItemDto[]> {
+    return this.destinationsService.setMedia(slug, body.media);
   }
 
   @Delete(':slug')

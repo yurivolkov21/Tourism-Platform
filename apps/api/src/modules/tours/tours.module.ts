@@ -1,15 +1,16 @@
 import { Module } from '@nestjs/common';
+import { MediaModule } from '../media/media.module';
 import { AdminToursController } from './admin-tours.controller';
 import { ToursController } from './tours.controller';
 import { ToursService } from './tours.service';
 
 /**
- * Tours catalog + admin CRUD. `ToursService` resolves `categorySlug` /
- * `destinationSlugs` to ids directly via Prisma (returning a clear 400 for bad
- * refs), so no sibling-module imports are needed — `PrismaModule` is `@Global`.
- * Departures (P1.4c) and media (P1.6) attach later.
+ * Tours catalog + admin CRUD. Imports `MediaModule` (P1.6) for media sync/attach.
+ * `ToursService` resolves `categorySlug` / `destinationSlugs` to ids directly via
+ * Prisma (clear 400 for bad refs); `PrismaModule` is `@Global`.
  */
 @Module({
+  imports: [MediaModule],
   controllers: [ToursController, AdminToursController],
   providers: [ToursService],
   exports: [ToursService],

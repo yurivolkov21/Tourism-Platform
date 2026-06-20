@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import {
@@ -20,6 +21,8 @@ import {
 } from '@nestjs/swagger';
 import { Tour, UserRole } from '@prisma/client';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { MediaItemDto } from '../media/dto/media.dto';
+import { SetMediaDto } from '../media/dto/set-media.dto';
 import { CreateTourDto } from './dto/create-tour.dto';
 import { ListToursQueryDto } from './dto/list-tours-query.dto';
 import { PaginatedToursDto } from './dto/paginated-tours.dto';
@@ -77,6 +80,18 @@ export class AdminToursController {
     @Body() body: UpdateTourDto,
   ): Promise<Tour> {
     return this.toursService.update(slug, body);
+  }
+
+  @Put(':slug/media')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Admin: replace a tour’s media set' })
+  @ApiOkResponse({ type: [MediaItemDto], description: 'New media set with URLs' })
+  @ApiResponse({ status: 404, description: 'Tour not found' })
+  setMedia(
+    @Param('slug') slug: string,
+    @Body() body: SetMediaDto,
+  ): Promise<MediaItemDto[]> {
+    return this.toursService.setMedia(slug, body.media);
   }
 
   @Delete(':slug')
