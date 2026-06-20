@@ -12,6 +12,7 @@ import { DeparturesModule } from '../modules/departures/departures.module';
 import { DestinationsModule } from '../modules/destinations/destinations.module';
 import { TourCategoriesModule } from '../modules/tour-categories/tour-categories.module';
 import { ToursModule } from '../modules/tours/tours.module';
+import { UploadsModule } from '../modules/uploads/uploads.module';
 import { UsersModule } from '../modules/users/users.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AppController } from './app.controller';
@@ -33,6 +34,7 @@ import { AppService } from './app.service';
     ToursModule,
     DeparturesModule,
     BookingsModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [

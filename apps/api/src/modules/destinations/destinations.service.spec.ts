@@ -15,7 +15,7 @@ const p2002 = () =>
   });
 
 function makePrisma(overrides: Record<string, unknown> = {}): PrismaService {
-  return {
+  const p: Record<string, unknown> = {
     destination: {
       create: jest.fn(),
       findMany: jest.fn().mockResolvedValue([]),
@@ -26,7 +26,35 @@ function makePrisma(overrides: Record<string, unknown> = {}): PrismaService {
       delete: jest.fn(),
       ...overrides,
     },
-  } as unknown as PrismaService;
+  };
+  p.$transaction = jest.fn((cb: (tx: unknown) => unknown) => cb(p));
+  return p as unknown as PrismaService;
+}
+
+/** MediaService stub — attach passes media:[] through; writes are no-ops. */
+function makeMedia(over: Record<string, unknown> = {}) {
+  return {
+    syncAssets: jest.fn().mockResolvedValue(undefined),
+    deleteForOwner: jest.fn().mockResolvedValue(undefined),
+    attachToOwner: jest
+      .fn()
+      .mockImplementation((_t: unknown, owner: object) =>
+        Promise.resolve({ ...owner, media: [] }),
+      ),
+    attachToOwners: jest
+      .fn()
+      .mockImplementation((_t: unknown, owners: object[]) =>
+        Promise.resolve(owners.map((o) => ({ ...o, media: [] }))),
+      ),
+    ...over,
+  } as unknown as import('../media/media.service').MediaService;
+}
+
+function makeService(
+  prisma: PrismaService,
+  media = makeMedia(),
+): DestinationsService {
+  return new DestinationsService(prisma, media);
 }
 
 describe('DestinationsService', () => {
@@ -34,7 +62,7 @@ describe('DestinationsService', () => {
     const create = jest
       .fn()
       .mockImplementation(({ data }) => Promise.resolve({ id: '1', ...data }));
-    const svc = new DestinationsService(makePrisma({ create }));
+    const svc = makeService(makePrisma({ create }));
 
     await svc.create({ name: 'Hội An' } as CreateDestinationDto);
 
@@ -43,7 +71,7 @@ describe('DestinationsService', () => {
   });
 
   it('create rejects a symbol-only slug source (400)', async () => {
-    const svc = new DestinationsService(makePrisma());
+    const svc = makeService(makePrisma());
     await expect(
       svc.create({ name: '!!!' } as CreateDestinationDto),
     ).rejects.toThrow(BadRequestException);
@@ -51,7 +79,7 @@ describe('DestinationsService', () => {
 
   it('create maps a unique-constraint (P2002) to 409', async () => {
     const create = jest.fn().mockRejectedValue(p2002());
-    const svc = new DestinationsService(makePrisma({ create }));
+    const svc = makeService(makePrisma({ create }));
     await expect(
       svc.create({ name: 'X', slug: 'x' } as CreateDestinationDto),
     ).rejects.toThrow(ConflictException);
@@ -60,7 +88,7 @@ describe('DestinationsService', () => {
   it('findPublicList forces isActive=true and computes pagination meta', async () => {
     const findMany = jest.fn().mockResolvedValue([{ id: '1' }]);
     const count = jest.fn().mockResolvedValue(21);
-    const svc = new DestinationsService(makePrisma({ findMany, count }));
+    const svc = makeService(makePrisma({ findMany, count }));
 
     const res = await svc.findPublicList({ page: 2, pageSize: 10 });
 
@@ -77,13 +105,13 @@ describe('DestinationsService', () => {
     const findUnique = jest
       .fn()
       .mockResolvedValue({ id: '1', slug: 'x', isActive: true });
-    const svc = new DestinationsService(makePrisma({ findUnique }));
+    const svc = makeService(makePrisma({ findUnique }));
     await expect(svc.remove('x')).rejects.toThrow(ConflictException);
   });
 
   it('findPublicBySlug throws 404 when missing', async () => {
     const findFirst = jest.fn().mockResolvedValue(null);
-    const svc = new DestinationsService(makePrisma({ findFirst }));
+    const svc = makeService(makePrisma({ findFirst }));
     await expect(svc.findPublicBySlug('nope')).rejects.toThrow(
       NotFoundException,
     );

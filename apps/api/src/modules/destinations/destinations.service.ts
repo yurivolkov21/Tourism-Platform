@@ -5,16 +5,21 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Destination, Prisma } from '@prisma/client';
+import { Destination, MediaOwnerType, Prisma } from '@prisma/client';
 import { slugify } from '../../common/slugify';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MediaItemDto, MediaInputDto } from '../media/dto/media.dto';
+import { MediaService } from '../media/media.service';
 import { CreateDestinationDto } from './dto/create-destination.dto';
 import { ListDestinationsQueryDto } from './dto/list-destinations-query.dto';
 import { UpdateDestinationDto } from './dto/update-destination.dto';
 
+/** A destination row enriched with its media set (delivery URLs built at read). */
+export type DestinationWithMedia = Destination & { media: MediaItemDto[] };
+
 /** Pagination envelope; `TransformInterceptor` hoists `meta` to the top level. */
 export interface PaginatedDestinations {
-  items: Destination[];
+  items: DestinationWithMedia[];
   meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
 
@@ -28,7 +33,31 @@ export interface PaginatedDestinations {
 export class DestinationsService {
   private readonly logger = new Logger(DestinationsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly media: MediaService,
+  ) {}
+
+  /**
+   * Replace-all the destination's media set (admin). Resolves slug→id, syncs in a
+   * transaction, returns the new set with built delivery URLs.
+   */
+  async setMedia(slug: string, media: MediaInputDto[]): Promise<MediaItemDto[]> {
+    const destination = await this.prisma.destination.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+    if (!destination) throw this.notFound(slug);
+    await this.prisma.$transaction((tx) =>
+      this.media.syncAssets(tx, MediaOwnerType.DESTINATION, destination.id, media),
+    );
+    const withMedia = await this.media.attachToOwner(
+      MediaOwnerType.DESTINATION,
+      { id: destination.id },
+    );
+    this.logger.log(`Set ${media.length} media on destination ${slug}`);
+    return withMedia.media;
+  }
 
   // ── Public reads ──────────────────────────────────────────────────────────
 
@@ -38,12 +67,12 @@ export class DestinationsService {
     return this.list({ ...query, isActive: true });
   }
 
-  async findPublicBySlug(slug: string): Promise<Destination> {
+  async findPublicBySlug(slug: string): Promise<DestinationWithMedia> {
     const destination = await this.prisma.destination.findFirst({
       where: { slug, isActive: true },
     });
     if (!destination) throw this.notFound(slug);
-    return destination;
+    return this.media.attachToOwner(MediaOwnerType.DESTINATION, destination);
   }
 
   // ── Admin reads + mutations ───────────────────────────────────────────────
@@ -52,16 +81,16 @@ export class DestinationsService {
     return this.list(query);
   }
 
-  async findBySlug(slug: string): Promise<Destination> {
+  async findBySlug(slug: string): Promise<DestinationWithMedia> {
     const destination = await this.prisma.destination.findUnique({
       where: { slug },
     });
     if (!destination) throw this.notFound(slug);
-    return destination;
+    return this.media.attachToOwner(MediaOwnerType.DESTINATION, destination);
   }
 
   /** Create. Slug normalized from input (or `name`); duplicate → 409. */
-  async create(body: CreateDestinationDto): Promise<Destination> {
+  async create(body: CreateDestinationDto): Promise<DestinationWithMedia> {
     const slug = this.normalizeSlug(body.slug, body.name);
     try {
       const destination = await this.prisma.destination.create({
@@ -75,7 +104,7 @@ export class DestinationsService {
         },
       });
       this.logger.log(`Created destination ${destination.slug}`);
-      return destination;
+      return this.media.attachToOwner(MediaOwnerType.DESTINATION, destination);
     } catch (err) {
       if (this.isUniqueConstraintError(err)) throw this.slugConflict(slug);
       throw err;
@@ -83,14 +112,21 @@ export class DestinationsService {
   }
 
   /** Partial update. 404 surfaced before the write; renamed slug re-normalized. */
-  async update(slug: string, body: UpdateDestinationDto): Promise<Destination> {
+  async update(
+    slug: string,
+    body: UpdateDestinationDto,
+  ): Promise<DestinationWithMedia> {
     await this.findBySlug(slug);
     const data: Prisma.DestinationUpdateInput = { ...body };
     if (body.slug !== undefined) {
       data.slug = this.normalizeSlug(body.slug, body.name);
     }
     try {
-      return await this.prisma.destination.update({ where: { slug }, data });
+      const updated = await this.prisma.destination.update({
+        where: { slug },
+        data,
+      });
+      return this.media.attachToOwner(MediaOwnerType.DESTINATION, updated);
     } catch (err) {
       if (this.isUniqueConstraintError(err)) {
         throw this.slugConflict(String(data.slug ?? slug));
@@ -112,7 +148,15 @@ export class DestinationsService {
       });
     }
     try {
-      const deleted = await this.prisma.destination.delete({ where: { slug } });
+      // Polymorphic media has no FK cascade — delete in the same tx as the owner.
+      const deleted = await this.prisma.$transaction(async (tx) => {
+        await this.media.deleteForOwner(
+          tx,
+          MediaOwnerType.DESTINATION,
+          existing.id,
+        );
+        return tx.destination.delete({ where: { slug } });
+      });
       this.logger.log(`Deleted destination ${deleted.slug}`);
       return deleted;
     } catch (err) {
@@ -159,7 +203,7 @@ export class DestinationsService {
     ]);
 
     return {
-      items,
+      items: await this.media.attachToOwners(MediaOwnerType.DESTINATION, items),
       meta: {
         page,
         pageSize,

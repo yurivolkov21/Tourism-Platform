@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { MediaItemDto } from '../../media/dto/media.dto';
 
-/** Response shape for a destination (mirrors the Prisma `Destination`). */
+/** Response shape for a destination (mirrors the Prisma `Destination` + media). */
 export class DestinationDto {
   @ApiProperty({ format: 'uuid' })
   id!: string;
@@ -28,4 +29,7 @@ export class DestinationDto {
 
   @ApiProperty({ format: 'date-time' })
   updatedAt!: string;
+
+  @ApiProperty({ type: [MediaItemDto] })
+  media!: MediaItemDto[];
 }
