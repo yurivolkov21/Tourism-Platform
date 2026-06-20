@@ -26,17 +26,16 @@ Because the token carries a **real** Supabase `sub`, you must run **`/auth/sync`
 
 ## Prerequisites
 
-1. **API running** at `http://localhost:3000` with a seeded DB:
+1. **Seed the DB**, then **run the API** (dev/watch mode — the `start:dev` equivalent):
    ```bash
    pnpm nx run @tourism/api:seed      # catalog + a PAID booking (BK-SEEDPAID)
-   cd apps/api && node dist/main.js   # run from apps/api/ so dotenv finds .env (or: pnpm nx serve @tourism/api)
+   pnpm nx serve @tourism/api         # watch + auto-restart; runs from repo root → http://localhost:3000
    ```
-2. **Two Supabase Auth users exist** (email + password):
-   - a customer (e.g. `customer@tourism.test`),
-   - an admin whose email is in the API's **`ADMIN_EMAILS`** env.
-
-   Create them with the **`Sign up (Supabase)`** request (one-time), or via the Supabase dashboard if
-   the project enforces email confirmation.
+   `nx serve` is the recommended dev command (build + run + watch). Alternative one-shot:
+   `pnpm nx build @tourism/api && (cd apps/api && node dist/main.js)`.
+2. **Two Supabase Auth users** must exist with the passwords you put in the env:
+   `customer@tourism.test` and an admin whose email is in **`ADMIN_EMAILS`**. Create / reset them with
+   the **`_SETUP (Admin API)`** folder (below) — no dashboard needed.
 
 ## Setup (once)
 
@@ -47,13 +46,21 @@ Because the token carries a **real** Supabase `sub`, you must run **`/auth/sync`
    | --- | --- |
    | `supabaseUrl` | `apps/api/.env` → `SUPABASE_URL` |
    | `supabaseAnonKey` | `apps/api/.env` → `SUPABASE_ANON_KEY` |
-   | `customerEmail` / `customerPassword` | your Supabase customer user |
-   | `adminEmail` / `adminPassword` | your Supabase admin user (email ∈ `ADMIN_EMAILS`) |
+   | `supabaseServiceRoleKey` | `apps/api/.env` → `SUPABASE_SERVICE_ROLE_KEY` (⚠️ bypasses RLS — never commit/share) |
+   | `customerEmail` / `customerPassword` | pick a password; the `_SETUP` folder pushes it to Supabase |
+   | `adminEmail` / `adminPassword` | admin email **must be ∈ `ADMIN_EMAILS`**; pick a password |
 
    `baseUrl` is pre-filled (`http://localhost:3000/api/v1`).
+3. Run **`_SETUP (Admin API · run once)`** to create/confirm the two users with your env passwords:
+   - **Forgot the password** on existing users → run **1** (find ids), then **3** + **5** (set passwords).
+   - **First time** (no users) → run **2** + **4** (creates them already-confirmed).
+
+   This uses the **service_role** key to set passwords + `email_confirm` directly (no email step), so
+   `Login` then works with the same env passwords.
 
 ## Suggested run order
 
+0. **`_SETUP (Admin API)`** — once, to set the user passwords (see Setup step 3 above).
 1. **CUSTOMER → 00 · Auth** — `Login` → `Sync local user` → `GET /users/me`.
 2. **CUSTOMER → 01 · Catalog** — run the GETs; they auto-capture `{{tourSlug}}`, `{{tourId}}`,
    `{{categorySlug}}`, `{{destinationSlug}}`, `{{departureId}}` for everything downstream.
