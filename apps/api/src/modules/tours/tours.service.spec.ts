@@ -180,4 +180,88 @@ describe('ToursService', () => {
       NotFoundException,
     );
   });
+
+  it('findBySlug (admin) attaches media; 404 when missing', async () => {
+    const ok = makeService(
+      makePrisma({ tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }) } }),
+    );
+    await expect(ok.findBySlug('x')).resolves.toMatchObject({ slug: 'x', media: [] });
+
+    const missing = makeService(
+      makePrisma({ tour: { findUnique: jest.fn().mockResolvedValue(null) } }),
+    );
+    await expect(missing.findBySlug('nope')).rejects.toThrow(NotFoundException);
+  });
+
+  it('findAll (admin) returns items + pagination meta', async () => {
+    const findMany = jest.fn().mockResolvedValue([{ id: 't-1', slug: 'x' }]);
+    const count = jest.fn().mockResolvedValue(1);
+    const svc = makeService(makePrisma({ tour: { findMany, count } }));
+    const res = await svc.findAll({});
+    expect(res.items).toHaveLength(1);
+    expect(res.meta.total).toBe(1);
+  });
+
+  it('setMedia syncs + returns the set; 404 when missing', async () => {
+    const media = makeMedia({
+      attachToOwner: jest
+        .fn()
+        .mockResolvedValue({ id: 't-1', media: [{ url: 'u', role: 'hero' }] }),
+    });
+    const svc = makeService(
+      makePrisma({ tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-1' }) } }),
+      media,
+    );
+    const out = await svc.setMedia('x', []);
+    expect(out).toHaveLength(1);
+    expect(media.syncAssets).toHaveBeenCalledTimes(1);
+
+    const missing = makeService(
+      makePrisma({ tour: { findUnique: jest.fn().mockResolvedValue(null) } }),
+    );
+    await expect(missing.setMedia('nope', [])).rejects.toThrow(NotFoundException);
+  });
+
+  it('update applies a partial change and re-attaches media', async () => {
+    const findUnique = jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' });
+    const update = jest.fn().mockResolvedValue({ id: 't-1', slug: 'x', title: 'New' });
+    const svc = makeService(makePrisma({ tour: { findUnique, update } }));
+    const res = await svc.update('x', { title: 'New' });
+    expect(res).toMatchObject({ slug: 'x', media: [] });
+    const call = update.mock.calls[0][0] as { data: { title?: string } };
+    expect(call.data.title).toBe('New');
+  });
+
+  it('update rejects replacing destinations without a primary (400)', async () => {
+    const svc = makeService(
+      makePrisma({ tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }) } }),
+    );
+    await expect(
+      svc.update('x', { destinationSlugs: ['hoi-an'] }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('update maps a unique-constraint (P2002) to 409', async () => {
+    const findUnique = jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' });
+    const update = jest.fn().mockRejectedValue(knownError('P2002'));
+    const svc = makeService(makePrisma({ tour: { findUnique, update } }));
+    await expect(svc.update('x', { slug: 'taken' })).rejects.toThrow(
+      ConflictException,
+    );
+  });
+
+  it('remove deletes an unpublished tour (happy path)', async () => {
+    const findUnique = jest
+      .fn()
+      .mockResolvedValue({ id: 't-1', slug: 'x', isPublished: false });
+    const del = jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' });
+    const media = makeMedia();
+    const svc = makeService(
+      makePrisma({ tour: { findUnique, delete: del } }),
+      media,
+    );
+    await expect(svc.remove('x')).resolves.toMatchObject({ slug: 'x' });
+    expect(media.deleteForOwner).toHaveBeenCalledTimes(1);
+    expect(del).toHaveBeenCalledTimes(1);
+  });
 });
