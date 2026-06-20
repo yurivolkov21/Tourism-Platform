@@ -35,6 +35,19 @@ docs/
 └── plans/                     per-feature implementation plans
 ```
 
+## Doc language / Ngôn ngữ tài liệu
+
+Deliberate split by document role (the team is Vietnamese students — native language where it's read most):
+
+- 🇻🇳 **Tiếng Việt** — *read-to-understand & onboarding* docs: the function catalog
+  ([reference/functions-*](reference/)) + the **"Bắt đầu nhanh"** section in the root
+  [README](../README.md). These are read often, used to draw diagrams and write the report.
+- 🇬🇧 **English** — *reference / contract* docs: architecture, decisions (ADRs), specs, plans, schema,
+  BLUEPRINT. These track the code and stay stable.
+
+> Identifiers (function names, endpoints, models, fields) are always English — they're code. Only the
+> explanatory prose follows the language above. Keep a doc **single-language**; don't mix EN+VN in one file.
+
 ## Related (repo root)
 
 - **[CLAUDE.md](../CLAUDE.md)** — the short operating contract for any agent/human.
