@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MediaOwnerType, Prisma } from '@prisma/client';
+import { MediaOwnerType, MediaType, Prisma } from '@prisma/client';
 import { buildCloudinaryUrl } from '../../lib/cloudinary-url';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MediaInputDto, MediaItemDto } from './dto/media.dto';
@@ -39,6 +39,19 @@ export class MediaService {
     ownerId: string,
     assets: MediaInputDto[],
   ): Promise<void> {
+    // Garbage-collect Cloudinary assets that are dropped and NOT recreated. Read
+    // the current set first, then record any whose publicId isn't in the new
+    // payload (a kept publicId is re-created, so it must not be destroyed).
+    const existing = await tx.mediaAsset.findMany({
+      where: { ownerType, ownerId },
+      select: { publicId: true, posterId: true, type: true },
+    });
+    const keptIds = new Set(assets.map((a) => a.publicId));
+    await this.recordGarbage(
+      tx,
+      existing.filter((e) => !keptIds.has(e.publicId)),
+    );
+
     await tx.mediaAsset.deleteMany({ where: { ownerType, ownerId } });
     if (assets.length === 0) return;
 
@@ -70,7 +83,37 @@ export class MediaService {
     ownerType: MediaOwnerType,
     ownerId: string,
   ): Promise<void> {
+    // Every asset is removed and none recreated → all are Cloudinary garbage.
+    const existing = await tx.mediaAsset.findMany({
+      where: { ownerType, ownerId },
+      select: { publicId: true, posterId: true, type: true },
+    });
+    await this.recordGarbage(tx, existing);
     await tx.mediaAsset.deleteMany({ where: { ownerType, ownerId } });
+  }
+
+  /**
+   * Queue dropped assets for Cloudinary destruction (the pg-boss media-reconcile
+   * cron — P1.x-b). Each asset contributes its `publicId` (resource_type from the
+   * media type) plus its video `posterId` (always an image). `publicId` is UNIQUE,
+   * so `skipDuplicates` collapses repeats. Runs on the caller's `tx`.
+   */
+  private async recordGarbage(
+    tx: Prisma.TransactionClient,
+    dropped: Array<{ publicId: string; posterId: string | null; type: MediaType }>,
+  ): Promise<void> {
+    if (dropped.length === 0) return;
+    const rows: Array<{ publicId: string; resourceType: string }> = [];
+    for (const asset of dropped) {
+      rows.push({
+        publicId: asset.publicId,
+        resourceType: asset.type === MediaType.VIDEO ? 'video' : 'image',
+      });
+      if (asset.posterId) {
+        rows.push({ publicId: asset.posterId, resourceType: 'image' });
+      }
+    }
+    await tx.mediaGarbage.createMany({ data: rows, skipDuplicates: true });
   }
 
   /**

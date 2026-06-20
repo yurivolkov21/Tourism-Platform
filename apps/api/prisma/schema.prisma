@@ -481,3 +481,26 @@ model Outbox {
   @@index([status, createdAt])
   @@map("outbox")
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MediaGarbage — orphaned Cloudinary assets awaiting destruction (ADR-0007, P1.x-b).
+//
+// When `MediaService` drops a `MediaAsset` row that is NOT recreated (a replaced
+// avatar, a removed gallery image, a deleted owner), the asset's `publicId`
+// (and video `posterId`) is recorded here in the same tx. A pg-boss cron calls
+// Cloudinary `destroy` and deletes the row on success (destroy is idempotent, so
+// a retry is safe); a failure bumps `attempts`/`lastError` for the next pass.
+// `publicId` is UNIQUE so duplicate pending entries collapse.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model MediaGarbage {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  publicId     String   @unique @map("public_id") @db.VarChar(300)
+  // Cloudinary resource_type ('image' | 'video') — destroy needs it to find the asset.
+  resourceType String   @default("image") @map("resource_type") @db.VarChar(10)
+  attempts     Int      @default(0)
+  lastError    String?  @map("last_error") @db.VarChar(1000)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("media_garbage")
+}
