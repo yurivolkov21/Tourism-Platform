@@ -3,18 +3,20 @@ description: Seed local test data + the self-signed paid-booking harness (makes 
 allowed-tools: Bash
 ---
 
-Seed the local test data so the API suite and e2e can run.
+Seed the catalog + test accounts so the API suite and e2e can run.
 
-> **Status:** the seed + Postman/Newman harness is **ported in P1** (backend).
-> Until P1 lands there is nothing to seed — say so and stop.
+> **Status:** landed in **P1.8a**. The seed connects to the DB **directly**
+> (`DIRECT_URL`, port 5432) — it does NOT need the API running.
 
-Once P1 is in:
+To seed:
 
-1. The seed needs the **API running** (`pnpm nx serve @tourism/api`).
-   Quick-check it first; if it's not up, tell me to start it and stop — don't
-   start it yourself unless I ask.
-2. Run the seed target (e.g. `pnpm nx run @tourism/api:seed`).
-3. Report what it printed: the customer/admin accounts, the generated
-   **paid-booking codes**, and where the test env file was written.
+1. Ensure `apps/api/.env` has `DIRECT_URL` (Supabase direct 5432).
+2. Run the seed target: `pnpm nx run @tourism/api:seed`. It's **idempotent** —
+   re-running refreshes content without duplicating rows (upsert by slug; the
+   self-signed PAID booking is created once).
+3. Report what it printed: the customer/admin accounts, the **paid-booking code**
+   (`BK-SEEDPAID`), and the generated `apps/api/.env.e2e` (gitignored) consumed
+   by the e2e suite (P1.8c).
 
-Reads secrets from `apps/api/.env`; prints no secret values.
+Reads secrets from `apps/api/.env`; prints no secret values. **Writes to the live
+Supabase dev DB** — confirm before running if that matters.
