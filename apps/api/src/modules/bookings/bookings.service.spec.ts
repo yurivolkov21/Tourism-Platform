@@ -400,6 +400,10 @@ describe('BookingsService', () => {
 
     expect(stripe.createRefund).toHaveBeenCalledTimes(1);
     expect(queryRaw).toHaveBeenCalledTimes(1);
+    // The refund email is enqueued atomically in the same CTE (ADR-0007).
+    const sql = (queryRaw.mock.calls[0][0] as { strings: string[] }).strings.join('');
+    expect(sql).toContain('INSERT INTO outbox');
+    expect(sql).toContain('BOOKING_REFUNDED');
   });
 
   it('refundByAdmin rejects a non-PAID booking (400)', async () => {

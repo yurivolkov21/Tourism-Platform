@@ -77,6 +77,21 @@ enum PolicyKind {
   GENERAL
 }
 
+/// Transactional email kind for the outbox (ADR-0007, P1.x).
+enum EmailType {
+  BOOKING_CONFIRMATION
+  BOOKING_REFUNDED
+  REVIEW_APPROVED
+  ENQUIRY_RECEIVED
+}
+
+/// Outbox row lifecycle (ADR-0007). PENDING → SENT, or → FAILED after retries.
+enum OutboxStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // User — local mirror of Supabase auth.users
 // ─────────────────────────────────────────────────────────────────────────────
@@ -437,4 +452,32 @@ model MediaAsset {
 
   @@index([ownerType, ownerId, role])
   @@map("media_assets")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Outbox — transactional email outbox (ADR-0007, P1.x).
+//
+// A row is written ATOMICALLY with the state change it announces: the PAID
+// confirmation is inserted inside `claimSeatsForPaid`'s seat-claim CTE (one
+// statement, pooler-safe); review-approved / enquiry-received are inserted in a
+// short `$transaction` with their own write. A pg-boss worker then drains
+// PENDING rows oldest-first and dispatches via Resend. `dedupeKey` makes the
+// whole pipeline idempotent under webhook/handler retries (`ON CONFLICT DO
+// NOTHING`). `id` is DB-generated (`gen_random_uuid()`) so the raw-SQL CTE
+// insert needs no client-side id.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Outbox {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type        EmailType
+  payload     Json
+  status      OutboxStatus @default(PENDING)
+  attempts    Int          @default(0)
+  dedupeKey   String       @unique @map("dedupe_key") @db.VarChar(200)
+  lastError   String?      @map("last_error") @db.VarChar(1000)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  processedAt DateTime?    @map("processed_at")
+
+  @@index([status, createdAt])
+  @@map("outbox")
 }

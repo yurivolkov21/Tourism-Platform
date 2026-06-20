@@ -429,14 +429,28 @@ export class BookingsService {
             WHERE id = ${booking.id}::uuid AND status = 'PAID'::"BookingStatus"
           )
         RETURNING id
+      ),
+      refunded AS (
+        UPDATE bookings
+        SET status = 'REFUNDED'::"BookingStatus",
+            cancelled_at = now(),
+            refund_reason = ${args.reason ?? null},
+            refunded_by = ${args.adminUserId}::uuid
+        WHERE id = ${booking.id}::uuid AND status = 'PAID'::"BookingStatus"
+        RETURNING id
+      ),
+      -- Atomic outbox enqueue (ADR-0007): only when the booking actually flipped
+      -- to REFUNDED. Idempotent on retries via the dedupe_key UNIQUE.
+      outbox_insert AS (
+        INSERT INTO outbox (type, payload, dedupe_key)
+        SELECT 'BOOKING_REFUNDED'::"EmailType",
+               jsonb_build_object('bookingId', id),
+               'booking-refunded:' || id::text
+        FROM refunded
+        ON CONFLICT (dedupe_key) DO NOTHING
+        RETURNING id
       )
-      UPDATE bookings
-      SET status = 'REFUNDED'::"BookingStatus",
-          cancelled_at = now(),
-          refund_reason = ${args.reason ?? null},
-          refunded_by = ${args.adminUserId}::uuid
-      WHERE id = ${booking.id}::uuid AND status = 'PAID'::"BookingStatus"
-      RETURNING id
+      SELECT id FROM refunded
     `);
 
     const updated = await this.prisma.booking.findUnique({

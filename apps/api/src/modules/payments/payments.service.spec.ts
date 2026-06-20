@@ -122,6 +122,10 @@ describe('PaymentsService.handleStripeEvent', () => {
     expect(queryRaw).toHaveBeenCalledTimes(1);
     expect(stripe.createRefund).not.toHaveBeenCalled();
     expect(evtUpdate.mock.calls[0][0].data.processedAt).toBeInstanceOf(Date);
+    // The confirmation email is enqueued atomically in the same CTE (ADR-0007).
+    const sql = (queryRaw.mock.calls[0][0] as { strings: string[] }).strings.join('');
+    expect(sql).toContain('INSERT INTO outbox');
+    expect(sql).toContain('BOOKING_CONFIRMATION');
   });
 
   it('on completed but overbooked: auto-refunds and marks REFUNDED', async () => {
