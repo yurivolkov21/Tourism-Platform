@@ -26,6 +26,14 @@ export class UserDto {
   @ApiProperty({ enum: ['CUSTOMER', 'ADMIN'], example: 'CUSTOMER' })
   role!: 'CUSTOMER' | 'ADMIN';
 
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    format: 'uri',
+    description: 'Cloudinary avatar delivery URL (null if none set)',
+  })
+  avatarUrl!: string | null;
+
   @ApiProperty({ format: 'date-time' })
   createdAt!: string;
 
