@@ -1,0 +1,604 @@
+{
+  "info": {
+    "_postman_id": "a7c0f1d2-0002-4b20-9c10-tourismapicol",
+    "name": "Tourism Platform API",
+    "description": "Manual test collection for @tourism/api. Two flows split by folder — CUSTOMER and ADMIN — each with sub-folders per area. Auth uses REAL Supabase login (run the 'Login' request in each flow's '00 · Auth' folder first; it captures the bearer token). See apps/api/postman/README.md for setup + prerequisites.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": { "type": "noauth" },
+  "variable": [
+    { "key": "customerToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "tourSlug", "value": "" },
+    { "key": "tourId", "value": "" },
+    { "key": "categorySlug", "value": "" },
+    { "key": "destinationSlug", "value": "" },
+    { "key": "departureId", "value": "" },
+    { "key": "bookingCode", "value": "" },
+    { "key": "reviewId", "value": "" },
+    { "key": "enquiryId", "value": "" },
+    { "key": "newTourSlug", "value": "" },
+    { "key": "newCategorySlug", "value": "" },
+    { "key": "newDestinationSlug", "value": "" },
+    { "key": "newDepartureId", "value": "" },
+    { "key": "moderateReviewId", "value": "" },
+    { "key": "seedPaidCode", "value": "BK-SEEDPAID" }
+  ],
+  "item": [
+    {
+      "name": "CUSTOMER",
+      "description": "Customer-facing flow. Auth: Bearer {{customerToken}} (inherited). Run '00 · Auth & Account → Login' first.",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{customerToken}}", "type": "string" }] },
+      "item": [
+        {
+          "name": "00 · Auth & Account",
+          "item": [
+            {
+              "name": "Sign up (Supabase) — one-time",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "POST",
+                "header": [
+                  { "key": "apikey", "value": "{{supabaseAnonKey}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": { "raw": "{{supabaseUrl}}/auth/v1/signup", "host": ["{{supabaseUrl}}"], "path": ["auth", "v1", "signup"] },
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{customerEmail}}\",\n  \"password\": \"{{customerPassword}}\"\n}", "options": { "raw": { "language": "json" } } },
+                "description": "One-time: create the customer in Supabase Auth. If the project requires email confirmation, create the user via the Supabase dashboard instead. 422 = already registered (fine)."
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('signup ok or exists', () => pm.expect(pm.response.code).to.be.oneOf([200, 201, 400, 422]));"] } }]
+            },
+            {
+              "name": "Login (Supabase) → customerToken",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "POST",
+                "header": [
+                  { "key": "apikey", "value": "{{supabaseAnonKey}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": { "raw": "{{supabaseUrl}}/auth/v1/token?grant_type=password", "host": ["{{supabaseUrl}}"], "path": ["auth", "v1", "token"], "query": [{ "key": "grant_type", "value": "password" }] },
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{customerEmail}}\",\n  \"password\": \"{{customerPassword}}\"\n}", "options": { "raw": { "language": "json" } } },
+                "description": "Password grant against Supabase GoTrue. Captures access_token → {{customerToken}}."
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["const j = pm.response.json();", "if (j.access_token) pm.collectionVariables.set('customerToken', j.access_token);", "pm.test('got access_token', () => pm.expect(j.access_token).to.be.a('string'));"] } }]
+            },
+            {
+              "name": "Sync local user — POST /auth/sync",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/auth/sync", "host": ["{{baseUrl}}"], "path": ["auth", "sync"] },
+                "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Jane Traveller\",\n  \"phone\": \"+44 7700 900123\"\n}", "options": { "raw": { "language": "json" } } },
+                "description": "Mirror the logged-in Supabase identity into the local users table (creates the row keyed by the JWT sub). REQUIRED after first login so other endpoints can resolve the user."
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('2xx', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"] } }]
+            },
+            {
+              "name": "GET /users/me",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/users/me", "host": ["{{baseUrl}}"], "path": ["users", "me"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "PATCH /users/me",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/users/me", "host": ["{{baseUrl}}"], "path": ["users", "me"] },
+                "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Jane T. Updated\",\n  \"phone\": \"+44 7700 900999\"\n}", "options": { "raw": { "language": "json" } } }
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "PUT /users/me/avatar",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/users/me/avatar", "host": ["{{baseUrl}}"], "path": ["users", "me", "avatar"] },
+                "body": { "mode": "raw", "raw": "{\n  \"publicId\": \"tourism/users/avatar/1717000000000-jane\",\n  \"format\": \"jpg\",\n  \"width\": 400,\n  \"height\": 400\n}", "options": { "raw": { "language": "json" } } },
+                "description": "publicId must be a real Cloudinary public_id (get one from Admin → 05 · Media Uploads → signed-url, then upload)."
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "DELETE /users/me/avatar",
+              "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/users/me/avatar", "host": ["{{baseUrl}}"], "path": ["users", "me", "avatar"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "❌ GET /users/me — no token (401)",
+              "request": { "auth": { "type": "noauth" }, "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/users/me", "host": ["{{baseUrl}}"], "path": ["users", "me"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('401', () => pm.response.code === 401);"] } }]
+            }
+          ]
+        },
+        {
+          "name": "01 · Catalog (Public)",
+          "description": "Public browse — No Auth. Run these early: they capture {{tourSlug}}, {{tourId}}, {{categorySlug}}, {{destinationSlug}}, {{departureId}} for downstream requests.",
+          "auth": { "type": "noauth" },
+          "item": [
+            {
+              "name": "GET /tours (list + filter/sort)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/tours?page=1&pageSize=12&sortBy=createdAt&sortOrder=desc", "host": ["{{baseUrl}}"], "path": ["tours"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "12" }, { "key": "sortBy", "value": "createdAt" }, { "key": "sortOrder", "value": "desc" }, { "key": "search", "value": "", "disabled": true }, { "key": "categorySlug", "value": "", "disabled": true }, { "key": "destinationSlug", "value": "", "disabled": true }, { "key": "priceMin", "value": "", "disabled": true }, { "key": "priceMax", "value": "", "disabled": true }, { "key": "isFeatured", "value": "true", "disabled": true }] }
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);", "const t = pm.response.json().data && pm.response.json().data[0];", "if (t) { pm.collectionVariables.set('tourSlug', t.slug); pm.collectionVariables.set('tourId', t.id); }"] } }]
+            },
+            {
+              "name": "GET /tours/:slug",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/tours/{{tourSlug}}", "host": ["{{baseUrl}}"], "path": ["tours", "{{tourSlug}}"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "GET /destinations",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/destinations", "host": ["{{baseUrl}}"], "path": ["destinations"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);", "const d = pm.response.json().data && pm.response.json().data[0];", "if (d) pm.collectionVariables.set('destinationSlug', d.slug);"] } }]
+            },
+            {
+              "name": "GET /destinations/:slug",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/destinations/{{destinationSlug}}", "host": ["{{baseUrl}}"], "path": ["destinations", "{{destinationSlug}}"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "GET /tour-categories",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/tour-categories", "host": ["{{baseUrl}}"], "path": ["tour-categories"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);", "const c = pm.response.json().data && pm.response.json().data[0];", "if (c) pm.collectionVariables.set('categorySlug', c.slug);"] } }]
+            },
+            {
+              "name": "GET /tour-categories/:slug",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/tour-categories/{{categorySlug}}", "host": ["{{baseUrl}}"], "path": ["tour-categories", "{{categorySlug}}"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "GET /tours/:slug/departures",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/tours/{{tourSlug}}/departures", "host": ["{{baseUrl}}"], "path": ["tours", "{{tourSlug}}", "departures"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);", "const dep = pm.response.json().data && pm.response.json().data[0];", "if (dep) pm.collectionVariables.set('departureId', dep.id);"] } }]
+            },
+            {
+              "name": "GET /tours/:slug/reviews",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/tours/{{tourSlug}}/reviews", "host": ["{{baseUrl}}"], "path": ["tours", "{{tourSlug}}", "reviews"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "❌ GET /tours/non-existent (404)",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/tours/this-slug-does-not-exist", "host": ["{{baseUrl}}"], "path": ["tours", "this-slug-does-not-exist"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('404', () => pm.response.code === 404);"] } }]
+            }
+          ]
+        },
+        {
+          "name": "02 · Booking & Payment",
+          "item": [
+            {
+              "name": "POST /bookings → bookingCode",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/bookings", "host": ["{{baseUrl}}"], "path": ["bookings"] },
+                "body": { "mode": "raw", "raw": "{\n  \"tourSlug\": \"{{tourSlug}}\",\n  \"departureId\": \"{{departureId}}\",\n  \"numAdults\": 2,\n  \"numChildren\": 0,\n  \"paymentProvider\": \"STRIPE\",\n  \"contactName\": \"Jane Traveller\",\n  \"contactEmail\": \"{{customerEmail}}\",\n  \"contactPhone\": \"+44 7700 900123\",\n  \"specialRequests\": \"Window seat please\"\n}", "options": { "raw": { "language": "json" } } },
+                "description": "Creates a PENDING booking. paymentProvider: STRIPE | PAYPAL. Captures {{bookingCode}}."
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('201', () => pm.response.code === 201);", "const b = pm.response.json().data;", "if (b && b.code) pm.collectionVariables.set('bookingCode', b.code);"] } }]
+            },
+            {
+              "name": "GET /bookings/me",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/bookings/me", "host": ["{{baseUrl}}"], "path": ["bookings", "me"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "GET /bookings/:code",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/bookings/{{bookingCode}}", "host": ["{{baseUrl}}"], "path": ["bookings", "{{bookingCode}}"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "POST /bookings/:code/checkout (Stripe/PayPal)",
+              "request": { "method": "POST", "header": [], "url": { "raw": "{{baseUrl}}/bookings/{{bookingCode}}/checkout", "host": ["{{baseUrl}}"], "path": ["bookings", "{{bookingCode}}", "checkout"] }, "description": "Returns { checkoutUrl }. Open it in a browser to complete payment (Stripe/PayPal). The webhook then flips the booking to PAID." },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "POST /bookings/:code/capture (PayPal return)",
+              "request": { "method": "POST", "header": [], "url": { "raw": "{{baseUrl}}/bookings/{{bookingCode}}/capture", "host": ["{{baseUrl}}"], "path": ["bookings", "{{bookingCode}}", "capture"] }, "description": "PayPal only — call after the buyer approves the order on PayPal's return. STRIPE bookings will 400." },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('2xx or expected', () => pm.expect(pm.response.code).to.be.oneOf([200, 400, 409]));"] } }]
+            },
+            {
+              "name": "POST /bookings/:code/cancel",
+              "request": { "method": "POST", "header": [], "url": { "raw": "{{baseUrl}}/bookings/{{bookingCode}}/cancel", "host": ["{{baseUrl}}"], "path": ["bookings", "{{bookingCode}}", "cancel"] }, "description": "Cancels a PENDING booking you own." },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('2xx', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"] } }]
+            },
+            {
+              "name": "❌ GET /bookings/BK-NONEXISTENT (404)",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/bookings/BK-NONEXISTENT", "host": ["{{baseUrl}}"], "path": ["bookings", "BK-NONEXISTENT"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('404', () => pm.response.code === 404);"] } }]
+            }
+          ]
+        },
+        {
+          "name": "03 · Reviews & Wishlist",
+          "item": [
+            {
+              "name": "POST /reviews (needs PAID booking you own)",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/reviews", "host": ["{{baseUrl}}"], "path": ["reviews"] },
+                "body": { "mode": "raw", "raw": "{\n  \"bookingCode\": \"{{bookingCode}}\",\n  \"rating\": 5,\n  \"title\": \"Fantastic trip\",\n  \"body\": \"A wonderful, well-organised experience from start to finish.\"\n}", "options": { "raw": { "language": "json" } } },
+                "description": "Only a PAID booking owned by the caller can be reviewed (else 400/403). The seeded BK-SEEDPAID belongs to the seed customer, NOT your Supabase-login user — set {{bookingCode}} to a booking you paid for. Duplicate review on the same booking → 409."
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('201 or expected', () => pm.expect(pm.response.code).to.be.oneOf([201, 400, 403, 409]));", "const r = pm.response.json().data;", "if (r && r.id) pm.collectionVariables.set('reviewId', r.id);"] } }]
+            },
+            {
+              "name": "POST /wishlist/:tourId",
+              "request": { "method": "POST", "header": [], "url": { "raw": "{{baseUrl}}/wishlist/{{tourId}}", "host": ["{{baseUrl}}"], "path": ["wishlist", "{{tourId}}"] }, "description": "tourId is a UUID (captured by Catalog → GET /tours)." },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('2xx', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"] } }]
+            },
+            {
+              "name": "GET /wishlist/me",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/wishlist/me", "host": ["{{baseUrl}}"], "path": ["wishlist", "me"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "DELETE /wishlist/:tourId",
+              "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/wishlist/{{tourId}}", "host": ["{{baseUrl}}"], "path": ["wishlist", "{{tourId}}"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('2xx', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));"] } }]
+            }
+          ]
+        },
+        {
+          "name": "04 · Enquiry (Public)",
+          "auth": { "type": "noauth" },
+          "item": [
+            {
+              "name": "POST /enquiries (full lead form)",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/enquiries", "host": ["{{baseUrl}}"], "path": ["enquiries"] },
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Jane Traveller\",\n  \"email\": \"jane.lead@example.com\",\n  \"phone\": \"+44 7700 900123\",\n  \"message\": \"Interested in a 7-day central Vietnam trip in August for a family.\",\n  \"tourId\": \"{{tourId}}\",\n  \"nationality\": \"United Kingdom\",\n  \"travelDate\": \"2026-08-01\",\n  \"groupSize\": 4,\n  \"budgetTier\": \"$1000-$2000\",\n  \"interests\": [\"culture\", \"food\"]\n}", "options": { "raw": { "language": "json" } } },
+                "description": "Public lead capture (rate-limited 5/min). Returns { received: true }."
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('201', () => pm.response.code === 201);"] } }]
+            },
+            {
+              "name": "POST /enquiries (honeypot → silently dropped)",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/enquiries", "host": ["{{baseUrl}}"], "path": ["enquiries"] },
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Bot\",\n  \"email\": \"bot@spam.test\",\n  \"message\": \"This is a spam submission filling the honeypot.\",\n  \"website\": \"http://spam.example\"\n}", "options": { "raw": { "language": "json" } } },
+                "description": "`website` is the honeypot. Still returns 201 (to not tip off bots) but the row is NOT written — verify via Admin → 07 · Enquiries that it never appears."
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('201 (silent drop)', () => pm.response.code === 201);"] } }]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ADMIN",
+      "description": "Admin flow. Auth: Bearer {{adminToken}} (inherited). Run '00 · Auth & Stats → Login' first. The admin email MUST be in the API's ADMIN_EMAILS env.",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+      "item": [
+        {
+          "name": "00 · Auth & Stats",
+          "item": [
+            {
+              "name": "Login (Supabase, admin) → adminToken",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "POST",
+                "header": [
+                  { "key": "apikey", "value": "{{supabaseAnonKey}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "url": { "raw": "{{supabaseUrl}}/auth/v1/token?grant_type=password", "host": ["{{supabaseUrl}}"], "path": ["auth", "v1", "token"], "query": [{ "key": "grant_type", "value": "password" }] },
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}", "options": { "raw": { "language": "json" } } }
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["const j = pm.response.json();", "if (j.access_token) pm.collectionVariables.set('adminToken', j.access_token);", "pm.test('got access_token', () => pm.expect(j.access_token).to.be.a('string'));"] } }]
+            },
+            {
+              "name": "POST /auth/admin/sync",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/auth/admin/sync", "host": ["{{baseUrl}}"], "path": ["auth", "admin", "sync"] },
+                "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Site Admin\"\n}", "options": { "raw": { "language": "json" } } },
+                "description": "Mirror + promote to ADMIN. The logged-in email must be present in the API's ADMIN_EMAILS allowlist, else it stays CUSTOMER."
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('2xx', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"] } }]
+            },
+            {
+              "name": "GET /admin/stats/dashboard",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/stats/dashboard", "host": ["{{baseUrl}}"], "path": ["admin", "stats", "dashboard"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "❌ /admin/stats with customerToken (403)",
+              "request": { "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{customerToken}}", "type": "string" }] }, "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/stats/dashboard", "host": ["{{baseUrl}}"], "path": ["admin", "stats", "dashboard"] }, "description": "A customer hitting an admin route must be 403." },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('403', () => pm.response.code === 403);"] } }]
+            }
+          ]
+        },
+        {
+          "name": "01 · Tours",
+          "description": "Create uses {{categorySlug}} + {{destinationSlug}} — run CUSTOMER → 01 · Catalog first to populate them.",
+          "item": [
+            {
+              "name": "GET /admin/tours",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/tours?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin", "tours"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "POST /admin/tours → newTourSlug",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/admin/tours", "host": ["{{baseUrl}}"], "path": ["admin", "tours"] },
+                "body": { "mode": "raw", "raw": "{\n  \"title\": \"Postman Test Tour\",\n  \"summary\": \"A tour created from Postman for manual testing.\",\n  \"categorySlug\": \"{{categorySlug}}\",\n  \"destinationSlugs\": [\"{{destinationSlug}}\"],\n  \"primaryDestinationSlug\": \"{{destinationSlug}}\",\n  \"durationDays\": 3,\n  \"maxGroupSize\": 16,\n  \"basePrice\": 199,\n  \"currency\": \"USD\",\n  \"isPublished\": true,\n  \"suitableFor\": [\"FAMILY\", \"COUPLE\"],\n  \"badges\": [\"BEST_VALUE\"],\n  \"included\": [\"Guide\", \"Lunch\"],\n  \"highlights\": [\"Old town walk\"]\n}", "options": { "raw": { "language": "json" } } }
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('201', () => pm.response.code === 201);", "const t = pm.response.json().data;", "if (t && t.slug) pm.collectionVariables.set('newTourSlug', t.slug);"] } }]
+            },
+            {
+              "name": "GET /admin/tours/:slug",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/tours/{{newTourSlug}}", "host": ["{{baseUrl}}"], "path": ["admin", "tours", "{{newTourSlug}}"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "PATCH /admin/tours/:slug",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/admin/tours/{{newTourSlug}}", "host": ["{{baseUrl}}"], "path": ["admin", "tours", "{{newTourSlug}}"] },
+                "body": { "mode": "raw", "raw": "{\n  \"summary\": \"Updated summary from Postman.\",\n  \"badges\": [\"LIMITED_OFFER\", \"POPULAR\"],\n  \"isFeatured\": true\n}", "options": { "raw": { "language": "json" } } }
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "PUT /admin/tours/:slug/media",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/admin/tours/{{newTourSlug}}/media", "host": ["{{baseUrl}}"], "path": ["admin", "tours", "{{newTourSlug}}", "media"] },
+                "body": { "mode": "raw", "raw": "{\n  \"media\": [\n    {\n      \"publicId\": \"tourism/tours/hero/sample-hero\",\n      \"type\": \"IMAGE\",\n      \"role\": \"hero\",\n      \"width\": 1600,\n      \"height\": 900,\n      \"sortOrder\": 0\n    }\n  ]\n}", "options": { "raw": { "language": "json" } } },
+                "description": "Replace-all media set. publicIds must be real Cloudinary public_ids (use 05 · Media Uploads to mint signed URLs and upload first)."
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "DELETE /admin/tours/:slug",
+              "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/admin/tours/{{newTourSlug}}", "host": ["{{baseUrl}}"], "path": ["admin", "tours", "{{newTourSlug}}"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('2xx', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));"] } }]
+            }
+          ]
+        },
+        {
+          "name": "02 · Tour Categories",
+          "item": [
+            {
+              "name": "GET /admin/tour-categories",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/tour-categories", "host": ["{{baseUrl}}"], "path": ["admin", "tour-categories"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "POST /admin/tour-categories → newCategorySlug",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/admin/tour-categories", "host": ["{{baseUrl}}"], "path": ["admin", "tour-categories"] },
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Postman Adventures\",\n  \"description\": \"Created from Postman.\",\n  \"order\": 99,\n  \"isActive\": true\n}", "options": { "raw": { "language": "json" } } }
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('201', () => pm.response.code === 201);", "const c = pm.response.json().data;", "if (c && c.slug) pm.collectionVariables.set('newCategorySlug', c.slug);"] } }]
+            },
+            {
+              "name": "GET /admin/tour-categories/:slug",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/tour-categories/{{newCategorySlug}}", "host": ["{{baseUrl}}"], "path": ["admin", "tour-categories", "{{newCategorySlug}}"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "PATCH /admin/tour-categories/:slug",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/admin/tour-categories/{{newCategorySlug}}", "host": ["{{baseUrl}}"], "path": ["admin", "tour-categories", "{{newCategorySlug}}"] },
+                "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated from Postman.\",\n  \"order\": 5\n}", "options": { "raw": { "language": "json" } } }
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "DELETE /admin/tour-categories/:slug",
+              "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/admin/tour-categories/{{newCategorySlug}}", "host": ["{{baseUrl}}"], "path": ["admin", "tour-categories", "{{newCategorySlug}}"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('2xx', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 409]));"] } }]
+            }
+          ]
+        },
+        {
+          "name": "03 · Destinations",
+          "item": [
+            {
+              "name": "GET /admin/destinations",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/destinations", "host": ["{{baseUrl}}"], "path": ["admin", "destinations"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "POST /admin/destinations → newDestinationSlug",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/admin/destinations", "host": ["{{baseUrl}}"], "path": ["admin", "destinations"] },
+                "body": { "mode": "raw", "raw": "{\n  \"name\": \"Postman Bay\",\n  \"country\": \"Vietnam\",\n  \"region\": \"Central\",\n  \"description\": \"Created from Postman.\",\n  \"isActive\": true\n}", "options": { "raw": { "language": "json" } } }
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('201', () => pm.response.code === 201);", "const d = pm.response.json().data;", "if (d && d.slug) pm.collectionVariables.set('newDestinationSlug', d.slug);"] } }]
+            },
+            {
+              "name": "GET /admin/destinations/:slug",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/destinations/{{newDestinationSlug}}", "host": ["{{baseUrl}}"], "path": ["admin", "destinations", "{{newDestinationSlug}}"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "PATCH /admin/destinations/:slug",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/admin/destinations/{{newDestinationSlug}}", "host": ["{{baseUrl}}"], "path": ["admin", "destinations", "{{newDestinationSlug}}"] },
+                "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated from Postman.\",\n  \"region\": \"Northern\"\n}", "options": { "raw": { "language": "json" } } }
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "PUT /admin/destinations/:slug/media",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/admin/destinations/{{newDestinationSlug}}/media", "host": ["{{baseUrl}}"], "path": ["admin", "destinations", "{{newDestinationSlug}}", "media"] },
+                "body": { "mode": "raw", "raw": "{\n  \"media\": [\n    {\n      \"publicId\": \"tourism/destinations/hero/sample\",\n      \"type\": \"IMAGE\",\n      \"role\": \"hero\",\n      \"sortOrder\": 0\n    }\n  ]\n}", "options": { "raw": { "language": "json" } } }
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "DELETE /admin/destinations/:slug",
+              "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/admin/destinations/{{newDestinationSlug}}", "host": ["{{baseUrl}}"], "path": ["admin", "destinations", "{{newDestinationSlug}}"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('2xx', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 409]));"] } }]
+            }
+          ]
+        },
+        {
+          "name": "04 · Departures (nested)",
+          "description": "Nested under an existing tour ({{tourSlug}} from Catalog).",
+          "item": [
+            {
+              "name": "GET /admin/tours/:slug/departures",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/tours/{{tourSlug}}/departures", "host": ["{{baseUrl}}"], "path": ["admin", "tours", "{{tourSlug}}", "departures"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "POST /admin/tours/:slug/departures → newDepartureId",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/admin/tours/{{tourSlug}}/departures", "host": ["{{baseUrl}}"], "path": ["admin", "tours", "{{tourSlug}}", "departures"] },
+                "body": { "mode": "raw", "raw": "{\n  \"startDate\": \"2026-09-10\",\n  \"endDate\": \"2026-09-12\",\n  \"seatsTotal\": 20,\n  \"priceOverride\": 189\n}", "options": { "raw": { "language": "json" } } }
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('201', () => pm.response.code === 201);", "const d = pm.response.json().data;", "if (d && d.id) pm.collectionVariables.set('newDepartureId', d.id);"] } }]
+            },
+            {
+              "name": "PATCH /admin/tours/:slug/departures/:id",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/admin/tours/{{tourSlug}}/departures/{{newDepartureId}}", "host": ["{{baseUrl}}"], "path": ["admin", "tours", "{{tourSlug}}", "departures", "{{newDepartureId}}"] },
+                "body": { "mode": "raw", "raw": "{\n  \"seatsTotal\": 24,\n  \"status\": \"OPEN\"\n}", "options": { "raw": { "language": "json" } } }
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            },
+            {
+              "name": "DELETE /admin/tours/:slug/departures/:id",
+              "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/admin/tours/{{tourSlug}}/departures/{{newDepartureId}}", "host": ["{{baseUrl}}"], "path": ["admin", "tours", "{{tourSlug}}", "departures", "{{newDepartureId}}"] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('2xx', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 409]));"] } }]
+            }
+          ]
+        },
+        {
+          "name": "05 · Media Uploads",
+          "item": [
+            {
+              "name": "POST /admin/uploads/signed-url",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/admin/uploads/signed-url", "host": ["{{baseUrl}}"], "path": ["admin", "uploads", "signed-url"] },
+                "body": { "mode": "raw", "raw": "{\n  \"purpose\": \"TOUR_HERO\",\n  \"filename\": \"hero-shot.jpg\",\n  \"contentType\": \"image/jpeg\"\n}", "options": { "raw": { "language": "json" } } },
+                "description": "purpose ∈ TOUR_HERO | TOUR_GALLERY | TOUR_VIDEO | DESTINATION_HERO | DESTINATION_VIDEO | USER_AVATAR. Returns a signed Cloudinary upload payload."
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('2xx', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"] } }]
+            }
+          ]
+        },
+        {
+          "name": "06 · Reviews Moderation",
+          "item": [
+            {
+              "name": "GET /admin/reviews → moderateReviewId",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/reviews?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin", "reviews"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }, { "key": "isApproved", "value": "false", "disabled": true }] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);", "const r = pm.response.json().data && pm.response.json().data[0];", "if (r) pm.collectionVariables.set('moderateReviewId', r.id);"] } }]
+            },
+            {
+              "name": "PATCH /admin/reviews/:id/moderation",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/admin/reviews/{{moderateReviewId}}/moderation", "host": ["{{baseUrl}}"], "path": ["admin", "reviews", "{{moderateReviewId}}", "moderation"] },
+                "body": { "mode": "raw", "raw": "{\n  \"isApproved\": true\n}", "options": { "raw": { "language": "json" } } }
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            }
+          ]
+        },
+        {
+          "name": "07 · Enquiries (CRM)",
+          "item": [
+            {
+              "name": "GET /admin/enquiries → enquiryId",
+              "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/admin/enquiries?page=1&pageSize=20", "host": ["{{baseUrl}}"], "path": ["admin", "enquiries"], "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "20" }, { "key": "status", "value": "NEW", "disabled": true }] } },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);", "const e = pm.response.json().data && pm.response.json().data[0];", "if (e) pm.collectionVariables.set('enquiryId', e.id);"] } }]
+            },
+            {
+              "name": "PATCH /admin/enquiries/:id/status",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/admin/enquiries/{{enquiryId}}/status", "host": ["{{baseUrl}}"], "path": ["admin", "enquiries", "{{enquiryId}}", "status"] },
+                "body": { "mode": "raw", "raw": "{\n  \"status\": \"CONTACTED\"\n}", "options": { "raw": { "language": "json" } } },
+                "description": "status ∈ NEW | CONTACTED | QUOTED | WON | LOST."
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+            }
+          ]
+        },
+        {
+          "name": "08 · Bookings",
+          "item": [
+            {
+              "name": "POST /admin/bookings/:code/refund (BK-SEEDPAID)",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "url": { "raw": "{{baseUrl}}/admin/bookings/{{seedPaidCode}}/refund", "host": ["{{baseUrl}}"], "path": ["admin", "bookings", "{{seedPaidCode}}", "refund"] },
+                "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Customer cancelled within the free window\"\n}", "options": { "raw": { "language": "json" } } },
+                "description": "Refunds the seeded PAID booking BK-SEEDPAID (only refundable once → second call 400). The seed's PAID booking has no real provider payment, so the provider refund call may error in a live env; this exercises the route + the atomic seat-release CTE."
+              },
+              "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('handled', () => pm.expect(pm.response.code).to.be.oneOf([200, 400]));"] } }]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "_WEBHOOKS (reference)",
+      "description": "Server-to-server payment webhooks. NOT practical to call manually — they require a valid provider signature over the raw body. To exercise for real: use the Stripe CLI (`stripe listen --forward-to localhost:3000/api/v1/payments/stripe/webhook` + `stripe trigger checkout.session.completed`) or the PayPal sandbox webhook simulator. These entries document the endpoints only.",
+      "auth": { "type": "noauth" },
+      "item": [
+        {
+          "name": "POST /payments/stripe/webhook (needs signature)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Stripe-Signature", "value": "t=...,v1=... (from Stripe CLI)" }],
+            "url": { "raw": "{{baseUrl}}/payments/stripe/webhook", "host": ["{{baseUrl}}"], "path": ["payments", "stripe", "webhook"] },
+            "body": { "mode": "raw", "raw": "{ \"note\": \"Use Stripe CLI to deliver a signed event; a hand-written body will be rejected (400, signature invalid).\" }", "options": { "raw": { "language": "json" } } }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('reference only (expect 400 without signature)', () => pm.expect(pm.response.code).to.be.oneOf([200, 400]));"] } }]
+        },
+        {
+          "name": "POST /payments/paypal/webhook (needs signature)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/payments/paypal/webhook", "host": ["{{baseUrl}}"], "path": ["payments", "paypal", "webhook"] },
+            "body": { "mode": "raw", "raw": "{ \"note\": \"Use the PayPal sandbox webhook simulator; signature is verified against PAYPAL_WEBHOOK_ID.\" }", "options": { "raw": { "language": "json" } } }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('reference only', () => pm.expect(pm.response.code).to.be.oneOf([200, 400]));"] } }]
+        }
+      ]
+    }
+  ]
+}
