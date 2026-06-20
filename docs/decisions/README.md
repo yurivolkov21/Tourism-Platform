@@ -13,15 +13,17 @@ decisions also fold into [../BLUEPRINT.md](../BLUEPRINT.md) / [../architecture/]
 | [0003](0003-enquiry.md) | **Enquiry** model + "Inquire Now" lead form (D2) | 2026-06-14 |
 | [0004](0004-admin-reuses-web-ui.md) | admin may reuse `web/ui` (D3) | 2026-06-14 |
 | [0005](0005-en-only.md) | **English-only** — drop EN/VI bilingual (supersedes parity) | 2026-06-15 |
-| [0006](0006-multi-gateway-momo.md) | **Multi-gateway** payments: Stripe + **MoMo** | 2026-06-15 |
+| [0006](0006-multi-gateway-momo.md) | **Multi-gateway** payments: Stripe + **PayPal** (amended from MoMo 2026-06-16) | 2026-06-15 |
 | [0007](0007-pgboss-outbox-jobs.md) | **pg-boss** outbox + jobs (reliability) | 2026-06-15 |
 | [0008](0008-security-integrity-hardening.md) | **Security & integrity hardening** (tighter than donor) | 2026-06-15 |
 
-## Open ⬜ (block P1)
+## Resolved (P1 — all closed) ✅
+
+> **P1 backend is complete** (P1.1 → P1.x + P1.7d/e). All D-P1.* questions below are closed.
 
 | ID | Question | Decision |
 | --- | --- | --- |
-| **D-P1.6** | Supabase project + DB + secrets | **Resolved 2026-06-15: NEW Supabase project** (donor untouched & still running — keeps ADR-0001 intact). Reusable secrets (Stripe/Cloudinary/Resend) copied from donor; Supabase keys = new project; MoMo/Sentry to fill. `migrate` runs once `.env` populated. |
+| **D-P1.6** | Supabase project + DB + secrets | **Resolved 2026-06-15: NEW Supabase project** (donor untouched & still running — keeps ADR-0001 intact). Reusable secrets (Stripe/Cloudinary/Resend) copied from donor; Supabase keys = new project; PayPal/Sentry filled. `migrate` runs against live DB. |
 
 > **Resolved 2026-06-15** (in P1.1):
 >

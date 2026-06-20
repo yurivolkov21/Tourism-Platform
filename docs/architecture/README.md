@@ -45,7 +45,7 @@ The thing the donor never had. `shared/core` (types/zod/client/logic) +
 ## 4. Auth & payments
 
 - **Auth = Supabase** — API verifies JWT (JWKS + HS256 fallback), mirrors users locally; `ADMIN_EMAILS` allowlist + RolesGuard. Port from donor. Detail: [backend.md](backend.md).
-- **Payments = Stripe + MoMo** (multi-gateway, [ADR-0006](../decisions/0006-multi-gateway-momo.md)) — Stripe (international) + MoMo (VN domestic). Each: own webhook/IPN (raw-body + HMAC), shared `PaymentEvent` idempotency + seat-reservation core. Port Stripe from donor.
+- **Payments = Stripe + PayPal** (multi-gateway, [ADR-0006](../decisions/0006-multi-gateway-momo.md) — amended MoMo→PayPal; audience is inbound foreign tourists). Stripe (hosted Checkout) + PayPal (Orders v2, capture-on-return). Each: own webhook (signature verify), shared `PaymentEvent` idempotency + **atomic seat-claim CTE** (no `FOR UPDATE`). Stripe ported from donor.
 
 ## 5. Cross-cutting
 
@@ -57,9 +57,9 @@ The thing the donor never had. `shared/core` (types/zod/client/logic) +
 
 Tighter than the donor. RLS on all tables (defense-in-depth) + API-layer auth ·
 real FKs where cheap (`refundedById→User SetNull`) · MediaAsset polymorphic +
-reconcile job · CHECK constraints · email-unique at DB · webhook HMAC (Stripe +
-MoMo) · secrets via Joi fail-fast · helmet/CORS/HSTS · Sentry. Risk register:
-[risks.md](risks.md).
+reconcile job · CHECK constraints · email-unique at DB · webhook signature verify
+(Stripe HMAC + PayPal) · secrets via Joi fail-fast · helmet/CORS/HSTS · Sentry. Risk
+register: [risks.md](risks.md).
 
 ## 7. Reliability ([ADR-0007](../decisions/0007-pgboss-outbox-jobs.md))
 

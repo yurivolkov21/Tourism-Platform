@@ -38,7 +38,7 @@ and the reference-site study ([reference-sites-analysis](../research/2026-06-14-
 | Web / Admin | **Next.js** (App Router), Lily-style design |
 | Visual direction | Lily-adapted (warm, trust-forward) — keep our **self-serve online booking** edge that Lily lacks |
 | i18n | **English-only** (ADR-0005, 2026-06-15 — was EN/VI). `@tourism/i18n` kept as EN scaffold |
-| Auth / payments | Supabase Auth + **Stripe + MoMo** (multi-gateway, ADR-0006) |
+| Auth / payments | Supabase Auth + **Stripe + PayPal** (multi-gateway, ADR-0006 — amended MoMo→PayPal 2026-06-16) |
 | Reliability / security | **pg-boss** outbox/jobs (ADR-0007) · **security & integrity hardening** incl. RLS (ADR-0008) |
 
 ---
@@ -130,12 +130,17 @@ consume `shared/tokens` so the Lily design language is identical across platform
 
 ## 6. New data model (clean, Lily-informed)
 
-> **Updated 2026-06-15 (ADRs 0005–0008):** the model below is **English-only** —
-> ignore the `(en/vi)` notations (drop all `*_vi`; array content → `text[]`).
-> Payments are **multi-gateway** (`Booking.paymentProvider` + generic
-> `providerSessionId`/`providerPaymentId`). Integrity/security hardened (FK
-> `refundedById→User SetNull`, RLS, CHECK constraints). Canonical current map:
-> [architecture/data-model.md](architecture/data-model.md).
+> **Founding sketch — not current.** The entity list below is the original draft;
+> it predates several changes that landed in P1. For the **canonical current model**
+> (17 models, 12 enums) see [architecture/data-model.md](architecture/data-model.md)
+> + [`schema.prisma`](../apps/api/prisma/schema.prisma). What changed since this draft:
+> **English-only** (drop `*_vi`, array → `text[]`, ADR-0005) · payments
+> **STRIPE/PAYPAL** (`Booking.paymentProvider` + generic provider refs; MoMo→PayPal
+> amended, ADR-0006) · `TourCategory` **lookup table** (not enum) · `TourPolicy` is its
+> **own model** · `Enquiry.status` = NEW/CONTACTED/QUOTED/WON/LOST **+ lead fields**
+> (nationality/travelDate/groupSize/budgetTier/interests, P1.7d) · `Tour` gained
+> **`suitableFor`/`badges`** (P1.7e) · **`Outbox`** + **`MediaGarbage`** reliability
+> tables (ADR-0007, P1.x) · integrity hardened (FK `refundedById→User SetNull`, RLS, CHECK).
 
 Current schema is ~80% there. The new model keeps the strong bones and adds the
 Lily fields. **Entities** (Prisma):
@@ -233,7 +238,7 @@ changed some defaults; we read the live docs at scaffold time.)*
 ### Added 2026-06-15 (see [decisions/](decisions/README.md))
 
 1. **ADR-0005 — English-only:** ✅ drop EN/VI bilingual (supersedes the i18n parity decision). `@tourism/i18n` kept as EN scaffold; `*_vi` columns dropped; array content → `text[]`.
-2. **ADR-0006 — Multi-gateway payments:** ✅ **Stripe + MoMo** (VN domestic). `Booking` becomes provider-neutral.
+2. **ADR-0006 — Multi-gateway payments:** ✅ **Stripe + PayPal** (amended MoMo→PayPal 2026-06-16 — audience is inbound foreign tourists). `Booking` is provider-neutral.
 3. **ADR-0007 — pg-boss** outbox + jobs (email retry, cleanup/reconcile crons).
 4. **ADR-0008 — Security & integrity hardening:** ✅ RLS backstop, real FKs where cheap, CHECK constraints, webhook HMAC (both gateways), email-unique at DB, Sentry.
 

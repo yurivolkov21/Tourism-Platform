@@ -17,7 +17,7 @@
 4. **[guides/conventions.md](guides/conventions.md)** — how we work + which tools/skills to use.
 5. **[decisions/](decisions/README.md)** — the decision log (ADRs) + open questions.
 
-Then, as needed: **[reference/](reference/)** (research) · **[runbooks/](runbooks/README.md)** (ops) · **[specs/](specs/)** + **[plans/](plans/)** (per-feature).
+Then, as needed: **[reference/](reference/)** — function catalog ([admin](reference/functions-admin.md)/[customer](reference/functions-customer.md)/[system](reference/functions-system.md)) + reference-site research · **[runbooks/](runbooks/README.md)** (ops) · **[specs/](specs/)** + **[plans/](plans/)** (per-feature).
 
 ## 🗂 Folder map
 
@@ -30,7 +30,7 @@ docs/
 ├── guides/                    conventions + how-tos
 ├── decisions/                 ADR log (one decision per file)
 ├── runbooks/                  operational how-tos (local-dev, seed, deploy)
-├── reference/                 external research (reference-site analysis)
+├── reference/                 function catalog (admin/customer/system) + reference-site research
 ├── specs/                     per-feature design specs (spec→plan→execute)
 └── plans/                     per-feature implementation plans
 ```
