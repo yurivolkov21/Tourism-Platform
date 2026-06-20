@@ -10,6 +10,7 @@ import { AuthModule } from '../modules/auth/auth.module';
 import { BookingsModule } from '../modules/bookings/bookings.module';
 import { DeparturesModule } from '../modules/departures/departures.module';
 import { DestinationsModule } from '../modules/destinations/destinations.module';
+import { ReviewsModule } from '../modules/reviews/reviews.module';
 import { TourCategoriesModule } from '../modules/tour-categories/tour-categories.module';
 import { ToursModule } from '../modules/tours/tours.module';
 import { UploadsModule } from '../modules/uploads/uploads.module';
@@ -35,6 +36,7 @@ import { AppService } from './app.service';
     DeparturesModule,
     BookingsModule,
     UploadsModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [
