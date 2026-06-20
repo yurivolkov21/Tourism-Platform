@@ -22,9 +22,106 @@
     { "key": "newDestinationSlug", "value": "" },
     { "key": "newDepartureId", "value": "" },
     { "key": "moderateReviewId", "value": "" },
-    { "key": "seedPaidCode", "value": "BK-SEEDPAID" }
+    { "key": "seedPaidCode", "value": "BK-SEEDPAID" },
+    { "key": "customerUserId", "value": "" },
+    { "key": "adminUserId", "value": "" }
   ],
   "item": [
+    {
+      "name": "_SETUP (Admin API · run once)",
+      "description": "One-time user setup with the Supabase **service_role** key (`{{supabaseServiceRoleKey}}` — fill from `apps/api/.env` → `SUPABASE_SERVICE_ROLE_KEY`). ⚠️ This key bypasses RLS — never commit or share it. Pushes the passwords in your env onto the Supabase users so Login works.\n\n• FORGOT password on EXISTING users → run **1**, then **3** + **5**.\n• FIRST TIME (no users yet) → run **2** + **4** (password is set on create).",
+      "auth": { "type": "noauth" },
+      "item": [
+        {
+          "name": "1 · Find existing user ids (GET)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "apikey", "value": "{{supabaseServiceRoleKey}}" },
+              { "key": "Authorization", "value": "Bearer {{supabaseServiceRoleKey}}" }
+            ],
+            "url": { "raw": "{{supabaseUrl}}/auth/v1/admin/users?per_page=200", "host": ["{{supabaseUrl}}"], "path": ["auth", "v1", "admin", "users"], "query": [{ "key": "per_page", "value": "200" }] },
+            "description": "Lists Supabase Auth users; captures {{customerUserId}} / {{adminUserId}} by matching email. Run this first (check the console for the ids)."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200', () => pm.response.code === 200);",
+            "const body = pm.response.json();",
+            "const users = Array.isArray(body) ? body : (body.users || []);",
+            "const c = users.find(u => u.email === pm.environment.get('customerEmail'));",
+            "const a = users.find(u => u.email === pm.environment.get('adminEmail'));",
+            "if (c) pm.collectionVariables.set('customerUserId', c.id);",
+            "if (a) pm.collectionVariables.set('adminUserId', a.id);",
+            "console.log('customer:', c ? c.id : 'NOT FOUND → run step 2', '| admin:', a ? a.id : 'NOT FOUND → run step 4');"
+          ] } }]
+        },
+        {
+          "name": "2 · Create + confirm customer (POST, first-time)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "apikey", "value": "{{supabaseServiceRoleKey}}" },
+              { "key": "Authorization", "value": "Bearer {{supabaseServiceRoleKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{supabaseUrl}}/auth/v1/admin/users", "host": ["{{supabaseUrl}}"], "path": ["auth", "v1", "admin", "users"] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{customerEmail}}\",\n  \"password\": \"{{customerPassword}}\",\n  \"email_confirm\": true\n}", "options": { "raw": { "language": "json" } } },
+            "description": "Creates the customer ALREADY confirmed (no email step). 422 = already exists → use step 3 instead. Captures {{customerUserId}}."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('created or already exists', () => pm.expect(pm.response.code).to.be.oneOf([200, 201, 422]));",
+            "if (pm.response.code < 300) { const u = pm.response.json(); if (u.id) pm.collectionVariables.set('customerUserId', u.id); }"
+          ] } }]
+        },
+        {
+          "name": "3 · Set customer password (PUT, existing)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "apikey", "value": "{{supabaseServiceRoleKey}}" },
+              { "key": "Authorization", "value": "Bearer {{supabaseServiceRoleKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{supabaseUrl}}/auth/v1/admin/users/{{customerUserId}}", "host": ["{{supabaseUrl}}"], "path": ["auth", "v1", "admin", "users", "{{customerUserId}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"password\": \"{{customerPassword}}\",\n  \"email_confirm\": true\n}", "options": { "raw": { "language": "json" } } },
+            "description": "Resets the EXISTING customer's password to {{customerPassword}} + confirms email. Needs {{customerUserId}} from step 1."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+        },
+        {
+          "name": "4 · Create + confirm admin (POST, first-time)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "apikey", "value": "{{supabaseServiceRoleKey}}" },
+              { "key": "Authorization", "value": "Bearer {{supabaseServiceRoleKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{supabaseUrl}}/auth/v1/admin/users", "host": ["{{supabaseUrl}}"], "path": ["auth", "v1", "admin", "users"] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\",\n  \"email_confirm\": true\n}", "options": { "raw": { "language": "json" } } },
+            "description": "Creates the admin already confirmed. The email must match the API's ADMIN_EMAILS. 422 = exists → use step 5. Captures {{adminUserId}}."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('created or already exists', () => pm.expect(pm.response.code).to.be.oneOf([200, 201, 422]));",
+            "if (pm.response.code < 300) { const u = pm.response.json(); if (u.id) pm.collectionVariables.set('adminUserId', u.id); }"
+          ] } }]
+        },
+        {
+          "name": "5 · Set admin password (PUT, existing)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "apikey", "value": "{{supabaseServiceRoleKey}}" },
+              { "key": "Authorization", "value": "Bearer {{supabaseServiceRoleKey}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{supabaseUrl}}/auth/v1/admin/users/{{adminUserId}}", "host": ["{{supabaseUrl}}"], "path": ["auth", "v1", "admin", "users", "{{adminUserId}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"password\": \"{{adminPassword}}\",\n  \"email_confirm\": true\n}", "options": { "raw": { "language": "json" } } },
+            "description": "Resets the EXISTING admin's password to {{adminPassword}} + confirms email. Needs {{adminUserId}} from step 1."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200', () => pm.response.code === 200);"] } }]
+        }
+      ]
+    },
     {
       "name": "CUSTOMER",
       "description": "Customer-facing flow. Auth: Bearer {{customerToken}} (inherited). Run '00 · Auth & Account → Login' first.",
