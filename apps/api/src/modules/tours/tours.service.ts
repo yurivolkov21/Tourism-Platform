@@ -146,6 +146,8 @@ export class ToursService {
           difficulty: body.difficulty,
           isPublished: body.isPublished ?? false,
           isFeatured: body.isFeatured ?? false,
+          suitableFor: body.suitableFor ?? [],
+          badges: body.badges ?? [],
           included: body.included ?? [],
           excluded: body.excluded ?? [],
           highlights: body.highlights ?? [],
@@ -197,6 +199,8 @@ export class ToursService {
     if (body.difficulty !== undefined) data.difficulty = body.difficulty;
     if (body.isPublished !== undefined) data.isPublished = body.isPublished;
     if (body.isFeatured !== undefined) data.isFeatured = body.isFeatured;
+    if (body.suitableFor !== undefined) data.suitableFor = body.suitableFor;
+    if (body.badges !== undefined) data.badges = body.badges;
     if (body.included !== undefined) data.included = body.included;
     if (body.excluded !== undefined) data.excluded = body.excluded;
     if (body.highlights !== undefined) data.highlights = body.highlights;

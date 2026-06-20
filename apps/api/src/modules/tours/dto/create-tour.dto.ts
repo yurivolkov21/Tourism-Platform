@@ -1,10 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { TourBadge, TravellerType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
   IsBoolean,
+  IsEnum,
   IsInt,
   IsNumber,
   IsOptional,
@@ -148,6 +150,32 @@ export class CreateTourDto {
   @IsOptional()
   @IsBoolean()
   isFeatured?: boolean;
+
+  // ── Merchandising (P1.7e) ──────────────────────────────────────────────────
+
+  @ApiPropertyOptional({
+    enum: TravellerType,
+    isArray: true,
+    example: [TravellerType.FAMILY, TravellerType.COUPLE],
+    description: 'Traveller types this tour suits.',
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(5)
+  @IsEnum(TravellerType, { each: true })
+  suitableFor?: TravellerType[];
+
+  @ApiPropertyOptional({
+    enum: TourBadge,
+    isArray: true,
+    example: [TourBadge.BEST_VALUE],
+    description: 'Merchandising badges on the tour card.',
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(5)
+  @IsEnum(TourBadge, { each: true })
+  badges?: TourBadge[];
 
   // ── Content arrays (text[]) ────────────────────────────────────────────────
 
