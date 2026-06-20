@@ -47,6 +47,11 @@ export class EnquiryService {
           phone: dto.phone ?? null,
           message: dto.message,
           tourId: dto.tourId ?? null,
+          nationality: dto.nationality ?? null,
+          travelDate: dto.travelDate ? new Date(dto.travelDate) : null,
+          groupSize: dto.groupSize ?? null,
+          budgetTier: dto.budgetTier ?? null,
+          interests: dto.interests ?? [],
         },
       });
       await tx.outbox.create({

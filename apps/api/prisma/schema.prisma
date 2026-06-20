@@ -411,15 +411,23 @@ model PaymentEvent {
 // ─────────────────────────────────────────────────────────────────────────────
 
 model Enquiry {
-  id        String        @id @default(uuid()) @db.Uuid
-  name      String        @db.VarChar(120)
-  email     String        @db.VarChar(200)
-  phone     String?       @db.VarChar(30)
-  message   String        @db.VarChar(2000)
-  tourId    String?       @map("tour_id") @db.Uuid
-  status    EnquiryStatus @default(NEW)
-  createdAt DateTime      @default(now()) @map("created_at")
-  updatedAt DateTime      @updatedAt @map("updated_at")
+  id          String        @id @default(uuid()) @db.Uuid
+  name        String        @db.VarChar(120)
+  email       String        @db.VarChar(200)
+  phone       String?       @db.VarChar(30)
+  message     String        @db.VarChar(2000)
+  tourId      String?       @map("tour_id") @db.Uuid
+  // Structured lead fields (P1.7d) — match the donor/Lily's inbound form so sales
+  // can qualify foreign travellers up front. All optional (a general enquiry omits
+  // them); EN-only (ADR-0005). `interests` is a free multi-select.
+  nationality String?       @db.VarChar(80)
+  travelDate  DateTime?     @map("travel_date") @db.Date
+  groupSize   Int?          @map("group_size")
+  budgetTier  String?       @map("budget_tier") @db.VarChar(40)
+  interests   String[]      @default([])
+  status      EnquiryStatus @default(NEW)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
 
   tour Tour? @relation(fields: [tourId], references: [id], onDelete: SetNull)
 

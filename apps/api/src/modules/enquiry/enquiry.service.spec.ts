@@ -63,6 +63,51 @@ describe('EnquiryService.create', () => {
     expect(outboxCalls[0][0].data.dedupeKey).toBe('enquiry-received:e-1');
   });
 
+  it('persists the structured lead fields (travelDate → Date, interests array)', async () => {
+    const create = jest.fn().mockResolvedValue({ id: 'e-1' });
+    const svc = new EnquiryService(makePrisma({ create }) as never);
+
+    await svc.create({
+      ...baseDto,
+      nationality: 'United Kingdom',
+      travelDate: '2026-08-01',
+      groupSize: 4,
+      budgetTier: '$1000–$2000',
+      interests: ['culture', 'food'],
+    });
+
+    type CreateCall = {
+      data: {
+        nationality: string | null;
+        travelDate: Date | null;
+        groupSize: number | null;
+        budgetTier: string | null;
+        interests: string[];
+      };
+    };
+    const calls = create.mock.calls as unknown as CreateCall[][];
+    expect(calls[0][0].data.nationality).toBe('United Kingdom');
+    expect(calls[0][0].data.travelDate).toBeInstanceOf(Date);
+    expect(calls[0][0].data.groupSize).toBe(4);
+    expect(calls[0][0].data.budgetTier).toBe('$1000–$2000');
+    expect(calls[0][0].data.interests).toEqual(['culture', 'food']);
+  });
+
+  it('defaults lead fields to null / [] when omitted', async () => {
+    const create = jest.fn().mockResolvedValue({ id: 'e-1' });
+    const svc = new EnquiryService(makePrisma({ create }) as never);
+
+    await svc.create(baseDto);
+
+    type CreateCall = {
+      data: { nationality: string | null; travelDate: Date | null; interests: string[] };
+    };
+    const calls = create.mock.calls as unknown as CreateCall[][];
+    expect(calls[0][0].data.nationality).toBeNull();
+    expect(calls[0][0].data.travelDate).toBeNull();
+    expect(calls[0][0].data.interests).toEqual([]);
+  });
+
   it('accepts a tourId that resolves to a published tour', async () => {
     const create = jest.fn().mockResolvedValue({ id: 'e-1' });
     const svc = new EnquiryService(
