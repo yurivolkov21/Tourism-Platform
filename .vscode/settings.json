@@ -1,0 +1,20 @@
+{
+  // Scope the Jest extension (Orta's vscode-jest) to the only project with real
+  // tests today: @tourism/api. The repo's root jest.config.ts aggregates ALL
+  // projects, so without this the extension also loads apps/web + apps/admin —
+  // whose Next.js (`next/jest`) configs throw "Couldn't find any `pages` or `app`
+  // directory" when run from the workspace root. (The Nx CLI is unaffected:
+  // `pnpm nx test @tourism/api` sets the per-project cwd and passes.)
+  //
+  // When the web/admin/mobile apps grow real tests (P3/P4/P5), add them here.
+  "jest.virtualFolders": [
+    {
+      "name": "@tourism/api",
+      "rootPath": "apps/api",
+      "jestCommandLine": "pnpm exec jest"
+    }
+  ],
+  // Run on request (click ▶ / use the Test Explorer) instead of auto-watching on
+  // open — avoids the surprise session start. Switch to "watch" if you prefer.
+  "jest.runMode": "on-demand"
+}
