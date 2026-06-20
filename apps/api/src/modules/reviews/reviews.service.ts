@@ -6,7 +6,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { BookingStatus, Prisma, Review } from '@prisma/client';
+import { BookingStatus, EmailType, Prisma, Review } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ListAdminReviewsQueryDto } from './dto/list-admin-reviews-query.dto';
@@ -262,7 +262,7 @@ export class ReviewsService {
   async moderateById(reviewId: string, isApproved: boolean): Promise<Review> {
     const existing = await this.prisma.review.findUnique({
       where: { id: reviewId },
-      select: { id: true },
+      select: { id: true, isApproved: true },
     });
     if (!existing) {
       throw new NotFoundException({
@@ -271,9 +271,28 @@ export class ReviewsService {
       });
     }
 
-    const updated = await this.prisma.review.update({
-      where: { id: reviewId },
-      data: { isApproved },
+    // Notify the reviewer only on the false→true transition. The update + outbox
+    // enqueue commit together in a short tx (ADR-0007); `dedupeKey` UNIQUE +
+    // `skipDuplicates` keep re-approval after un-approval from double-emailing.
+    const justApproved = isApproved && !existing.isApproved;
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const review = await tx.review.update({
+        where: { id: reviewId },
+        data: { isApproved },
+      });
+      if (justApproved) {
+        await tx.outbox.createMany({
+          data: [
+            {
+              type: EmailType.REVIEW_APPROVED,
+              payload: { reviewId },
+              dedupeKey: `review-approved:${reviewId}`,
+            },
+          ],
+          skipDuplicates: true,
+        });
+      }
+      return review;
     });
     this.logger.log(
       `Admin moderated review ${reviewId} → isApproved=${isApproved}`,

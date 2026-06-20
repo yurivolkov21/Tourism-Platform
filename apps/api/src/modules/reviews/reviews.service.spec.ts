@@ -285,11 +285,31 @@ describe('ReviewsService.moderateById', () => {
     expect(update).not.toHaveBeenCalled();
   });
 
-  it('flips isApproved on the row when approving', async () => {
-    const update = jest.fn().mockResolvedValue({ id: 'r-1', isApproved: true });
-    const prisma = {
-      review: { findUnique: jest.fn().mockResolvedValue({ id: 'r-1' }), update },
+  function makeModeratePrisma(currentlyApproved: boolean) {
+    const update = jest
+      .fn()
+      .mockResolvedValue({ id: 'r-1', isApproved: !currentlyApproved });
+    const outboxCreateMany = jest.fn().mockResolvedValue({ count: 1 });
+    const review = {
+      findUnique: jest
+        .fn()
+        .mockResolvedValue({ id: 'r-1', isApproved: currentlyApproved }),
+      update,
     };
+    const outbox = { createMany: outboxCreateMany };
+    const prisma = {
+      review,
+      outbox,
+      $transaction: jest.fn(
+        (cb: (tx: { review: typeof review; outbox: typeof outbox }) => unknown) =>
+          cb({ review, outbox }),
+      ),
+    };
+    return { prisma, update, outboxCreateMany };
+  }
+
+  it('flips isApproved and enqueues an email on the false→true transition', async () => {
+    const { prisma, update, outboxCreateMany } = makeModeratePrisma(false);
     const svc = new ReviewsService(prisma as never);
 
     await svc.moderateById('r-1', true);
@@ -298,13 +318,24 @@ describe('ReviewsService.moderateById', () => {
     const calls = update.mock.calls as unknown as UpdCall[][];
     expect(calls[0][0].where.id).toBe('r-1');
     expect(calls[0][0].data.isApproved).toBe(true);
+
+    type OutboxCall = { data: Array<{ type: string; dedupeKey: string }> };
+    const obCalls = outboxCreateMany.mock.calls as unknown as OutboxCall[][];
+    expect(obCalls[0][0].data[0].type).toBe('REVIEW_APPROVED');
+    expect(obCalls[0][0].data[0].dedupeKey).toBe('review-approved:r-1');
   });
 
-  it('can re-draft an approved review (isApproved=false)', async () => {
-    const update = jest.fn().mockResolvedValue({ id: 'r-1', isApproved: false });
-    const prisma = {
-      review: { findUnique: jest.fn().mockResolvedValue({ id: 'r-1' }), update },
-    };
+  it('does not re-enqueue when approving an already-approved review', async () => {
+    const { prisma, outboxCreateMany } = makeModeratePrisma(true);
+    const svc = new ReviewsService(prisma as never);
+
+    await svc.moderateById('r-1', true);
+
+    expect(outboxCreateMany).not.toHaveBeenCalled();
+  });
+
+  it('can re-draft an approved review (isApproved=false) without an email', async () => {
+    const { prisma, update, outboxCreateMany } = makeModeratePrisma(true);
     const svc = new ReviewsService(prisma as never);
 
     await svc.moderateById('r-1', false);
@@ -312,5 +343,6 @@ describe('ReviewsService.moderateById', () => {
     type UpdCall = { data: { isApproved: boolean } };
     const calls = update.mock.calls as unknown as UpdCall[][];
     expect(calls[0][0].data.isApproved).toBe(false);
+    expect(outboxCreateMany).not.toHaveBeenCalled();
   });
 });

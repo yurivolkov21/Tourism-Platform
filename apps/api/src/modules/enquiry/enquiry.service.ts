@@ -1,5 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { Enquiry, EnquiryStatus, Prisma } from '@prisma/client';
+import { Enquiry, EmailType, EnquiryStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateEnquiryDto } from './dto/create-enquiry.dto';
 import { ListEnquiriesQueryDto } from './dto/list-enquiries-query.dto';
@@ -37,14 +37,26 @@ export class EnquiryService {
       }
     }
 
-    const enquiry = await this.prisma.enquiry.create({
-      data: {
-        name: dto.name,
-        email: dto.email,
-        phone: dto.phone ?? null,
-        message: dto.message,
-        tourId: dto.tourId ?? null,
-      },
+    // Create + acknowledgement-email enqueue commit together in a short tx
+    // (ADR-0007); the fresh enquiry id makes `dedupeKey` unique by construction.
+    const enquiry = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.enquiry.create({
+        data: {
+          name: dto.name,
+          email: dto.email,
+          phone: dto.phone ?? null,
+          message: dto.message,
+          tourId: dto.tourId ?? null,
+        },
+      });
+      await tx.outbox.create({
+        data: {
+          type: EmailType.ENQUIRY_RECEIVED,
+          payload: { enquiryId: created.id },
+          dedupeKey: `enquiry-received:${created.id}`,
+        },
+      });
+      return created;
     });
     this.logger.log(`New enquiry ${enquiry.id} from ${dto.email}`);
     return enquiry;

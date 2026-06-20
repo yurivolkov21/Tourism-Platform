@@ -216,7 +216,8 @@ export class PaymentsService {
       this.logger.log(
         `Booking ${bookingCode} confirmed PAID (payment_intent=${paymentIntentId ?? 'n/a'})`,
       );
-      // Confirmation email is deferred to the pg-boss outbox (ADR-0007, P1.x).
+      // The confirmation email was enqueued atomically in `claimSeatsForPaid`'s
+      // CTE (an `outbox` row); the pg-boss worker delivers it (ADR-0007, P1.x).
     } else if (outcome === 'overbooked') {
       await this.refundOverbookedAndCancel({
         bookingId,
@@ -257,13 +258,27 @@ export class PaymentsService {
         FROM booking_check bc
         WHERE d.id = bc.departure_id AND d.seats_booked + bc.seats <= d.seats_total
         RETURNING bc.id AS booking_id
+      ),
+      paid AS (
+        UPDATE bookings
+        SET status = 'PAID'::"BookingStatus",
+            paid_at = now(),
+            provider_payment_id = ${providerPaymentId ?? null}
+        WHERE id = (SELECT booking_id FROM seat_claim)
+        RETURNING id
+      ),
+      -- Atomic outbox enqueue (ADR-0007): only when the booking actually flipped
+      -- to PAID. Idempotent on webhook retries via the dedupe_key UNIQUE.
+      outbox_insert AS (
+        INSERT INTO outbox (type, payload, dedupe_key)
+        SELECT 'BOOKING_CONFIRMATION'::"EmailType",
+               jsonb_build_object('bookingId', id),
+               'booking-confirmation:' || id::text
+        FROM paid
+        ON CONFLICT (dedupe_key) DO NOTHING
+        RETURNING id
       )
-      UPDATE bookings
-      SET status = 'PAID'::"BookingStatus",
-          paid_at = now(),
-          provider_payment_id = ${providerPaymentId ?? null}
-      WHERE id = (SELECT booking_id FROM seat_claim)
-      RETURNING id
+      SELECT id FROM paid
     `);
     if (claimed.length === 1) return 'paid';
 

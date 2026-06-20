@@ -18,27 +18,37 @@ const baseDto = {
 function makePrisma(opts: {
   tourFindFirst?: jest.Mock;
   create?: jest.Mock;
+  outboxCreate?: jest.Mock;
   findMany?: jest.Mock;
   count?: jest.Mock;
   findUnique?: jest.Mock;
   update?: jest.Mock;
 }) {
+  const enquiry = {
+    create: opts.create ?? jest.fn().mockResolvedValue({ id: 'e-1' }),
+    findMany: opts.findMany ?? jest.fn().mockResolvedValue([]),
+    count: opts.count ?? jest.fn().mockResolvedValue(0),
+    findUnique: opts.findUnique ?? jest.fn(),
+    update: opts.update ?? jest.fn(),
+  };
+  const outbox = { create: opts.outboxCreate ?? jest.fn().mockResolvedValue({}) };
   return {
     tour: { findFirst: opts.tourFindFirst ?? jest.fn() },
-    enquiry: {
-      create: opts.create ?? jest.fn().mockResolvedValue({ id: 'e-1' }),
-      findMany: opts.findMany ?? jest.fn().mockResolvedValue([]),
-      count: opts.count ?? jest.fn().mockResolvedValue(0),
-      findUnique: opts.findUnique ?? jest.fn(),
-      update: opts.update ?? jest.fn(),
-    },
+    enquiry,
+    outbox,
+    // Interactive tx — run the callback against the same mock (ADR-0007 enqueue).
+    $transaction: jest.fn(
+      (cb: (tx: { enquiry: typeof enquiry; outbox: typeof outbox }) => unknown) =>
+        cb({ enquiry, outbox }),
+    ),
   };
 }
 
 describe('EnquiryService.create', () => {
-  it('creates a general enquiry (no tourId) with status NEW', async () => {
+  it('creates a general enquiry (no tourId) and enqueues an ack email', async () => {
     const create = jest.fn().mockResolvedValue({ id: 'e-1' });
-    const svc = new EnquiryService(makePrisma({ create }) as never);
+    const outboxCreate = jest.fn().mockResolvedValue({});
+    const svc = new EnquiryService(makePrisma({ create, outboxCreate }) as never);
 
     await svc.create(baseDto);
 
@@ -46,6 +56,11 @@ describe('EnquiryService.create', () => {
     const calls = create.mock.calls as unknown as CreateCall[][];
     expect(calls[0][0].data.tourId).toBeNull();
     expect(calls[0][0].data.name).toBe('Jane Traveller');
+
+    type OutboxCall = { data: { type: string; dedupeKey: string } };
+    const outboxCalls = outboxCreate.mock.calls as unknown as OutboxCall[][];
+    expect(outboxCalls[0][0].data.type).toBe('ENQUIRY_RECEIVED');
+    expect(outboxCalls[0][0].data.dedupeKey).toBe('enquiry-received:e-1');
   });
 
   it('accepts a tourId that resolves to a published tour', async () => {

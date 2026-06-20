@@ -11,7 +11,9 @@ import { AuthModule } from '../modules/auth/auth.module';
 import { BookingsModule } from '../modules/bookings/bookings.module';
 import { DeparturesModule } from '../modules/departures/departures.module';
 import { DestinationsModule } from '../modules/destinations/destinations.module';
+import { EmailModule } from '../modules/email/email.module';
 import { EnquiryModule } from '../modules/enquiry/enquiry.module';
+import { JobsModule } from '../modules/jobs/jobs.module';
 import { ReviewsModule } from '../modules/reviews/reviews.module';
 import { TourCategoriesModule } from '../modules/tour-categories/tour-categories.module';
 import { ToursModule } from '../modules/tours/tours.module';
@@ -31,6 +33,7 @@ import { AppService } from './app.service';
       load: configurations,
     }),
     PrismaModule,
+    EmailModule,
     AuthModule,
     UsersModule,
     DestinationsModule,
@@ -43,6 +46,7 @@ import { AppService } from './app.service';
     WishlistModule,
     EnquiryModule,
     AdminStatsModule,
+    JobsModule,
   ],
   controllers: [AppController],
   providers: [
