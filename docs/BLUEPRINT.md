@@ -133,7 +133,9 @@ consume `shared/tokens` so the Lily design language is identical across platform
 > **Founding sketch — not current.** The entity list below is the original draft;
 > it predates several changes that landed in P1. For the **canonical current model**
 > (17 models, 12 enums) see [architecture/data-model.md](architecture/data-model.md)
-> + [`schema.prisma`](../apps/api/prisma/schema.prisma). What changed since this draft:
+> and [`schema.prisma`](../apps/api/prisma/schema.prisma).
+>
+> What changed since this draft:
 > **English-only** (drop `*_vi`, array → `text[]`, ADR-0005) · payments
 > **STRIPE/PAYPAL** (`Booking.paymentProvider` + generic provider refs; MoMo→PayPal
 > amended, ADR-0006) · `TourCategory` **lookup table** (not enum) · `TourPolicy` is its
