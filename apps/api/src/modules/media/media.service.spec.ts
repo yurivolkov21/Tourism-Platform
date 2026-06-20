@@ -11,11 +11,31 @@ function makeService(prisma: Record<string, unknown>): MediaService {
   return new MediaService(prisma as unknown as PrismaService, config);
 }
 
+interface ExistingAsset {
+  publicId: string;
+  posterId: string | null;
+  type: MediaType;
+}
+
+/** tx mock: `mediaAsset.findMany` returns `existing`; captures garbage inserts. */
+function makeTx(existing: ExistingAsset[] = []) {
+  const deleteMany = jest.fn().mockResolvedValue({});
+  const createMany = jest.fn().mockResolvedValue({});
+  const garbageCreateMany = jest.fn().mockResolvedValue({});
+  const tx = {
+    mediaAsset: {
+      findMany: jest.fn().mockResolvedValue(existing),
+      deleteMany,
+      createMany,
+    },
+    mediaGarbage: { createMany: garbageCreateMany },
+  } as never;
+  return { tx, deleteMany, createMany, garbageCreateMany };
+}
+
 describe('MediaService', () => {
   it('syncAssets replaces the set and falls back to array index for sortOrder', async () => {
-    const deleteMany = jest.fn().mockResolvedValue({});
-    const createMany = jest.fn().mockResolvedValue({});
-    const tx = { mediaAsset: { deleteMany, createMany } } as never;
+    const { tx, deleteMany, createMany } = makeTx();
     const svc = makeService({});
 
     const assets: MediaInputDto[] = [
@@ -33,12 +53,36 @@ describe('MediaService', () => {
   });
 
   it('syncAssets with an empty set only deletes (no createMany)', async () => {
-    const deleteMany = jest.fn().mockResolvedValue({});
-    const createMany = jest.fn();
-    const tx = { mediaAsset: { deleteMany, createMany } } as never;
+    const { tx, deleteMany, createMany } = makeTx();
     await makeService({}).syncAssets(tx, MediaOwnerType.TOUR, 't', []);
     expect(deleteMany).toHaveBeenCalledTimes(1);
     expect(createMany).not.toHaveBeenCalled();
+  });
+
+  it('syncAssets records dropped (non-kept) assets as Cloudinary garbage', async () => {
+    const { tx, garbageCreateMany } = makeTx([
+      { publicId: 'old-hero', posterId: null, type: MediaType.IMAGE },
+      { publicId: 'keep', posterId: null, type: MediaType.IMAGE },
+    ]);
+    await makeService({}).syncAssets(tx, MediaOwnerType.TOUR, 'tour-1', [
+      { publicId: 'keep', type: MediaType.IMAGE, role: MediaRole.hero },
+    ]);
+
+    const rows = garbageCreateMany.mock.calls[0][0].data as Array<{
+      publicId: string;
+      resourceType: string;
+    }>;
+    expect(rows).toEqual([{ publicId: 'old-hero', resourceType: 'image' }]);
+  });
+
+  it('syncAssets records nothing when every asset is kept', async () => {
+    const { tx, garbageCreateMany } = makeTx([
+      { publicId: 'keep', posterId: null, type: MediaType.IMAGE },
+    ]);
+    await makeService({}).syncAssets(tx, MediaOwnerType.TOUR, 'tour-1', [
+      { publicId: 'keep', type: MediaType.IMAGE, role: MediaRole.hero },
+    ]);
+    expect(garbageCreateMany).not.toHaveBeenCalled();
   });
 
   it('attachToOwners builds URLs and groups media by owner (no N+1)', async () => {
@@ -80,12 +124,22 @@ describe('MediaService', () => {
     expect(findMany).not.toHaveBeenCalled();
   });
 
-  it('deleteForOwner removes all assets for the owner', async () => {
-    const deleteMany = jest.fn().mockResolvedValue({});
-    const tx = { mediaAsset: { deleteMany } } as never;
+  it('deleteForOwner removes all assets and garbages publicId + video poster', async () => {
+    const { tx, deleteMany, garbageCreateMany } = makeTx([
+      { publicId: 'clip', posterId: 'clip-poster', type: MediaType.VIDEO },
+    ]);
     await makeService({}).deleteForOwner(tx, MediaOwnerType.DESTINATION, 'd1');
+
     expect(deleteMany).toHaveBeenCalledWith({
       where: { ownerType: MediaOwnerType.DESTINATION, ownerId: 'd1' },
     });
+    const rows = garbageCreateMany.mock.calls[0][0].data as Array<{
+      publicId: string;
+      resourceType: string;
+    }>;
+    expect(rows).toEqual([
+      { publicId: 'clip', resourceType: 'video' },
+      { publicId: 'clip-poster', resourceType: 'image' },
+    ]);
   });
 });
