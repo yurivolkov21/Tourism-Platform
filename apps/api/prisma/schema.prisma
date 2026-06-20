@@ -77,6 +77,24 @@ enum PolicyKind {
   GENERAL
 }
 
+/// Traveller types a tour suits (P1.7e merchandising — donor/Lily's "theme").
+enum TravellerType {
+  FAMILY
+  COUPLE
+  FRIENDS
+  SOLO
+  BUSINESS
+}
+
+/// Merchandising badge on a tour card (P1.7e — donor/Lily's labels).
+enum TourBadge {
+  BEST_VALUE
+  LIMITED_OFFER
+  EXCLUSIVE
+  NEW
+  POPULAR
+}
+
 /// Transactional email kind for the outbox (ADR-0007, P1.x).
 enum EmailType {
   BOOKING_CONFIRMATION
@@ -180,6 +198,9 @@ model Tour {
   difficulty      String?  @db.VarChar(30)
   isPublished     Boolean  @default(false) @map("is_published")
   isFeatured      Boolean  @default(false) @map("is_featured")
+  // Merchandising (P1.7e) — who the tour suits + card badges (donor/Lily's).
+  suitableFor     TravellerType[] @default([]) @map("suitable_for")
+  badges          TourBadge[]     @default([])
   // EN-only arrays (ADR-0005) → Postgres text[].
   included        String[] @default([])
   excluded        String[] @default([])

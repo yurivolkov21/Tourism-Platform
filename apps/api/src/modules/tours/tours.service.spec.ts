@@ -107,6 +107,23 @@ describe('ToursService', () => {
       l.destination.connect.id === 'd-2').isPrimary).toBe(false);
   });
 
+  it('create maps merchandising fields (suitableFor / badges), defaulting to []', async () => {
+    const create = jest
+      .fn()
+      .mockImplementation(({ data }) => Promise.resolve({ id: 't-1', ...data }));
+    const svc = makeService(makePrisma({ tour: { create } }));
+
+    // defaults when omitted
+    await svc.create(body());
+    expect(create.mock.calls[0][0].data.suitableFor).toEqual([]);
+    expect(create.mock.calls[0][0].data.badges).toEqual([]);
+
+    // passed through when provided
+    await svc.create(body({ suitableFor: ['FAMILY', 'COUPLE'], badges: ['BEST_VALUE'] }));
+    expect(create.mock.calls[1][0].data.suitableFor).toEqual(['FAMILY', 'COUPLE']);
+    expect(create.mock.calls[1][0].data.badges).toEqual(['BEST_VALUE']);
+  });
+
   it('create rejects an unknown category slug (400)', async () => {
     const svc = makeService(
       makePrisma({ tourCategory: { findUnique: jest.fn().mockResolvedValue(null) } }),
