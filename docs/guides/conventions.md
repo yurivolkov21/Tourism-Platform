@@ -63,7 +63,7 @@ Hardened beyond the donor — see [ADR-0008](../decisions/0008-security-integrit
 and [risks.md](../architecture/risks.md). Baseline every feature respects:
 
 - **RLS** on all tables (defense-in-depth) + API-layer `SupabaseJwtGuard`/`RolesGuard`.
-- **Webhook HMAC** verify on raw body (Stripe + MoMo); reject → 400.
+- **Webhook signature** verify on raw body (Stripe HMAC + PayPal verify API); reject → 400.
 - **Secrets** via env + Joi fail-fast; never hardcoded; service-role key server-only.
 - **Validate at boundaries** (zod in `@tourism/core` + class-validator DTOs).
 - **Integrity**: real FKs where cheap, CHECK constraints, email-unique at DB.
