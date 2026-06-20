@@ -1,37 +1,45 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { MediaOwnerType, MediaRole, MediaType, User } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MediaInputDto } from '../media/dto/media.dto';
+import { MediaService } from '../media/media.service';
+import { SetAvatarDto } from './dto/set-avatar.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
+
+/** A `User` enriched with the Cloudinary delivery URL of its avatar (if any). */
+export type UserWithAvatar = User & { avatarUrl: string | null };
 
 /**
  * Read + self-update on the local `users` table. Scope: what a user may do to
  * themselves. Admin-on-other-users belongs in a future AdminUsersService.
+ *
+ * The avatar lives as a polymorphic `MediaAsset(ownerType=USER, role=avatar)`
+ * (not a column) — set via `MediaService.syncAssets` (single-asset replace-all)
+ * and read back as a delivery URL on every profile response.
  */
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(UsersService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly media: MediaService,
+  ) {}
 
   /**
-   * Fetch a `User` by primary key. The 404 is a defensive fallback for the rare
-   * case the row is deleted between the guard and this query.
+   * Fetch a `User` by primary key (+ avatar URL). The 404 is a defensive
+   * fallback for the rare case the row is deleted between the guard and here.
    */
-  async getMe(userId: string): Promise<User> {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException({
-        code: 'USER_NOT_FOUND',
-        message: 'User not found — call POST /auth/sync first',
-      });
-    }
-    return user;
+  async getMe(userId: string): Promise<UserWithAvatar> {
+    return this.attachAvatar(await this.findOrThrow(userId));
   }
 
   /**
    * Partial profile update. Each field is included only when sent:
    * `undefined` → keep, `''` → null (clear), non-empty → trim + store.
    */
-  async updateMe(userId: string, body: UpdateMeDto): Promise<User> {
-    return this.prisma.user.update({
+  async updateMe(userId: string, body: UpdateMeDto): Promise<UserWithAvatar> {
+    const updated = await this.prisma.user.update({
       where: { id: userId },
       data: {
         ...(body.fullName !== undefined
@@ -42,5 +50,57 @@ export class UsersService {
           : {}),
       },
     });
+    return this.attachAvatar(updated);
+  }
+
+  /**
+   * Replace the caller's avatar. The client supplies only Cloudinary fields; we
+   * force `type=IMAGE`/`role=avatar` and replace-all (one asset) in a tx so the
+   * media row commits with the (no-op) owner read.
+   */
+  async setAvatar(userId: string, dto: SetAvatarDto): Promise<UserWithAvatar> {
+    const user = await this.findOrThrow(userId);
+    const item: MediaInputDto = {
+      publicId: dto.publicId,
+      type: MediaType.IMAGE,
+      role: MediaRole.avatar,
+      format: dto.format,
+      width: dto.width,
+      height: dto.height,
+    };
+    await this.prisma.$transaction((tx) =>
+      this.media.syncAssets(tx, MediaOwnerType.USER, userId, [item]),
+    );
+    this.logger.log(`User ${userId} set avatar ${dto.publicId}`);
+    return this.attachAvatar(user);
+  }
+
+  /** Clear the caller's avatar (replace-all with the empty set). */
+  async clearAvatar(userId: string): Promise<UserWithAvatar> {
+    const user = await this.findOrThrow(userId);
+    await this.prisma.$transaction((tx) =>
+      this.media.syncAssets(tx, MediaOwnerType.USER, userId, []),
+    );
+    this.logger.log(`User ${userId} cleared avatar`);
+    return this.attachAvatar(user);
+  }
+
+  // ── Internals ───────────────────────────────────────────────────────────
+
+  private async findOrThrow(userId: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException({
+        code: 'USER_NOT_FOUND',
+        message: 'User not found — call POST /auth/sync first',
+      });
+    }
+    return user;
+  }
+
+  /** A USER owner has at most one media asset (the avatar) → first url, or null. */
+  private async attachAvatar(user: User): Promise<UserWithAvatar> {
+    const withMedia = await this.media.attachToOwner(MediaOwnerType.USER, user);
+    return { ...user, avatarUrl: withMedia.media[0]?.url ?? null };
   }
 }

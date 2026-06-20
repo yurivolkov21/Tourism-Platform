@@ -6,6 +6,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { SupabaseJwtGuard } from '../common/guards/supabase-jwt.guard';
 import { TransformInterceptor } from '../common/interceptors/transform.interceptor';
 import { configurations, envValidationSchema } from '../config';
+import { AdminStatsModule } from '../modules/admin-stats/admin-stats.module';
 import { AuthModule } from '../modules/auth/auth.module';
 import { BookingsModule } from '../modules/bookings/bookings.module';
 import { DeparturesModule } from '../modules/departures/departures.module';
@@ -41,6 +42,7 @@ import { AppService } from './app.service';
     ReviewsModule,
     WishlistModule,
     EnquiryModule,
+    AdminStatsModule,
   ],
   controllers: [AppController],
   providers: [
