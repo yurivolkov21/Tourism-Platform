@@ -1,108 +1,86 @@
-# New Nx Repository
+# tourism-platform
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+An **Nx 22 + pnpm** monorepo for a Lily-style tourism booking platform — mobile from day one. The
+backend (NestJS + Prisma + Supabase) is complete; web/admin/mobile front-ends are next.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+| Project | Path | Stack | Status |
+| --- | --- | --- | --- |
+| `@tourism/api` | `apps/api` | NestJS 11 · Prisma 7 · Supabase · Stripe + PayPal · Cloudinary · Resend · pg-boss | ✅ P1 complete |
+| `@tourism/web` | `apps/web` | Next.js 16 | 🚧 scaffold |
+| `@tourism/admin` | `apps/admin` | Next.js 16 | 🚧 scaffold |
+| `@tourism/mobile` | `apps/mobile` | Expo SDK 54 / RN | 🚧 scaffold |
+| `@tourism/core` · `tokens` · `i18n` · `web/ui` · `mobile/ui` | `libs/` | shared types/client · design tokens · EN copy · UI | 🚧 scaffold |
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+Full docs: **[docs/README.md](docs/README.md)** (map + reading path) · the operating contract:
+**[CLAUDE.md](CLAUDE.md)**.
 
-## Finish your Nx platform setup
+---
 
-🚀 [Finish setting up your workspace](https://cloud.nx.app/connect/LwtDYu8VTR) to get faster builds with remote caching, distributed task execution, and self-healing CI. [Learn more about Nx Cloud](https://nx.dev/ci/intro/why-nx-cloud).
+## Prerequisites
 
-## Generate a library
+- **Node ≥ 22** and **pnpm 11** via Corepack — run `corepack enable` to get the pinned pnpm.
+- A **Supabase** project + the service secrets (Stripe, PayPal, Cloudinary, Resend, Sentry). For local
+  dev these go in `apps/api/.env` (see step 2).
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
-```
-
-## Run tasks
-
-To build the library use:
-
-```sh
-npx nx build pkg1
-```
-
-To run any task with Nx use:
-
-```sh
-npx nx <target> <project-name>
-```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
+## Getting started (after cloning)
 
 ```bash
-npx nx release
+# 1. Install all workspace deps
+pnpm install
+
+# 2. Backend env — create apps/api/.env (ask a maintainer for values, or use your own Supabase/keys).
+#    Required keys: DATABASE_URL, DIRECT_URL, SUPABASE_URL, SUPABASE_ANON_KEY,
+#    SUPABASE_SERVICE_ROLE_KEY, SUPABASE_JWKS_URL, SUPABASE_JWT_SECRET, ADMIN_EMAILS,
+#    STRIPE_*, PAYPAL_*, CLOUDINARY_*, RESEND_*, FRONTEND_URL.  (Joi fails fast if any are missing.)
+
+# 3. Apply DB migrations (Supabase, via DIRECT_URL)
+cd apps/api && pnpm exec prisma migrate deploy && pnpm exec prisma generate && cd ../..
+
+# 4. Run the API (dev / watch — the `start:dev` equivalent)
+pnpm nx serve @tourism/api          # → http://localhost:3000/api/v1  ·  Swagger: /api/docs
 ```
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+> New to Nx? Commands are `pnpm nx <target> <project>` (e.g. `pnpm nx serve @tourism/api`), run from the
+> repo root — no `cd` needed. Full command reference + the NestJS-`start:dev`→Nx mapping:
+> **[docs/runbooks/local-dev.md](docs/runbooks/local-dev.md)**.
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Test data: from zero vs seeded
 
-## Keep TypeScript project references up to date
+- **From zero (recommended for understanding the API)** — `pnpm nx run @tourism/api:reset` empties all
+  app tables (keeps schema + your Supabase accounts). Then build every row yourself through the API; the
+  **[Postman collection](apps/api/postman/README.md)** walks you through it (admin creates the catalog →
+  customer books it).
+- **Seeded (quick demo data)** — `pnpm nx run @tourism/api:seed` loads a demo catalog + a self-signed
+  PAID booking (this is what e2e/CI use).
 
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+## Common commands
 
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
-
-```sh
-npx nx sync
+```bash
+pnpm nx serve @tourism/api                          # dev server (watch)
+pnpm nx build @tourism/api                          # production build → apps/api/dist/main.js
+pnpm nx test @tourism/api                           # unit tests (jest)
+pnpm nx lint @tourism/api                           # lint
+pnpm nx typecheck @tourism/api                      # type-check
+pnpm nx run @tourism/api:e2e                        # e2e (needs a seeded DB)
+pnpm nx run-many -t lint typecheck test build       # the full quality gate
+pnpm nx affected -t test                            # only what changed
+pnpm nx show project @tourism/api                   # list a project's targets
+pnpm nx graph                                       # dependency graph (browser)
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+## Layout
 
-```sh
-npx nx sync:check
+```text
+apps/   api (NestJS) · web + admin (Next.js) · mobile (Expo)
+libs/   shared/{core,tokens,i18n} · web/ui · mobile/ui
+docs/   README.md (map) · BLUEPRINT.md · roadmap.md · architecture/ · decisions/ (ADRs) ·
+        guides/ · runbooks/ · reference/ (function catalog) · specs/ · plans/
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+## Where to read next
 
-## Nx Cloud
-
-Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Set up CI (non-Github Actions CI)
-
-**Note:** This is only required if your CI provider is not GitHub Actions.
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **[docs/README.md](docs/README.md)** — documentation map + reading path.
+- **[docs/roadmap.md](docs/roadmap.md)** — phases P0–P6 + status.
+- **[docs/reference/functions-admin.md](docs/reference/functions-admin.md)** · **[customer](docs/reference/functions-customer.md)** · **[system](docs/reference/functions-system.md)** — every backend function.
+- **[apps/api/postman/README.md](apps/api/postman/README.md)** — manual API testing.
+- **[docs/runbooks/local-dev.md](docs/runbooks/local-dev.md)** — running the project locally.

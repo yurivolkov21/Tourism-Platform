@@ -1,17 +1,23 @@
 # Postman — manual API testing
 
-Two files for driving `@tourism/api` by hand in Postman:
+Two files for driving `@tourism/api` by hand in Postman, **designed to test from an empty DB**:
 
-- **`tourism-api.postman_collection.json`** — the collection (63 requests).
+- **`tourism-api.postman_collection.json`** — the collection (67 requests).
 - **`tourism-local.postman_environment.json`** — the environment (fill the secrets).
 
-Two flows, split by folder, each with sub-folders per area:
+**Run top-to-bottom** — each step builds the data the next one needs, so you always know where every
+row came from (no seed dependency):
 
 ```
-CUSTOMER   → 00 Auth & Account · 01 Catalog (Public) · 02 Booking & Payment · 03 Reviews & Wishlist · 04 Enquiry (Public)
-ADMIN      → 00 Auth & Stats · 01 Tours · 02 Categories · 03 Destinations · 04 Departures · 05 Media Uploads · 06 Reviews Moderation · 07 Enquiries · 08 Bookings
-_WEBHOOKS  → reference only (need provider signatures)
+_SETUP    → create/confirm the customer + admin Supabase users (run once)
+ADMIN     → 00 Auth & Stats · 01 Categories · 02 Destinations · 03 Tours · 04 Departures ·
+            05 Media Uploads · 06 Reviews Moderation · 07 Enquiries · 08 Bookings   ← builds the catalog
+CUSTOMER  → 00 Auth & Account · 01 Catalog (Public) · 02 Booking & Payment · 03 Reviews & Wishlist · 04 Enquiry   ← books what admin made
+_WEBHOOKS → reference only (need provider signatures)
 ```
+
+> **Start from zero** anytime with `pnpm nx run @tourism/api:reset` (truncates all app tables; keeps the
+> schema + your Supabase accounts). Then run ADMIN → CUSTOMER to rebuild every row yourself.
 
 ## Auth model (real Supabase login)
 
@@ -26,13 +32,15 @@ Because the token carries a **real** Supabase `sub`, you must run **`/auth/sync`
 
 ## Prerequisites
 
-1. **Seed the DB**, then **run the API** (dev/watch mode — the `start:dev` equivalent):
+1. **Run the API** (dev/watch — the `start:dev` equivalent), and start from an **empty DB**:
    ```bash
-   pnpm nx run @tourism/api:seed      # catalog + a PAID booking (BK-SEEDPAID)
-   pnpm nx serve @tourism/api         # watch + auto-restart; runs from repo root → http://localhost:3000
+   pnpm nx run @tourism/api:reset   # empty all app tables (test from zero)
+   pnpm nx serve @tourism/api       # watch + auto-restart; runs from repo root → http://localhost:3000
    ```
-   `nx serve` is the recommended dev command (build + run + watch). Alternative one-shot:
+   `nx serve` is the recommended dev command. Alternative one-shot:
    `pnpm nx build @tourism/api && (cd apps/api && node dist/main.js)`.
+   *(`pnpm nx run @tourism/api:seed` also exists — it bulk-loads a demo catalog + a self-signed PAID
+   booking — but this collection is built to NOT need it. Use `seed` only if you want pre-filled data.)*
 2. **Two Supabase Auth users** must exist with the passwords you put in the env:
    `customer@tourism.test` and an admin whose email is in **`ADMIN_EMAILS`**. Create / reset them with
    the **`_SETUP (Admin API)`** folder (below) — no dashboard needed.
@@ -58,32 +66,41 @@ Because the token carries a **real** Supabase `sub`, you must run **`/auth/sync`
    This uses the **service_role** key to set passwords + `email_confirm` directly (no email step), so
    `Login` then works with the same env passwords.
 
-## Suggested run order
+## Suggested run order (from zero — top to bottom)
 
 0. **`_SETUP (Admin API)`** — once, to set the user passwords (see Setup step 3 above).
-1. **CUSTOMER → 00 · Auth** — `Login` → `Sync local user` → `GET /users/me`.
-2. **CUSTOMER → 01 · Catalog** — run the GETs; they auto-capture `{{tourSlug}}`, `{{tourId}}`,
-   `{{categorySlug}}`, `{{destinationSlug}}`, `{{departureId}}` for everything downstream.
-3. **CUSTOMER → 02/03/04** — booking, reviews/wishlist, enquiry.
-4. **ADMIN → 00 · Auth** — `Login` → `admin/sync` → `stats/dashboard`.
-5. **ADMIN → 01…08** — CRUD + moderation + CRM + refund.
+1. **ADMIN → 00 · Auth & Stats** — `Login` → `admin/sync` → `stats/dashboard` (zeros on an empty DB = OK).
+2. **ADMIN → 01 Categories → 02 Destinations → 03 Tours → 04 Departures** — run the `POST ⭐` in each;
+   they capture `{{categorySlug}}` → `{{destinationSlug}}` → `{{tourSlug}}`+`{{tourId}}` → `{{departureId}}`.
+   The tour is created `isPublished:true`, so it shows publicly.
+3. **CUSTOMER → 00 · Auth** — `Login` → `Sync local user` → `GET /users/me`.
+4. **CUSTOMER → 01 · Catalog** — you now see the admin-created tour; the GETs re-capture the public vars.
+5. **CUSTOMER → 02 Booking** — `POST /bookings` books that tour/departure (`{{bookingCode}}`) → `checkout`
+   (open `checkoutUrl` to pay → webhook flips it PAID).
+6. **CUSTOMER → 03 Reviews & Wishlist · 04 Enquiry** — review needs a **PAID** booking; wishlist + enquiry
+   work anytime.
+7. **Back to ADMIN → 06 Reviews Moderation · 07 Enquiries · 08 Bookings** — approve the review, advance the
+   enquiry, refund the (PAID) booking.
+
+> Want a clean slate again? `pnpm nx run @tourism/api:reset` and start at step 1.
 
 Requests that create something capture the new id/slug into a `new*` variable (e.g. `{{newTourSlug}}`),
 so the GET/PATCH/DELETE that follow just work without copy-paste.
 
 ## Caveats (read once)
 
-- **Reviews need a PAID booking *you* own.** The seeded `BK-SEEDPAID` belongs to the seed customer, not
-  your Supabase-login user — so `POST /reviews` against it returns 403/400. To test the happy path,
-  create a booking, complete checkout/payment, let the webhook flip it to PAID, then review it.
+- **Reviews + refund need a PAID booking.** `POST /reviews` (customer) and `POST /admin/bookings/:code/refund`
+  (admin) both require the booking to be **PAID** — so complete `02 · Booking → checkout` and actually pay
+  (the webhook flips it to PAID) before running them. On a PENDING booking they return 400/403.
 - **Media `publicId`s must be real Cloudinary ids.** `PUT …/media` and `PUT /users/me/avatar` reference
   Cloudinary `public_id`s — mint a signed URL via **ADMIN → 05 · Media Uploads** and upload first, or
   the asset won't resolve.
 - **Webhooks can't be called by hand** — they verify a provider signature over the raw body. Use the
   Stripe CLI (`stripe listen --forward-to localhost:3000/api/v1/payments/stripe/webhook`) or the PayPal
   sandbox simulator. The `_WEBHOOKS` folder documents the endpoints only.
-- **Admin refund** (`BK-SEEDPAID`) exercises the route + atomic seat-release; the seeded booking has no
-  real provider charge, so the provider-side refund call may error in a live env (the route still runs).
+- **Guarded deletes 409 on purpose.** The admin `DELETE` requests show the 3-tier delete policy: a
+  published tour / active destination / referenced category-or-departure can't be hard-deleted (409).
+  That's correct — unpublish/deactivate first, or remove the children.
 
 ## Negative cases included
 
