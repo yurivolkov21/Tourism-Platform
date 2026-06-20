@@ -31,7 +31,7 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P0 + P1.1–P1.4 DONE (`main` @ `f6f20f1`)
+## Current state — P0 + P1.1–P1.6 DONE (`main` @ `a98998a`)
 
 ```text
 apps/   api (NestJS 11) · web + admin (Next 16) · mobile (Expo SDK 54)
@@ -47,7 +47,7 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
   a **live Supabase project** (`tourism-platform`, SG, ref `zxryyqhczgrbidjocwly`;
   creds in gitignored `apps/api/.env`). Donor "tour-booking" untouched (ADR-0001).
 - **P1.2** — response envelope (`ApiResponse` → `@tourism/core`) + TransformInterceptor
-  + HttpExceptionFilter + bootstrap (helmet/CORS/Swagger/Sentry/dotenv).
+  - HttpExceptionFilter + bootstrap (helmet/CORS/Swagger/Sentry/dotenv).
 - **P1.3** — auth: SupabaseJwtGuard (jose JWKS) + RolesGuard + `@Public`/`@Roles`/
   `@CurrentUser` + `/auth/sync`, `/auth/admin/sync`, `/users/me` (global guards).
 - **P1.4** — CRUD epic, all merged: **P1.4a** destinations · **P1.4b** tours +
@@ -56,20 +56,33 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
   seat/date guards). Pattern: public + admin controllers, `Promise.all` pagination
   (departures = arrays, bounded), slugify, `P2002→409` / `P2003→409`, class-validator
   DTOs, service unit tests, `/gate`, smoke.
-- **Tests:** 58 passing (api). CI green (lint·typecheck·test·build + CodeQL +
+- **P1.5** — bookings + payments, all merged: **P1.5a** bookings core (PENDING
+  lifecycle, soft seat-check) · **P1.5b** Stripe (checkout + raw-body HMAC webhook +
+  admin refund; **atomic seat-claim CTE** via `PaymentsService.claimSeatsForPaid`) ·
+  **P1.5c** PayPal (Orders v2, capture-on-return + webhook backstop). **MoMo→PayPal
+  pivot** (ADR-0006 amended — audience is inbound foreign tourists). Confirmation/refund
+  emails deferred → P1.x.
+- **P1.6** — media (Cloudinary signed direct upload): `lib/cloudinary-url`,
+  `modules/{uploads,media}`, `POST /admin/uploads/signed-url`, `PUT /admin/{tours,
+  destinations}/:slug/media` (replace-all), read-attach `media[]` on tour/destination
+  reads. Reconcile/destroy job deferred → P1.x.
+- **Tests:** 119 passing (api). CI green (lint·typecheck·test·build + CodeQL +
   GitGuardian). **Dependabot: 0 open** (js-yaml DoS resolved via `^4.2.0` override).
 - **Gate:** `nx run-many -t lint typecheck test` + `build` green; mobile `build`
   is an Expo EAS cloud build (needs global `eas-cli`) → excluded from the local gate.
 
 ## Next steps (resume order)
 
-1. **P1.5 — Bookings + multi-gateway payments (Stripe + MoMo)** + outbox email —
-   *next*. Port donor `modules/payments` (raw-body + HMAC webhook + idempotency) +
-   bookings flow (seat lock on `TourDeparture.seatsBooked` under tx); `toProviderAmount`
-   for zero-decimal/VND (R1). `DeparturesService` already exported for the seat lock.
-2. **P1.6** media (Cloudinary) · **P1.7** reviews + wishlist + enquiry + admin-stats ·
-   **P1.x** pg-boss jobs (outbox/cron) · **P1.8** seed + Swagger + `shared/core` client.
+1. **P1.7 — Reviews + wishlist + enquiry (+ admin-stats)** — *next*. Tables exist
+   (`Review` one-per-booking + rating CHECK, `Wishlist` composite PK, `Enquiry` lead
+   - status enum). Port donor `modules/{reviews,wishlist,enquiry,admin-stats}` to the
+   EN-only schema; follow the P1.4/P1.5 pattern. Also wire the deferred **user-avatar**
+   media (`USER_AVATAR` purpose already signable) into `/users/me`.
+2. **P1.x** pg-boss jobs — deferred confirmation/refund emails (Resend) + abandoned-cart
+   cleanup + media reconcile (ADR-0007). **P1.8** seed + Swagger + `shared/core` API
+   client + tests ≥80% (unblocks the deferred PayPal e2e + full-flow runs).
 3. Then P2 design system → P3 web → P4 admin → P5 mobile (BLUEPRINT §7).
+4. Then P2 design system → P3 web → P4 admin → P5 mobile (BLUEPRINT §7).
 
 > Live resume buffer with finer detail: [`.remember/remember.md`](.remember/remember.md).
 > Per-phase specs/plans: [`docs/specs/`](docs/specs/) + [`docs/plans/`](docs/plans/).

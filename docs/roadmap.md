@@ -12,7 +12,7 @@ Founding phase list: [BLUEPRINT §7](BLUEPRINT.md#7-phased-roadmap). Decisions: 
 | **P0** | Nx scaffold: apps + libs + tags | ✅ done (`d720036`) |
 | **P0.6** | Module boundaries (ESLint flat-config + enforce-module-boundaries) | ✅ done |
 | **P0.8** | Port donor conventions + rename `@org`→`@tourism` + AI cleanup | ✅ done |
-| **P1** | **Backend:** fresh Prisma schema + port infra + seed | 🚧 in progress — P1.1–P1.4 done; **P1.5 next** (see breakdown) |
+| **P1** | **Backend:** fresh Prisma schema + port infra + seed | 🚧 in progress — P1.1–P1.6 done (schema/auth/CRUD/bookings/Stripe+PayPal/media); **P1.7 next** (see breakdown) |
 | **P2** | Design system: `shared/tokens` + `web/ui` + `mobile/ui` | ⬜ |
 | **P3** | Web (customer): home → destinations → tours → detail → booking → account | ⬜ |
 | **P4** | Admin: manage tours/destinations/departures/media/reviews/bookings | ⬜ |
@@ -32,9 +32,9 @@ EN-only ([ADR-0005](decisions/0005-en-only.md)); security/integrity hardened
 | ✅ **P1.2** | Envelope (`ApiResponse`→`@tourism/core`) + TransformInterceptor + HttpExceptionFilter + `@SkipTransform`; helmet/CORS; Swagger; **Sentry** | **done** — smoke-tested (DB connect + envelope). Raw-body→P1.5, auth decorators→P1.3 |
 | ✅ **P1.3** | Auth: SupabaseJwtGuard + RolesGuard + decorators (`@Public`/`@Roles`/`@CurrentUser`) + auth/users sync (`/auth/sync`, `/auth/admin/sync`, `/users/me`) | **done** — global guards; smoke-tested (public 200 / protected 401). `ADMIN_EMAILS` allowlist |
 | ✅ **P1.4** | CRUD: **destinations ✅** · **tours ✅** (+categories, +itinerary/FAQs/policies, **+M:N**) · **departures ✅** (nested, seat/date guards) | done: P1.4a destinations · P1.4b tours/categories · P1.4c departures. M:N + slug refs changed DTO shape vs donor |
-| **P1.5** | Bookings + **multi-gateway payments (Stripe + MoMo)** + outbox email | webhook/IPN HMAC; `toProviderAmount` (zero-decimal/VND, R1) |
-| **P1.6** | Media (Cloudinary) + uploads (signed URL) + reconcile job | store `public_id`, derive URLs |
-| **P1.7** | Reviews + wishlist + **enquiry** + admin-stats | |
+| ✅ **P1.5** | Bookings + **multi-gateway payments (Stripe + PayPal)** | done: P1.5a bookings core · P1.5b Stripe (checkout/webhook/refund, atomic seat-claim CTE) · P1.5c PayPal (Orders v2, capture-on-return). **MoMo→PayPal pivot** ([ADR-0006](decisions/0006-multi-gateway-momo.md)). Emails deferred → P1.x |
+| ✅ **P1.6** | Media (Cloudinary) signed direct upload + media-set endpoints + read-attach | done: `lib/cloudinary-url`, `modules/{uploads,media}`, `PUT /admin/{tours,destinations}/:slug/media`. Reconcile/destroy job → P1.x |
+| **P1.7** | Reviews + wishlist + **enquiry** + admin-stats (+ user-avatar wiring) | **next**; tables exist; CRUD pattern |
 | **P1.x (jobs)** | **pg-boss** module: outbox + cron (abandoned-booking cleanup, media reconcile) | [ADR-0007](decisions/0007-pgboss-outbox-jobs.md); land alongside P1.5/P1.6 |
 | **P1.8** | Seed + Swagger + generate `shared/core` API client + tests (≥80% logic) | wires `/seed` + `/regen-types` |
 
