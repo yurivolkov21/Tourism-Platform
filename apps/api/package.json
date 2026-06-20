@@ -4,6 +4,13 @@
   "private": true,
   "nx": {
     "targets": {
+      "seed": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pnpm exec ts-node --transpile-only prisma/seed.ts",
+          "cwd": "apps/api"
+        }
+      },
       "build": {
         "executor": "nx:run-commands",
         "options": {
