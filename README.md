@@ -16,6 +16,33 @@ Full docs: **[docs/README.md](docs/README.md)** (map + reading path) · the oper
 
 ---
 
+## 🇻🇳 Bắt đầu nhanh (Tiếng Việt)
+
+> Tóm tắt cho cả nhóm. Chi tiết đầy đủ ở phần **Getting started** (English) bên dưới + runbook
+> **[docs/runbooks/local-dev.md](docs/runbooks/local-dev.md)**.
+
+Yêu cầu: **Node ≥ 22** + **pnpm 11** (`corepack enable`) + một project **Supabase** (điền key vào `apps/api/.env`).
+
+```bash
+pnpm install                                                   # cài deps toàn workspace
+# tạo apps/api/.env (xin key từ thành viên giữ repo, hoặc dùng Supabase của bạn)
+cd apps/api && pnpm exec prisma migrate deploy && pnpm exec prisma generate && cd ../..
+pnpm nx serve @tourism/api                                     # chạy API (watch) → http://localhost:3000/api/v1
+```
+
+Dữ liệu test:
+
+```bash
+pnpm nx run @tourism/api:reset    # XÓA sạch để test từ zero (giữ schema + tài khoản Supabase)
+pnpm nx run @tourism/api:seed     # HOẶC nạp dữ liệu demo (catalog + 1 booking PAID)
+```
+
+Lệnh hay dùng: `pnpm nx <việc> @tourism/api` — `serve` (chạy watch, ~ `start:dev`), `test`, `lint`,
+`build`. Test API bằng tay: xem **[apps/api/postman/README.md](apps/api/postman/README.md)**. Danh mục
+function (tiếng Việt): **[admin](docs/reference/functions-admin.md)** · **[customer](docs/reference/functions-customer.md)** · **[system](docs/reference/functions-system.md)**.
+
+---
+
 ## Prerequisites
 
 - **Node ≥ 22** and **pnpm 11** via Corepack — run `corepack enable` to get the pinned pnpm.
