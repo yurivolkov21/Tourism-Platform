@@ -19,9 +19,18 @@
     "tags": [
       "scope:shared",
       "type:data-access"
-    ]
+    ],
+    "targets": {
+      "api-types": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pnpm exec openapi-typescript http://localhost:3000/api/docs-json -o libs/shared/core/src/lib/api/schema.ts"
+        }
+      }
+    }
   },
   "dependencies": {
+    "openapi-fetch": "^0.17.0",
     "tslib": "^2.3.0"
   }
 }
