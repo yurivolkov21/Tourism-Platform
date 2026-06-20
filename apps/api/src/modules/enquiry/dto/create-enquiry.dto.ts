@@ -1,10 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  ArrayMaxSize,
+  IsArray,
+  IsDateString,
   IsEmail,
+  IsInt,
   IsOptional,
   IsString,
   IsUUID,
+  Max,
   MaxLength,
+  Min,
   MinLength,
 } from 'class-validator';
 
@@ -44,6 +50,40 @@ export class CreateEnquiryDto {
   @IsOptional()
   @IsUUID()
   tourId?: string;
+
+  // ── Structured lead fields (P1.7d) — all optional, qualify the inbound lead. ──
+
+  @ApiPropertyOptional({ maxLength: 80, example: 'United Kingdom' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  nationality?: string;
+
+  @ApiPropertyOptional({ format: 'date', example: '2026-08-01', description: 'Preferred arrival / travel date.' })
+  @IsOptional()
+  @IsDateString()
+  travelDate?: string;
+
+  @ApiPropertyOptional({ minimum: 1, maximum: 100, example: 4, description: 'Party size.' })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  groupSize?: number;
+
+  @ApiPropertyOptional({ maxLength: 40, example: '$1000–$2000', description: 'Budget tier as shown in the form.' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  budgetTier?: string;
+
+  @ApiPropertyOptional({ type: [String], example: ['culture', 'food'], description: 'Trip interests / preferences (multi-select).' })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(20)
+  @IsString({ each: true })
+  @MaxLength(40, { each: true })
+  interests?: string[];
 
   /** Honeypot — leave empty. Filled = bot → silently dropped (see class doc). */
   @ApiPropertyOptional({ description: 'Anti-spam honeypot — must stay empty.' })
