@@ -11,6 +11,13 @@
           "cwd": "apps/api"
         }
       },
+      "reset": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pnpm exec ts-node --transpile-only prisma/reset.ts",
+          "cwd": "apps/api"
+        }
+      },
       "e2e": {
         "executor": "nx:run-commands",
         "options": {
