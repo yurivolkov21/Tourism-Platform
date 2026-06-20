@@ -49,6 +49,7 @@
     "metro-config": "~0.83.0",
     "metro-resolver": "~0.83.0",
     "nx": "22.7.5",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.8.1",
     "react-test-renderer": "^19.1.0",
     "ts-jest": "^29.4.0",
