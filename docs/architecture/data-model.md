@@ -5,7 +5,7 @@ when this doc disagrees with the schema, the schema wins. Founding rationale:
 [BLUEPRINT §6](../BLUEPRINT.md#6-new-data-model-clean-lily-informed). Decisions:
 [../decisions/](../decisions/README.md). Risks: [risks.md](risks.md).
 
-> **Status: live** — schema migrated to Supabase across P1.1 → P1.x. 17 models, 12 enums.
+> **Status: live** — schema migrated to Supabase across P1.1 → P1.x → P-Content. 18 models, 13 enums.
 
 ## Conventions (kept from donor)
 
@@ -14,7 +14,7 @@ UUID PKs (`@db.Uuid`, client-generated; `Outbox`/`MediaGarbage` use DB-default
 `@db.VarChar(n)` · `Decimal(12,2)` for money · closed enums · `created_at`/`updated_at` ·
 indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 
-## Models (17)
+## Models (18)
 
 | Model | Purpose | Notable fields / relations |
 | --- | --- | --- |
@@ -35,14 +35,15 @@ indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 | `MediaAsset` | Cloudinary asset, polymorphic | `(ownerType, ownerId, role)`, `publicId`, `type`, `posterId?` — no hard FK (ADR-0008 pragmatic) |
 | `Outbox` | transactional email outbox (ADR-0007, P1.x-a) | `type EmailType`, `payload Json`, `status OutboxStatus`, `attempts`, `dedupeKey @unique` |
 | `MediaGarbage` | orphaned Cloudinary ids awaiting destroy (P1.x-b) | `publicId @unique`, `resourceType`, `attempts` |
+| `Post` | editorial blog article (P-Content) | `slug @unique`, `title`, `excerpt?`, `content` (markdown), `status PostStatus`, `publishedAt?`, `authorId` FK → User (Restrict); cover via `MediaAsset(ownerType=POST)` |
 
-## Enums (12)
+## Enums (13)
 
 `UserRole` (CUSTOMER/ADMIN) · `DepartureStatus` (OPEN/CLOSED/CANCELLED) ·
 `BookingStatus` (PENDING/PAID/CANCELLED/REFUNDED) · **`PaymentProvider` (STRIPE/PAYPAL** —
 MoMo→PayPal, [ADR-0006](../decisions/0006-multi-gateway-momo.md) amended) ·
 `EnquiryStatus` (NEW/CONTACTED/QUOTED/WON/LOST) · `MediaType` (IMAGE/VIDEO) ·
-`MediaOwnerType` (TOUR/DESTINATION/USER) · `MediaRole` (hero/gallery/avatar) ·
+`MediaOwnerType` (TOUR/DESTINATION/USER/POST) · `MediaRole` (hero/gallery/avatar) ·
 `PolicyKind` (CANCELLATION/BOOKING/GENERAL) · **`EmailType`** (BOOKING_CONFIRMATION/
 BOOKING_REFUNDED/REVIEW_APPROVED/ENQUIRY_RECEIVED) · **`OutboxStatus`** (PENDING/SENT/FAILED) ·
 **`TravellerType`** (FAMILY/COUPLE/FRIENDS/SOLO/BUSINESS) + **`TourBadge`** (BEST_VALUE/

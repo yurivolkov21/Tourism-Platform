@@ -1,7 +1,11 @@
 # Spec — Editorial Blog (`Post`) schema & feature
 
-**Date:** 2026-06-21 · **Status:** Proposed — **deferred phase** (execute *after* P3 customer web).
-**Owner phase:** future "P-Content" (own branch, own spec→plan→execute cycle).
+**Date:** 2026-06-21 · **Status:** **Backend DONE** (`feat/blog-post-backend`) — schema +
+migration + RLS + Posts API (public reads / admin CRUD) + 9 tests; reset/seed cover `posts`;
+homepage "Travel guides" teaser added (placeholder, wires to `GET /posts?limit=3`).
+**Remaining:** admin authoring UI · web `/blog` + `/blog/[slug]` · wire teaser to live API · regen
+OpenAPI client · doc sweep (data-model, function catalogs).
+**Owner phase:** "P-Content".
 
 > Captured while designing the P3 homepage. The homepage **"Travel guides" section is intentionally
 > NOT built yet** — per the project rule *no dead sections*, it lands only once the API below exists.
@@ -13,6 +17,7 @@ deep-dives), exactly like the reference site's "Travel Advice". We do **not** bu
 content (UGC).
 
 **Why editorial:**
+
 - **SEO is the payoff for travel** — guide content ranks for high-intent queries ("things to do in
   Hà Nội", "best time to visit Hạ Long") → top-of-funnel traffic → bookings. This is the core reason
   to have a blog at all.
@@ -21,6 +26,7 @@ content (UGC).
   RLS pattern (public reads published, admin writes). No new moderation surface.
 
 **Why not UGC:**
+
 - **Overlaps `Review`** — travellers already share experience at the tour level (P1.7).
 - **Disproportionate cost** — moderation, spam/abuse handling, reporting, edit/delete ownership,
   rate-limiting, and content liability — high ongoing burden for low marginal value over reviews.
@@ -38,37 +44,39 @@ model Post {
   slug        String     @unique @db.VarChar(80)
   title       String     @db.VarChar(160)
   excerpt     String?    @db.VarChar(300)
-  content     String     // markdown (rendered sanitized; never dangerouslySetInnerHTML raw)
+  content     String     // markdown → text (rendered sanitized; never dangerouslySetInnerHTML raw)
   status      PostStatus @default(DRAFT)
   publishedAt DateTime?  @map("published_at")
   authorId    String     @map("author_id") @db.Uuid
-  coverId     String?    @map("cover_id") @db.Uuid // MediaAsset (ownerType POST)
   createdAt   DateTime   @default(now()) @map("created_at")
   updatedAt   DateTime   @updatedAt @map("updated_at")
 
-  author User        @relation(fields: [authorId], references: [id])
-  cover  MediaAsset? @relation(fields: [coverId], references: [id])
+  author User @relation(fields: [authorId], references: [id], onDelete: Restrict)
 
   @@index([status, publishedAt])
+  @@index([authorId])
   @@map("posts")
 }
 ```
 
-- **Reuse:** `User` (author, admin), `MediaAsset` (cover) — **add `POST` to `MediaOwnerType`**.
+- **Reuse:** `User` (author, admin). **Cover/inline media is polymorphic** — `MediaAsset(ownerType=POST,
+  ownerId=post.id, role=hero/gallery)`, matching the project's no-FK media pattern (so **no `coverId`
+  column**; just add `POST` to `MediaOwnerType`).
 - **v1 taxonomy:** keep simple — no categories/tags initially (add `PostTag`/`tags String[]` later if
   SEO needs it). YAGNI until proven.
 
-## RLS
+## RLS (as implemented)
 
-- **Public:** `SELECT` where `status = 'PUBLISHED'` (and `published_at <= now()`).
-- **Admin** (`ADMIN_EMAILS` allowlist / `UserRole`): full CRUD.
-- Follows the existing destinations/tours RLS pattern.
+- Table **RLS enabled, default-deny, no policies** — matches `hardening.sql`. The API connects with the
+  Supabase **service role (bypasses RLS)**, so access is enforced in NestJS: the public endpoints return
+  only `PUBLISHED` + `publishedAt <= now()`; writes are gated by `@Roles(ADMIN)`.
 
 ## API (NestJS, standard envelope)
 
 - `GET /posts` — published, paginated (`page`/`limit`, meta), newest first. (optional `?q=` later)
 - `GET /posts/:slug` — single published post.
-- `GET /admin/posts`, `POST /admin/posts`, `PATCH /admin/posts/:id`, `DELETE /admin/posts/:id` — admin.
+- `GET /admin/posts`, `GET /admin/posts/:slug`, `POST /admin/posts`, `PATCH /admin/posts/:slug`,
+  `DELETE /admin/posts/:slug` — admin (author taken from the JWT).
 - Slugs auto-generated from title (uniqueness-checked); `publishedAt` set on first publish.
 
 ## Admin authoring (`@tourism/admin`)

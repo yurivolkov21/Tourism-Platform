@@ -114,10 +114,23 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
 | A-29 | Dashboard Stats<br>`GET /admin/stats/dashboard` | 1. Admin mở dashboard<br>2. Server chạy **`Promise.all`** (pooler-safe): overview (doanh thu từ booking `PAID`, conversion rate), `bookingsByStatus` (groupBy), top tour theo doanh thu / rating / wishlist, `monthlyTrend` 6 tháng (`$queryRaw` `date_trunc`)<br>3. Trả payload tổng hợp | Admin | **Booking**, Review, Wishlist, Tour | bookings, reviews, wishlist, tours | Activity | 🕒 (1) lời/vốn cần thêm `costPrice` vào Tour; (2) doanh thu cộng thô `totalAmount` chưa quy đổi tiền tệ (hiện toàn USD) |
 
+## `Post` (blog biên tập — P-Content)
+
+| Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
+| ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
+| A-30 | List Posts<br>`GET /admin/posts` | 1. Admin mở quản lý blog<br>2. Gửi `GET /admin/posts` (thấy cả `DRAFT`); lọc `status`/`search` tùy chọn, mới nhất trước<br>3. Phân trang; trả danh sách | Admin | **Post** | posts | Activity | ✅ |
+| A-31 | View Post<br>`GET /admin/posts/:slug` | 1. Gửi `GET /admin/posts/:slug` (không lọc status)<br>2. Trả chi tiết hoặc 404 `POST_NOT_FOUND` | Admin | **Post** | posts | Activity | ✅ |
+| A-32 | Create Post<br>`POST /admin/posts` | 1. Admin nhập `title`, `excerpt`, `content` (markdown), `status`; `slug` tùy chọn<br>2. **`authorId` lấy từ JWT** (không nhận từ body)<br>3. Chuẩn hóa/sinh slug (`slugify`, cắt 80); trùng → 409 `POST_SLUG_EXISTS`<br>4. Tạo bản ghi; **`PUBLISHED` → stamp `publishedAt`** (DRAFT để null)<br>5. Trả post | Admin | **Post**, User | posts, users | Activity | ✅ |
+| A-33 | Update Post<br>`PATCH /admin/posts/:slug` | 1. Admin sửa trường bất kỳ (publish/ẩn, nội dung)<br>2. slug gửi kèm qua `slugify()`; trùng → 409<br>3. **Lần đầu chuyển sang `PUBLISHED` → stamp `publishedAt`** (giữ nguyên về sau, kể cả khi quay lại DRAFT)<br>4. Cập nhật; trả post | Admin | **Post** | posts | Activity | ✅ |
+| A-34 | Delete Post<br>`DELETE /admin/posts/:slug` | 1. Admin xoá bài<br>2. 404 `POST_NOT_FOUND` nếu thiếu<br>3. Xoá cứng trực tiếp (không có bản ghi phụ thuộc); trả xác nhận | Admin | **Post** | posts | Activity | ✅ |
+
 ---
 
 ## Lịch sử
 
+- **2026-06-21** — Thêm nhóm `Post` (A-30…A-34): CRUD blog biên tập (P-Content). Author lấy
+  từ JWT; slug auto từ `title`; `publishedAt` stamp lần đầu publish. Cover/media qua
+  `MediaAsset(ownerType=POST)`. Xem [spec](../specs/2026-06-21-blog-editorial-post-schema.md).
 - **2026-06-20** — Khởi tạo catalog admin cho `@tourism/api`. Dựng từ code thật; chia
   theo model. Chính sách xóa 3 tầng + slug auto-normalize giữ từ donor. Khác donor:
   M:N destination (A-15/16) · merchandising `suitableFor`/`badges` · email refund/review

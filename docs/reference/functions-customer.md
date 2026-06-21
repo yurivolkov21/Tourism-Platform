@@ -33,7 +33,8 @@ Sequence diagram**.
 > **merchandising** tour (P1.7e).
 >
 > **Phân quyền:** endpoint browse (Destination/Tour/Category/Departure/Review-read)
-> + Enquiry là **công khai** (`@Public`); còn lại cần JWT đã `/auth/sync` (U-01).
+>
+> - Enquiry là **công khai** (`@Public`); còn lại cần JWT đã `/auth/sync` (U-01).
 
 ---
 
@@ -106,10 +107,19 @@ Sequence diagram**.
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
 | U-24 | Submit Enquiry<br>`POST /enquiries` | 1. Khách điền form "Inquire Now": `name`, `email`, `message` (+ `phone`, `tourId`, và **lead fields**: `nationality`, `travelDate`, `groupSize`, `budgetTier`, `interests[]`)<br>2. Gửi `POST /enquiries` (công khai)<br>3. **Rate-limit 5/phút** (ThrottlerGuard) + **honeypot `website`**: nếu điền → trả 201 giả (không ghi DB) để không lộ cho bot<br>4. `tourId` (nếu có) phải là tour đã publish (404)<br>5. Trong `$transaction`: tạo enquiry `status=NEW` + ghi `outbox` ENQUIRY_RECEIVED (email ack — gửi bởi S-04)<br>6. Trả `{ received: true }` | Customer | **Enquiry**, Tour, Outbox | enquiries, tours, outbox | Sequence | ✅ Lead fields ngang form Lily's (P1.7d) |
 
+## `Post` (blog công khai — P-Content)
+
+| Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
+| ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
+| U-25 | List Posts<br>`GET /posts` | 1. User mở blog/journal<br>2. Gửi `GET /posts` với `page`/`pageSize`/`search`/`sortBy`/`sortOrder` (mặc định mới publish trước)<br>3. Server **chỉ trả `status = PUBLISHED` + `publishedAt <= now()`** (ẩn nháp + bài hẹn giờ)<br>4. Search theo `title` (không phân biệt hoa thường); `Promise.all` list+count<br>5. Trả danh sách + `meta` | Customer | **Post** | posts | Activity | ✅ |
+| U-26 | Post Detail<br>`GET /posts/:slug` | 1. User chọn bài viết<br>2. Gửi `GET /posts/:slug`<br>3. Tìm post `PUBLISHED` + `publishedAt <= now()` theo slug<br>4. Không có/nháp/hẹn giờ → 404 `POST_NOT_FOUND` (không lộ nháp)<br>5. Trả chi tiết (content markdown — render sanitize ở FE) | Customer | **Post** | posts | Activity | ✅ |
+
 ---
 
 ## Lịch sử
 
+- **2026-06-21** — Thêm nhóm `Post` (U-25/U-26): blog công khai (P-Content) — chỉ
+  `PUBLISHED` + `publishedAt <= now()`. Xem [spec](../specs/2026-06-21-blog-editorial-post-schema.md).
 - **2026-06-20** — Khởi tạo catalog cho `@tourism/api` (P1.1–P1.x + P1.7d/e). Dựng từ
   code thật; chia theo model. Khác donor: EN-only · M:N destination · category lookup ·
   Stripe+PayPal · email qua outbox · Enquiry + merchandising. Đối chiếu
