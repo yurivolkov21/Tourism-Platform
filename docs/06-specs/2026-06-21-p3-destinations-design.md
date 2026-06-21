@@ -82,15 +82,21 @@ change to the home teaser). One behavioural change: home tiles now link to the r
 
 ### Data & helpers
 
-`apps/web/src/lib/destinations.fixtures.ts` — single shared source the home teaser, overview, and
-detail all read. Typed to mirror the eventual `@tourism/core` Destination DTO + the editorial extras.
+**Pure logic lives in `@tourism/core`** (`libs/shared/core`), not in the web app: the web app has no
+unit-test harness and the project tests pure logic in shared libs while covering web layout via e2e
+(CLAUDE.md). Core already has a Jest (SWC) setup and is the designated home for domain logic + the
+types real-data wiring will reuse. New module `libs/shared/core/src/lib/destinations/destinations.ts`,
+exported from `libs/shared/core/src/index.ts`:
 
-Pure helpers (TDD target) in `apps/web/src/lib/destinations.ts`:
+- `REGION_ORDER: readonly string[]` — canonical `['Northern Vietnam','Central Vietnam','Southern Vietnam']`.
+- `groupByRegion<T extends { region: string | null }>(items, order?): { region: string; items: T[] }[]`
+  — grouped + ordered by `order`; unknown/`null` regions sorted last; stable within a group.
+- `getBySlug<T extends { slug: string }>(items, slug): T | undefined`.
 
-- `REGION_ORDER: readonly string[]` — canonical North → Central → South ordering.
-- `groupByRegion(destinations): { region: string; destinations: Destination[] }[]` — grouped + ordered;
-  unknown/empty regions sorted last; stable within a group.
-- `getDestinationBySlug(slug): Destination | undefined`.
+Web fixtures `apps/web/src/lib/destinations.fixtures.ts` — single shared source the home teaser,
+overview, and detail all read. Typed as a web view-model that extends the core `DestinationSummary`
+type with editorial extras (`tagline`, `image`, `tours`). Generic helpers above are imported from
+`@tourism/core`.
 
 ## Error handling
 
@@ -100,8 +106,8 @@ Pure helpers (TDD target) in `apps/web/src/lib/destinations.ts`:
 
 ## Testing
 
-- **Unit (TDD, Vitest):** `groupByRegion` (ordering N→C→S, unknown-last, stable, empty input);
-  `getDestinationBySlug` (hit / miss / case); `tourCount` derivation. Target ≥80% on these helpers.
+- **Unit (TDD, Jest/SWC in `@tourism/core`):** `groupByRegion` (ordering N→C→S, unknown/null-last,
+  stable, empty input); `getBySlug` (hit / miss). Run via `pnpm nx test @tourism/core`. ≥80% on helpers.
 - **Visual / e2e:** deferred to the cross-page motion + e2e pass (plan #7). Manual screenshot review
   at 320 / 768 / 1024 / 1440 during build.
 
@@ -115,7 +121,7 @@ Pure helpers (TDD target) in `apps/web/src/lib/destinations.ts`:
 
 ## Build order (for the plan)
 
-1. Fixtures + helpers (TDD) — `destinations.fixtures.ts`, `destinations.ts` + specs.
+1. Core helpers + type (TDD in `@tourism/core`) → then web fixtures consuming them.
 2. Extract `DestinationTile`; refactor home to use it (no visual change).
 3. Overview page (`DestinationsHero` → `RegionGroup` ×3 → `PopularTours` → `EnquiryCta`).
 4. Destination page (`DestinationHero` → `DestinationIntro` → `DestinationTours` → `ValueProps` →
