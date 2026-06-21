@@ -25,6 +25,44 @@ export const messages = {
     cta: 'Explore tours',
     imageAlt: 'A scenic heritage landscape in Vietnam',
   },
+  features: {
+    heading: 'Why travel with us',
+    subtitle:
+      'Thoughtful details and trusted service that make every journey effortless, safe, and memorable.',
+    cta: 'Browse all tours',
+    items: [
+      {
+        title: 'Curated itineraries',
+        description:
+          'Handpicked journeys crafted by local experts — iconic sights and hidden gems in balance.',
+      },
+      {
+        title: 'Secure booking',
+        description:
+          'Pay safely with Stripe and PayPal; your personal and payment details stay protected end to end.',
+      },
+      {
+        title: 'Local expert guides',
+        description:
+          'Travel with vetted, knowledgeable guides who bring the culture and history of each place to life.',
+      },
+      {
+        title: 'Verified reviews',
+        description:
+          'Make confident choices with real ratings and reviews from travellers who booked with us.',
+      },
+      {
+        title: 'Flexible departures',
+        description:
+          'Choose dates that suit you, with clear seat availability and easy changes before you travel.',
+      },
+      {
+        title: '24/7 support',
+        description:
+          'Our team is on hand before, during, and after your trip — wherever your journey takes you.',
+      },
+    ],
+  },
 } as const;
 
 export type Messages = typeof messages;

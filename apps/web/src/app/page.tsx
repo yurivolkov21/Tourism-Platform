@@ -1,5 +1,6 @@
 import { SiteHeader } from '../components/layout/site-header';
 import { Hero } from '../components/marketing/hero';
+import { Features } from '../components/marketing/features';
 
 export default function HomePage() {
   return (
@@ -7,6 +8,7 @@ export default function HomePage() {
       <SiteHeader />
       <main className="flex flex-col">
         <Hero />
+        <Features />
       </main>
     </div>
   );
