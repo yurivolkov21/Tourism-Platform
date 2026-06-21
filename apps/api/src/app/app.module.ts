@@ -14,6 +14,7 @@ import { DestinationsModule } from '../modules/destinations/destinations.module'
 import { EmailModule } from '../modules/email/email.module';
 import { EnquiryModule } from '../modules/enquiry/enquiry.module';
 import { JobsModule } from '../modules/jobs/jobs.module';
+import { PostsModule } from '../modules/posts/posts.module';
 import { ReviewsModule } from '../modules/reviews/reviews.module';
 import { TourCategoriesModule } from '../modules/tour-categories/tour-categories.module';
 import { ToursModule } from '../modules/tours/tours.module';
@@ -46,6 +47,7 @@ import { AppService } from './app.service';
     WishlistModule,
     EnquiryModule,
     AdminStatsModule,
+    PostsModule,
     JobsModule,
   ],
   controllers: [AppController],

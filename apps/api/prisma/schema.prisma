@@ -61,6 +61,7 @@ enum MediaOwnerType {
   TOUR
   DESTINATION
   USER
+  POST
 }
 
 /// Slot a media asset occupies within its owner. Closed enum (security-first).
@@ -110,6 +111,12 @@ enum OutboxStatus {
   FAILED
 }
 
+/// Editorial blog post lifecycle (P-Content). DRAFT → PUBLISHED.
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // User — local mirror of Supabase auth.users
 // ─────────────────────────────────────────────────────────────────────────────
@@ -133,6 +140,7 @@ model User {
   refundedBookings Booking[] @relation("BookingRefundedBy")
   reviews          Review[]
   wishlist         Wishlist[]
+  posts            Post[]
 
   @@index([role])
   @@map("users")
@@ -481,6 +489,33 @@ model MediaAsset {
 
   @@index([ownerType, ownerId, role])
   @@map("media_assets")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Post — editorial blog article (agency-authored, P-Content). Cover/inline media
+// via MediaAsset(ownerType=POST, role=hero/gallery). RLS-enabled like every table;
+// access is enforced in the API (public reads PUBLISHED, admin writes). Content is
+// markdown, rendered sanitized client-side. See
+// docs/specs/2026-06-21-blog-editorial-post-schema.md.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Post {
+  id          String     @id @default(uuid()) @db.Uuid
+  slug        String     @unique @db.VarChar(80)
+  title       String     @db.VarChar(160)
+  excerpt     String?    @db.VarChar(300)
+  content     String
+  status      PostStatus @default(DRAFT)
+  publishedAt DateTime?  @map("published_at")
+  authorId    String     @map("author_id") @db.Uuid
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([status, publishedAt])
+  @@index([authorId])
+  @@map("posts")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
