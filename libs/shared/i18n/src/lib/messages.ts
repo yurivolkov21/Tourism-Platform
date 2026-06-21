@@ -3,8 +3,8 @@
 
 export const messages = {
   brand: {
-    // Placeholder brand name — swap when the real brand is set.
-    name: 'Lumière Voyages',
+    // Placeholder project name — swap when the real brand is set.
+    name: 'Tourism Platform',
   },
   nav: {
     tours: 'Tours',

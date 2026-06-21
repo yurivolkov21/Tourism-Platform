@@ -1,3 +1,5 @@
+import { ImageIcon } from 'lucide-react';
+
 import { Badge, buttonVariants, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
@@ -19,18 +21,33 @@ export function Hero() {
           <span className="relative whitespace-nowrap">
             {t.titleAccent}
             <svg
+              width="223"
+              height="12"
               viewBox="0 0 223 12"
               fill="none"
+              xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true"
-              preserveAspectRatio="none"
-              className="text-rating absolute inset-x-0 -bottom-1 h-[0.5em] w-full max-sm:hidden"
+              className="absolute inset-x-0 bottom-0 w-full translate-y-1/2 max-sm:hidden"
             >
               <path
-                d="M1.117 10.428C39.784 4.973 75.907 2.705 114.894 1.989c28.812-.53 60.79-1.676 89.318 1.327 5.713.289 10.932 1.283 17.323 2.43"
-                stroke="currentColor"
-                strokeWidth="3"
+                d="M1.11716 10.428C39.7835 4.97282 75.9074 2.70494 114.894 1.98894C143.706 1.45983 175.684 0.313587 204.212 3.31596C209.925 3.60546 215.144 4.59884 221.535 5.74551"
+                stroke="url(#hero-underline)"
+                strokeWidth="2"
                 strokeLinecap="round"
               />
+              <defs>
+                <linearGradient
+                  id="hero-underline"
+                  x1="18.8541"
+                  y1="3.72033"
+                  x2="42.6487"
+                  y2="66.6308"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop stopColor="var(--primary)" />
+                  <stop offset="1" stopColor="var(--primary-foreground)" />
+                </linearGradient>
+              </defs>
             </svg>
           </span>{' '}
           {t.titleTail}
@@ -47,9 +64,10 @@ export function Hero() {
       <div
         role="img"
         aria-label={t.imageAlt}
-        className="from-primary/15 via-accent to-background flex aspect-(--aspect-hero) w-full items-end justify-center bg-linear-to-br"
+        className="from-primary via-primary/80 to-rating flex aspect-(--aspect-hero) w-full items-center justify-center bg-linear-to-br"
       >
-        <span className="text-muted-foreground/70 pb-6 text-xs tracking-wide uppercase">
+        <span className="text-primary-foreground/90 flex flex-col items-center gap-2 text-xs tracking-widest uppercase">
+          <ImageIcon className="size-7" />
           {t.imageAlt}
         </span>
       </div>
