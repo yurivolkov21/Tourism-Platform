@@ -91,6 +91,7 @@ export const destinations: DestinationTileVM[] = [
     intro:
       'Trek between rice terraces and Hmong and Dao villages, then ride the cable car to the roof of Indochina. Sa Pa rewards travellers who slow down for the mountain mornings.',
     gallery: [img(P.halong), img(P.hoian)],
+    span: 'lg:col-span-2',
     tours: [
       tour('sa-pa-trek-2d1n', 'Sa Pa Valley Trek — 2 Days 1 Night', 'Sa Pa', 2, 210, 4.7, 64, img(P.terraces), { badges: ['POPULAR'] }),
     ],
@@ -140,7 +141,6 @@ export const destinations: DestinationTileVM[] = [
     intro:
       'Wander a car-free old town of tailor shops and tea houses, cycle to the rice paddies, and float a lantern down the river at dusk. Hội An is the unhurried heart of central Vietnam.',
     gallery: [img(P.temple), img(P.river)],
-    span: 'lg:col-span-2',
     tours: [
       tour('hoi-an-old-town-1d', 'Hội An Old Town & Lanterns — Day Tour', 'Hội An', 1, 95, 4.9, 210, img(P.hoian), { badges: ['POPULAR'] }),
       tour('hoi-an-my-son-2d1n', 'Hội An & Mỹ Sơn Sanctuary — 2 Days 1 Night', 'Hội An', 2, 260, 4.8, 98, img(P.temple)),
