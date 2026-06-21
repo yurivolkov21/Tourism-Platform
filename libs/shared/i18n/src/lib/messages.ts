@@ -106,6 +106,36 @@ export const messages = {
     viewAll: 'View all destinations',
     toursLabel: 'tours',
   },
+  // `/destinations` overview page.
+  destinationsPage: {
+    heroTitle: 'Explore Vietnam by destination',
+    heroSubtitle:
+      'From the misty north to the Mekong south — choose where your journey begins.',
+    regionHeading: (region: string) => `Top destinations in ${region}`,
+    popularHeading: 'Most popular journeys',
+    popularSubtitle: 'Traveller favourites across the country.',
+  },
+  // `/destinations/[slug]` destination page.
+  destinationDetail: {
+    backToAll: 'All destinations',
+    toursHeading: (name: string) => `Tours in ${name}`,
+    noTours: 'New journeys for this destination are coming soon.',
+    valuePropsHeading: 'We’ve got you covered',
+    valueProps: [
+      {
+        title: 'Private transfers',
+        body: 'Door-to-door comfort with vetted drivers on every leg of the trip.',
+      },
+      {
+        title: 'Local-led experiences',
+        body: 'Guides who live the places you visit, not scripted city loops.',
+      },
+      {
+        title: 'Honest advice',
+        body: 'Straight answers and tailoring from a team that travels Vietnam itself.',
+      },
+    ],
+  },
   experiences: {
     heading: 'Browse by experience',
     subtitle:

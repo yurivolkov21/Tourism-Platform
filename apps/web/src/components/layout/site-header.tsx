@@ -28,7 +28,7 @@ const linkClass = 'text-muted-foreground hover:text-primary px-2.5 py-1.5 text-s
 // Flat nav for the mobile dropdown.
 const mobileNav = [
   { label: messages.nav.tours, href: '#tours' },
-  { label: messages.nav.destinations, href: '#destinations' },
+  { label: messages.nav.destinations, href: '/destinations' },
   { label: messages.nav.about, href: '#about' },
   { label: messages.nav.contact, href: '#contact' },
 ] as const;
@@ -70,7 +70,7 @@ export function SiteHeader() {
               </NavigationMenuList>
             </NavigationMenu>
 
-            <a href="#destinations" className={linkClass}>
+            <a href="/destinations" className={linkClass}>
               {t.destinations}
             </a>
             <a href="#about" className={linkClass}>
