@@ -8,8 +8,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  buttonVariants,
-  cn,
 } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
@@ -24,45 +22,52 @@ const navItems = [
 
 export function SiteHeader() {
   return (
-    <header className="bg-background/80 sticky top-0 z-50 h-16 border-b backdrop-blur-sm">
+    <header className="bg-background sticky top-0 z-50 h-16 border-b">
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
         <a href="#" aria-label={messages.brand.name}>
           <Logo />
         </a>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+        <nav className="flex flex-wrap items-center justify-start gap-0 max-md:hidden" aria-label="Primary">
           {navItems.map((item) => (
             <a
               key={item.label}
               href={item.href}
-              className="text-muted-foreground hover:text-primary rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+              className="text-muted-foreground hover:text-primary px-3 py-1.5 text-base font-medium"
             >
               {item.label}
             </a>
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <a href="#login" className={cn(buttonVariants(), 'max-md:hidden')}>
-            {messages.nav.login}
-          </a>
+        {/* Desktop login */}
+        <Button
+          size="lg"
+          className="max-md:hidden"
+          render={<a href="#login" />}
+          nativeButton={false}
+        >
+          {messages.nav.login}
+        </Button>
 
-          {/* Mobile nav */}
+        {/* Mobile actions */}
+        <div className="flex gap-4 md:hidden">
+          <Button size="lg" render={<a href="#login" />} nativeButton={false}>
+            {messages.nav.login}
+          </Button>
+
           <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="outline" size="icon" className="md:hidden">
-                  <MenuIcon />
-                  <span className="sr-only">{messages.nav.menu}</span>
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuTrigger render={<Button variant="outline" size="icon-lg" />}>
+              <MenuIcon />
+              <span className="sr-only">{messages.nav.menu}</span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end">
               {navItems.map((item) => (
-                <DropdownMenuItem key={item.label} render={<a href={item.href}>{item.label}</a>} />
+                <DropdownMenuItem key={item.label}>
+                  <a href={item.href}>{item.label}</a>
+                </DropdownMenuItem>
               ))}
-              <DropdownMenuItem render={<a href="#login">{messages.nav.login}</a>} />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
