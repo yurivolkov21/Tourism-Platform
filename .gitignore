@@ -81,3 +81,7 @@ cache/
 
 # Playwright MCP review artifacts
 .playwright-mcp/
+
+# Local design references (heavy screenshots + Claude Design wireframes) — read
+# locally for design work; share via Drive, not git. See docs/03-reference.
+docs/Lily Wireframes/
