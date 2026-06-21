@@ -132,7 +132,7 @@ consume `shared/tokens` so the Lily design language is identical across platform
 
 > **Founding sketch — not current.** The entity list below is the original draft;
 > it predates several changes that landed in P1. For the **canonical current model**
-> (17 models, 12 enums) see [architecture/data-model.md](architecture/data-model.md)
+> (17 models, 12 enums) see [01-architecture/data-model.md](01-architecture/data-model.md)
 > and [`schema.prisma`](../apps/api/prisma/schema.prisma).
 >
 > What changed since this draft:
@@ -237,7 +237,7 @@ changed some defaults; we read the live docs at scaffold time.)*
 4. Further model additions (gift cards / private toggle / seasons): none for now — revisit during P1.
 5. **D3 — admin module boundary:** ✅ admin (Next.js) **may reuse `web/ui`** → `scope:admin` → `scope:admin`, `scope:web`, `scope:shared` (no separate `admin/ui` lib for now). *(decided during P0.6, 2026-06-14)*
 
-### Added 2026-06-15 (see [decisions/](decisions/README.md))
+### Added 2026-06-15 (see [02-decisions/](02-decisions/README.md))
 
 1. **ADR-0005 — English-only:** ✅ drop EN/VI bilingual (supersedes the i18n parity decision). `@tourism/i18n` kept as EN scaffold; `*_vi` columns dropped; array content → `text[]`.
 2. **ADR-0006 — Multi-gateway payments:** ✅ **Stripe + PayPal** (amended MoMo→PayPal 2026-06-16 — audience is inbound foreign tourists). `Booking` is provider-neutral.

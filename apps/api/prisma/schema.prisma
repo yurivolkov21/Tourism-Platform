@@ -2,7 +2,7 @@
 // Decisions: ADR-0002 (M:N), 0003 (Enquiry), 0005 (EN-only), 0006 (multi-gateway),
 // 0008 (integrity). Hardening that Prisma can't express (citext, CHECK, RLS)
 // lives in `prisma/hardening.sql`, folded into the migration when the DB lands
-// (D-P1.6). See docs/architecture/data-model.md.
+// (D-P1.6). See docs/01-architecture/data-model.md.
 
 generator client {
   provider = "prisma-client-js"
@@ -496,7 +496,7 @@ model MediaAsset {
 // via MediaAsset(ownerType=POST, role=hero/gallery). RLS-enabled like every table;
 // access is enforced in the API (public reads PUBLISHED, admin writes). Content is
 // markdown, rendered sanitized client-side. See
-// docs/specs/2026-06-21-blog-editorial-post-schema.md.
+// docs/06-specs/2026-06-21-blog-editorial-post-schema.md.
 // ─────────────────────────────────────────────────────────────────────────────
 
 model Post {

@@ -1,7 +1,7 @@
 // Design tokens — source of truth for @tourism/tokens.
 // Brand direction: "Emerald Heritage" (light luxury) — deep emerald primary, warm ivory
 // neutrals, brass accents; serif headings (Fraunces) + sans body (Geist); refined radius.
-// See docs/specs/2026-06-21-p2-design-direction.md.
+// See docs/06-specs/2026-06-21-p2-design-direction.md.
 //
 // Authored in Style Dictionary token format. Each color carries light + dark values.
 

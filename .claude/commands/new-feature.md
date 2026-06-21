@@ -13,10 +13,10 @@ Follow the project's spec→plan→execute workflow (CLAUDE.md §"How we work").
    scope before touching code.
 2. Once scope is agreed, create a feature branch: `feat/<kebab-name>` (never
    work on `main`).
-3. Write a **design spec** at `docs/specs/<YYYY-MM-DD>-<kebab-name>-design.md`:
+3. Write a **design spec** at `docs/06-specs/<YYYY-MM-DD>-<kebab-name>-design.md`:
    Goal & Scope, locked decisions, in/out of scope, per-section design, i18n
    (EN/VI), testing, planned files, risks.
-4. Write an **implementation plan** at `docs/plans/<YYYY-MM-DD>-<kebab-name>.md`:
+4. Write an **implementation plan** at `docs/07-plans/<YYYY-MM-DD>-<kebab-name>.md`:
    dependency-ordered tasks, TDD on pure logic, an acceptance check per task, a
    sequencing line, and a "reused seams" list.
 5. Commit the spec + plan (`docs(<area>): <feature> spec + plan`), then execute

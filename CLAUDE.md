@@ -99,7 +99,7 @@ pnpm nx graph                                    # project graph
 apps/   api (NestJS) · web + admin (Next.js) · mobile (Expo)
 libs/   shared/{core,tokens,i18n} · web/ui · mobile/ui
 docs/   README.md (index + reading path) · BLUEPRINT.md · roadmap.md
-        architecture/ · guides/ · decisions/ (ADRs) · runbooks/ · reference/ · specs/ · plans/
+        01-architecture/ · 02-decisions/ (ADRs) · 03-reference/ · 04-guides/ · 05-runbooks/ · 06-specs/ · 07-plans/
 ```
 
 ## Gotchas (load-bearing, non-obvious)

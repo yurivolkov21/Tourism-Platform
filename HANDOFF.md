@@ -1,7 +1,7 @@
 # HANDOFF — tourism-platform (resume here)
 
 **Read this first when opening a new session.** Full plan: [`docs/BLUEPRINT.md`](docs/BLUEPRINT.md).
-Design references study: [`docs/reference/reference-sites-analysis.md`](docs/reference/reference-sites-analysis.md).
+Design references study: [`docs/03-reference/reference-sites-analysis.md`](docs/03-reference/reference-sites-analysis.md).
 
 ## What this is
 
@@ -85,7 +85,7 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
 4. Then P2 design system → P3 web → P4 admin → P5 mobile (BLUEPRINT §7).
 
 > Live resume buffer with finer detail: [`.remember/remember.md`](.remember/remember.md).
-> Per-phase specs/plans: [`docs/specs/`](docs/specs/) + [`docs/plans/`](docs/plans/).
+> Per-phase 06-specs/plans: [`docs/06-specs/`](docs/06-specs/) + [`docs/07-plans/`](docs/07-plans/).
 
 ## Donor code worth porting (read, adapt — don't import across repos)
 
@@ -97,7 +97,7 @@ In `c:\develop\Apps\Main-Projects\tourism-be-api\apps\api\src\`:
 - `config/` Joi env validation; `prisma/` PrismaPg adapter + pooler setup
 - `modules/email/` Resend; `modules/media/` Cloudinary
 - `prisma/schema.prisma` (reference the GOOD bones; redesign cleanly)
-- Donor `docs/postman/` harness, `docs/runbooks/`, CI patterns.
+- Donor `docs/postman/` harness, `docs/05-runbooks/`, CI patterns.
 
 ## Working conventions (carry from donor)
 

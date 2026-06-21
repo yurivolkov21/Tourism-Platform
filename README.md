@@ -19,7 +19,7 @@ Full docs: **[docs/README.md](docs/README.md)** (map + reading path) · the oper
 ## 🇻🇳 Bắt đầu nhanh (Tiếng Việt)
 
 > Tóm tắt cho cả nhóm. Chi tiết đầy đủ ở phần **Getting started** (English) bên dưới + runbook
-> **[docs/runbooks/local-dev.md](docs/runbooks/local-dev.md)**.
+> **[docs/05-runbooks/local-dev.md](docs/05-runbooks/local-dev.md)**.
 
 Yêu cầu: **Node ≥ 22** + **pnpm 11** (`corepack enable`) + một project **Supabase** (điền key vào `apps/api/.env`).
 
@@ -39,7 +39,7 @@ pnpm nx run @tourism/api:seed     # HOẶC nạp dữ liệu demo (catalog + 1 b
 
 Lệnh hay dùng: `pnpm nx <việc> @tourism/api` — `serve` (chạy watch, ~ `start:dev`), `test`, `lint`,
 `build`. Test API bằng tay: xem **[apps/api/postman/README.md](apps/api/postman/README.md)**. Danh mục
-function (tiếng Việt): **[admin](docs/reference/functions-admin.md)** · **[customer](docs/reference/functions-customer.md)** · **[system](docs/reference/functions-system.md)**.
+function (tiếng Việt): **[admin](docs/03-reference/functions-admin.md)** · **[customer](docs/03-reference/functions-customer.md)** · **[system](docs/03-reference/functions-system.md)**.
 
 ---
 
@@ -69,7 +69,7 @@ pnpm nx serve @tourism/api          # → http://localhost:3000/api/v1  ·  Swag
 
 > New to Nx? Commands are `pnpm nx <target> <project>` (e.g. `pnpm nx serve @tourism/api`), run from the
 > repo root — no `cd` needed. Full command reference + the NestJS-`start:dev`→Nx mapping:
-> **[docs/runbooks/local-dev.md](docs/runbooks/local-dev.md)**.
+> **[docs/05-runbooks/local-dev.md](docs/05-runbooks/local-dev.md)**.
 
 ## Test data: from zero vs seeded
 
@@ -100,14 +100,14 @@ pnpm nx graph                                       # dependency graph (browser)
 ```text
 apps/   api (NestJS) · web + admin (Next.js) · mobile (Expo)
 libs/   shared/{core,tokens,i18n} · web/ui · mobile/ui
-docs/   README.md (map) · BLUEPRINT.md · roadmap.md · architecture/ · decisions/ (ADRs) ·
-        guides/ · runbooks/ · reference/ (function catalog) · specs/ · plans/
+docs/   README.md (map) · BLUEPRINT.md · roadmap.md · 01-architecture/ · 02-decisions/ (ADRs) ·
+        03-reference/ (function catalog) · 04-guides/ · 05-runbooks/ · 06-specs/ · 07-plans/
 ```
 
 ## Where to read next
 
 - **[docs/README.md](docs/README.md)** — documentation map + reading path.
 - **[docs/roadmap.md](docs/roadmap.md)** — phases P0–P6 + status.
-- **[docs/reference/functions-admin.md](docs/reference/functions-admin.md)** · **[customer](docs/reference/functions-customer.md)** · **[system](docs/reference/functions-system.md)** — every backend function.
+- **[docs/03-reference/functions-admin.md](docs/03-reference/functions-admin.md)** · **[customer](docs/03-reference/functions-customer.md)** · **[system](docs/03-reference/functions-system.md)** — every backend function.
 - **[apps/api/postman/README.md](apps/api/postman/README.md)** — manual API testing.
-- **[docs/runbooks/local-dev.md](docs/runbooks/local-dev.md)** — running the project locally.
+- **[docs/05-runbooks/local-dev.md](docs/05-runbooks/local-dev.md)** — running the project locally.
