@@ -9,9 +9,9 @@ export default function UiCheckPage() {
         <h1 className="text-2xl font-semibold tracking-tight">@tourism/ui</h1>
         <Badge>Base UI</Badge>
       </div>
-      <Card>
+      <Card className="shadow-card">
         <CardHeader>
-          <CardTitle>Smoke check</CardTitle>
+          <CardTitle className="text-3xl tracking-tight">Smoke check</CardTitle>
         </CardHeader>
         <CardContent className="flex gap-3">
           <Button>Primary</Button>

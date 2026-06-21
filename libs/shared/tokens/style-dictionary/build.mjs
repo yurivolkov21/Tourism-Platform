@@ -6,7 +6,7 @@ import StyleDictionary from 'style-dictionary';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import tokens, { radiusScale, fonts } from './tokens.mjs';
+import tokens, { radiusScale, fonts, themeExtras, rootExtras } from './tokens.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const outDir = resolve(here, '../generated');
@@ -30,10 +30,12 @@ StyleDictionary.registerFormat({
       `  --font-sans: ${fonts.sans};`,
       ...colors.map((t) => `  --color-${t.path.slice(1).join('-')}: var(${cssVar(t)});`),
       ...Object.entries(radiusScale).map(([s, m]) => `  --radius-${s}: ${radiusStep(m)};`),
+      ...themeExtras.map(([k, v]) => `  ${k}: ${v};`),
     ];
     const root = [
       ...colors.map((t) => `  ${cssVar(t)}: ${t.original.value};`),
       `  --radius: ${radius.original.value};`,
+      ...rootExtras.map(([k, v]) => `  ${k}: ${v};`),
     ];
     const dark = colors.map((t) => `  ${cssVar(t)}: ${t.original.darkValue};`);
 

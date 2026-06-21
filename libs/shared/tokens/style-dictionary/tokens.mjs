@@ -27,6 +27,7 @@ export default {
     border: c('oklch(0.922 0 0)', 'oklch(1 0 0 / 10%)'),
     input: c('oklch(0.922 0 0)', 'oklch(1 0 0 / 15%)'),
     ring: c('oklch(0.708 0 0)', 'oklch(0.556 0 0)'),
+    overlay: c('oklch(0 0 0 / 0.5)', 'oklch(0 0 0 / 0.6)'),
     'chart-1': c('oklch(0.87 0 0)', 'oklch(0.87 0 0)'),
     'chart-2': c('oklch(0.556 0 0)', 'oklch(0.556 0 0)'),
     'chart-3': c('oklch(0.439 0 0)', 'oklch(0.439 0 0)'),
@@ -62,3 +63,49 @@ export const fonts = {
   sans: 'var(--font-sans)',
   heading: 'var(--font-sans)',
 };
+
+// Mode-independent Tailwind v4 @theme tokens → generate utilities (text-*, font-*,
+// tracking-*, leading-*, shadow-*, ease-*). Ordered [cssVar, value].
+export const themeExtras = [
+  // Type scale (size + paired line-height)
+  ['--text-xs', '0.75rem'], ['--text-xs--line-height', 'calc(1 / 0.75)'],
+  ['--text-sm', '0.875rem'], ['--text-sm--line-height', 'calc(1.25 / 0.875)'],
+  ['--text-base', '1rem'], ['--text-base--line-height', 'calc(1.5 / 1)'],
+  ['--text-lg', '1.125rem'], ['--text-lg--line-height', 'calc(1.75 / 1.125)'],
+  ['--text-xl', '1.25rem'], ['--text-xl--line-height', 'calc(1.75 / 1.25)'],
+  ['--text-2xl', '1.5rem'], ['--text-2xl--line-height', 'calc(2 / 1.5)'],
+  ['--text-3xl', '1.875rem'], ['--text-3xl--line-height', 'calc(2.25 / 1.875)'],
+  ['--text-4xl', '2.25rem'], ['--text-4xl--line-height', 'calc(2.5 / 2.25)'],
+  ['--text-5xl', '3rem'], ['--text-5xl--line-height', '1'],
+  ['--text-6xl', '3.75rem'], ['--text-6xl--line-height', '1'],
+  ['--text-7xl', '4.5rem'], ['--text-7xl--line-height', '1'],
+  // Font weights
+  ['--font-weight-normal', '400'], ['--font-weight-medium', '500'],
+  ['--font-weight-semibold', '600'], ['--font-weight-bold', '700'],
+  // Letter spacing
+  ['--tracking-tighter', '-0.05em'], ['--tracking-tight', '-0.025em'],
+  ['--tracking-normal', '0em'], ['--tracking-wide', '0.025em'],
+  // Line-height scale
+  ['--leading-tight', '1.25'], ['--leading-snug', '1.375'],
+  ['--leading-normal', '1.5'], ['--leading-relaxed', '1.625'],
+  // Elevation by intent (light; dark-mode shadow softening handled via .dark rule later)
+  ['--shadow-card', '0 1px 3px 0 oklch(0 0 0 / 0.08), 0 1px 2px -1px oklch(0 0 0 / 0.08)'],
+  ['--shadow-dropdown', '0 4px 12px -2px oklch(0 0 0 / 0.12)'],
+  ['--shadow-popover', '0 8px 24px -4px oklch(0 0 0 / 0.14)'],
+  ['--shadow-modal', '0 24px 48px -12px oklch(0 0 0 / 0.25)'],
+  // Easing
+  ['--ease-out-expo', 'cubic-bezier(0.16, 1, 0.3, 1)'],
+  ['--ease-in-out-smooth', 'cubic-bezier(0.45, 0, 0.55, 1)'],
+];
+
+// Mode-independent :root custom props consumed via var() (no Tailwind utility namespace):
+// motion durations, z-index layering, a11y, and content measure. Ordered [cssVar, value].
+export const rootExtras = [
+  ['--duration-fast', '150ms'], ['--duration-normal', '250ms'], ['--duration-slow', '400ms'],
+  ['--z-base', '0'], ['--z-dropdown', '1000'], ['--z-sticky', '1100'],
+  ['--z-overlay', '1300'], ['--z-modal', '1400'], ['--z-popover', '1500'], ['--z-toast', '1700'],
+  ['--focus-ring-width', '2px'], ['--focus-ring-offset', '2px'],
+  ['--touch-target-min', '44px'],
+  ['--prose-measure', '65ch'],
+  ['--section-space', 'clamp(4rem, 3rem + 5vw, 8rem)'],
+];
