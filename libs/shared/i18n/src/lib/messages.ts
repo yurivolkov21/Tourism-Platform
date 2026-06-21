@@ -108,10 +108,22 @@ export const messages = {
   },
   // `/destinations` overview page.
   destinationsPage: {
+    breadcrumbHome: 'Home',
+    breadcrumbCurrent: 'Vietnam tours',
     heroTitle: 'Explore Vietnam by destination',
     heroSubtitle:
       'From the misty north to the Mekong south — choose where your journey begins.',
     regionHeading: (region: string) => `Top destinations in ${region}`,
+    // Short editorial blurb under each region heading (keyed by canonical region).
+    regionIntro: {
+      'Northern Vietnam':
+        'Limestone bays, terraced highlands and the wild frontier passes — the north is Vietnam at its most dramatic.',
+      'Central Vietnam':
+        'Imperial heritage, lantern-lit old towns and a golden coastline strung between the mountains and the sea.',
+      'Southern Vietnam':
+        'River deltas, island beaches and the restless energy of Sài Gòn — the warm, easy-going south.',
+    } as Record<string, string>,
+    viewMore: 'View more',
     popularHeading: 'Most popular journeys',
     popularSubtitle: 'Traveller favourites across the country.',
   },

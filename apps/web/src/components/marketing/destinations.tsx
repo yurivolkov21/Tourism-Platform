@@ -4,7 +4,7 @@ import { ArrowRightIcon } from 'lucide-react';
 import { buttonVariants, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-import { destinations } from '../../lib/destinations.fixtures';
+import { homeDestinations } from '../../lib/destinations.fixtures';
 import { DestinationTile } from '../destinations/destination-tile';
 
 /**
@@ -26,7 +26,7 @@ export function Destinations() {
 
         {/* Bento grid */}
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:auto-rows-[14rem]">
-          {destinations.map((d) => (
+          {homeDestinations.map((d) => (
             <DestinationTile key={d.slug} destination={d} />
           ))}
         </div>

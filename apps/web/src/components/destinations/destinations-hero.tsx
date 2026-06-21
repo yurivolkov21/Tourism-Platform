@@ -27,6 +27,14 @@ export function DestinationsHero() {
           {t.heroTitle}
         </h1>
         <p className="text-primary-foreground/85 max-w-xl text-lg text-pretty">{t.heroSubtitle}</p>
+        {/* Breadcrumb pill (Lily-style) */}
+        <nav
+          aria-label="Breadcrumb"
+          className="border-primary-foreground/25 bg-background/10 text-primary-foreground/90 mt-2 rounded-full border px-4 py-1 text-xs tracking-wide backdrop-blur-sm"
+        >
+          {t.breadcrumbHome} <span className="text-primary-foreground/50 px-1">/</span>{' '}
+          {t.breadcrumbCurrent}
+        </nav>
       </div>
     </section>
   );
