@@ -8,7 +8,7 @@ Two files for driving `@tourism/api` by hand in Postman, **designed to test from
 **Run top-to-bottom** — each step builds the data the next one needs, so you always know where every
 row came from (no seed dependency):
 
-```
+```text
 _SETUP    → create/confirm the customer + admin Supabase users (run once)
 ADMIN     → 00 Auth & Stats · 01 Categories · 02 Destinations · 03 Tours · 04 Departures ·
             05 Media Uploads · 06 Reviews Moderation · 07 Enquiries · 08 Bookings   ← builds the catalog
@@ -33,10 +33,12 @@ Because the token carries a **real** Supabase `sub`, you must run **`/auth/sync`
 ## Prerequisites
 
 1. **Run the API** (dev/watch — the `start:dev` equivalent), and start from an **empty DB**:
+
    ```bash
    pnpm nx run @tourism/api:reset   # empty all app tables (test from zero)
    pnpm nx serve @tourism/api       # watch + auto-restart; runs from repo root → http://localhost:3000
    ```
+
    `nx serve` is the recommended dev command. Alternative one-shot:
    `pnpm nx build @tourism/api && (cd apps/api && node dist/main.js)`.
    *(`pnpm nx run @tourism/api:seed` also exists — it bulk-loads a demo catalog + a self-signed PAID
