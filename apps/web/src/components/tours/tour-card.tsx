@@ -1,0 +1,103 @@
+import { ClockIcon, ImageIcon, MapPinIcon, StarIcon } from 'lucide-react';
+
+import { Badge, Button, Card, CardContent, cn } from '@tourism/ui';
+import { messages } from '@tourism/i18n';
+
+export type TourBadgeKey = keyof typeof messages.featuredTours.badges;
+
+// Shape mirrors a future tour-card DTO from @tourism/core (basePrice/compareAtPrice/durationDays/
+// badges per the Prisma Tour model). `destination`, `rating`, `reviewCount`, `coverImage` are
+// derived/aggregated server-side (schema has no image field or denormalized rating yet).
+export type TourCardData = {
+  slug: string;
+  title: string;
+  destination: string;
+  durationDays: number;
+  basePrice: number;
+  compareAtPrice?: number;
+  currency: string;
+  rating: number;
+  reviewCount: number;
+  badges: TourBadgeKey[];
+};
+
+const badgeClass: Record<TourBadgeKey, string> = {
+  BEST_VALUE: 'bg-success text-success-foreground',
+  LIMITED_OFFER: 'bg-warning text-warning-foreground',
+  EXCLUSIVE: 'bg-primary text-primary-foreground',
+  NEW: 'bg-info text-info-foreground',
+  POPULAR: 'bg-rating text-foreground',
+};
+
+function formatPrice(currency: string, amount: number) {
+  const value = amount.toLocaleString('en-US');
+  return currency === 'USD' ? `$${value}` : `${currency} ${value}`;
+}
+
+export function TourCard({ tour }: { tour: TourCardData }) {
+  const t = messages.featuredTours;
+
+  return (
+    <Card className="flex flex-col overflow-hidden p-0 transition-all duration-200 ease-out-expo hover:-translate-y-0.5 hover:shadow-dropdown">
+      {/* Cover — placeholder slot (no image field in schema yet) */}
+      <div className="relative aspect-[var(--aspect-card)] w-full">
+        <div className="from-primary via-primary/80 to-rating flex h-full w-full items-center justify-center bg-linear-to-br">
+          <ImageIcon className="text-primary-foreground/80 size-7" />
+        </div>
+        {tour.badges.length > 0 && (
+          <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+            {tour.badges.map((b) => (
+              <Badge key={b} className={cn('border-transparent', badgeClass[b])}>
+                {t.badges[b]}
+              </Badge>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <CardContent className="flex flex-1 flex-col gap-3 p-5">
+        <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+          <span className="inline-flex items-center gap-1">
+            <MapPinIcon className="size-3.5" />
+            {tour.destination}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <ClockIcon className="size-3.5" />
+            {tour.durationDays} {t.daysLabel}
+          </span>
+        </div>
+
+        <h3 className="font-sans text-lg font-semibold text-balance">{tour.title}</h3>
+
+        <div className="flex items-center gap-1.5 text-sm">
+          <StarIcon className="text-rating fill-rating size-4" />
+          <span className="font-medium">{tour.rating.toFixed(1)}</span>
+          <span className="text-muted-foreground">
+            ({tour.reviewCount} {t.reviewsLabel})
+          </span>
+        </div>
+
+        <div className="mt-auto flex items-end justify-between gap-2 pt-2">
+          <div className="flex flex-col">
+            <span className="text-muted-foreground text-xs">{t.from}</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-price text-xl font-bold">
+                {formatPrice(tour.currency, tour.basePrice)}
+              </span>
+              {tour.compareAtPrice ? (
+                <span className="text-price-compare text-sm line-through">
+                  {formatPrice(tour.currency, tour.compareAtPrice)}
+                </span>
+              ) : null}
+            </div>
+          </div>
+          <Button size="sm" render={<a href={`#tour-${tour.slug}`} />} nativeButton={false}>
+            {t.view}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export default TourCard;

@@ -63,6 +63,32 @@ export const messages = {
       },
     ],
   },
+  featuredTours: {
+    heading: 'Featured journeys',
+    subtitle:
+      'A selection of our most-loved tours — handcrafted routes, trusted guides, and honest prices.',
+    viewAll: 'View all tours',
+    view: 'View tour',
+    from: 'From',
+    perPerson: '/ person',
+    daysLabel: 'days',
+    reviewsLabel: 'reviews',
+    // Labels for TourBadge enum values (backend).
+    badges: {
+      BEST_VALUE: 'Best value',
+      LIMITED_OFFER: 'Limited offer',
+      EXCLUSIVE: 'Exclusive',
+      NEW: 'New',
+      POPULAR: 'Popular',
+    },
+  },
+  destinations: {
+    heading: 'Explore by destination',
+    subtitle:
+      'Begin with a place that calls to you — then let the journey unfold from there.',
+    viewAll: 'View all destinations',
+    toursLabel: 'tours',
+  },
 } as const;
 
 export type Messages = typeof messages;
