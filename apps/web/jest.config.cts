@@ -13,6 +13,9 @@ const config = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/apps/web',
   testEnvironment: 'jsdom',
+  // Web pages are visual + pull in client/Base UI components; cover them via e2e/visual,
+  // not jsdom unit renders. No unit tests here yet → don't fail the gate.
+  passWithNoTests: true,
 };
 
 const jestConfig = createJestConfig(config);
