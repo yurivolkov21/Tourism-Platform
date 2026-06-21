@@ -20,6 +20,10 @@ overrides:
   # @istanbuljs/load-nyc-config (Jest/nyc coverage tooling), which calls only
   # js-yaml.load() — present & safe-by-default in 4.x — so forcing 4.2.0 removes
   # the 3.x copy without breaking it, and Dependabot #63 auto-closes.
+  'undici@6': '^6.27.0' # GHSA Set-Cookie/header-injection/WS-DoS (<6.27.0) — dev tooling copy
+  'undici@7': '^7.28.0' # +SOCKS5/TLS bypass (<7.28.0) — nx (@nx/module-federation) tooling copy
+  'http-proxy-middleware': '^3.0.7' # GHSA field-injection/host-matching (<3.0.7) — next/webpack dev server (stay in 3.x; 4.x is breaking)
+  multer: '^2.2.0' # GHSA DoS via nested field names (<2.2.0) — @nestjs/platform-express; stay in 2.x (minor bump)
 allowBuilds:
   '@parcel/watcher': true
   '@prisma/client': true
