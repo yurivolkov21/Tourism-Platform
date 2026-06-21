@@ -126,6 +126,8 @@ export const messages = {
     viewMore: 'View more',
     popularHeading: 'Most popular journeys',
     popularSubtitle: 'Traveller favourites across the country.',
+    popularBadge: 'Most booked',
+    popularLeadHighlight: 'Our most-booked journey this season.',
   },
   // `/destinations/[slug]` destination page.
   destinationDetail: {
