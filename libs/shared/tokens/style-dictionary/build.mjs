@@ -6,7 +6,14 @@ import StyleDictionary from 'style-dictionary';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import tokens, { radiusScale, fonts, themeExtras, rootExtras } from './tokens.mjs';
+import tokens, {
+  radiusScale,
+  fonts,
+  themeExtras,
+  rootExtras,
+  densityCompact,
+  baseRules,
+} from './tokens.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const outDir = resolve(here, '../generated');
@@ -52,6 +59,14 @@ StyleDictionary.registerFormat({
       '',
       '.dark {',
       ...dark,
+      '}',
+      '',
+      "[data-density='compact'] {",
+      ...densityCompact.map(([k, v]) => `  ${k}: ${v};`),
+      '}',
+      '',
+      '@layer base {',
+      ...baseRules.map((l) => `  ${l}`),
       '}',
       '',
     ].join('\n');

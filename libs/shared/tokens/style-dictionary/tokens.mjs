@@ -96,6 +96,13 @@ export const themeExtras = [
   // Easing
   ['--ease-out-expo', 'cubic-bezier(0.16, 1, 0.3, 1)'],
   ['--ease-in-out-smooth', 'cubic-bezier(0.45, 0, 0.55, 1)'],
+  // Spacing base (Tailwind multiplies this for p-*/m-*/gap-*/size-*)
+  ['--spacing', '0.25rem'],
+  // Content container width → max-w-content
+  ['--container-content', '80rem'],
+  // Breakpoints (explicit single source; values match the standard scale → no behavior change)
+  ['--breakpoint-sm', '40rem'], ['--breakpoint-md', '48rem'], ['--breakpoint-lg', '64rem'],
+  ['--breakpoint-xl', '80rem'], ['--breakpoint-2xl', '96rem'],
 ];
 
 // Mode-independent :root custom props consumed via var() (no Tailwind utility namespace):
@@ -108,4 +115,21 @@ export const rootExtras = [
   ['--touch-target-min', '44px'],
   ['--prose-measure', '65ch'],
   ['--section-space', 'clamp(4rem, 3rem + 5vw, 8rem)'],
+  // Sizing — control heights (comfortable density) + iconography. Components adopt via var().
+  ['--control-h-sm', '1.75rem'], ['--control-h-md', '2rem'], ['--control-h-lg', '2.25rem'],
+  ['--icon-size', '1rem'], ['--icon-stroke', '2'],
+];
+
+// Compact density overrides — emitted under [data-density='compact'] for dense admin tables.
+export const densityCompact = [
+  ['--control-h-sm', '1.5rem'], ['--control-h-md', '1.75rem'], ['--control-h-lg', '2rem'],
+  ['--section-space', 'clamp(2.5rem, 2rem + 3vw, 5rem)'],
+];
+
+// Plain base-layer rules derived from tokens (not custom-property declarations).
+export const baseRules = [
+  '::selection {',
+  '  background-color: var(--accent);',
+  '  color: var(--accent-foreground);',
+  '}',
 ];
