@@ -8,6 +8,7 @@
   "types": "./dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
+    "./tokens.css": "./generated/tokens.css",
     ".": {
       "@tourism/source": "./src/index.ts",
       "types": "./dist/index.d.ts",
@@ -19,9 +20,19 @@
     "tags": [
       "scope:shared",
       "type:ui"
-    ]
+    ],
+    "targets": {
+      "tokens": {
+        "command": "node libs/shared/tokens/style-dictionary/build.mjs",
+        "outputs": ["{projectRoot}/generated"],
+        "cache": true
+      }
+    }
   },
   "dependencies": {
     "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "style-dictionary": "^5.4.4"
   }
 }

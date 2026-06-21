@@ -28,6 +28,7 @@ allowBuilds:
   '@swc/core': true
   detox: true
   dtrace-provider: false
+  esbuild: false # transitive only; prebuilt binary, no postinstall needed
   less: false
   nx: true
   prisma: true
