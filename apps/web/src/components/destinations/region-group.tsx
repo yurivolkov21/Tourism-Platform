@@ -27,7 +27,7 @@ export function RegionGroup({ region, items }: { region: string; items: Destinat
       </div>
 
       {/* Full-bleed mosaic: feature tile + supporting photo tiles, edge-to-edge */}
-      <div className="grid auto-rows-[9rem] grid-cols-3 gap-px border-y border-border bg-border sm:auto-rows-[16rem] sm:grid-cols-4">
+      <div className="grid auto-rows-[12rem] grid-cols-3 gap-px border-y border-border bg-border sm:auto-rows-[25rem] sm:grid-cols-4">
         <DestinationTile
           destination={feature}
           variant="feature"
