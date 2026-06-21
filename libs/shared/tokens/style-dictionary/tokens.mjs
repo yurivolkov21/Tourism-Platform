@@ -28,6 +28,18 @@ export default {
     input: c('oklch(0.922 0 0)', 'oklch(1 0 0 / 15%)'),
     ring: c('oklch(0.708 0 0)', 'oklch(0.556 0 0)'),
     overlay: c('oklch(0 0 0 / 0.5)', 'oklch(0 0 0 / 0.6)'),
+    // Functional status colors (not brand "gu") — used by departure status, badges, alerts.
+    success: c('oklch(0.62 0.17 145)', 'oklch(0.7 0.15 145)'),
+    'success-foreground': c('oklch(0.985 0 0)', 'oklch(0.205 0 0)'),
+    warning: c('oklch(0.78 0.15 80)', 'oklch(0.82 0.14 80)'),
+    'warning-foreground': c('oklch(0.27 0.04 80)', 'oklch(0.2 0.03 80)'),
+    info: c('oklch(0.6 0.13 240)', 'oklch(0.7 0.13 240)'),
+    'info-foreground': c('oklch(0.985 0 0)', 'oklch(0.205 0 0)'),
+    // Tourism-specific semantic colors.
+    rating: c('oklch(0.8 0.16 85)', 'oklch(0.83 0.15 85)'),
+    'rating-muted': c('oklch(0.922 0 0)', 'oklch(1 0 0 / 0.18)'),
+    price: c('oklch(0.205 0 0)', 'oklch(0.985 0 0)'),
+    'price-compare': c('oklch(0.556 0 0)', 'oklch(0.708 0 0)'),
     'chart-1': c('oklch(0.87 0 0)', 'oklch(0.87 0 0)'),
     'chart-2': c('oklch(0.556 0 0)', 'oklch(0.556 0 0)'),
     'chart-3': c('oklch(0.439 0 0)', 'oklch(0.439 0 0)'),
@@ -118,6 +130,8 @@ export const rootExtras = [
   // Sizing — control heights (comfortable density) + iconography. Components adopt via var().
   ['--control-h-sm', '1.75rem'], ['--control-h-md', '2rem'], ['--control-h-lg', '2.25rem'],
   ['--icon-size', '1rem'], ['--icon-stroke', '2'],
+  // Media aspect ratios (tourism) — use via aspect-[var(--aspect-card)] or component CSS.
+  ['--aspect-card', '4 / 3'], ['--aspect-hero', '16 / 9'], ['--aspect-thumb', '1 / 1'],
 ];
 
 // Compact density overrides — emitted under [data-density='compact'] for dense admin tables.
