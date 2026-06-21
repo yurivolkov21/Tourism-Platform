@@ -89,6 +89,42 @@ export const messages = {
     viewAll: 'View all destinations',
     toursLabel: 'tours',
   },
+  trust: {
+    heading: 'Trusted by travellers worldwide',
+    stats: [
+      { value: '4.9/5', label: 'Average tour rating' },
+      { value: '12,000+', label: 'Happy travellers' },
+      { value: '60+', label: 'Curated itineraries' },
+      { value: '24/7', label: 'On-trip support' },
+    ],
+  },
+  enquiryCta: {
+    heading: 'Let us plan your journey',
+    subtitle:
+      'Tell us how you like to travel and our local experts will craft an itinerary that fits you — with no obligation.',
+    cta: 'Start planning',
+  },
+  footer: {
+    tagline: 'Boutique heritage journeys across Vietnam, crafted with care.',
+    exploreHeading: 'Explore',
+    explore: [
+      { label: 'Tours', href: '#tours' },
+      { label: 'Destinations', href: '#destinations' },
+      { label: 'About us', href: '#about' },
+      { label: 'Contact', href: '#contact' },
+    ],
+    supportHeading: 'Support',
+    support: [
+      { label: 'FAQs', href: '#' },
+      { label: 'Booking & payment', href: '#' },
+      { label: 'Terms', href: '#' },
+      { label: 'Privacy', href: '#' },
+    ],
+    contactHeading: 'Contact',
+    email: 'hello@example.com',
+    phone: '+84 00 000 0000',
+    rights: 'All rights reserved.',
+  },
 } as const;
 
 export type Messages = typeof messages;
