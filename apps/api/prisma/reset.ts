@@ -47,6 +47,7 @@ const TABLES = [
   'media_assets',
   'outbox',
   'media_garbage',
+  'posts',
 ] as const;
 
 async function main(): Promise<void> {

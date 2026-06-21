@@ -340,6 +340,13 @@ export const messages = {
     },
     note: 'Free and no-obligation — we usually reply within 24 hours.',
   },
+  blog: {
+    heading: 'Travel guides & stories',
+    subtitle:
+      'Practical guides and slow-travel inspiration from our local experts — to help you plan with confidence.',
+    viewAll: 'Read the journal',
+    readMore: 'Read more',
+  },
   footer: {
     tagline: 'Boutique heritage journeys across Vietnam, crafted with care.',
     motto: 'Travel that earns your trust',

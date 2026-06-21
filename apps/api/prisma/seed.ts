@@ -32,6 +32,7 @@ import {
   MediaOwnerType,
   MediaType,
   PaymentProvider,
+  PostStatus,
   PrismaClient,
   UserRole,
 } from '@prisma/client';
@@ -574,6 +575,49 @@ async function main(): Promise<void> {
   } else {
     console.log(`[seed] PAID booking ${PAID_BOOKING_CODE} already exists — skipped`);
   }
+
+  // 6b. Editorial posts (P-Content) — a few PUBLISHED articles authored by the admin.
+  const POSTS = [
+    {
+      slug: 'best-time-to-visit-vietnam',
+      title: 'The best time to visit Vietnam, region by region',
+      excerpt:
+        'When the north is misty and the south is golden — how to time your trip for the weather you want.',
+      content:
+        '## North, Central & South\n\nVietnam spans many microclimates. The north has a real winter; the centre is best in spring; the south is warm year-round. Plan around the season you want, not a single "best" month.',
+    },
+    {
+      slug: 'two-unhurried-days-in-hoi-an',
+      title: 'Two unhurried days in Hội An',
+      excerpt: 'Lanterns, tailors, and riverside mornings — a slow itinerary for the old town.',
+      content:
+        '## Day 1\n\nWander the old town before the crowds, then a tailor fitting and a lantern-lit dinner.\n\n## Day 2\n\nCycle to the rice paddies and the beach, returning for the night market.',
+    },
+    {
+      slug: 'morning-at-the-mekong-floating-markets',
+      title: 'A morning at the Mekong floating markets',
+      excerpt:
+        'Dawn on the delta: what to expect, what to eat, and how to find the quieter channels.',
+      content:
+        '## Start before sunrise\n\nThe markets are busiest at dawn. Hire a small boat to slip into the narrow channels the big tours miss.',
+    },
+  ];
+  for (const p of POSTS) {
+    await prisma.post.upsert({
+      where: { slug: p.slug },
+      create: {
+        slug: p.slug,
+        title: p.title,
+        excerpt: p.excerpt,
+        content: p.content,
+        status: PostStatus.PUBLISHED,
+        publishedAt: new Date(),
+        authorId: admin.id,
+      },
+      update: { title: p.title, excerpt: p.excerpt, content: p.content },
+    });
+  }
+  console.log(`[seed] posts: ${POSTS.length} published`);
 
   // 7. Write seeded identifiers for the e2e suite (gitignored; no secrets).
   const outPath = join(__dirname, '..', '.env.e2e');
