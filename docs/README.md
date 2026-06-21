@@ -19,7 +19,7 @@
 
 Then, as needed: **[reference/](reference/)** — function catalog ([admin](reference/functions-admin.md)/[customer](reference/functions-customer.md)/[system](reference/functions-system.md)) + reference-site research · **[runbooks/](runbooks/README.md)** (ops) · **[specs/](specs/)** + **[plans/](plans/)** (per-feature).
 
-## 🗂 Folder map
+## 📂 Folder map
 
 ```text
 docs/
