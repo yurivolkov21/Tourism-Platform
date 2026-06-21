@@ -9,6 +9,7 @@
   "exports": {
     "./package.json": "./package.json",
     "./tokens.css": "./generated/tokens.css",
+    "./theme": "./generated/theme.js",
     ".": {
       "@tourism/source": "./src/index.ts",
       "types": "./dist/index.d.ts",

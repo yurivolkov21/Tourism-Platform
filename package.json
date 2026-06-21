@@ -2,7 +2,9 @@
   "name": "@tourism/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "check:no-hex": "node tools/check-no-hex.mjs"
+  },
   "private": true,
   "packageManager": "pnpm@11.4.0",
   "devDependencies": {

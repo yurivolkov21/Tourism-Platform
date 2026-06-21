@@ -2,23 +2,24 @@
 
 Single source of truth for design tokens. Authored in `style-dictionary/tokens.mjs`, built with
 **Style Dictionary** (`style-dictionary/build.mjs`) into `generated/tokens.css` (Tailwind v4 `@theme`
+
 + `:root`/`.dark`). Apps import `@tourism/tokens/tokens.css`.
 
 ## Commands
 
-- `nx run @tourism/tokens:tokens` — regenerate `generated/tokens.css` (run after editing `tokens.mjs`).
-- `nx test @tourism/tokens` / `nx typecheck @tourism/tokens` / `nx lint @tourism/tokens`.
++ `nx run @tourism/tokens:tokens` — regenerate `generated/tokens.css` (run after editing `tokens.mjs`).
++ `nx test @tourism/tokens` / `nx typecheck @tourism/tokens` / `nx lint @tourism/tokens`.
 
 > `generated/` is a build artifact — **do not edit by hand**.
 
 ## Consuming tokens
 
-- Colors / radius / typography / shadow → use the generated **Tailwind utilities** (`bg-primary`,
++ Colors / radius / typography / shadow → use the generated **Tailwind utilities** (`bg-primary`,
   `text-3xl`, `shadow-card`, `rounded-lg`, `text-success`…). `@theme inline` means these are inlined
   into utilities, **not** emitted as runtime `var(--text-3xl)`.
-- `var()`-only tokens (in `:root`): `--z-*`, `--duration-*`, `--focus-ring-*`, `--touch-target-min`,
++ `var()`-only tokens (in `:root`): `--z-*`, `--duration-*`, `--focus-ring-*`, `--touch-target-min`,
   `--prose-measure`, `--section-space`, `--control-h-*`, `--icon-*`, `--aspect-*`.
-- Compact density: set `data-density="compact"` on a container to shrink `--control-h-*` / `--section-space`.
++ Compact density: set `data-density="compact"` on a container to shrink `--control-h-*` / `--section-space`.
 
 ## Domain mapping (tourism)
 
