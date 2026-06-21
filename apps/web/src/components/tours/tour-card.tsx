@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { ClockIcon, ImageIcon, MapPinIcon, StarIcon } from 'lucide-react';
 
 import { Badge, Button, Card, CardContent, cn } from '@tourism/ui';
@@ -19,6 +20,8 @@ export type TourCardData = {
   rating: number;
   reviewCount: number;
   badges: TourBadgeKey[];
+  // Optional cover (temporary Unsplash URL for review; from MediaAsset later). Falls back to a placeholder.
+  image?: string;
 };
 
 const badgeClass: Record<TourBadgeKey, string> = {
@@ -38,12 +41,22 @@ export function TourCard({ tour }: { tour: TourCardData }) {
   const t = messages.featuredTours;
 
   return (
-    <Card className="flex flex-col overflow-hidden p-0 transition-all duration-200 ease-out-expo hover:-translate-y-0.5 hover:shadow-dropdown">
-      {/* Cover — placeholder slot (no image field in schema yet) */}
-      <div className="relative aspect-[var(--aspect-card)] w-full">
-        <div className="from-primary via-primary/80 to-rating flex h-full w-full items-center justify-center bg-linear-to-br">
-          <ImageIcon className="text-primary-foreground/80 size-7" />
-        </div>
+    <Card className="group flex flex-col overflow-hidden p-0 transition-all duration-200 ease-out-expo hover:-translate-y-0.5 hover:shadow-dropdown">
+      {/* Cover — temporary Unsplash image when provided, else a placeholder slot */}
+      <div className="relative aspect-(--aspect-card) w-full overflow-hidden">
+        {tour.image ? (
+          <Image
+            src={tour.image}
+            alt={tour.title}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover transition-transform duration-300 ease-out-expo group-hover:scale-105"
+          />
+        ) : (
+          <div className="from-primary via-primary/80 to-rating flex h-full w-full items-center justify-center bg-linear-to-br">
+            <ImageIcon className="text-primary-foreground/80 size-7" />
+          </div>
+        )}
         {tour.badges.length > 0 && (
           <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
             {tour.badges.map((b) => (

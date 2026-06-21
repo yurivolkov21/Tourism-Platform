@@ -78,3 +78,6 @@ cache/
 .env
 .env.*
 !.env.example
+
+# Playwright MCP review artifacts
+.playwright-mcp/

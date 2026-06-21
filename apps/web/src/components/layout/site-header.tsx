@@ -7,13 +7,26 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  buttonVariants,
+  cn,
 } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { Logo } from '../brand/logo';
+import { TopBar } from './top-bar';
 
-const navItems = [
+const linkClass = 'text-muted-foreground hover:text-primary px-2.5 py-1.5 text-sm font-medium transition-colors';
+
+// Flat nav for the mobile dropdown.
+const mobileNav = [
   { label: messages.nav.tours, href: '#tours' },
   { label: messages.nav.destinations, href: '#destinations' },
   { label: messages.nav.about, href: '#about' },
@@ -21,58 +34,90 @@ const navItems = [
 ] as const;
 
 export function SiteHeader() {
+  const t = messages.nav;
+
   return (
-    <header className="bg-background sticky top-0 z-50 h-16 border-b">
-      <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
-        <a href="#" aria-label={messages.brand.name}>
-          <Logo />
-        </a>
+    <>
+      <TopBar />
 
-        {/* Desktop nav */}
-        <nav className="flex flex-wrap items-center justify-start gap-0 max-md:hidden" aria-label="Primary">
-          {navItems.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              className="text-muted-foreground hover:text-primary px-3 py-1.5 text-base font-medium"
-            >
-              {item.label}
+      <header className="bg-background sticky top-0 z-50 border-b">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
+          <a href="#" aria-label={messages.brand.name}>
+            <Logo />
+          </a>
+
+          {/* Desktop nav */}
+          <nav className="flex items-center gap-1 max-md:hidden" aria-label="Primary">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>{t.toursMenu.label}</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-md grid-cols-2 gap-1 p-2">
+                      {t.toursMenu.items.map((item) => (
+                        <li key={item.label}>
+                          <NavigationMenuLink render={<a href={item.href} />}>
+                            <div className="flex flex-col gap-0.5">
+                              <span className="font-medium">{item.label}</span>
+                              <span className="text-muted-foreground text-xs">{item.hint}</span>
+                            </div>
+                          </NavigationMenuLink>
+                        </li>
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+
+            <a href="#destinations" className={linkClass}>
+              {t.destinations}
             </a>
-          ))}
-        </nav>
+            <a href="#about" className={linkClass}>
+              {t.about}
+            </a>
+            <a href="#contact" className={linkClass}>
+              {t.contact}
+            </a>
+          </nav>
 
-        {/* Desktop login */}
-        <Button
-          size="lg"
-          className="max-md:hidden"
-          render={<a href="#login" />}
-          nativeButton={false}
-        >
-          {messages.nav.login}
-        </Button>
+          {/* Desktop actions */}
+          <div className="flex items-center gap-4 max-md:hidden">
+            <a href="#login" className={linkClass}>
+              {t.login}
+            </a>
+            <Button render={<a href="#contact" />} nativeButton={false}>
+              {t.planTrip}
+            </Button>
+          </div>
 
-        {/* Mobile actions */}
-        <div className="flex gap-4 md:hidden">
-          <Button size="lg" render={<a href="#login" />} nativeButton={false}>
-            {messages.nav.login}
-          </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="outline" size="icon-lg" />}>
-              <MenuIcon />
-              <span className="sr-only">{messages.nav.menu}</span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end">
-              {navItems.map((item) => (
-                <DropdownMenuItem key={item.label}>
-                  <a href={item.href}>{item.label}</a>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Mobile actions */}
+          <div className="flex items-center gap-3 md:hidden">
+            <a
+              href="#contact"
+              className={cn(buttonVariants({ size: 'default' }), 'max-[400px]:hidden')}
+            >
+              {t.planTrip}
+            </a>
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button variant="outline" size="icon-lg" />}>
+                <MenuIcon />
+                <span className="sr-only">{t.menu}</span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end">
+                {mobileNav.map((item) => (
+                  <DropdownMenuItem key={item.label} render={<a href={item.href} />}>
+                    {item.label}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem render={<a href="#login" />}>{t.login}</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }
 

@@ -1,17 +1,31 @@
+import Image from 'next/image';
+
 import { messages } from '@tourism/i18n';
 
+// Temporary Unsplash image (review only) — swap for a real asset later.
+const TRUST_IMAGE =
+  'https://images.unsplash.com/photo-1528181304800-259b08848526?w=1920&q=70&auto=format&fit=crop';
+
+// Full-bleed photo trust banner (Lily-style) with headline + our real stats overlaid.
 export function Trust() {
   const t = messages.trust;
 
   return (
-    <section className="bg-muted py-14 sm:py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="text-center text-xl font-semibold text-balance sm:text-2xl">{t.heading}</h2>
-        <dl className="mt-10 grid grid-cols-2 gap-8 lg:grid-cols-4">
+    <section className="relative isolate overflow-hidden py-20 sm:py-24 lg:py-28">
+      <Image src={TRUST_IMAGE} alt="" fill sizes="100vw" className="-z-10 object-cover" />
+      <div className="bg-overlay/70 absolute inset-0 -z-10" />
+
+      <div className="text-primary-foreground mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-semibold text-balance md:text-4xl">{t.heading}</h2>
+        <p className="text-primary-foreground/80 mx-auto mt-4 max-w-2xl text-lg text-pretty">
+          {t.subtitle}
+        </p>
+
+        <dl className="mt-12 grid grid-cols-2 gap-8 lg:grid-cols-4">
           {t.stats.map((s) => (
             <div key={s.label} className="text-center">
-              <dt className="text-primary font-heading text-4xl font-bold sm:text-5xl">{s.value}</dt>
-              <dd className="text-muted-foreground mt-2 text-sm">{s.label}</dd>
+              <dt className="font-heading text-4xl font-bold sm:text-5xl">{s.value}</dt>
+              <dd className="text-primary-foreground/75 mt-2 text-sm">{s.label}</dd>
             </div>
           ))}
         </dl>
