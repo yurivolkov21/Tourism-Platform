@@ -1,7 +1,7 @@
 // Design tokens — source of truth for @tourism/tokens.
-// PR1 (parity): reproduces the shadcn (base-nova, neutral) theme currently inlined
-// in each app's global.css, byte-compatible in CSS variable names. Real brand values
-// and the full primitive scales arrive in later PRs (see design-tokens plan).
+// Brand direction: "Emerald Heritage" (light luxury) — deep emerald primary, warm ivory
+// neutrals, brass accents; serif headings (Fraunces) + sans body (Geist); refined radius.
+// See docs/specs/2026-06-21-p2-design-direction.md.
 //
 // Authored in Style Dictionary token format. Each color carries light + dark values.
 
@@ -9,24 +9,25 @@ const c = (light, dark) => ({ value: light, darkValue: dark, type: 'color' });
 
 export default {
   color: {
-    background: c('oklch(1 0 0)', 'oklch(0.145 0 0)'),
-    foreground: c('oklch(0.145 0 0)', 'oklch(0.985 0 0)'),
-    card: c('oklch(1 0 0)', 'oklch(0.205 0 0)'),
-    'card-foreground': c('oklch(0.145 0 0)', 'oklch(0.985 0 0)'),
-    popover: c('oklch(1 0 0)', 'oklch(0.205 0 0)'),
-    'popover-foreground': c('oklch(0.145 0 0)', 'oklch(0.985 0 0)'),
-    primary: c('oklch(0.205 0 0)', 'oklch(0.922 0 0)'),
-    'primary-foreground': c('oklch(0.985 0 0)', 'oklch(0.205 0 0)'),
-    secondary: c('oklch(0.97 0 0)', 'oklch(0.269 0 0)'),
-    'secondary-foreground': c('oklch(0.205 0 0)', 'oklch(0.985 0 0)'),
-    muted: c('oklch(0.97 0 0)', 'oklch(0.269 0 0)'),
-    'muted-foreground': c('oklch(0.556 0 0)', 'oklch(0.708 0 0)'),
-    accent: c('oklch(0.97 0 0)', 'oklch(0.269 0 0)'),
-    'accent-foreground': c('oklch(0.205 0 0)', 'oklch(0.985 0 0)'),
+    // "Emerald Heritage" (light luxury): deep emerald primary · warm ivory neutrals · brass accents.
+    background: c('oklch(0.985 0.006 95)', 'oklch(0.17 0.012 160)'),
+    foreground: c('oklch(0.23 0.012 155)', 'oklch(0.95 0.008 95)'),
+    card: c('oklch(0.995 0.004 95)', 'oklch(0.21 0.014 160)'),
+    'card-foreground': c('oklch(0.23 0.012 155)', 'oklch(0.95 0.008 95)'),
+    popover: c('oklch(0.995 0.004 95)', 'oklch(0.21 0.014 160)'),
+    'popover-foreground': c('oklch(0.23 0.012 155)', 'oklch(0.95 0.008 95)'),
+    primary: c('oklch(0.42 0.08 155)', 'oklch(0.72 0.1 155)'),
+    'primary-foreground': c('oklch(0.98 0.01 95)', 'oklch(0.18 0.02 155)'),
+    secondary: c('oklch(0.93 0.012 120)', 'oklch(0.27 0.015 160)'),
+    'secondary-foreground': c('oklch(0.3 0.02 155)', 'oklch(0.95 0.008 95)'),
+    muted: c('oklch(0.95 0.008 105)', 'oklch(0.27 0.015 160)'),
+    'muted-foreground': c('oklch(0.5 0.015 150)', 'oklch(0.7 0.012 130)'),
+    accent: c('oklch(0.93 0.014 130)', 'oklch(0.3 0.018 160)'),
+    'accent-foreground': c('oklch(0.3 0.02 155)', 'oklch(0.95 0.008 95)'),
     destructive: c('oklch(0.577 0.245 27.325)', 'oklch(0.704 0.191 22.216)'),
-    border: c('oklch(0.922 0 0)', 'oklch(1 0 0 / 10%)'),
-    input: c('oklch(0.922 0 0)', 'oklch(1 0 0 / 15%)'),
-    ring: c('oklch(0.708 0 0)', 'oklch(0.556 0 0)'),
+    border: c('oklch(0.9 0.01 120)', 'oklch(1 0 0 / 10%)'),
+    input: c('oklch(0.9 0.01 120)', 'oklch(1 0 0 / 15%)'),
+    ring: c('oklch(0.55 0.07 155)', 'oklch(0.6 0.08 155)'),
     overlay: c('oklch(0 0 0 / 0.5)', 'oklch(0 0 0 / 0.6)'),
     // Functional status colors (not brand "gu") — used by departure status, badges, alerts.
     success: c('oklch(0.62 0.17 145)', 'oklch(0.7 0.15 145)'),
@@ -35,27 +36,28 @@ export default {
     'warning-foreground': c('oklch(0.27 0.04 80)', 'oklch(0.2 0.03 80)'),
     info: c('oklch(0.6 0.13 240)', 'oklch(0.7 0.13 240)'),
     'info-foreground': c('oklch(0.985 0 0)', 'oklch(0.205 0 0)'),
-    // Tourism-specific semantic colors.
-    rating: c('oklch(0.8 0.16 85)', 'oklch(0.83 0.15 85)'),
-    'rating-muted': c('oklch(0.922 0 0)', 'oklch(1 0 0 / 0.18)'),
-    price: c('oklch(0.205 0 0)', 'oklch(0.985 0 0)'),
-    'price-compare': c('oklch(0.556 0 0)', 'oklch(0.708 0 0)'),
-    'chart-1': c('oklch(0.87 0 0)', 'oklch(0.87 0 0)'),
-    'chart-2': c('oklch(0.556 0 0)', 'oklch(0.556 0 0)'),
-    'chart-3': c('oklch(0.439 0 0)', 'oklch(0.439 0 0)'),
-    'chart-4': c('oklch(0.371 0 0)', 'oklch(0.371 0 0)'),
-    'chart-5': c('oklch(0.269 0 0)', 'oklch(0.269 0 0)'),
-    sidebar: c('oklch(0.985 0 0)', 'oklch(0.205 0 0)'),
-    'sidebar-foreground': c('oklch(0.145 0 0)', 'oklch(0.985 0 0)'),
-    'sidebar-primary': c('oklch(0.205 0 0)', 'oklch(0.488 0.243 264.376)'),
-    'sidebar-primary-foreground': c('oklch(0.985 0 0)', 'oklch(0.985 0 0)'),
-    'sidebar-accent': c('oklch(0.97 0 0)', 'oklch(0.269 0 0)'),
-    'sidebar-accent-foreground': c('oklch(0.205 0 0)', 'oklch(0.985 0 0)'),
-    'sidebar-border': c('oklch(0.922 0 0)', 'oklch(1 0 0 / 10%)'),
-    'sidebar-ring': c('oklch(0.708 0 0)', 'oklch(0.556 0 0)'),
+    // Tourism-specific semantic colors — rating = brass (the light-luxury accent).
+    rating: c('oklch(0.74 0.11 80)', 'oklch(0.8 0.12 82)'),
+    'rating-muted': c('oklch(0.9 0.01 120)', 'oklch(1 0 0 / 0.2)'),
+    price: c('oklch(0.23 0.012 155)', 'oklch(0.95 0.008 95)'),
+    'price-compare': c('oklch(0.5 0.015 150)', 'oklch(0.7 0.012 130)'),
+    // Data-viz ramp in the emerald/brass family.
+    'chart-1': c('oklch(0.42 0.08 155)', 'oklch(0.72 0.1 155)'),
+    'chart-2': c('oklch(0.74 0.11 80)', 'oklch(0.8 0.12 82)'),
+    'chart-3': c('oklch(0.55 0.07 190)', 'oklch(0.65 0.08 190)'),
+    'chart-4': c('oklch(0.65 0.06 135)', 'oklch(0.72 0.07 135)'),
+    'chart-5': c('oklch(0.35 0.05 160)', 'oklch(0.5 0.06 160)'),
+    sidebar: c('oklch(0.97 0.008 110)', 'oklch(0.19 0.013 160)'),
+    'sidebar-foreground': c('oklch(0.23 0.012 155)', 'oklch(0.95 0.008 95)'),
+    'sidebar-primary': c('oklch(0.42 0.08 155)', 'oklch(0.72 0.1 155)'),
+    'sidebar-primary-foreground': c('oklch(0.98 0.01 95)', 'oklch(0.18 0.02 155)'),
+    'sidebar-accent': c('oklch(0.93 0.014 130)', 'oklch(0.3 0.018 160)'),
+    'sidebar-accent-foreground': c('oklch(0.3 0.02 155)', 'oklch(0.95 0.008 95)'),
+    'sidebar-border': c('oklch(0.9 0.01 120)', 'oklch(1 0 0 / 10%)'),
+    'sidebar-ring': c('oklch(0.55 0.07 155)', 'oklch(0.6 0.08 155)'),
   },
   radius: {
-    DEFAULT: { value: '0.625rem', type: 'dimension' },
+    DEFAULT: { value: '0.375rem', type: 'dimension' }, // refined (light luxury)
   },
 };
 
@@ -73,7 +75,7 @@ export const radiusScale = {
 // Font family theme vars (passthrough to the runtime --font-sans set in each app layout).
 export const fonts = {
   sans: 'var(--font-sans)',
-  heading: 'var(--font-sans)',
+  heading: 'var(--font-heading)', // Fraunces (serif), set per-app via next/font; falls back to sans
 };
 
 // Mode-independent Tailwind v4 @theme tokens → generate utilities (text-*, font-*,
@@ -145,5 +147,9 @@ export const baseRules = [
   '::selection {',
   '  background-color: var(--accent);',
   '  color: var(--accent-foreground);',
+  '}',
+  '/* Light-luxury: headings in the serif display face (Fraunces), body stays sans. */',
+  'h1, h2, h3 {',
+  '  font-family: var(--font-heading, var(--font-sans));',
   '}',
 ];
