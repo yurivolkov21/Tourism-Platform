@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
+    "@tourism/core": "workspace:*",
     "@tourism/i18n": "workspace:*",
     "@tourism/tokens": "workspace:*",
     "@tourism/ui": "workspace:*",
