@@ -46,8 +46,9 @@ export const REGION_THEMES: Record<string, RegionTheme> = {
     accentSoft: 'bg-rating/15 text-rating',
     chipOn: 'border-rating bg-rating text-foreground',
     signature: 'heritage',
+    // Lighter, more refined scrim for the elegant, imperial centre.
     heroHeight: DEFAULT_HERO_HEIGHT,
-    heroScrim: DEFAULT_HERO_SCRIM,
+    heroScrim: 'from-foreground/80 via-foreground/20 to-transparent',
   },
   'southern-vietnam': {
     accentText: 'text-info',

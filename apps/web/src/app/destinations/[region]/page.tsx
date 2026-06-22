@@ -8,6 +8,7 @@ import { RegionIntro } from '../../../components/destinations/region-intro';
 import { RegionHighlights } from '../../../components/destinations/region-highlights';
 import { RegionSignature } from '../../../components/destinations/region-signature';
 import { RegionSignatureAdventure } from '../../../components/destinations/region-signature-adventure';
+import { RegionSignatureTimeline } from '../../../components/destinations/region-signature-timeline';
 import { RegionTours } from '../../../components/destinations/region-tours';
 import { ValueProps } from '../../../components/destinations/value-props';
 import { Gallery, type GallerySection } from '../../../components/marketing/gallery';
@@ -71,6 +72,13 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
       stats={meta.signature.stats}
       image={pool[4] ?? pool[0] ?? data.image}
       accentText={theme.accentText}
+    />
+  ) : theme.signature === 'heritage' && meta.signature.timeline ? (
+    <RegionSignatureTimeline
+      eyebrow={meta.signature.eyebrow}
+      heading={meta.signature.heading}
+      body={meta.signature.body}
+      timeline={meta.signature.timeline}
     />
   ) : (
     <RegionSignature

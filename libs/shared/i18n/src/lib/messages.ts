@@ -226,6 +226,23 @@ export const messages = {
             'Lantern-lit Hội An and the Thu Bồn river',
             'The Chăm sanctuary of Mỹ Sơn',
           ],
+          timeline: [
+            {
+              title: 'Huế',
+              era: 'Imperial capital',
+              body: 'The walled citadel, the Forbidden Purple City, and the royal tombs of the Nguyễn emperors along the Perfume river.',
+            },
+            {
+              title: 'Hội An',
+              era: 'Trading port',
+              body: 'A lantern-lit UNESCO old town of tailor shops, tea houses, and the Japanese covered bridge over the Thu Bồn.',
+            },
+            {
+              title: 'Mỹ Sơn',
+              era: 'Chăm sanctuary',
+              body: 'Red-brick temple towers set in a jungle valley — the spiritual heart of the Chăm kingdom for a thousand years.',
+            },
+          ],
         },
       },
       'Southern Vietnam': {
@@ -265,6 +282,7 @@ export const messages = {
           body: string;
           points: string[];
           stats?: { value: string; label: string }[];
+          timeline?: { title: string; era: string; body: string }[];
         };
       }
     >,
