@@ -29,8 +29,8 @@ const linkClass = 'text-muted-foreground hover:text-primary px-2.5 py-1.5 text-s
 const mobileNav = [
   { label: messages.nav.tours, href: '#tours' },
   ...messages.nav.destinationsMenu.items.map((i) => ({ label: i.label, href: i.href })),
-  { label: messages.nav.about, href: '#about' },
-  { label: messages.nav.contact, href: '#contact' },
+  { label: messages.nav.about, href: '/about' },
+  { label: messages.nav.contact, href: '/contact' },
 ];
 
 export function SiteHeader() {
@@ -72,10 +72,10 @@ export function SiteHeader() {
               </NavigationMenuList>
             </NavigationMenu>
 
-            <a href="#about" className={linkClass}>
+            <a href="/about" className={linkClass}>
               {t.about}
             </a>
-            <a href="#contact" className={linkClass}>
+            <a href="/contact" className={linkClass}>
               {t.contact}
             </a>
           </nav>

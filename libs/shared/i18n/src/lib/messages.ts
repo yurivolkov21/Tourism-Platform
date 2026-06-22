@@ -646,6 +646,9 @@ export const messages = {
   },
   contact: {
     heading: 'Contact us',
+    breadcrumb: 'Contact',
+    subtitle:
+      'Questions about a tour, a custom itinerary, or an existing booking? Reach out — our local experts usually reply within 24 hours.',
     intro: {
       title: 'Happy to help',
       body: 'Questions about a tour, a custom itinerary, or an existing booking? Our team is here at every step of the journey.',
@@ -739,10 +742,11 @@ export const messages = {
     ],
     supportHeading: 'Support',
     support: [
+      { label: 'About us', href: '/about' },
       { label: 'FAQs', href: '/faq' },
       { label: 'Privacy Statement', href: '/privacy' },
       { label: 'Terms & Conditions', href: '/terms' },
-      { label: 'Contact', href: '#contact' },
+      { label: 'Contact', href: '/contact' },
     ],
     contactHeading: 'Contact',
     email: 'hello@example.com',

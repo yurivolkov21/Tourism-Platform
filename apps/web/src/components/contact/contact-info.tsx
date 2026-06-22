@@ -16,10 +16,6 @@ export function ContactInfo() {
   return (
     <section className="bg-muted py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="mb-12 text-center text-2xl font-semibold text-balance sm:mb-16 md:text-3xl lg:text-4xl">
-          {t.heading}
-        </h2>
-
         <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-12">
           {/* Location map */}
           <div className="ring-border overflow-hidden rounded-xl ring-1">

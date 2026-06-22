@@ -7,7 +7,7 @@ export function Story() {
   const t = messages.about.story;
 
   return (
-    <section className="py-16 sm:py-20 lg:py-24">
+    <section id="story" className="scroll-mt-20 py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 space-y-4 text-center sm:mb-16">
           <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">{t.heading}</h2>
@@ -18,7 +18,7 @@ export function Story() {
           {t.milestones.map((m) => (
             <li key={m.year} className="relative pl-8">
               {/* Node */}
-              <span className="bg-primary/20 absolute top-1 -left-[9px] flex size-4.5 items-center justify-center rounded-full">
+              <span className="bg-primary/20 absolute top-1 -left-2.25 flex size-4.5 items-center justify-center rounded-full">
                 <span className="bg-primary size-2.5 rounded-full" />
               </span>
               <p className="text-primary font-heading text-2xl leading-none font-bold">{m.year}</p>
