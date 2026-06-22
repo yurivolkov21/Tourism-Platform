@@ -14,7 +14,7 @@ Founding phase list: [BLUEPRINT §7](BLUEPRINT.md#7-phased-roadmap). Decisions: 
 | **P0.8** | Port donor conventions + rename `@org`→`@tourism` + AI cleanup | ✅ done |
 | **P1** | **Backend:** fresh Prisma schema + port infra + seed | ✅ **complete** (P1.1–P1.8 + **P1.x** done): schema/auth/CRUD/bookings/Stripe+PayPal/media/reviews+wishlist+enquiry+stats/seed+client+e2e + pg-boss jobs (outbox emails + cron) |
 | **P2** | Design system: `shared/tokens` + `web/ui` (+ `mobile/ui` later) | ✅ **done** — Style Dictionary tokens (**"Emerald Heritage"**, no-hex enforced) + shadcn/Base UI 54 comps in `@tourism/ui` |
-| **P3** | Web (customer): home → destinations → tours → detail → booking → account | 🚧 **in progress** — home + destinations (overview + **3 region pages w/ per-region L2 design** + rich enquiry form) + content pages (`/faq` `/privacy` `/terms`) done; tours/detail/about/contact + real-data wiring next (see P3 breakdown) |
+| **P3** | Web (customer): home → destinations → tours → detail → booking → account | 🚧 **in progress** — home + destinations (overview + **3 region pages w/ per-region L2 design** + rich enquiry form) + content pages (`/faq` `/privacy` `/terms`) + **about + contact** done; tours + tour-detail + real-data wiring next (see P3 breakdown) |
 | **P4** | Admin: manage tours/destinations/departures/media/reviews/bookings | ⬜ |
 | **P5** | Mobile (Expo): browse → detail → booking → account (reuse `shared/core`) | ⬜ |
 | **P6** | Content/SEO (blog/tips) + trust polish | ⬜ |
@@ -61,7 +61,8 @@ tokens-only (no-hex), reuse `@tourism/ui`, copy in `@tourism/i18n`. Plan:
 | **Shared content template** | — | ✅ `ContentHero` (emerald header) + `OnThisPage` (sticky TOC scroll-spy) |
 | Tours listing | `/tours` | ⬜ filterable `TourCard` grid |
 | Tour detail | `/tours/[slug]` | ⬜ gallery · itinerary · sticky booking box |
-| About / Contact | `/about` `/contact` | ⬜ (standalone blocks built, not yet routed) |
+| **About** | `/about` | ✅ AboutHero · **"Our story" alternating image timeline** (centre spine + haloed year nodes) · by-the-numbers · team (baseline-aligned cards) · enquiry |
+| **Contact** | `/contact` | ✅ ContentHero · **channels** (call/email/WhatsApp action cards) · **two offices + map** (get-directions) · Plan-your-trip form · closing CtaBand |
 | Booking + account | — | ⬜ (later in P3) |
 | **Wire real data** | — | ⬜ replace fixtures with the live `@tourism/core` client (deferred to end of P3) |
 
