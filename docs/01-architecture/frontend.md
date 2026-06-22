@@ -28,6 +28,8 @@ imagery via `next/image` `remotePatterns` — review only, swap for `MediaAsset`
 | `/` | static | Lily-style homepage (hero · destinations bento · experiences · featured · why-choose · trust · blog-teaser · enquiry). |
 | `/destinations` | static | Overview: hero · full-bleed region mosaics (feature tiles) · when-to-visit · popular (image posters) · testimonials · travel-tips · enquiry. |
 | `/destinations/[region]` | **SSG** (×3) | `generateStaticParams` → northern/central/southern-vietnam; unknown → `notFound()`. Hero · intro bento · highlights · **per-region L2 signature** (North dark-stats · Central heritage-timeline · South delta-postcards) · tours (tabs, `?d=` client-read keeps SSG) · gallery · value-props · **rich Plan-your-trip form** (maps Enquiry model). Replaced per-destination `[slug]`. |
+| `/tours` | static | Filterable catalogue: sidebar facets (Destination · Duration · Travel style · Theme) + mobile drawer · sort · `TourCard` grid · empty state. Client-side filter (`filterTours`/`sortTours` from `@tourism/core`) keeps it static. |
+| `/tours/[slug]` | **SSG** | `generateStaticParams` from all fixture tour slugs; unknown → `notFound()`. Tour hero · overview · highlights · **itinerary accordion** · what's-included · sticky **BookingBox** (UI-only) · gallery · enquiry. |
 | `/about` | static | AboutHero · "Our story" **alternating image timeline** (centre spine + haloed year nodes) · by-the-numbers · team · enquiry. |
 | `/contact` | static | ContentHero · **channels** (call/email/WhatsApp action cards) · **two offices + map** · Plan-your-trip form · closing CtaBand. |
 | `/faq` | static | Searchable grouped accordion (category icons) · sticky TOC · **FAQPage JSON-LD**. |

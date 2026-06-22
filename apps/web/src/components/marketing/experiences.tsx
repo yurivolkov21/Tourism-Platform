@@ -52,7 +52,7 @@ export function Experiences() {
             return (
               <a
                 key={item.slug}
-                href={`#tours?category=${item.slug}`}
+                href="/tours"
                 className="group bg-card shadow-card hover:shadow-dropdown flex items-start gap-4 rounded-xl p-5 transition-all duration-200 ease-out-expo hover:-translate-y-0.5"
               >
                 <span className="bg-primary text-primary-foreground flex size-12 shrink-0 items-center justify-center rounded-lg">
@@ -75,7 +75,7 @@ export function Experiences() {
 
         <div className="mt-10 flex justify-center">
           <a
-            href="#tours"
+            href="/tours"
             className={cn(
               buttonVariants({ size: 'lg' }),
               'bg-background text-foreground hover:bg-background/90',

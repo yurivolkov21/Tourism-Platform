@@ -14,7 +14,7 @@ Founding phase list: [BLUEPRINT §7](BLUEPRINT.md#7-phased-roadmap). Decisions: 
 | **P0.8** | Port donor conventions + rename `@org`→`@tourism` + AI cleanup | ✅ done |
 | **P1** | **Backend:** fresh Prisma schema + port infra + seed | ✅ **complete** (P1.1–P1.8 + **P1.x** done): schema/auth/CRUD/bookings/Stripe+PayPal/media/reviews+wishlist+enquiry+stats/seed+client+e2e + pg-boss jobs (outbox emails + cron) |
 | **P2** | Design system: `shared/tokens` + `web/ui` (+ `mobile/ui` later) | ✅ **done** — Style Dictionary tokens (**"Emerald Heritage"**, no-hex enforced) + shadcn/Base UI 54 comps in `@tourism/ui` |
-| **P3** | Web (customer): home → destinations → tours → detail → booking → account | 🚧 **in progress** — home + destinations (overview + **3 region pages w/ per-region L2 design** + rich enquiry form) + content pages (`/faq` `/privacy` `/terms`) + **about + contact** done; tours + tour-detail + real-data wiring next (see P3 breakdown) |
+| **P3** | Web (customer): home → destinations → tours → detail → booking → account | 🚧 **in progress** — home + destinations (overview + **3 region pages w/ per-region L2 design** + rich enquiry form) + content pages (`/faq` `/privacy` `/terms`) + about + contact + **tours (listing + detail)** done; **real-data wiring + booking + motion** next (see P3 breakdown) |
 | **P4** | Admin: manage tours/destinations/departures/media/reviews/bookings | ⬜ |
 | **P5** | Mobile (Expo): browse → detail → booking → account (reuse `shared/core`) | ⬜ |
 | **P6** | Content/SEO (blog/tips) + trust polish | ⬜ |
@@ -57,10 +57,10 @@ tokens-only (no-hex), reuse `@tourism/ui`, copy in `@tourism/i18n`. Plan:
 | **Region pages** | `/destinations/[region]` | ✅ SSG ×3 (northern / central / southern) — hero · intro bento · highlights · **per-region L2 signature** (North = dark adventure-stats · Central = heritage timeline · South = delta image-postcards) · tours (tabs, `?d=` client-read) · gallery · value-props · **rich Plan-your-trip form** (maps Enquiry model). Replaced per-destination `[slug]`; 404 on unknown region. |
 | **FAQ** | `/faq` | ✅ searchable grouped accordion (category icons) · sticky TOC · FAQPage JSON-LD |
 | **Privacy / Terms** | `/privacy` `/terms` | ✅ legal pages — **draft, pending legal review** (placeholders + review callout) |
-| **Nav / footer** | — | ✅ Tours (experiences) dropdown + Destinations dropdown **→ per-region pages** (`/destinations/[region]`; regions also in mobile menu) · footer wired to /faq /privacy /terms |
+| **Nav / footer** | — | ✅ **Tours** dropdown + button **→ `/tours`** · Destinations dropdown **→ per-region pages** (`/destinations/[region]`; regions also in mobile menu) · about/contact wired · footer support → about/faq/privacy/terms/contact |
 | **Shared content template** | — | ✅ `ContentHero` (emerald header) + `OnThisPage` (sticky TOC scroll-spy) |
-| Tours listing | `/tours` | ⬜ filterable `TourCard` grid |
-| Tour detail | `/tours/[slug]` | ⬜ gallery · itinerary · sticky booking box |
+| **Tours listing** | `/tours` | ✅ static — sidebar facets (Destination · Duration · Travel style · Theme) + mobile drawer · sort · `TourCard` grid · empty state. **Client-side filter** (`filterTours`/`sortTours` TDD'd in `@tourism/core`) keeps the page static. |
+| **Tour detail** | `/tours/[slug]` | ✅ SSG (all fixture slugs, 404 unknown) — tour hero · overview · highlights · **itinerary accordion** · what's-included · sticky **BookingBox** (UI-only "Request to book" → `#contact`) · photo gallery · enquiry. |
 | **About** | `/about` | ✅ AboutHero · **"Our story" alternating image timeline** (centre spine + haloed year nodes) · by-the-numbers · team (baseline-aligned cards) · enquiry |
 | **Contact** | `/contact` | ✅ ContentHero · **channels** (call/email/WhatsApp action cards) · **two offices + map** (get-directions) · Plan-your-trip form · closing CtaBand |
 | Booking + account | — | ⬜ (later in P3) |

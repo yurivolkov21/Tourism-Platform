@@ -18,7 +18,7 @@ export function TourTile({ tour }: { tour: TourCardData }) {
 
   return (
     <Link
-      href={`#tour-${tour.slug}`}
+      href={`/tours/${tour.slug}`}
       className="group text-primary-foreground relative block aspect-3/4 overflow-hidden rounded-2xl"
     >
       <Image

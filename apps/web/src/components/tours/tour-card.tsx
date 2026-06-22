@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import { ClockIcon, ImageIcon, MapPinIcon, StarIcon } from 'lucide-react';
 
+import type { TravelStyle, TourTheme } from '@tourism/core';
+
 import { Badge, Button, Card, CardContent, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
@@ -22,6 +24,9 @@ export type TourCardData = {
   badges: TourBadgeKey[];
   // Optional cover (temporary Unsplash URL for review; from MediaAsset later). Falls back to a placeholder.
   image?: string;
+  // Filter tags (optional; populated on fixtures for the /tours facets).
+  travelStyles?: TravelStyle[];
+  themes?: TourTheme[];
 };
 
 const badgeClass: Record<TourBadgeKey, string> = {
@@ -104,7 +109,7 @@ export function TourCard({ tour }: { tour: TourCardData }) {
               ) : null}
             </div>
           </div>
-          <Button size="sm" render={<a href={`#tour-${tour.slug}`} />} nativeButton={false}>
+          <Button size="sm" render={<a href={`/tours/${tour.slug}`} />} nativeButton={false}>
             {t.view}
           </Button>
         </div>

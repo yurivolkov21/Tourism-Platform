@@ -39,7 +39,7 @@ export function Features() {
         <div className="mb-12 space-y-4 sm:mb-16">
           <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">{t.heading}</h2>
           <p className="text-muted-foreground max-w-2xl text-lg text-pretty">{t.subtitle}</p>
-          <Button variant="outline" size="lg" render={<a href="#tours" />} nativeButton={false}>
+          <Button variant="outline" size="lg" render={<a href="/tours" />} nativeButton={false}>
             {t.cta}
             <ArrowRightIcon />
           </Button>

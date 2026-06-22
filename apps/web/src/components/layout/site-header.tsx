@@ -27,7 +27,7 @@ const linkClass = 'text-muted-foreground hover:text-primary px-2.5 py-1.5 text-s
 
 // Flat nav for the mobile dropdown — expands Destinations into its region pages.
 const mobileNav = [
-  { label: messages.nav.tours, href: '#tours' },
+  { label: messages.nav.tours, href: '/tours' },
   ...messages.nav.destinationsMenu.items.map((i) => ({ label: i.label, href: i.href })),
   { label: messages.nav.about, href: '/about' },
   { label: messages.nav.contact, href: '/contact' },

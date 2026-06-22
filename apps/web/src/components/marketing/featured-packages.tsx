@@ -54,7 +54,7 @@ export function FeaturedPackages() {
         </Carousel>
 
         <div className="mt-8 flex justify-center">
-          <a href="#tours" className={cn(buttonVariants({ size: 'lg' }))}>
+          <a href="/tours" className={cn(buttonVariants({ size: 'lg' }))}>
             {t.viewAll}
             <ArrowRightIcon />
           </a>

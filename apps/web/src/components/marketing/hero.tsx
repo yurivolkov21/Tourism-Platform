@@ -40,7 +40,7 @@ export function Hero() {
 
         {/* Search affordance — navigates to the tours listing (real filtering wired later) */}
         <form
-          action="#tours"
+          action="/tours"
           className="bg-background shadow-dropdown mt-2 flex w-full max-w-xl items-center gap-2 rounded-full p-2"
         >
           <label className="flex flex-1 items-center gap-2 pl-3">

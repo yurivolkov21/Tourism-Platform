@@ -75,8 +75,8 @@ export const destinations: DestinationTileVM[] = [
     gallery: [img(P.terraces), img(P.temple)],
     span: 'lg:col-span-2 lg:row-span-2',
     tours: [
-      tour('ha-long-bay-2d1n', 'Hạ Long Bay Cruise — 2 Days 1 Night', 'Hạ Long Bay', 2, 320, 4.8, 124, img(P.halong), { compareAtPrice: 390, badges: ['BEST_VALUE'] }),
-      tour('ha-long-lan-ha-3d2n', 'Hạ Long & Lan Hạ Bay — 3 Days 2 Nights', 'Hạ Long Bay', 3, 540, 4.9, 86, img(P.terraces), { badges: ['EXCLUSIVE'] }),
+      tour('ha-long-bay-2d1n', 'Hạ Long Bay Cruise — 2 Days 1 Night', 'Hạ Long Bay', 2, 320, 4.8, 124, img(P.halong), { compareAtPrice: 390, badges: ['BEST_VALUE'], travelStyles: ['couples', 'luxury'], themes: ['cruise', 'nature'] }),
+      tour('ha-long-lan-ha-3d2n', 'Hạ Long & Lan Hạ Bay — 3 Days 2 Nights', 'Hạ Long Bay', 3, 540, 4.9, 86, img(P.terraces), { badges: ['EXCLUSIVE'], travelStyles: ['couples', 'luxury', 'private'], themes: ['cruise', 'nature'] }),
     ],
   },
   {
@@ -93,7 +93,7 @@ export const destinations: DestinationTileVM[] = [
     gallery: [img(P.halong), img(P.hoian)],
     span: 'lg:col-span-2',
     tours: [
-      tour('sa-pa-trek-2d1n', 'Sa Pa Valley Trek — 2 Days 1 Night', 'Sa Pa', 2, 210, 4.7, 64, img(P.terraces), { badges: ['POPULAR'] }),
+      tour('sa-pa-trek-2d1n', 'Sa Pa Valley Trek — 2 Days 1 Night', 'Sa Pa', 2, 210, 4.7, 64, img(P.terraces), { badges: ['POPULAR'], travelStyles: ['adventure', 'group'], themes: ['trekking', 'nature', 'cultural'] }),
     ],
   },
   {
@@ -109,7 +109,7 @@ export const destinations: DestinationTileVM[] = [
       'Row a sampan through the cave-pierced karsts of Tam Cốc, cycle past temples and paddies, and climb to the Múa Cave viewpoint for the valley laid out below.',
     gallery: [img(P.river), img(P.terraces)],
     tours: [
-      tour('ninh-binh-day-trip', 'Ninh Bình Day Trip — Tam Cốc & Múa Cave', 'Ninh Bình', 1, 90, 4.7, 158, img(P.river), { badges: ['POPULAR'] }),
+      tour('ninh-binh-day-trip', 'Ninh Bình Day Trip — Tam Cốc & Múa Cave', 'Ninh Bình', 1, 90, 4.7, 158, img(P.river), { badges: ['POPULAR'], travelStyles: ['family', 'group'], themes: ['nature', 'cultural'] }),
     ],
   },
   {
@@ -125,7 +125,7 @@ export const destinations: DestinationTileVM[] = [
       'Ride the Hà Giang Loop past the Mã Pí Lèng pass and the Đồng Văn karst plateau, staying with ethnic-minority families along one of Asia’s great road journeys.',
     gallery: [img(P.terraces), img(P.halong)],
     tours: [
-      tour('ha-giang-loop-3d', 'Hà Giang Loop — 3 Day Adventure', 'Hà Giang', 3, 295, 4.9, 71, img(P.terraces), { badges: ['EXCLUSIVE'] }),
+      tour('ha-giang-loop-3d', 'Hà Giang Loop — 3 Day Adventure', 'Hà Giang', 3, 295, 4.9, 71, img(P.terraces), { badges: ['EXCLUSIVE'], travelStyles: ['adventure', 'group'], themes: ['trekking', 'nature', 'cultural'] }),
     ],
   },
   // ── Central Vietnam ───────────────────────────────────────────────────────
@@ -142,8 +142,8 @@ export const destinations: DestinationTileVM[] = [
       'Wander a car-free old town of tailor shops and tea houses, cycle to the rice paddies, and float a lantern down the river at dusk. Hội An is the unhurried heart of central Vietnam.',
     gallery: [img(P.temple), img(P.river)],
     tours: [
-      tour('hoi-an-old-town-1d', 'Hội An Old Town & Lanterns — Day Tour', 'Hội An', 1, 95, 4.9, 210, img(P.hoian), { badges: ['POPULAR'] }),
-      tour('hoi-an-my-son-2d1n', 'Hội An & Mỹ Sơn Sanctuary — 2 Days 1 Night', 'Hội An', 2, 260, 4.8, 98, img(P.temple)),
+      tour('hoi-an-old-town-1d', 'Hội An Old Town & Lanterns — Day Tour', 'Hội An', 1, 95, 4.9, 210, img(P.hoian), { badges: ['POPULAR'], travelStyles: ['family', 'couples'], themes: ['cultural', 'culinary'] }),
+      tour('hoi-an-my-son-2d1n', 'Hội An & Mỹ Sơn Sanctuary — 2 Days 1 Night', 'Hội An', 2, 260, 4.8, 98, img(P.temple), { travelStyles: ['couples', 'group'], themes: ['cultural'] }),
     ],
   },
   {
@@ -159,7 +159,7 @@ export const destinations: DestinationTileVM[] = [
       'Step inside the walled citadel of the Nguyễn emperors, cruise the Perfume river to riverside tombs, and taste the refined imperial cuisine Huế is famous for.',
     gallery: [img(P.hoian), img(P.city)],
     tours: [
-      tour('hue-imperial-1d', 'Huế Imperial City & Tombs — Day Tour', 'Huế', 1, 110, 4.7, 73, img(P.temple)),
+      tour('hue-imperial-1d', 'Huế Imperial City & Tombs — Day Tour', 'Huế', 1, 110, 4.7, 73, img(P.temple), { travelStyles: ['family', 'group'], themes: ['cultural'] }),
     ],
   },
   {
@@ -175,7 +175,7 @@ export const destinations: DestinationTileVM[] = [
       'Base yourself on My Khe beach, ride the cable car to the Golden Bridge in the Bà Nà hills, and explore the caves and shrines of the Marble Mountains.',
     gallery: [img(P.city), img(P.hoian)],
     tours: [
-      tour('da-nang-ba-na-1d', 'Đà Nẵng & Bà Nà Hills — Day Tour', 'Đà Nẵng', 1, 120, 4.6, 132, img(P.city), { badges: ['POPULAR'] }),
+      tour('da-nang-ba-na-1d', 'Đà Nẵng & Bà Nà Hills — Day Tour', 'Đà Nẵng', 1, 120, 4.6, 132, img(P.city), { badges: ['POPULAR'], travelStyles: ['family', 'couples'], themes: ['beach', 'nature'] }),
     ],
   },
   {
@@ -191,7 +191,7 @@ export const destinations: DestinationTileVM[] = [
       'Boat into the river caves of Phong Nha and trek through jungle to the cathedral-sized chambers of Paradise Cave — a different, subterranean Vietnam.',
     gallery: [img(P.halong), img(P.terraces)],
     tours: [
-      tour('phong-nha-paradise-1d', 'Phong Nha & Paradise Cave — Day Tour', 'Phong Nha', 1, 135, 4.8, 54, img(P.halong)),
+      tour('phong-nha-paradise-1d', 'Phong Nha & Paradise Cave — Day Tour', 'Phong Nha', 1, 135, 4.8, 54, img(P.halong), { travelStyles: ['adventure', 'group'], themes: ['nature', 'trekking'] }),
     ],
   },
   // ── Southern Vietnam ──────────────────────────────────────────────────────
@@ -209,7 +209,7 @@ export const destinations: DestinationTileVM[] = [
     gallery: [img(P.river), img(P.hoian)],
     span: 'lg:col-span-2',
     tours: [
-      tour('hcmc-cu-chi-1d', 'Củ Chi Tunnels & City — Day Tour', 'Hồ Chí Minh City', 1, 75, 4.7, 188, img(P.city), { badges: ['POPULAR'] }),
+      tour('hcmc-cu-chi-1d', 'Củ Chi Tunnels & City — Day Tour', 'Hồ Chí Minh City', 1, 75, 4.7, 188, img(P.city), { badges: ['POPULAR'], travelStyles: ['group', 'family'], themes: ['cultural'] }),
     ],
   },
   {
@@ -226,8 +226,8 @@ export const destinations: DestinationTileVM[] = [
     gallery: [img(P.city), img(P.halong)],
     span: 'lg:col-span-2',
     tours: [
-      tour('mekong-cai-rang-1d', 'Cái Răng Floating Market — Day Tour', 'Mekong Delta', 1, 85, 4.6, 142, img(P.river), { badges: ['BEST_VALUE'] }),
-      tour('mekong-homestay-2d1n', 'Mekong Homestay — 2 Days 1 Night', 'Mekong Delta', 2, 180, 4.8, 67, img(P.city)),
+      tour('mekong-cai-rang-1d', 'Cái Răng Floating Market — Day Tour', 'Mekong Delta', 1, 85, 4.6, 142, img(P.river), { badges: ['BEST_VALUE'], travelStyles: ['family', 'group'], themes: ['cultural', 'culinary', 'nature'] }),
+      tour('mekong-homestay-2d1n', 'Mekong Homestay — 2 Days 1 Night', 'Mekong Delta', 2, 180, 4.8, 67, img(P.city), { travelStyles: ['family', 'couples'], themes: ['cultural', 'nature'] }),
     ],
   },
   {
@@ -243,7 +243,7 @@ export const destinations: DestinationTileVM[] = [
       'Slow down on the island’s long beaches, snorkel the An Thới archipelago, and end the day with a sunset over the Gulf of Thailand.',
     gallery: [img(P.hoian), img(P.river)],
     tours: [
-      tour('phu-quoc-islands-1d', 'Phú Quốc Island Hopping — Day Tour', 'Phú Quốc', 1, 99, 4.7, 96, img(P.hoian), { badges: ['POPULAR'] }),
+      tour('phu-quoc-islands-1d', 'Phú Quốc Island Hopping — Day Tour', 'Phú Quốc', 1, 99, 4.7, 96, img(P.hoian), { badges: ['POPULAR'], travelStyles: ['couples', 'family', 'luxury'], themes: ['beach', 'nature'] }),
     ],
   },
   {
@@ -259,7 +259,7 @@ export const destinations: DestinationTileVM[] = [
       'Escape the heat in the pine-clad hills of Đà Lạt — waterfalls, coffee farms, and flower gardens in Vietnam’s temperate highland town.',
     gallery: [img(P.terraces), img(P.temple)],
     tours: [
-      tour('da-lat-highlands-1d', 'Đà Lạt Highlands & Waterfalls — Day Tour', 'Đà Lạt', 1, 80, 4.6, 61, img(P.terraces)),
+      tour('da-lat-highlands-1d', 'Đà Lạt Highlands & Waterfalls — Day Tour', 'Đà Lạt', 1, 80, 4.6, 61, img(P.terraces), { travelStyles: ['couples', 'family'], themes: ['nature'] }),
     ],
   },
 ];
