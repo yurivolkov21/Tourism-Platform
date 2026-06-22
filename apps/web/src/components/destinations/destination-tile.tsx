@@ -6,11 +6,13 @@ import { cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import type { DestinationTileVM } from '../../lib/destinations.fixtures';
+import { slugify } from '../../lib/slug';
 
 type TileVariant = 'default' | 'feature' | 'photo';
 
 /**
- * Editorial destination tile linking to the destination page. Three variants:
+ * Editorial destination tile linking to its region page (destination pre-selected via `?d=`).
+ * Three variants:
  * - `default` — home bento tile (name + tagline + tour count).
  * - `feature` — overview mosaic lead tile (name + tagline + a "View more" affordance).
  * - `photo` — overview mosaic supporting tile (compact name label only).
@@ -29,7 +31,7 @@ export function DestinationTile({
 
   return (
     <Link
-      href={`/destinations/${d.slug}`}
+      href={`/destinations/${slugify(d.region ?? '')}?d=${d.slug}`}
       className={cn(
         'group relative block overflow-hidden',
         variant === 'default' && 'aspect-4/3 rounded-xl lg:aspect-auto lg:h-full',

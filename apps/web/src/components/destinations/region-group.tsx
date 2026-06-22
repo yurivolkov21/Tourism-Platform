@@ -1,6 +1,10 @@
+import Link from 'next/link';
+import { ArrowRightIcon } from 'lucide-react';
+
 import { messages } from '@tourism/i18n';
 
 import type { DestinationTileVM } from '../../lib/destinations.fixtures';
+import { slugify } from '../../lib/slug';
 import { DestinationTile } from './destination-tile';
 
 /**
@@ -14,7 +18,7 @@ export function RegionGroup({ region, items }: { region: string; items: Destinat
   const [feature, ...rest] = items;
   if (!feature) return null;
 
-  const regionId = region.toLowerCase().replace(/\s+/g, '-');
+  const regionId = slugify(region);
 
   return (
     <section id={regionId} className="scroll-mt-24 py-12 sm:py-16">
@@ -26,6 +30,13 @@ export function RegionGroup({ region, items }: { region: string; items: Destinat
         {t.regionIntro[region] ? (
           <p className="text-muted-foreground text-pretty">{t.regionIntro[region]}</p>
         ) : null}
+        <Link
+          href={`/destinations/${regionId}`}
+          className="text-primary inline-flex items-center gap-1 text-sm font-medium hover:underline"
+        >
+          {t.viewMore}
+          <ArrowRightIcon className="size-4" />
+        </Link>
       </div>
 
       {/* Full-bleed mosaic: feature tile + supporting photo tiles, edge-to-edge */}
