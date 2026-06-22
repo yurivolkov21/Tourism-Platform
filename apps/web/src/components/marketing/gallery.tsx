@@ -85,7 +85,7 @@ export function Gallery({
             ) : (
               <div key={i}>
                 {section.images.map((img, j) => (
-                  <Tile key={j} image={img} className="aspect-3/4 size-full" />
+                  <Tile key={j} image={img} className="aspect-square size-full" />
                 ))}
               </div>
             ),

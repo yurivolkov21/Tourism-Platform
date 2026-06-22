@@ -9,7 +9,7 @@ import { RegionHighlights } from '../../../components/destinations/region-highli
 import { RegionSignature } from '../../../components/destinations/region-signature';
 import { RegionTours } from '../../../components/destinations/region-tours';
 import { ValueProps } from '../../../components/destinations/value-props';
-import { RegionGallery } from '../../../components/destinations/region-gallery';
+import { Gallery, type GallerySection } from '../../../components/marketing/gallery';
 import { EnquiryCta } from '../../../components/marketing/enquiry-cta';
 import { getRegion, regionSlugs } from '../../../lib/regions';
 import { getRegionTheme } from '../../../lib/region-theme';
@@ -38,6 +38,19 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
   const meta = t.regions[data.name];
   const theme = getRegionTheme(region);
   const pool = data.images;
+
+  // Photo gallery — shadcn-style alternating "1 big + 2×2 cluster" (10 images: single·grid·grid·single).
+  const g = data.gallery;
+  const cluster = (from: number): GallerySection => ({
+    type: 'grid',
+    images: g.slice(from, from + 4).map((src) => ({ src, alt: data.name })),
+  });
+  const gallerySections: GallerySection[] = [
+    { images: [{ src: g[0], alt: data.name }] },
+    cluster(1),
+    cluster(5),
+    { images: [{ src: g[9], alt: data.name }] },
+  ];
 
   return (
     <main>
@@ -72,10 +85,10 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
         />
       ) : null}
       <RegionTours destinations={data.destinations} tours={data.tours} chipOn={theme.chipOn} />
-      <RegionGallery
+      <Gallery
+        sections={gallerySections}
         heading={t.galleryHeading(data.name)}
         subtitle={t.gallerySubtitle}
-        images={pool}
       />
       <ValueProps accentClass={theme.accentSoft} image={pool[3] ?? pool[0] ?? data.image} />
       <EnquiryCta />
