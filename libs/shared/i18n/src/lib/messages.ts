@@ -266,6 +266,11 @@ export const messages = {
             'Riverside homestays and orchard villages',
             'Island hopping around Phú Quốc',
           ],
+          postcards: [
+            { title: 'The Mekong Delta', caption: 'Floating markets & waterways' },
+            { title: 'Sài Gòn', caption: 'City energy & history' },
+            { title: 'Phú Quốc', caption: 'Island beaches' },
+          ],
         },
       },
     } as Record<
@@ -283,6 +288,7 @@ export const messages = {
           points: string[];
           stats?: { value: string; label: string }[];
           timeline?: { title: string; era: string; body: string }[];
+          postcards?: { title: string; caption: string }[];
         };
       }
     >,

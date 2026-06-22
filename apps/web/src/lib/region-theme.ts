@@ -25,7 +25,6 @@ export interface RegionTheme {
 }
 
 const DEFAULT_HERO_HEIGHT = 'min-h-80 lg:min-h-96';
-const DEFAULT_HERO_SCRIM = 'from-overlay/85 via-overlay/40 to-transparent';
 
 export const REGION_THEMES: Record<string, RegionTheme> = {
   'northern-vietnam': {
@@ -57,8 +56,9 @@ export const REGION_THEMES: Record<string, RegionTheme> = {
     accentSoft: 'bg-info/10 text-info',
     chipOn: 'border-info bg-info text-info-foreground',
     signature: 'delta',
+    // Bright, breezy scrim — concentrated at the base so the tropical sky stays open.
     heroHeight: DEFAULT_HERO_HEIGHT,
-    heroScrim: DEFAULT_HERO_SCRIM,
+    heroScrim: 'from-overlay/85 via-overlay/15 to-transparent',
   },
 };
 
