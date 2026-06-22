@@ -28,10 +28,10 @@ export function Story() {
         </div>
 
         <ol className="relative space-y-12 lg:space-y-24">
-          {/* Centre spine (desktop only) */}
+          {/* Centre spine (desktop only) — soft emerald gradient, fading at both ends */}
           <span
             aria-hidden
-            className="bg-border absolute top-3 bottom-3 left-1/2 hidden w-px -translate-x-1/2 lg:block"
+            className="from-primary/45 via-primary/15 to-primary/45 absolute top-3 bottom-3 left-1/2 hidden w-0.5 -translate-x-1/2 rounded-full bg-linear-to-b lg:block"
           />
 
           {t.milestones.map((m, i) => {
@@ -41,9 +41,9 @@ export function Story() {
                 key={m.year}
                 className="relative grid gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-12"
               >
-                {/* Year marker — the central node that breaks the spine */}
+                {/* Year marker — a haloed node that sits on and breaks the spine */}
                 <div className="lg:col-start-2 lg:row-start-1 lg:flex lg:justify-center">
-                  <span className="bg-background text-primary font-heading relative z-10 px-3 text-3xl font-bold lg:text-4xl">
+                  <span className="bg-primary text-primary-foreground font-heading ring-primary/15 shadow-card relative z-10 inline-flex items-center rounded-full px-4 py-1.5 text-base font-bold ring-4 lg:text-lg">
                     {m.year}
                   </span>
                 </div>
