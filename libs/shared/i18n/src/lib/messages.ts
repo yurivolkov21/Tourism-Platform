@@ -21,10 +21,21 @@ export const messages = {
     toursMenu: {
       label: 'Tours',
       items: [
-        { label: 'All destinations', href: '#destinations', hint: 'Browse every place we cover' },
-        { label: 'Northern Vietnam', href: '#destinations', hint: 'Hạ Long, Sa Pa, Hà Nội' },
-        { label: 'Central Vietnam', href: '#destinations', hint: 'Hội An, Huế, Đà Nẵng' },
-        { label: 'Southern Vietnam', href: '#destinations', hint: 'Mekong, Hồ Chí Minh City' },
+        { label: 'Cruises', href: '#tours', hint: 'Overnight bays & river journeys' },
+        { label: 'Trekking', href: '#tours', hint: 'Mountain trails & hill-tribe routes' },
+        { label: 'Cultural', href: '#tours', hint: 'Heritage towns, temples & history' },
+        { label: 'Culinary', href: '#tours', hint: 'Markets, street food & cooking' },
+        { label: 'Family', href: '#tours', hint: 'Easy-paced trips for all ages' },
+        { label: 'Beach & relax', href: '#tours', hint: 'Island escapes & coastal stays' },
+      ],
+    },
+    destinationsMenu: {
+      label: 'Destinations',
+      items: [
+        { label: 'All destinations', href: '/destinations', hint: 'Browse every place we cover' },
+        { label: 'Northern Vietnam', href: '/destinations#northern-vietnam', hint: 'Hạ Long, Sa Pa, Ninh Bình' },
+        { label: 'Central Vietnam', href: '/destinations#central-vietnam', hint: 'Hội An, Huế, Đà Nẵng' },
+        { label: 'Southern Vietnam', href: '/destinations#southern-vietnam', hint: 'Mekong, Hồ Chí Minh City' },
       ],
     },
   },

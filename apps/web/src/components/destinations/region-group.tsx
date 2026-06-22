@@ -14,8 +14,10 @@ export function RegionGroup({ region, items }: { region: string; items: Destinat
   const [feature, ...rest] = items;
   if (!feature) return null;
 
+  const regionId = region.toLowerCase().replace(/\s+/g, '-');
+
   return (
-    <section className="py-12 sm:py-16">
+    <section id={regionId} className="scroll-mt-24 py-12 sm:py-16">
       {/* Centred heading + intro (constrained) */}
       <div className="mx-auto mb-8 max-w-2xl space-y-3 px-4 text-center sm:px-6 lg:px-8">
         <h2 className="font-heading text-2xl font-semibold text-balance md:text-3xl">

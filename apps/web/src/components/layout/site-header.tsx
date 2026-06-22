@@ -50,29 +50,28 @@ export function SiteHeader() {
           <nav className="flex items-center gap-1 max-md:hidden" aria-label="Primary">
             <NavigationMenu>
               <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger>{t.toursMenu.label}</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid w-md grid-cols-2 gap-1 p-2">
-                      {t.toursMenu.items.map((item) => (
-                        <li key={item.label}>
-                          <NavigationMenuLink render={<a href={item.href} />}>
-                            <div className="flex flex-col gap-0.5">
-                              <span className="font-medium">{item.label}</span>
-                              <span className="text-muted-foreground text-xs">{item.hint}</span>
-                            </div>
-                          </NavigationMenuLink>
-                        </li>
-                      ))}
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
+                {[t.toursMenu, t.destinationsMenu].map((menu) => (
+                  <NavigationMenuItem key={menu.label}>
+                    <NavigationMenuTrigger>{menu.label}</NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ul className="grid w-md grid-cols-2 gap-1 p-2">
+                        {menu.items.map((item) => (
+                          <li key={item.label}>
+                            <NavigationMenuLink render={<a href={item.href} />}>
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-medium">{item.label}</span>
+                                <span className="text-muted-foreground text-xs">{item.hint}</span>
+                              </div>
+                            </NavigationMenuLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                ))}
               </NavigationMenuList>
             </NavigationMenu>
 
-            <a href="/destinations" className={linkClass}>
-              {t.destinations}
-            </a>
             <a href="#about" className={linkClass}>
               {t.about}
             </a>
