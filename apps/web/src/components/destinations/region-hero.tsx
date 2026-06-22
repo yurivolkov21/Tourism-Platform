@@ -2,22 +2,28 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRightIcon } from 'lucide-react';
 
+import { cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-/** Region-page hero: full-bleed cover + scrim + breadcrumb + region name + tagline (left-aligned). */
+/** Region-page hero: full-bleed cover + scrim + breadcrumb + region name + tagline (left-aligned).
+ * `heightClass` and `scrimClass` carry the per-region mood. */
 export function RegionHero({
   name,
   image,
   tagline,
+  heightClass = 'min-h-80 lg:min-h-96',
+  scrimClass = 'from-overlay/85 via-overlay/40 to-transparent',
 }: {
   name: string;
   image: string;
   tagline: string;
+  heightClass?: string;
+  scrimClass?: string;
 }) {
   return (
-    <section className="relative isolate flex min-h-80 items-end overflow-hidden lg:min-h-96">
+    <section className={cn('relative isolate flex items-end overflow-hidden', heightClass)}>
       <Image src={image} alt={name} fill priority sizes="100vw" className="-z-10 object-cover" />
-      <div className="from-overlay/85 via-overlay/40 absolute inset-0 -z-10 bg-linear-to-t to-transparent" />
+      <div className={cn('absolute inset-0 -z-10 bg-linear-to-t', scrimClass)} />
 
       <div className="text-primary-foreground mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <nav

@@ -7,6 +7,7 @@ import { RegionHero } from '../../../components/destinations/region-hero';
 import { RegionIntro } from '../../../components/destinations/region-intro';
 import { RegionHighlights } from '../../../components/destinations/region-highlights';
 import { RegionSignature } from '../../../components/destinations/region-signature';
+import { RegionSignatureAdventure } from '../../../components/destinations/region-signature-adventure';
 import { RegionTours } from '../../../components/destinations/region-tours';
 import { ValueProps } from '../../../components/destinations/value-props';
 import { Gallery, type GallerySection } from '../../../components/marketing/gallery';
@@ -52,9 +53,47 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
     { images: [{ src: g[9], alt: data.name }] },
   ];
 
+  const isAdventure = theme.signature === 'adventure';
+
+  const highlightsNode = meta ? (
+    <RegionHighlights
+      heading={t.highlightsHeading(data.name)}
+      items={meta.highlights}
+      accentSoft={theme.accentSoft}
+    />
+  ) : null;
+
+  const signatureNode = !meta ? null : isAdventure && meta.signature.stats ? (
+    <RegionSignatureAdventure
+      eyebrow={meta.signature.eyebrow}
+      heading={meta.signature.heading}
+      body={meta.signature.body}
+      stats={meta.signature.stats}
+      image={pool[4] ?? pool[0] ?? data.image}
+      accentText={theme.accentText}
+    />
+  ) : (
+    <RegionSignature
+      variant={theme.signature}
+      eyebrow={meta.signature.eyebrow}
+      heading={meta.signature.heading}
+      body={meta.signature.body}
+      points={meta.signature.points}
+      image={pool[4] ?? pool[0] ?? data.image}
+      accentText={theme.accentText}
+      accentBg={theme.accentBg}
+    />
+  );
+
   return (
     <main>
-      <RegionHero name={data.name} image={data.image} tagline={meta?.tagline ?? ''} />
+      <RegionHero
+        name={data.name}
+        image={data.image}
+        tagline={meta?.tagline ?? ''}
+        heightClass={theme.heroHeight}
+        scrimClass={theme.heroScrim}
+      />
       <RegionIntro
         name={data.name}
         intro={meta?.intro ?? ''}
@@ -65,25 +104,18 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
         accentBg={theme.accentBg}
         accentBtnText={theme.accentBtnText}
       />
-      {meta ? (
-        <RegionHighlights
-          heading={t.highlightsHeading(data.name)}
-          items={meta.highlights}
-          accentSoft={theme.accentSoft}
-        />
-      ) : null}
-      {meta ? (
-        <RegionSignature
-          variant={theme.signature}
-          eyebrow={meta.signature.eyebrow}
-          heading={meta.signature.heading}
-          body={meta.signature.body}
-          points={meta.signature.points}
-          image={pool[4] ?? pool[0] ?? data.image}
-          accentText={theme.accentText}
-          accentBg={theme.accentBg}
-        />
-      ) : null}
+      {/* Adventure regions lead with the bold signature; others surface highlights first. */}
+      {isAdventure ? (
+        <>
+          {signatureNode}
+          {highlightsNode}
+        </>
+      ) : (
+        <>
+          {highlightsNode}
+          {signatureNode}
+        </>
+      )}
       <RegionTours destinations={data.destinations} tours={data.tours} chipOn={theme.chipOn} />
       <Gallery
         sections={gallerySections}

@@ -18,7 +18,14 @@ export interface RegionTheme {
   chipOn: string;
   /** Which signature section this region shows. */
   signature: SignatureVariant;
+  /** Hero min-height (per-region mood). */
+  heroHeight: string;
+  /** Hero scrim gradient (per-region mood). */
+  heroScrim: string;
 }
+
+const DEFAULT_HERO_HEIGHT = 'min-h-80 lg:min-h-96';
+const DEFAULT_HERO_SCRIM = 'from-overlay/85 via-overlay/40 to-transparent';
 
 export const REGION_THEMES: Record<string, RegionTheme> = {
   'northern-vietnam': {
@@ -28,6 +35,9 @@ export const REGION_THEMES: Record<string, RegionTheme> = {
     accentSoft: 'bg-primary/10 text-primary',
     chipOn: 'border-primary bg-primary text-primary-foreground',
     signature: 'adventure',
+    // Taller, moodier hero for the dramatic, misty north.
+    heroHeight: 'min-h-104 lg:min-h-136',
+    heroScrim: 'from-foreground/90 via-foreground/45 to-foreground/5',
   },
   'central-vietnam': {
     accentText: 'text-rating',
@@ -36,6 +46,8 @@ export const REGION_THEMES: Record<string, RegionTheme> = {
     accentSoft: 'bg-rating/15 text-rating',
     chipOn: 'border-rating bg-rating text-foreground',
     signature: 'heritage',
+    heroHeight: DEFAULT_HERO_HEIGHT,
+    heroScrim: DEFAULT_HERO_SCRIM,
   },
   'southern-vietnam': {
     accentText: 'text-info',
@@ -44,6 +56,8 @@ export const REGION_THEMES: Record<string, RegionTheme> = {
     accentSoft: 'bg-info/10 text-info',
     chipOn: 'border-info bg-info text-info-foreground',
     signature: 'delta',
+    heroHeight: DEFAULT_HERO_HEIGHT,
+    heroScrim: DEFAULT_HERO_SCRIM,
   },
 };
 

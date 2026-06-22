@@ -197,6 +197,12 @@ export const messages = {
             'Multi-day treks with Hmong and Dao guides',
             'The Hà Giang Loop and the far-northern passes',
           ],
+          stats: [
+            { value: '3+', label: 'Mountain regions' },
+            { value: '2D 1N', label: 'Overnight cruises' },
+            { value: '350km', label: 'The Hà Giang Loop' },
+            { value: '3,143m', label: 'Fansipan summit' },
+          ],
         },
       },
       'Central Vietnam': {
@@ -253,7 +259,13 @@ export const messages = {
         intro2: string;
         tags: string[];
         highlights: { title: string; body: string }[];
-        signature: { eyebrow: string; heading: string; body: string; points: string[] };
+        signature: {
+          eyebrow: string;
+          heading: string;
+          body: string;
+          points: string[];
+          stats?: { value: string; label: string }[];
+        };
       }
     >,
   },
