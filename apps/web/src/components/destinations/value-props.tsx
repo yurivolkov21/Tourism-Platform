@@ -1,12 +1,13 @@
-import { CarIcon, CompassIcon, HeartHandshakeIcon, type LucideIcon } from 'lucide-react';
+import { CarIcon, RouteIcon, UtensilsCrossedIcon, type LucideIcon } from 'lucide-react';
 
+import { cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-// Icon per value prop, in catalogue order (transfers / experiences / advice).
-const ICONS: readonly LucideIcon[] = [CarIcon, CompassIcon, HeartHandshakeIcon];
+// Icon per value prop, in catalogue order (transfers / itineraries / meals).
+const ICONS: readonly LucideIcon[] = [CarIcon, RouteIcon, UtensilsCrossedIcon];
 
-/** Compact 3-up reassurance strip ("We've got you covered"). */
-export function ValueProps() {
+/** Compact 3-up reassurance strip ("We've got you covered"). `accentClass` themes the icon chip. */
+export function ValueProps({ accentClass = 'bg-primary/10 text-primary' }: { accentClass?: string }) {
   const t = messages.destinationDetail;
 
   return (
@@ -18,10 +19,15 @@ export function ValueProps() {
 
         <div className="grid gap-8 sm:grid-cols-3">
           {t.valueProps.map((prop, i) => {
-            const Icon = ICONS[i] ?? CompassIcon;
+            const Icon = ICONS[i] ?? CarIcon;
             return (
               <div key={prop.title} className="flex flex-col items-center gap-3 text-center">
-                <span className="bg-primary/10 text-primary flex size-12 items-center justify-center rounded-full">
+                <span
+                  className={cn(
+                    'flex size-12 items-center justify-center rounded-full',
+                    accentClass,
+                  )}
+                >
                   <Icon className="size-6" />
                 </span>
                 <h3 className="text-lg font-semibold">{prop.title}</h3>

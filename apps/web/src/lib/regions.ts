@@ -26,10 +26,15 @@ export function regionSlugs(): string[] {
 export function getRegion(regionSlug: string): RegionData | undefined {
   const group = groups.find((g) => slugify(g.region) === regionSlug);
   if (!group) return undefined;
+  // Image pool (destination covers + galleries) for the intro bento and the photo gallery.
+  const images = Array.from(
+    new Set(group.items.flatMap((d) => [d.image, ...d.gallery])),
+  );
+
   return {
     name: group.region,
     image: group.items[0]?.image ?? '',
-    images: group.items.map((d) => d.image),
+    images,
     destinations: group.items.map((d) => ({ name: d.name, slug: d.slug })),
     tours: group.items.flatMap((d) => d.tours),
   };

@@ -150,16 +150,16 @@ export const messages = {
     valuePropsHeading: 'We’ve got you covered',
     valueProps: [
       {
-        title: 'Private transfers',
-        body: 'Door-to-door comfort with vetted drivers on every leg of the trip.',
+        title: 'Luxury transfers',
+        body: 'Door-to-door comfort with vetted private drivers on every leg of the trip.',
       },
       {
-        title: 'Local-led experiences',
-        body: 'Guides who live the places you visit, not scripted city loops.',
+        title: 'Unique itineraries',
+        body: 'Journeys shaped by local experts — not scripted, off-the-shelf tours.',
       },
       {
-        title: 'Honest advice',
-        body: 'Straight answers and tailoring from a team that travels Vietnam itself.',
+        title: 'Epic meals',
+        body: 'Eat where Vietnam eats, from street stalls to riverside kitchens.',
       },
     ],
   },
@@ -168,26 +168,94 @@ export const messages = {
     backToAll: 'All destinations',
     introHeading: (region: string) => `The best ${region} tours`,
     itinerariesCta: (region: string) => `${region} itineraries`,
+    bestForLabel: 'Best for',
+    highlightsHeading: (region: string) => `What makes ${region} special`,
     toursHeading: 'Tours',
     allTab: 'All',
     noTours: 'New tours for this destination are coming soon.',
+    galleryHeading: (region: string) => `${region} in photos`,
+    gallerySubtitle: 'A glimpse of the landscapes, towns, and moments that await.',
     regions: {
       'Northern Vietnam': {
         tagline: 'From Sa Pa to Hạ Long Bay — culture and natural wonders in the misty north.',
         intro:
-          'Awe-inspiring landscapes of limestone bays and terraced highlands, diverse hill-tribe cultures, and the frontier passes of the far north. Browse our Northern Vietnam tours below, or read our itinerary suggestions.',
+          'Awe-inspiring landscapes of limestone bays and terraced highlands, diverse hill-tribe cultures, and the frontier passes of the far north — this is Northern Vietnam at its most dramatic.',
+        intro2:
+          'Cruise the emerald karsts of Hạ Long, trek between Hmong and Dao villages around Sa Pa, and ride the legendary Hà Giang Loop. Browse our tours below, or read our itinerary suggestions.',
+        tags: ['Cruises', 'Trekking', 'Hill-tribe culture', 'Mountain passes'],
+        highlights: [
+          { title: 'Emerald bays', body: 'Overnight on a junk among the limestone islands of Hạ Long and Lan Hạ.' },
+          { title: 'Highland treks', body: 'Walk the rice terraces and hill-tribe trails around Sa Pa and Pù Luông.' },
+          { title: 'The northern loop', body: 'Ride the switchbacks of Hà Giang past the Mã Pí Lèng pass.' },
+        ],
+        signature: {
+          eyebrow: 'Signature',
+          heading: 'Great northern adventures',
+          body: 'The north rewards travellers who go further — onto the water, into the mountains, and out to the frontier. These are the journeys that define the region.',
+          points: [
+            'Overnight cruises through Hạ Long & Lan Hạ Bay',
+            'Multi-day treks with Hmong and Dao guides',
+            'The Hà Giang Loop and the far-northern passes',
+          ],
+        },
       },
       'Central Vietnam': {
         tagline: 'Imperial heritage, lantern-lit old towns and a golden coastline.',
         intro:
-          'Wander ancient citadels and UNESCO old towns beside white-sand beaches, and venture into some of the world’s largest caves. Browse our Central Vietnam tours below, or read our itinerary suggestions.',
+          'Ancient citadels and UNESCO old towns beside white-sand beaches, and some of the world’s largest cave systems — Central Vietnam is the country’s cultural heart.',
+        intro2:
+          'Step inside the walled citadel of Huế, wander the lantern-lit lanes of Hội An, and explore the Chăm temples of Mỹ Sơn. Browse our tours below, or read our itinerary suggestions.',
+        tags: ['Heritage', 'Old towns', 'Beaches', 'Caves'],
+        highlights: [
+          { title: 'Imperial Huế', body: 'The citadel, royal tombs, and refined cuisine of the Nguyễn emperors.' },
+          { title: 'Hội An lanterns', body: 'A car-free UNESCO old town of tailors, tea houses, and riverside lights.' },
+          { title: 'Golden coast', body: 'Đà Nẵng’s beaches and the Marble Mountains, the Bà Nà hills above.' },
+        ],
+        signature: {
+          eyebrow: 'Signature',
+          heading: 'The heritage trail',
+          body: 'Few stretches of Vietnam hold so much history in so little distance. Follow the thread of empires and trade from the citadel to the old port.',
+          points: [
+            'The walled citadel and royal tombs of Huế',
+            'Lantern-lit Hội An and the Thu Bồn river',
+            'The Chăm sanctuary of Mỹ Sơn',
+          ],
+        },
       },
       'Southern Vietnam': {
         tagline: 'River deltas, island beaches and the restless energy of Sài Gòn.',
         intro:
-          'Floating markets and flooded paddies, cosmopolitan cities and tropical islands — the warm, easy-going south. Browse our Southern Vietnam tours below, or read our itinerary suggestions.',
+          'Floating markets and flooded paddies, cosmopolitan cities and tropical islands — the warm, easy-going south runs at the pace of the water.',
+        intro2:
+          'Drift the Mekong’s waterways, trace history from the Củ Chi tunnels to the colonial centre, and unwind on the beaches of Phú Quốc. Browse our tours below, or read our itinerary suggestions.',
+        tags: ['River life', 'Islands', 'City & history', 'Street food'],
+        highlights: [
+          { title: 'The Mekong', body: 'Floating markets at dawn, orchards, and riverside homestays.' },
+          { title: 'Sài Gòn energy', body: 'Củ Chi tunnels, colonial landmarks, and endless street food.' },
+          { title: 'Island escapes', body: 'White-sand beaches and clear seas on Phú Quốc.' },
+        ],
+        signature: {
+          eyebrow: 'Signature',
+          heading: 'Life on the water',
+          body: 'In the south, the river is the road. Slow down to the rhythm of the delta and the islands, where days unfold on boats and beaches.',
+          points: [
+            'Dawn floating markets on the Mekong Delta',
+            'Riverside homestays and orchard villages',
+            'Island hopping around Phú Quốc',
+          ],
+        },
       },
-    } as Record<string, { tagline: string; intro: string }>,
+    } as Record<
+      string,
+      {
+        tagline: string;
+        intro: string;
+        intro2: string;
+        tags: string[];
+        highlights: { title: string; body: string }[];
+        signature: { eyebrow: string; heading: string; body: string; points: string[] };
+      }
+    >,
   },
   // `/destinations` — when to visit, by region (unique to the destinations page).
   bestTime: {

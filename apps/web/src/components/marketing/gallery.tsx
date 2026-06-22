@@ -31,7 +31,7 @@ const PLACEHOLDER_SECTIONS: GallerySection[] = [
   { images: [{ alt: 'Rolling green highlands' }] },
 ];
 
-function Tile({ image, className }: { image: GalleryImage; className?: string }) {
+export function Tile({ image, className }: { image: GalleryImage; className?: string }) {
   if (image.src) {
     return (
       <div className={cn('overflow-hidden rounded-lg', className)}>
@@ -53,15 +53,25 @@ function Tile({ image, className }: { image: GalleryImage; className?: string })
   );
 }
 
-export function Gallery({ sections = PLACEHOLDER_SECTIONS }: { sections?: GallerySection[] }) {
+export function Gallery({
+  sections = PLACEHOLDER_SECTIONS,
+  heading,
+  subtitle,
+}: {
+  sections?: GallerySection[];
+  heading?: string;
+  subtitle?: string;
+}) {
   const t = messages.gallery;
 
   return (
     <section className="py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto mb-12 max-w-2xl space-y-4 text-center sm:mb-16">
-          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">{t.heading}</h2>
-          <p className="text-muted-foreground text-lg text-pretty">{t.subtitle}</p>
+          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
+            {heading ?? t.heading}
+          </h2>
+          <p className="text-muted-foreground text-lg text-pretty">{subtitle ?? t.subtitle}</p>
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">

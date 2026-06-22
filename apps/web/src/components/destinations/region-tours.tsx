@@ -9,17 +9,19 @@ import { TourTile } from '../tours/tour-tile';
 import type { TourCardData } from '../tours/tour-card';
 
 const CHIP = 'rounded-full border px-4 py-1.5 text-sm font-medium transition-colors';
-const CHIP_ON = 'border-primary bg-primary text-primary-foreground';
 const CHIP_OFF =
   'border-border bg-background text-muted-foreground hover:text-foreground hover:border-foreground/30';
+const CHIP_ON_DEFAULT = 'border-primary bg-primary text-primary-foreground';
 
-/** Region tours: a destination tab bar filtering an image-poster tour grid. */
+/** Region tours: a destination tab bar filtering an image-poster tour grid. `chipOn` themes the active tab. */
 export function RegionTours({
   destinations,
   tours,
+  chipOn = CHIP_ON_DEFAULT,
 }: {
   destinations: { name: string; slug: string }[];
   tours: TourCardData[];
+  chipOn?: string;
 }) {
   const t = messages.regionPage;
   const [active, setActive] = useState<string>('all');
@@ -44,7 +46,7 @@ export function RegionTours({
           <button
             type="button"
             onClick={() => setActive('all')}
-            className={cn(CHIP, active === 'all' ? CHIP_ON : CHIP_OFF)}
+            className={cn(CHIP, active === 'all' ? chipOn : CHIP_OFF)}
           >
             {t.allTab}
           </button>
@@ -53,7 +55,7 @@ export function RegionTours({
               type="button"
               key={d.slug}
               onClick={() => setActive(d.name)}
-              className={cn(CHIP, active === d.name ? CHIP_ON : CHIP_OFF)}
+              className={cn(CHIP, active === d.name ? chipOn : CHIP_OFF)}
             >
               {d.name}
             </button>

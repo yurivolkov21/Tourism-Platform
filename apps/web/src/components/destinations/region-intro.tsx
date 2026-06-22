@@ -1,72 +1,80 @@
-import Image from 'next/image';
 import Link from 'next/link';
-import { PlayIcon } from 'lucide-react';
+import { ArrowRightIcon } from 'lucide-react';
 
-import { buttonVariants, cn } from '@tourism/ui';
+import { cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-/** Region intro: heading + accent + video slot + copy + itineraries CTA on the left, collage right. */
+import { Tile } from '../marketing/gallery';
+
+/**
+ * Region intro: fuller editorial copy + "best for" tags + a themed itineraries CTA on the left,
+ * and an asymmetric photo bento on the right (reuses the Gallery `Tile`). Accent is per-region.
+ */
 export function RegionIntro({
   name,
   intro,
+  intro2,
+  tags,
   images,
   itinerariesHref,
+  accentBg,
+  accentBtnText,
 }: {
   name: string;
   intro: string;
+  intro2: string;
+  tags: string[];
   images: string[];
   itinerariesHref: string;
+  accentBg: string;
+  accentBtnText: string;
 }) {
   const t = messages.regionPage;
-  const collage = images.slice(0, 4);
 
   return (
     <section className="py-14 sm:py-20">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
-        {/* Left: heading + accent + video slot + text + CTA */}
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-8">
+        {/* Left: heading + accent + copy + tags + CTA */}
         <div className="space-y-5">
           <h2 className="font-heading text-2xl font-semibold text-balance md:text-3xl">
             {t.introHeading(name)}
           </h2>
-          <div className="bg-primary h-1 w-12 rounded-full" />
-
-          {/* Video slot — static poster + play affordance (real embed later) */}
-          <div className="bg-foreground/90 relative aspect-video overflow-hidden rounded-xl">
-            {images[0] ? (
-              <Image
-                src={images[0]}
-                alt=""
-                fill
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover opacity-80"
-              />
-            ) : null}
-            <span className="absolute inset-0 flex items-center justify-center">
-              <span className="bg-background/90 text-primary flex size-14 items-center justify-center rounded-full">
-                <PlayIcon className="size-6" />
-              </span>
-            </span>
-          </div>
+          <div className={cn('h-1 w-12 rounded-full', accentBg)} />
 
           <p className="text-muted-foreground text-lg text-pretty">{intro}</p>
-          <Link href={itinerariesHref} className={cn(buttonVariants({ size: 'lg' }))}>
+          <p className="text-muted-foreground text-pretty">{intro2}</p>
+
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <span className="text-foreground text-sm font-medium">{t.bestForLabel}:</span>
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="border-border text-muted-foreground rounded-full border px-3 py-1 text-xs"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          <Link
+            href={itinerariesHref}
+            className={cn(
+              'mt-1 inline-flex items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-90',
+              accentBg,
+              accentBtnText,
+            )}
+          >
             {t.itinerariesCta(name)}
+            <ArrowRightIcon className="size-4" />
           </Link>
         </div>
 
-        {/* Right: 2×2 photo collage */}
-        <div className="grid grid-cols-2 gap-4">
-          {collage.map((src, i) => (
-            <div key={i} className="relative aspect-square overflow-hidden rounded-xl">
-              <Image
-                src={src}
-                alt=""
-                fill
-                sizes="(min-width: 1024px) 25vw, 50vw"
-                className="object-cover"
-              />
-            </div>
-          ))}
+        {/* Right: asymmetric photo bento */}
+        <div className="grid h-104 grid-cols-2 grid-rows-3 gap-3 sm:gap-4">
+          <Tile image={{ src: images[0], alt: name }} className="col-span-1 row-span-2 h-full" />
+          <Tile image={{ src: images[1], alt: name }} className="col-span-1 row-span-1 h-full" />
+          <Tile image={{ src: images[2], alt: name }} className="col-span-1 row-span-1 h-full" />
+          <Tile image={{ src: images[3], alt: name }} className="col-span-2 row-span-1 h-full" />
         </div>
       </div>
     </section>
