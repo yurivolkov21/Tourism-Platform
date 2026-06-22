@@ -83,3 +83,78 @@ accent), and motion as a later consistent pass. Less "DMC corporate", more bouti
 6. **About**, **Contact/Enquiry**.
 
 Out of scope of this doc: implementation — this is the shared mental model to build against.
+
+---
+
+## Live-crawl deep-dive (2026-06-22)
+
+Confirmed by browsing the live site + reading `sitemap_index.xml`. The earlier sections stay valid;
+this adds **concrete URL patterns, the tour taxonomy/facets, and the content model**.
+
+### Confirmed IA + URL patterns
+
+```text
+HOME (/)
+├─ Tours & Service (mega-menu)
+│  ├─ All Destinations ........ /tours-in-vietnam/        overview: 3 region blocks
+│  │   └─ Region page ......... /{northern|central|southern}-vietnam-tours/
+│  │        └─ Destination/theme landing ... /ha-long-bay-cruises/ · /tours-in-sapa/ ·
+│  │             /ninh-binh/ · /hue/        (SAME landing template, narrower scope)
+│  │             └─ Single tour ............ /project/{slug}/   (enquiry-based)
+│  ├─ Package Tour ........... /lilys-package-tour/       filterable LISTING
+│  │   └─ Multi-day package .. /product/{slug}/           WooCommerce (online booking)
+│  └─ Promotional Tour ....... /promotional-tour/ · /promotion-tours/
+├─ Travel Insight ........... /travel-insight/ → /{post-slug}/   BLOG hub
+├─ Tips .................... /tips-for-viet-nam/ · /vietnam-travel-advice/
+├─ About ................... /about-us/ · /meet-our-team/ · /who-is-lily-nguyen/ · /services/ · /gallery/
+├─ Book/commerce .......... /book-here-now/ · /shop/ · /cart/ · /checkout/ · /my-account/
+└─ Footer ................. /faqs/ · /privacy-statement/ · /terms-conditions/ · /contact/
+```
+
+### Page-template catalog (reusable shells)
+
+| Template | Examples | Key blocks |
+| --- | --- | --- |
+| **Overview** | `/tours-in-vietnam/` | hero + 3 region blocks (heading + intro + feature tile + "View More") + popular tours |
+| **Landing** (region / destination / theme — one shell) | region pages · `/ha-long-bay-cruises/` · `/ninh-binh/` · `/tours-in-sapa/` | hero + "THE BEST … " intro + (vlogs) + **tour grid** + "We've got you covered" (3 value props) + guarantee + enquiry |
+| **Tours listing** | `/lilys-package-tour/` | hero + trust badges (30% deposit · free hold · free changes) + **filter sidebar** + card grid + "5 reasons" |
+| **Tour detail** | `/project/{slug}/` (enquiry) · `/product/{slug}/` (booking) | title + badge (Best seller / Likely to sell out) + **day-by-day itinerary** (meal codes L/D/B) + Note + Includes/Excludes + "You might also like" |
+| **Blog hub / post** | `/travel-insight/` · `/tips-for-viet-nam/` | H1 + post grid + sidebar (Recent Posts · Categories) |
+| **About / team** | `/about-us/` · `/meet-our-team/` | founder hero + values + team + timeline |
+
+### Tour taxonomy (the "Filter by" facets) — from the sitemap
+
+Lily classifies tours on **five dimensions** (WordPress taxonomies → archive pages + listing filters):
+
+| Facet (`/tour-…/`) | Values | Maps to our schema |
+| --- | --- | --- |
+| **destination** | hanoi · halong-bay · sapa · ninh-binh · mai-chau · pu-luong · hue · da-nang · hoi-an · nha-trang · ho-chi-minh-city · mekong-delta · phu-quoc · cu-chi-tunnel (~14) | `Destination` (M:N) ✅ |
+| **travel-styles** | cultural-heritage · adventure-nature · luxury-high-end · relax-wellness · mice-business-travel | `TourCategory` ✅ |
+| **theme** | couple · family · friend · company | `TravellerType` / `suitableFor` ✅ (P1.7e) |
+| **duration** | 1-day · 2-days · 3-days · 4-6-days · 7-days · 11-15-days · over-15-days | `Tour.durationDays` (bucketed) ✅ |
+| **type** | authentic · modern · boutique | no direct field (tag/category) |
+
+**Takeaway:** our P1 schema already covers 4 of Lily's 5 tour facets — the filterable `/tours` listing
+is well-supported by existing data (`Destination`, `TourCategory`, `TravellerType`, `durationDays`).
+
+### Content model + scale
+
+- **Two tour post types:** `/project/{slug}` = single/short tours (enquiry-led, listed on landing
+  pages) · `/product/{slug}` = **31** multi-day packages (WooCommerce → real `/shop /cart /checkout
+  /my-account`, online booking). *We currently model one `Tour` concept — decide whether to mirror the
+  split or treat "package" as a long-duration tour.*
+- **Blog is huge:** ~**928** posts across 5 sitemaps (heavy SEO play) + **45** blog categories.
+  Confirms blog/content (our P6) is a first-class, high-volume surface for them — ours is editorial
+  (agency-authored), so we won't match volume, but the **hub + categories + sidebar** pattern applies.
+- **43** team members (people-heavy trust). Multilingual (EN + Chinese).
+
+### Implications for our build (updates the P3 plan)
+
+1. **Add a region-landing layer** (the user's ask): `/destinations` overview → **region page** (N/C/S)
+   → tour detail. The landing template = our existing `/destinations/[slug]` shell (hero + intro +
+   tours + value-props + enquiry) — reuse it for regions *and* destination/theme landings.
+2. **Tours listing with facet filters** (`/tours`): build the filter sidebar around our existing facets
+   (destination · category · traveller-type · duration). This is the "booking tier".
+3. **Tour detail** (`/tours/[slug]`): itinerary (day-by-day + meal codes) + includes/excludes + related
+   — maps to `Tour` (itinerary, included/excluded, departures, policies, faqs).
+4. **Defer** blog (P6) + online-checkout/account (later P3/P4) — but the IA slots exist.
