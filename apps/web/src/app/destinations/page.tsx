@@ -8,7 +8,6 @@ import { BestTime } from '../../components/destinations/best-time';
 import { PopularTours } from '../../components/destinations/popular-tours';
 import { TravelTips } from '../../components/destinations/travel-tips';
 import { Testimonials } from '../../components/marketing/testimonials';
-import { Faq } from '../../components/marketing/faq';
 import { EnquiryCta } from '../../components/marketing/enquiry-cta';
 import { destinations, popularTours } from '../../lib/destinations.fixtures';
 
@@ -30,7 +29,6 @@ export default function DestinationsPage() {
       <PopularTours tours={popularTours} />
       <Testimonials />
       <TravelTips />
-      <Faq />
       <EnquiryCta />
     </main>
   );

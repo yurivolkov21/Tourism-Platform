@@ -385,36 +385,7 @@ export const messages = {
       { label: 'PayPal' },
     ],
   },
-  faq: {
-    eyebrow: 'FAQs',
-    heading: 'Questions, answered',
-    subtitle:
-      'The things travellers ask us most, gathered in one place so you can plan with confidence.',
-    seeAll: 'See all questions',
-    items: [
-      {
-        question: 'How do I book a tour?',
-        answer:
-          'Browse our tours, choose a departure date, and send an enquiry or book online. Our team confirms availability and guides you through secure payment via Stripe or PayPal.',
-      },
-      {
-        question: 'Can itineraries be customised?',
-        answer:
-          'Yes — most journeys can be tailored to your pace, interests, and group size. Share your preferences in an enquiry and our trip designers will adapt the plan.',
-      },
-      {
-        question: 'Are your guides local and licensed?',
-        answer:
-          'Every trip is led by a vetted, licensed local guide chosen for their knowledge of the region and their care for travellers.',
-      },
-      {
-        question: 'What is your cancellation policy?',
-        answer:
-          'Cancellation terms vary by tour and departure, and are shown on each tour page before you book. Our team is always happy to clarify the details.',
-      },
-    ],
-  },
-  // Dedicated `/faq` page — comprehensive, grouped Q&A (the section above is the teaser).
+  // Dedicated `/faq` page — comprehensive, grouped Q&A.
   faqPage: {
     breadcrumbHome: 'Home',
     breadcrumbCurrent: 'FAQs',
