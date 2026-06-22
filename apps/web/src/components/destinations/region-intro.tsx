@@ -69,12 +69,11 @@ export function RegionIntro({
           </Link>
         </div>
 
-        {/* Right: asymmetric photo bento */}
-        <div className="grid h-104 grid-cols-2 grid-rows-3 gap-3 sm:gap-4">
-          <Tile image={{ src: images[0], alt: name }} className="col-span-1 row-span-2 h-full" />
-          <Tile image={{ src: images[1], alt: name }} className="col-span-1 row-span-1 h-full" />
-          <Tile image={{ src: images[2], alt: name }} className="col-span-1 row-span-1 h-full" />
-          <Tile image={{ src: images[3], alt: name }} className="col-span-2 row-span-1 h-full" />
+        {/* Right: feature + 2 stacked — one tall image left, two stacked right (clean, no repeats) */}
+        <div className="grid h-96 grid-cols-2 grid-rows-2 gap-3 sm:gap-4">
+          <Tile image={{ src: images[0], alt: name }} className="row-span-2 h-full" />
+          <Tile image={{ src: images[1], alt: name }} className="h-full" />
+          <Tile image={{ src: images[2], alt: name }} className="h-full" />
         </div>
       </div>
     </section>

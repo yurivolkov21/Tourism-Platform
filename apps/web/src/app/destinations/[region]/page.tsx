@@ -39,14 +39,22 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
   const theme = getRegionTheme(region);
   const pool = data.images;
 
-  // Region photo gallery built from the destination image pool (Tile fills gaps with placeholders).
-  const at = (i: number) => ({ src: pool[i % Math.max(pool.length, 1)], alt: data.name });
-  const gallerySections: GallerySection[] = [
-    { images: [at(0)] },
-    { type: 'grid', images: [at(1), at(2), at(3), at(4)] },
-    { type: 'grid', images: [at(5), at(6), at(7), at(8)] },
-    { images: [at(9)] },
-  ];
+  // Region photo gallery — each unique image used once (no repeats), in alternating single/cluster bands.
+  const gallerySections: GallerySection[] = [];
+  let gi = 0;
+  const push = (n: number, grid: boolean) => {
+    const slice = pool.slice(gi, gi + n);
+    if (slice.length === 0) return;
+    gallerySections.push({
+      type: grid ? 'grid' : undefined,
+      images: slice.map((src) => ({ src, alt: data.name })),
+    });
+    gi += n;
+  };
+  push(1, false);
+  push(4, true);
+  push(1, false);
+  push(4, true);
 
   return (
     <main>
@@ -56,7 +64,7 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
         intro={meta?.intro ?? ''}
         intro2={meta?.intro2 ?? ''}
         tags={meta?.tags ?? []}
-        images={data.images}
+        images={data.images.slice(1)}
         itinerariesHref="#itineraries"
         accentBg={theme.accentBg}
         accentBtnText={theme.accentBtnText}
@@ -75,7 +83,7 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
           heading={meta.signature.heading}
           body={meta.signature.body}
           points={meta.signature.points}
-          image={pool[2] ?? data.image}
+          image={pool[4] ?? pool[0] ?? data.image}
           accentText={theme.accentText}
           accentBg={theme.accentBg}
         />
