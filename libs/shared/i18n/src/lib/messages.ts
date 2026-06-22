@@ -37,9 +37,9 @@ export const messages = {
       label: 'Destinations',
       items: [
         { label: 'All destinations', href: '/destinations', hint: 'Browse every place we cover' },
-        { label: 'Northern Vietnam', href: '/destinations#northern-vietnam', hint: 'Hạ Long, Sa Pa, Ninh Bình' },
-        { label: 'Central Vietnam', href: '/destinations#central-vietnam', hint: 'Hội An, Huế, Đà Nẵng' },
-        { label: 'Southern Vietnam', href: '/destinations#southern-vietnam', hint: 'Mekong, Hồ Chí Minh City' },
+        { label: 'Northern Vietnam', href: '/destinations/northern-vietnam', hint: 'Hạ Long, Sa Pa, Ninh Bình' },
+        { label: 'Central Vietnam', href: '/destinations/central-vietnam', hint: 'Hội An, Huế, Đà Nẵng' },
+        { label: 'Southern Vietnam', href: '/destinations/southern-vietnam', hint: 'Mekong, Hồ Chí Minh City' },
       ],
     },
   },
