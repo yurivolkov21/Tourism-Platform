@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
@@ -17,15 +17,19 @@ const CHIP_OFF =
 export function RegionTours({
   destinations,
   tours,
-  initialDestination,
 }: {
   destinations: { name: string; slug: string }[];
   tours: TourCardData[];
-  initialDestination?: string;
 }) {
   const t = messages.regionPage;
-  const initialName = destinations.find((d) => d.slug === initialDestination)?.name ?? 'all';
-  const [active, setActive] = useState<string>(initialName);
+  const [active, setActive] = useState<string>('all');
+
+  // Pre-select a tab from `?d=<destination-slug>` on mount (keeps the page statically rendered).
+  useEffect(() => {
+    const slug = new URLSearchParams(window.location.search).get('d');
+    const name = destinations.find((d) => d.slug === slug)?.name;
+    if (name) setActive(name);
+  }, [destinations]);
 
   const filtered = active === 'all' ? tours : tours.filter((tr) => tr.destination === active);
 
