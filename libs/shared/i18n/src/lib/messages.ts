@@ -641,6 +641,40 @@ export const messages = {
     },
     note: 'Free and no-obligation — we usually reply within 24 hours.',
   },
+  // Rich multi-field enquiry form ("Plan your trip") — maps the Enquiry model.
+  planTrip: {
+    heading: 'Plan your trip',
+    subtitle:
+      'Tell our local experts a little about your trip and we’ll craft a tailored itinerary and quote — free and no obligation.',
+    benefits: [
+      'Tailored to your pace, dates & budget',
+      'Designed by local experts — no middlemen',
+      'A no-obligation itinerary & quote in ~24h',
+    ],
+    fields: {
+      name: 'Your name',
+      namePlaceholder: 'e.g. Alex Carter',
+      email: 'Email',
+      emailPlaceholder: 'you@example.com',
+      phone: 'Phone / WhatsApp',
+      phonePlaceholder: 'Optional',
+      nationality: 'Nationality',
+      nationalityPlaceholder: 'e.g. Australian',
+      travelDate: 'Approx. arrival date',
+      travellers: 'Travellers',
+      travellersPlaceholder: 'e.g. 2',
+      message: 'Anything else?',
+      messagePlaceholder: 'Tell us about your dream trip, must-sees, or any questions…',
+    },
+    durationLabel: 'How long in Vietnam?',
+    duration: ['1–3 days', '4–6 days', 'About a week', '2+ weeks'],
+    budgetLabel: 'Hotel preference',
+    budget: ['Comfort · 3★', 'Premium · 4★', 'Luxury · 5★'],
+    interestsLabel: 'What are you into?',
+    interests: ['Cruises', 'Trekking', 'Culture & heritage', 'Food', 'Beaches & islands', 'Family'],
+    submit: 'Send enquiry',
+    note: 'Free and no-obligation — we usually reply within 24 hours.',
+  },
   blog: {
     heading: 'Travel guides & stories',
     subtitle:

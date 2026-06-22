@@ -10,7 +10,7 @@ import { RegionSignature } from '../../../components/destinations/region-signatu
 import { RegionTours } from '../../../components/destinations/region-tours';
 import { ValueProps } from '../../../components/destinations/value-props';
 import { Gallery, type GallerySection } from '../../../components/marketing/gallery';
-import { EnquiryCta } from '../../../components/marketing/enquiry-cta';
+import { PlanTripForm } from '../../../components/marketing/plan-trip-form';
 import { getRegion, regionSlugs } from '../../../lib/regions';
 import { getRegionTheme } from '../../../lib/region-theme';
 
@@ -91,7 +91,7 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
         subtitle={t.gallerySubtitle}
       />
       <ValueProps accentClass={theme.accentSoft} image={pool[3] ?? pool[0] ?? data.image} />
-      <EnquiryCta />
+      <PlanTripForm />
     </main>
   );
 }
