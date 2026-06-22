@@ -89,7 +89,6 @@ export function Lightbox({
           {/* Image + arrows */}
           <div className="relative flex flex-1 items-center justify-center px-4 pb-6 sm:px-16">
             {current?.src ? (
-              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={large(current.src)}
                 alt={current.alt}
