@@ -653,12 +653,64 @@ export const messages = {
       title: 'Happy to help',
       body: 'Questions about a tour, a custom itinerary, or an existing booking? Our team is here at every step of the journey.',
     },
+    channelsHeading: 'Ways to reach us',
+    channelsSubtitle:
+      'Pick whatever is easiest — our local experts usually reply within 24 hours.',
+    channels: [
+      {
+        type: 'phone',
+        title: 'Call us',
+        value: '+84 24 1234 5678',
+        sub: 'Mon–Fri, 8:00 am – 6:00 pm (GMT+7)',
+        actionLabel: 'Call now',
+        href: 'tel:+842412345678',
+      },
+      {
+        type: 'email',
+        title: 'Email us',
+        value: 'hello@example.com',
+        sub: 'We reply within 24 hours',
+        actionLabel: 'Send an email',
+        href: 'mailto:hello@example.com',
+      },
+      {
+        type: 'whatsapp',
+        title: 'Chat on WhatsApp',
+        value: '+84 90 123 4567',
+        sub: 'Fastest for quick questions',
+        actionLabel: 'Open WhatsApp',
+        href: 'https://wa.me/84901234567',
+      },
+    ],
+    officesHeading: 'Our offices',
+    officesSubtitle: 'Drop by for a coffee and a chat about your trip — you are always welcome.',
+    getDirections: 'Get directions',
+    offices: [
+      {
+        city: 'Hà Nội — Head office',
+        lines: ['12 Hàng Bài Street', 'Hoàn Kiếm, Hà Nội, Vietnam'],
+        hours: 'Mon–Fri, 8:00 am – 6:00 pm',
+        mapHref: 'https://www.google.com/maps?q=Hoan+Kiem+Lake,+Hanoi,+Vietnam',
+      },
+      {
+        city: 'Hồ Chí Minh City',
+        lines: ['45 Lê Lợi Boulevard', 'District 1, Hồ Chí Minh City, Vietnam'],
+        hours: 'Mon–Sat, 8:30 am – 6:30 pm',
+        mapHref: 'https://www.google.com/maps?q=Ben+Thanh+Market,+Ho+Chi+Minh+City,+Vietnam',
+      },
+    ],
+    // Kept for the site footer's Information column.
     info: [
       { title: 'Office hours', lines: ['Monday – Friday', '8:00 am – 6:00 pm (GMT+7)'] },
       { title: 'Our office', lines: ['12 Hàng Bài Street', 'Hoàn Kiếm, Hà Nội, Vietnam'] },
       { title: 'Call us', lines: ['+84 24 1234 5678', '+84 90 123 4567'] },
       { title: 'Email us', lines: ['hello@example.com', 'support@example.com'] },
     ],
+    ctaBand: {
+      heading: 'Prefer to explore first?',
+      subtitle: 'Browse our destinations and tours, or find quick answers in our FAQs.',
+      cta: { label: 'Browse destinations', href: '/destinations' },
+    },
   },
   enquiryCta: {
     heading: 'Plan your trip',
