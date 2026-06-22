@@ -658,7 +658,7 @@ export const messages = {
     ],
   },
   enquiryCta: {
-    heading: 'Let us plan your journey',
+    heading: 'Plan your trip',
     subtitle:
       'Tell us how you like to travel and our local experts will craft an itinerary that fits you.',
     cta: 'Start planning',

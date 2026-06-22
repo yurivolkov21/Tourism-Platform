@@ -15,9 +15,9 @@ export function EnquiryCta() {
   return (
     <section id="contact" className="py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="shadow-card grid overflow-hidden rounded-2xl lg:grid-cols-2">
+        <div className="shadow-card grid overflow-hidden rounded-2xl lg:grid-cols-5">
           {/* Copy */}
-          <div className="bg-primary text-primary-foreground flex flex-col justify-center gap-6 p-8 sm:p-12">
+          <div className="bg-primary text-primary-foreground flex flex-col justify-center gap-6 p-8 sm:p-12 lg:col-span-2">
             <div className="space-y-4">
               <h2 className="font-heading text-3xl font-semibold text-balance sm:text-4xl">
                 {t.heading}
@@ -37,7 +37,7 @@ export function EnquiryCta() {
           </div>
 
           {/* Form */}
-          <div className="bg-card flex flex-col justify-center p-8 sm:p-12">
+          <div className="bg-card flex flex-col justify-center p-8 sm:p-12 lg:col-span-3">
             <form action="#contact" className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="enq-name" className="text-sm font-medium">
