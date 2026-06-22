@@ -159,6 +159,60 @@ export const messages = {
       },
     ],
   },
+  // `/destinations` — when to visit, by region (unique to the destinations page).
+  bestTime: {
+    heading: 'When to visit',
+    subtitle:
+      'Vietnam runs over 1,600km north to south, so the best season depends on where you go — a quick guide by region.',
+    regions: [
+      {
+        region: 'Northern Vietnam',
+        months: 'Mar–May · Sep–Nov',
+        note: 'Cool, dry and clear — ideal for Hạ Long and the mountains. Winters turn chilly up high; summers bring rain.',
+      },
+      {
+        region: 'Central Vietnam',
+        months: 'Feb–Aug',
+        note: 'Warm and dry along the coast and old towns. Avoid Oct–Dec, the wettest and most storm-prone months.',
+      },
+      {
+        region: 'Southern Vietnam',
+        months: 'Dec–Apr',
+        note: 'The dry season for the Mekong and the islands. May–Nov is wetter but stays warm with short showers.',
+      },
+    ],
+  },
+  // `/destinations` — practical know-before-you-go tips (unique to the destinations page).
+  travelTips: {
+    heading: 'Know before you go',
+    subtitle: 'A few practical notes to make planning your Vietnam trip easier.',
+    items: [
+      {
+        title: 'Visas',
+        body: 'Most nationalities can apply for a Vietnam e-visa online — sort it a couple of weeks ahead.',
+      },
+      {
+        title: 'Money',
+        body: 'The currency is the Vietnamese đồng (VND). Cards work in cities; carry small cash for markets.',
+      },
+      {
+        title: 'Getting around',
+        body: 'Domestic flights, trains and private transfers — we arrange every leg of your journey.',
+      },
+      {
+        title: 'Staying connected',
+        body: 'A cheap local SIM or eSIM at the airport gives you fast 4G almost everywhere you travel.',
+      },
+      {
+        title: 'Health & safety',
+        body: 'Vietnam is very safe for travellers. Drink bottled water and take the usual precautions.',
+      },
+      {
+        title: 'What to pack',
+        body: 'Layers for the north, light rain gear for the centre, and summer wear for the south.',
+      },
+    ],
+  },
   experiences: {
     heading: 'Browse by experience',
     subtitle:

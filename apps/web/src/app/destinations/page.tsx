@@ -4,9 +4,9 @@ import { groupByRegion } from '@tourism/core';
 
 import { DestinationsHero } from '../../components/destinations/destinations-hero';
 import { RegionGroup } from '../../components/destinations/region-group';
+import { BestTime } from '../../components/destinations/best-time';
 import { PopularTours } from '../../components/destinations/popular-tours';
-import { Experiences } from '../../components/marketing/experiences';
-import { Trust } from '../../components/marketing/trust';
+import { TravelTips } from '../../components/destinations/travel-tips';
 import { Testimonials } from '../../components/marketing/testimonials';
 import { Faq } from '../../components/marketing/faq';
 import { EnquiryCta } from '../../components/marketing/enquiry-cta';
@@ -26,10 +26,10 @@ export default function DestinationsPage() {
       {groups.map((group) => (
         <RegionGroup key={group.region} region={group.region} items={group.items} />
       ))}
-      <Experiences />
+      <BestTime />
       <PopularTours tours={popularTours} />
-      <Trust />
       <Testimonials />
+      <TravelTips />
       <Faq />
       <EnquiryCta />
     </main>
