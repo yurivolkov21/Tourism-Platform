@@ -42,15 +42,15 @@ the rules; deep plan detail lives in [`HANDOFF.md`](HANDOFF.md) and
 
 | Project | Path | Stack | Tags | Status |
 | --- | --- | --- | --- | --- |
-| `@tourism/api` | `apps/api` | NestJS 11 · Prisma · Supabase · Stripe + MoMo · Resend · pg-boss | `scope:api,type:app` | 🟢 P1.1–P1.4 done (schema+RLS, envelope, auth, CRUD: destinations/tours/categories/departures); P1.5 next |
-| `@tourism/web` | `apps/web` | Next.js 16 · React | `scope:web,type:app` | 🚧 scaffold |
-| `@tourism/admin` | `apps/admin` | Next.js 16 | `scope:admin,type:app` | 🚧 scaffold |
-| `@tourism/mobile` | `apps/mobile` | Expo SDK 54 / RN | `scope:mobile,type:app` | 🚧 scaffold |
-| `@tourism/core` | `libs/shared/core` | types · API client · zod · domain logic | `scope:shared,type:data-access` | 🚧 scaffold |
-| `@tourism/tokens` | `libs/shared/tokens` | design tokens → web CSS vars + RN theme | `scope:shared,type:ui` | 🚧 scaffold |
-| `@tourism/i18n` | `libs/shared/i18n` | EN copy catalog (EN-only) | `scope:shared,type:util` | 🚧 scaffold |
-| `@tourism/ui` | `libs/web/ui` | web design system (React) | `scope:web,type:ui` | 🚧 scaffold |
-| `@tourism/mobile-ui` | `libs/mobile/ui` | mobile design system (RN) | `scope:mobile,type:ui` | 🚧 scaffold |
+| `@tourism/api` | `apps/api` | NestJS 11 · Prisma · Supabase · Stripe + PayPal · Resend · pg-boss | `scope:api,type:app` | 🟢 **P1 complete** (P1.1–P1.8 + P1.x): schema+RLS, envelope, auth, CRUD, bookings, Stripe+PayPal, media, reviews/wishlist/enquiry/stats, seed+client+e2e, pg-boss jobs |
+| `@tourism/web` | `apps/web` | Next.js 16 · React | `scope:web,type:app` | 🟢 **P3 in progress** — home + destinations (overview+detail) + content pages (`/faq` `/privacy` `/terms`); tours/about/contact + real-data wiring next |
+| `@tourism/admin` | `apps/admin` | Next.js 16 | `scope:admin,type:app` | 🚧 scaffold (P4) |
+| `@tourism/mobile` | `apps/mobile` | Expo SDK 54 / RN | `scope:mobile,type:app` | 🚧 scaffold (P5) |
+| `@tourism/core` | `libs/shared/core` | types · API client · zod · domain logic | `scope:shared,type:data-access` | 🟢 typed OpenAPI client (P1.8) + destination helpers (region grouping/slug) |
+| `@tourism/tokens` | `libs/shared/tokens` | design tokens → web CSS vars + RN theme | `scope:shared,type:ui` | 🟢 **P2 done** — Style Dictionary, brand "Emerald Heritage", no-hex enforced |
+| `@tourism/i18n` | `libs/shared/i18n` | EN copy catalog (EN-only) | `scope:shared,type:util` | 🟢 populated (all web surfaces read from here) |
+| `@tourism/ui` | `libs/web/ui` | web design system (React) | `scope:web,type:ui` | 🟢 **P2 done** — shadcn (Base UI `base-nova`), 54 components |
+| `@tourism/mobile-ui` | `libs/mobile/ui` | mobile design system (RN) | `scope:mobile,type:ui` | 🚧 scaffold (P5) |
 
 - Auth is **Supabase** (the API verifies the JWT and mirrors users locally) —
   do **not** rewrite to self-managed auth.

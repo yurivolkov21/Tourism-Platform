@@ -7,6 +7,13 @@
 > Build the actual usable experience, layout-first, with placeholder fixtures shaped like real DTOs;
 > wire the typed `@tourism/core` client later. Reuse `@tourism/ui` + tokens; copy in `@tourism/i18n`.
 
+**Status (2026-06-22):** ✅ Home · ✅ Destinations overview + detail (`/destinations`,
+`/destinations/[slug]`) · ✅ Content pages added beyond this plan — `/faq` (searchable accordion +
+JSON-LD), `/privacy`, `/terms` (legal drafts) · ✅ nav restructured (Tours=experiences /
+Destinations=regions) + shared content-page template (`ContentHero` + sticky `OnThisPage`). ⬜ Tours
+listing · Tour detail · About · Contact · wire real data · motion pass. Live progress table:
+[roadmap §P3](../roadmap.md#p3--web-customer-breakdown).
+
 ## Information architecture — place-led
 
 `Region (North / Central / South) → Destination → Tour`. Maps to `Destination(region, name, slug)` ⇄

@@ -13,8 +13,8 @@ Founding phase list: [BLUEPRINT §7](BLUEPRINT.md#7-phased-roadmap). Decisions: 
 | **P0.6** | Module boundaries (ESLint flat-config + enforce-module-boundaries) | ✅ done |
 | **P0.8** | Port donor conventions + rename `@org`→`@tourism` + AI cleanup | ✅ done |
 | **P1** | **Backend:** fresh Prisma schema + port infra + seed | ✅ **complete** (P1.1–P1.8 + **P1.x** done): schema/auth/CRUD/bookings/Stripe+PayPal/media/reviews+wishlist+enquiry+stats/seed+client+e2e + pg-boss jobs (outbox emails + cron) |
-| **P2** | Design system: `shared/tokens` + `web/ui` + `mobile/ui` | ⬜ |
-| **P3** | Web (customer): home → destinations → tours → detail → booking → account | ⬜ |
+| **P2** | Design system: `shared/tokens` + `web/ui` (+ `mobile/ui` later) | ✅ **done** — Style Dictionary tokens (**"Emerald Heritage"**, no-hex enforced) + shadcn/Base UI 54 comps in `@tourism/ui` |
+| **P3** | Web (customer): home → destinations → tours → detail → booking → account | 🚧 **in progress** — home + destinations (overview + detail) + content pages (`/faq` `/privacy` `/terms`) done; tours/detail/about/contact + real-data wiring next (see P3 breakdown) |
 | **P4** | Admin: manage tours/destinations/departures/media/reviews/bookings | ⬜ |
 | **P5** | Mobile (Expo): browse → detail → booking → account (reuse `shared/core`) | ⬜ |
 | **P6** | Content/SEO (blog/tips) + trust polish | ⬜ |
@@ -42,6 +42,32 @@ EN-only ([ADR-0005](02-decisions/0005-en-only.md)); security/integrity hardened
 
 - Decisions **D-P1.1, D-P1.3–D-P1.6** in [decisions](02-decisions/README.md) (D-P1.2/0.7/0.8 resolved via ADRs).
 - Secrets/DB to run locally: Supabase (DATABASE_URL + DIRECT_URL + keys), **Stripe** test, **MoMo** test, Cloudinary, Resend, Sentry DSN → `apps/api/.env`.
+
+## P3 — Web (customer) breakdown
+
+Layout-first with fixtures shaped like the eventual `@tourism/core` DTOs (wire real data later);
+tokens-only (no-hex), reuse `@tourism/ui`, copy in `@tourism/i18n`. Plan:
+[p3-web-build-plan](07-plans/2026-06-21-p3-web-build-plan.md) · spec:
+[p3-destinations](06-specs/2026-06-21-p3-destinations-design.md).
+
+| Page / area | Route | Status |
+| --- | --- | --- |
+| **Home** (Lily-style clone) | `/` | ✅ hero · destinations bento · experiences · featured · why-choose · trust · blog-teaser · enquiry |
+| **Destinations overview** | `/destinations` | ✅ hero · full-bleed region mosaics (feature tiles) · when-to-visit · popular (image posters) · testimonials · travel-tips · enquiry |
+| **Destination page** | `/destinations/[slug]` | ✅ hero · intro · tours · value-props · enquiry (SSG, 12 fixtures, 404 on unknown slug) |
+| **FAQ** | `/faq` | ✅ searchable grouped accordion (category icons) · sticky TOC · FAQPage JSON-LD |
+| **Privacy / Terms** | `/privacy` `/terms` | ✅ legal pages — **draft, pending legal review** (placeholders + review callout) |
+| **Nav / footer** | — | ✅ Tours (experiences) + Destinations (regions) dropdowns · footer wired to /faq /privacy /terms |
+| **Shared content template** | — | ✅ `ContentHero` (emerald header) + `OnThisPage` (sticky TOC scroll-spy) |
+| Tours listing | `/tours` | ⬜ filterable `TourCard` grid |
+| Tour detail | `/tours/[slug]` | ⬜ gallery · itinerary · sticky booking box |
+| About / Contact | `/about` `/contact` | ⬜ (standalone blocks built, not yet routed) |
+| Booking + account | — | ⬜ (later in P3) |
+| **Wire real data** | — | ⬜ replace fixtures with the live `@tourism/core` client (deferred to end of P3) |
+
+> **⚠ Legal note:** `/privacy` + `/terms` are grounded drafts with bracketed placeholders and a
+> "pending review" callout. They **must be reviewed by qualified counsel** and the placeholders
+> completed before launch. Long-form content lives in `apps/web/src/content/{privacy,terms}.ts`.
 
 ## Donor code worth porting
 

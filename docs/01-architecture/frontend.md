@@ -1,14 +1,88 @@
 # Frontend (web · admin · mobile)
 
-> Skeleton — fill in P2 (design system) / P3 (web) / P4 (admin) / P5 (mobile).
+> Living doc. Web (P3) is filled below; admin (P4) / mobile (P5) fill as they land.
 
 ## Shared foundation
 
-- **Tokens:** `@tourism/tokens` → web CSS vars + RN theme (no hex; tokens only).
-- **i18n:** `@tourism/i18n` EN-only ([ADR-0005](../02-decisions/0005-en-only.md)).
-- **Domain/data:** `@tourism/core` types · zod · API client (consumed by all three).
-- **UI:** `@tourism/ui` (web, React) · `@tourism/mobile-ui` (RN). admin reuses `@tourism/ui`.
+- **Tokens:** `@tourism/tokens` → web CSS vars + RN theme (no hex; tokens only). Built with **Style
+  Dictionary**; brand **"Emerald Heritage"** (deep emerald + ivory + brass, Fraunces serif h1–h3 +
+  Geist body, radius `0.375rem`, WCAG AA). `pnpm check:no-hex` enforces tokens-only.
+- **UI:** `@tourism/ui` (web, React) — shadcn on **Base UI** (`base-nova`), 54 components. admin reuses
+  it. `@tourism/mobile-ui` (RN) later. *(Base UI: `Button` is the primitive — use `render`/`nativeButton`,
+  no `asChild`.)*
+- **i18n:** `@tourism/i18n` EN-only ([ADR-0005](../02-decisions/0005-en-only.md)). All web surfaces read
+  copy from `messages.*` — no inline strings. Long-form legal *documents* are the one exception (see Web).
+- **Domain/data:** `@tourism/core` types · zod · typed OpenAPI client (consumed by all apps) + pure
+  domain helpers (e.g. destination region-grouping / slug lookup, TDD'd).
 
-## Per-app
+## Web (`@tourism/web`)
 
-📝 *App Router structure, RSC/data-fetching, navigation — fill as apps are built.*
+Next.js 16 App Router (RSC). **Layout-first**: build with placeholder fixtures shaped like the eventual
+`@tourism/core` DTOs, then wire the live client later (deferred to end of P3). Temporary **Unsplash**
+imagery via `next/image` `remotePatterns` — review only, swap for `MediaAsset`.
+
+### Routes
+
+| Route | Render | Notes |
+| --- | --- | --- |
+| `/` | static | Lily-style homepage (hero · destinations bento · experiences · featured · why-choose · trust · blog-teaser · enquiry). |
+| `/destinations` | static | Overview: hero · full-bleed region mosaics (feature tiles) · when-to-visit · popular (image posters) · testimonials · travel-tips · enquiry. |
+| `/destinations/[slug]` | **SSG** | `generateStaticParams` from fixtures (12); unknown slug → `notFound()`. Hero · intro · tours · value-props · enquiry. |
+| `/faq` | static | Searchable grouped accordion (category icons) · sticky TOC · **FAQPage JSON-LD**. |
+| `/privacy`, `/terms` | static | Legal documents — **drafts pending legal review** (placeholders + review callout). |
+| `/ui-check` | static | Dev sandbox for `@tourism/ui`. |
+
+**Header/footer** live in `app/layout.tsx`. Primary nav: **Tours** (experiences dropdown) · **Destinations**
+(regions dropdown → `/destinations#<region>`) · About · Contact. Footer Support column → `/faq` `/privacy`
+`/terms`.
+
+### Component layout (`apps/web/src/`)
+
+```text
+components/
+  layout/      SiteHeader · SiteFooter · TopBar · FloatingContact · ScrollToTop
+  marketing/   hero · destinations(bento) · experiences · featured-packages · why-choose ·
+               trust · testimonials · blog-teaser · enquiry-cta · gallery · faq* · cta-band …
+  destinations/ DestinationTile · RegionGroup(mosaic) · DestinationsHero · DestinationHero ·
+               DestinationIntro · DestinationTours · PopularTours · BestTime · TravelTips · ValueProps
+  faq/         FaqExplorer (search + card accordion)
+  legal/       LegalArticle (renders a LegalDoc)
+  content/     ContentHero · OnThisPage (shared content-page template)
+  tours/       TourCard · ToursExplorer · TourGallery
+  about/ contact/ brand/ icons/
+lib/           destinations.fixtures.ts · slug.ts          (view-model fixtures + helpers)
+content/       privacy.ts · terms.ts · legal-page.ts       (long-form legal documents)
+```
+
+### Shared content-page template
+
+`/faq`, `/privacy`, `/terms` share a template:
+
+- **`ContentHero`** — soft emerald header band: breadcrumb + Fraunces title (+ meta/subtitle).
+- **`OnThisPage`** — sticky "On this page" TOC with `IntersectionObserver` scroll-spy.
+- Two-column layout (`lg:grid-cols-[14rem_1fr]`): sticky TOC aside + `max-w-3xl` content.
+- **FAQ** adds a client `FaqExplorer` (search filter + grouped card accordion with a plus↔minus toggle).
+- **Legal** uses `LegalArticle` (numbered sections + dividers) driven by a typed `LegalDoc`.
+
+### Data strategy
+
+- **Now:** fixtures in `apps/web/src/lib/*.fixtures.ts`, typed as web view-models that extend
+  `@tourism/core` DTOs (e.g. `DestinationTileVM extends DestinationSummary`).
+- **Pure logic in `@tourism/core`** (not the app): the app has no unit-test harness, and the project
+  TDDs pure logic in shared libs while covering web layout via e2e. Example: `groupByRegion`, `getBySlug`.
+- **Later:** replace fixtures with the live typed client (`/regen-types` after BE DTO changes).
+
+### Conventions
+
+- Tokens-only (no hex), reuse `@tourism/ui` first, app imports **relative** (not `@/`).
+- Inspiration surfaces image-forward + Fraunces serif; per section/page: build → `/gate` (+ no-hex) →
+  review → branch → rebase-merge.
+- **Legal pages need counsel review** before launch — they carry bracketed placeholders + a "draft" callout.
+
+## Admin (`@tourism/admin`) — P4
+
+📝 Scaffold. App Router structure, auth-protected layout, CRUD UIs — fill when P4 lands.
+
+## Mobile (`@tourism/mobile`) — P5
+
+📝 Scaffold. Expo Router, RN screens, `@tourism/mobile-ui`, reuse `@tourism/core` — fill when P5 lands.
