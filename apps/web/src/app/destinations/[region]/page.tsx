@@ -9,7 +9,7 @@ import { RegionHighlights } from '../../../components/destinations/region-highli
 import { RegionSignature } from '../../../components/destinations/region-signature';
 import { RegionTours } from '../../../components/destinations/region-tours';
 import { ValueProps } from '../../../components/destinations/value-props';
-import { Gallery, type GallerySection } from '../../../components/marketing/gallery';
+import { RegionGallery } from '../../../components/destinations/region-gallery';
 import { EnquiryCta } from '../../../components/marketing/enquiry-cta';
 import { getRegion, regionSlugs } from '../../../lib/regions';
 import { getRegionTheme } from '../../../lib/region-theme';
@@ -38,23 +38,6 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
   const meta = t.regions[data.name];
   const theme = getRegionTheme(region);
   const pool = data.images;
-
-  // Region photo gallery — each unique image used once (no repeats), in alternating single/cluster bands.
-  const gallerySections: GallerySection[] = [];
-  let gi = 0;
-  const push = (n: number, grid: boolean) => {
-    const slice = pool.slice(gi, gi + n);
-    if (slice.length === 0) return;
-    gallerySections.push({
-      type: grid ? 'grid' : undefined,
-      images: slice.map((src) => ({ src, alt: data.name })),
-    });
-    gi += n;
-  };
-  push(1, false);
-  push(4, true);
-  push(1, false);
-  push(4, true);
 
   return (
     <main>
@@ -89,12 +72,12 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
         />
       ) : null}
       <RegionTours destinations={data.destinations} tours={data.tours} chipOn={theme.chipOn} />
-      <Gallery
-        sections={gallerySections}
+      <RegionGallery
         heading={t.galleryHeading(data.name)}
         subtitle={t.gallerySubtitle}
+        images={pool}
       />
-      <ValueProps accentClass={theme.accentSoft} />
+      <ValueProps accentClass={theme.accentSoft} image={pool[3] ?? pool[0] ?? data.image} />
       <EnquiryCta />
     </main>
   );
