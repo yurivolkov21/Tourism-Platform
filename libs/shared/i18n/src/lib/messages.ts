@@ -163,6 +163,32 @@ export const messages = {
       },
     ],
   },
+  // `/destinations/[region]` region pages.
+  regionPage: {
+    backToAll: 'All destinations',
+    introHeading: (region: string) => `The best ${region} tours`,
+    itinerariesCta: (region: string) => `${region} itineraries`,
+    toursHeading: 'Tours',
+    allTab: 'All',
+    noTours: 'New tours for this destination are coming soon.',
+    regions: {
+      'Northern Vietnam': {
+        tagline: 'From Sa Pa to Hạ Long Bay — culture and natural wonders in the misty north.',
+        intro:
+          'Awe-inspiring landscapes of limestone bays and terraced highlands, diverse hill-tribe cultures, and the frontier passes of the far north. Browse our Northern Vietnam tours below, or read our itinerary suggestions.',
+      },
+      'Central Vietnam': {
+        tagline: 'Imperial heritage, lantern-lit old towns and a golden coastline.',
+        intro:
+          'Wander ancient citadels and UNESCO old towns beside white-sand beaches, and venture into some of the world’s largest caves. Browse our Central Vietnam tours below, or read our itinerary suggestions.',
+      },
+      'Southern Vietnam': {
+        tagline: 'River deltas, island beaches and the restless energy of Sài Gòn.',
+        intro:
+          'Floating markets and flooded paddies, cosmopolitan cities and tropical islands — the warm, easy-going south. Browse our Southern Vietnam tours below, or read our itinerary suggestions.',
+      },
+    } as Record<string, { tagline: string; intro: string }>,
+  },
   // `/destinations` — when to visit, by region (unique to the destinations page).
   bestTime: {
     heading: 'When to visit',
