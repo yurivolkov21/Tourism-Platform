@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { ChevronRightIcon } from 'lucide-react';
 
 import { messages } from '@tourism/i18n';
 
-import { FaqGroups } from '../../components/faq/faq-groups';
+import { slugify } from '../../lib/slug';
+import { ContentHero } from '../../components/content/content-hero';
+import { OnThisPage, type TocItem } from '../../components/content/on-this-page';
+import { FaqExplorer } from '../../components/faq/faq-explorer';
 import { EnquiryCta } from '../../components/marketing/enquiry-cta';
 
 export const metadata: Metadata = {
@@ -32,6 +33,7 @@ function faqJsonLd() {
 
 export default function FaqPage() {
   const t = messages.faqPage;
+  const toc: TocItem[] = t.categories.map((c) => ({ id: slugify(c.title), label: c.title }));
 
   return (
     <main>
@@ -41,34 +43,21 @@ export default function FaqPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd()).replace(/</g, '\\u003c') }}
       />
 
-      {/* Header band */}
-      <section className="bg-muted/40 border-border border-b">
-        <div className="mx-auto max-w-3xl px-4 py-14 text-center sm:px-6 sm:py-20 lg:px-8">
-          <nav
-            aria-label="Breadcrumb"
-            className="text-muted-foreground mb-4 flex items-center justify-center gap-1.5 text-sm"
-          >
-            <Link href="/" className="hover:text-foreground">
-              {t.breadcrumbHome}
-            </Link>
-            <ChevronRightIcon className="size-4" />
-            <span className="text-foreground">{t.breadcrumbCurrent}</span>
-          </nav>
-          <h1 className="font-heading text-3xl font-bold text-balance sm:text-4xl lg:text-5xl">
-            {t.title}
-          </h1>
-          <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-lg text-pretty">
-            {t.subtitle}
-          </p>
-        </div>
-      </section>
+      <ContentHero breadcrumb={t.breadcrumbCurrent} title={t.title} subtitle={t.subtitle} />
 
-      {/* Grouped questions */}
-      <section className="py-14 sm:py-20">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <FaqGroups />
+      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="lg:grid lg:grid-cols-[14rem_1fr] lg:gap-12">
+          <aside className="mb-10 lg:mb-0">
+            <div className="lg:sticky lg:top-24">
+              <OnThisPage items={toc} />
+            </div>
+          </aside>
+
+          <div className="min-w-0 max-w-3xl">
+            <FaqExplorer />
+          </div>
         </div>
-      </section>
+      </div>
 
       <EnquiryCta />
     </main>

@@ -6,6 +6,10 @@ export const messages = {
     // Placeholder project name — swap when the real brand is set.
     name: 'Tourism Platform',
   },
+  common: {
+    home: 'Home',
+    onThisPage: 'On this page',
+  },
   topBar: {
     tagline: 'Vietnam’s boutique heritage travel, crafted end to end',
   },
@@ -392,6 +396,9 @@ export const messages = {
     title: 'Frequently asked questions',
     subtitle:
       'Everything travellers ask us most, grouped so you can find your answer fast. Still unsure? Our team is one message away.',
+    searchPlaceholder: 'Search questions…',
+    searchLabel: 'Search frequently asked questions',
+    noResults: 'No questions match your search. Try different keywords or contact our team.',
     ctaHeading: 'Still have a question?',
     ctaBody: 'Our trip designers reply within a day — tell us what you’re planning.',
     ctaButton: 'Ask our team',

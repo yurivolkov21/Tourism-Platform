@@ -1,70 +1,79 @@
-import Link from 'next/link';
-import { ChevronRightIcon, TriangleAlertIcon } from 'lucide-react';
+import { TriangleAlertIcon } from 'lucide-react';
 
 import type { LegalDoc } from '../../content/legal-page';
+import { slugify } from '../../lib/slug';
+import { ContentHero } from '../content/content-hero';
+import { OnThisPage, type TocItem } from '../content/on-this-page';
 
-/** Renders a long-form legal/policy document with a header band and numbered sections. */
+/** Renders a long-form legal/policy document: emerald header, sticky TOC, numbered sections. */
 export function LegalArticle({ doc }: { doc: LegalDoc }) {
+  const toc: TocItem[] = doc.sections.map((section, i) => ({
+    id: slugify(section.heading),
+    label: `${i + 1}. ${section.heading}`,
+  }));
+
   return (
     <main>
-      {/* Header band */}
-      <section className="bg-muted/40 border-border border-b">
-        <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-          <nav
-            aria-label="Breadcrumb"
-            className="text-muted-foreground mb-4 flex items-center gap-1.5 text-sm"
-          >
-            <Link href="/" className="hover:text-foreground">
-              Home
-            </Link>
-            <ChevronRightIcon className="size-4" />
-            <span className="text-foreground">{doc.breadcrumb}</span>
-          </nav>
-          <h1 className="font-heading text-3xl font-bold text-balance sm:text-4xl">{doc.title}</h1>
-          <p className="text-muted-foreground mt-3 text-sm">{doc.updated}</p>
-        </div>
-      </section>
+      <ContentHero breadcrumb={doc.breadcrumb} title={doc.title} meta={doc.updated} />
 
-      <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-        {/* Pre-launch review callout */}
-        <div className="border-warning/40 bg-warning/10 mb-10 flex gap-3 rounded-lg border p-4 text-sm">
-          <TriangleAlertIcon className="text-warning size-5 shrink-0" />
-          <p className="text-foreground/90 leading-relaxed">{doc.reviewNote}</p>
-        </div>
+      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="lg:grid lg:grid-cols-[14rem_1fr] lg:gap-12">
+          {/* Sticky table of contents */}
+          <aside className="mb-10 lg:mb-0">
+            <div className="lg:sticky lg:top-24">
+              <OnThisPage items={toc} />
+            </div>
+          </aside>
 
-        <div className="space-y-4">
-          {doc.intro.map((p, i) => (
-            <p key={i} className="text-muted-foreground leading-relaxed text-pretty">
-              {p}
-            </p>
-          ))}
-        </div>
+          {/* Document body */}
+          <div className="min-w-0 max-w-3xl">
+            <div className="border-warning/40 bg-warning/10 mb-10 flex gap-3 rounded-lg border p-4 text-sm">
+              <TriangleAlertIcon className="text-warning size-5 shrink-0" />
+              <p className="text-foreground/90 leading-relaxed">{doc.reviewNote}</p>
+            </div>
 
-        <div className="mt-10 space-y-10">
-          {doc.sections.map((section, i) => (
-            <section key={section.heading}>
-              <h2 className="font-heading mb-3 text-xl font-semibold">
-                {i + 1}. {section.heading}
-              </h2>
-              {section.paragraphs?.map((p, j) => (
-                <p
-                  key={j}
-                  className="text-muted-foreground leading-relaxed text-pretty not-last:mb-3"
-                >
+            <div className="space-y-4">
+              {doc.intro.map((p, i) => (
+                <p key={i} className="text-muted-foreground leading-relaxed text-pretty">
                   {p}
                 </p>
               ))}
-              {section.bullets ? (
-                <ul className="text-muted-foreground mt-3 list-disc space-y-1.5 pl-5 leading-relaxed">
-                  {section.bullets.map((b, j) => (
-                    <li key={j}>{b}</li>
+            </div>
+
+            <div className="divide-border mt-6 divide-y">
+              {doc.sections.map((section, i) => (
+                <section
+                  key={section.heading}
+                  id={slugify(section.heading)}
+                  className="scroll-mt-24 py-8 first:pt-8"
+                >
+                  <h2 className="font-heading mb-3 flex items-center gap-3 text-xl font-semibold">
+                    <span className="bg-primary/10 text-primary flex size-7 shrink-0 items-center justify-center rounded-full text-sm font-bold tabular-nums">
+                      {i + 1}
+                    </span>
+                    {section.heading}
+                  </h2>
+                  {section.paragraphs?.map((p, j) => (
+                    <p
+                      key={j}
+                      className="text-muted-foreground leading-relaxed text-pretty not-last:mb-3"
+                    >
+                      {p}
+                    </p>
                   ))}
-                </ul>
-              ) : null}
-            </section>
-          ))}
+                  {section.bullets ? (
+                    <ul className="text-muted-foreground mt-3 list-disc space-y-1.5 pl-5 leading-relaxed">
+                      {section.bullets.map((b, j) => (
+                        <li key={j}>{b}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </section>
+              ))}
+            </div>
+          </div>
         </div>
-      </article>
+      </div>
     </main>
   );
 }
