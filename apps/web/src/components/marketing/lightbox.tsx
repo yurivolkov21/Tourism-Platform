@@ -1,22 +1,24 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
-import { ChevronLeftIcon, ChevronRightIcon, XIcon } from 'lucide-react';
-
 import {
-  Dialog,
-  DialogClose,
-  DialogOverlay,
-  DialogPortal,
-  DialogTitle,
-} from '@tourism/ui';
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  XIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+} from 'lucide-react';
+
+import { Dialog, DialogClose, DialogPortal, DialogTitle, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 export type LightboxImage = { src?: string; alt: string };
 
+const ZOOMS = [1, 1.5, 2, 2.5] as const;
+
 const CONTROL =
-  'text-primary-foreground hover:bg-background/15 flex items-center justify-center rounded-full transition-colors';
+  'text-primary-foreground hover:bg-background/15 disabled:pointer-events-none disabled:opacity-40 flex size-10 items-center justify-center rounded-full transition-colors';
 
 /** Larger image variant for the viewer (Unsplash width bump; falls back to the original). */
 function large(src?: string): string | undefined {
@@ -24,8 +26,9 @@ function large(src?: string): string | undefined {
 }
 
 /**
- * Full-screen image viewer (lightbox): dark backdrop, enlarged image, counter, prev/next, close.
- * Reuses the Base UI Dialog (focus trap, Esc, scroll lock); arrow keys navigate.
+ * Full-screen image viewer (lightbox): dark backdrop, a comfortably-sized centred image, counter,
+ * zoom in/out, prev/next, close. Reuses the Base UI Dialog (focus trap, Esc, scroll lock, open
+ * animation); arrow keys navigate.
  */
 export function Lightbox({
   images,
@@ -40,6 +43,7 @@ export function Lightbox({
 }) {
   const open = index !== null;
   const t = messages.gallery.viewer;
+  const [zoom, setZoom] = useState(0);
 
   const go = useCallback(
     (delta: number) => {
@@ -48,6 +52,11 @@ export function Lightbox({
     },
     [index, images.length, onIndex],
   );
+
+  // Reset zoom whenever the shown image changes (or the viewer opens).
+  useEffect(() => {
+    setZoom(0);
+  }, [index]);
 
   useEffect(() => {
     if (!open) return;
@@ -60,6 +69,7 @@ export function Lightbox({
   }, [open, go]);
 
   const current = index !== null ? images[index] : undefined;
+  const scale = ZOOMS[zoom];
 
   return (
     <Dialog
@@ -69,30 +79,51 @@ export function Lightbox({
       }}
     >
       <DialogPortal>
-        <DialogOverlay className="bg-foreground/95 z-50" />
+        <DialogPrimitive.Backdrop className="bg-foreground/95 fixed inset-0 z-50 duration-200 data-closed:animate-out data-closed:fade-out-0 data-open:animate-in data-open:fade-in-0" />
         <DialogPrimitive.Popup
           data-slot="lightbox"
-          className="fixed inset-0 z-50 flex flex-col outline-none"
+          className="fixed inset-0 z-50 flex flex-col outline-none duration-200 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95"
         >
           <DialogTitle className="sr-only">{t.label}</DialogTitle>
 
-          {/* Top bar: counter + close */}
+          {/* Top bar: counter + zoom + close */}
           <div className="text-primary-foreground flex items-center justify-between p-4 sm:p-5">
             <span className="text-sm tabular-nums">
               {t.counter((index ?? 0) + 1, images.length)}
             </span>
-            <DialogClose className={`${CONTROL} size-10`} aria-label={t.close}>
-              <XIcon className="size-5" />
-            </DialogClose>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setZoom((z) => Math.max(0, z - 1))}
+                disabled={zoom === 0}
+                aria-label={t.zoomOut}
+                className={CONTROL}
+              >
+                <ZoomOutIcon className="size-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setZoom((z) => Math.min(ZOOMS.length - 1, z + 1))}
+                disabled={zoom === ZOOMS.length - 1}
+                aria-label={t.zoomIn}
+                className={CONTROL}
+              >
+                <ZoomInIcon className="size-5" />
+              </button>
+              <DialogClose className={CONTROL} aria-label={t.close}>
+                <XIcon className="size-5" />
+              </DialogClose>
+            </div>
           </div>
 
-          {/* Image + arrows */}
-          <div className="relative flex flex-1 items-center justify-center px-4 pb-6 sm:px-16">
+          {/* Image area (comfortably sized + centred) */}
+          <div className="relative flex flex-1 items-center justify-center overflow-hidden px-4 pb-8 sm:px-20">
             {current?.src ? (
               <img
                 src={large(current.src)}
                 alt={current.alt}
-                className="max-h-full max-w-full rounded-lg object-contain"
+                style={{ transform: `scale(${scale})` }}
+                className="max-h-[78vh] max-w-5xl rounded-lg object-contain transition-transform duration-200"
               />
             ) : null}
 
@@ -100,7 +131,7 @@ export function Lightbox({
               type="button"
               onClick={() => go(-1)}
               aria-label={t.previous}
-              className={`${CONTROL} absolute left-3 size-11 sm:left-5 sm:size-12`}
+              className={cn(CONTROL, 'absolute left-3 size-11 sm:left-5 sm:size-12')}
             >
               <ChevronLeftIcon className="size-6 sm:size-7" />
             </button>
@@ -108,7 +139,7 @@ export function Lightbox({
               type="button"
               onClick={() => go(1)}
               aria-label={t.next}
-              className={`${CONTROL} absolute right-3 size-11 sm:right-5 sm:size-12`}
+              className={cn(CONTROL, 'absolute right-3 size-11 sm:right-5 sm:size-12')}
             >
               <ChevronRightIcon className="size-6 sm:size-7" />
             </button>

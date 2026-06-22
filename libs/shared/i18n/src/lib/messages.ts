@@ -468,6 +468,8 @@ export const messages = {
       previous: 'Previous photo',
       next: 'Next photo',
       close: 'Close viewer',
+      zoomIn: 'Zoom in',
+      zoomOut: 'Zoom out',
       counter: (current: number, total: number) => `${current} / ${total}`,
     },
   },
