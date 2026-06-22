@@ -463,6 +463,13 @@ export const messages = {
     heading: 'Moments from the journey',
     subtitle:
       'A glimpse of the landscapes, towns, and quiet corners our travellers discover along the way.',
+    viewer: {
+      label: 'Photo viewer',
+      previous: 'Previous photo',
+      next: 'Next photo',
+      close: 'Close viewer',
+      counter: (current: number, total: number) => `${current} / ${total}`,
+    },
   },
   tours: {
     eyebrow: 'All tours',

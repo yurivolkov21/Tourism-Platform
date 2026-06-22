@@ -1,7 +1,12 @@
+'use client';
+
+import { useState } from 'react';
 import { ImageIcon } from 'lucide-react';
 
 import { cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
+
+import { Lightbox, type LightboxImage } from './lightbox';
 
 // Data-ready shape (maps to MediaAsset later); `src` optional so we render placeholder
 // tiles until media is wired. A "grid" section becomes a 2×2 cluster; others are single.
@@ -63,6 +68,37 @@ export function Gallery({
   subtitle?: string;
 }) {
   const t = messages.gallery;
+  const flat: LightboxImage[] = sections.flatMap((s) => s.images);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  // Running flat index so each tile maps to its position in `flat` (the lightbox order).
+  let running = 0;
+  const renderTile = (img: GalleryImage, aspect: string) => {
+    const i = running++;
+    const clickable = Boolean(img.src);
+    return (
+      <button
+        key={i}
+        type="button"
+        disabled={!clickable}
+        onClick={() => setOpenIndex(i)}
+        aria-label={img.alt}
+        className={cn(
+          'group relative block overflow-hidden rounded-lg',
+          aspect,
+          clickable && 'cursor-zoom-in',
+        )}
+      >
+        <Tile image={img} className="size-full" />
+        {clickable ? (
+          <span
+            aria-hidden
+            className="bg-overlay/0 group-hover:bg-overlay/25 absolute inset-0 transition-colors"
+          />
+        ) : null}
+      </button>
+    );
+  };
 
   return (
     <section className="py-16 sm:py-20 lg:py-24">
@@ -78,20 +114,21 @@ export function Gallery({
           {sections.map((section, i) =>
             section.type === 'grid' ? (
               <div key={i} className="grid grid-cols-2 gap-5">
-                {section.images.map((img, j) => (
-                  <Tile key={j} image={img} className="aspect-square" />
-                ))}
+                {section.images.map((img) => renderTile(img, 'aspect-square'))}
               </div>
             ) : (
-              <div key={i}>
-                {section.images.map((img, j) => (
-                  <Tile key={j} image={img} className="aspect-square size-full" />
-                ))}
-              </div>
+              <div key={i}>{section.images.map((img) => renderTile(img, 'aspect-square'))}</div>
             ),
           )}
         </div>
       </div>
+
+      <Lightbox
+        images={flat}
+        index={openIndex}
+        onClose={() => setOpenIndex(null)}
+        onIndex={setOpenIndex}
+      />
     </section>
   );
 }
