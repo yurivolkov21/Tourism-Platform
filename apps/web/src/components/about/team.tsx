@@ -44,11 +44,13 @@ export function Team() {
               </div>
 
               <CardContent className="space-y-3">
-                <h3 className="font-sans text-lg font-semibold">{member.name}</h3>
+                <h3 className="font-sans line-clamp-1 text-lg font-semibold">{member.name}</h3>
                 <Separator />
                 <div>
-                  <p className="text-primary mb-1 font-medium">{member.role}</p>
-                  <p className="text-muted-foreground text-sm text-pretty">{member.bio}</p>
+                  <p className="text-primary mb-1 line-clamp-1 font-medium">{member.role}</p>
+                  <p className="text-muted-foreground line-clamp-3 min-h-15 text-sm text-pretty">
+                    {member.bio}
+                  </p>
                 </div>
                 <div className="flex gap-1 pt-1">
                   {socialLinks.map(({ Icon, label }) => (
