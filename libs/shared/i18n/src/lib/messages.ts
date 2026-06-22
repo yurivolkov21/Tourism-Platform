@@ -414,6 +414,119 @@ export const messages = {
       },
     ],
   },
+  // Dedicated `/faq` page — comprehensive, grouped Q&A (the section above is the teaser).
+  faqPage: {
+    breadcrumbHome: 'Home',
+    breadcrumbCurrent: 'FAQs',
+    title: 'Frequently asked questions',
+    subtitle:
+      'Everything travellers ask us most, grouped so you can find your answer fast. Still unsure? Our team is one message away.',
+    ctaHeading: 'Still have a question?',
+    ctaBody: 'Our trip designers reply within a day — tell us what you’re planning.',
+    ctaButton: 'Ask our team',
+    categories: [
+      {
+        title: 'Booking & payment',
+        items: [
+          {
+            question: 'How do I book a tour?',
+            answer:
+              'Browse our tours, choose a departure date, and send an enquiry or book online. Our team confirms availability and guides you through secure payment.',
+          },
+          {
+            question: 'What payment methods do you accept?',
+            answer:
+              'We accept major cards through Stripe and payments via PayPal. Every transaction runs through encrypted, secure checkout.',
+          },
+          {
+            question: 'Do I pay a deposit or the full amount?',
+            answer:
+              'Most tours are held with a deposit, with the balance due before departure. The exact terms are shown on each tour before you confirm.',
+          },
+        ],
+      },
+      {
+        title: 'Itineraries & customisation',
+        items: [
+          {
+            question: 'Can itineraries be customised?',
+            answer:
+              'Yes — most journeys can be tailored to your pace, interests, and group size. Share your preferences in an enquiry and our trip designers will adapt the plan.',
+          },
+          {
+            question: 'Can you arrange private or family tours?',
+            answer:
+              'Absolutely. We run private departures for couples, families, and small groups, with itineraries paced to suit everyone travelling.',
+          },
+          {
+            question: 'Can you book flights, hotels, and transfers too?',
+            answer:
+              'We arrange domestic flights, hotels, and private transfers as part of your trip, so every leg is handled end to end.',
+          },
+        ],
+      },
+      {
+        title: 'Guides & on-trip',
+        items: [
+          {
+            question: 'Are your guides local and licensed?',
+            answer:
+              'Every trip is led by a vetted, licensed local guide chosen for their knowledge of the region and their care for travellers.',
+          },
+          {
+            question: 'What is included in the tour price?',
+            answer:
+              'Inclusions are listed on each tour page — typically guiding, listed accommodation, transport, and the activities in the itinerary.',
+          },
+          {
+            question: 'Is support available during the trip?',
+            answer:
+              'Yes. You have 24/7 on-trip support, so there is always someone to reach if plans change or you need a hand.',
+          },
+        ],
+      },
+      {
+        title: 'Cancellations & changes',
+        items: [
+          {
+            question: 'What is your cancellation policy?',
+            answer:
+              'Cancellation terms vary by tour and departure, and are shown on each tour page before you book. Our team is always happy to clarify the details.',
+          },
+          {
+            question: 'Can I change my travel dates?',
+            answer:
+              'Date changes are usually possible subject to availability. Reach out as early as you can and we will do our best to re-arrange your trip.',
+          },
+          {
+            question: 'What happens if you cancel a departure?',
+            answer:
+              'If we ever cancel a departure, you can move to another date or receive a full refund of what you paid us.',
+          },
+        ],
+      },
+      {
+        title: 'Travelling in Vietnam',
+        items: [
+          {
+            question: 'Do I need a visa?',
+            answer:
+              'Most nationalities can apply for a Vietnam e-visa online. Sort it a couple of weeks before you travel and we can point you to the official portal.',
+          },
+          {
+            question: 'When is the best time to visit?',
+            answer:
+              'It depends on the region — the north is best in spring and autumn, the centre from February to August, and the south in the December–April dry season.',
+          },
+          {
+            question: 'Is Vietnam safe for travellers?',
+            answer:
+              'Vietnam is very safe for visitors. Take the usual travel precautions, drink bottled water, and your guide will look after the rest.',
+          },
+        ],
+      },
+    ],
+  },
   contact: {
     heading: 'Contact us',
     intro: {
@@ -475,9 +588,9 @@ export const messages = {
     ],
     supportHeading: 'Support',
     support: [
-      { label: 'FAQs', href: '#' },
-      { label: 'Privacy Statement', href: '#' },
-      { label: 'Terms & Conditions', href: '#' },
+      { label: 'FAQs', href: '/faq' },
+      { label: 'Privacy Statement', href: '/privacy' },
+      { label: 'Terms & Conditions', href: '/terms' },
       { label: 'Contact', href: '#contact' },
     ],
     contactHeading: 'Contact',

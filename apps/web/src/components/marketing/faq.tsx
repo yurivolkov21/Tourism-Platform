@@ -32,7 +32,7 @@ export function Faq() {
               </Card>
             ))}
 
-            <a href="#" className={cn(buttonVariants({ variant: 'link', size: 'sm' }), 'px-0')}>
+            <a href="/faq" className={cn(buttonVariants({ variant: 'link', size: 'sm' }), 'px-0')}>
               {t.seeAll}
             </a>
           </div>
