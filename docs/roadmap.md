@@ -14,7 +14,7 @@ Founding phase list: [BLUEPRINT §7](BLUEPRINT.md#7-phased-roadmap). Decisions: 
 | **P0.8** | Port donor conventions + rename `@org`→`@tourism` + AI cleanup | ✅ done |
 | **P1** | **Backend:** fresh Prisma schema + port infra + seed | ✅ **complete** (P1.1–P1.8 + **P1.x** done): schema/auth/CRUD/bookings/Stripe+PayPal/media/reviews+wishlist+enquiry+stats/seed+client+e2e + pg-boss jobs (outbox emails + cron) |
 | **P2** | Design system: `shared/tokens` + `web/ui` (+ `mobile/ui` later) | ✅ **done** — Style Dictionary tokens (**"Emerald Heritage"**, no-hex enforced) + shadcn/Base UI 54 comps in `@tourism/ui` |
-| **P3** | Web (customer): home → destinations → tours → detail → booking → account | 🚧 **in progress** — home + destinations (overview + detail) + content pages (`/faq` `/privacy` `/terms`) done; tours/detail/about/contact + real-data wiring next (see P3 breakdown) |
+| **P3** | Web (customer): home → destinations → tours → detail → booking → account | 🚧 **in progress** — home + destinations (overview + **3 region pages w/ per-region L2 design** + rich enquiry form) + content pages (`/faq` `/privacy` `/terms`) done; tours/detail/about/contact + real-data wiring next (see P3 breakdown) |
 | **P4** | Admin: manage tours/destinations/departures/media/reviews/bookings | ⬜ |
 | **P5** | Mobile (Expo): browse → detail → booking → account (reuse `shared/core`) | ⬜ |
 | **P6** | Content/SEO (blog/tips) + trust polish | ⬜ |
@@ -54,10 +54,10 @@ tokens-only (no-hex), reuse `@tourism/ui`, copy in `@tourism/i18n`. Plan:
 | --- | --- | --- |
 | **Home** (Lily-style clone) | `/` | ✅ hero · destinations bento · experiences · featured · why-choose · trust · blog-teaser · enquiry |
 | **Destinations overview** | `/destinations` | ✅ hero · full-bleed region mosaics (feature tiles) · when-to-visit · popular (image posters) · testimonials · travel-tips · enquiry |
-| **Destination page** | `/destinations/[slug]` | ✅ hero · intro · tours · value-props · enquiry (SSG, 12 fixtures, 404 on unknown slug) |
+| **Region pages** | `/destinations/[region]` | ✅ SSG ×3 (northern / central / southern) — hero · intro bento · highlights · **per-region L2 signature** (North = dark adventure-stats · Central = heritage timeline · South = delta image-postcards) · tours (tabs, `?d=` client-read) · gallery · value-props · **rich Plan-your-trip form** (maps Enquiry model). Replaced per-destination `[slug]`; 404 on unknown region. |
 | **FAQ** | `/faq` | ✅ searchable grouped accordion (category icons) · sticky TOC · FAQPage JSON-LD |
 | **Privacy / Terms** | `/privacy` `/terms` | ✅ legal pages — **draft, pending legal review** (placeholders + review callout) |
-| **Nav / footer** | — | ✅ Tours (experiences) + Destinations (regions) dropdowns · footer wired to /faq /privacy /terms |
+| **Nav / footer** | — | ✅ Tours (experiences) dropdown + Destinations dropdown **→ per-region pages** (`/destinations/[region]`; regions also in mobile menu) · footer wired to /faq /privacy /terms |
 | **Shared content template** | — | ✅ `ContentHero` (emerald header) + `OnThisPage` (sticky TOC scroll-spy) |
 | Tours listing | `/tours` | ⬜ filterable `TourCard` grid |
 | Tour detail | `/tours/[slug]` | ⬜ gallery · itinerary · sticky booking box |

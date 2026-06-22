@@ -27,14 +27,14 @@ imagery via `next/image` `remotePatterns` — review only, swap for `MediaAsset`
 | --- | --- | --- |
 | `/` | static | Lily-style homepage (hero · destinations bento · experiences · featured · why-choose · trust · blog-teaser · enquiry). |
 | `/destinations` | static | Overview: hero · full-bleed region mosaics (feature tiles) · when-to-visit · popular (image posters) · testimonials · travel-tips · enquiry. |
-| `/destinations/[slug]` | **SSG** | `generateStaticParams` from fixtures (12); unknown slug → `notFound()`. Hero · intro · tours · value-props · enquiry. |
+| `/destinations/[region]` | **SSG** (×3) | `generateStaticParams` → northern/central/southern-vietnam; unknown → `notFound()`. Hero · intro bento · highlights · **per-region L2 signature** (North dark-stats · Central heritage-timeline · South delta-postcards) · tours (tabs, `?d=` client-read keeps SSG) · gallery · value-props · **rich Plan-your-trip form** (maps Enquiry model). Replaced per-destination `[slug]`. |
 | `/faq` | static | Searchable grouped accordion (category icons) · sticky TOC · **FAQPage JSON-LD**. |
 | `/privacy`, `/terms` | static | Legal documents — **drafts pending legal review** (placeholders + review callout). |
 | `/ui-check` | static | Dev sandbox for `@tourism/ui`. |
 
 **Header/footer** live in `app/layout.tsx`. Primary nav: **Tours** (experiences dropdown) · **Destinations**
-(regions dropdown → `/destinations#<region>`) · About · Contact. Footer Support column → `/faq` `/privacy`
-`/terms`.
+(regions dropdown → `/destinations/<region>`; regions also expanded in the mobile menu) · About · Contact.
+Footer Support column → `/faq` `/privacy` `/terms`.
 
 ### Component layout (`apps/web/src/`)
 
@@ -42,9 +42,12 @@ imagery via `next/image` `remotePatterns` — review only, swap for `MediaAsset`
 components/
   layout/      SiteHeader · SiteFooter · TopBar · FloatingContact · ScrollToTop
   marketing/   hero · destinations(bento) · experiences · featured-packages · why-choose ·
-               trust · testimonials · blog-teaser · enquiry-cta · gallery · faq* · cta-band …
+               trust · testimonials · blog-teaser · enquiry-cta · plan-trip-form(rich enquiry) ·
+               gallery(+lightbox) · faq* · cta-band …
   destinations/ DestinationTile · RegionGroup(mosaic) · DestinationsHero · DestinationHero ·
-               DestinationIntro · DestinationTours · PopularTours · BestTime · TravelTips · ValueProps
+               RegionHero · RegionIntro(bento) · RegionHighlights · RegionTours(tabs) · ValueProps ·
+               RegionSignature{Adventure,Timeline,Delta} (per-region L2; dispatched by lib/region-theme)
+               DestinationIntro · DestinationTours · PopularTours · BestTime · TravelTips
   faq/         FaqExplorer (search + card accordion)
   legal/       LegalArticle (renders a LegalDoc)
   content/     ContentHero · OnThisPage (shared content-page template)

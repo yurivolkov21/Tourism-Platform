@@ -43,7 +43,7 @@ the rules; deep plan detail lives in [`HANDOFF.md`](HANDOFF.md) and
 | Project | Path | Stack | Tags | Status |
 | --- | --- | --- | --- | --- |
 | `@tourism/api` | `apps/api` | NestJS 11 · Prisma · Supabase · Stripe + PayPal · Resend · pg-boss | `scope:api,type:app` | 🟢 **P1 complete** (P1.1–P1.8 + P1.x): schema+RLS, envelope, auth, CRUD, bookings, Stripe+PayPal, media, reviews/wishlist/enquiry/stats, seed+client+e2e, pg-boss jobs |
-| `@tourism/web` | `apps/web` | Next.js 16 · React | `scope:web,type:app` | 🟢 **P3 in progress** — home + destinations (overview+detail) + content pages (`/faq` `/privacy` `/terms`); tours/about/contact + real-data wiring next |
+| `@tourism/web` | `apps/web` | Next.js 16 · React | `scope:web,type:app` | 🟢 **P3 in progress** — home + destinations (overview + **3 region pages, per-region L2 design** + rich enquiry form) + content pages (`/faq` `/privacy` `/terms`); tours/about/contact + real-data wiring next |
 | `@tourism/admin` | `apps/admin` | Next.js 16 | `scope:admin,type:app` | 🚧 scaffold (P4) |
 | `@tourism/mobile` | `apps/mobile` | Expo SDK 54 / RN | `scope:mobile,type:app` | 🚧 scaffold (P5) |
 | `@tourism/core` | `libs/shared/core` | types · API client · zod · domain logic | `scope:shared,type:data-access` | 🟢 typed OpenAPI client (P1.8) + destination helpers (region grouping/slug) |
