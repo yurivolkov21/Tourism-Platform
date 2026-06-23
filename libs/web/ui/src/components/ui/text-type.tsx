@@ -3,7 +3,7 @@
 import { ElementType, useEffect, useRef, useState, createElement, useMemo, useCallback } from 'react';
 import { gsap } from 'gsap';
 
-interface TextTypeProps {
+export interface TextTypeProps {
   className?: string;
   showCursor?: boolean;
   hideCursorWhileTyping?: boolean;
@@ -24,7 +24,7 @@ interface TextTypeProps {
   reverseMode?: boolean;
 }
 
-const TextType = ({
+export const TextType = ({
   text,
   as: Component = 'div',
   typingSpeed = 50,

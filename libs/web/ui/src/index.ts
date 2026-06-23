@@ -53,6 +53,7 @@ export * from './components/ui/spinner';
 export * from './components/ui/switch';
 export * from './components/ui/table';
 export * from './components/ui/tabs';
+export * from './components/ui/text-type';
 export * from './components/ui/textarea';
 export * from './components/ui/toggle';
 export * from './components/ui/toggle-group';
