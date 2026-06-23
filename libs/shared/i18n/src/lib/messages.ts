@@ -985,6 +985,7 @@ export const messages = {
       'Practical guides and slow-travel inspiration from our local experts — to help you plan with confidence.',
     viewAll: 'Read the journal',
     readMore: 'Read more',
+    featuredLabel: 'Featured',
   },
   footer: {
     tagline: 'Boutique heritage journeys across Vietnam, crafted with care.',

@@ -44,8 +44,63 @@ const posts: PostTeaser[] = [
 
 const dateFmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' });
 
+const cardShell =
+  'group bg-card ring-border/60 shadow-card hover:shadow-dropdown hover:ring-primary/40 flex h-full flex-col overflow-hidden rounded-xl ring-1 transition-all duration-200 ease-out-expo hover:-translate-y-0.5';
+
+function PostCard({ post, featured = false }: { post: PostTeaser; featured?: boolean }) {
+  const t = messages.blog;
+  return (
+    <a
+      href={`#post-${post.slug}`}
+      className={cn(cardShell, featured && 'sm:col-span-2 lg:row-span-2')}
+    >
+      <div
+        className={cn(
+          'relative overflow-hidden',
+          featured ? 'aspect-16/10 lg:aspect-auto lg:min-h-64 lg:flex-1' : 'aspect-16/10',
+        )}
+      >
+        <Image
+          src={post.image}
+          alt={post.title}
+          fill
+          sizes={featured ? '(min-width: 1024px) 66vw, 100vw' : '(min-width: 1024px) 33vw, 50vw'}
+          className="object-cover transition-transform duration-300 ease-out-expo group-hover:scale-105"
+        />
+        {featured && (
+          <span className="bg-primary text-primary-foreground absolute top-4 left-4 rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase">
+            {t.featuredLabel}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col gap-2 p-5 lg:p-6">
+        <span className="text-muted-foreground inline-flex items-center gap-1.5 text-xs">
+          <CalendarDaysIcon className="size-3.5" />
+          {dateFmt.format(new Date(post.publishedAt))}
+        </span>
+        <h3
+          className={cn(
+            'group-hover:text-primary font-sans font-semibold text-balance transition-colors',
+            featured ? 'text-xl lg:text-2xl' : 'text-lg',
+          )}
+        >
+          {post.title}
+        </h3>
+        <p className={cn('text-muted-foreground text-sm text-pretty', featured ? 'line-clamp-3' : 'line-clamp-2')}>
+          {post.excerpt}
+        </p>
+        <span className="text-primary mt-auto inline-flex items-center gap-1 pt-2 text-sm font-medium">
+          {t.readMore}
+          <ArrowRightIcon className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+        </span>
+      </div>
+    </a>
+  );
+}
+
 export function BlogTeaser() {
   const t = messages.blog;
+  const [lead, ...rest] = posts;
 
   return (
     <section id="journal" className="py-16 sm:py-20 lg:py-24">
@@ -64,39 +119,11 @@ export function BlogTeaser() {
           </a>
         </div>
 
+        {/* Featured-first: lead post spans two columns / two rows; the rest fill the side column. */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
-            <a
-              key={post.slug}
-              href={`#post-${post.slug}`}
-              className="group bg-card ring-border/60 shadow-card hover:shadow-dropdown hover:ring-primary/40 flex flex-col overflow-hidden rounded-xl ring-1 transition-all duration-200 ease-out-expo hover:-translate-y-0.5"
-            >
-              <div className="relative aspect-16/10 overflow-hidden">
-                <Image
-                  src={post.image}
-                  alt={post.title}
-                  fill
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                  className="object-cover transition-transform duration-300 ease-out-expo group-hover:scale-105"
-                />
-              </div>
-              <div className="flex flex-1 flex-col gap-2 p-5">
-                <span className="text-muted-foreground inline-flex items-center gap-1.5 text-xs">
-                  <CalendarDaysIcon className="size-3.5" />
-                  {dateFmt.format(new Date(post.publishedAt))}
-                </span>
-                <h3 className="group-hover:text-primary font-sans text-lg font-semibold text-balance transition-colors">
-                  {post.title}
-                </h3>
-                <p className="text-muted-foreground line-clamp-2 text-sm text-pretty">
-                  {post.excerpt}
-                </p>
-                <span className="text-primary mt-auto inline-flex items-center gap-1 pt-2 text-sm font-medium">
-                  {t.readMore}
-                  <ArrowRightIcon className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-                </span>
-              </div>
-            </a>
+          <PostCard post={lead} featured />
+          {rest.map((post) => (
+            <PostCard key={post.slug} post={post} />
           ))}
         </div>
       </div>
