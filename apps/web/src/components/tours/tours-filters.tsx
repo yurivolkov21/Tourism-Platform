@@ -39,8 +39,9 @@ function FacetGroup({
   selected: readonly string[];
   onToggle: (value: string) => void;
 }) {
-  const [open, setOpen] = useState(true);
   const activeInGroup = options.filter((o) => selected.includes(o.value)).length;
+  // Collapsed by default to save space; opens automatically if the group already has a selection.
+  const [open, setOpen] = useState(activeInGroup > 0);
 
   return (
     <div className="border-border border-b pb-5 last:border-b-0 last:pb-0">
