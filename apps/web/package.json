@@ -9,7 +9,7 @@
     ],
     "targets": {
       "dev": {
-        "command": "next dev --webpack",
+        "command": "next dev --webpack --port 3001",
         "options": {
           "cwd": "apps/web"
         }
