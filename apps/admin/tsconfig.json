@@ -51,6 +51,12 @@
     },
     {
       "path": "../../libs/shared/tokens"
+    },
+    {
+      "path": "../../libs/shared/i18n"
+    },
+    {
+      "path": "../../libs/shared/core"
     }
   ]
 }
