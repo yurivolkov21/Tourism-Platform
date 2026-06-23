@@ -1,7 +1,13 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { SlidersHorizontalIcon, SearchXIcon, XIcon } from 'lucide-react';
+import {
+  SlidersHorizontalIcon,
+  SearchXIcon,
+  XIcon,
+  PanelLeftCloseIcon,
+  PanelLeftOpenIcon,
+} from 'lucide-react';
 
 import { filterTours, sortTours, type TourSort } from '@tourism/core';
 import {
@@ -15,6 +21,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  cn,
 } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
@@ -39,6 +46,7 @@ export function ToursListing({ tours }: { tours: TourCardData[] }) {
   const [filters, setFilters] = useState<ToursFilterState>(EMPTY);
   const [sort, setSort] = useState<TourSort>('popular');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const destinationOptions = useMemo(
     () => Array.from(new Set(tours.map((tour) => tour.destination))),
@@ -96,9 +104,14 @@ export function ToursListing({ tours }: { tours: TourCardData[] }) {
   return (
     <section className="py-12 sm:py-16 lg:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="lg:grid lg:grid-cols-[16rem_1fr] lg:gap-12">
-          {/* Sidebar (desktop) */}
-          <aside className="hidden lg:block">
+        <div
+          className={cn(
+            'lg:grid lg:gap-12',
+            sidebarCollapsed ? 'lg:grid-cols-1' : 'lg:grid-cols-[16rem_1fr]',
+          )}
+        >
+          {/* Sidebar (desktop, collapsible) */}
+          <aside className={cn(sidebarCollapsed ? 'hidden' : 'hidden lg:block')}>
             <div className="lg:sticky lg:top-24">{filtersNode}</div>
           </aside>
 
@@ -106,6 +119,7 @@ export function ToursListing({ tours }: { tours: TourCardData[] }) {
           <div className="min-w-0">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
+                {/* Mobile: open drawer */}
                 <Button
                   variant="outline"
                   size="sm"
@@ -115,6 +129,26 @@ export function ToursListing({ tours }: { tours: TourCardData[] }) {
                   <SlidersHorizontalIcon className="size-4" />
                   {t.filtersLabel}
                   {activeCount > 0 ? (
+                    <span className="bg-primary text-primary-foreground ml-1 inline-flex size-5 items-center justify-center rounded-full text-xs">
+                      {activeCount}
+                    </span>
+                  ) : null}
+                </Button>
+                {/* Desktop: collapse / expand the inline sidebar */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden lg:inline-flex"
+                  onClick={() => setSidebarCollapsed((v) => !v)}
+                  aria-expanded={!sidebarCollapsed}
+                >
+                  {sidebarCollapsed ? (
+                    <PanelLeftOpenIcon className="size-4" />
+                  ) : (
+                    <PanelLeftCloseIcon className="size-4" />
+                  )}
+                  {sidebarCollapsed ? t.showFilters : t.hideFilters}
+                  {sidebarCollapsed && activeCount > 0 ? (
                     <span className="bg-primary text-primary-foreground ml-1 inline-flex size-5 items-center justify-center rounded-full text-xs">
                       {activeCount}
                     </span>

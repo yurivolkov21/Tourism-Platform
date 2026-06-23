@@ -718,6 +718,8 @@ export const messages = {
     subtitle:
       'Browse every journey we run — filter by destination, length, travel style and theme to find the trip that fits you.',
     filtersLabel: 'Filters',
+    hideFilters: 'Hide filters',
+    showFilters: 'Show filters',
     clearAll: 'Clear all',
     sortLabel: 'Sort by',
     sortOptions: {
