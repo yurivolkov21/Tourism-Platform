@@ -49,6 +49,20 @@ so admin calls carry the ADMIN JWT.
   updates `apps/api/.env`.
 - EN-only (ADR-0005).
 
+### Shadcn Space block decisions (verified free/Pro + cost)
+
+- **Login page → adopt `@shadcn-space/login-01`** (FREE, token-clean: semantic tokens, 0 hex, 0 motion).
+  Strip the social (Google/GitHub) + "sign up" bits — admins are allowlisted, email+password only.
+  Normalize cost ~0.
+- **App shell → DON'T adopt `dashboard-shell-01`** (FREE but heavy: pulls `motion` + `simplebar-react`
+  + `@iconify`, 7 hardcoded palette colours, 11 files, SaaS KPIs/charts/upsell we don't need). Instead
+  **compose the shell from `@tourism/ui`'s `Sidebar` set** (`SidebarProvider`/`Sidebar`/`SidebarInset`/
+  `SidebarTrigger` — the canonical shadcn dashboard-shell primitive, already in the lib, token-native).
+  Borrow only layout *ideas* (topbar structure, KPI-card grid).
+- **Deferred (free, token-clean, but out of scope):** `register-01`, `verify-email-01`,
+  `forgot-password-01` → reuse for the parked **web user-auth**; `two-factor-authentication-01` → a
+  future admin-hardening increment.
+
 ## Per-area design
 
 ### 1. Auth
