@@ -13,6 +13,11 @@ import { DestinationTile } from './destination-tile';
  * The mosaic spans the full viewport width (edge-to-edge, no inset) with the four tiles filling
  * one row on desktop; mobile stacks the feature above a row of thumbnails.
  */
+// Expanding-panels behaviour (desktop, motion-safe): equal flex basis at rest; hovering/focusing a
+// tile grows it while the siblings keep grow:1 and visually narrow. Mobile stacks (no accordion).
+const TILE_ACCORDION =
+  'sm:flex-1 sm:basis-0 motion-safe:sm:transition-[flex-grow] motion-safe:sm:duration-500 motion-safe:sm:ease-out-expo motion-safe:sm:hover:grow-[2.5] motion-safe:sm:focus-within:grow-[2.5]';
+
 export function RegionGroup({ region, items }: { region: string; items: DestinationTileVM[] }) {
   const t = messages.destinationsPage;
   const [feature, ...rest] = items;
@@ -39,15 +44,12 @@ export function RegionGroup({ region, items }: { region: string; items: Destinat
         </Link>
       </div>
 
-      {/* Full-bleed mosaic: feature tile + supporting photo tiles, edge-to-edge */}
-      <div className="grid auto-rows-[12rem] grid-cols-3 gap-px border-y border-border bg-border sm:auto-rows-[25rem] sm:grid-cols-4">
-        <DestinationTile
-          destination={feature}
-          variant="feature"
-          className="col-span-3 row-span-2 sm:col-span-1 sm:row-span-1"
-        />
+      {/* Full-bleed expanding-panels mosaic: equal widths at rest; hover/focus widens a tile as the
+          others narrow. Desktop only (motion-safe); mobile stacks edge-to-edge. */}
+      <div className="flex flex-col gap-px border-y border-border bg-border sm:h-100 sm:flex-row">
+        <DestinationTile destination={feature} variant="feature" className={TILE_ACCORDION} />
         {rest.map((d) => (
-          <DestinationTile key={d.slug} destination={d} variant="photo" className="col-span-1" />
+          <DestinationTile key={d.slug} destination={d} variant="photo" className={TILE_ACCORDION} />
         ))}
       </div>
     </section>
