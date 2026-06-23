@@ -62,6 +62,7 @@ export * from './components/ui/sonner';
 export * from './components/ui/sparkles-text';
 export * from './components/ui/spinner';
 export * from './components/ui/star-border';
+export * from './components/ui/stepper';
 export * from './components/ui/switch';
 export * from './components/ui/table';
 export * from './components/ui/tabs';

@@ -769,6 +769,8 @@ export const messages = {
     highlights: 'Highlights',
     itinerary: 'Itinerary',
     dayLabel: (n: number) => `Day ${n}`,
+    stepBack: 'Back',
+    stepNext: 'Next',
     included: 'What’s included',
     notIncluded: 'Not included',
     gallery: 'Photos',
