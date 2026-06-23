@@ -24,6 +24,8 @@ export type TourCardData = {
   badges: TourBadgeKey[];
   // Optional cover (temporary Unsplash URL for review; from MediaAsset later). Falls back to a placeholder.
   image?: string;
+  // One-line summary for the listing card (optional; populated on fixtures).
+  summary?: string;
   // Filter tags (optional; populated on fixtures for the /tours facets).
   travelStyles?: TravelStyle[];
   themes?: TourTheme[];

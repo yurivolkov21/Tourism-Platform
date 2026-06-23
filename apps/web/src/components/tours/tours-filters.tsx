@@ -1,6 +1,6 @@
 'use client';
 
-import type { DurationBucket, TourTheme, TravelStyle } from '@tourism/core';
+import type { DurationBucket, PriceBucket, TourTheme, TravelStyle } from '@tourism/core';
 
 import { Checkbox } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
@@ -10,6 +10,7 @@ export interface ToursFilterState {
   durations: DurationBucket[];
   styles: TravelStyle[];
   themes: TourTheme[];
+  prices: PriceBucket[];
 }
 
 export type FacetKey = keyof ToursFilterState;
@@ -17,6 +18,7 @@ export type FacetKey = keyof ToursFilterState;
 const DURATIONS: DurationBucket[] = ['1', '2-3', '4+'];
 const STYLES: TravelStyle[] = ['family', 'couples', 'adventure', 'luxury', 'group', 'private'];
 const THEMES: TourTheme[] = ['cruise', 'trekking', 'cultural', 'culinary', 'beach', 'nature'];
+const PRICES: PriceBucket[] = ['<100', '100-300', '300+'];
 
 interface Option {
   value: string;
@@ -114,6 +116,12 @@ export function ToursFilters({
         options={THEMES.map((th) => ({ value: th, label: t.themeLabels[th] }))}
         selected={value.themes}
         onToggle={(v) => onToggle('themes', v)}
+      />
+      <FacetGroup
+        heading={t.facets.price}
+        options={PRICES.map((p) => ({ value: p, label: t.priceLabels[p] }))}
+        selected={value.prices}
+        onToggle={(v) => onToggle('prices', v)}
       />
     </div>
   );

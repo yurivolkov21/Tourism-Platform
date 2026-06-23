@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { SlidersHorizontalIcon, SearchXIcon } from 'lucide-react';
+import { SlidersHorizontalIcon, SearchXIcon, XIcon } from 'lucide-react';
 
 import { filterTours, sortTours, type TourSort } from '@tourism/core';
 import {
@@ -19,10 +19,16 @@ import {
 import { messages } from '@tourism/i18n';
 
 import type { TourCardData } from './tour-card';
-import { TourCard } from './tour-card';
+import { TourListCard } from './tour-list-card';
 import { ToursFilters, type FacetKey, type ToursFilterState } from './tours-filters';
 
-const EMPTY: ToursFilterState = { destinations: [], durations: [], styles: [], themes: [] };
+const EMPTY: ToursFilterState = {
+  destinations: [],
+  durations: [],
+  styles: [],
+  themes: [],
+  prices: [],
+};
 
 const SORT_KEYS: TourSort[] = ['popular', 'price-asc', 'price-desc', 'rating'];
 
@@ -42,12 +48,22 @@ export function ToursListing({ tours }: { tours: TourCardData[] }) {
     filters.destinations.length +
     filters.durations.length +
     filters.styles.length +
-    filters.themes.length;
+    filters.themes.length +
+    filters.prices.length;
 
   const results = useMemo(
     () => sortTours(filterTours(tours, filters), sort),
     [tours, filters, sort],
   );
+
+  // Active selections flattened into removable chips (label resolved per facet).
+  const activeChips: { facet: FacetKey; value: string; label: string }[] = [
+    ...filters.destinations.map((v) => ({ facet: 'destinations' as const, value: v, label: v })),
+    ...filters.durations.map((v) => ({ facet: 'durations' as const, value: v, label: t.durationLabels[v] })),
+    ...filters.styles.map((v) => ({ facet: 'styles' as const, value: v, label: t.styleLabels[v] })),
+    ...filters.themes.map((v) => ({ facet: 'themes' as const, value: v, label: t.themeLabels[v] })),
+    ...filters.prices.map((v) => ({ facet: 'prices' as const, value: v, label: t.priceLabels[v] })),
+  ];
 
   const toggle = (facet: FacetKey, optionValue: string) =>
     setFilters((prev) => {
@@ -124,10 +140,33 @@ export function ToursListing({ tours }: { tours: TourCardData[] }) {
               </div>
             </div>
 
+            {activeChips.length > 0 ? (
+              <div className="mb-6 flex flex-wrap items-center gap-2">
+                {activeChips.map((chip) => (
+                  <button
+                    key={`${chip.facet}-${chip.value}`}
+                    type="button"
+                    onClick={() => toggle(chip.facet, chip.value)}
+                    className="border-border bg-muted text-foreground/80 hover:text-foreground hover:border-foreground/30 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors"
+                  >
+                    {chip.label}
+                    <XIcon className="size-3.5" />
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={clearAll}
+                  className="text-primary ml-1 text-sm font-medium hover:underline"
+                >
+                  {t.clearAll}
+                </button>
+              </div>
+            ) : null}
+
             {results.length > 0 ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="flex flex-col gap-5">
                 {results.map((tour) => (
-                  <TourCard key={tour.slug} tour={tour} />
+                  <TourListCard key={tour.slug} tour={tour} />
                 ))}
               </div>
             ) : (

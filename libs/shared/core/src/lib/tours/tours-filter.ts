@@ -9,6 +9,8 @@ export type TravelStyle = 'family' | 'couples' | 'adventure' | 'luxury' | 'group
 export type TourTheme = 'cruise' | 'trekking' | 'cultural' | 'culinary' | 'beach' | 'nature';
 /** Duration facet buckets. */
 export type DurationBucket = '1' | '2-3' | '4+';
+/** Price facet buckets (USD per person). */
+export type PriceBucket = '<100' | '100-300' | '300+';
 /** Result ordering. */
 export type TourSort = 'popular' | 'price-asc' | 'price-desc' | 'rating';
 
@@ -29,6 +31,7 @@ export interface TourFilters {
   durations?: DurationBucket[];
   styles?: TravelStyle[];
   themes?: TourTheme[];
+  prices?: PriceBucket[];
 }
 
 /** Map a day count to its duration bucket (`1` / `2-3` / `4+`). */
@@ -36,6 +39,13 @@ export function durationBucket(days: number): DurationBucket {
   if (days <= 1) return '1';
   if (days <= 3) return '2-3';
   return '4+';
+}
+
+/** Map a per-person price to its bucket (`<100` / `100-300` / `300+`). */
+export function priceBucket(price: number): PriceBucket {
+  if (price < 100) return '<100';
+  if (price <= 300) return '100-300';
+  return '300+';
 }
 
 /**
@@ -46,7 +56,7 @@ export function filterTours<T extends FilterableTour>(
   tours: readonly T[],
   filters: TourFilters = {},
 ): T[] {
-  const { destinations, durations, styles, themes } = filters;
+  const { destinations, durations, styles, themes, prices } = filters;
   return tours.filter((tour) => {
     if (destinations && destinations.length > 0 && !destinations.includes(tour.destination)) {
       return false;
@@ -56,6 +66,9 @@ export function filterTours<T extends FilterableTour>(
       durations.length > 0 &&
       !durations.includes(durationBucket(tour.durationDays))
     ) {
+      return false;
+    }
+    if (prices && prices.length > 0 && !prices.includes(priceBucket(tour.basePrice))) {
       return false;
     }
     if (

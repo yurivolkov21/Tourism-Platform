@@ -732,8 +732,13 @@ export const messages = {
       duration: 'Duration',
       travelStyle: 'Travel style',
       theme: 'Theme',
+      price: 'Price',
     },
     durationLabels: { '1': 'Day trip', '2-3': '2–3 days', '4+': '4+ days' },
+    priceLabels: { '<100': 'Under $100', '100-300': '$100–$300', '300+': '$300+' },
+    activeFiltersLabel: 'Active filters',
+    viewTour: 'View tour',
+    perPerson: 'per person',
     styleLabels: {
       family: 'Family',
       couples: 'Couples',

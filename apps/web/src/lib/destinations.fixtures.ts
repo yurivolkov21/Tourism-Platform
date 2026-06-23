@@ -31,6 +31,25 @@ const P = {
   city: 'photo-1602002418816-5c0aeef426aa',
 } as const;
 
+// One-line listing summaries, keyed by tour slug (review-only copy; from the API later).
+const TOUR_SUMMARIES: Record<string, string> = {
+  'ha-long-bay-2d1n': 'Cruise the limestone karst of Hạ Long Bay with a night aboard a boutique junk.',
+  'ha-long-lan-ha-3d2n': 'A slower cruise into the quieter Lan Hạ Bay — kayaks, caves and hidden lagoons.',
+  'sa-pa-trek-2d1n': 'Trek between rice terraces and Hmong villages, with a homestay night in the hills.',
+  'ninh-binh-day-trip': 'Row through the cave-pierced karst of Tam Cốc and climb to the Múa Cave view.',
+  'ha-giang-loop-3d': 'Ride the legendary Hà Giang Loop past the Mã Pí Lèng pass and frontier villages.',
+  'hoi-an-old-town-1d': 'Wander the lantern-lit old town, then float a lantern down the river at dusk.',
+  'hoi-an-my-son-2d1n': 'Pair Hội An’s old town with the red-brick Chăm towers of the Mỹ Sơn sanctuary.',
+  'hue-imperial-1d': 'Explore the walled citadel and royal tombs of the Nguyễn emperors in Huế.',
+  'da-nang-ba-na-1d': 'Ride the cable car to the Golden Bridge and the Bà Nà hills above Đà Nẵng.',
+  'phong-nha-paradise-1d': 'Boat into the river caves and trek to the vast chambers of Paradise Cave.',
+  'hcmc-cu-chi-1d': 'Crawl the Củ Chi tunnels and trace Sài Gòn’s history through its colonial centre.',
+  'mekong-cai-rang-1d': 'Drift through the Cái Răng floating market at dawn and the orchards beyond.',
+  'mekong-homestay-2d1n': 'Slow down to the rhythm of the delta with a night in a riverside homestay.',
+  'phu-quoc-islands-1d': 'Hop the An Thới islands by boat, snorkel the reefs, and end on a quiet beach.',
+  'da-lat-highlands-1d': 'Escape to the pine-clad hills, waterfalls and coffee farms of Đà Lạt.',
+};
+
 const tour = (
   slug: string,
   title: string,
@@ -52,6 +71,7 @@ const tour = (
   reviewCount,
   badges: [],
   image,
+  summary: TOUR_SUMMARIES[slug],
   ...extras,
 });
 

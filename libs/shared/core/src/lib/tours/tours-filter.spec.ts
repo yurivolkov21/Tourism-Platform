@@ -1,5 +1,6 @@
 import {
   durationBucket,
+  priceBucket,
   filterTours,
   sortTours,
   type FilterableTour,
@@ -24,6 +25,17 @@ describe('durationBucket', () => {
     expect(durationBucket(3)).toBe('2-3');
     expect(durationBucket(4)).toBe('4+');
     expect(durationBucket(7)).toBe('4+');
+  });
+});
+
+describe('priceBucket', () => {
+  it('buckets price into <100 / 100-300 / 300+', () => {
+    expect(priceBucket(75)).toBe('<100');
+    expect(priceBucket(99)).toBe('<100');
+    expect(priceBucket(100)).toBe('100-300');
+    expect(priceBucket(300)).toBe('100-300');
+    expect(priceBucket(301)).toBe('300+');
+    expect(priceBucket(540)).toBe('300+');
   });
 });
 
@@ -55,8 +67,16 @@ describe('filterTours', () => {
     expect(slugs(filterTours(tours, { themes: ['cultural'] }))).toEqual(['b', 'c', 'd']);
   });
 
+  it('filters by price bucket (any match)', () => {
+    expect(slugs(filterTours(tours, { prices: ['<100'] }))).toEqual(['c']);
+    expect(slugs(filterTours(tours, { prices: ['100-300'] }))).toEqual(['b', 'd']);
+    expect(slugs(filterTours(tours, { prices: ['300+'] }))).toEqual(['a', 'e']);
+    expect(slugs(filterTours(tours, { prices: ['<100', '300+'] }))).toEqual(['a', 'c', 'e']);
+  });
+
   it('combines facets with AND', () => {
     expect(slugs(filterTours(tours, { styles: ['adventure'], destinations: ['Sa Pa'] }))).toEqual(['b']);
+    expect(slugs(filterTours(tours, { prices: ['100-300'], styles: ['adventure'] }))).toEqual(['b', 'd']);
   });
 
   it('returns empty when nothing matches', () => {
