@@ -1,7 +1,7 @@
 import './global.css';
 import { Geist, Fraunces } from 'next/font/google';
 
-import { cn } from '@tourism/ui';
+import { ThemeProvider, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { SiteHeader } from '../components/layout/site-header';
@@ -19,15 +19,21 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={cn('font-sans', geist.variable, fraunces.variable)}>
+    <html
+      lang="en"
+      className={cn('font-sans', geist.variable, fraunces.variable)}
+      suppressHydrationWarning
+    >
       <body>
-        <div className="relative flex min-h-screen flex-col">
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
-          <FloatingContact />
-          <ScrollToTop />
-        </div>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
+          <div className="relative flex min-h-screen flex-col">
+            <SiteHeader />
+            <main className="flex-1">{children}</main>
+            <SiteFooter />
+            <FloatingContact />
+            <ScrollToTop />
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -15,6 +15,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
+  ThemeToggle,
   buttonVariants,
   cn,
 } from '@tourism/ui';
@@ -24,6 +25,9 @@ import { Logo } from '../brand/logo';
 import { TopBar } from './top-bar';
 
 const linkClass = 'text-muted-foreground hover:text-primary px-2.5 py-1.5 text-sm font-medium transition-colors';
+
+const toggleClass =
+  'text-muted-foreground hover:bg-muted hover:text-primary inline-flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors [&_svg]:size-5';
 
 // Flat nav for the mobile dropdown — expands Destinations into its region pages.
 const mobileNav = [
@@ -82,6 +86,7 @@ export function SiteHeader() {
 
           {/* Desktop actions */}
           <div className="flex items-center gap-4 max-md:hidden">
+            <ThemeToggle className={toggleClass} />
             <a href="#login" className={linkClass}>
               {t.login}
             </a>
@@ -92,6 +97,7 @@ export function SiteHeader() {
 
           {/* Mobile actions */}
           <div className="flex items-center gap-3 md:hidden">
+            <ThemeToggle className={toggleClass} />
             <a
               href="#contact"
               className={cn(buttonVariants({ size: 'default' }), 'max-[400px]:hidden')}

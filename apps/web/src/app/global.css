@@ -20,3 +20,15 @@
     @apply font-sans;
   }
 }
+
+/* Animated theme toggle (AnimatedThemeToggler): drive the reveal purely via the JS clip-path
+   animation — disable the default cross-fade, and pin the new layer to the collapsed clip until
+   JS runs so the new theme doesn't flash in (notably Firefox). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+[data-magicui-theme-vt='active']::view-transition-new(root) {
+  clip-path: var(--magicui-theme-vt-clip-from);
+}
