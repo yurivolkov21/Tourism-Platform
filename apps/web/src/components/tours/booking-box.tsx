@@ -1,6 +1,6 @@
 import { ShieldCheckIcon, StarIcon, UtensilsIcon } from 'lucide-react';
 
-import { Card, CardContent, Separator, buttonVariants, cn } from '@tourism/ui';
+import { Card, CardContent, Separator, ShineBorder, buttonVariants, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import type { Departure } from '../../lib/tours';
@@ -33,8 +33,9 @@ export function BookingBox({
   const deposit = formatPrice(currency, Math.max(100, Math.round((basePrice * 0.3) / 10) * 10));
 
   return (
-    <Card className="lg:sticky lg:top-24">
-      <CardContent className="space-y-5 p-6">
+    <ShineBorder radius={12} className="lg:sticky lg:top-24">
+      <Card>
+        <CardContent className="space-y-5 p-6">
         <div className="space-y-1.5">
           <div className="flex items-baseline gap-2">
             <span className="text-muted-foreground text-sm">{t.fromLabel}</span>
@@ -96,8 +97,9 @@ export function BookingBox({
           <ShieldCheckIcon className="text-primary mt-0.5 size-4 shrink-0" />
           {t.trustLine}
         </p>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </ShineBorder>
   );
 }
 
