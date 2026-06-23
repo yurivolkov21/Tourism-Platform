@@ -16,7 +16,7 @@ import { DestinationTile } from './destination-tile';
 // Expanding-panels behaviour (desktop, motion-safe): equal flex basis at rest; hovering/focusing a
 // tile grows it while the siblings keep grow:1 and visually narrow. Mobile stacks (no accordion).
 const TILE_ACCORDION =
-  'sm:flex-1 sm:basis-0 motion-safe:sm:transition-[flex-grow] motion-safe:sm:duration-500 motion-safe:sm:ease-out-expo motion-safe:sm:hover:grow-[2.5] motion-safe:sm:focus-within:grow-[2.5]';
+  'sm:flex-1 sm:basis-0 motion-safe:sm:transition-[flex-grow] motion-safe:sm:duration-700 motion-safe:sm:ease-in-out motion-safe:sm:hover:grow-[2.5] motion-safe:sm:focus-within:grow-[2.5]';
 
 export function RegionGroup({ region, items }: { region: string; items: DestinationTileVM[] }) {
   const t = messages.destinationsPage;

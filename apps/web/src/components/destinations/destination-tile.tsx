@@ -48,19 +48,24 @@ export function DestinationTile({
         sizes="(min-width: 1024px) 50vw, 50vw"
         className="object-cover transition-transform duration-500 ease-out-expo group-hover:scale-105"
       />
-      {/* Scrim for legibility */}
-      <div className="from-overlay absolute inset-0 bg-linear-to-t to-transparent" />
+      {/* Scrim — bottom gradient for the home bento; a centred wash (deepens on hover) for the
+          overview mosaic tiles so the centred caption stays legible over any photo. */}
+      {variant === 'default' ? (
+        <div className="from-overlay absolute inset-0 bg-linear-to-t to-transparent" />
+      ) : (
+        <div className="bg-overlay/25 absolute inset-0 transition-colors duration-500 group-hover:bg-overlay/55" />
+      )}
 
       {/* Light-sweep on hover (home bento only); above photo, below caption, clicks pass through */}
       {variant === 'default' && <GlareLayer />}
 
       {variant === 'photo' ? (
-        <div className="text-primary-foreground absolute inset-x-0 bottom-0 p-4">
+        <div className="text-primary-foreground absolute inset-0 flex flex-col items-center justify-center p-4 text-center [text-shadow:0_1px_4px_rgb(0_0_0/0.55)]">
           <h3 className="font-heading text-lg leading-tight font-semibold">{d.name}</h3>
-          {/* Tagline + affordance lift in on hover/focus; name stays put. Reduced-motion = instant. */}
+          {/* Tagline + affordance lift in on hover/focus; reduced-motion = instant. */}
           <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-300 ease-out-expo group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-visible:grid-rows-[1fr] group-focus-visible:opacity-100 motion-reduce:transition-none">
-            <div className="flex min-h-0 flex-col gap-1 overflow-hidden pt-1.5">
-              <span className="text-primary-foreground/85 text-[0.7rem] tracking-widest uppercase">
+            <div className="flex min-h-0 flex-col items-center gap-1 overflow-hidden pt-2">
+              <span className="text-primary-foreground/90 text-[0.7rem] tracking-widest uppercase">
                 {d.tagline}
               </span>
               <span className="text-primary-foreground inline-flex items-center gap-1 text-sm font-medium">
@@ -71,12 +76,12 @@ export function DestinationTile({
           </div>
         </div>
       ) : variant === 'feature' ? (
-        <div className="text-primary-foreground absolute inset-x-0 bottom-0 flex flex-col p-5">
+        <div className="text-primary-foreground absolute inset-0 flex flex-col items-center justify-center p-5 text-center [text-shadow:0_1px_4px_rgb(0_0_0/0.55)]">
           <h3 className="font-heading text-2xl leading-tight font-semibold">{d.name}</h3>
-          {/* Match the photo tiles: tagline + affordance lift in on hover/focus, name stays put */}
+          {/* Tagline + affordance lift in on hover/focus (centred, Lily-style) */}
           <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-300 ease-out-expo group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-visible:grid-rows-[1fr] group-focus-visible:opacity-100 motion-reduce:transition-none">
-            <div className="flex min-h-0 flex-col gap-1 overflow-hidden pt-1.5">
-              <span className="text-primary-foreground/85 text-xs tracking-widest uppercase">
+            <div className="flex min-h-0 flex-col items-center gap-1 overflow-hidden pt-2">
+              <span className="text-primary-foreground/90 text-xs tracking-widest uppercase">
                 {d.tagline}
               </span>
               <span className="text-primary-foreground inline-flex items-center gap-1 text-sm font-medium">
