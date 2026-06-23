@@ -73,7 +73,7 @@ function PostCard({ post, featured = false }: { post: PostTeaser; featured?: boo
           </span>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-5 lg:p-6">
+      <div className={cn('flex flex-1 flex-col gap-2 p-5 lg:p-6', featured && 'lg:flex-none')}>
         <span className="text-muted-foreground inline-flex items-center gap-1.5 text-xs">
           <CalendarDaysIcon className="size-3.5" />
           {dateFmt.format(new Date(post.publishedAt))}
