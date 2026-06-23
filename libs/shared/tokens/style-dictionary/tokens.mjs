@@ -18,6 +18,9 @@ export default {
     'popover-foreground': c('oklch(0.23 0.012 155)', 'oklch(0.95 0.008 95)'),
     primary: c('oklch(0.42 0.08 155)', 'oklch(0.72 0.1 155)'),
     'primary-foreground': c('oklch(0.98 0.01 95)', 'oklch(0.18 0.02 155)'),
+    // Text/icons that sit ON dark media (image scrims via --overlay). Stays light in BOTH themes —
+    // the scrim is always dark, so this must NOT flip like primary-foreground does.
+    'on-media': c('oklch(0.98 0.01 95)', 'oklch(0.98 0.01 95)'),
     secondary: c('oklch(0.93 0.012 120)', 'oklch(0.27 0.015 160)'),
     'secondary-foreground': c('oklch(0.3 0.02 155)', 'oklch(0.95 0.008 95)'),
     muted: c('oklch(0.95 0.008 105)', 'oklch(0.27 0.015 160)'),

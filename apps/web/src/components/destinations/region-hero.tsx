@@ -12,7 +12,7 @@ export function RegionHero({
   image,
   tagline,
   heightClass = 'min-h-80 lg:min-h-96',
-  scrimClass = 'from-overlay/85 via-overlay/40 to-transparent',
+  scrimClass = 'from-overlay/80 via-overlay/40 to-transparent',
 }: {
   name: string;
   image: string;
@@ -25,16 +25,16 @@ export function RegionHero({
       <Image src={image} alt={name} fill priority sizes="100vw" className="-z-10 object-cover" />
       <div className={cn('absolute inset-0 -z-10 bg-linear-to-t', scrimClass)} />
 
-      <div className="text-primary-foreground mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+      <div className="text-on-media mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <nav
           aria-label="Breadcrumb"
-          className="text-primary-foreground/80 mb-3 flex items-center gap-1.5 text-sm"
+          className="text-on-media/80 mb-3 flex items-center gap-1.5 text-sm"
         >
-          <Link href="/" className="hover:text-primary-foreground">
+          <Link href="/" className="hover:text-on-media">
             {messages.common.home}
           </Link>
           <ChevronRightIcon className="size-4" />
-          <Link href="/destinations" className="hover:text-primary-foreground">
+          <Link href="/destinations" className="hover:text-on-media">
             {messages.nav.destinations}
           </Link>
           <ChevronRightIcon className="size-4" />
@@ -43,7 +43,7 @@ export function RegionHero({
         <h1 className="text-4xl leading-tight font-bold text-balance sm:text-5xl lg:text-6xl">
           {name}
         </h1>
-        <p className="text-primary-foreground/85 mt-3 max-w-xl text-lg text-pretty">{tagline}</p>
+        <p className="text-on-media/85 mt-3 max-w-xl text-lg text-pretty">{tagline}</p>
       </div>
     </section>
   );

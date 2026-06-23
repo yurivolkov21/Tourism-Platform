@@ -28,24 +28,24 @@ export function ContentHero({
       {/* Scrim for legibility — darker toward the bottom where copy sits */}
       <div className="from-overlay/85 via-overlay/55 to-overlay/45 absolute inset-0 -z-10 bg-linear-to-t" />
 
-      <div className="text-primary-foreground mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+      <div className="text-on-media mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
         <nav
           aria-label="Breadcrumb"
-          className="text-primary-foreground/80 mb-4 flex items-center gap-1.5 text-sm"
+          className="text-on-media/80 mb-4 flex items-center gap-1.5 text-sm"
         >
-          <Link href="/" className="hover:text-primary-foreground">
+          <Link href="/" className="hover:text-on-media">
             {messages.common.home}
           </Link>
           <ChevronRightIcon className="size-4" />
-          <span className="text-primary-foreground">{breadcrumb}</span>
+          <span className="text-on-media">{breadcrumb}</span>
         </nav>
 
         <h1 className="font-heading text-3xl font-bold text-balance sm:text-4xl lg:text-5xl">
           {title}
         </h1>
-        {meta ? <p className="text-primary-foreground/80 mt-3 text-sm">{meta}</p> : null}
+        {meta ? <p className="text-on-media/80 mt-3 text-sm">{meta}</p> : null}
         {subtitle ? (
-          <p className="text-primary-foreground/90 mt-4 max-w-2xl text-lg text-pretty">{subtitle}</p>
+          <p className="text-on-media/90 mt-4 max-w-2xl text-lg text-pretty">{subtitle}</p>
         ) : null}
       </div>
     </section>

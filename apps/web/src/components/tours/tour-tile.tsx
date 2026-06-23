@@ -19,7 +19,7 @@ export function TourTile({ tour }: { tour: TourCardData }) {
   return (
     <Link
       href={`/tours/${tour.slug}`}
-      className="group text-primary-foreground relative block aspect-3/4 overflow-hidden rounded-2xl"
+      className="group text-on-media relative block aspect-3/4 overflow-hidden rounded-2xl"
     >
       <Image
         src={tour.image ?? ''}
@@ -37,7 +37,7 @@ export function TourTile({ tour }: { tour: TourCardData }) {
       ) : null}
 
       <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 p-5">
-        <div className="text-primary-foreground/85 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs tracking-wide uppercase">
+        <div className="text-on-media/85 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs tracking-wide uppercase">
           <span className="inline-flex items-center gap-1">
             <MapPinIcon className="size-3.5" />
             {tour.destination}
@@ -56,12 +56,12 @@ export function TourTile({ tour }: { tour: TourCardData }) {
           <span className="inline-flex items-center gap-1.5 text-sm">
             <StarIcon className="text-rating fill-rating size-4" />
             <span className="font-semibold">{tour.rating.toFixed(1)}</span>
-            <span className="text-primary-foreground/70">({tour.reviewCount})</span>
+            <span className="text-on-media/70">({tour.reviewCount})</span>
           </span>
           <span className="flex items-baseline gap-1.5">
             <span className="text-lg font-bold">{formatPrice(tour.currency, tour.basePrice)}</span>
             {tour.compareAtPrice ? (
-              <span className="text-primary-foreground/60 text-sm line-through">
+              <span className="text-on-media/60 text-sm line-through">
                 {formatPrice(tour.currency, tour.compareAtPrice)}
               </span>
             ) : null}

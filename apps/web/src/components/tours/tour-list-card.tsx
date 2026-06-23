@@ -39,7 +39,7 @@ export function TourListCard({ tour }: { tour: TourCardData }) {
           className="object-cover transition-transform duration-500 ease-out-expo group-hover:scale-105"
         />
         {topBadge ? (
-          <span className="text-primary-foreground border-primary-foreground/25 bg-overlay/40 absolute top-3 left-3 rounded-full border px-3 py-1 text-xs font-semibold backdrop-blur-sm">
+          <span className="text-on-media border-on-media/25 bg-overlay/40 absolute top-3 left-3 rounded-full border px-3 py-1 text-xs font-semibold backdrop-blur-sm">
             {messages.featuredTours.badges[topBadge]}
           </span>
         ) : null}

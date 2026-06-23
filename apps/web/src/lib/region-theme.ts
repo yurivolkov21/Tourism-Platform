@@ -36,7 +36,7 @@ export const REGION_THEMES: Record<string, RegionTheme> = {
     signature: 'adventure',
     // Taller, moodier hero for the dramatic, misty north.
     heroHeight: 'min-h-104 lg:min-h-136',
-    heroScrim: 'from-foreground/90 via-foreground/45 to-foreground/5',
+    heroScrim: 'from-overlay/90 via-overlay/45 to-overlay/10',
   },
   'central-vietnam': {
     accentText: 'text-rating',
@@ -47,7 +47,7 @@ export const REGION_THEMES: Record<string, RegionTheme> = {
     signature: 'heritage',
     // Lighter, more refined scrim for the elegant, imperial centre.
     heroHeight: DEFAULT_HERO_HEIGHT,
-    heroScrim: 'from-foreground/80 via-foreground/20 to-transparent',
+    heroScrim: 'from-overlay/80 via-overlay/20 to-transparent',
   },
   'southern-vietnam': {
     accentText: 'text-info',

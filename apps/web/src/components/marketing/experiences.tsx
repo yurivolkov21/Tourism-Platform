@@ -41,9 +41,9 @@ export function Experiences() {
       <div className="bg-overlay/65 absolute inset-0 -z-10" />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="text-primary-foreground mx-auto mb-10 max-w-2xl space-y-3 text-center sm:mb-14">
+        <div className="text-on-media mx-auto mb-10 max-w-2xl space-y-3 text-center sm:mb-14">
           <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">{t.heading}</h2>
-          <p className="text-primary-foreground/85 text-lg text-pretty">{t.subtitle}</p>
+          <p className="text-on-media/85 text-lg text-pretty">{t.subtitle}</p>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

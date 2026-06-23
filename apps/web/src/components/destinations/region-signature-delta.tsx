@@ -37,7 +37,7 @@ export function RegionSignatureDelta({
             <figure
               key={card.title}
               className={cn(
-                'group text-primary-foreground shadow-card relative aspect-4/5 overflow-hidden rounded-2xl',
+                'group text-on-media shadow-card relative aspect-4/5 overflow-hidden rounded-2xl',
                 // Gentle stagger: the outer cards drop, the middle one lifts.
                 i === 1 ? 'sm:-translate-y-4' : 'sm:translate-y-4',
               )}
@@ -52,7 +52,7 @@ export function RegionSignatureDelta({
               <div className="from-overlay via-overlay/25 absolute inset-0 bg-linear-to-t to-transparent" />
               <figcaption className="absolute inset-x-0 bottom-0 p-5">
                 <span className="bg-info mb-2 block h-1 w-9 rounded-full" />
-                <p className="text-primary-foreground/80 text-xs font-semibold tracking-widest uppercase">
+                <p className="text-on-media/80 text-xs font-semibold tracking-widest uppercase">
                   {card.caption}
                 </p>
                 <h3 className="font-heading text-xl font-semibold text-balance">{card.title}</h3>

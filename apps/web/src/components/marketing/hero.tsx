@@ -25,10 +25,10 @@ export function Hero() {
       {/* Even legibility scrim for centred copy */}
       <div className="bg-overlay/50 absolute inset-0 -z-10" />
 
-      <div className="text-primary-foreground mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 py-20 text-center sm:px-6 lg:px-8">
+      <div className="text-on-media mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 py-20 text-center sm:px-6 lg:px-8">
         <div className="border-primary-foreground/25 bg-background/10 flex items-center gap-2.5 rounded-full border px-2 py-1 text-sm backdrop-blur-sm">
           <Badge>{t.eyebrowBadge}</Badge>
-          <span className="text-primary-foreground/85">{t.eyebrowText}</span>
+          <span className="text-on-media/85">{t.eyebrowText}</span>
         </div>
 
         {/* Headline — Fraunces serif (h1 base rule) */}
@@ -36,7 +36,7 @@ export function Hero() {
           {t.titleLead} {t.titleAccent} {t.titleTail}
         </h1>
 
-        <p className="text-primary-foreground/85 max-w-xl text-lg text-pretty">{t.subtitle}</p>
+        <p className="text-on-media/85 max-w-xl text-lg text-pretty">{t.subtitle}</p>
 
         {/* Search affordance — navigates to the tours listing (real filtering wired later) */}
         <form

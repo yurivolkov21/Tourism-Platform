@@ -63,20 +63,20 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
         <Image src={cover} alt={tour.title} fill priority sizes="100vw" className="-z-10 object-cover" />
         <div className="from-overlay/85 via-overlay/45 absolute inset-0 -z-10 bg-linear-to-t to-transparent" />
 
-        <div className="text-primary-foreground mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8 lg:pb-14">
+        <div className="text-on-media mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8 lg:pb-14">
           <nav
             aria-label="Breadcrumb"
-            className="text-primary-foreground/80 mb-4 flex flex-wrap items-center gap-1.5 text-sm"
+            className="text-on-media/80 mb-4 flex flex-wrap items-center gap-1.5 text-sm"
           >
-            <Link href="/" className="hover:text-primary-foreground">
+            <Link href="/" className="hover:text-on-media">
               {messages.common.home}
             </Link>
             <ChevronRightIcon className="size-4" />
-            <Link href="/tours" className="hover:text-primary-foreground">
+            <Link href="/tours" className="hover:text-on-media">
               {td.breadcrumb}
             </Link>
             <ChevronRightIcon className="size-4" />
-            <span className="text-primary-foreground line-clamp-1">{tour.title}</span>
+            <span className="text-on-media line-clamp-1">{tour.title}</span>
           </nav>
 
           {tour.badge ? (
@@ -101,7 +101,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
             <span className="inline-flex items-center gap-1.5">
               <StarIcon className="fill-rating text-rating size-4" />
               <span className="font-semibold">{tour.rating.toFixed(1)}</span>
-              <span className="text-primary-foreground/75">({tour.reviewCount})</span>
+              <span className="text-on-media/75">({tour.reviewCount})</span>
             </span>
           </div>
         </div>

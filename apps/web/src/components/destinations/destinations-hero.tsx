@@ -22,17 +22,17 @@ export function DestinationsHero() {
       />
       <div className="bg-overlay/50 absolute inset-0 -z-10" />
 
-      <div className="text-primary-foreground mx-auto flex w-full max-w-3xl flex-col items-center gap-4 px-4 py-20 text-center sm:px-6 lg:px-8">
+      <div className="text-on-media mx-auto flex w-full max-w-3xl flex-col items-center gap-4 px-4 py-20 text-center sm:px-6 lg:px-8">
         <h1 className="text-4xl leading-tight font-bold text-balance sm:text-5xl lg:text-6xl">
           {t.heroTitle}
         </h1>
-        <p className="text-primary-foreground/85 max-w-xl text-lg text-pretty">{t.heroSubtitle}</p>
+        <p className="text-on-media/85 max-w-xl text-lg text-pretty">{t.heroSubtitle}</p>
         {/* Breadcrumb pill (Lily-style) */}
         <nav
           aria-label="Breadcrumb"
-          className="border-primary-foreground/25 bg-background/10 text-primary-foreground/90 mt-2 rounded-full border px-4 py-1 text-xs tracking-wide backdrop-blur-sm"
+          className="border-primary-foreground/25 bg-background/10 text-on-media/90 mt-2 rounded-full border px-4 py-1 text-xs tracking-wide backdrop-blur-sm"
         >
-          {t.breadcrumbHome} <span className="text-primary-foreground/50 px-1">/</span>{' '}
+          {t.breadcrumbHome} <span className="text-on-media/50 px-1">/</span>{' '}
           {t.breadcrumbCurrent}
         </nav>
       </div>
