@@ -7,6 +7,7 @@ import { messages } from '@tourism/i18n';
 
 import type { DestinationTileVM } from '../../lib/destinations.fixtures';
 import { slugify } from '../../lib/slug';
+import { GlareLayer } from './glare-layer';
 
 type TileVariant = 'default' | 'feature' | 'photo';
 
@@ -49,6 +50,9 @@ export function DestinationTile({
       />
       {/* Scrim for legibility */}
       <div className="from-overlay absolute inset-0 bg-linear-to-t to-transparent" />
+
+      {/* Light-sweep on hover (home bento only); above photo, below caption, clicks pass through */}
+      {variant === 'default' && <GlareLayer />}
 
       {variant === 'photo' ? (
         <div className="text-primary-foreground absolute inset-x-0 bottom-0 p-4">
