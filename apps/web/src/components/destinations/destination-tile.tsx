@@ -57,6 +57,18 @@ export function DestinationTile({
       {variant === 'photo' ? (
         <div className="text-primary-foreground absolute inset-x-0 bottom-0 p-4">
           <h3 className="font-heading text-lg leading-tight font-semibold">{d.name}</h3>
+          {/* Tagline + affordance lift in on hover/focus; name stays put. Reduced-motion = instant. */}
+          <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-300 ease-out-expo group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-visible:grid-rows-[1fr] group-focus-visible:opacity-100 motion-reduce:transition-none">
+            <div className="flex min-h-0 flex-col gap-1 overflow-hidden pt-1.5">
+              <span className="text-primary-foreground/85 text-[0.7rem] tracking-widest uppercase">
+                {d.tagline}
+              </span>
+              <span className="text-primary-foreground inline-flex items-center gap-1 text-sm font-medium">
+                {tp.viewMore}
+                <ArrowRightIcon className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+              </span>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="text-primary-foreground absolute inset-x-0 bottom-0 flex flex-col gap-1 p-5">
