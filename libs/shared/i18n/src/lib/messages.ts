@@ -772,20 +772,159 @@ export const messages = {
     included: 'What’s included',
     notIncluded: 'Not included',
     gallery: 'Photos',
+    enquireHeading: (tour: string) => `Enquire about ${tour}`,
     reviews: (n: number) => `${n} reviews`,
+    mealsLabel: 'Meals',
+    youMightLike: 'You might also like…',
+    badges: {
+      bestSeller: 'Best seller',
+      sellingFast: 'Likely to sell out',
+    },
+    note: {
+      heading: 'Good to know',
+      body: 'Itineraries can flex to your pace, dates and interests — share your preferences in an enquiry and our trip designers will tailor the plan. Prices are per person and may vary by season, group size and hotel choice.',
+    },
+    // Overview spec block (icon-led rows)
+    specs: {
+      destination: 'Destination',
+      duration: 'Duration',
+      departure: 'Departures',
+      travelStyle: 'Travel style',
+      theme: 'Best for',
+      accommodation: 'Accommodation',
+    },
+    durationValue: (n: number) => `${n} day${n > 1 ? 's' : ''}`,
+    // Inclusions block (icon-led rows)
+    inclusionLabels: {
+      meals: 'Meals',
+      transport: 'Transport',
+      accommodation: 'Accommodation',
+      activities: 'Included activities',
+    },
+    mealsSummary: (b: number, l: number, d: number) => `${b}B · ${l}L · ${d}D`,
+    // "Value of the package" — themed value props in a tinted panel
+    value: {
+      heading: 'Value of the package',
+      props: [
+        {
+          title: 'Gastronomic & cultural immersion',
+          body: 'Street-food trails, hands-on cooking, and meals chosen for the place — not a buffet on repeat. You taste the region as locals do.',
+        },
+        {
+          title: 'Landscapes & gentle adventure',
+          body: 'Cruise emerald bays, cycle quiet countryside, and reach the views worth the early start — at a pace that still feels like a holiday.',
+        },
+        {
+          title: 'Expert local guides',
+          body: 'English-speaking guides who bring history and culture to life, adapt to your interests, and know the stops that aren’t on the map.',
+        },
+        {
+          title: 'Safety & quality, quietly handled',
+          body: 'Vetted vehicles, trusted hotels and 24/7 support — the logistics disappear so the trip doesn’t.',
+        },
+      ],
+    },
+    // Policies — grouped, collapsible
+    policies: {
+      heading: 'Policies',
+      readMore: 'Read full policy',
+      readLess: 'Show less',
+      groups: [
+        {
+          title: 'Booking & payment',
+          items: [
+            'A confirmation receipt is emailed within 15 minutes of a successful booking.',
+            'A 30% deposit of the total tour cost confirms the booking; the balance is due on the start day of the tour.',
+            'The confirmation voucher is released by email within 48 hours of the deposit.',
+          ],
+        },
+        {
+          title: 'Cancellation',
+          items: [
+            '15+ days before travel: 50% of the deposit is charged as a cancellation fee.',
+            '7–15 days before travel: 75% of the deposit is charged.',
+            '0–7 days before travel: 100% of the deposit is charged.',
+          ],
+        },
+        {
+          title: 'Changes & refunds',
+          items: [
+            'Changes made 15+ days before the travel date carry no change fee — we resend the final itinerary.',
+            'For changes inside 15 days, we’ll do our best to accommodate; any supplier fees incurred are passed on at cost.',
+          ],
+        },
+      ],
+    },
+    // Traveller reviews (placeholder until wired to the Review model)
+    reviewsSection: {
+      heading: 'Traveller reviews',
+      verified: 'Verified traveller',
+    },
+    // "Why travel with us" trust grid
+    trust: {
+      heading: 'Why travel with us',
+      items: [
+        { title: '15 years of local expertise', body: 'A decade and a half crafting journeys across Vietnam — refined trip by trip.' },
+        { title: 'Designed by locals', body: 'No middlemen and no off-the-shelf scripts — real itineraries from people who live here.' },
+        { title: 'Loved by travellers', body: 'Thousands of guests, and the kind of reviews that turn first-timers into regulars.' },
+        { title: '24/7 on-trip support', body: 'A real person before, during and after your trip — wherever the road takes you.' },
+        { title: 'Fair, transparent pricing', body: 'Clear quotes, no surprise fees, and flexible options to suit your budget.' },
+        { title: 'Flexible & tailored', body: 'Every itinerary flexes to your pace, dates, interests and group size.' },
+      ],
+    },
+    // Tour FAQ
+    faqSection: {
+      heading: 'Frequently asked questions',
+      items: [
+        {
+          q: 'What’s included in the tour price?',
+          a: 'Entrance fees, meals as listed, accommodation on multi-day trips, private transfers and an English-speaking guide. The exact inclusions are listed above and in the itinerary we send.',
+        },
+        {
+          q: 'Does the price include flights?',
+          a: 'No — international and domestic flights are not included, but we’re happy to advise on the best connections for your itinerary.',
+        },
+        {
+          q: 'Can I customise the itinerary?',
+          a: 'Yes. Most journeys can be tailored to your pace, interests and group size — share your preferences in an enquiry and our trip designers will adapt the plan.',
+        },
+        {
+          q: 'Are vegetarian or special diets catered for?',
+          a: 'Absolutely. Let us know any dietary needs in your enquiry and we’ll arrange suitable meals throughout.',
+        },
+        {
+          q: 'What is the cancellation and refund policy?',
+          a: 'See the Policies section above for the full breakdown by timeframe. In short: the earlier you let us know, the less is charged.',
+        },
+        {
+          q: 'Is airport pickup included?',
+          a: 'Yes — private airport transfers are arranged around your flight times on multi-day tours.',
+        },
+      ],
+    },
     booking: {
       heading: 'Book this tour',
       fromLabel: 'From',
       perPerson: 'per person',
+      reviewsInline: (n: number) => `${n} reviews`,
       departures: 'Upcoming departures',
       seatsLeft: (n: number) => `${n} seats left`,
       requestCta: 'Request to book',
       enquireCta: 'Ask a question',
+      deposit: (amount: string) => `Or deposit at least ${amount} to hold your dates`,
       trustLine: 'No payment now — we confirm availability and send a tailored quote.',
     },
   },
   enquiryCta: {
     heading: 'Plan your trip',
+    // Contextual heading variants so the same CTA doesn't read identically on every page.
+    headings: {
+      home: 'Ready to explore Vietnam?',
+      faq: 'Still have a question in mind?',
+      destinations: 'Not sure where to begin?',
+      about: 'Let’s craft your journey together',
+    },
+    regionHeading: (region: string) => `Plan your trip to ${region}`,
     subtitle:
       'Tell us how you like to travel and our local experts will craft an itinerary that fits you.',
     cta: 'Start planning',

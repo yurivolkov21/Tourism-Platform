@@ -6,6 +6,7 @@ import { WhyChoose } from '../components/marketing/why-choose';
 import { Trust } from '../components/marketing/trust';
 import { BlogTeaser } from '../components/marketing/blog-teaser';
 import { EnquiryCta } from '../components/marketing/enquiry-cta';
+import { messages } from '@tourism/i18n';
 
 export default function HomePage() {
   return (
@@ -17,7 +18,7 @@ export default function HomePage() {
       <WhyChoose />
       <Trust />
       <BlogTeaser />
-      <EnquiryCta />
+      <EnquiryCta heading={messages.enquiryCta.headings.home} />
     </>
   );
 }

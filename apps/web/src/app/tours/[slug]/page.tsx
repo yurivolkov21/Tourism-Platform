@@ -7,11 +7,17 @@ import { ChevronRightIcon, ClockIcon, MapPinIcon, StarIcon } from 'lucide-react'
 import { messages } from '@tourism/i18n';
 
 import { BookingBox } from '../../../components/tours/booking-box';
-import { TourHighlights } from '../../../components/tours/tour-highlights';
+import { TourOverview } from '../../../components/tours/tour-overview';
+import { TourValue } from '../../../components/tours/tour-value';
 import { TourItinerary } from '../../../components/tours/tour-itinerary';
 import { TourIncluded } from '../../../components/tours/tour-included';
+import { TourPolicies } from '../../../components/tours/tour-policies';
+import { TourReviews } from '../../../components/tours/tour-reviews';
+import { TourTrust } from '../../../components/tours/tour-trust';
+import { TourFaq } from '../../../components/tours/tour-faq';
+import { RelatedTours } from '../../../components/tours/related-tours';
 import { Gallery, type GallerySection } from '../../../components/marketing/gallery';
-import { PlanTripForm } from '../../../components/marketing/plan-trip-form';
+import { EnquiryCta } from '../../../components/marketing/enquiry-cta';
 import { getTourDetail, tourSlugs } from '../../../lib/tours';
 
 export function generateStaticParams() {
@@ -69,6 +75,12 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
             <span className="text-primary-foreground line-clamp-1">{tour.title}</span>
           </nav>
 
+          {tour.badge ? (
+            <span className="bg-rating text-foreground mb-3 inline-flex w-fit items-center rounded-full px-3 py-1 font-sans text-xs font-bold tracking-wide uppercase">
+              {td.badges[tour.badge]}
+            </span>
+          ) : null}
+
           <h1 className="font-heading max-w-3xl text-3xl font-bold text-balance sm:text-4xl lg:text-5xl">
             {tour.title}
           </h1>
@@ -91,24 +103,43 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
         </div>
       </section>
 
+      {/* Gallery leads the page (Lily-style: imagery before the detail body) */}
+      <Gallery sections={gallerySections} heading={td.gallery} subtitle="" />
+
       {/* Body: main column + sticky booking aside */}
-      <section className="py-12 sm:py-16 lg:py-20">
+      <section className="bg-muted/30 py-12 sm:py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-[1fr_22rem] lg:gap-12">
-            <div className="min-w-0 space-y-12 lg:space-y-16">
-              <section>
-                <h2 className="font-heading mb-4 text-2xl font-semibold sm:text-3xl">{td.overview}</h2>
-                <p className="text-muted-foreground text-lg text-pretty">{tour.overview}</p>
-              </section>
-              <TourHighlights items={tour.highlights} />
+            <div className="min-w-0 space-y-6 lg:space-y-8">
+              <TourOverview tour={tour} />
+              <TourValue />
               <TourItinerary days={tour.itinerary} />
-              <TourIncluded included={tour.included} notIncluded={tour.notIncluded} />
+              <TourIncluded
+                meals={td.mealsSummary(
+                  tour.mealTotals.breakfast,
+                  tour.mealTotals.lunch,
+                  tour.mealTotals.dinner,
+                )}
+                transport={tour.transport}
+                accommodation={tour.accommodation}
+                activities={tour.included}
+                excluded={tour.notIncluded}
+              />
+              <TourPolicies />
             </div>
 
             <aside className="mt-10 lg:mt-0">
               <BookingBox
                 currency={tour.currency}
                 basePrice={tour.basePrice}
+                compareAtPrice={tour.compareAtPrice}
+                rating={tour.rating}
+                reviewCount={tour.reviewCount}
+                meals={td.mealsSummary(
+                  tour.mealTotals.breakfast,
+                  tour.mealTotals.lunch,
+                  tour.mealTotals.dinner,
+                )}
                 departures={tour.departures}
               />
             </aside>
@@ -116,8 +147,11 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
         </div>
       </section>
 
-      <Gallery sections={gallerySections} heading={td.gallery} subtitle="" />
-      <PlanTripForm />
+      <TourReviews reviews={tour.reviews} rating={tour.rating} reviewCount={tour.reviewCount} />
+      <TourTrust />
+      <TourFaq />
+      <RelatedTours tours={tour.related} />
+      <EnquiryCta heading={td.enquireHeading(tour.title)} prefillDestination={tour.title} />
     </main>
   );
 }

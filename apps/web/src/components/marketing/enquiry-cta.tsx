@@ -6,23 +6,34 @@ import { messages } from '@tourism/i18n';
 const inputClass =
   'border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring/50 h-11 w-full rounded-md border px-3 text-sm outline-none transition-[box-shadow] focus-visible:ring-2';
 
+interface EnquiryCtaProps {
+  /** Anchor id — kept as `contact` so in-page "Request to book" CTAs can scroll here. */
+  id?: string;
+  /** Contextual heading override (tour-aware / region-aware). Falls back to the generic copy. */
+  heading?: string;
+  /** Contextual subtitle override. Falls back to the generic copy. */
+  subtitle?: string;
+  /** Pre-fills the destination field (e.g. the tour or region the visitor is viewing). */
+  prefillDestination?: string;
+}
+
 // Lead-capture split: benefits-led copy on emerald, a compact enquiry form on a card.
 // The form maps to the Enquiry model; submission is wired with the typed client later.
-export function EnquiryCta() {
+export function EnquiryCta({ id = 'contact', heading, subtitle, prefillDestination }: EnquiryCtaProps = {}) {
   const t = messages.enquiryCta;
   const fm = t.form;
 
   return (
-    <section id="contact" className="py-16 sm:py-20 lg:py-24">
+    <section id={id} className="py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="shadow-card grid overflow-hidden rounded-2xl lg:grid-cols-5">
           {/* Copy */}
           <div className="bg-primary text-primary-foreground flex flex-col justify-center gap-6 p-8 sm:p-12 lg:col-span-2">
             <div className="space-y-4">
               <h2 className="font-heading text-3xl font-semibold text-balance sm:text-4xl">
-                {t.heading}
+                {heading ?? t.heading}
               </h2>
-              <p className="text-primary-foreground/85 text-lg text-pretty">{t.subtitle}</p>
+              <p className="text-primary-foreground/85 text-lg text-pretty">{subtitle ?? t.subtitle}</p>
             </div>
             <ul className="space-y-3">
               {t.benefits.map((b) => (
@@ -55,7 +66,7 @@ export function EnquiryCta() {
                 <label htmlFor="enq-destination" className="text-sm font-medium">
                   {fm.destination}
                 </label>
-                <input id="enq-destination" name="destination" type="text" placeholder={fm.destinationPlaceholder} className={inputClass} />
+                <input id="enq-destination" name="destination" type="text" defaultValue={prefillDestination} placeholder={fm.destinationPlaceholder} className={inputClass} />
               </div>
 
               <button type="submit" className={cn(buttonVariants({ size: 'lg' }), 'mt-1 w-full')}>

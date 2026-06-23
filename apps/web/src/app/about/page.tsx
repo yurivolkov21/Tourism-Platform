@@ -5,6 +5,7 @@ import { Story } from '../../components/about/story';
 import { ByTheNumbers } from '../../components/about/by-the-numbers';
 import { Team } from '../../components/about/team';
 import { EnquiryCta } from '../../components/marketing/enquiry-cta';
+import { messages } from '@tourism/i18n';
 
 export const metadata: Metadata = {
   title: 'About us — Tourism Platform',
@@ -19,7 +20,7 @@ export default function AboutPage() {
       <Story />
       <ByTheNumbers />
       <Team />
-      <EnquiryCta />
+      <EnquiryCta heading={messages.enquiryCta.headings.about} />
     </main>
   );
 }

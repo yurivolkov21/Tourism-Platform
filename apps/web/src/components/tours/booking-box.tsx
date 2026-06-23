@@ -1,4 +1,4 @@
-import { ShieldCheckIcon } from 'lucide-react';
+import { ShieldCheckIcon, StarIcon, UtensilsIcon } from 'lucide-react';
 
 import { Card, CardContent, Separator, buttonVariants, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
@@ -10,31 +10,60 @@ function formatPrice(currency: string, amount: number) {
   return currency === 'USD' ? `$${value}` : `${currency} ${value}`;
 }
 
-/** Sticky booking aside — price, upcoming departures, and a "Request to book" CTA. UI-only: the CTA
- * jumps to the on-page enquiry form; no real transaction (real booking is wired in a later pass). */
+/** Sticky booking aside — price (with any saving), rating, meals, upcoming departures, and the
+ * book/enquire CTAs. UI-only: CTAs jump to the on-page enquiry form (real booking is a later pass). */
 export function BookingBox({
   currency,
   basePrice,
+  compareAtPrice,
+  rating,
+  reviewCount,
+  meals,
   departures,
 }: {
   currency: string;
   basePrice: number;
+  compareAtPrice?: number;
+  rating: number;
+  reviewCount: number;
+  meals: string;
   departures: Departure[];
 }) {
   const t = messages.tourDetail.booking;
+  const deposit = formatPrice(currency, Math.max(100, Math.round((basePrice * 0.3) / 10) * 10));
 
   return (
     <Card className="lg:sticky lg:top-24">
       <CardContent className="space-y-5 p-6">
-        <div className="flex items-baseline gap-2">
-          <span className="text-muted-foreground text-sm">{t.fromLabel}</span>
-          <span className="font-heading text-primary text-3xl font-bold">
-            {formatPrice(currency, basePrice)}
-          </span>
-          <span className="text-muted-foreground text-sm">/ {t.perPerson}</span>
+        <div className="space-y-1.5">
+          <div className="flex items-baseline gap-2">
+            <span className="text-muted-foreground text-sm">{t.fromLabel}</span>
+            <span className="font-heading text-primary text-3xl font-bold">
+              {formatPrice(currency, basePrice)}
+            </span>
+            {compareAtPrice ? (
+              <span className="text-price-compare text-sm line-through">
+                {formatPrice(currency, compareAtPrice)}
+              </span>
+            ) : null}
+            <span className="text-muted-foreground text-sm">/ {t.perPerson}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-sm">
+            <StarIcon className="fill-rating text-rating size-4" />
+            <span className="font-semibold">{rating.toFixed(1)}</span>
+            <span className="text-muted-foreground">({t.reviewsInline(reviewCount)})</span>
+          </div>
         </div>
 
         <Separator />
+
+        <div className="flex items-start gap-2 text-sm">
+          <UtensilsIcon className="text-primary mt-0.5 size-4 shrink-0" />
+          <span>
+            <span className="text-muted-foreground">{messages.tourDetail.inclusionLabels.meals}: </span>
+            <span className="font-medium">{meals}</span>
+          </span>
+        </div>
 
         <div>
           <h3 className="font-sans mb-3 text-sm font-semibold tracking-wide uppercase">
@@ -42,10 +71,7 @@ export function BookingBox({
           </h3>
           <ul className="space-y-2.5">
             {departures.map((departure) => (
-              <li
-                key={departure.id}
-                className="flex items-center justify-between gap-3 text-sm"
-              >
+              <li key={departure.id} className="flex items-center justify-between gap-3 text-sm">
                 <span className="font-medium">{departure.date}</span>
                 <span className="text-muted-foreground">{t.seatsLeft(departure.seatsLeft)}</span>
               </li>
@@ -57,6 +83,7 @@ export function BookingBox({
           <a href="#contact" className={cn(buttonVariants({ size: 'lg' }), 'w-full')}>
             {t.requestCta}
           </a>
+          <p className="text-muted-foreground text-center text-xs">{t.deposit(deposit)}</p>
           <a
             href="#contact"
             className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'w-full')}

@@ -59,7 +59,7 @@ export default function FaqPage() {
         </div>
       </div>
 
-      <EnquiryCta />
+      <EnquiryCta heading={messages.enquiryCta.headings.faq} />
     </main>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { groupByRegion } from '@tourism/core';
+import { messages } from '@tourism/i18n';
 
 import { DestinationsHero } from '../../components/destinations/destinations-hero';
 import { RegionGroup } from '../../components/destinations/region-group';
@@ -29,7 +30,7 @@ export default function DestinationsPage() {
       <PopularTours tours={popularTours} />
       <Testimonials />
       <TravelTips />
-      <EnquiryCta />
+      <EnquiryCta heading={messages.enquiryCta.headings.destinations} />
     </main>
   );
 }
