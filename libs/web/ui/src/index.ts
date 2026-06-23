@@ -44,6 +44,7 @@ export * from './components/ui/logo-loop';
 export * from './components/ui/masonry';
 export * from './components/ui/menubar';
 export * from './components/ui/navigation-menu';
+export * from './components/ui/number-ticker';
 export * from './components/ui/pagination';
 export * from './components/ui/popover';
 export * from './components/ui/progress';

@@ -3,6 +3,8 @@ import { CalendarDaysIcon, HeartIcon, MapPinIcon, UsersIcon } from 'lucide-react
 import { Card, CardContent } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { MetricValue } from '../marketing/metric-value';
+
 // Icons align by index to messages.about.metrics.items (mirrors the Features block pattern).
 const metricIcons = [CalendarDaysIcon, UsersIcon, MapPinIcon, HeartIcon] as const;
 
@@ -32,7 +34,7 @@ export function ByTheNumbers() {
                     </span>
                     <div>
                       <dt className="text-primary font-heading text-4xl font-bold lg:text-5xl">
-                        {item.value}
+                        <MetricValue value={item.value} />
                       </dt>
                       <dd className="text-muted-foreground mt-1 text-sm font-medium">
                         {item.label}

@@ -2,6 +2,8 @@ import Image from 'next/image';
 
 import { messages } from '@tourism/i18n';
 
+import { MetricValue } from './metric-value';
+
 // Temporary Unsplash image (review only) — swap for a real asset later.
 const TRUST_IMAGE =
   'https://images.unsplash.com/photo-1528181304800-259b08848526?w=1920&q=70&auto=format&fit=crop';
@@ -24,7 +26,9 @@ export function Trust() {
         <dl className="mt-12 grid grid-cols-2 gap-8 lg:grid-cols-4">
           {t.stats.map((s) => (
             <div key={s.label} className="text-center">
-              <dt className="font-heading text-4xl font-bold sm:text-5xl">{s.value}</dt>
+              <dt className="font-heading text-4xl font-bold sm:text-5xl">
+                <MetricValue value={s.value} />
+              </dt>
               <dd className="text-primary-foreground/75 mt-2 text-sm">{s.label}</dd>
             </div>
           ))}
