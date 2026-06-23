@@ -3,6 +3,8 @@ import Image from 'next/image';
 import { cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { StorySpine } from './story-spine';
+
 // Temp Unsplash imagery (review only) — one per milestone, aligned by index. Swap for real assets later.
 const u = (id: string) => `https://images.unsplash.com/${id}?w=900&q=70&auto=format&fit=crop`;
 const milestoneImages = [
@@ -28,11 +30,8 @@ export function Story() {
         </div>
 
         <ol className="relative space-y-12 lg:space-y-24">
-          {/* Centre spine (desktop only) — soft emerald gradient, fading at both ends */}
-          <span
-            aria-hidden
-            className="from-primary/45 via-primary/15 to-primary/45 absolute top-3 bottom-3 left-1/2 hidden w-0.5 -translate-x-1/2 rounded-full bg-linear-to-b lg:block"
-          />
+          {/* Centre spine (desktop only) — faded track + scroll-driven emerald fill */}
+          <StorySpine />
 
           {t.milestones.map((m, i) => {
             const imageLeft = i % 2 === 1;
