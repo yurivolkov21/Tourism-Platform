@@ -10,6 +10,8 @@ import {
 import { Card, CardContent } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { Reveal } from './reveal';
+
 // Temporary Unsplash image (review only) — a real team/office photo goes here later.
 const WHY_IMAGE =
   'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=900&q=70&auto=format&fit=crop';
@@ -49,21 +51,20 @@ export function WhyChoose() {
 
           {/* 2×2 value cards */}
           <div className="grid gap-5 sm:grid-cols-2">
-            {pillars.map(({ index, icon: Icon }) => {
+            {pillars.map(({ index, icon: Icon }, i) => {
               const item = t.items[index];
               return (
-                <Card
-                  key={item.title}
-                  className="border-border hover:border-primary/40 hover:shadow-card transition-all duration-200 ease-out-expo hover:-translate-y-0.5"
-                >
-                  <CardContent className="flex flex-col gap-3">
-                    <span className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-md">
-                      <Icon className="size-5" />
-                    </span>
-                    <h3 className="font-sans text-lg font-semibold">{item.title}</h3>
-                    <p className="text-muted-foreground text-sm text-pretty">{item.description}</p>
-                  </CardContent>
-                </Card>
+                <Reveal key={item.title} delay={i * 0.07}>
+                  <Card className="border-border hover:border-primary/40 hover:shadow-card h-full transition-all duration-200 ease-out-expo hover:-translate-y-0.5">
+                    <CardContent className="flex flex-col gap-3">
+                      <span className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-md">
+                        <Icon className="size-5" />
+                      </span>
+                      <h3 className="font-sans text-lg font-semibold">{item.title}</h3>
+                      <p className="text-muted-foreground text-sm text-pretty">{item.description}</p>
+                    </CardContent>
+                  </Card>
+                </Reveal>
               );
             })}
           </div>

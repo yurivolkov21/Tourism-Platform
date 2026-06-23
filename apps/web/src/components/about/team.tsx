@@ -2,6 +2,7 @@ import { Card, CardContent, Separator } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { FacebookIcon, InstagramIcon, TwitterIcon } from '../icons/social';
+import { Reveal } from '../marketing/reveal';
 
 // First-letter initials from the first two name parts (e.g. "Linh Nguyễn" → "LN").
 function initials(name: string): string {
@@ -31,9 +32,9 @@ export function Team() {
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-y-10">
-          {t.members.map((member) => (
+          {t.members.map((member, i) => (
+            <Reveal key={member.name} delay={i * 0.07}>
             <Card
-              key={member.name}
               className="overflow-hidden pt-0 transition-all duration-300 ease-out-expo hover:-translate-y-0.5 hover:shadow-card hover:ring-primary/40"
             >
               {/* Portrait placeholder — initials on a muted band */}
@@ -66,6 +67,7 @@ export function Team() {
                 </div>
               </CardContent>
             </Card>
+            </Reveal>
           ))}
         </div>
       </div>

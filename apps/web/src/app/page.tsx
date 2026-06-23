@@ -23,9 +23,8 @@ export default function HomePage() {
       <Reveal>
         <FeaturedPackages />
       </Reveal>
-      <Reveal>
-        <WhyChoose />
-      </Reveal>
+      {/* WhyChoose staggers its own cards on view (no section-level reveal) */}
+      <WhyChoose />
       <Reveal>
         <Trust />
       </Reveal>
