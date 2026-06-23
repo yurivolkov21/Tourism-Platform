@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronRightIcon, ClockIcon, MapPinIcon, StarIcon } from 'lucide-react';
 
+import { ScrollProgress } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { BookingBox } from '../../../components/tours/booking-box';
@@ -54,6 +55,9 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
 
   return (
     <main>
+      {/* Reading-progress bar for this long detail page */}
+      <ScrollProgress />
+
       {/* Tour hero */}
       <section className="relative isolate flex min-h-88 items-end overflow-hidden lg:min-h-112">
         <Image src={cover} alt={tour.title} fill priority sizes="100vw" className="-z-10 object-cover" />

@@ -1,10 +1,14 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useLayoutEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Run before paint on the client (so the start state is set without a flash) but fall back to a
+// passive effect during SSR — content renders visible there, which keeps it safe for no-JS / SEO.
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 export interface AnimatedContentProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -49,9 +53,14 @@ export const AnimatedContent = ({
 }: AnimatedContentProps) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    // Honour reduced-motion: leave the content exactly as rendered (visible), skip the animation.
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
 
     let scrollerTarget: Element | string | null = container || document.getElementById('snap-main-container') || null;
 
@@ -63,11 +72,12 @@ export const AnimatedContent = ({
     const offset = reverse ? -distance : distance;
     const startPct = (1 - threshold) * 100;
 
+    // Set the hidden/offset start state here (before paint) — the element renders visible in the DOM,
+    // so it stays readable without JS, then gsap takes over to reveal it on scroll.
     gsap.set(el, {
       [axis]: offset,
       scale,
       opacity: animateOpacity ? initialOpacity : 1,
-      visibility: 'visible',
     });
 
     const tl = gsap.timeline({
@@ -129,7 +139,7 @@ export const AnimatedContent = ({
   ]);
 
   return (
-    <div ref={ref} className={`invisible ${className}`} {...props}>
+    <div ref={ref} className={className} {...props}>
       {children}
     </div>
   );

@@ -6,19 +6,35 @@ import { WhyChoose } from '../components/marketing/why-choose';
 import { Trust } from '../components/marketing/trust';
 import { BlogTeaser } from '../components/marketing/blog-teaser';
 import { EnquiryCta } from '../components/marketing/enquiry-cta';
+import { Reveal } from '../components/marketing/reveal';
 import { messages } from '@tourism/i18n';
 
 export default function HomePage() {
   return (
     <>
+      {/* Hero stays static (above the fold); below-fold sections rise in on scroll */}
       <Hero />
-      <Destinations />
-      <Experiences />
-      <FeaturedPackages />
-      <WhyChoose />
-      <Trust />
-      <BlogTeaser />
-      <EnquiryCta heading={messages.enquiryCta.headings.home} />
+      <Reveal>
+        <Destinations />
+      </Reveal>
+      <Reveal>
+        <Experiences />
+      </Reveal>
+      <Reveal>
+        <FeaturedPackages />
+      </Reveal>
+      <Reveal>
+        <WhyChoose />
+      </Reveal>
+      <Reveal>
+        <Trust />
+      </Reveal>
+      <Reveal>
+        <BlogTeaser />
+      </Reveal>
+      <Reveal>
+        <EnquiryCta heading={messages.enquiryCta.headings.home} />
+      </Reveal>
     </>
   );
 }
