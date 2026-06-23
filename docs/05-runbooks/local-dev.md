@@ -122,3 +122,13 @@ compile). If the prod build runs fine in the browser, the problem is Turbopack-d
 environment (a **factory reset will not fix it** — it returns on next `dev`); if the prod
 build also spikes, suspect a client runtime loop. The production build is known green as of
 `6666acc`.
+
+**✅ Root cause + fix (2026-06-23).** Isolation test confirmed it: prod `start` (prebuilt,
+webpack output) runs cool; `next dev` (Turbopack) freezes → this is the **known Turbopack
+dev-server memory leak** (next.js issues #66326, #81161), tipped over recently by a Next
+patch bump (`^16.2.5` resolved to **16.2.9**) plus a heavier client module graph from the
+motion pass (every home section now a client `<Reveal>` + gsap/motion). **Fix applied:** the
+`dev` target is pinned to **webpack** — `apps/web/package.json` → `nx.targets.dev` runs
+`next dev --webpack`. So `pnpm nx dev @tourism/web` is stable again (compiles a bit slower
+than Turbopack, no leak). **Prod `build` still uses Turbopack** (unaffected). Revert to
+Turbopack dev later by removing that `dev` target once the upstream leak is fixed.

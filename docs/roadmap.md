@@ -67,12 +67,12 @@ tokens-only (no-hex), reuse `@tourism/ui`, copy in `@tourism/i18n`. Plan:
 | Booking + account | — | ⬜ (later in P3) |
 | **Wire real data** | — | ⬜ replace fixtures with the live `@tourism/core` client (deferred to end of P3) |
 
-> **🔴 Open issue (dev only):** `pnpm nx dev @tourism/web` can spike RAM/SSD and freeze the
-> machine on Windows during Turbopack cold compile. Production `build` is green (`6666acc`),
-> so the shipped app is unaffected. Causes + fixes (Defender exclusions, terminal-close to kill
-> the worker tree, cache pruning) and a Turbopack-vs-code isolation test are in
+> **✅ Resolved (dev tooling, 2026-06-23):** `pnpm nx dev @tourism/web` froze the machine on
+> Windows — root-caused to the **Turbopack dev-server memory leak** (next.js #66326/#81161),
+> not app code (prod `build`/`start` run cool). **Fix:** `dev` target pinned to `next dev
+> --webpack` (`apps/web/package.json`). Prod build still uses Turbopack. Details + the
+> isolation test in
 > [runbooks/local-dev.md](05-runbooks/local-dev.md#web-dev-server-eats-ram--freezes-the-machine-windows--known-issue).
-> A factory reset will **not** fix it if the cause is Turbopack-dev/environment.
 
 ---
 

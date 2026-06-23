@@ -6,7 +6,15 @@
     "tags": [
       "scope:web",
       "type:app"
-    ]
+    ],
+    "targets": {
+      "dev": {
+        "command": "next dev --webpack",
+        "options": {
+          "cwd": "apps/web"
+        }
+      }
+    }
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
