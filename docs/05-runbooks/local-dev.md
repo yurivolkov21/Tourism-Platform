@@ -85,3 +85,40 @@ pnpm nx reset                                        # clear the Nx cache if a t
   start the worker.
 - **TS6305 flood on typecheck** = stale buildinfo → `cd apps/api && rm -rf dist && pnpm exec tsc -b
   tsconfig.json --emitDeclarationOnly --force`.
+
+## Web dev server eats RAM / freezes the machine (Windows) — 🔴 known issue
+
+`pnpm nx dev @tourism/web` (Next 16 + **Turbopack**) on Windows can spike RAM/SSD and
+freeze the machine. The command is correct and needs **no `cd`** (Nx resolves the project).
+Investigated 2026-06-23 — there are **two distinct causes**:
+
+1. **Orphaned `next dev` processes pile up.** Windows **Ctrl+C kills only the parent**,
+   leaving the Turbopack worker tree running. Repeated start/stop accumulates hundreds of
+   stray `node` processes (observed **481 ≈ 19 GB**). → **Stop dev by closing the whole
+   terminal window**, not Ctrl+C. Sweep stragglers (does not touch other node tools):
+
+   ```powershell
+   Get-CimInstance Win32_Process -Filter "Name='node.exe'" |
+     Where-Object { $_.CommandLine -match 'next' } |
+     ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+   ```
+
+2. **Disk-I/O storm on cold compile.** Windows Defender real-time protection scans every
+   file Turbopack writes to `apps/web/.next` → SSD 100% → whole OS stutters even with free
+   RAM. Idle dev is stable (~1.2 GB); the spike is on first page compile. Fixes — Defender
+   exclusions (admin PowerShell, the biggest lever), then prune the caches:
+
+   ```powershell
+   Add-MpPreference -ExclusionPath "c:\develop\Apps\Main-Projects\tourism-platform"
+   Add-MpPreference -ExclusionProcess "node.exe"
+   ```
+
+   Then `pnpm nx reset` (prune `.nx/cache`) and `rm -rf apps/web/.next` (clear a possibly
+   corrupted Turbopack cache).
+
+**Still spiking after the above?** Isolate **Turbopack-dev vs app code** without the heavy
+dev watcher: `pnpm nx build @tourism/web` then serve the prebuilt output (no on-demand
+compile). If the prod build runs fine in the browser, the problem is Turbopack-dev /
+environment (a **factory reset will not fix it** — it returns on next `dev`); if the prod
+build also spikes, suspect a client runtime loop. The production build is known green as of
+`6666acc`.
