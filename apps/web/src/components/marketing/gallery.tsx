@@ -62,13 +62,17 @@ export function Gallery({
   sections = PLACEHOLDER_SECTIONS,
   heading,
   subtitle,
+  variant = 'grid',
 }: {
   sections?: GallerySection[];
   heading?: string;
   subtitle?: string;
+  /** `grid` = even mosaic (default); `editorial` = one large lead tile + a stacked side column. */
+  variant?: 'grid' | 'editorial';
 }) {
   const t = messages.gallery;
-  const flat: LightboxImage[] = sections.flatMap((s) => s.images);
+  const allImages: GalleryImage[] = sections.flatMap((s) => s.images);
+  const flat: LightboxImage[] = allImages;
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   // Running flat index so each tile maps to its position in `flat` (the lightbox order).
@@ -110,17 +114,28 @@ export function Gallery({
           <p className="text-muted-foreground text-lg text-pretty">{subtitle ?? t.subtitle}</p>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
-          {sections.map((section, i) =>
-            section.type === 'grid' ? (
-              <div key={i} className="grid grid-cols-2 gap-5">
-                {section.images.map((img) => renderTile(img, 'aspect-square'))}
-              </div>
-            ) : (
-              <div key={i}>{section.images.map((img) => renderTile(img, 'aspect-square'))}</div>
-            ),
-          )}
-        </div>
+        {variant === 'editorial' ? (
+          // Asymmetric: one large lead tile + the rest as a stacked side grid. Lead = first image.
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2">
+            {renderTile(
+              allImages[0],
+              'aspect-4/3 sm:col-span-2 lg:col-span-2 lg:row-span-2 lg:aspect-auto lg:min-h-80',
+            )}
+            {allImages.slice(1).map((img) => renderTile(img, 'aspect-square'))}
+          </div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2">
+            {sections.map((section, i) =>
+              section.type === 'grid' ? (
+                <div key={i} className="grid grid-cols-2 gap-5">
+                  {section.images.map((img) => renderTile(img, 'aspect-square'))}
+                </div>
+              ) : (
+                <div key={i}>{section.images.map((img) => renderTile(img, 'aspect-square'))}</div>
+              ),
+            )}
+          </div>
+        )}
       </div>
 
       <Lightbox
