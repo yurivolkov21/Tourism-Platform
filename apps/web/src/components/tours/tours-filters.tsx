@@ -1,5 +1,8 @@
 'use client';
 
+import { useState } from 'react';
+import { MinusIcon, PlusIcon } from 'lucide-react';
+
 import type { DurationBucket, PriceBucket, TourTheme, TravelStyle } from '@tourism/core';
 
 import { Checkbox } from '@tourism/ui';
@@ -36,25 +39,47 @@ function FacetGroup({
   selected: readonly string[];
   onToggle: (value: string) => void;
 }) {
+  const [open, setOpen] = useState(true);
+  const activeInGroup = options.filter((o) => selected.includes(o.value)).length;
+
   return (
-    <fieldset>
-      <legend className="font-sans mb-3 text-sm font-semibold tracking-wide uppercase">
-        {heading}
-      </legend>
-      <ul className="space-y-2.5">
-        {options.map((option) => (
-          <li key={option.value}>
-            <label className="text-foreground/90 hover:text-foreground flex cursor-pointer items-center gap-2.5 text-sm transition-colors">
-              <Checkbox
-                checked={selected.includes(option.value)}
-                onCheckedChange={() => onToggle(option.value)}
-              />
-              {option.label}
-            </label>
-          </li>
-        ))}
-      </ul>
-    </fieldset>
+    <div className="border-border border-b pb-5 last:border-b-0 last:pb-0">
+      <h3>
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          className="text-foreground flex w-full items-center justify-between gap-2"
+        >
+          <span className="font-sans text-sm font-semibold tracking-wide uppercase">
+            {heading}
+            {activeInGroup > 0 ? (
+              <span className="text-primary ml-1.5 text-xs">({activeInGroup})</span>
+            ) : null}
+          </span>
+          {open ? (
+            <MinusIcon className="text-muted-foreground size-4 shrink-0" />
+          ) : (
+            <PlusIcon className="text-muted-foreground size-4 shrink-0" />
+          )}
+        </button>
+      </h3>
+      {open ? (
+        <ul className="mt-3 space-y-2.5">
+          {options.map((option) => (
+            <li key={option.value}>
+              <label className="text-foreground/90 hover:text-foreground flex cursor-pointer items-center gap-2.5 text-sm transition-colors">
+                <Checkbox
+                  checked={selected.includes(option.value)}
+                  onCheckedChange={() => onToggle(option.value)}
+                />
+                {option.label}
+              </label>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
   );
 }
 
@@ -79,7 +104,7 @@ export function ToursFilters({
   const t = messages.toursPage;
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h2 className="font-heading text-lg font-semibold">{t.filtersLabel}</h2>
         {activeCount > 0 ? (
