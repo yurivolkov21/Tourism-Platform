@@ -71,6 +71,7 @@ round they all go to `/tours`).
 ## Per-section design
 
 ### `/tours` listing
+
 - **Header** — `ContentHero` (image + breadcrumb `Home / Tours` + title + subtitle). Consistent with content pages.
 - **Body** — `lg:grid lg:grid-cols-[16rem_1fr] gap-…`:
   - **Sidebar** (`ToursFilters`, desktop `lg:block`): facet groups (Destination · Duration · Travel style · Theme),
@@ -81,6 +82,7 @@ round they all go to `/tours`).
 - Reuse `TourCard`. Active filter chips above the grid (optional, nice-to-have) for quick removal.
 
 ### `/tours/[slug]` detail
+
 - **TourHero** — full-bleed cover (or gallery lead) + breadcrumb + title + meta row (destination · duration ·
   rating·reviews) + price; on desktop the **sticky `BookingBox`** sits in an aside.
 - **2-col layout** (`lg:grid lg:grid-cols-[1fr_22rem]`): main column = overview → **Highlights** →

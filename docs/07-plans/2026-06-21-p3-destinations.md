@@ -27,11 +27,13 @@
 ### Task 1: Core region/slug helpers + `DestinationSummary` type (TDD)
 
 **Files:**
+
 - Create: `libs/shared/core/src/lib/destinations/destinations.ts`
 - Create: `libs/shared/core/src/lib/destinations/destinations.spec.ts`
 - Modify: `libs/shared/core/src/index.ts` (add export)
 
 **Interfaces:**
+
 - Produces:
   - `interface DestinationSummary { slug: string; name: string; country: string; region: string | null; description: string | null; tourCount: number; }`
   - `const REGION_ORDER: readonly string[]` = `['Northern Vietnam','Central Vietnam','Southern Vietnam']`
@@ -176,9 +178,11 @@ git commit -m "feat(core): region grouping + slug helpers for destinations"
 ### Task 2: Web fixtures (shared view-model)
 
 **Files:**
+
 - Create: `apps/web/src/lib/destinations.fixtures.ts`
 
 **Interfaces:**
+
 - Consumes: `DestinationSummary` from `@tourism/core`; `TourCardData` from `../components/tours/tour-card`.
 - Produces:
   - `type DestinationTileVM = DestinationSummary & { tagline: string; image: string; intro: string; gallery: string[]; tours: TourCardData[]; span?: string; }`
@@ -265,10 +269,12 @@ git commit -m "feat(web): shared destinations fixtures (view-model over core Des
 ### Task 3: Extract `DestinationTile`; refactor home to use it
 
 **Files:**
+
 - Create: `apps/web/src/components/destinations/destination-tile.tsx`
 - Modify: `apps/web/src/components/marketing/destinations.tsx`
 
 **Interfaces:**
+
 - Consumes: `DestinationTileVM` from `../../lib/destinations.fixtures`.
 - Produces: `function DestinationTile({ destination, className }: { destination: DestinationTileVM; className?: string }): JSX.Element` — renders the image + scrim + name + tagline + tourCount, wrapped in a `next/link` to `/destinations/{slug}`. Uses `destination.span` when present (home bento), ignored when `className` overrides.
 
@@ -353,10 +359,12 @@ git commit -m "refactor(web): extract DestinationTile, share with home teaser"
 ### Task 4: i18n copy + header nav link
 
 **Files:**
+
 - Modify: `libs/shared/i18n/src/lib/messages.ts`
 - Modify: `apps/web/src/components/layout/site-header.tsx`
 
 **Interfaces:**
+
 - Produces: `messages.destinationsPage` (overview) + `messages.destinationDetail` (detail) namespaces.
 
 - [ ] **Step 1: Add copy namespaces**
@@ -399,12 +407,14 @@ git commit -m "feat(i18n,web): destinations page copy + header route link"
 ### Task 5: Overview route (`/destinations`)
 
 **Files:**
+
 - Create: `apps/web/src/components/destinations/destinations-hero.tsx`
 - Create: `apps/web/src/components/destinations/region-group.tsx`
 - Create: `apps/web/src/components/destinations/popular-tours.tsx`
 - Create: `apps/web/src/app/destinations/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `destinations`, `popularTours` (fixtures); `groupByRegion` (`@tourism/core`); `DestinationTile`; `TourCard`; `EnquiryCta`; `messages.destinationsPage`.
 - Produces: route `/destinations`.
 
@@ -494,6 +504,7 @@ git commit -m "feat(web): /destinations overview (hero + region groups + popular
 ### Task 6: Destination page route (`/destinations/[slug]`)
 
 **Files:**
+
 - Create: `apps/web/src/components/destinations/destination-hero.tsx`
 - Create: `apps/web/src/components/destinations/destination-intro.tsx`
 - Create: `apps/web/src/components/destinations/destination-tours.tsx`
@@ -501,6 +512,7 @@ git commit -m "feat(web): /destinations overview (hero + region groups + popular
 - Create: `apps/web/src/app/destinations/[slug]/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `getBySlug` (`@tourism/core`); `destinations` (fixtures); `TourCard`, `EnquiryCta`; `messages.destinationDetail`; `notFound` from `next/navigation`.
 - Produces: route `/destinations/[slug]` with `generateStaticParams`.
 

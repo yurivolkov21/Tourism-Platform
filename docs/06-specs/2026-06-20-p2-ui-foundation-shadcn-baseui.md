@@ -28,6 +28,7 @@ Stand up a **shared web component library** in `@tourism/ui` (`libs/web/ui`) bas
 ## Scope
 
 **In:**
+
 1. Tailwind v4 (CSS-first) configured for `@tourism/ui` + a shared `globals.css` exporting the
    theme (shadcn CSS variables).
 2. shadcn `components.json` in `libs/web/ui` targeting the lib, `base=base` (Base UI),
@@ -37,6 +38,7 @@ Stand up a **shared web component library** in `@tourism/ui` (`libs/web/ui`) bas
 5. Quality gate green (lint, typecheck, build).
 
 **Out (deferred):**
+
 - Full `@tourism/tokens` design-token system (palette/typography/spacing) — later P2 step.
 - Visual/brand direction, theming polish, dark mode tuning.
 - Rebuilding the Nx welcome pages into real product UI.

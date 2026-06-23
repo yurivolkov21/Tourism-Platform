@@ -39,7 +39,7 @@ underline accent; prices/rating numerals in Fraunces; thin brass dividers betwee
 ## Implementation outline (next PR, code)
 
 1. Swap color values in `libs/shared/tokens/style-dictionary/tokens.mjs` (emerald/ivory/brass, light+dark)
-   + `radius.DEFAULT → 0.375rem`; regenerate `tokens.css`.
+   - `radius.DEFAULT → 0.375rem`; regenerate `tokens.css`.
 2. Load **Fraunces** via `next/font/google` in web + admin layouts → bind to `--font-heading`; set the
    `--font-heading` theme token to `var(--font-heading)` (currently aliases `--font-sans`). Apply
    `font-heading` to headings (base layer or composite text styles).

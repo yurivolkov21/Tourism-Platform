@@ -27,10 +27,12 @@
 ### Task 1: i18n `regionPage` copy + `regions.ts` helper
 
 **Files:**
+
 - Modify: `libs/shared/i18n/src/lib/messages.ts`
 - Create: `apps/web/src/lib/regions.ts`
 
 **Interfaces:**
+
 - Produces:
   - `messages.regionPage` with `backToAll`, `introHeading(region)`, `itinerariesCta(region)`, `toursHeading`, `allTab`, `noTours`, and `regions: Record<string, { tagline: string; intro: string }>`.
   - `interface RegionData { name: string; image: string; images: string[]; destinations: { name: string; slug: string }[]; tours: TourCardData[] }`
@@ -127,10 +129,12 @@ git commit -m "feat(i18n,web): region-page copy + regions derivation helper"
 ### Task 2: `TourTile` (extract image-poster from `PopularTours`)
 
 **Files:**
+
 - Create: `apps/web/src/components/tours/tour-tile.tsx`
 - Modify: `apps/web/src/components/destinations/popular-tours.tsx`
 
 **Interfaces:**
+
 - Consumes: `TourCardData` from `./tour-card`.
 - Produces: `function TourTile({ tour }: { tour: TourCardData }): JSX.Element` — image-background poster card (photo + scrim + headline-badge chip + place/duration + title + rating/price), linking to `#tour-${tour.slug}` (placeholder until `/tours/[slug]` exists).
 
@@ -232,10 +236,12 @@ git commit -m "refactor(web): extract TourTile poster from PopularTours"
 ### Task 3: `RegionHero` + `RegionIntro`
 
 **Files:**
+
 - Create: `apps/web/src/components/destinations/region-hero.tsx`
 - Create: `apps/web/src/components/destinations/region-intro.tsx`
 
 **Interfaces:**
+
 - Consumes: `messages.common.home`, `messages.nav.destinations`, `messages.regionPage`.
 - Produces:
   - `function RegionHero({ name, image, tagline }: { name: string; image: string; tagline: string })`
@@ -364,9 +370,11 @@ git commit -m "feat(web): RegionHero + RegionIntro (hero, video slot, collage, i
 ### Task 4: `RegionTours` (client tab bar + filtered grid)
 
 **Files:**
+
 - Create: `apps/web/src/components/destinations/region-tours.tsx`
 
 **Interfaces:**
+
 - Consumes: `TourTile`; `TourCardData`; `messages.regionPage`; `cn` from `@tourism/ui`.
 - Produces: `function RegionTours({ destinations, tours, initialDestination }: { destinations: { name: string; slug: string }[]; tours: TourCardData[]; initialDestination?: string })` — `'use client'`. Tab state holds `'all'` or a destination **name**; filters `tours` by `tour.destination`.
 
@@ -461,10 +469,12 @@ git commit -m "feat(web): RegionTours client tab bar + filtered tour grid"
 ### Task 5: Region route + remove per-destination route
 
 **Files:**
+
 - Create: `apps/web/src/app/destinations/[region]/page.tsx`
 - Delete: `apps/web/src/app/destinations/[slug]/page.tsx` (and the `[slug]` folder)
 
 **Interfaces:**
+
 - Consumes: `getRegion`, `regionSlugs` (`../../../lib/regions`); `RegionHero`, `RegionIntro`, `RegionTours`, `ValueProps`, `EnquiryCta`; `messages.regionPage`.
 
 - [ ] **Step 1: Create the region page**
@@ -552,10 +562,12 @@ git commit -m "feat(web): /destinations/[region] region pages (SSG); remove per-
 ### Task 6: Retarget overview + home tile links to region pages
 
 **Files:**
+
 - Modify: `apps/web/src/components/destinations/destination-tile.tsx`
 - Modify: `apps/web/src/components/destinations/region-group.tsx`
 
 **Interfaces:**
+
 - Consumes: `slugify` (`../../lib/slug`).
 
 - [ ] **Step 1: Point `DestinationTile` at the region page**

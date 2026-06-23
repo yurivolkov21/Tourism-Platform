@@ -24,7 +24,7 @@ export function AboutHero() {
 
         {/* Feature image placeholder (no media wired yet) */}
         <div
-          className="from-primary via-primary/80 to-rating flex aspect-16/9 items-center justify-center rounded-2xl bg-linear-to-br"
+          className="from-primary via-primary/80 to-rating flex aspect-video items-center justify-center rounded-2xl bg-linear-to-br"
           role="img"
           aria-label={t.imageAlt}
         >
