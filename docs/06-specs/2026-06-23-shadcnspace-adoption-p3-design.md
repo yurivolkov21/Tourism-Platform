@@ -111,6 +111,21 @@ WhyChoose/FAQ/Team/Story structure. New fabricated content.
   `about/story.tsx`, `marketing/why-choose.tsx`, `about/team.tsx`, `app/faq/page.tsx`.
 - Maybe: `messages.blog.featuredLabel` in `@tourism/i18n`.
 
+## Execution notes (2026-06-23 — actual)
+
+- **NumberTicker**: ported + normalized by hand into `@tourism/ui` (item is 1 file / 0 deps /
+  pure rAF) rather than via `shadcn add`, to avoid the internal `pnpm install`/build-gate on a
+  fragile machine and because we had to add on-view + reduced-motion + affix logic anyway. Source
+  credited in the file header (MIT).
+- **WhyChoose (feature-01)**: instead of a per-card reveal *plus* the section-level `<Reveal>`
+  (double animation), the home `<Reveal>` wrapper was removed for this section and the 4 cards
+  now stagger themselves on view. The fake-testimonial half of `feature-01` was not adopted.
+- **FAQ (faq-01) — SKIPPED on execution.** `FaqExplorer` is **search-filtered client state**;
+  a per-item scroll-reveal conflicts with instant search results (filtered items would be stuck
+  hidden until scrolled, and the reveal effect doesn't re-run on filter). Our FAQ (search + TOC +
+  FAQPage JSON-LD) already beats `faq-01`, so **no motion was added** — keep it instant. This
+  deviates from the planned "borrow accordion entrance"; recorded here per the spec→plan contract.
+
 ## Risks / mitigations
 
 - **NumberTicker stuck at 0 without JS / under reduced-motion** → render final value as the

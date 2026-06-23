@@ -63,7 +63,7 @@ tokens-only (no-hex), reuse `@tourism/ui`, copy in `@tourism/i18n`. Plan:
 | **Tour detail** | `/tours/[slug]` | ✅ SSG (all fixture slugs, 404 unknown) — tour hero · overview · highlights · **itinerary accordion** · what's-included · sticky **BookingBox** (UI-only "Request to book" → `#contact`) · photo gallery · enquiry. |
 | **About** | `/about` | ✅ AboutHero · **"Our story" alternating image timeline** (centre spine + haloed year nodes) · by-the-numbers · team (baseline-aligned cards) · enquiry |
 | **Contact** | `/contact` | ✅ ContentHero · **channels** (call/email/WhatsApp action cards) · **two offices + map** (get-directions) · Plan-your-trip form · closing CtaBand |
-| **Motion pass** | — | 🚧 increment-1 merged (`6666acc`) — home below-fold sections in `<Reveal>` (gsap ScrollTrigger, reduced-motion + SEO safe) · `<ScrollProgress>` on tour detail · glare-hover on home destination tiles. **⚠ see known issue below.** |
+| **Motion pass** | — | 🚧 increment-1 merged (`6666acc`) — home below-fold `<Reveal>` · `<ScrollProgress>` tour detail · glare-hover destination tiles. increment-2 on branch `feat/shadcnspace-adoption-p3` (awaiting review): NumberTicker count-up on stats · featured-first BlogTeaser · story spine-fill · WhyChoose/Team staggers (spec+plan in 06-specs/07-plans). |
 | Booking + account | — | ⬜ (later in P3) |
 | **Wire real data** | — | ⬜ replace fixtures with the live `@tourism/core` client (deferred to end of P3) |
 
