@@ -23,12 +23,19 @@ import { PayPalService } from '../payments/paypal.service';
 import { StripeService } from '../payments/stripe.service';
 import { mintBookingCode } from './booking-code';
 import { CreateBookingDto } from './dto/create-booking.dto';
+import { ListAdminBookingsQueryDto } from './dto/list-admin-bookings-query.dto';
 
 /** Result of `startCheckout` — the FE redirects the buyer to `checkoutUrl`. */
 export interface CheckoutStarted {
   checkoutUrl: string;
   bookingCode: string;
   status: BookingStatus;
+}
+
+/** Paginated admin-bookings result; `TransformInterceptor` hoists `items`→`data` + `meta`. */
+export interface PaginatedBookings {
+  items: Booking[];
+  meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
 
 /** Relations embedded on a booking payload (EN-only: single `title`). */
@@ -484,6 +491,64 @@ export class BookingsService {
   /** One booking by code — owner-or-admin; non-owner/missing both → 404. */
   findByCodeForCaller(code: string, caller: Caller): Promise<Booking> {
     return this.loadOwnedOr404(code, caller);
+  }
+
+  /**
+   * Admin management list — paginated, newest first, optional `status` filter and
+   * a case-insensitive `search` across code / contact email / contact name.
+   */
+  async findAllForAdmin(query: ListAdminBookingsQueryDto): Promise<PaginatedBookings> {
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 20;
+    const search = query.search?.trim();
+    const where: Prisma.BookingWhereInput = {
+      ...(query.status ? { status: query.status } : {}),
+      ...(search
+        ? {
+            OR: [
+              { code: { contains: search, mode: 'insensitive' } },
+              { contactEmail: { contains: search, mode: 'insensitive' } },
+              { contactName: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+
+    const [items, total] = await Promise.all([
+      this.prisma.booking.findMany({
+        where,
+        include: BOOKING_INCLUDE,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      this.prisma.booking.count({ where }),
+    ]);
+
+    return {
+      items,
+      meta: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / pageSize)),
+      },
+    };
+  }
+
+  /** One booking by code for an admin (sees any booking; no owner check). 404 if missing. */
+  async findByCodeForAdmin(code: string): Promise<Booking> {
+    const booking = await this.prisma.booking.findUnique({
+      where: { code },
+      include: BOOKING_INCLUDE,
+    });
+    if (!booking) {
+      throw new NotFoundException({
+        code: 'BOOKING_NOT_FOUND',
+        message: `Booking "${code}" not found`,
+      });
+    }
+    return booking;
   }
 
   // ── Internals ───────────────────────────────────────────────────────────────

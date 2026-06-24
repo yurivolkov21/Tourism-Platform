@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
   Post,
+  Query,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -17,8 +19,10 @@ import {
 import { Booking, User, UserRole } from '@prisma/client';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { BookingsService } from './bookings.service';
+import { BookingsService, PaginatedBookings } from './bookings.service';
 import { BookingDto } from './dto/booking.dto';
+import { ListAdminBookingsQueryDto } from './dto/list-admin-bookings-query.dto';
+import { PaginatedBookingsDto } from './dto/paginated-bookings.dto';
 import { RefundBookingDto } from './dto/refund-booking.dto';
 
 /**
@@ -31,6 +35,23 @@ import { RefundBookingDto } from './dto/refund-booking.dto';
 @Controller('admin/bookings')
 export class AdminBookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
+
+  @Get()
+  @ApiOperation({ summary: 'Admin: list all bookings (paginated, filter by status/search)' })
+  @ApiOkResponse({ type: PaginatedBookingsDto })
+  @ApiResponse({ status: 403, description: 'Not an ADMIN' })
+  list(@Query() query: ListAdminBookingsQueryDto): Promise<PaginatedBookings> {
+    return this.bookingsService.findAllForAdmin(query);
+  }
+
+  @Get(':code')
+  @ApiOperation({ summary: 'Admin: get one booking by code' })
+  @ApiOkResponse({ type: BookingDto })
+  @ApiResponse({ status: 403, description: 'Not an ADMIN' })
+  @ApiResponse({ status: 404, description: 'Booking not found' })
+  detail(@Param('code') code: string): Promise<Booking> {
+    return this.bookingsService.findByCodeForAdmin(code);
+  }
 
   @Post(':code/refund')
   @HttpCode(HttpStatus.OK)

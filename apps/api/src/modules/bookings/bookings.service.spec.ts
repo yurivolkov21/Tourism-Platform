@@ -617,4 +617,64 @@ describe('BookingsService', () => {
     await svc.capturePayPal('BK-1', { id: 'user-1', role: UserRole.CUSTOMER });
     expect(paypal.captureOrder).not.toHaveBeenCalled();
   });
+
+  describe('findAllForAdmin', () => {
+    it('returns paginated items + meta', async () => {
+      const prisma = makePrisma({
+        booking: {
+          findMany: jest.fn().mockResolvedValue([{ id: 'bk-1' }, { id: 'bk-2' }]),
+          count: jest.fn().mockResolvedValue(2),
+        },
+      });
+      const result = await svcWith(prisma).findAllForAdmin({ page: 1, pageSize: 20 });
+      expect(result.items).toHaveLength(2);
+      expect(result.meta).toEqual({ page: 1, pageSize: 20, total: 2, totalPages: 1 });
+    });
+
+    it('applies status filter + case-insensitive search to the where clause', async () => {
+      const findMany = jest.fn().mockResolvedValue([]);
+      const prisma = makePrisma({
+        booking: { findMany, count: jest.fn().mockResolvedValue(0) },
+      });
+      await svcWith(prisma).findAllForAdmin({ status: BookingStatus.PAID, search: 'hoi' });
+      const where = findMany.mock.calls[0][0].where;
+      expect(where.status).toBe(BookingStatus.PAID);
+      expect(where.OR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ code: { contains: 'hoi', mode: 'insensitive' } }),
+          expect.objectContaining({ contactEmail: { contains: 'hoi', mode: 'insensitive' } }),
+        ]),
+      );
+    });
+
+    it('computes totalPages from total + pageSize', async () => {
+      const prisma = makePrisma({
+        booking: {
+          findMany: jest.fn().mockResolvedValue([]),
+          count: jest.fn().mockResolvedValue(45),
+        },
+      });
+      const result = await svcWith(prisma).findAllForAdmin({ page: 2, pageSize: 20 });
+      expect(result.meta.totalPages).toBe(3);
+    });
+  });
+
+  describe('findByCodeForAdmin', () => {
+    it('returns the booking when found (no owner check)', async () => {
+      const prisma = makePrisma({
+        booking: { findUnique: jest.fn().mockResolvedValue({ id: 'bk-1', code: 'BK-1' }) },
+      });
+      const result = await svcWith(prisma).findByCodeForAdmin('BK-1');
+      expect(result.code).toBe('BK-1');
+    });
+
+    it('throws 404 when the code is missing', async () => {
+      const prisma = makePrisma({
+        booking: { findUnique: jest.fn().mockResolvedValue(null) },
+      });
+      await expect(svcWith(prisma).findByCodeForAdmin('BK-NOPE')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+    });
+  });
 });
