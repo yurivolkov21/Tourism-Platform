@@ -25,6 +25,7 @@ import {
 } from '@tourism/ui';
 
 import { apiErrorMessage } from '../../../lib/api/error';
+import { DeleteDestination } from '../../../components/destinations/delete-destination';
 import { listDestinations, type DestinationList } from '../../../lib/destinations/data';
 
 interface DestinationsPageProps {
@@ -150,6 +151,7 @@ export default async function DestinationsPage({ searchParams }: DestinationsPag
                         >
                           Edit
                         </Button>
+                        <DeleteDestination slug={destination.slug} name={destination.name} />
                       </div>
                     </TableCell>
                   </TableRow>

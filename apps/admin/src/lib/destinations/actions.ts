@@ -81,3 +81,26 @@ export async function updateDestination(
   revalidatePath(`/destinations/${slug}/edit`);
   redirect('/destinations');
 }
+
+export interface DeleteDestinationState {
+  error?: string;
+}
+
+/**
+ * Deletes a destination (`DELETE /admin/destinations/:slug`). The API returns 409 when it's still
+ * active or still has tours attached; `apiErrorMessage` surfaces that reason so the user knows to
+ * deactivate or detach first.
+ */
+export async function deleteDestination(slug: string): Promise<DeleteDestinationState> {
+  try {
+    const api = await getApiClient();
+    await api.DELETE('/api/v1/admin/destinations/{slug}', {
+      params: { path: { slug } },
+    });
+  } catch (e) {
+    return { error: apiErrorMessage(e) };
+  }
+
+  revalidatePath('/destinations');
+  return {};
+}
