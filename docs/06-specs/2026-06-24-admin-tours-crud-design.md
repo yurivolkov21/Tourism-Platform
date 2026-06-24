@@ -23,6 +23,7 @@ strike `compareAtPrice`) · Duration · status badges (Published / Draft, + Feat
 category (select), `isPublished`. Pagination + empty state + "New tour". Un-soon the nav item.
 
 **Create/Edit form** — grouped fields:
+
 - **Identity:** `title` (req 1–200), `slug?` (≤200, auto-kebab), `summary?` (≤500 textarea).
 - **References:** `categorySlug` (**Select** ← all active categories) · `destinationSlugs[]`
   (**multi-combobox with search** ← all active destinations, ≥1; selected shown as removable chips) ·
