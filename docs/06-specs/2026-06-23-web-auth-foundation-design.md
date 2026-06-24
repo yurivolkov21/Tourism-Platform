@@ -43,22 +43,26 @@ users via `POST /auth/sync` (idempotent, CUSTOMER). So the web flow is:
 ## Per-area design
 
 ### 1. Supabase clients + middleware
+
 - `lib/supabase/client.ts` — `createBrowserClient` (browser).
 - `lib/supabase/server.ts` — `createServerClient` reading/writing cookies via `next/headers`.
 - `middleware.ts` — `@supabase/ssr` session refresh on each request; also redirects unauthenticated
   requests for protected paths (`/account*`) to `/login?redirect=<path>`. Matcher excludes static assets.
 
 ### 2. Server actions (`lib/auth/actions.ts`)
+
 - `signIn(formData)` — `signInWithPassword`; on success call `syncUser()` then redirect to the
   `redirect` param (validated) or `/account`; on error return a friendly message.
 - `signUp(formData)` — `signUp` with `emailRedirectTo` → `/auth/callback`; returns "check your email".
 - `signOut()` — `supabase.auth.signOut()` → redirect `/`.
 
 ### 3. Email-confirm callback (`app/auth/callback/route.ts`)
+
 - Route handler: `exchangeCodeForSession(code)`; then `syncUser()`; redirect to `/account` (or the
   `redirect` param). On error → `/login?error=...`.
 
 ### 4. Pages
+
 - `/login` (`app/login/page.tsx`) + `LoginForm` — email + password, error display, link to `/register`.
 - `/register` (`app/register/page.tsx`) + `RegisterForm` — email + password (+ confirm), submits
   `signUp`, shows the "check your inbox" state.
@@ -66,6 +70,7 @@ users via `POST /auth/sync` (idempotent, CUSTOMER). So the web flow is:
   client; if none, `redirect('/login?redirect=/account')`. Renders the email + a sign-out button (stub).
 
 ### 5. Navbar state
+
 - `AuthProvider` (client context) seeded with the server-read user, subscribed to
   `supabase.auth.onAuthStateChange` for live updates (login/logout reflect immediately).
 - `UserMenu` (client) in `SiteHeader`: logged out → "Log in" link (`/login`); logged in → a dropdown

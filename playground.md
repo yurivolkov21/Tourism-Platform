@@ -1,1 +1,1707 @@
 # Playground
+
+```tsx
+import type { SVGAttributes } from "react";
+
+const Logo = (props: SVGAttributes<SVGElement>) => {
+  return (
+    <div className="flex items-center gap-2.5">
+      <svg
+        width="147"
+        height="40"
+        viewBox="0 0 147 40"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        {...props}
+      >
+        <circle
+          cx="20"
+          cy="20"
+          r="20"
+          fill="#030712"
+          className="dark:fill-[#FFFFFF]"
+        />
+        <path
+          d="M25.2992 26.2688C24.0576 26.2688 23.04 26 22.2464 25.4624C21.4528 24.9248 20.9728 24.1568 20.8064 23.1584L23.0336 22.5824C23.1232 23.0304 23.2704 23.3824 23.4752 23.6384C23.6928 23.8944 23.9552 24.08 24.2624 24.1952C24.5824 24.2976 24.928 24.3488 25.2992 24.3488C25.8624 24.3488 26.2784 24.2528 26.5472 24.0608C26.816 23.856 26.9504 23.6064 26.9504 23.312C26.9504 23.0176 26.8224 22.7936 26.5664 22.64C26.3104 22.4736 25.9008 22.3392 25.3376 22.2368L24.8 22.1408C24.1344 22.0128 23.5264 21.84 22.976 21.6224C22.4256 21.392 21.984 21.0784 21.6512 20.6816C21.3184 20.2848 21.152 19.7728 21.152 19.1456C21.152 18.1984 21.4976 17.4752 22.1888 16.976C22.88 16.464 23.7888 16.208 24.9152 16.208C25.9776 16.208 26.8608 16.4448 27.5648 16.9184C28.2688 17.392 28.7296 18.0128 28.9472 18.7808L26.7008 19.472C26.5984 18.9856 26.3872 18.64 26.0672 18.4352C25.76 18.2304 25.376 18.128 24.9152 18.128C24.4544 18.128 24.1024 18.2112 23.8592 18.3776C23.616 18.5312 23.4944 18.7488 23.4944 19.0304C23.4944 19.3376 23.6224 19.568 23.8784 19.7216C24.1344 19.8624 24.48 19.9712 24.9152 20.048L25.4528 20.144C26.1696 20.272 26.816 20.4448 27.392 20.6624C27.9808 20.8672 28.4416 21.168 28.7744 21.5648C29.12 21.9488 29.2928 22.4736 29.2928 23.1392C29.2928 24.1376 28.928 24.912 28.1984 25.4624C27.4816 26 26.5152 26.2688 25.2992 26.2688ZM30.6447 26V12.56H33.0639V17.648H33.4095C33.5119 17.4432 33.6719 17.2384 33.8895 17.0336C34.1071 16.8288 34.3951 16.6624 34.7535 16.5344C35.1247 16.3936 35.5919 16.3232 36.1551 16.3232C36.8975 16.3232 37.5439 16.496 38.0943 16.8416C38.6575 17.1744 39.0927 17.6416 39.3999 18.2432C39.7071 18.832 39.8607 19.5232 39.8607 20.3168V26H37.4415V20.5088C37.4415 19.792 37.2623 19.2544 36.9039 18.896C36.5583 18.5376 36.0591 18.3584 35.4063 18.3584C34.6639 18.3584 34.0879 18.608 33.6783 19.1072C33.2687 19.5936 33.0639 20.2784 33.0639 21.1616V26H30.6447Z"
+          fill="white"
+          className="dark:fill-[#030712]"
+        />
+        <path
+          d="M44.6648 26.2688C43.9864 26.2688 43.3784 26.1536 42.8408 25.9232C42.3032 25.68 41.8744 25.3344 41.5544 24.8864C41.2472 24.4256 41.0936 23.8688 41.0936 23.216C41.0936 22.5632 41.2472 22.0192 41.5544 21.584C41.8744 21.136 42.3096 20.8032 42.86 20.5856C43.4232 20.3552 44.0632 20.24 44.78 20.24H47.3912V19.7024C47.3912 19.2544 47.2504 18.8896 46.9688 18.608C46.6872 18.3136 46.2392 18.1664 45.6248 18.1664C45.0232 18.1664 44.5752 18.3072 44.2808 18.5888C43.9864 18.8576 43.7944 19.2096 43.7048 19.6448L41.4776 18.896C41.6312 18.4096 41.8744 17.968 42.2072 17.5712C42.5528 17.1616 43.0072 16.8352 43.5704 16.592C44.1464 16.336 44.844 16.208 45.6632 16.208C46.9176 16.208 47.9096 16.5216 48.6392 17.1488C49.3688 17.776 49.7336 18.6848 49.7336 19.8752V23.4272C49.7336 23.8112 49.9128 24.0032 50.2712 24.0032H51.0392V26H49.4264C48.9528 26 48.5624 25.8848 48.2552 25.6544C47.948 25.424 47.7944 25.1168 47.7944 24.7328V24.7136H47.4296C47.3784 24.8672 47.2632 25.072 47.084 25.328C46.9048 25.5712 46.6232 25.7888 46.2392 25.9808C45.8552 26.1728 45.3304 26.2688 44.6648 26.2688ZM45.0872 24.3104C45.7656 24.3104 46.316 24.1248 46.7384 23.7536C47.1736 23.3696 47.3912 22.864 47.3912 22.2368V22.0448H44.9528C44.5048 22.0448 44.1528 22.1408 43.8968 22.3328C43.6408 22.5248 43.5128 22.7936 43.5128 23.1392C43.5128 23.4848 43.6472 23.7664 43.916 23.984C44.1848 24.2016 44.5752 24.3104 45.0872 24.3104ZM55.6925 26.2688C54.9373 26.2688 54.2269 26.0832 53.5613 25.712C52.9085 25.328 52.3837 24.7712 51.9869 24.0416C51.5901 23.312 51.3917 22.4288 51.3917 21.392V21.0848C51.3917 20.048 51.5901 19.1648 51.9869 18.4352C52.3837 17.7056 52.9085 17.1552 53.5613 16.784C54.2141 16.4 54.9245 16.208 55.6925 16.208C56.2685 16.208 56.7485 16.2784 57.1325 16.4192C57.5293 16.5472 57.8493 16.7136 58.0925 16.9184C58.3357 17.1232 58.5213 17.3408 58.6493 17.5712H58.9949V12.56H61.4141V26H59.0333V24.848H58.6877C58.4701 25.2064 58.1309 25.5328 57.6701 25.8272C57.2221 26.1216 56.5629 26.2688 55.6925 26.2688ZM56.4221 24.1568C57.1645 24.1568 57.7853 23.92 58.2845 23.4464C58.7837 22.96 59.0333 22.256 59.0333 21.3344V21.1424C59.0333 20.2208 58.7837 19.5232 58.2845 19.0496C57.7981 18.5632 57.1773 18.32 56.4221 18.32C55.6797 18.32 55.0589 18.5632 54.5597 19.0496C54.0605 19.5232 53.8109 20.2208 53.8109 21.1424V21.3344C53.8109 22.256 54.0605 22.96 54.5597 23.4464C55.0589 23.92 55.6797 24.1568 56.4221 24.1568ZM67.8018 26.2688C66.8802 26.2688 66.0418 26.0768 65.2866 25.6928C64.5442 25.3088 63.9554 24.752 63.5202 24.0224C63.085 23.2928 62.8674 22.4096 62.8674 21.3728V21.104C62.8674 20.0672 63.085 19.184 63.5202 18.4544C63.9554 17.7248 64.5442 17.168 65.2866 16.784C66.0418 16.4 66.8802 16.208 67.8018 16.208C68.7106 16.208 69.4914 16.368 70.1442 16.688C70.797 17.008 71.3218 17.4496 71.7186 18.0128C72.1282 18.5632 72.397 19.1904 72.525 19.8944L70.1826 20.3936C70.1314 20.0096 70.0162 19.664 69.837 19.3568C69.6578 19.0496 69.4018 18.8064 69.069 18.6272C68.749 18.448 68.3458 18.3584 67.8594 18.3584C67.373 18.3584 66.9314 18.4672 66.5346 18.6848C66.1506 18.8896 65.8434 19.2032 65.613 19.6256C65.3954 20.0352 65.2866 20.5408 65.2866 21.1424V21.3344C65.2866 21.936 65.3954 22.448 65.613 22.8704C65.8434 23.28 66.1506 23.5936 66.5346 23.8112C66.9314 24.016 67.373 24.1184 67.8594 24.1184C68.589 24.1184 69.1394 23.9328 69.5106 23.5616C69.8946 23.1776 70.1378 22.6784 70.2402 22.064L72.5826 22.6208C72.4162 23.2992 72.1282 23.92 71.7186 24.4832C71.3218 25.0336 70.797 25.4688 70.1442 25.7888C69.4914 26.1088 68.7106 26.2688 67.8018 26.2688ZM73.8102 26V16.4768H76.191V17.7248H76.5366C76.6902 17.392 76.9782 17.0784 77.4006 16.784C77.823 16.4768 78.463 16.3232 79.3206 16.3232C80.063 16.3232 80.7094 16.496 81.2598 16.8416C81.823 17.1744 82.2582 17.6416 82.5654 18.2432C82.8726 18.832 83.0262 19.5232 83.0262 20.3168V26H80.607V20.5088C80.607 19.792 80.4278 19.2544 80.0694 18.896C79.7238 18.5376 79.2246 18.3584 78.5718 18.3584C77.8294 18.3584 77.2534 18.608 76.8438 19.1072C76.4342 19.5936 76.2294 20.2784 76.2294 21.1616V26H73.8102ZM88.8287 26.2688C87.5871 26.2688 86.5695 26 85.7759 25.4624C84.9823 24.9248 84.5023 24.1568 84.3359 23.1584L86.5631 22.5824C86.6527 23.0304 86.7999 23.3824 87.0047 23.6384C87.2223 23.8944 87.4847 24.08 87.7919 24.1952C88.1119 24.2976 88.4575 24.3488 88.8287 24.3488C89.3919 24.3488 89.8079 24.2528 90.0767 24.0608C90.3455 23.856 90.4799 23.6064 90.4799 23.312C90.4799 23.0176 90.3519 22.7936 90.0959 22.64C89.8399 22.4736 89.4303 22.3392 88.8671 22.2368L88.3295 22.1408C87.6639 22.0128 87.0559 21.84 86.5055 21.6224C85.9551 21.392 85.5135 21.0784 85.1807 20.6816C84.8479 20.2848 84.6815 19.7728 84.6815 19.1456C84.6815 18.1984 85.0271 17.4752 85.7183 16.976C86.4095 16.464 87.3183 16.208 88.4447 16.208C89.5071 16.208 90.3903 16.4448 91.0943 16.9184C91.7983 17.392 92.2591 18.0128 92.4767 18.7808L90.2303 19.472C90.1279 18.9856 89.9167 18.64 89.5967 18.4352C89.2895 18.2304 88.9055 18.128 88.4447 18.128C87.9839 18.128 87.6319 18.2112 87.3887 18.3776C87.1455 18.5312 87.0239 18.7488 87.0239 19.0304C87.0239 19.3376 87.1519 19.568 87.4079 19.7216C87.6639 19.8624 88.0095 19.9712 88.4447 20.048L88.9823 20.144C89.6991 20.272 90.3455 20.4448 90.9215 20.6624C91.5103 20.8672 91.9711 21.168 92.3039 21.5648C92.6495 21.9488 92.8223 22.4736 92.8223 23.1392C92.8223 24.1376 92.4575 24.912 91.7279 25.4624C91.0111 26 90.0447 26.2688 88.8287 26.2688ZM94.1742 29.84V16.4768H96.555V17.6288H96.9006C97.1182 17.2576 97.4574 16.9312 97.9182 16.6496C98.379 16.3552 99.0382 16.208 99.8958 16.208C100.664 16.208 101.374 16.4 102.027 16.784C102.68 17.1552 103.205 17.7056 103.601 18.4352C103.998 19.1648 104.197 20.048 104.197 21.0848V21.392C104.197 22.4288 103.998 23.312 103.601 24.0416C103.205 24.7712 102.68 25.328 102.027 25.712C101.374 26.0832 100.664 26.2688 99.8958 26.2688C99.3198 26.2688 98.8334 26.1984 98.4366 26.0576C98.0526 25.9296 97.739 25.7632 97.4958 25.5584C97.2654 25.3408 97.0798 25.1232 96.939 24.9056H96.5934V29.84H94.1742ZM99.1662 24.1568C99.9214 24.1568 100.542 23.92 101.029 23.4464C101.528 22.96 101.777 22.256 101.777 21.3344V21.1424C101.777 20.2208 101.528 19.5232 101.029 19.0496C100.529 18.5632 99.9086 18.32 99.1662 18.32C98.4238 18.32 97.803 18.5632 97.3038 19.0496C96.8046 19.5232 96.555 20.2208 96.555 21.1424V21.3344C96.555 22.256 96.8046 22.96 97.3038 23.4464C97.803 23.92 98.4238 24.1568 99.1662 24.1568ZM108.607 26.2688C107.928 26.2688 107.32 26.1536 106.783 25.9232C106.245 25.68 105.816 25.3344 105.496 24.8864C105.189 24.4256 105.036 23.8688 105.036 23.216C105.036 22.5632 105.189 22.0192 105.496 21.584C105.816 21.136 106.252 20.8032 106.802 20.5856C107.365 20.3552 108.005 20.24 108.722 20.24H111.333V19.7024C111.333 19.2544 111.192 18.8896 110.911 18.608C110.629 18.3136 110.181 18.1664 109.567 18.1664C108.965 18.1664 108.517 18.3072 108.223 18.5888C107.928 18.8576 107.736 19.2096 107.647 19.6448L105.42 18.896C105.573 18.4096 105.816 17.968 106.149 17.5712C106.495 17.1616 106.949 16.8352 107.512 16.592C108.088 16.336 108.786 16.208 109.605 16.208C110.86 16.208 111.852 16.5216 112.581 17.1488C113.311 17.776 113.676 18.6848 113.676 19.8752V23.4272C113.676 23.8112 113.855 24.0032 114.213 24.0032H114.981V26H113.368C112.895 26 112.504 25.8848 112.197 25.6544C111.89 25.424 111.736 25.1168 111.736 24.7328V24.7136H111.372C111.32 24.8672 111.205 25.072 111.026 25.328C110.847 25.5712 110.565 25.7888 110.181 25.9808C109.797 26.1728 109.272 26.2688 108.607 26.2688ZM109.029 24.3104C109.708 24.3104 110.258 24.1248 110.68 23.7536C111.116 23.3696 111.333 22.864 111.333 22.2368V22.0448H108.895C108.447 22.0448 108.095 22.1408 107.839 22.3328C107.583 22.5248 107.455 22.7936 107.455 23.1392C107.455 23.4848 107.589 23.7664 107.858 23.984C108.127 24.2016 108.517 24.3104 109.029 24.3104ZM120.268 26.2688C119.346 26.2688 118.508 26.0768 117.753 25.6928C117.01 25.3088 116.422 24.752 115.986 24.0224C115.551 23.2928 115.334 22.4096 115.334 21.3728V21.104C115.334 20.0672 115.551 19.184 115.986 18.4544C116.422 17.7248 117.01 17.168 117.753 16.784C118.508 16.4 119.346 16.208 120.268 16.208C121.177 16.208 121.958 16.368 122.61 16.688C123.263 17.008 123.788 17.4496 124.185 18.0128C124.594 18.5632 124.863 19.1904 124.991 19.8944L122.649 20.3936C122.598 20.0096 122.482 19.664 122.303 19.3568C122.124 19.0496 121.868 18.8064 121.535 18.6272C121.215 18.448 120.812 18.3584 120.326 18.3584C119.839 18.3584 119.398 18.4672 119.001 18.6848C118.617 18.8896 118.31 19.2032 118.079 19.6256C117.862 20.0352 117.753 20.5408 117.753 21.1424V21.3344C117.753 21.936 117.862 22.448 118.079 22.8704C118.31 23.28 118.617 23.5936 119.001 23.8112C119.398 24.016 119.839 24.1184 120.326 24.1184C121.055 24.1184 121.606 23.9328 121.977 23.5616C122.361 23.1776 122.604 22.6784 122.706 22.064L125.049 22.6208C124.882 23.2992 124.594 23.92 124.185 24.4832C123.788 25.0336 123.263 25.4688 122.61 25.7888C121.958 26.1088 121.177 26.2688 120.268 26.2688ZM130.616 26.2688C129.668 26.2688 128.83 26.0704 128.1 25.6736C127.384 25.264 126.82 24.6944 126.411 23.9648C126.014 23.2224 125.816 22.352 125.816 21.3536V21.1232C125.816 20.1248 126.014 19.2608 126.411 18.5312C126.808 17.7888 127.364 17.2192 128.081 16.8224C128.798 16.4128 129.63 16.208 130.577 16.208C131.512 16.208 132.324 16.4192 133.016 16.8416C133.707 17.2512 134.244 17.8272 134.628 18.5696C135.012 19.2992 135.204 20.1504 135.204 21.1232V21.9488H128.273C128.299 22.6016 128.542 23.1328 129.003 23.5424C129.464 23.952 130.027 24.1568 130.692 24.1568C131.371 24.1568 131.87 24.0096 132.19 23.7152C132.51 23.4208 132.753 23.0944 132.92 22.736L134.897 23.7728C134.718 24.1056 134.456 24.4704 134.11 24.8672C133.777 25.2512 133.329 25.584 132.766 25.8656C132.203 26.1344 131.486 26.2688 130.616 26.2688ZM128.292 20.144H132.747C132.696 19.5936 132.472 19.152 132.075 18.8192C131.691 18.4864 131.185 18.32 130.558 18.32C129.905 18.32 129.387 18.4864 129.003 18.8192C128.619 19.152 128.382 19.5936 128.292 20.144ZM137.994 26.2688C137.482 26.2688 137.047 26.1024 136.688 25.7696C136.343 25.424 136.17 24.9824 136.17 24.4448C136.17 23.9072 136.343 23.472 136.688 23.1392C137.047 22.7936 137.482 22.6208 137.994 22.6208C138.519 22.6208 138.954 22.7936 139.3 23.1392C139.645 23.472 139.818 23.9072 139.818 24.4448C139.818 24.9824 139.645 25.424 139.3 25.7696C138.954 26.1024 138.519 26.2688 137.994 26.2688Z"
+          fill="#030712"
+          className="dark:fill-[#FFFFFF]"
+        />
+      </svg>
+    </div>
+  );
+};
+
+export default Logo;
+
+"use client";
+
+import type { ReactNode } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  Headset,
+  LucideIcon,
+  Salad,
+  ScanText,
+  Star,
+  Video,
+} from "lucide-react";
+
+type Props = {
+  trigger: ReactNode;
+  defaultOpen?: boolean;
+  align?: "start" | "center" | "end";
+};
+
+type MenuItem = {
+  textColor: string;
+  bgColor: string;
+  icon: LucideIcon;
+  title: string;
+  desc: string;
+  time: string;
+};
+
+const PROFILE_ITEMS: MenuItem[] = [
+  {
+    textColor: "text-blue-500",
+    bgColor: "bg-blue-500/10",
+    icon: Star,
+    title: "Event Today",
+    desc: "Just reminder that you have to",
+    time: "9:00 AM",
+  },
+  {
+    textColor: "text-orange-400",
+    bgColor: "bg-orange-400/10",
+    icon: Video,
+    title: "Team Meeting",
+    desc: "Discuss project updates and next steps",
+    time: "10:00 AM",
+  },
+  {
+    textColor: "text-teal-400",
+    bgColor: "bg-teal-400/10",
+    icon: Salad,
+    title: "Lunch Break",
+    desc: "Take a break and recharge",
+    time: "12:30 PM",
+  },
+  {
+    textColor: "text-red-500",
+    bgColor: "bg-red-500/10",
+    icon: Headset,
+    title: "Client Call",
+    desc: "Monthly check-in with the client",
+    time: "3:00 PM",
+  },
+  {
+    textColor: "text-sky-400",
+    bgColor: "bg-sky-400/10",
+    icon: ScanText,
+    title: "Project Review",
+    desc: "Review project deliverables with client",
+    time: "4:00 PM",
+  },
+];
+
+const NotificationDropdown = ({
+  trigger,
+  defaultOpen,
+  align = "end",
+}: Props) => {
+  return (
+    <div className="flex items-center justify-center">
+      <DropdownMenu defaultOpen={defaultOpen}>
+        <DropdownMenuTrigger>{trigger}</DropdownMenuTrigger>
+
+        <DropdownMenuContent
+          align={align}
+          className="p-0 w-sm rounded-2xl data-open:slide-in-from-top-20! data-closed:slide-out-to-top-20 data-open:fade-in-0 data-closed:fade-out-0 data-closed:zoom-out-100 duration-400"
+        >
+          {/* title */}
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="flex items-center justify-between p-4">
+              <p className="text-base font-medium text-popover-foreground">
+                Notifications
+              </p>
+              <Badge className="font-normal leading-0">5 New</Badge>
+            </DropdownMenuLabel>
+          </DropdownMenuGroup>
+
+          {/* Notifications */}
+          <DropdownMenuGroup>
+            {PROFILE_ITEMS.map(
+              ({ bgColor, textColor, icon: Icon, title, desc, time }) => (
+                <DropdownMenuItem
+                  key={title}
+                  className={
+                    "mx-1.5 my-1 p-2 flex items-center justify-between cursor-pointer"
+                  }
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={cn("p-2.5 rounded-xl", bgColor, textColor)}>
+                      <Icon size={20} className="size-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-popover-foreground">
+                        {title}
+                      </p>
+                      <p className="max-w-52 truncate text-sm text-muted-foreground">
+                        {desc}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{time}</p>
+                </DropdownMenuItem>
+              ),
+            )}
+          </DropdownMenuGroup>
+
+          {/* button */}
+          <div className="mx-1.5 my-1 p-2">
+            <Button className="rounded-xl w-full cursor-pointer h-9 hover:bg-primary/80">
+              See All Notifications
+            </Button>
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
+
+export default NotificationDropdown;
+
+"use client";
+
+import type { ReactNode } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  LucideIcon,
+  CircleUserRound,
+  CreditCard,
+  ReceiptText,
+  Settings,
+  LogOut,
+} from "lucide-react";
+
+type Props = {
+  trigger: ReactNode;
+  defaultOpen?: boolean;
+  align?: "start" | "center" | "end";
+};
+
+type MenuItem = {
+  label: string;
+  icon: LucideIcon;
+  destructive?: boolean;
+};
+
+const PROFILE_ITEMS: MenuItem[] = [
+  { label: "My Profile", icon: CircleUserRound },
+  { label: "My Subscription", icon: CreditCard },
+  { label: "My Invoice", icon: ReceiptText },
+];
+
+const SETTINGS_ITEMS: MenuItem[] = [
+  { label: "Account Settings", icon: Settings },
+];
+
+const LOGOUT_ITEM: MenuItem = {
+  label: "Signout",
+  icon: LogOut,
+  destructive: true,
+};
+
+const itemClass =
+  "p-2 text-sm font-medium text-popover-foreground cursor-pointer gap-2";
+
+const UserDropdown = ({ trigger, defaultOpen, align = "end" }: Props) => {
+  return (
+    <div className="flex items-center justify-center">
+      <DropdownMenu defaultOpen={defaultOpen}>
+        <DropdownMenuTrigger>{trigger}</DropdownMenuTrigger>
+        <DropdownMenuContent
+          align={align}
+          className="w-3xs rounded-2xl data-open:slide-in-from-bottom-20! data-closed:slide-out-to-bottom-20 data-open:fade-in-0 data-closed:fade-out-0 data-closed:zoom-out-100 duration-400"
+        >
+          {/* User Info */}
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="flex items-center gap-3 px-4 py-3">
+              <div className="relative">
+                <Avatar className="data-[size=lg]:size-8">
+                  <AvatarImage
+                    src="https://images.shadcnspace.com/assets/profiles/user-11.jpg"
+                    alt="David McMichael"
+                  />
+                  <AvatarFallback>DM</AvatarFallback>
+                </Avatar>
+                <span className="ring-card absolute right-0 bottom-0 size-2 rounded-full bg-green-600 ring-2" />
+              </div>
+
+              <div className="flex flex-col">
+                <span className="text-popover-foreground text-sm font-medium">
+                  David McMichael
+                </span>
+                <span className="text-muted-foreground text-sm">
+                  david@shadcnspace.com
+                </span>
+              </div>
+            </DropdownMenuLabel>
+          </DropdownMenuGroup>
+
+          <DropdownMenuSeparator />
+
+          {/* Main Links */}
+          <DropdownMenuGroup>
+            {PROFILE_ITEMS.map(({ label, icon: Icon }) => (
+              <DropdownMenuItem key={label} className={itemClass}>
+                <Icon size={20} />
+                <span>{label}</span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuGroup>
+
+          <DropdownMenuSeparator />
+
+          {/* Settings */}
+          <DropdownMenuGroup>
+            {SETTINGS_ITEMS.map(({ label, icon: Icon }) => (
+              <DropdownMenuItem key={label} className={itemClass}>
+                <Icon size={20} />
+                <span>{label}</span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuGroup>
+
+          <DropdownMenuSeparator />
+
+          {/* Logout */}
+          <DropdownMenuItem variant="destructive" className={itemClass}>
+            <LOGOUT_ITEM.icon size={20} />
+            <span>{LOGOUT_ITEM.label}</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
+
+export default UserDropdown;
+
+"use client";
+import React from "react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarProvider,
+} from "@/components/ui/sidebar";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Logo from "@/assets/logo/logo";
+import { NavMain } from "@/components/shadcn-space/blocks/dashboard-shell-01/nav-main";
+import {
+  AlignStartVertical,
+  CreditCard,
+  LayoutPanelTop,
+  ChartPie,
+  BarChart3,
+  CircleUserRound,
+  ClipboardList,
+  Languages,
+  LucideIcon,
+  Notebook,
+  NotepadText,
+  Table,
+  Ticket,
+} from "lucide-react";
+import { SiteHeader } from "@/components/shadcn-space/blocks/dashboard-shell-01/site-header";
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
+
+export type NavItem = {
+  label?: string;
+  isSection?: boolean;
+  title?: string;
+  icon?: LucideIcon;
+  href?: string;
+  children?: NavItem[];
+  isActive?: boolean;
+};
+
+export const navData: NavItem[] = [
+  // Dashboards Section
+  { label: "Dashboards", isSection: true },
+  { title: "Analytics", icon: BarChart3, href: "#", isActive: true },
+  { title: "CRM Dashboard", icon: ClipboardList, href: "#" },
+
+  // Pages Section
+  { label: "Pages", isSection: true },
+  { title: "Tables", icon: Table, href: "#" },
+  { title: "Forms", icon: ClipboardList, href: "#" },
+  { title: "User Profile", icon: CircleUserRound, href: "#" },
+
+  // Apps Section
+  { label: "Apps", isSection: true },
+  { title: "Notes", icon: Notebook, href: "#" },
+  { title: "Tickets", icon: Ticket, href: "#" },
+  {
+    title: "Blogs",
+    icon: Languages,
+    children: [
+      { title: "Blog Post", href: "#" },
+      { title: "Blog Detail", href: "#" },
+      { title: "Blog Edit", href: "#" },
+      { title: "Blog Create", href: "#" },
+      { title: "Manage Blogs", href: "#" },
+    ],
+  },
+
+  // Form Elements Section
+  { label: "Form Elements", isSection: true },
+  {
+    title: "Shadcn Forms",
+    icon: NotepadText,
+    children: [
+      { title: "Button", href: "#" },
+      { title: "Input", href: "#" },
+      { title: "Select", href: "#" },
+      { title: "Checkbox", href: "#" },
+      { title: "Radio", href: "#" },
+    ],
+  },
+  {
+    title: "Form layouts",
+    icon: AlignStartVertical,
+    children: [
+      { title: "Forms Horizontal", href: "#" },
+      { title: "Forms Vertical", href: "#" },
+      { title: "Forms Validation", href: "#" },
+      { title: "Forms Examples", href: "#" },
+      { title: "Forms Wizard", href: "#" },
+    ],
+  },
+  { label: "WIDGETS", isSection: true },
+  {
+    title: "Cards",
+    icon: CreditCard,
+    children: [
+      { title: "Ecommerce Actions", href: "#" },
+      { title: "Course ", href: "#" },
+      { title: "Campaign Performance ", href: "#" },
+      { title: "Selling Products ", href: "#" },
+      { title: "Activity Timeline ", href: "#" },
+    ],
+  },
+  {
+    title: "Banners",
+    icon: LayoutPanelTop,
+    children: [{ title: "Analytic Banner ", href: "#" }],
+  },
+  {
+    title: "Charts",
+    icon: ChartPie,
+    children: [
+      { title: "Sales Report", href: "#" },
+      { title: "Weekly Sales", href: "#" },
+    ],
+  },
+];
+
+/* -------------------------------------------------------------------------- */
+/*                                   Page                                     */
+/* -------------------------------------------------------------------------- */
+
+const AppSidebar = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <SidebarProvider>
+      <Sidebar className="py-4 px-0 bg-background">
+        <div className="flex flex-col gap-6 bg-background">
+          {/* ---------------- Header ---------------- */}
+          <SidebarHeader className="py-0 px-4">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <a href="#" className="w-full h-full">
+                  <Logo />
+                </a>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarHeader>
+
+          {/* ---------------- Content ---------------- */}
+          <SidebarContent className="overflow-hidden gap-0 px-0">
+            <SimpleBar
+              autoHide={true}
+              className="h-[calc(100vh-348px)] border-b border-border"
+            >
+              <div className="px-4">
+                <NavMain items={navData} />
+              </div>
+            </SimpleBar>
+            {/* card */}
+            <div className="pt-4 px-4">
+              <Card className="shadow-none ring-0 bg-blue-500/10 px-4 py-6">
+                <CardContent className="p-0 flex flex-col gap-3 items-center">
+                  <img
+                    src="https://images.shadcnspace.com/assets/backgrounds/download-img.png"
+                    alt="sidebar-img"
+                    width={74}
+                    height={74}
+                    className="h-20 w-20"
+                  />
+                  <div className="flex flex-col gap-4 items-center">
+                    <div>
+                      <p className="text-base font-semibold text-card-foreground text-center">
+                        Grab Pro Now
+                      </p>
+                      <p className="text-sm font-regular text-muted-foreground text-center">
+                        Customize your admin
+                      </p>
+                    </div>
+                    <Button className="w-fit px-4 py-2 shadow-none cursor-pointer rounded-xl bg-blue-500 font-medium hover:bg-blue-500/80 h-9">
+                      Get Premium
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </SidebarContent>
+        </div>
+      </Sidebar>
+
+      {/* ---------------- Main ---------------- */}
+      <div className="flex flex-1 flex-col">
+        <header className="sticky top-0 z-50 flex items-center border-b px-6 py-3 bg-background">
+          <SiteHeader />
+        </header>
+        <main className="flex-1">{children}</main>
+      </div>
+    </SidebarProvider>
+  );
+};
+
+export default AppSidebar;
+
+"use client";
+
+import * as React from "react";
+import { Label, Pie, PieChart } from "recharts";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { cn } from "@/lib/utils";
+
+const chartData = [
+  { browser: "Website", visitors: 60, fill: "var(--color-blue-500)" },
+  { browser: "Marketplace", visitors: 20, fill: "var(--color-sky-400)" },
+  { browser: "Affiliate", visitors: 20, fill: "rgba(56, 189, 248, 0.5)" },
+];
+
+const chartConfig = {
+  visitors: {
+    label: "Visitors",
+  },
+  Website: {
+    label: "Website",
+    color: "var(--color-blue-500)",
+  },
+  Marketplace: {
+    label: "Marketplace",
+    color: "var(--color-sky-400)",
+  },
+  Affiliate: {
+    label: "Affiliate",
+    color: "var(--color-blue-500)",
+  },
+} satisfies ChartConfig;
+
+export default function EarningReportChart() {
+  const totalVisitors = React.useMemo(() => {
+    return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
+  }, []);
+
+  const CustomerSegmentation = [
+    {
+      id: 1,
+      customer: "Website ",
+      tagColor: "muted-foreground",
+      borderColor: "bg-blue-500",
+      badgeColor: "bg-teal-400/10",
+      earning: 18356,
+      growthPercentage: "+4.7%",
+    },
+    {
+      id: 2,
+      customer: "Marketplace",
+      tagColor: "muted-foreground",
+      borderColor: "bg-sky-400",
+      badgeColor: "bg-teal-400/10",
+      earning: 4590,
+      growthPercentage: "+2.1%",
+    },
+    {
+      id: 3,
+      customer: "Affiliate",
+      tagColor: "muted-foreground",
+      borderColor: "bg-sky-400/50",
+      badgeColor: "bg-teal-400/10",
+      earning: 4385,
+      growthPercentage: "-1.7%",
+    },
+  ];
+
+  return (
+    <Card className="h-full w-full py-6 gap-6">
+      <CardHeader className="px-6">
+        <CardTitle>
+          <h4 className="text-lg font-semibold">Earning Reports</h4>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col justify-between gap-2 flex-1 px-6">
+        <ChartContainer
+          config={chartConfig}
+          className="aspect-square max-h-[250px]"
+        >
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <Pie
+              data={chartData}
+              dataKey="visitors"
+              nameKey="browser"
+              innerRadius={65}
+              strokeWidth={50}
+            >
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) - 10}
+                          className="fill-muted-foreground text-sm"
+                        >
+                          Total
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 15}
+                          className="fill-foreground text-xl font-medium"
+                        >
+                          $27,850
+                        </tspan>
+                      </text>
+                    );
+                  }
+                }}
+              />
+            </Pie>
+          </PieChart>
+        </ChartContainer>
+        <div className="flex flex-col gap-3">
+          {CustomerSegmentation.map((item) => (
+            <div key={item.id} className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div
+                  className={cn(item.borderColor, "w-1 h-4 rounded-full")}
+                ></div>
+                <h6 className={cn("text-sm font-medium leading-tight")}>
+                  {item.customer}
+                </h6>
+              </div>
+              <div className="flex items-center gap-1">
+                <h6 className="text-sm font-medium">${item.earning}</h6>
+                <Badge
+                  className={cn(
+                    item.badgeColor,
+                    `text-${item.tagColor}`,
+                    "shadow-none",
+                  )}
+                >
+                  {item.growthPercentage}
+                </Badge>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+"use client";
+
+import { ChevronRight } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
+import {
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
+} from "@/components/ui/sidebar";
+import { NavItem } from "@/components/shadcn-space/blocks/dashboard-shell-01/app-sidebar";
+import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
+
+export function NavMain({ items }: { items: NavItem[] }) {
+  const pathname = usePathname();
+
+  // Recursive render function
+  const renderItem = (item: NavItem) => {
+    //  Section label
+    if (item.isSection && item.label) {
+      return (
+        <SidebarGroup key={item.label} className="p-0 pt-5 first:pt-0">
+          <SidebarGroupLabel className="p-0 text-xs font-medium uppercase text-sidebar-foreground">
+            {item.label}
+          </SidebarGroupLabel>
+        </SidebarGroup>
+      );
+    }
+    const hasChildren = !!item.children?.length;
+    // Item with children → collapsible
+    if (hasChildren && item.title) {
+      return (
+        <SidebarGroup key={item.title} className="p-0">
+          <SidebarMenu>
+            <Collapsible>
+              <SidebarMenuItem>
+                <CollapsibleTrigger
+                  render={
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      className="rounded-xl text-sm px-3 py-2 h-9 cursor-pointer"
+                    >
+                      {item.icon && <item.icon size={16} />}
+                      <span>{item.title}</span>
+                      <ChevronRight className="ml-auto transition-transform duration-200 collapsible/button-[aria-expanded='true']:rotate-90" />
+                    </SidebarMenuButton>
+                  }
+                  className="w-full collapsible/button"
+                />
+                <CollapsibleContent>
+                  <SidebarMenuSub className="me-0 pe-0">
+                    {item.children!.map(renderItemSub)}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+          </SidebarMenu>
+        </SidebarGroup>
+      );
+    }
+    // Item without children
+    if (item.title) {
+      const isActive = item.isActive ?? pathname === item.href;
+
+      return (
+        <SidebarGroup key={item.title} className="p-0">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip={item.title}
+                className={cn(
+                  "rounded-lg text-sm px-3 py-2 h-9 ",
+                  isActive
+                    ? "bg-primary hover:bg-primary dark:bg-blue-500 text-white dark:hover:bg-blue-500 hover:text-white"
+                    : "",
+                )}
+              >
+                {item.icon && <item.icon />}
+                <a href={item.href} className="w-full">
+                  {item.title}
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+      );
+    }
+    return null;
+  };
+  // Recursive render function for sub-items
+  const renderItemSub = (item: NavItem) => {
+    const hasChildren = !!item.children?.length;
+    if (hasChildren && item.title) {
+      return (
+        <SidebarMenuSubItem key={item.title}>
+          <Collapsible>
+            <CollapsibleTrigger className="w-full">
+              <SidebarMenuSubButton className="rounded-xl text-sm px-3 py-2 h-9">
+                {item.icon && <item.icon />}
+                <span>{item.title}</span>
+                <ChevronRight className="ml-auto transition-transform duration-200 data-[state=open]:rotate-90" />
+              </SidebarMenuSubButton>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarMenuSub className="me-0 pe-0">
+                {item.children!.map(renderItemSub)}
+              </SidebarMenuSub>
+            </CollapsibleContent>
+          </Collapsible>
+        </SidebarMenuSubItem>
+      );
+    }
+    if (item.title) {
+      return (
+        <SidebarMenuSubItem key={item.title} className="w-full">
+          <SidebarMenuSubButton
+            className="w-full"
+            render={<a href={item.href}>{item.title}</a>}
+          />
+        </SidebarMenuSubItem>
+      );
+    }
+    return null;
+  };
+
+  return <>{items.map(renderItem)}</>;
+}
+
+"use client";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+
+const chartData = [
+  { month: "Jan", expense: 31, profit: 31, earning: 31 },
+  { month: "Feb", expense: 83, profit: 83, earning: 83 },
+  { month: "Mar", expense: 53, profit: 53, earning: 53 },
+  { month: "Apr", expense: 36, profit: 36, earning: 36 },
+  { month: "May", expense: 64, profit: 64, earning: 64 },
+  { month: "Jun", expense: 47, profit: 47, earning: 47 },
+  { month: "Jul", expense: 95, profit: 95, earning: 95 },
+  { month: "Aug", expense: 69, profit: 69, earning: 69 },
+  { month: "Sep", expense: 29, profit: 29, earning: 29 },
+  { month: "Oct", expense: 73, profit: 73, earning: 73 },
+  { month: "Nov", expense: 27, profit: 27, earning: 27 },
+  { month: "Dec", expense: 53, profit: 53, earning: 53 },
+];
+
+const chartConfig = {
+  expense: {
+    label: "Expense",
+    color: "var(--color-blue-500)",
+  },
+  profit: {
+    label: "Profit",
+    color: "var(--color-sky-400)",
+  },
+  earning: {
+    label: "Earning",
+    color: "rgba(56, 189, 248, 0.5)",
+  },
+} satisfies ChartConfig;
+
+export default function SalesOverviewChart() {
+  const Countries = [
+    {
+      id: 1,
+      title: "Earning",
+      color: "bg-sky-400/50",
+    },
+    {
+      id: 2,
+      title: "Profit",
+      color: "bg-sky-400",
+    },
+    {
+      id: 3,
+      title: "Expense",
+      color: "bg-blue-500",
+    },
+  ];
+
+  return (
+    <Card className="w-full py-6 gap-6">
+      <CardHeader className="flex sm:flex-row flex-col justify-between sm:items-center items-start gap-3 px-6">
+        <div className="flex flex-col gap-1">
+          <CardTitle className="text-lg font-medium">Sales Overview</CardTitle>
+          <div className="flex items-center gap-2">
+            <h3 className="text-3xl font-medium text-card-foreground">
+              $386.53K
+            </h3>
+            <Badge
+              className={cn("bg-teal-400/10 text-muted-foreground shadow-none")}
+            >
+              +18%
+            </Badge>
+            <span className="text-xs text-muted-foreground">
+              than last year
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          {Countries.map((item) => (
+            <div key={item.id} className="flex items-center gap-2">
+              <span className={cn("w-2.5 h-2.5 rounded-full", item.color)} />
+              <p className="text-sm text-muted-foreground">{item.title}</p>
+            </div>
+          ))}
+        </div>
+      </CardHeader>
+      <CardContent className="px-6">
+        <ChartContainer config={chartConfig} className="h-[300px] w-full">
+          <BarChart accessibilityLayer data={chartData}>
+            <CartesianGrid
+              vertical={false}
+              strokeDasharray="3 3"
+              stroke="rgba(144, 164, 174, 0.3)"
+            />
+            <XAxis
+              dataKey="month"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+              tickFormatter={(value) => value.slice(0, 3)}
+              fontSize={12}
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={10}
+              fontSize={12}
+              tickFormatter={(value) => `${value / 10}k`}
+              domain={[0, 100]}
+              ticks={[0, 50, 100, 150, 200, 250, 300]}
+            />
+            <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+            <Bar
+              dataKey="expense"
+              stackId="a"
+              fill="var(--color-expense)"
+              radius={[0, 0, 4, 4]}
+              barSize={20}
+            />
+            <Bar
+              dataKey="profit"
+              stackId="a"
+              fill="var(--color-profit)"
+              radius={[0, 0, 0, 0]}
+              barSize={20}
+            />
+            <Bar
+              dataKey="earning"
+              stackId="a"
+              fill="var(--color-earning)"
+              radius={[4, 4, 0, 0]}
+              barSize={20}
+            />
+          </BarChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  ArrowRight,
+  CalendarDays,
+  LucideIcon,
+  ShoppingBag,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+type DashboardMetric = {
+  label: string;
+  value: string;
+  percentage: string;
+  isPositive?: boolean;
+};
+
+type MainDashboardData = {
+  title: string;
+  description: string;
+  metrics: DashboardMetric[];
+};
+
+type StatItem = {
+  title: string;
+  value: string;
+  percentage: string;
+  icon: LucideIcon;
+  isPositive?: boolean;
+};
+
+type StatisticsBlockProps = {
+  mainDashboard?: MainDashboardData;
+  secondaryStats?: StatItem[];
+};
+
+const mainDashboardData: MainDashboardData = {
+  title: "Analytics Dashboard",
+  description: "Check all the statistics",
+  metrics: [
+    {
+      label: "Earnings",
+      value: "$27,850",
+      percentage: "+18%",
+      isPositive: true,
+    },
+    {
+      label: "Expense",
+      value: "$18,453",
+      percentage: "-5%",
+      isPositive: false,
+    },
+  ],
+};
+
+const secondaryStatsData: StatItem[] = [
+  {
+    title: "Weekly Sales",
+    value: "$4,587",
+    percentage: "+18%",
+    icon: CalendarDays,
+    isPositive: true,
+  },
+  {
+    title: "Purchase Orders",
+    value: "230",
+    percentage: "+18%",
+    icon: ShoppingBag,
+    isPositive: true,
+  },
+];
+
+const StatisticsBlock = ({
+  mainDashboard = mainDashboardData,
+  secondaryStats = secondaryStatsData,
+}: StatisticsBlockProps) => {
+  return (
+    <div className="grid grid-cols-12 gap-6 h-full">
+      <div className="col-span-12 xl:col-span-6 h-full">
+        <Card className="p-0 ring-0 border rounded-2xl relative h-full">
+          <CardContent className="p-0">
+            <div className="ps-6 py-4 flex flex-col gap-9 justify-between">
+              <div>
+                <p className="text-lg font-medium text-card-foreground">
+                  {mainDashboard.title}
+                </p>
+                <p className="text-xs font-normal text-muted-foreground">
+                  {mainDashboard.description}
+                </p>
+              </div>
+              <div className="flex items-center gap-6">
+                {mainDashboard.metrics.map((metric, index) => (
+                  <div key={index} className="flex items-center gap-6">
+                    <div>
+                      <p className="text-xs font-normal text-muted-foreground">
+                        {metric.label}
+                      </p>
+                      <div className="flex items-center gap-1">
+                        <p className="text-2xl font-medium text-card-foreground">
+                          {metric.value}
+                        </p>
+                        <Badge
+                          className={cn(
+                            "font-normal text-muted-foreground",
+                            metric.isPositive
+                              ? "bg-teal-400/10 "
+                              : "bg-red-500/10",
+                          )}
+                        >
+                          {metric.percentage}
+                        </Badge>
+                      </div>
+                    </div>
+                    {index < mainDashboard.metrics.length - 1 && (
+                      <Separator orientation="vertical" className={"h-12"} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* image */}
+            <img
+              src="https://images.shadcnspace.com/assets/backgrounds/stats-01.webp"
+              alt="user-img"
+              width={211}
+              height={168}
+              className="absolute bottom-0 right-0 hidden sm:block"
+            />
+          </CardContent>
+        </Card>
+      </div>
+      {secondaryStats.map((stat, index) => (
+        <div key={index} className="col-span-12 sm:col-span-6 xl:col-span-3">
+          <Card className="py-6 ring-0 border rounded-2xl">
+            <CardContent className="px-6 flex items-start justify-between">
+              <div className="flex flex-col gap-5 justify-between">
+                <div className="flex flex-col gap-1">
+                  <p className="text-lg font-medium text-card-foreground">
+                    {stat.title}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-2xl font-medium text-card-foreground">
+                      {stat.value}
+                    </p>
+                    <Badge
+                      className={cn(
+                        "font-normal text-muted-foreground",
+                        stat.isPositive !== false
+                          ? "bg-teal-400/10"
+                          : "bg-red-500/10",
+                      )}
+                    >
+                      {stat.percentage}
+                    </Badge>
+                  </div>
+                </div>
+                {/* button */}
+                <Button
+                  variant={"outline"}
+                  className={
+                    "flex items-center gap-1.5 w-fit rounded-xl cursor-pointer shadow-xs h-9"
+                  }
+                >
+                  <span>See Report</span>
+                  <ArrowRight size={16} />
+                </Button>
+              </div>
+              <div className="p-3 rounded-full outline">
+                <stat.icon size={16} />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default StatisticsBlock;
+
+"use client";
+
+import {
+  LucideIcon,
+  AppWindowMac,
+  HandMetal,
+  Megaphone,
+  Contrast,
+  Brush,
+  FolderPlus,
+  FolderPen,
+  FolderMinus,
+  SearchIcon,
+  EllipsisVertical,
+} from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from "@/components/ui/card";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { cn } from "@/lib/utils";
+
+interface TableAction {
+  icon: LucideIcon;
+  listtitle: string;
+}
+
+interface ProjectData {
+  project: string;
+  date: string;
+  budget: string;
+  icon: LucideIcon;
+  iconcolor: string;
+  iconbg: string;
+  avatar: string;
+  name: string;
+  handle: string;
+  progress: number;
+  progressColor: string;
+}
+
+const TopProductTable = () => {
+  const tableActionData: TableAction[] = [
+    { icon: FolderPlus, listtitle: "Add" },
+    { icon: FolderPen, listtitle: "Edit" },
+    { icon: FolderMinus, listtitle: "Delete" },
+  ];
+
+  const checkboxTableData: ProjectData[] = [
+    {
+      project: "Web App Project",
+      date: "04 June 2026",
+      budget: "12,000",
+      icon: AppWindowMac,
+      iconcolor: "text-orange-400",
+      iconbg: "bg-orange-400/20",
+      avatar: "https://images.shadcnspace.com/assets/profiles/user-11.jpg",
+      name: "Olivia Rhye",
+      handle: "olivia@ui.com",
+      progress: 60,
+      progressColor: "**:data-[slot=progress-indicator]:bg-orange-400",
+    },
+    {
+      project: "MaterialM Admin",
+      date: "09 January 2026",
+      budget: "8000",
+      icon: HandMetal,
+      iconcolor: "text-sky-400",
+      iconbg: "bg-sky-400/20",
+      avatar: "https://images.shadcnspace.com/assets/profiles/user-8.jpg",
+      name: "Barbara Steele",
+      handle: "steele@ui.com",
+      progress: 30,
+      progressColor: "**:data-[slot=progress-indicator]:bg-blue-500",
+    },
+    {
+      project: "Digital Marketing",
+      date: "15 April 2026",
+      budget: "15,000",
+      icon: Megaphone,
+      iconcolor: "text-teal-400",
+      iconbg: "bg-teal-400/20",
+      avatar: "https://images.shadcnspace.com/assets/profiles/user-3.jpg",
+      name: "Leonard Gordon",
+      handle: "olivia@ui.com",
+      progress: 45,
+      progressColor: "**:data-[slot=progress-indicator]:bg-amber-300",
+    },
+    {
+      project: "Shadcn Space Design",
+      date: "30 March 2026",
+      budget: "1000",
+      icon: Contrast,
+      iconcolor: "text-red-500",
+      iconbg: "bg-red-500/20",
+      avatar: "https://images.shadcnspace.com/assets/profiles/user-4.jpg",
+      name: "Evelyn Pope",
+      handle: "steele@ui.com",
+      progress: 37,
+      progressColor: "**:data-[slot=progress-indicator]:bg-red-500",
+    },
+    {
+      project: "Graphic Design",
+      date: "23 October 2026",
+      budget: "7000",
+      icon: Brush,
+      iconcolor: "text-blue-500",
+      iconbg: "bg-blue-500/20",
+      avatar: "https://images.shadcnspace.com/assets/profiles/user-5.jpg",
+      name: "Tommy Garza",
+      handle: "olivia@ui.com",
+      progress: 87,
+      progressColor: "**:data-[slot=progress-indicator]:bg-teal-400",
+    },
+    {
+      project: "Digital Marketing",
+      date: "15 April 2026",
+      budget: "15,000",
+      icon: Megaphone,
+      iconcolor: "text-teal-400",
+      iconbg: "bg-teal-400/20",
+      avatar: "https://images.shadcnspace.com/assets/profiles/user-3.jpg",
+      name: "Leonard Gordon",
+      handle: "olivia@ui.com",
+      progress: 45,
+      progressColor: "**:data-[slot=progress-indicator]:bg-amber-300",
+    },
+  ];
+
+  return (
+    <Card className="w-full h-full pb-0 pt-6 gap-6">
+      <CardHeader className="sm:flex items-center justify-between px-6">
+        <div>
+          <CardTitle className="leading-normal">Top Projects</CardTitle>
+          <CardDescription>
+            Checkout the statistics of top projects
+          </CardDescription>
+        </div>
+        <InputGroup className="h-9 rounded-md w-fit">
+            <InputGroupInput placeholder="Search" />
+            <InputGroupAddon>
+                <SearchIcon size={18} />
+            </InputGroupAddon>
+        </InputGroup>
+      </CardHeader>
+      <CardContent className="px-0">
+        <div className="overflow-x-auto">
+          <Table className="min-w-2xl">
+            <TableHeader>
+              <TableRow className="hover:bg-transparent!">
+                <TableHead className="p-3 ps-6">#</TableHead>
+                <TableHead className="p-2">Project Name</TableHead>
+                <TableHead className="p-2">Budget</TableHead>
+                <TableHead className="p-2">Manager</TableHead>
+                <TableHead className="p-2">Progress</TableHead>
+                <TableHead className="p-3 pe-6 flex justify-end">
+                  Action
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody className="divide-y divide-border dark:divide-darkborder">
+              {checkboxTableData.map((item, index) => (
+                <TableRow key={index}>
+                  {/* Checkbox */}
+                  <TableCell className="whitespace-nowrap p-3 ps-6">
+                    <Checkbox className="data-[state=checked]:bg-blue-500 dark:data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 dark:data-[state=checked]:border-blue-500 cursor-pointer" />
+                  </TableCell>
+
+                  {/* project */}
+                  <TableCell className="whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={cn(
+                          "h-9 w-9 rounded-full flex items-center justify-center",
+                          item.iconbg,
+                        )}
+                      >
+                        <item.icon
+                          width={18}
+                          height={18}
+                          className={cn(item.iconcolor)}
+                        />
+                      </div>
+                      <div className="">
+                        <h6 className="text-sm font-medium">{item.project}</h6>
+                        <p className="text-xs text-muted-foreground">
+                          {item.date}
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  {/* Status Badge */}
+                  <TableCell className="whitespace-nowrap">
+                    <p className="text-sm text-foreground">${item.budget}</p>
+                  </TableCell>
+
+                  {/* Customer */}
+                  <TableCell className="whitespace-nowrap">
+                    <div className="flex gap-3 items-center">
+                      <img
+                        src={item.avatar}
+                        alt="icon"
+                        className="h-9 w-9 rounded-full"
+                        width={36}
+                        height={36}
+                      />
+                      <div className="truncate line-clamp-2 max-w-56">
+                        <h6 className="text-base! font-normal!">{item.name}</h6>
+                        <p className="text-sm text-muted-foreground">
+                          {item.handle}
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  {/* Progress */}
+                  <TableCell className="whitespace-nowrap">
+                    <Progress
+                      value={item.progress}
+                      className={cn(
+                        "w-full h-1.5 [&>div]:h-1.5",
+                        `${item.progressColor}`,
+                      )}
+                    />
+                  </TableCell>
+
+                  {/* Dropdown Menu */}
+                  <TableCell className="whitespace-nowrap p-3 pe-6">
+                    <div className="flex items-center justify-end">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <span className="flex justify-center items-center rounded-full p-2 hover:bg-muted cursor-pointer">
+                            <EllipsisVertical width={16} height={16} />
+                          </span>
+                        </DropdownMenuTrigger>
+
+                        <DropdownMenuContent align="end">
+                          {tableActionData.map((action, idx) => (
+                            <DropdownMenuItem
+                              key={idx}
+                              className="group flex gap-3 hover:bg-accent! cursor-pointer"
+                            >
+                              <action.icon />
+                              <span>{action.listtitle}</span>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default TopProductTable;
+
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import UserDropdown from "@/components/shadcn-space/blocks/dashboard-shell-01/user-dropdown";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import NotificationDropdown from "@/components/shadcn-space/blocks/dashboard-shell-01/notification-dropdown";
+import { BellRing, SearchIcon } from "lucide-react";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+
+export function SiteHeader() {
+  return (
+    <div className="flex w-full items-center justify-between">
+      <div className="flex items-center gap-2">
+        <SidebarTrigger className="-ml-1 h-8 w-8 cursor-pointer" />
+        <InputGroup className="h-9 rounded-md">
+          <InputGroupInput placeholder="Search" />
+          <InputGroupAddon>
+            <SearchIcon />
+          </InputGroupAddon>
+        </InputGroup>
+      </div>
+      <div className="flex items-center gap-3">
+        <NotificationDropdown
+          defaultOpen={false}
+          align="center"
+          trigger={
+            <div className="rounded-full p-2 hover:bg-accent relative before:absolute before:bottom-0 before:left-1/2 before:z-10 before:w-2 before:h-2 before:rounded-full before:bg-red-500 before:top-1 cursor-pointer">
+              <BellRing className="size-4" />
+            </div>
+          }
+        />
+        <UserDropdown
+          defaultOpen={false}
+          align="center"
+          trigger={
+            <div className="rounded-full">
+              <Avatar className="size-8 cursor-pointer">
+                <AvatarImage
+                  src="https://images.shadcnspace.com/assets/profiles/user-11.jpg"
+                  alt="David McMichael"
+                />
+                <AvatarFallback>DM</AvatarFallback>
+              </Avatar>
+            </div>
+          }
+        />
+      </div>
+    </div>
+  );
+}
+
+"use client";
+
+import React, { useRef } from "react";
+import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Icon } from "@iconify/react";
+import {
+  Card,
+  CardTitle,
+  CardHeader,
+  CardContent,
+  CardAction,
+} from "@/components/ui/card";
+import { motion, useInView } from "motion/react";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+
+const DEFAULT_DROPDOWN_ITEMS = [
+  { title: "Action", link: "#" },
+  { title: "Another action", link: "#" },
+  { title: "Something else", link: "#" },
+];
+
+const DEFAULT_TRANS_DATA = [
+  {
+    img: "https://images.shadcnspace.com/assets/flags/flag-us.svg",
+    title: "PayPal Transfer",
+    country: "United states",
+    rank: "$8,567k",
+    badgeData: "+4.7%",
+    badgeBG: "bg-teal-400/10",
+  },
+  {
+    img: "https://images.shadcnspace.com/assets/flags/flag-brazil.svg",
+    title: "Wallet",
+    country: "Brazil",
+    rank: "$2,415k",
+    badgeData: "-1.7%",
+    badgeBG: "bg-orange-400/10",
+  },
+  {
+    img: "https://images.shadcnspace.com/assets/flags/flag-india.svg",
+    title: "Credit Card",
+    country: "India",
+    rank: "$865k",
+    badgeData: "+4.7%",
+    badgeBG: "bg-teal-400/10",
+  },
+  {
+    img: "https://images.shadcnspace.com/assets/flags/flag-australia.svg",
+    title: "Bank Transfer",
+    country: "Australia",
+    rank: "$745k",
+    badgeData: "-1.7%",
+    badgeBG: "bg-orange-400/10",
+  },
+  {
+    img: "https://images.shadcnspace.com/assets/flags/flag-france.svg",
+    title: "Refund",
+    country: "France",
+    rank: "$45",
+    badgeData: "+4.7%",
+    badgeBG: "bg-teal-400/10",
+  },
+  {
+    img: "https://images.shadcnspace.com/assets/flags/flag-china.svg",
+    title: "Refund",
+    country: "China",
+    rank: "$12k",
+    badgeData: "+4.7%",
+    badgeBG: "bg-teal-400/10",
+  },
+];
+
+interface TransactionProps {
+  img: string;
+  title: string;
+  country: string;
+  rank: string;
+  badgeData: string;
+  badgeBG: string;
+}
+
+interface DropdownItemProps {
+  title: string;
+  link?: string;
+}
+
+interface WidgetProps {
+  recentTransData?: TransactionProps[];
+  dropdownItems?: DropdownItemProps[];
+}
+
+const SalesByCountryWidget = ({
+  recentTransData = DEFAULT_TRANS_DATA,
+  dropdownItems = DEFAULT_DROPDOWN_ITEMS,
+}: WidgetProps) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
+
+  return (
+    <Card className="h-full py-6 gap-6">
+      <CardHeader className="flex items-center justify-between px-6">
+        <CardTitle className="text-lg font-medium text-foreground">
+          Sales by Countries
+        </CardTitle>
+        <CardAction>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="outline-none">
+              <span className="h-9 w-9 flex justify-center items-center rounded-full hover:bg-accent hover:text-accent-foreground cursor-pointer">
+                <Icon
+                  icon="solar:menu-dots-bold"
+                  width={22}
+                  height={22}
+                  className="rotate-90"
+                />
+              </span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {dropdownItems.map((item, index) => (
+                <DropdownMenuItem
+                  key={index}
+                  className="font-normal cursor-pointer"
+                >
+                  {item.link ? (
+                    <a href={item.link} className="w-full">
+                      {item.title}
+                    </a>
+                  ) : (
+                    <span className="w-full justify-start">{item.title}</span>
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </CardAction>
+      </CardHeader>
+      <CardContent className="px-0">
+        <motion.div
+          ref={ref}
+          className="flex flex-col gap-3"
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+          variants={{
+            visible: {
+              transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.2,
+              },
+            },
+          }}
+        >
+          {recentTransData.map((item, index) => (
+            <React.Fragment key={index}>
+              <motion.div
+                className="flex gap-3 items-center px-6"
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 24,
+                }}
+                whileHover={{ scale: 1.02, x: 4 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <motion.div
+                  className={cn(
+                    `w-8 h-8 rounded-full flex justify-center items-center overflow-hidden`,
+                  )}
+                  whileHover={{ rotate: 5, scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400 }}
+                >
+                  <img src={item.img} alt="icon" width={32} height={32} />
+                </motion.div>
+                <div className="flex items-center justify-between flex-1">
+                  <div>
+                    <h5 className="text-base font-medium text-foreground">
+                      {item.rank}
+                    </h5>
+                    <p className="text-sm font-normal tracking-wide text-muted-foreground">
+                      {item.country}
+                    </p>
+                  </div>
+                  <Badge
+                    className={cn(`${item.badgeBG}`, "text-muted-foreground")}
+                  >
+                    {item.badgeData}
+                  </Badge>
+                </div>
+              </motion.div>
+              {index < recentTransData.length - 1 && <Separator />}
+            </React.Fragment>
+          ))}
+        </motion.div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default SalesByCountryWidget;
+
+import AppSidebar from "@/components/shadcn-space/blocks/dashboard-shell-01/app-sidebar";
+import StatisticsBlock from "@/components/shadcn-space/blocks/dashboard-shell-01/statistics";
+import SalesOverviewChart from "@/components/shadcn-space/blocks/dashboard-shell-01/sales-overview-chart";
+import EarningReportChart from "@/components/shadcn-space/blocks/dashboard-shell-01/earning-report-chart";
+import TopProductTable from "@/components/shadcn-space/blocks/dashboard-shell-01/top-product-table";
+import SalesByCountryWidget from "@/components/shadcn-space/blocks/dashboard-shell-01/salesbycountrywidget";
+export default function Page() {
+  return (
+    <AppSidebar>
+      <div className="grid grid-cols-12 gap-6 p-6 max-w-7xl mx-auto">
+        <div className="col-span-12">
+          <StatisticsBlock />
+        </div>
+        <div className="xl:col-span-8 col-span-12">
+          <SalesOverviewChart />
+        </div>
+        <div className="xl:col-span-4 col-span-12">
+          <EarningReportChart />
+        </div>
+        <div className="xl:col-span-8 col-span-12">
+          <TopProductTable />
+        </div>
+        <div className="xl:col-span-4 col-span-12">
+          <SalesByCountryWidget />
+        </div>
+      </div>
+    </AppSidebar>
+  );
+}
+```

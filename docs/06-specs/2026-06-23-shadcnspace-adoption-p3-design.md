@@ -12,6 +12,7 @@ pages — normalized to the **Emerald Heritage** token system, reduced-motion sa
 identity. This increment = **Tier A (token-clean)** only.
 
 **Decided up front (locked):**
+
 - **Scope = 6 Tier-A items:** `number-ticker-01`, `feature-01`, `timeline-01`, `team-01`,
   `faq-01`, `blog-01`.
 - **Per-component verdict** (replace / augment / borrow-pattern-only) is decided in this spec
@@ -23,7 +24,7 @@ identity. This increment = **Tier A (token-clean)** only.
 - **i18n = EN-only** (ADR-0005). Copy stays in `@tourism/i18n`; no VI parity. These items are
   largely visual, so net-new copy is minimal.
 - **Free/Pro:** every item below was verified FREE by inspecting its `/r/<slug>.json`. Ecommerce
-  + some variants are Pro (out of scope).
+  - some variants are Pro (out of scope).
 
 ### Key realisation from reading the current code
 
@@ -133,4 +134,4 @@ WhyChoose/FAQ/Team/Story structure. New fabricated content.
 - **`parseMetric` mis-parsing odd values** (`"24/7"`, ranges) → passthrough rule + tests.
 - **Scope creep into replace** → spec locks augment/borrow verdicts; deviations need a spec edit.
 - **Motion overload** (we already added Reveal/glare) → keep staggers subtle; respect perf budget
-  + reduced-motion; no new animation library (gsap/motion already vendored).
+  - reduced-motion; no new animation library (gsap/motion already vendored).

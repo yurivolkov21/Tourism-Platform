@@ -40,7 +40,7 @@ so admin calls carry the ADMIN JWT.
   `Field`/`Label`, `Switch`, `DropdownMenu`, `Badge`, `Pagination`) + the `ThemeToggle` already built;
   `@tourism/tokens`; copy in `@tourism/i18n` (`messages.admin`). No new UI/form libs.
 - **Typed API:** `@tourism/core` OpenAPI client; run `/regen-types` first so the `/admin/destinations`
-  + `/admin/stats` paths are in the generated schema.
+  - `/admin/stats` paths are in the generated schema.
 - **Destinations scope = core fields** (`name`, `slug?`, `country?`, `region?`, `description?`,
   `isActive`). **Media management (Cloudinary upload) is DEFERRED** to a later increment.
 - **Env (admin):** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
@@ -55,7 +55,7 @@ so admin calls carry the ADMIN JWT.
   Strip the social (Google/GitHub) + "sign up" bits — admins are allowlisted, email+password only.
   Normalize cost ~0.
 - **App shell → DON'T adopt `dashboard-shell-01`** (FREE but heavy: pulls `motion` + `simplebar-react`
-  + `@iconify`, 7 hardcoded palette colours, 11 files, SaaS KPIs/charts/upsell we don't need). Instead
+  - `@iconify`, 7 hardcoded palette colours, 11 files, SaaS KPIs/charts/upsell we don't need). Instead
   **compose the shell from `@tourism/ui`'s `Sidebar` set** (`SidebarProvider`/`Sidebar`/`SidebarInset`/
   `SidebarTrigger` — the canonical shadcn dashboard-shell primitive, already in the lib, token-native).
   Borrow only layout *ideas* (topbar structure, KPI-card grid).
@@ -66,6 +66,7 @@ so admin calls carry the ADMIN JWT.
 ## Per-area design
 
 ### 1. Auth
+
 - `lib/supabase/{client,server}.ts` + `src/middleware.ts` — session refresh + **redirect any
   unauthenticated request (except `/login`, `/auth/*`, assets) → `/login?redirect=<path>`**.
 - `app/login/page.tsx` + `LoginForm` (email + password). Server action `signIn` → Supabase
@@ -74,20 +75,23 @@ so admin calls carry the ADMIN JWT.
 - `signOut` action → `/login`. `requireAdmin()` server helper (reads session + role) for pages.
 
 ### 2. Shell
+
 - `app/(admin)/layout.tsx` — protected layout: **Sidebar** (`@tourism/ui`) nav (Dashboard,
   Destinations; future items disabled/"soon") + **topbar** (page title, `ThemeToggle`, `UserMenu`
   with email + sign-out). `AuthProvider` seeds client auth state.
 - Admin `global.css` imports `@tourism/tokens` (mirror web) so brand tokens + dark mode work.
 
 ### 3. Dashboard
+
 - `app/(admin)/page.tsx` (or `/dashboard`) — **stat cards from `GET /admin/stats`** (real numbers:
   tours, destinations, bookings, etc.) + a "recent activity" placeholder. Visual treatment left
   flexible so the user's chosen dashboard blocks can drop in (normalized to tokens later).
 
 ### 4. Destinations CRUD (`/admin/destinations`)
+
 - **List** `app/(admin)/destinations/page.tsx` — Server Component: `GET /admin/destinations`
   (paginated, incl. drafts) → `Table` (name · region · country · Active badge · edit/delete). Pagination
-  + empty state + "New destination" button.
+  - empty state + "New destination" button.
 - **Create / Edit** `…/new` + `…/[slug]/edit` — form (DTO fields) → Server Actions `createDestination`
   / `updateDestination` (`POST` / `PATCH`), **zod** validation, `revalidatePath`, friendly `409`
   (slug exists) handling.
@@ -157,7 +161,7 @@ Each task built green + committed (commits `131c8d3` … `e0b0947`). Key actuals
 ## Risks / mitigations
 
 - **No creds in this env** → code/build/unit-test without them; running needs `apps/admin/.env` filled
-  + an **allowlisted ADMIN email** in the API's `ADMIN_EMAILS` + the **admin origin in `CORS_ORIGINS`**.
+  - an **allowlisted ADMIN email** in the API's `ADMIN_EMAILS` + the **admin origin in `CORS_ORIGINS`**.
 - **403 lock-out UX** (signed-in Supabase user who isn't an admin) → explicit "not authorized" + auto
   sign-out, not a blank screen.
 - **Stale OpenAPI client** (admin paths missing) → run `/regen-types` in T0; fail loudly if absent.
