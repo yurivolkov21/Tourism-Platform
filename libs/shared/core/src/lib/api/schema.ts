@@ -738,6 +738,77 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List published posts */
+        get: operations["PostsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/posts/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one published post by slug */
+        get: operations["PostsController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin: list all posts (incl. drafts) */
+        get: operations["AdminPostsController_list"];
+        put?: never;
+        /** Admin: create a post */
+        post: operations["AdminPostsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/posts/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin: get one post by slug */
+        get: operations["AdminPostsController_detail"];
+        put?: never;
+        post?: never;
+        /** Admin: delete a post */
+        delete: operations["AdminPostsController_remove"];
+        options?: never;
+        head?: never;
+        /** Admin: partial update a post */
+        patch: operations["AdminPostsController_update"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1228,6 +1299,21 @@ export interface components {
              */
             isFeatured: boolean;
             /**
+             * @description Traveller types this tour suits.
+             * @example [
+             *       "FAMILY",
+             *       "COUPLE"
+             *     ]
+             */
+            suitableFor?: ("FAMILY" | "COUPLE" | "FRIENDS" | "SOLO" | "BUSINESS")[];
+            /**
+             * @description Merchandising badges on the tour card.
+             * @example [
+             *       "BEST_VALUE"
+             *     ]
+             */
+            badges?: ("BEST_VALUE" | "LIMITED_OFFER" | "EXCLUSIVE" | "NEW" | "POPULAR")[];
+            /**
              * @example [
              *       "Local guide",
              *       "Bottled water",
@@ -1317,6 +1403,21 @@ export interface components {
              * @example false
              */
             isFeatured: boolean;
+            /**
+             * @description Traveller types this tour suits.
+             * @example [
+             *       "FAMILY",
+             *       "COUPLE"
+             *     ]
+             */
+            suitableFor?: ("FAMILY" | "COUPLE" | "FRIENDS" | "SOLO" | "BUSINESS")[];
+            /**
+             * @description Merchandising badges on the tour card.
+             * @example [
+             *       "BEST_VALUE"
+             *     ]
+             */
+            badges?: ("BEST_VALUE" | "LIMITED_OFFER" | "EXCLUSIVE" | "NEW" | "POPULAR")[];
             /**
              * @example [
              *       "Local guide",
@@ -1696,6 +1797,32 @@ export interface components {
              * @description Tour this enquiry is about (must be published).
              */
             tourId?: string;
+            /** @example United Kingdom */
+            nationality?: string;
+            /**
+             * Format: date
+             * @description Preferred arrival / travel date.
+             * @example 2026-08-01
+             */
+            travelDate?: string;
+            /**
+             * @description Party size.
+             * @example 4
+             */
+            groupSize?: number;
+            /**
+             * @description Budget tier as shown in the form.
+             * @example $1000–$2000
+             */
+            budgetTier?: string;
+            /**
+             * @description Trip interests / preferences (multi-select).
+             * @example [
+             *       "culture",
+             *       "food"
+             *     ]
+             */
+            interests?: string[];
             /** @description Anti-spam honeypot — must stay empty. */
             website?: string;
         };
@@ -1813,6 +1940,71 @@ export interface components {
             topToursByRating: components["schemas"]["TopTourByRatingDto"][];
             topToursByWishlist: components["schemas"]["TopTourByWishlistDto"][];
             monthlyTrend: components["schemas"]["MonthlyTrendPointDto"][];
+        };
+        PostDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example three-perfect-days-in-hoi-an */
+            slug: string;
+            /** @example Three perfect days in Hội An */
+            title: string;
+            excerpt: string | null;
+            /** @description Markdown body */
+            content: string;
+            /** @enum {string} */
+            status: "DRAFT" | "PUBLISHED";
+            /** Format: date-time */
+            publishedAt: string | null;
+            /** Format: uuid */
+            authorId: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        PaginatedPostsDto: {
+            data: components["schemas"]["PostDto"][];
+            meta: components["schemas"]["PageMetaDto"];
+        };
+        CreatePostDto: {
+            /** @example Three perfect days in Hội An */
+            title: string;
+            /**
+             * @description kebab slug; generated from `title` when omitted
+             * @example three-perfect-days-in-hoi-an
+             */
+            slug?: string;
+            excerpt?: string;
+            /**
+             * @description Markdown body
+             * @example ## Day 1\n...
+             */
+            content: string;
+            /**
+             * @default DRAFT
+             * @enum {string}
+             */
+            status: "DRAFT" | "PUBLISHED";
+        };
+        UpdatePostDto: {
+            /** @example Three perfect days in Hội An */
+            title?: string;
+            /**
+             * @description kebab slug; generated from `title` when omitted
+             * @example three-perfect-days-in-hoi-an
+             */
+            slug?: string;
+            excerpt?: string;
+            /**
+             * @description Markdown body
+             * @example ## Day 1\n...
+             */
+            content?: string;
+            /**
+             * @default DRAFT
+             * @enum {string}
+             */
+            status: "DRAFT" | "PUBLISHED";
         };
     };
     responses: never;
@@ -3780,6 +3972,219 @@ export interface operations {
             };
             /** @description Caller is not an admin */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PostsController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                search?: string;
+                status?: "DRAFT" | "PUBLISHED";
+                sortBy?: "publishedAt" | "createdAt" | "updatedAt" | "title";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPostsDto"];
+                };
+            };
+        };
+    };
+    PostsController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostDto"];
+                };
+            };
+            /** @description Not found or not published */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminPostsController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                search?: string;
+                status?: "DRAFT" | "PUBLISHED";
+                sortBy?: "publishedAt" | "createdAt" | "updatedAt" | "title";
+                sortOrder?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPostsDto"];
+                };
+            };
+            /** @description Not an ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminPostsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePostDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostDto"];
+                };
+            };
+            /** @description Slug already exists */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminPostsController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostDto"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminPostsController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted (echo) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostDto"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminPostsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePostDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostDto"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description New slug already exists */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
