@@ -39,6 +39,7 @@ pg-boss jobs are **persisted in Postgres** → a spin-down only *delays* them; o
 1. Render Dashboard → **Blueprints** → **New Blueprint Instance** → connect this repo. It reads [`render.yaml`](../../render.yaml) and creates a free web service `tourism-api`.
    - Build: `pnpm install` → `prisma generate` → `nx build @tourism/api`. Start: `node apps/api/dist/main.js`. Health check: `/api/v1/health`.
 2. **Set the `sync: false` env vars** in the service's Environment tab (values from §1 + your Stripe/PayPal/Resend/Cloudinary keys). Leave `PORT` unset (Render injects it).
+   - ⚠️ **`FRONTEND_URL` is REQUIRED at boot** (Joi validation) and must be a valid URL — set it now to your planned web domain (e.g. `https://tourism-web.vercel.app`) or any temporary `https://…`; refine in §5. `CORS_ORIGINS` *is* optional (blank = reflect any origin) — fine to leave blank until §5.
    - `NODE_ENV=production`, `PAYPAL_MODE=sandbox` (until you have live PayPal), `STRIPE_DEFAULT_CURRENCY=USD`.
 3. Deploy. When live, note the URL: `https://tourism-api-XXXX.onrender.com`. Verify:
    ```bash
