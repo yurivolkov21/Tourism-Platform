@@ -2554,6 +2554,31 @@
                   }
                 }
               ]
+            },
+            {
+              "name": "GET / (liveness)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": []
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"200 OK\", () => pm.response.code === 200);"
+                    ]
+                  }
+                }
+              ]
             }
           ]
         },
