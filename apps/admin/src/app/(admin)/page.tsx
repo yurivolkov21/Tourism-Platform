@@ -18,7 +18,7 @@ export default async function DashboardPage() {
     <div className="mx-auto max-w-7xl space-y-6 p-6">
       <h1 className="font-heading text-2xl font-bold">Dashboard</h1>
 
-      {error || !stats ? (
+      {error || !stats?.overview ? (
         <div className="border-destructive/30 bg-destructive/5 text-destructive rounded-lg border p-4 text-sm">
           Couldn&apos;t load stats{error ? `: ${error}` : ''}. Check that the API is running and your
           admin session is valid.

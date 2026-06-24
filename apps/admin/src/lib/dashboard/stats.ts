@@ -23,5 +23,7 @@ export interface DashboardStats {
 export async function getDashboardStats(): Promise<DashboardStats> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/stats/dashboard', {});
-  return data as unknown as DashboardStats;
+  // A single resource → wrapped in the API's `{ data, error }` envelope at runtime (the generated
+  // client types it bare). Unwrap `.data` so callers get the real `{ overview, ... }` payload.
+  return (data as unknown as { data: DashboardStats }).data;
 }
