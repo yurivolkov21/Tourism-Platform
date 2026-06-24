@@ -23,7 +23,7 @@ services:
     buildCommand: >-
       corepack enable &&
       pnpm install --frozen-lockfile &&
-      pnpm exec prisma generate --schema apps/api/prisma/schema.prisma &&
+      pnpm --filter @tourism/api exec prisma generate &&
       pnpm nx build @tourism/api
     startCommand: node apps/api/dist/main.js
     healthCheckPath: /api/v1/health
