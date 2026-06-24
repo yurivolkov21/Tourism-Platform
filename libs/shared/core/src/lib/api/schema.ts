@@ -1151,6 +1151,28 @@ export interface components {
              *     ]
              */
             highlights: string[];
+            /**
+             * @example [
+             *       "FAMILY"
+             *     ]
+             */
+            suitableFor: ("FAMILY" | "COUPLE" | "FRIENDS" | "SOLO" | "BUSINESS")[];
+            /**
+             * @example [
+             *       "BEST_VALUE"
+             *     ]
+             */
+            badges: ("BEST_VALUE" | "LIMITED_OFFER" | "EXCLUSIVE" | "NEW" | "POPULAR")[];
+            /**
+             * @description Average of approved reviews (1-dp); 0 if none
+             * @example 4.8
+             */
+            averageRating: number;
+            /**
+             * @description Count of approved reviews
+             * @example 214
+             */
+            reviewsCount: number;
             category: components["schemas"]["TourCategoryRefDto"];
             destinations: components["schemas"]["TourDestinationLinkDto"][];
             media: components["schemas"]["MediaItemDto"][];
@@ -1225,6 +1247,28 @@ export interface components {
              *     ]
              */
             highlights: string[];
+            /**
+             * @example [
+             *       "FAMILY"
+             *     ]
+             */
+            suitableFor: ("FAMILY" | "COUPLE" | "FRIENDS" | "SOLO" | "BUSINESS")[];
+            /**
+             * @example [
+             *       "BEST_VALUE"
+             *     ]
+             */
+            badges: ("BEST_VALUE" | "LIMITED_OFFER" | "EXCLUSIVE" | "NEW" | "POPULAR")[];
+            /**
+             * @description Average of approved reviews (1-dp); 0 if none
+             * @example 4.8
+             */
+            averageRating: number;
+            /**
+             * @description Count of approved reviews
+             * @example 214
+             */
+            reviewsCount: number;
             category: components["schemas"]["TourCategoryRefDto"];
             destinations: components["schemas"]["TourDestinationLinkDto"][];
             media: components["schemas"]["MediaItemDto"][];
