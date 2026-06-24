@@ -125,7 +125,7 @@ export function DestinationForm({ action, destination, submitLabel }: Destinatio
         <Button type="submit" disabled={pending}>
           {pending ? 'Saving…' : submitLabel}
         </Button>
-        <Button type="button" variant="ghost" render={<Link href="/destinations" />}>
+        <Button type="button" variant="ghost" nativeButton={false} render={<Link href="/destinations" />}>
           Cancel
         </Button>
       </div>

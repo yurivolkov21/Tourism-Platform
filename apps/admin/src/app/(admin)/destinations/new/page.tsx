@@ -10,7 +10,7 @@ export default function NewDestinationPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6 p-6">
       <div className="space-y-3">
-        <Button variant="ghost" size="sm" render={<Link href="/destinations" />}>
+        <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/destinations" />}>
           <ArrowLeft data-icon="inline-start" />
           Back to destinations
         </Button>

@@ -66,7 +66,7 @@ export default async function DestinationsPage({ searchParams }: DestinationsPag
             Manage the places your tours run in. Drafts (inactive) are shown here too.
           </p>
         </div>
-        <Button render={<Link href="/destinations/new" />}>
+        <Button nativeButton={false} render={<Link href="/destinations/new" />}>
           <Plus data-icon="inline-start" />
           New destination
         </Button>
@@ -110,7 +110,7 @@ export default async function DestinationsPage({ searchParams }: DestinationsPag
             </EmptyDescription>
           </EmptyHeader>
           {!search ? (
-            <Button render={<Link href="/destinations/new" />}>
+            <Button nativeButton={false} render={<Link href="/destinations/new" />}>
               <Plus data-icon="inline-start" />
               New destination
             </Button>
@@ -147,6 +147,7 @@ export default async function DestinationsPage({ searchParams }: DestinationsPag
                         <Button
                           variant="ghost"
                           size="sm"
+                          nativeButton={false}
                           render={<Link href={`/destinations/${destination.slug}/edit`} />}
                         >
                           Edit
