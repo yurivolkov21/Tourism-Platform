@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  CalendarRange,
-  Compass,
-  FileText,
-  ImageIcon,
-  LayoutDashboard,
-  MapPin,
-  Tags,
-} from 'lucide-react';
+import { Compass, FileText, ImageIcon, LayoutDashboard, MapPin, Tags } from 'lucide-react';
 
 import {
   ScrollArea,
@@ -32,7 +24,6 @@ const NAV: NavSection[] = [
       { title: 'Destinations', href: '/destinations', icon: MapPin },
       { title: 'Tours', href: '/tours', icon: Compass },
       { title: 'Categories', href: '/categories', icon: Tags },
-      { title: 'Departures', href: '/departures', icon: CalendarRange, soon: true },
       { title: 'Media', href: '/media', icon: ImageIcon, soon: true },
       { title: 'Posts', href: '/posts', icon: FileText, soon: true },
     ],

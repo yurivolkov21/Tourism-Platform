@@ -206,6 +206,14 @@ export default async function ToursPage({ searchParams }: ToursPageProps) {
                           variant="ghost"
                           size="sm"
                           nativeButton={false}
+                          render={<Link href={`/tours/${tour.slug}/departures`} />}
+                        >
+                          Departures
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          nativeButton={false}
                           render={<Link href={`/tours/${tour.slug}/edit`} />}
                         >
                           Edit
