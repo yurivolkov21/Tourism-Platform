@@ -25,6 +25,7 @@ import {
 } from '@tourism/ui';
 
 import { apiErrorMessage } from '../../../lib/api/error';
+import { DeletePost } from '../../../components/posts/delete-post';
 import { listPosts, type PostList } from '../../../lib/posts/data';
 
 interface PostsPageProps {
@@ -156,6 +157,7 @@ export default async function PostsPage({ searchParams }: PostsPageProps) {
                         >
                           Edit
                         </Button>
+                        <DeletePost slug={post.slug} title={post.title} />
                       </div>
                     </TableCell>
                   </TableRow>
