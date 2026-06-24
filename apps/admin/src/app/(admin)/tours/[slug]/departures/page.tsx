@@ -19,6 +19,7 @@ import {
 } from '@tourism/ui';
 
 import { apiErrorMessage } from '../../../../../lib/api/error';
+import { DeleteDeparture } from '../../../../../components/departures/delete-departure';
 import { listDepartures, type Departure } from '../../../../../lib/departures/data';
 import { getTour, type TourDetail } from '../../../../../lib/tours/data';
 
@@ -162,6 +163,7 @@ export default async function DeparturesPage({ params, searchParams }: Departure
                       >
                         Edit
                       </Button>
+                      <DeleteDeparture slug={slug} id={d.id} label={`${d.startDate} → ${d.endDate}`} />
                     </div>
                   </TableCell>
                 </TableRow>
