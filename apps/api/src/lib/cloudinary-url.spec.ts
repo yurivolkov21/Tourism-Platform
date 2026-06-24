@@ -38,4 +38,27 @@ describe('buildCloudinaryUrl', () => {
       'https://res.cloudinary.com/demo/image/upload/f_auto,q_auto/tourism/tours/video/poster',
     );
   });
+
+  it('passes through an absolute http(s) publicId unchanged (placeholder/seed imagery)', () => {
+    const remote =
+      'https://images.unsplash.com/photo-1528127269322-539801943592?w=1100&q=70';
+    const res = buildCloudinaryUrl(CLOUD, {
+      type: MediaType.IMAGE,
+      publicId: remote,
+    });
+    expect(res.url).toBe(remote);
+    expect(res.posterUrl).toBeUndefined();
+  });
+
+  it('passes through an absolute video publicId and uses an absolute posterId as-is', () => {
+    const remote = 'https://example.com/clip.mp4';
+    const poster = 'https://images.unsplash.com/poster.jpg';
+    const res = buildCloudinaryUrl(CLOUD, {
+      type: MediaType.VIDEO,
+      publicId: remote,
+      posterId: poster,
+    });
+    expect(res.url).toBe(remote);
+    expect(res.posterUrl).toBe(poster);
+  });
 });

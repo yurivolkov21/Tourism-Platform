@@ -8,6 +8,16 @@ const IMAGE_TRANSFORM = 'f_auto,q_auto';
 /** Video poster transform: grab the first frame as a still. */
 const VIDEO_POSTER_TRANSFORM = 'so_0';
 
+/**
+ * An absolute http(s) publicId is treated as a ready-made delivery URL and
+ * returned unchanged. Seed/placeholder rows store full external URLs (e.g.
+ * Unsplash) instead of a Cloudinary public_id; admin-uploaded media still
+ * stores a bare public_id that gets the Cloudinary transform applied.
+ */
+function isAbsoluteUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value);
+}
+
 /** Minimal asset shape needed to build delivery URLs. */
 export interface CloudinaryUrlInput {
   type: MediaType;
@@ -36,12 +46,21 @@ export function buildCloudinaryUrl(
   asset: CloudinaryUrlInput,
 ): CloudinaryUrls {
   if (asset.type === MediaType.VIDEO) {
+    const posterUrl = asset.posterId
+      ? isAbsoluteUrl(asset.posterId)
+        ? asset.posterId
+        : `${CLOUDINARY_BASE}/${cloudName}/image/upload/${IMAGE_TRANSFORM}/${asset.posterId}`
+      : `${CLOUDINARY_BASE}/${cloudName}/video/upload/${VIDEO_POSTER_TRANSFORM}/${asset.publicId}.jpg`;
     return {
-      url: `${CLOUDINARY_BASE}/${cloudName}/video/upload/${asset.publicId}`,
-      posterUrl: asset.posterId
-        ? `${CLOUDINARY_BASE}/${cloudName}/image/upload/${IMAGE_TRANSFORM}/${asset.posterId}`
-        : `${CLOUDINARY_BASE}/${cloudName}/video/upload/${VIDEO_POSTER_TRANSFORM}/${asset.publicId}.jpg`,
+      url: isAbsoluteUrl(asset.publicId)
+        ? asset.publicId
+        : `${CLOUDINARY_BASE}/${cloudName}/video/upload/${asset.publicId}`,
+      posterUrl,
     };
+  }
+
+  if (isAbsoluteUrl(asset.publicId)) {
+    return { url: asset.publicId };
   }
 
   return {
