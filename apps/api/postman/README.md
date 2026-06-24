@@ -1,9 +1,16 @@
 # Postman — manual API testing
 
-Two files for driving `@tourism/api` by hand in Postman, **designed to test from an empty DB**:
+Files for driving `@tourism/api` by hand in Postman, **designed to test from an empty DB**:
 
 - **`tourism-api.postman_collection.json`** — the collection (77 requests).
-- **`tourism-local.postman_environment.json`** — the environment (fill the secrets).
+- **`tourism-local.postman_environment.json`** — env for the local API (`baseUrl=http://localhost:3000/api/v1`).
+- **`tourism-cloud.postman_environment.json`** — env for the **deployed** API on Render
+  (`baseUrl=https://tourism-api-pqwr.onrender.com/api/v1`). Same collection — just switch the env in
+  Postman's top-right dropdown to test the live cloud API instead of local.
+
+**Pick an environment first** (top-right dropdown), then fill its secrets. Because the cloud deploy
+reuses the same Supabase project as local, both envs take the **same** `supabase*` keys + admin/customer
+credentials — only `baseUrl` differs. Secrets ship empty (never committed); fill them per machine.
 
 **Run top-to-bottom** — each step builds the data the next one needs, so you always know where every
 row came from (no seed dependency):
