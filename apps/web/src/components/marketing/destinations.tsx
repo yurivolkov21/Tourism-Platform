@@ -4,15 +4,20 @@ import { ArrowRightIcon } from 'lucide-react';
 import { buttonVariants, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-import { homeDestinations } from '../../lib/destinations.fixtures';
+import type { DestinationTileVM } from '../../lib/destinations.fixtures';
 import { DestinationTile } from '../destinations/destination-tile';
 
+interface DestinationsProps {
+  /** Curated bento tiles from the API (via `pickHomeBento`, passed by `page.tsx`). */
+  tiles: DestinationTileVM[];
+}
+
 /**
- * Home teaser: a Lily-style bento grid of destination tiles. Reads the shared fixtures and renders
- * the extracted `DestinationTile` (bento emphasis via each tile's `span`). The fuller, region-grouped
+ * Home teaser: a Lily-style bento grid of destination tiles. Renders the extracted
+ * `DestinationTile` (bento emphasis via each tile's `span`). The fuller, region-grouped
  * version lives at `/destinations`.
  */
-export function Destinations() {
+export function Destinations({ tiles }: DestinationsProps) {
   const t = messages.destinations;
 
   return (
@@ -26,7 +31,7 @@ export function Destinations() {
 
         {/* Bento grid */}
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:auto-rows-[14rem]">
-          {homeDestinations.map((d) => (
+          {tiles.map((d) => (
             <DestinationTile key={d.slug} destination={d} />
           ))}
         </div>

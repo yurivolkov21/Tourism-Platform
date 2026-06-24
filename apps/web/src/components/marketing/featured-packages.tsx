@@ -15,19 +15,12 @@ import { messages } from '@tourism/i18n';
 
 import { TourCard, type TourCardData } from '../tours/tour-card';
 
-// Temporary Unsplash imagery (review only); mirrors the ToursExplorer fixtures.
-const cover = (id: string) => `https://images.unsplash.com/${id}?w=800&q=70&auto=format&fit=crop`;
+interface FeaturedPackagesProps {
+  /** Real featured tours from the API (passed by the server `page.tsx`). */
+  tours: TourCardData[];
+}
 
-const featured: TourCardData[] = [
-  { slug: 'ha-long-overnight-cruise', title: 'Hạ Long Bay Overnight Cruise', destination: 'Hạ Long Bay', durationDays: 2, basePrice: 320, compareAtPrice: 380, currency: 'USD', rating: 4.9, reviewCount: 214, badges: ['POPULAR'], image: cover('photo-1528127269322-539801943592') },
-  { slug: 'sa-pa-hill-tribe-trek', title: 'Sa Pa Hill-Tribe Trek', destination: 'Sa Pa', durationDays: 3, basePrice: 240, currency: 'USD', rating: 4.8, reviewCount: 132, badges: ['BEST_VALUE'], image: cover('photo-1573790387438-4da905039392') },
-  { slug: 'hoi-an-heritage-walk', title: 'Hội An Heritage Walk', destination: 'Hội An', durationDays: 1, basePrice: 75, currency: 'USD', rating: 4.9, reviewCount: 301, badges: [], image: cover('photo-1583417319070-4a69db38a482') },
-  { slug: 'hue-imperial-citadel', title: 'Huế Imperial Citadel & Royal Tombs', destination: 'Huế', durationDays: 2, basePrice: 180, currency: 'USD', rating: 4.7, reviewCount: 98, badges: ['NEW'], image: cover('photo-1555921015-5532091f6026') },
-  { slug: 'mekong-delta-discovery', title: 'Mekong Delta Discovery', destination: 'Mekong Delta', durationDays: 2, basePrice: 210, compareAtPrice: 250, currency: 'USD', rating: 4.8, reviewCount: 156, badges: ['LIMITED_OFFER'], image: cover('photo-1528181304800-259b08848526') },
-  { slug: 'saigon-street-food-night', title: 'Saigon Street-Food Night', destination: 'Hồ Chí Minh City', durationDays: 1, basePrice: 65, currency: 'USD', rating: 4.9, reviewCount: 277, badges: ['POPULAR'], image: cover('photo-1602002418816-5c0aeef426aa') },
-];
-
-export function FeaturedPackages() {
+export function FeaturedPackages({ tours }: FeaturedPackagesProps) {
   const t = messages.featuredTours;
 
   return (
@@ -40,7 +33,7 @@ export function FeaturedPackages() {
 
         <Carousel opts={{ align: 'start' }} className="w-full">
           <CarouselContent className="-ml-4">
-            {featured.map((tour) => (
+            {tours.map((tour) => (
               <CarouselItem key={tour.slug} className="pl-4 sm:basis-1/2 lg:basis-1/3">
                 <TourCard tour={tour} />
               </CarouselItem>

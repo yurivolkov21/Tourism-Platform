@@ -7,22 +7,39 @@ import { Trust } from '../components/marketing/trust';
 import { BlogTeaser } from '../components/marketing/blog-teaser';
 import { EnquiryCta } from '../components/marketing/enquiry-cta';
 import { Reveal } from '../components/marketing/reveal';
+import { fetchTourCards } from '../lib/api/tours';
+import { fetchDestinationTiles } from '../lib/api/destinations';
+import { pickHomeBento } from '../lib/home-bento';
 import { messages } from '@tourism/i18n';
 
-export default function HomePage() {
+// ISR: render real featured tours + destination tiles statically; fall back to
+// empty (section hidden) on an API error/cold-start so the home never looks broken.
+export const revalidate = 300;
+
+export default async function HomePage() {
+  const [featured, tiles] = await Promise.all([
+    fetchTourCards({ featured: true }).catch(() => []),
+    fetchDestinationTiles().catch(() => []),
+  ]);
+  const bento = pickHomeBento(tiles);
+
   return (
     <>
       {/* Hero stays static (above the fold); below-fold sections rise in on scroll */}
       <Hero />
-      <Reveal>
-        <Destinations />
-      </Reveal>
+      {bento.length > 0 && (
+        <Reveal>
+          <Destinations tiles={bento} />
+        </Reveal>
+      )}
       <Reveal>
         <Experiences />
       </Reveal>
-      <Reveal>
-        <FeaturedPackages />
-      </Reveal>
+      {featured.length > 0 && (
+        <Reveal>
+          <FeaturedPackages tours={featured} />
+        </Reveal>
+      )}
       {/* WhyChoose staggers its own cards on view (no section-level reveal) */}
       <WhyChoose />
       <Reveal>
