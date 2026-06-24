@@ -25,6 +25,7 @@ import {
 } from '@tourism/ui';
 
 import { apiErrorMessage } from '../../../lib/api/error';
+import { DeleteCategory } from '../../../components/categories/delete-category';
 import { listCategories, type CategoryList } from '../../../lib/categories/data';
 
 interface CategoriesPageProps {
@@ -148,6 +149,7 @@ export default async function CategoriesPage({ searchParams }: CategoriesPagePro
                         >
                           Edit
                         </Button>
+                        <DeleteCategory slug={category.slug} name={category.name} />
                       </div>
                     </TableCell>
                   </TableRow>
