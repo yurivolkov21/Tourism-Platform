@@ -19,8 +19,6 @@ export interface ToursFilterState {
 export type FacetKey = keyof ToursFilterState;
 
 const DURATIONS: DurationBucket[] = ['1', '2-3', '4+'];
-const STYLES: TravelStyle[] = ['family', 'couples', 'adventure', 'luxury', 'group', 'private'];
-const THEMES: TourTheme[] = ['cruise', 'trekking', 'cultural', 'culinary', 'beach', 'nature'];
 const PRICES: PriceBucket[] = ['<100', '100-300', '300+'];
 
 interface Option {
@@ -131,18 +129,8 @@ export function ToursFilters({
         selected={value.durations}
         onToggle={(v) => onToggle('durations', v)}
       />
-      <FacetGroup
-        heading={t.facets.travelStyle}
-        options={STYLES.map((s) => ({ value: s, label: t.styleLabels[s] }))}
-        selected={value.styles}
-        onToggle={(v) => onToggle('styles', v)}
-      />
-      <FacetGroup
-        heading={t.facets.theme}
-        options={THEMES.map((th) => ({ value: th, label: t.themeLabels[th] }))}
-        selected={value.themes}
-        onToggle={(v) => onToggle('themes', v)}
-      />
+      {/* Travel style + Theme facets are intentionally omitted: the API doesn't model these tags
+          yet (see web-real-data spec). Re-add once the Tour schema carries travelStyles/themes. */}
       <FacetGroup
         heading={t.facets.price}
         options={PRICES.map((p) => ({ value: p, label: t.priceLabels[p] }))}
