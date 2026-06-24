@@ -1,0 +1,110 @@
+# Render Blueprint for the Tourism API (NestJS + Prisma + pg-boss).
+#
+# Why a persistent web service (not serverless): pg-boss runs scheduled jobs
+# IN-PROCESS (outbox 1m · booking-cleanup 15m · media-reconcile daily), which
+# need an always-running process. Free plan spins down after 15 min idle — keep
+# it warm with the keep-alive pinger (see docs/05-runbooks/deploy.md); on the
+# free plan the pg-boss jobs only run while the service is awake.
+#
+# Build externalizes node_modules (see apps/api/webpack.config.js), so deps must
+# be installed at runtime — hence a full `pnpm install`, and an explicit
+# `prisma generate` so the Linux query engine is built for Render's platform.
+#
+# Apply: Render Dashboard → Blueprints → connect this repo. Secrets are
+# `sync: false` → set them once in the dashboard (never commit real values).
+services:
+  - type: web
+    name: tourism-api
+    runtime: node
+    region: singapore # closest free region to VN; change if unavailable on free
+    plan: free
+    branch: main
+    autoDeploy: true
+    buildCommand: >-
+      corepack enable &&
+      pnpm install --frozen-lockfile &&
+      pnpm exec prisma generate --schema apps/api/prisma/schema.prisma &&
+      pnpm nx build @tourism/api
+    startCommand: node apps/api/dist/main.js
+    healthCheckPath: /api/v1/health
+    envVars:
+      # ── Runtime ────────────────────────────────────────────────────────────
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: API_PREFIX
+        value: api/v1
+      # PORT is injected by Render automatically; the app reads process.env.PORT.
+
+      # ── Database (PROD Supabase project — NOT the dev one) ──────────────────
+      # DATABASE_URL = transaction pooler (?pgbouncer=true). DIRECT_URL = direct
+      # 5432 (used by `prisma migrate deploy`).
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+
+      # ── Supabase auth ───────────────────────────────────────────────────────
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: SUPABASE_JWKS_URL
+        sync: false
+
+      # ── App / CORS ──────────────────────────────────────────────────────────
+      # CORS_ORIGINS = comma-separated Vercel domains (web + admin). FRONTEND_URL
+      # = the public web origin (used in emails / redirects).
+      - key: ADMIN_EMAILS
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+
+      # ── Payments ────────────────────────────────────────────────────────────
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_DEFAULT_CURRENCY
+        value: USD
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: PAYPAL_MODE
+        value: sandbox
+
+      # ── Email (Resend) ──────────────────────────────────────────────────────
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false
+
+      # ── Media (Cloudinary) ──────────────────────────────────────────────────
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CLOUDINARY_UPLOAD_FOLDER
+        sync: false
+
+      # ── Optional ────────────────────────────────────────────────────────────
+      - key: LOG_LEVEL
+        value: info
+      - key: THROTTLE_LIMIT
+        value: "60"
+      - key: THROTTLE_TTL_SECONDS
+        value: "60"
+      - key: SENTRY_DSN
+        sync: false
