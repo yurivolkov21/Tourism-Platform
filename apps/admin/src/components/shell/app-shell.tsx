@@ -25,7 +25,7 @@ const NAV: NavSection[] = [
       { title: 'Tours', href: '/tours', icon: Compass },
       { title: 'Categories', href: '/categories', icon: Tags },
       { title: 'Media', href: '/media', icon: ImageIcon, soon: true },
-      { title: 'Posts', href: '/posts', icon: FileText, soon: true },
+      { title: 'Posts', href: '/posts', icon: FileText },
     ],
   },
 ];
