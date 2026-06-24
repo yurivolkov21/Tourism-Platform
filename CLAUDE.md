@@ -42,9 +42,9 @@ the rules; deep plan detail lives in [`HANDOFF.md`](HANDOFF.md) and
 
 | Project | Path | Stack | Tags | Status |
 | --- | --- | --- | --- | --- |
-| `@tourism/api` | `apps/api` | NestJS 11 · Prisma · Supabase · Stripe + PayPal · Resend · pg-boss | `scope:api,type:app` | 🟢 **P1 complete** (P1.1–P1.8 + P1.x): schema+RLS, envelope, auth, CRUD, bookings, Stripe+PayPal, media, reviews/wishlist/enquiry/stats, seed+client+e2e, pg-boss jobs |
+| `@tourism/api` | `apps/api` | NestJS 11 · Prisma · Supabase · Stripe + PayPal · Resend · pg-boss | `scope:api,type:app` | 🟢 **P1 complete + DEPLOYED** (P1.1–P1.8 + P1.x): schema+RLS, envelope, auth, CRUD, bookings, Stripe+PayPal, media, reviews/wishlist/enquiry/stats, seed+client+e2e, pg-boss jobs; **+ Posts CRUD + admin bookings list/detail** (~99% of P4 admin scope, 203 tests). Live on **Render** (`/health` + keep-alive). |
 | `@tourism/web` | `apps/web` | Next.js 16 · React | `scope:web,type:app` | 🟢 **P3 in progress** — home + destinations (overview + **3 region pages, per-region L2 design** + rich enquiry form) + content pages (`/faq` `/privacy` `/terms`) + about + contact + **tours (`/tours` listing + `/tours/[slug]` detail)**; real-data wiring + booking + motion next |
-| `@tourism/admin` | `apps/admin` | Next.js 16 | `scope:admin,type:app` | 🚧 scaffold (P4) |
+| `@tourism/admin` | `apps/admin` | Next.js 16 | `scope:admin,type:app` | 🟢 **P4 CRUD done + DEPLOYED** — auth + shell + dashboard + **CRUD: Destinations · Categories · Tours · Departures · Posts** (Server Components + Server Actions). Live on **Vercel**. Remaining: UI polish · Tours inc-2 · Media upload |
 | `@tourism/mobile` | `apps/mobile` | Expo SDK 54 / RN | `scope:mobile,type:app` | 🚧 scaffold (P5) |
 | `@tourism/core` | `libs/shared/core` | types · API client · zod · domain logic | `scope:shared,type:data-access` | 🟢 typed OpenAPI client (P1.8) + destination helpers (region grouping/slug) + **tours filter taxonomy/`filterTours`/`sortTours` (TDD)** |
 | `@tourism/tokens` | `libs/shared/tokens` | design tokens → web CSS vars + RN theme | `scope:shared,type:ui` | 🟢 **P2 done** — Style Dictionary, brand "Emerald Heritage", no-hex enforced |
