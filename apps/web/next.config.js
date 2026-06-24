@@ -10,9 +10,12 @@ const nextConfig = {
   // Use this to set Nx-specific options
   // See: https://nx.dev/recipes/next/next-config-setup
   nx: {},
-  // Temporary: Unsplash imagery for design review only. Swap for MediaAsset/own CDN later.
+  // Unsplash = temporary review imagery; res.cloudinary.com = real MediaAsset delivery URLs.
   images: {
-    remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+    ],
   },
 };
 

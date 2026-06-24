@@ -1,0 +1,42 @@
+import type { components } from '@tourism/core';
+
+import type { DestinationTileVM } from '../destinations.fixtures';
+import { getApiClient } from './client';
+
+type DestinationDto = components['schemas']['DestinationDto'];
+
+// Fallback cover when a destination has no media yet (keeps next/image happy).
+const PLACEHOLDER_IMG =
+  'https://images.unsplash.com/photo-1528127269322-539801943592?w=1100&q=70&auto=format&fit=crop';
+
+/**
+ * Adapts an API destination → the overview tile view-model. The overview only renders
+ * `image/name/tagline/region`; `intro/gallery/tours` are required by the VM type but unused there,
+ * so they get safe defaults. `tagline`/`intro` derive from `description`.
+ */
+export function toDestinationTile(dto: DestinationDto): DestinationTileVM {
+  const hero = dto.media.find((m) => m.role === 'hero') ?? dto.media[0];
+  return {
+    slug: dto.slug,
+    name: dto.name,
+    country: dto.country,
+    region: dto.region,
+    description: dto.description,
+    tourCount: 0,
+    tagline: dto.description ?? '',
+    image: hero?.url ?? PLACEHOLDER_IMG,
+    intro: dto.description ?? '',
+    gallery: dto.media.map((m) => m.url),
+    tours: [],
+  };
+}
+
+/** Fetches active destinations as overview tiles (grouped by region on the page). */
+export async function fetchDestinationTiles(): Promise<DestinationTileVM[]> {
+  const api = getApiClient();
+  const { data } = await api.GET('/api/v1/destinations', {
+    params: { query: { pageSize: 100 } },
+  });
+  const list = (data as unknown as { data: DestinationDto[] }).data ?? [];
+  return list.map(toDestinationTile);
+}

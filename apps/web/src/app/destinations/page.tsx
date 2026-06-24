@@ -11,7 +11,8 @@ import { TravelTips } from '../../components/destinations/travel-tips';
 import { Gallery, type GallerySection } from '../../components/marketing/gallery';
 import { Testimonials } from '../../components/marketing/testimonials';
 import { EnquiryCta } from '../../components/marketing/enquiry-cta';
-import { destinations, popularTours } from '../../lib/destinations.fixtures';
+import { fetchDestinationTiles } from '../../lib/api/destinations';
+import { fetchTourCards } from '../../lib/api/tours';
 
 // Placeholder frames for the editorial gallery (data-ready; maps to MediaAsset later).
 const galleryFrames: GallerySection[] = [
@@ -31,8 +32,15 @@ export const metadata: Metadata = {
   description: 'Explore Vietnam by destination — from the misty north to the Mekong south.',
 };
 
-export default function DestinationsPage() {
-  const groups = groupByRegion(destinations);
+// ISR: serve real destinations/tours without per-request API hits; fall back to empty on API error.
+export const revalidate = 300;
+
+export default async function DestinationsPage() {
+  const [tiles, popular] = await Promise.all([
+    fetchDestinationTiles().catch(() => []),
+    fetchTourCards({ featured: true }).catch(() => []),
+  ]);
+  const groups = groupByRegion(tiles);
 
   return (
     <main>
@@ -41,7 +49,7 @@ export default function DestinationsPage() {
         <RegionGroup key={group.region} region={group.region} items={group.items} />
       ))}
       <BestTime />
-      <PopularTours tours={popularTours} />
+      <PopularTours tours={popular} />
       <Gallery variant="editorial" sections={galleryFrames} />
       <Testimonials />
       <TravelTips />
