@@ -16,6 +16,7 @@ import {
 import type { DepartureFormState } from '../../lib/departures/actions';
 import { DEPARTURE_STATUSES } from '../../lib/departures/schema';
 import type { Departure } from '../../lib/departures/data';
+import { toDateOnly } from '../../lib/departures/format';
 
 interface DepartureFormProps {
   /** Bound server action (create with slug, or update with slug + id). */
@@ -42,12 +43,12 @@ export function DepartureForm({ action, departure, slug, submitLabel }: Departur
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field data-invalid={Boolean(errors.startDate)}>
             <FieldLabel htmlFor="startDate">Start date</FieldLabel>
-            <Input id="startDate" name="startDate" type="date" required defaultValue={departure?.startDate ?? ''} aria-invalid={Boolean(errors.startDate)} />
+            <Input id="startDate" name="startDate" type="date" required defaultValue={departure ? toDateOnly(departure.startDate) : ''} aria-invalid={Boolean(errors.startDate)} />
             {errors.startDate ? <FieldError>{errors.startDate}</FieldError> : null}
           </Field>
           <Field data-invalid={Boolean(errors.endDate)}>
             <FieldLabel htmlFor="endDate">End date</FieldLabel>
-            <Input id="endDate" name="endDate" type="date" required defaultValue={departure?.endDate ?? ''} aria-invalid={Boolean(errors.endDate)} />
+            <Input id="endDate" name="endDate" type="date" required defaultValue={departure ? toDateOnly(departure.endDate) : ''} aria-invalid={Boolean(errors.endDate)} />
             {errors.endDate ? <FieldError>{errors.endDate}</FieldError> : null}
           </Field>
         </div>

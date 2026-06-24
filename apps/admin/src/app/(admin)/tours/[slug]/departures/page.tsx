@@ -21,6 +21,7 @@ import {
 import { apiErrorMessage } from '../../../../../lib/api/error';
 import { DeleteDeparture } from '../../../../../components/departures/delete-departure';
 import { listDepartures, type Departure } from '../../../../../lib/departures/data';
+import { toDateOnly } from '../../../../../lib/departures/format';
 import { getTour, type TourDetail } from '../../../../../lib/tours/data';
 
 interface DeparturesPageProps {
@@ -135,8 +136,8 @@ export default async function DeparturesPage({ params, searchParams }: Departure
             <TableBody>
               {rows.map((d) => (
                 <TableRow key={d.id}>
-                  <TableCell className="font-medium tabular-nums">{d.startDate}</TableCell>
-                  <TableCell className="tabular-nums">{d.endDate}</TableCell>
+                  <TableCell className="font-medium tabular-nums">{toDateOnly(d.startDate)}</TableCell>
+                  <TableCell className="tabular-nums">{toDateOnly(d.endDate)}</TableCell>
                   <TableCell className="text-right tabular-nums">
                     {d.seatsBooked}/{d.seatsTotal}
                   </TableCell>
@@ -163,7 +164,7 @@ export default async function DeparturesPage({ params, searchParams }: Departure
                       >
                         Edit
                       </Button>
-                      <DeleteDeparture slug={slug} id={d.id} label={`${d.startDate} → ${d.endDate}`} />
+                      <DeleteDeparture slug={slug} id={d.id} label={`${toDateOnly(d.startDate)} → ${toDateOnly(d.endDate)}`} />
                     </div>
                   </TableCell>
                 </TableRow>

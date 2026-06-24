@@ -7,6 +7,7 @@ import { Button } from '@tourism/ui';
 import { DepartureForm } from '../../../../../../../components/departures/departure-form';
 import { updateDeparture } from '../../../../../../../lib/departures/actions';
 import { findDeparture } from '../../../../../../../lib/departures/data';
+import { toDateOnly } from '../../../../../../../lib/departures/format';
 
 interface EditDeparturePageProps {
   params: Promise<{ slug: string; id: string }>;
@@ -35,7 +36,7 @@ export default async function EditDeparturePage({ params }: EditDeparturePagePro
         <div className="space-y-1">
           <h1 className="font-heading text-2xl font-bold">Edit departure</h1>
           <p className="text-muted-foreground text-sm">
-            {departure.startDate} → {departure.endDate}
+            {toDateOnly(departure.startDate)} → {toDateOnly(departure.endDate)}
           </p>
         </div>
       </div>
