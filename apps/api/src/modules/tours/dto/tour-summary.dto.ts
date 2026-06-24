@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { TourBadge, TravellerType } from '@prisma/client';
 import { MediaItemDto } from '../../media/dto/media.dto';
 import {
   TourCategoryRefDto,
@@ -49,6 +50,18 @@ export class TourSummaryDto {
 
   @ApiProperty({ type: [String], example: ['Lantern-lit old town'] })
   highlights!: string[];
+
+  @ApiProperty({ enum: TravellerType, isArray: true, example: [TravellerType.FAMILY] })
+  suitableFor!: TravellerType[];
+
+  @ApiProperty({ enum: TourBadge, isArray: true, example: [TourBadge.BEST_VALUE] })
+  badges!: TourBadge[];
+
+  @ApiProperty({ example: 4.8, description: 'Average of approved reviews (1-dp); 0 if none' })
+  averageRating!: number;
+
+  @ApiProperty({ example: 214, description: 'Count of approved reviews' })
+  reviewsCount!: number;
 
   @ApiProperty({ type: TourCategoryRefDto })
   category!: TourCategoryRefDto;

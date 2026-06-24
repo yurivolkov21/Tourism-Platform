@@ -18,6 +18,7 @@ interface PrismaMocks {
   tour?: Record<string, unknown>;
   tourCategory?: Record<string, unknown>;
   destination?: Record<string, unknown>;
+  review?: Record<string, unknown>;
 }
 
 function makePrisma(m: PrismaMocks = {}): PrismaService {
@@ -44,6 +45,10 @@ function makePrisma(m: PrismaMocks = {}): PrismaService {
           { id: 'd-2', slug: 'da-nang' },
         ]),
       ...m.destination,
+    },
+    review: {
+      groupBy: jest.fn().mockResolvedValue([]),
+      ...m.review,
     },
   };
   // Interactive tx runs its callback against the same mock (tx.tour.delete etc.).
@@ -280,5 +285,32 @@ describe('ToursService', () => {
     await expect(svc.remove('x')).resolves.toMatchObject({ slug: 'x' });
     expect(media.deleteForOwner).toHaveBeenCalledTimes(1);
     expect(del).toHaveBeenCalledTimes(1);
+  });
+
+  describe('review stats', () => {
+    it('attaches averageRating (1-dp) + reviewsCount from approved reviews', async () => {
+      const svc = makeService(
+        makePrisma({
+          tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }) },
+          review: {
+            groupBy: jest
+              .fn()
+              .mockResolvedValue([{ tourId: 't-1', _avg: { rating: 4.6667 }, _count: { _all: 3 } }]),
+          },
+        }),
+      );
+      const r = await svc.findBySlug('x');
+      expect(r.averageRating).toBe(4.7);
+      expect(r.reviewsCount).toBe(3);
+    });
+
+    it('defaults to 0 / 0 when a tour has no approved reviews', async () => {
+      const svc = makeService(
+        makePrisma({ tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-2', slug: 'y' }) } }),
+      );
+      const r = await svc.findBySlug('y');
+      expect(r.averageRating).toBe(0);
+      expect(r.reviewsCount).toBe(0);
+    });
   });
 });

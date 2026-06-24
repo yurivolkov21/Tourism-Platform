@@ -39,9 +39,15 @@ const DETAIL_INCLUDE: Prisma.TourInclude = {
 /** A tour row enriched with its media set (delivery URLs built at read time). */
 export type TourWithMedia = Tour & { media: MediaItemDto[] };
 
+/** Read-path tour: media + computed review stats (for catalog cards / detail). */
+export type TourWithStats = TourWithMedia & {
+  averageRating: number;
+  reviewsCount: number;
+};
+
 /** Pagination envelope; `TransformInterceptor` hoists `meta` to the top level. */
 export interface PaginatedTours {
-  items: TourWithMedia[];
+  items: TourWithStats[];
   meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
 
@@ -95,13 +101,14 @@ export class ToursService {
     return this.list(query, true);
   }
 
-  async findPublicBySlug(slug: string): Promise<TourWithMedia> {
+  async findPublicBySlug(slug: string): Promise<TourWithStats> {
     const tour = await this.prisma.tour.findFirst({
       where: { slug, isPublished: true },
       include: DETAIL_INCLUDE,
     });
     if (!tour) throw this.notFound(slug);
-    return this.media.attachToOwner(MediaOwnerType.TOUR, tour);
+    const withMedia = await this.media.attachToOwner(MediaOwnerType.TOUR, tour);
+    return (await this.attachRatings([withMedia]))[0];
   }
 
   // ── Admin reads + mutations ───────────────────────────────────────────────
@@ -110,13 +117,41 @@ export class ToursService {
     return this.list(query, false);
   }
 
-  async findBySlug(slug: string): Promise<TourWithMedia> {
+  async findBySlug(slug: string): Promise<TourWithStats> {
     const tour = await this.prisma.tour.findUnique({
       where: { slug },
       include: DETAIL_INCLUDE,
     });
     if (!tour) throw this.notFound(slug);
-    return this.media.attachToOwner(MediaOwnerType.TOUR, tour);
+    const withMedia = await this.media.attachToOwner(MediaOwnerType.TOUR, tour);
+    return (await this.attachRatings([withMedia]))[0];
+  }
+
+  /**
+   * Merges computed review stats onto tour rows: `averageRating` (1-dp, approved
+   * reviews only) + `reviewsCount`. One `groupBy` for the whole batch; tours with
+   * no approved reviews get `0` / `0`.
+   */
+  private async attachRatings<T extends { id: string }>(
+    rows: T[],
+  ): Promise<(T & { averageRating: number; reviewsCount: number })[]> {
+    if (rows.length === 0) return [];
+    const grouped = await this.prisma.review.groupBy({
+      by: ['tourId'],
+      where: { tourId: { in: rows.map((r) => r.id) }, isApproved: true },
+      _avg: { rating: true },
+      _count: { _all: true },
+    });
+    const byTour = new Map(grouped.map((g) => [g.tourId, g]));
+    return rows.map((r) => {
+      const g = byTour.get(r.id);
+      const avg = g?._avg.rating ?? 0;
+      return {
+        ...r,
+        averageRating: Math.round(avg * 10) / 10,
+        reviewsCount: g?._count._all ?? 0,
+      };
+    });
   }
 
   /** Create. Resolves refs (400 on bad ones), slugifies, nested-writes children. */
@@ -332,8 +367,9 @@ export class ToursService {
       this.prisma.tour.count({ where }),
     ]);
 
+    const withMedia = await this.media.attachToOwners(MediaOwnerType.TOUR, items);
     return {
-      items: await this.media.attachToOwners(MediaOwnerType.TOUR, items),
+      items: await this.attachRatings(withMedia),
       meta: {
         page,
         pageSize,
