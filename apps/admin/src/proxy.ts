@@ -9,7 +9,7 @@ const PUBLIC_PATHS = ['/login', '/auth'];
  * whole admin: any unauthenticated request outside the public paths is redirected to
  * `/login?redirect=<path>`. The ADMIN-role check happens after sign-in (`/auth/admin/sync`).
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
