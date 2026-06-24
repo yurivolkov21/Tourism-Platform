@@ -19,10 +19,14 @@ import { TourFaq } from '../../../components/tours/tour-faq';
 import { RelatedTours } from '../../../components/tours/related-tours';
 import { Gallery, type GallerySection } from '../../../components/marketing/gallery';
 import { EnquiryCta } from '../../../components/marketing/enquiry-cta';
-import { getTourDetail, tourSlugs } from '../../../lib/tours';
+import { fetchTourDetail, fetchTourDetailSlugs } from '../../../lib/api/tour-detail';
 
-export function generateStaticParams() {
-  return tourSlugs().map((slug) => ({ slug }));
+// ISR: render real tour detail statically; revalidate so the free API tier isn't hit per request.
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const slugs = await fetchTourDetailSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -31,7 +35,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const tour = getTourDetail(slug);
+  const tour = await fetchTourDetail(slug);
   if (!tour) return { title: 'Tour not found' };
   return {
     title: `${tour.title} — Tourism Platform`,
@@ -41,7 +45,7 @@ export async function generateMetadata({
 
 export default async function TourDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const tour = getTourDetail(slug);
+  const tour = await fetchTourDetail(slug);
   if (!tour) notFound();
 
   const td = messages.tourDetail;
@@ -119,17 +123,15 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
               <TourValue />
               <TourItinerary days={tour.itinerary} />
               <TourIncluded
-                meals={td.mealsSummary(
-                  tour.mealTotals.breakfast,
-                  tour.mealTotals.lunch,
-                  tour.mealTotals.dinner,
-                )}
+                meals={tour.meals}
                 transport={tour.transport}
                 accommodation={tour.accommodation}
                 activities={tour.included}
                 excluded={tour.notIncluded}
               />
-              <TourPolicies />
+              <TourPolicies
+                groups={tour.policies?.map((p) => ({ title: p.title, items: [p.body] }))}
+              />
             </div>
 
             <aside className="mt-10 lg:mt-0">
@@ -139,11 +141,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                 compareAtPrice={tour.compareAtPrice}
                 rating={tour.rating}
                 reviewCount={tour.reviewCount}
-                meals={td.mealsSummary(
-                  tour.mealTotals.breakfast,
-                  tour.mealTotals.lunch,
-                  tour.mealTotals.dinner,
-                )}
+                meals={tour.meals}
                 departures={tour.departures}
               />
             </aside>
@@ -153,7 +151,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
 
       <TourReviews reviews={tour.reviews} rating={tour.rating} reviewCount={tour.reviewCount} />
       <TourTrust />
-      <TourFaq />
+      <TourFaq items={tour.faqs?.map((f) => ({ q: f.question, a: f.answer }))} />
       <RelatedTours tours={tour.related} />
       <EnquiryCta heading={td.enquireHeading(tour.title)} prefillDestination={tour.title} />
     </main>

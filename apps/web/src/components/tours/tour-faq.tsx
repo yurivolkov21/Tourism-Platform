@@ -1,9 +1,16 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-/** Tour FAQ — a curated accordion of common questions about the trip. */
-export function TourFaq() {
+interface FaqItem {
+  q: string;
+  a: string;
+}
+
+/** Tour FAQ — a curated accordion. Uses real `items` from the API when provided,
+ * otherwise falls back to the generic i18n questions. */
+export function TourFaq({ items }: { items?: FaqItem[] }) {
   const t = messages.tourDetail.faqSection;
+  const faqs: readonly FaqItem[] = items && items.length > 0 ? items : t.items;
 
   return (
     <section className="py-12 sm:py-16">
@@ -13,7 +20,7 @@ export function TourFaq() {
           <h2 className="font-heading text-2xl font-semibold sm:text-3xl">{t.heading}</h2>
         </div>
         <Accordion className="w-full">
-          {t.items.map((item, i) => (
+          {faqs.map((item, i) => (
             <AccordionItem key={item.q} value={`faq-${i}`}>
               <AccordionTrigger className="text-left">
                 <span className="font-semibold">{item.q}</span>

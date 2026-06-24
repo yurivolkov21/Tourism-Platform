@@ -1,6 +1,7 @@
 # Web real-data increment-2 — design
 
-**Status:** in progress (2a) · **Date:** 2026-06-24 · **Branch:** `feat/web-home-real-data` (2a)
+**Status:** 2a merged (`ab76324`) · 2b in review · **Date:** 2026-06-24 ·
+**Branches:** `feat/web-home-real-data` (2a) · `feat/web-tour-detail-real-data` (2b)
 
 ## Context
 
@@ -21,12 +22,14 @@ generated `@tourism/core` client. Public endpoints available: `GET /tours`,
 Two sub-increments, smallest/highest-impact first:
 
 ### 2a — Home real data (this branch)
+
 - **Featured Packages** (currently a hard-coded `TourCardData[]`) → real
   featured tours via the existing `fetchTourCards({ featured: true })`.
 - **Destinations bento** (currently `homeDestinations` fixtures) → real tiles
   via the existing `fetchDestinationTiles()`, curated into the bento layout.
 
 ### 2b — Tour detail `/tours/[slug]` (next branch)
+
 - Replace the `lib/tours.ts` fixture VM with a `GET /tours/:slug` adapter +
   `GET /tours/:slug/reviews`. SSG slugs from `fetchTourCards()`.
 - Real fields now available: itinerary, included/excluded, highlights, FAQs,
@@ -42,8 +45,10 @@ Experiences (static categories are fine).
 ## 2a design
 
 ### Data flow
+
 `app/page.tsx` becomes an **async server component** with `revalidate = 300`.
 It fetches in parallel (each `.catch(() => [])` like the wired pages):
+
 - `fetchTourCards({ featured: true })` → featured tour cards
 - `fetchDestinationTiles()` → destination tiles, then `pickHomeBento(tiles)`
 
@@ -52,6 +57,7 @@ non-empty** — on an API error/cold-start the section is hidden rather than
 showing an empty carousel/grid (the landing page never looks broken).
 
 ### `pickHomeBento` (pure, TDD'd — `lib/home-bento.ts`)
+
 Curates the flat API tile list into the existing six-tile bento, preserving the
 current layout emphasis (`span`s):
 
@@ -69,6 +75,7 @@ in `config`, in config order, with `span` applied. Configured slugs not present
 in `tiles` are skipped (graceful — bento simply shrinks). Empty input → empty.
 
 ### Component changes
+
 - `FeaturedPackages` — accepts `tours: TourCardData[]` prop; drop the hard-coded
   array + `cover()` helper. Stays a client carousel; data arrives via prop.
 - `Destinations` — accepts `tiles: DestinationTileVM[]` prop; drop the
@@ -76,13 +83,61 @@ in `tiles` are skipped (graceful — bento simply shrinks). Empty input → empt
 - `homeDestinations` / `HOME_SLUGS` fixtures stay (still used by other surfaces
   / tests) — only the home component stops importing them.
 
+## 2b design
+
+`/tours/[slug]` switches from the `lib/tours.ts` fixture VM to API data, keeping
+the existing component prop contracts (build the same `TourDetailVM`, just from
+the API). New adapter `lib/api/tour-detail.ts`:
+
+- `fetchTourDetailSlugs()` → published slugs (from `fetchTourCards()`) for
+  `generateStaticParams` (async; empty on cold build → pages render on-demand
+  via ISR, `dynamicParams` default).
+- `fetchTourDetail(slug)` → `GET /tours/:slug` (`TourDetailDto`) → `TourDetailVM`,
+  or `null` (→ `notFound()`).
+- `fetchTourReviews(slug)` → `GET /tours/:slug/reviews` → `{ reviews, rating,
+  reviewCount }` (maps `PublicReviewDto` → `TourReview`: `reviewer.fullName` →
+  author, `createdAt` → formatted date, `body` → quote).
+- related → `fetchTourCards()`, exclude current slug, take 4.
+
+**Real fields:** title, summary→overview, durationDays, basePrice, compareAtPrice,
+currency, averageRating→rating, reviewsCount→reviewCount, badges, primary
+destination, gallery (media), itinerary (dayNumber→day, description→body),
+included, excluded→notIncluded, FAQs, policies, reviews.
+
+**Derived (no discrete API field — neutral, not fake catalog data):**
+
+- `meals` (string): the meal line parsed from `included` (e.g. "4 breakfasts, 3
+  lunches, 2 dinners") via `parseMealsLine`, else "Meals as listed".
+- `transport`: an `included` transport line, else "Private transfers".
+- `accommodation`: duration-derived ("Day tour — no overnight stay" / "Hotel · N
+  nights"). `departureFrequency`: neutral "Flexible dates".
+- hero `badge`: `bestSeller` when API badges include POPULAR/BEST_VALUE, else none.
+- `departures`: `[]` — the detail DTO doesn't expose departures, and booking is
+  still UI-only (`#contact`). BookingBox hides the departures block when empty.
+  (Exposing real departures + wiring booking is a later increment.)
+
+**VM / component changes (minimal, contract-preserving):**
+
+- `TourDetailVM` (lib/tours.ts) gains optional `faqs?`, `policies?`, and a `meals`
+  string; the fixture `getTourDetail` keeps compiling (sets them too). `mealTotals`
+  becomes optional.
+- `TourFaq` / `TourPolicies` accept optional data props, falling back to the i18n
+  copy when omitted (real data passed from the page).
+- `BookingBox` guards the departures block on `departures.length > 0`.
+- `page.tsx` becomes async with `revalidate = 300`; fetches detail + reviews +
+  related in parallel; `notFound()` on a missing/unpublished slug.
+
 ## Tests
+
 - `lib/home-bento.spec.ts` — order preserved · missing slug skipped · span
   applied · empty input → empty (web jest).
+- `lib/tour-detail-derive.spec.ts` — `parseMealsLine` (full / partial / singular
+  / none) · `pickRelated` (excludes current, caps at 4) (web jest).
 - Visual/layout via build + manual review (web has no separate typecheck;
   `build` type-checks). Existing `@tourism/core` tour/destination tests unchanged.
 
 ## Risks
+
 - **Cold-start at build:** Render free may be asleep when Vercel builds → API
   returns empty → home sections hidden until ISR revalidation (300s) or a
   redeploy with the API warm. Mitigation: arm the keep-alive pinger

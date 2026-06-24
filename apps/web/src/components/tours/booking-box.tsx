@@ -66,19 +66,21 @@ export function BookingBox({
           </span>
         </div>
 
-        <div>
-          <h3 className="font-sans mb-3 text-sm font-semibold tracking-wide uppercase">
-            {t.departures}
-          </h3>
-          <ul className="space-y-2.5">
-            {departures.map((departure) => (
-              <li key={departure.id} className="flex items-center justify-between gap-3 text-sm">
-                <span className="font-medium">{departure.date}</span>
-                <span className="text-muted-foreground">{t.seatsLeft(departure.seatsLeft)}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {departures.length > 0 ? (
+          <div>
+            <h3 className="font-sans mb-3 text-sm font-semibold tracking-wide uppercase">
+              {t.departures}
+            </h3>
+            <ul className="space-y-2.5">
+              {departures.map((departure) => (
+                <li key={departure.id} className="flex items-center justify-between gap-3 text-sm">
+                  <span className="font-medium">{departure.date}</span>
+                  <span className="text-muted-foreground">{t.seatsLeft(departure.seatsLeft)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
 
         <div className="space-y-2.5">
           <a href="#contact" className={cn(buttonVariants({ size: 'lg' }), 'w-full')}>

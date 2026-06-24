@@ -43,14 +43,20 @@ export interface TourDetailVM extends TourCardData {
   badge?: TourBadge;
   /** Cross-sell: up to 4 other tours (same region first), for the "You might also like" grid. */
   related: TourCardData[];
-  /** Meal totals across the itinerary (e.g. 13 breakfasts / 9 lunches / 1 dinner). */
-  mealTotals: { breakfast: number; lunch: number; dinner: number };
+  /** Ready-to-render meals summary (real tours: parsed from `included`; fixture: from `mealTotals`). */
+  meals: string;
+  /** Meal totals across the itinerary — fixture path only; the API has no per-day meal codes. */
+  mealTotals?: { breakfast: number; lunch: number; dinner: number };
   /** Overview / inclusions specs (computed placeholders until real data lands from the API). */
   transport: string;
   accommodation: string;
   departureFrequency: string;
   /** A few placeholder traveller reviews for the detail page. */
   reviews: TourReview[];
+  /** FAQs from the API (undefined → component falls back to the i18n copy). */
+  faqs?: { question: string; answer: string }[];
+  /** Policies from the API (undefined → component falls back to the i18n copy). */
+  policies?: { kind: string; title: string; body: string }[];
 }
 
 /** Every tour across the destination fixtures, deduped by slug (input order preserved). */
@@ -134,6 +140,15 @@ function buildItinerary(destination: string, days: number): ItineraryDay[] {
     }
   }
   return itinerary;
+}
+
+/** "13 breakfasts · 9 lunches · 1 dinner" from meal totals (omits zero courses). */
+function formatMeals(totals: { breakfast: number; lunch: number; dinner: number }): string {
+  const parts: string[] = [];
+  if (totals.breakfast) parts.push(`${totals.breakfast} breakfast${totals.breakfast > 1 ? 's' : ''}`);
+  if (totals.lunch) parts.push(`${totals.lunch} lunch${totals.lunch > 1 ? 'es' : ''}`);
+  if (totals.dinner) parts.push(`${totals.dinner} dinner${totals.dinner > 1 ? 's' : ''}`);
+  return parts.length ? parts.join(' · ') : 'Meals as listed';
 }
 
 /** Tally how many breakfasts / lunches / dinners the itinerary's meal codes add up to. */
@@ -231,6 +246,7 @@ export function getTourDetail(slug: string): TourDetailVM | undefined {
   const region = owner?.region ?? '';
   const departures = buildDepartures(slug);
   const itinerary = buildItinerary(tour.destination, tour.durationDays);
+  const mealTotals = computeMealTotals(itinerary);
 
   return {
     ...tour,
@@ -244,7 +260,8 @@ export function getTourDetail(slug: string): TourDetailVM | undefined {
     departures,
     badge: deriveBadge(tour, departures),
     related: relatedTours(slug, region),
-    mealTotals: computeMealTotals(itinerary),
+    meals: formatMeals(mealTotals),
+    mealTotals,
     transport: buildTransport(tour.destination),
     accommodation: buildAccommodation(tour.durationDays),
     departureFrequency: 'Daily',

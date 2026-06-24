@@ -30,11 +30,13 @@ function PolicyGroup({ group }: { group: PolicyGroupData }) {
   );
 }
 
-/** Policies panel — first group always shown, the rest revealed by a Read-more toggle. */
-export function TourPolicies() {
+/** Policies panel — first group always shown, the rest revealed by a Read-more toggle.
+ * Uses real `groups` from the API when provided, otherwise the generic i18n copy. */
+export function TourPolicies({ groups }: { groups?: PolicyGroupData[] }) {
   const t = messages.tourDetail.policies;
   const [expanded, setExpanded] = useState(false);
-  const [first, ...rest] = t.groups;
+  const source: readonly PolicyGroupData[] = groups && groups.length > 0 ? groups : t.groups;
+  const [first, ...rest] = source;
 
   return (
     <TourSection title={t.heading}>
