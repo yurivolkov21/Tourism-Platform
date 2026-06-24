@@ -31,7 +31,7 @@ const NAV: NavSection[] = [
     items: [
       { title: 'Destinations', href: '/destinations', icon: MapPin },
       { title: 'Tours', href: '/tours', icon: Compass, soon: true },
-      { title: 'Categories', href: '/categories', icon: Tags, soon: true },
+      { title: 'Categories', href: '/categories', icon: Tags },
       { title: 'Departures', href: '/departures', icon: CalendarRange, soon: true },
       { title: 'Media', href: '/media', icon: ImageIcon, soon: true },
       { title: 'Posts', href: '/posts', icon: FileText, soon: true },
