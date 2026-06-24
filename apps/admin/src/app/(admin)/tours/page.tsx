@@ -25,6 +25,7 @@ import {
 } from '@tourism/ui';
 
 import { apiErrorMessage } from '../../../lib/api/error';
+import { DeleteTour } from '../../../components/tours/delete-tour';
 import { listCategories, type Category } from '../../../lib/categories/data';
 import { listTours, type TourList, type TourSummary } from '../../../lib/tours/data';
 
@@ -209,6 +210,7 @@ export default async function ToursPage({ searchParams }: ToursPageProps) {
                         >
                           Edit
                         </Button>
+                        <DeleteTour slug={tour.slug} title={tour.title} />
                       </div>
                     </TableCell>
                   </TableRow>
