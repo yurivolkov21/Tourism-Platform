@@ -28,9 +28,11 @@ pg-boss jobs are **persisted in Postgres** → a spin-down only *delays* them; o
    - `DIRECT_URL` = the **direct** URI (port `5432`) — used by `prisma migrate deploy`.
 3. **Auth keys** (Project → Settings → API): `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`, and `SUPABASE_JWKS_URL` (`<url>/auth/v1/.well-known/jwks.json`).
 4. **Run migrations** against prod (from your machine, env pointed at prod `DIRECT_URL`):
+
    ```bash
    DIRECT_URL="<prod direct url>" pnpm exec prisma migrate deploy --schema apps/api/prisma/schema.prisma
    ```
+
 5. **Create the admin user:** Supabase → Authentication → Users → Add user (email = one of `ADMIN_EMAILS`, set a password). The API mirrors + elevates on first `POST /auth/admin/sync`. (The repo `seed` only mirrors a local row — it does NOT create the Supabase auth user.)
 6. *(Optional)* seed catalog data: point `DATABASE_URL`/`DIRECT_URL` at prod and run `pnpm nx run @tourism/api:seed`.
 
@@ -42,14 +44,17 @@ pg-boss jobs are **persisted in Postgres** → a spin-down only *delays* them; o
    - ⚠️ **`FRONTEND_URL` is REQUIRED at boot** (Joi validation) and must be a valid URL — set it now to your planned web domain (e.g. `https://tourism-web.vercel.app`) or any temporary `https://…`; refine in §5. `CORS_ORIGINS` *is* optional (blank = reflect any origin) — fine to leave blank until §5.
    - `NODE_ENV=production`, `PAYPAL_MODE=sandbox` (until you have live PayPal), `STRIPE_DEFAULT_CURRENCY=USD`.
 3. Deploy. When live, note the URL: `https://tourism-api-XXXX.onrender.com`. Verify:
+
    ```bash
    curl https://tourism-api-XXXX.onrender.com/api/v1/health   # → {"data":{"status":"ok","db":"up",...}}
    ```
+
    (Swagger UI is disabled in production by design.)
 
 ## 3. Keep-alive pinger
 
 **Option A — GitHub Actions (in-repo, committed):** [`.github/workflows/keepalive.yml`](../../.github/workflows/keepalive.yml) already pings every 10 min (VN daytime).
+
 - Set repo **Variable** `API_HEALTH_URL` = `https://tourism-api-XXXX.onrender.com/api/v1/health` (Settings → Secrets and variables → Actions → **Variables**).
 - Caveat: GitHub-scheduled runs are best-effort (can be delayed under load; auto-disable after 60 days of no repo activity).
 
@@ -58,6 +63,7 @@ pg-boss jobs are **persisted in Postgres** → a spin-down only *delays* them; o
 ## 4. Vercel — web + admin (two projects, same repo)
 
 For **each** app (`apps/web`, `apps/admin`) create a Vercel project from this repo:
+
 - **Root Directory:** `apps/web` (resp. `apps/admin`). Framework preset: Next.js.
 - **Build command:** `pnpm nx build @tourism/web` (resp. `@tourism/admin`). **Install:** `pnpm install`. Output is auto-detected (`.next`).
 - **Environment variables:**
@@ -68,6 +74,7 @@ For **each** app (`apps/web`, `apps/admin`) create a Vercel project from this re
 ## 5. Wire CORS (close the loop)
 
 Back on Render, set:
+
 - `CORS_ORIGINS` = `https://tourism-web.vercel.app,https://tourism-admin.vercel.app` (comma-separated, no trailing slash).
 - `FRONTEND_URL` = `https://tourism-web.vercel.app`.
 
@@ -84,10 +91,12 @@ Redeploy the API (or it picks up env on next deploy). Sign in to the admin at `h
 ## 7. Demo-day fallback (zero cold-start, zero cost)
 
 If you want **no** cloud risk during the presentation: run the API locally and expose it via **Cloudflare Tunnel** (free, stable named URL):
+
 ```bash
 pnpm nx serve @tourism/api            # local API on :3000 (jobs run, no spin-down)
 cloudflared tunnel --url http://localhost:3000   # prints a public https URL
 ```
+
 Point the Vercel `NEXT_PUBLIC_API_BASE_URL` at the tunnel URL for the demo. Trade-off: your laptop + network must stay up during the demo.
 
 ## 8. Upgrade to paid (after passing — no code change)
