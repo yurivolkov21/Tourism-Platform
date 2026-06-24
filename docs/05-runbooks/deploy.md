@@ -66,9 +66,10 @@ For **each** app (`apps/web`, `apps/admin`) create a Vercel project from this re
 
 - **Root Directory:** `apps/web` (resp. `apps/admin`). Framework preset: Next.js.
 - **Build command:** `pnpm nx build @tourism/web` (resp. `@tourism/admin`). **Install:** `pnpm install`. Output is auto-detected (`.next`).
-- **Environment variables:**
-  - web: `NEXT_PUBLIC_API_BASE_URL=https://tourism-api-XXXX.onrender.com/api/v1` (+ Supabase public keys when web auth lands).
-  - admin: `NEXT_PUBLIC_API_BASE_URL=…/api/v1`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the **prod** Supabase project's public values).
+- **Environment variables** — ⚠️ `NEXT_PUBLIC_API_BASE_URL` is the API **ORIGIN, with NO `/api/v1`**
+  (the typed `@tourism/core` client already adds the `/api/v1` prefix; appending it doubles the path):
+  - web: `NEXT_PUBLIC_API_BASE_URL=https://tourism-api-XXXX.onrender.com` (+ Supabase public keys when web auth lands).
+  - admin: `NEXT_PUBLIC_API_BASE_URL=https://tourism-api-XXXX.onrender.com`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the **prod** Supabase project's public values).
 - Deploy → note the domains, e.g. `tourism-web.vercel.app`, `tourism-admin.vercel.app`.
 
 ## 5. Wire CORS (close the loop)
