@@ -66,7 +66,7 @@ sequenceDiagram
     participant API as Máy chủ
     participant DB as Cơ sở dữ liệu
     PAY->>API: Báo sự kiện "đã thanh toán" (kèm chữ ký)
-    API->>API: Xác minh chữ ký trên dữ liệu thô (sai → 400) + chống xử lý trùng
+    API->>API: Xác minh chữ ký trên dữ liệu thô (sai thì 400) + chống xử lý trùng
     alt Thanh toán xong và còn ghế
         API->>DB: Trừ ghế + ĐÃ THANH TOÁN + xếp email xác nhận (gộp 1 thao tác)
     else Hết ghế (đặt trùng cùng lúc)
@@ -88,7 +88,7 @@ sequenceDiagram
     participant API as Máy chủ
     participant DB as Cơ sở dữ liệu
     PAY->>API: Báo sự kiện "đã thu tiền" (kèm chữ ký)
-    API->>API: Xác minh chữ ký qua PayPal (sai → 400) + chống xử lý trùng
+    API->>API: Xác minh chữ ký qua PayPal (sai thì 400) + chống xử lý trùng
     alt Còn ghế
         API->>DB: Trừ ghế + ĐÃ THANH TOÁN + xếp email (gộp 1 thao tác)
     else Hết ghế

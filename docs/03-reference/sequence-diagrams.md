@@ -270,7 +270,7 @@ sequenceDiagram
         JOB->>MAIL: Gửi email xác nhận
         MAIL-->>KH: Email "Chúng tôi đã nhận yêu cầu"
     end
-    Note over DB: Đội Sales xem lead trong trang quản trị và<br/>kéo trạng thái MỚI → ĐÃ LIÊN HỆ → BÁO GIÁ → CHỐT/HỦY
+    Note over DB: Đội Sales xem lead trong trang quản trị và<br/>kéo trạng thái MỚI sang ĐÃ LIÊN HỆ sang BÁO GIÁ sang CHỐT/HỦY
 ```
 
 > _Liên quan:_ `U-ENQ-1` (gửi) · `A-ENQ-1`/`A-ENQ-2` (CRM) · `S-JOB-1` (email).

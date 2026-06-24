@@ -53,7 +53,7 @@ sequenceDiagram
     API->>DB: Lấy hồ sơ + ảnh đại diện
     DB-->>API: Hồ sơ
     API-->>FE: Hồ sơ kèm avatar
-    Note over API,FE: Chưa đồng bộ tài khoản → báo lỗi 401
+    Note over API,FE: Chưa đồng bộ tài khoản thì báo lỗi 401
 ```
 
 ### U-USR-3 — Update Profile (`PATCH /users/me`)
@@ -264,7 +264,7 @@ sequenceDiagram
     participant DB as Cơ sở dữ liệu
     KH->>FE: Xem đánh giá của tour
     FE->>API: Xin danh sách đánh giá
-    API->>DB: Kiểm tra tour đã đăng; lấy đánh giá ĐÃ DUYỆT
+    API->>DB: Kiểm tra tour đã đăng, rồi lấy đánh giá ĐÃ DUYỆT
     DB-->>API: Danh sách + điểm trung bình
     API-->>FE: Danh sách (chỉ lộ tên người viết)
     Note over API,FE: Ẩn thông tin cá nhân khác

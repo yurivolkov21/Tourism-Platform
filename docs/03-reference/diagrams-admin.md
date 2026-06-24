@@ -246,8 +246,8 @@ sequenceDiagram
     participant DB as Cơ sở dữ liệu
     AD->>FE: Xóa điểm đến
     FE->>API: Yêu cầu xóa
-    API->>API: Đang hiển thị? → chặn 409 (phải ẩn trước)
-    API->>DB: Còn tour tham chiếu? → chặn 409
+    API->>API: Đang hiển thị thì chặn 409 (phải ẩn trước)
+    API->>DB: Còn tour tham chiếu thì chặn 409
     alt Xóa được
         API->>DB: Xóa + đánh dấu ảnh rác (1 giao dịch)
         DB-->>API: Xong
@@ -308,8 +308,8 @@ sequenceDiagram
     participant DB as Cơ sở dữ liệu
     AD->>FE: Nhập tiêu đề, danh mục, điểm đến (nhiều), giá, lịch trình, FAQ
     FE->>API: Tạo tour
-    API->>DB: Tra slug danh mục / điểm đến thành id (sai → báo lỗi 400)
-    API->>API: Chuẩn hóa / sinh slug (trùng → 409)
+    API->>DB: Tra slug danh mục / điểm đến thành id (sai thì báo lỗi 400)
+    API->>API: Chuẩn hóa / sinh slug (trùng thì 409)
     API->>DB: Tạo tour (chưa đăng) + nối điểm đến + lịch trình/FAQ/chính sách (1 giao dịch)
     DB-->>API: Tour
     API-->>FE: Đã tạo
@@ -326,7 +326,7 @@ sequenceDiagram
     participant DB as Cơ sở dữ liệu
     AD->>FE: Sửa tour (đăng / ẩn, giá, nội dung)
     FE->>API: Gửi thay đổi
-    API->>DB: Nếu đổi điểm đến → kiểm tra lại + thay cả bộ
+    API->>DB: Nếu đổi điểm đến thì kiểm tra lại + thay cả bộ
     API->>DB: Cập nhật (phần con gửi kèm = thay toàn bộ)
     DB-->>API: Tour
     API-->>FE: Đã cập nhật
@@ -360,10 +360,10 @@ sequenceDiagram
     participant DB as Cơ sở dữ liệu
     AD->>FE: Xóa tour
     FE->>API: Yêu cầu xóa
-    API->>API: Đang đăng? → chặn 409 (phải ẩn trước)
-    API->>DB: Còn booking tham chiếu? → chặn 409
+    API->>API: Đang đăng thì chặn 409 (phải ẩn trước)
+    API->>DB: Còn booking tham chiếu thì chặn 409
     alt Xóa được
-        API->>DB: Xóa + ảnh rác; lịch trình/FAQ/chính sách/chuyến/đánh giá xóa theo (1 giao dịch)
+        API->>DB: Xóa + ảnh rác, kèm lịch trình/FAQ/chính sách/chuyến/đánh giá xóa theo (1 giao dịch)
         API-->>FE: Đã xóa
     else Bị chặn
         API-->>FE: Báo lỗi 409
@@ -401,7 +401,7 @@ sequenceDiagram
     participant DB as Cơ sở dữ liệu
     AD->>FE: Nhập ngày đi / về, số ghế, giá, trạng thái
     FE->>API: Tạo chuyến
-    API->>API: Ngày về sớm hơn ngày đi → 400; ngày đi đã qua → 400 (chống "chuyến ma")
+    API->>API: Ngày về sớm hơn ngày đi thì 400, ngày đi đã qua thì 400 (chống "chuyến ma")
     API->>DB: Tạo chuyến (ghế đã đặt = 0)
     DB-->>API: Chuyến
     API-->>FE: Đã tạo
@@ -418,7 +418,7 @@ sequenceDiagram
     participant DB as Cơ sở dữ liệu
     AD->>FE: Sửa chuyến (ghế, giá, trạng thái)
     FE->>API: Gửi thay đổi
-    API->>API: Ghế tổng phải ≥ ghế đã đặt (else 400)
+    API->>API: Ghế tổng phải lớn hơn hoặc bằng ghế đã đặt (else 400)
     API->>DB: Cập nhật
     DB-->>API: Chuyến
     API-->>FE: Đã cập nhật
@@ -435,7 +435,7 @@ sequenceDiagram
     participant DB as Cơ sở dữ liệu
     AD->>FE: Xóa chuyến
     FE->>API: Yêu cầu xóa
-    API->>DB: Đã bán ghế / còn booking? → kiểm tra
+    API->>DB: Đã bán ghế / còn booking thì kiểm tra
     alt Chưa từng có booking
         API->>DB: Xóa
         API-->>FE: Đã xóa
@@ -499,7 +499,7 @@ sequenceDiagram
     participant DB as Cơ sở dữ liệu
     AD->>FE: Duyệt / từ chối đánh giá
     FE->>API: Gửi quyết định
-    API->>DB: Cập nhật trạng thái; nếu chuyển sang ĐÃ DUYỆT → xếp email vào hàng đợi (1 giao dịch)
+    API->>DB: Cập nhật trạng thái, nếu chuyển sang ĐÃ DUYỆT thì xếp email vào hàng đợi (1 giao dịch)
     DB-->>API: Đánh giá
     API-->>FE: Đã cập nhật
     Note over DB: Email "đã duyệt" gửi qua tác vụ nền (S-JOB-1)
@@ -534,7 +534,7 @@ sequenceDiagram
     participant FE as Trang quản trị
     participant API as Máy chủ
     participant DB as Cơ sở dữ liệu
-    AD->>FE: Chuyển trạng thái lead (MỚI → ĐÃ LIÊN HỆ → BÁO GIÁ → CHỐT / HỦY)
+    AD->>FE: Chuyển trạng thái lead (MỚI sang ĐÃ LIÊN HỆ sang BÁO GIÁ sang CHỐT / HỦY)
     FE->>API: Gửi trạng thái mới
     API->>DB: Cập nhật trạng thái
     DB-->>API: Lead
@@ -675,8 +675,8 @@ sequenceDiagram
     participant DB as Cơ sở dữ liệu
     AD->>FE: Nhập tiêu đề, tóm tắt, nội dung, trạng thái
     FE->>API: Tạo bài
-    API->>API: Tác giả lấy từ token; chuẩn hóa / sinh slug (trùng → 409)
-    API->>DB: Tạo bài; nếu ĐÃ ĐĂNG → ghi mốc thời gian đăng
+    API->>API: Tác giả lấy từ token, chuẩn hóa / sinh slug (trùng thì 409)
+    API->>DB: Tạo bài, nếu ĐÃ ĐĂNG thì ghi mốc thời gian đăng
     DB-->>API: Bài
     API-->>FE: Đã tạo
 ```
@@ -692,7 +692,7 @@ sequenceDiagram
     participant DB as Cơ sở dữ liệu
     AD->>FE: Sửa bài (đăng / ẩn, nội dung)
     FE->>API: Gửi thay đổi
-    API->>API: Chuẩn hóa slug; LẦN ĐẦU chuyển ĐÃ ĐĂNG → ghi mốc thời gian
+    API->>API: Chuẩn hóa slug, LẦN ĐẦU chuyển ĐÃ ĐĂNG thì ghi mốc thời gian
     API->>DB: Cập nhật
     DB-->>API: Bài
     API-->>FE: Đã cập nhật
@@ -709,7 +709,7 @@ sequenceDiagram
     participant DB as Cơ sở dữ liệu
     AD->>FE: Xóa bài
     FE->>API: Yêu cầu xóa
-    API->>DB: Tìm bài (không có → 404); xóa cứng
+    API->>DB: Tìm bài (không có thì 404), xóa cứng
     DB-->>API: Xong
     API-->>FE: Đã xóa
 ```
