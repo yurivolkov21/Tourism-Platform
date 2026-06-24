@@ -2,7 +2,7 @@
 
 Two files for driving `@tourism/api` by hand in Postman, **designed to test from an empty DB**:
 
-- **`tourism-api.postman_collection.json`** — the collection (67 requests).
+- **`tourism-api.postman_collection.json`** — the collection (77 requests).
 - **`tourism-local.postman_environment.json`** — the environment (fill the secrets).
 
 **Run top-to-bottom** — each step builds the data the next one needs, so you always know where every
@@ -11,8 +11,10 @@ row came from (no seed dependency):
 ```text
 _SETUP    → create/confirm the customer + admin Supabase users (run once)
 ADMIN     → 00 Auth & Stats · 01 Categories · 02 Destinations · 03 Tours · 04 Departures ·
-            05 Media Uploads · 06 Reviews Moderation · 07 Enquiries · 08 Bookings   ← builds the catalog
-CUSTOMER  → 00 Auth & Account · 01 Catalog (Public) · 02 Booking & Payment · 03 Reviews & Wishlist · 04 Enquiry   ← books what admin made
+            05 Media Uploads · 06 Reviews Moderation · 07 Enquiries · 08 Bookings (list/detail/refund) ·
+            09 Posts (blog CRUD)   ← builds the catalog
+CUSTOMER  → 00 Auth & Account · 01 Catalog (Public: tours/destinations/categories/departures/reviews/posts + /health) ·
+            02 Booking & Payment · 03 Reviews & Wishlist · 04 Enquiry   ← books what admin made
 _WEBHOOKS → reference only (need provider signatures)
 ```
 
