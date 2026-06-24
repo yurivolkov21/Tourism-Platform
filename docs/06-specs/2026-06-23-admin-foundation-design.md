@@ -134,6 +134,26 @@ empty/validation/409 messages), `common.*` (save/cancel/delete/confirm). No VI p
 - Edit: `apps/admin/src/app/layout.tsx` (tokens + ThemeProvider), `apps/admin/src/app/global.css`
   (import tokens), `libs/shared/i18n/src/lib/messages.ts` (`admin`).
 
+## Execution notes (2026-06-24 — actual, branch `feat/admin-foundation`)
+
+**Done: T0–T4** (auth + shell + dashboard). **Remaining: T5–T7** (Destinations CRUD) + **T8** (gate).
+Each task built green + committed (commits `131c8d3` … `e0b0947`). Key actuals:
+
+- **Stats endpoint is `GET /admin/stats/dashboard`** (not `/admin/stats`). Dashboard wired to it.
+- **Dashboard adopted from `@shadcn-space/dashboard-shell-01`** but: colours → brand tokens
+  (`chart-1..4`), `SimpleBar` → `ScrollArea`, and the SaaS-only bits dropped (SalesByCountry widget
+  — which also avoided the `motion`/`@iconify` deps — plus the Pro-upsell card, the non-functional
+  search box, and the fake notifications). It maps 1:1 to real data: KPIs ← `overview`, donut ←
+  `bookingsByStatus`, bars ← `monthlyTrend`, table ← `topToursByRevenue`.
+- **`recharts@3.8.0` added to admin** (charts import it directly, matching `@tourism/ui`).
+- **`DashboardStats` typed locally + cast** — the generated `@tourism/core` response typing isn't
+  uniform yet (documented in its `client.ts`); `/regen-types` against the running API will let us
+  drop the cast.
+- **Dev ports finalised:** API `:3000`, web `:3001` (web `nx dev` moved off `:3000`), admin `:3002`.
+- **Env verified ready (2026-06-24):** admin `.env` has the 3 `NEXT_PUBLIC_*` (API base = origin);
+  api `.env` has `ADMIN_EMAILS=admin@example.com`, `CORS_ORIGINS` includes `:3002`, same Supabase
+  project as admin. Running needs the API up (`pnpm nx serve @tourism/api`).
+
 ## Risks / mitigations
 
 - **No creds in this env** → code/build/unit-test without them; running needs `apps/admin/.env` filled
