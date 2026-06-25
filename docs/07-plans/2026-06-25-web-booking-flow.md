@@ -52,3 +52,29 @@ B0 (independent) → B1 → B2 → B3 → B4 → B5 → B6. B1 can interleave wi
 
 ## Out of scope (this increment)
 My-bookings list/account content; cancel/refund UI; promo codes; saved travellers; guest checkout.
+
+## Verification (executed 2026-06-25)
+
+**Gate — all green** (`pnpm nx run-many -t lint typecheck test` + `build --exclude=@tourism/mobile` + `pnpm check:no-hex`):
+- lint ✅ 0 errors · typecheck ✅ · test ✅ **API 207 / web 85** (incl. the two TDD helpers:
+  `computeBookingTotal` 5 cases, `buildCreateBookingPayload` 8 cases) · build ✅ · no-hex ✅.
+- Route map confirms **only** `/tours/[slug]/book` + `/checkout/{success,cancel}` are `ƒ` (dynamic);
+  `/tours/[slug]` stays `●` SSG and the rest of the catalog stays static/ISR.
+
+**Automated (unit, TDD):** the two pure helpers (price + form mapping). Logic is the source of truth;
+the API re-validates and re-computes the real charge.
+
+**Deferred — Playwright web e2e:** the repo has no Playwright project yet (only the API supertest
+`app.e2e.ts`). The signed-out→`/login` redirect is enforced two ways (proxy matcher
+`/tours/:slug/book` + a server-side `getUser()` redirect on the page) and verified by code + build;
+standing up a web-e2e harness (dep + config + running app + Supabase env) is its own increment.
+
+**Manual — real payment path (needs live test creds + the API running):**
+
+1. Sign in, open a tour, **Book now** → `/tours/[slug]/book` (signed-out first → bounces to `/login`).
+2. Pick a departure + party size (watch the live total), fill contact, choose **Stripe**.
+3. Submit → redirected to Stripe Checkout → pay with a test card → returns to
+   `/checkout/success?session_id=…&code=…`. Webhook flips PAID (may show "confirming…" → Refresh).
+4. Repeat choosing **PayPal** → approve → returns to `/checkout/success?code=…` → page calls
+   `POST /bookings/{code}/capture` (idempotent) → PAID.
+5. Cancel at the gateway → `/checkout/cancel?code=…` (booking stays PENDING; retry link).
