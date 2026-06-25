@@ -10,6 +10,43 @@ export const messages = {
   techCloud: {
     eyebrow: 'Built with',
   },
+  // Customer auth (login / register / account / user menu). EN-only (ADR-0005).
+  auth: {
+    login: {
+      title: 'Welcome back',
+      subtitle: 'Sign in to manage your trips and bookings.',
+      emailLabel: 'Email',
+      passwordLabel: 'Password',
+      submit: 'Sign in',
+      submitting: 'Signing in…',
+      noAccount: "Don't have an account?",
+      registerCta: 'Create one',
+    },
+    register: {
+      title: 'Create your account',
+      subtitle: 'Save trips, book tours, and track your journeys.',
+      emailLabel: 'Email',
+      passwordLabel: 'Password',
+      confirmLabel: 'Confirm password',
+      submit: 'Create account',
+      submitting: 'Creating…',
+      haveAccount: 'Already have an account?',
+      loginCta: 'Sign in',
+      checkInboxTitle: 'Check your inbox',
+      checkInboxBody:
+        'We sent a confirmation link to your email. Click it to activate your account, then sign in.',
+    },
+    account: {
+      title: 'My account',
+      signedInAs: 'Signed in as',
+      signOut: 'Sign out',
+    },
+    menu: {
+      login: 'Log in',
+      account: 'My account',
+      signOut: 'Sign out',
+    },
+  },
   common: {
     home: 'Home',
     onThisPage: 'On this page',
