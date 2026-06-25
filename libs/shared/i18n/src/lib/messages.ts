@@ -423,10 +423,10 @@ export const messages = {
       imageAlt: 'Our team exploring Vietnam',
     },
     metrics: {
-      heading: 'Vietnam, end to end',
-      subtitle:
-        'A growing catalogue of journeys our travellers love — the real numbers behind the platform.',
-      // Labels only; values are computed from the live catalog (see ByTheNumbers).
+      heading: 'Unhurried, local-led journeys across Vietnam — built on',
+      // Brand keyword pills (icons + token colours live in the ByTheNumbers component).
+      pills: ['Heritage', 'Local experts', 'Slow travel'],
+      // Stat labels; values are computed from the live catalog (see ByTheNumbers).
       labels: ['Curated tours', 'Destinations', 'Regions covered', 'Traveller rating'],
     },
     team: {
