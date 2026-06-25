@@ -2,6 +2,9 @@
 
 **Start here.** This is the documentation map + the order to read it in.
 
+🚀 **Just cloned the repo and want to run it?** → **[04-guides/getting-started.md](04-guides/getting-started.md)**
+(clone → install → env per app → run web/admin/API → seed → test). Everything below is the deeper map.
+
 > **Source-of-truth order:** code → these docs → AI notes. When a doc disagrees
 > with the code (`apps/*/src`, `apps/api/prisma/schema.prisma`, the Swagger spec),
 > **the code wins — fix the doc.**

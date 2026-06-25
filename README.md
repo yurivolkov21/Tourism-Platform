@@ -1,18 +1,19 @@
 # tourism-platform
 
 An **Nx 22 + pnpm** monorepo for a Lily-style tourism booking platform — mobile from day one. The
-backend (NestJS + Prisma + Supabase) is complete; web/admin/mobile front-ends are next.
+backend is complete and the **web** + **admin** front-ends are live; mobile is next. **Brand: Nexora.**
 
 | Project | Path | Stack | Status |
 | --- | --- | --- | --- |
-| `@tourism/api` | `apps/api` | NestJS 11 · Prisma 7 · Supabase · Stripe + PayPal · Cloudinary · Resend · pg-boss | ✅ P1 complete |
-| `@tourism/web` | `apps/web` | Next.js 16 | 🚧 scaffold |
-| `@tourism/admin` | `apps/admin` | Next.js 16 | 🚧 scaffold |
-| `@tourism/mobile` | `apps/mobile` | Expo SDK 54 / RN | 🚧 scaffold |
-| `@tourism/core` · `tokens` · `i18n` · `web/ui` · `mobile/ui` | `libs/` | shared types/client · design tokens · EN copy · UI | 🚧 scaffold |
+| `@tourism/api` | `apps/api` | NestJS 11 · Prisma 7 · Supabase · Stripe + PayPal · Cloudinary · Resend · pg-boss | ✅ P1 complete · **deployed (Render)** |
+| `@tourism/web` | `apps/web` | Next.js 16 · React 19 · Tailwind v4 | 🟢 **P3 in progress** · **deployed (Vercel)** — home · destinations · tours (listing + detail) · about · contact · faq/legal; real data wired |
+| `@tourism/admin` | `apps/admin` | Next.js 16 | 🟢 **P4 CRUD done** · **deployed (Vercel)** — auth + dashboard + CRUD ×5 |
+| `@tourism/mobile` | `apps/mobile` | Expo SDK 54 / RN | 🚧 scaffold (P5) |
+| `@tourism/core` · `tokens` · `i18n` · `web/ui` · `mobile/ui` | `libs/` | shared types/OpenAPI client · design tokens ("Emerald Heritage") · EN copy · UI (54 comps) | 🟢 in use |
 
-Full docs: **[docs/README.md](docs/README.md)** (map + reading path) · the operating contract:
-**[CLAUDE.md](CLAUDE.md)**.
+**Live demo:** web → [tourism-platform-web.vercel.app](https://tourism-platform-web.vercel.app) · admin → [tourism-platform-admin.vercel.app](https://tourism-platform-admin.vercel.app) · API health → [/api/v1/health](https://tourism-api-pqwr.onrender.com/api/v1/health).
+
+Full docs: **[docs/README.md](docs/README.md)** (map + reading path) · **new here? → [docs/04-guides/getting-started.md](docs/04-guides/getting-started.md)** · the operating contract: **[CLAUDE.md](CLAUDE.md)**.
 
 ---
 
@@ -79,6 +80,33 @@ pnpm nx serve @tourism/api          # → http://localhost:3000/api/v1  ·  Swag
   customer books it).
 - **Seeded (quick demo data)** — `pnpm nx run @tourism/api:seed` loads a demo catalog + a self-signed
   PAID booking (this is what e2e/CI use).
+
+## Run the web & admin apps (front-ends)
+
+Front-ends are Next.js 16 apps. Each reads its own `.env` (copy from `.env.example`).
+**Dev port map:** API `:3000` · web `:3001` · admin `:3002` (no clashes).
+
+```bash
+# WEB (customer site)
+cp apps/web/.env.example apps/web/.env      # set NEXT_PUBLIC_API_BASE_URL (origin, no /api/v1)
+pnpm nx dev @tourism/web                    # → http://localhost:3001  (uses --webpack, see note)
+
+# ADMIN (dashboard)
+cp apps/admin/.env.example apps/admin/.env  # Supabase public keys + API origin
+pnpm nx dev @tourism/admin                  # → http://localhost:3002
+```
+
+- **You don't need the backend running to see the UI.** Point `NEXT_PUBLIC_API_BASE_URL` at the
+  **live Render API** (`https://tourism-api-pqwr.onrender.com`) and the web app renders real data. With
+  **no** API reachable, data-fed sections (featured tours, "Explore by destination"…) render **empty by
+  design** — the page hides them rather than break. That's expected, not a bug.
+- **Web dev uses webpack, not Turbopack** (`next dev --webpack`, pinned in `apps/web/package.json`) — a
+  Turbopack dev memory leak froze Windows machines. To preview exactly what production serves, build then
+  start: `pnpm nx build @tourism/web && pnpm exec next start apps/web --port 3001`.
+- **Admin sign-in** needs your email in the API's `ADMIN_EMAILS` and `http://localhost:3002` in its
+  `CORS_ORIGINS` (both in `apps/api/.env`). See [apps/admin/.env.example](apps/admin/.env.example).
+
+Full onboarding (all apps, end to end): **[docs/04-guides/getting-started.md](docs/04-guides/getting-started.md)**.
 
 ## Common commands
 

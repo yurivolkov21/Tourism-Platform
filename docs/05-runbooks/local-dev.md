@@ -1,7 +1,8 @@
 # Runbook — local development
 
-How to install, run, and test `@tourism/api` locally — and the **Nx command mapping** if you're used to
-plain NestJS (`pnpm start:dev`). Front-end apps (web/admin/mobile) land in P2+.
+How to install, run, and test the apps locally — and the **Nx command mapping** if you're used to
+plain NestJS (`pnpm start:dev`). Covers the **API** (NestJS), the **web** + **admin** front-ends
+(Next.js), and the test-data flow. Mobile (Expo) lands in P5.
 
 > Quick start lives in the root **[README.md](../../README.md)**; this is the deeper reference.
 
@@ -53,6 +54,27 @@ pnpm nx serve @tourism/api
 - It watches **code**, not the DB — after a schema change, re-run `prisma migrate deploy` + `prisma generate`.
 - One-shot alternative (no watch): `pnpm nx build @tourism/api && (cd apps/api && node dist/main.js)` —
   run the built file **from `apps/api/`** so dotenv resolves `.env`.
+
+## Running the web & admin front-ends
+
+Both are Next.js 16 apps; each reads its own `.env` (copy from the app's `.env.example`).
+**Dev port map:** API `:3000` · web `:3001` · admin `:3002`.
+
+```bash
+cp apps/web/.env.example apps/web/.env        # set NEXT_PUBLIC_API_BASE_URL (origin, NO /api/v1)
+pnpm nx dev @tourism/web                      # → http://localhost:3001
+
+cp apps/admin/.env.example apps/admin/.env    # Supabase public keys + API origin
+pnpm nx dev @tourism/admin                    # → http://localhost:3002
+```
+
+- **No backend needed to see the UI.** Point `NEXT_PUBLIC_API_BASE_URL` at the live Render API
+  (`https://tourism-api-pqwr.onrender.com`) for real data. With no API reachable, data-fed sections
+  render **empty by design** (the page hides them) — expected, not a bug.
+- **Web dev = webpack** (`next dev --webpack`, pinned) — see the Turbopack note at the bottom. To preview
+  the real production output: `pnpm nx build @tourism/web && pnpm exec next start apps/web --port 3001`.
+- **Admin sign-in:** your email must be in the API's `ADMIN_EMAILS` and `http://localhost:3002` in its
+  `CORS_ORIGINS` (`apps/api/.env`).
 
 ## Test data
 
