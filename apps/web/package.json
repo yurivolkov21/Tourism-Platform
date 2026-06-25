@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.108.2",
     "@tourism/core": "workspace:*",
     "@tourism/i18n": "workspace:*",
     "@tourism/tokens": "workspace:*",
