@@ -714,6 +714,38 @@ export const messages = {
       { title: 'Call us', lines: ['+84 24 1234 5678', '+84 90 123 4567'] },
       { title: 'Email us', lines: ['hello@example.com', 'support@example.com'] },
     ],
+    // Short pre-sales FAQ for the contact page (curated from the full /faq).
+    faq: {
+      heading: 'Common questions',
+      subtitle: 'Quick answers before you reach out.',
+      seeAll: 'See all FAQs',
+      items: [
+        {
+          q: 'How do I get in touch?',
+          a: 'Send us a message using the form above — our trip designers reply within about 24 hours. You can also enquire from any tour page about that specific trip.',
+        },
+        {
+          q: 'How quickly will you reply?',
+          a: 'Within about 24 hours, and often sooner during Vietnam business hours.',
+        },
+        {
+          q: 'Can you customise a trip or arrange private tours?',
+          a: 'Yes — most journeys can be tailored to your pace, interests, dates, and group size. We run private departures for couples, families, and small groups.',
+        },
+        {
+          q: 'What payment methods do you accept?',
+          a: 'Major cards through Stripe and payments via PayPal, all through encrypted, secure checkout.',
+        },
+        {
+          q: 'Do I pay a deposit or the full amount?',
+          a: 'Most tours are held with a deposit, with the balance due before departure. The exact terms are shown on each tour before you confirm.',
+        },
+        {
+          q: 'Do I have to book online?',
+          a: 'No — you can simply send an enquiry and our team will check availability and guide you through the next steps.',
+        },
+      ],
+    },
     ctaBand: {
       heading: 'Prefer to explore first?',
       subtitle: 'Browse our destinations and tours, or find quick answers in our FAQs.',

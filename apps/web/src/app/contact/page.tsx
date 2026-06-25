@@ -5,6 +5,7 @@ import { messages } from '@tourism/i18n';
 import { ContentHero } from '../../components/content/content-hero';
 import { ContactInquiry } from '../../components/contact/contact-inquiry';
 import { ContactLocation } from '../../components/contact/contact-location';
+import { ContactFaq } from '../../components/contact/contact-faq';
 import { CtaBand } from '../../components/marketing/cta-band';
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export default function ContactPage() {
       <ContentHero breadcrumb={t.breadcrumb} title={t.heading} subtitle={t.subtitle} />
       <ContactInquiry />
       <ContactLocation />
+      <ContactFaq />
       <CtaBand heading={t.ctaBand.heading} subtitle={t.ctaBand.subtitle} cta={t.ctaBand.cta} />
     </main>
   );
