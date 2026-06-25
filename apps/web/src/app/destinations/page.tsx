@@ -13,6 +13,7 @@ import { Testimonials } from '../../components/marketing/testimonials';
 import { EnquiryCta } from '../../components/marketing/enquiry-cta';
 import { fetchDestinationTiles } from '../../lib/api/destinations';
 import { fetchTourCards } from '../../lib/api/tours';
+import { pickFeaturedDestinations } from '../../lib/featured-destinations';
 
 // Placeholder frames for the editorial gallery (data-ready; maps to MediaAsset later).
 const galleryFrames: GallerySection[] = [
@@ -46,7 +47,11 @@ export default async function DestinationsPage() {
     <main>
       <DestinationsHero />
       {groups.map((group) => (
-        <RegionGroup key={group.region} region={group.region} items={group.items} />
+        <RegionGroup
+          key={group.region}
+          region={group.region}
+          items={pickFeaturedDestinations(group.items, group.region)}
+        />
       ))}
       <BestTime />
       <PopularTours tours={popular} />
