@@ -51,6 +51,7 @@ import {
   TravellerType,
   UserRole,
 } from '@prisma/client';
+import { ITINERARIES } from './seed-itineraries';
 
 // Neutral Unsplash placeholders (Lily's own photos are copyrighted). Absolute
 // URLs flow through the API unchanged (lib/cloudinary-url.ts). Reused across
@@ -143,11 +144,6 @@ const DESTINATIONS: DestinationSeed[] = [
 // Tours — modelled on real Lily catalogue (text only).
 // ────────────────────────────────────────────────────────────────────────────
 
-interface ItineraryDay {
-  dayNumber: number;
-  title: string;
-  description: string;
-}
 interface FaqSeed {
   question: string;
   answer: string;
@@ -180,7 +176,6 @@ interface TourSeed {
   included: string[];
   excluded: string[];
   meetingPoint: string;
-  itinerary?: ItineraryDay[];
   faqs?: FaqSeed[];
   policies?: PolicySeed[];
 }
@@ -481,10 +476,6 @@ const TOURS: TourSeed[] = [
     included: ['Round-trip transfer from Hanoi', 'One night aboard the cruise', 'All meals on board (1B, 2L, 1D)', 'Kayak & cave entrance', 'English-speaking guide'],
     excluded: ['Drinks', 'Tips', 'Travel insurance'],
     meetingPoint: 'Hanoi Old Quarter hotel pickup',
-    itinerary: [
-      { dayNumber: 1, title: 'Hanoi → Ha Long Bay & sunset cruise', description: 'Morning transfer from Hanoi to the wharf and board your cruise. Sail out among the karsts over lunch, visit a pearl farm, then stop at Titov Island for swimming and a short hike to the viewpoint. Back on board, enjoy a sunset party, a cooking demonstration and evening squid fishing.' },
-      { dayNumber: 2, title: 'Tai Chi, Sung Sot cave & return', description: 'Begin with an optional sunrise Tai Chi class and breakfast as the bay wakes up. Explore the cathedral-like Sung Sot cave, then enjoy brunch on board as the cruise returns to the wharf. Afternoon transfer back to Hanoi.' },
-    ],
     faqs: [
       { question: 'Do I need to be a strong swimmer to kayak?', answer: 'No — kayaking is optional and done in calm, sheltered water with life jackets provided. You can also swim straight from the boat or relax on deck.' },
     ],
@@ -517,11 +508,6 @@ const TOURS: TourSeed[] = [
     included: ['Round-trip transfer from Hanoi', 'Two nights aboard the cruise', 'All meals on board', 'Kayaks & activities', 'English-speaking guide'],
     excluded: ['Drinks', 'Tips', 'Travel insurance'],
     meetingPoint: 'Hanoi Old Quarter hotel pickup',
-    itinerary: [
-      { dayNumber: 1, title: 'Hanoi → Lan Ha Bay', description: 'Transfer to the harbour and board your cruise. Sail into Lan Ha Bay, kayak among quiet karsts and swim from a secluded beach before a welcome dinner on deck.' },
-      { dayNumber: 2, title: 'Lagoons, caves & Cat Ba', description: 'A full day exploring hidden lagoons, a sea cave and a floating fishing village by tender and kayak, with time on a Cat Ba beach and a sunset over the water.' },
-      { dayNumber: 3, title: 'Sunrise & return to Hanoi', description: 'Sunrise Tai Chi and a leisurely brunch as the cruise winds back through the karsts, followed by the transfer back to Hanoi.' },
-    ],
     policies: [DEPOSIT_POLICY, CANCELLATION_POLICY],
   },
 
@@ -553,11 +539,6 @@ const TOURS: TourSeed[] = [
     included: ['Transfers to/from Sa Pa', 'Local trekking guide', 'All meals during the trek', 'Two homestay nights', 'Water & local rice wine'],
     excluded: ['Additional drinks', 'Personal trekking gear', 'Tips'],
     meetingPoint: 'Sa Pa town centre (bus arrival point)',
-    itinerary: [
-      { dayNumber: 1, title: 'Sa Pa → Sa Seng & first homestay', description: 'Meet your local guide for breakfast, then trek through Sa Seng village past fields and a waterfall. Continue with hillside walks and an afternoon swim, arriving at the homestay to cook and dine with your host family.' },
-      { dayNumber: 2, title: 'Trek to Ban Ho village', description: 'Trek through bamboo forest to the Giang Ta Chai waterfall and a rattan bridge, visiting Red Dao and Black Hmong villages, then descend to the Tay village of Ban Ho amid rice paddies for a second homestay night.' },
-      { dayNumber: 3, title: 'Nam Toong remote fields & return', description: 'A morning trek to Nam Toong to explore remote rice fields, returning to Ban Ho for lunch, then a final walk to the road for the transfer back to Sa Pa.' },
-    ],
     faqs: [
       { question: 'How fit do I need to be?', answer: 'A reasonable level of fitness helps — you cover 13–16 km a day on uneven hill paths. The pace is steady rather than fast, with regular stops.' },
       { question: 'What are the homestays like?', answer: 'Simple, clean and warm-hearted: shared mattresses with mosquito nets, a family dinner and basic bathrooms. They are the highlight of the trek for most travellers.' },
@@ -590,11 +571,6 @@ const TOURS: TourSeed[] = [
     included: ['Motorbike or easy-rider driver', 'Fuel', 'Local guide', 'Two nights in homestays/guesthouses', 'All meals on the loop'],
     excluded: ['Personal travel insurance', 'Drinks', 'Tips'],
     meetingPoint: 'Ha Giang city tour office',
-    itinerary: [
-      { dayNumber: 1, title: 'Ha Giang → Yen Minh', description: 'Set off north through the Quan Ba "Heaven’s Gate" pass and the Twin Mountains, winding up onto the karst plateau to Yen Minh for the night.' },
-      { dayNumber: 2, title: 'Dong Van & the Ma Pi Leng pass', description: 'Visit the Lung Cu flag tower near the Chinese border and the Hmong King’s palace, then ride the breathtaking Ma Pi Leng pass high above the Nho Que river.' },
-      { dayNumber: 3, title: 'Du Gia → Ha Giang', description: 'A final scenic stretch through Du Gia’s waterfalls and villages before looping back to Ha Giang city.' },
-    ],
     policies: [DEPOSIT_POLICY, CANCELLATION_POLICY],
   },
 
@@ -626,13 +602,6 @@ const TOURS: TourSeed[] = [
     included: ['4 breakfasts, 3 lunches, 2 dinners', 'Private car & cruise transfers', '3 hotel nights + 1 cruise night', 'All activities & entrance fees', 'English-speaking guides', 'Airport transfers', '24/7 hotline support'],
     excluded: ['International & domestic airfare', 'Travel insurance', 'Drinks beyond water', 'Personal expenses & tips'],
     meetingPoint: 'Noi Bai International Airport / Hanoi hotel',
-    itinerary: [
-      { dayNumber: 1, title: 'Hanoi arrival & Vespa tour', description: 'Airport transfer and hotel check-in, then a 4.5-hour Vespa tour of the Old Quarter, French colonial sights, Long Bien Bridge and local villages, finishing with a traditional egg coffee.' },
-      { dayNumber: 2, title: 'Ha Long Bay cruise (day 1)', description: 'Transfer to the wharf and board a luxury cruise. Visit a pearl farm and Titov Island for swimming and hiking, then enjoy a sunset party, a cooking demonstration and squid fishing.' },
-      { dayNumber: 3, title: 'Ha Long Bay cruise (day 2)', description: 'Sunrise Tai Chi and breakfast, the Sung Sot cave and brunch on board, then the return cruise and transfer back to Hanoi.' },
-      { dayNumber: 4, title: 'Ninh Binh day tour', description: 'Explore the Hoa Lu ancient capital, a buffet lunch of local specialities, a 1.5-hour bamboo boat ride through the Tam Coc caves, village cycling and the 500-step climb to the Mua Cave viewpoint.' },
-      { dayNumber: 5, title: 'Departure', description: 'Hotel breakfast followed by the airport transfer and departure.' },
-    ],
     faqs: [
       { question: 'Is airfare included?', answer: 'No — international and domestic flights are excluded, but we can book them for you at discounted rates. Airport transfers in Vietnam are included.' },
       { question: 'Can the itinerary be customised?', answer: 'Yes. This is a popular template; we routinely adjust hotels, pace and extra nights to suit couples, families or small groups.' },
@@ -667,22 +636,38 @@ const TOURS: TourSeed[] = [
     included: ['9 breakfasts, 6 lunches, 2 dinners', 'Private car, cruise & internal transfers', '9 nights (hotel + cruise)', 'All entrance fees, guided tours & cooking class', 'English-speaking guides', 'Airport transfers', '24/7 support'],
     excluded: ['International airfare', 'Travel insurance', 'Drinks beyond water', 'Personal expenses & tips'],
     meetingPoint: 'Noi Bai International Airport / Hanoi hotel',
-    itinerary: [
-      { dayNumber: 1, title: 'Hanoi arrival & food tour', description: 'Airport transfer and a walking street-food tour through the Old Quarter at dusk.' },
-      { dayNumber: 2, title: 'Ha Long Bay cruise (day 1)', description: 'Board a cruise for a pearl farm, Titov Island kayaking, a sunset party and squid fishing.' },
-      { dayNumber: 3, title: 'Ha Long Bay cruise (day 2)', description: 'Sunrise Tai Chi, the Sung Sot cave and brunch, then the return to Hanoi.' },
-      { dayNumber: 4, title: 'Ninh Binh day tour', description: 'The Hoa Lu ancient capital, the Trang An UNESCO landscape and the Mua Cave climb.' },
-      { dayNumber: 5, title: 'Hanoi → Da Nang', description: 'A domestic flight south to the coast and check-in at Da Nang.' },
-      { dayNumber: 6, title: 'Ba Na Hills & Golden Bridge', description: 'Cable cars to the Golden Bridge, the French Village, Fantasy Park and panoramic mountain views.' },
-      { dayNumber: 7, title: 'Hue imperial city', description: 'The Imperial Citadel, royal tombs and the Thien Mu Pagoda along the Perfume River.' },
-      { dayNumber: 8, title: 'My Son & Hoi An', description: 'The red-brick Cham towers of My Son, then check-in to lantern-lit Hoi An.' },
-      { dayNumber: 9, title: 'Hoi An cooking & basket boats', description: 'A market visit, a hands-on cooking class and a coconut-village basket-boat ride.' },
-      { dayNumber: 10, title: 'Departure', description: 'Morning at leisure, then the airport transfer.' },
-    ],
     faqs: [
       { question: 'Are the hotels couple-friendly?', answer: 'Yes — we book double rooms and can arrange honeymoon touches (room decoration, a private candlelit dinner) on request.' },
     ],
     policies: [DEPOSIT_POLICY, CANCELLATION_POLICY],
+  },
+  {
+    slug: 'mui-ne-dunes-day',
+    destinationSlugs: ['mui-ne'],
+    categorySlug: 'day',
+    title: 'Mui Ne Sand Dunes & Fairy Stream',
+    summary:
+      'A half-day jeep tour of Mui Ne’s red and white sand dunes, the Fairy Stream canyon and the basket-boat fishing village — best at sunrise.',
+    durationDays: 1,
+    maxGroupSize: 14,
+    basePrice: 42,
+    compareAtPrice: 52,
+    difficulty: 'easy',
+    isPublished: true,
+    isFeatured: false,
+    photo: PHOTO.beach,
+    gallery: [PHOTO.island, PHOTO.river],
+    suitableFor: [TravellerType.FAMILY, TravellerType.COUPLE, TravellerType.FRIENDS],
+    badges: [],
+    highlights: [
+      'Sunrise over the sweeping White Sand Dunes',
+      'The glowing Red Sand Dunes and optional sand-sledding',
+      'Wade up the Fairy Stream between red-rock canyons',
+      'The Mui Ne fishing village and its round basket boats',
+    ],
+    included: ['Hotel pickup & drop-off in Mui Ne', 'Jeep transport', 'English-speaking guide', 'Bottled water'],
+    excluded: ['Quad-bike / sand-sled hire', 'Breakfast', 'Tips'],
+    meetingPoint: 'Hotel pickup in Mui Ne',
   },
 ];
 
@@ -898,9 +883,10 @@ async function main(): Promise<void> {
 
     // Itinerary / FAQs / policies — reset + recreate (no dependent rows).
     await prisma.tourItineraryDay.deleteMany({ where: { tourId: row.id } });
-    if (t.itinerary?.length) {
+    const days = ITINERARIES[t.slug];
+    if (days?.length) {
       await prisma.tourItineraryDay.createMany({
-        data: t.itinerary.map((day) => ({ tourId: row.id, dayNumber: day.dayNumber, title: day.title, description: day.description })),
+        data: days.map((day) => ({ tourId: row.id, dayNumber: day.dayNumber, title: day.title, description: day.description })),
       });
     }
     await prisma.tourFaq.deleteMany({ where: { tourId: row.id } });

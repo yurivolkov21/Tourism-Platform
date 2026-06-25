@@ -65,7 +65,7 @@ export function DestinationTile({
           {/* Tagline + affordance lift in on hover/focus; reduced-motion = instant. */}
           <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-300 ease-out-expo group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-visible:grid-rows-[1fr] group-focus-visible:opacity-100 motion-reduce:transition-none">
             <div className="flex min-h-0 flex-col items-center gap-1 overflow-hidden pt-2">
-              <span className="text-on-media/90 text-[0.7rem] tracking-widest uppercase">
+              <span className="text-on-media/90 text-[0.7rem]">
                 {d.tagline}
               </span>
               <span className="text-on-media inline-flex items-center gap-1 text-sm font-medium">
@@ -81,7 +81,7 @@ export function DestinationTile({
           {/* Tagline + affordance lift in on hover/focus (centred, Lily-style) */}
           <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-300 ease-out-expo group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-visible:grid-rows-[1fr] group-focus-visible:opacity-100 motion-reduce:transition-none">
             <div className="flex min-h-0 flex-col items-center gap-1 overflow-hidden pt-2">
-              <span className="text-on-media/90 text-xs tracking-widest uppercase">
+              <span className="text-on-media/90 text-xs">
                 {d.tagline}
               </span>
               <span className="text-on-media inline-flex items-center gap-1 text-sm font-medium">
@@ -94,11 +94,11 @@ export function DestinationTile({
       ) : (
         <div className="text-on-media absolute inset-x-0 bottom-0 flex flex-col gap-1 p-5">
           <h3 className="font-heading text-2xl leading-tight font-semibold">{d.name}</h3>
-          <span className="text-on-media/85 text-xs tracking-widest uppercase">
+          <span className="text-on-media/85 text-xs">
             {d.tagline}
           </span>
           <span className="text-on-media/70 text-xs">
-            {d.tourCount} {t.toursLabel}
+            {t.toursCountLabel(d.tourCount)}
           </span>
         </div>
       )}

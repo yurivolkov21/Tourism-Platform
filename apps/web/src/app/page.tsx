@@ -8,8 +8,9 @@ import { BlogTeaser } from '../components/marketing/blog-teaser';
 import { EnquiryCta } from '../components/marketing/enquiry-cta';
 import { Reveal } from '../components/marketing/reveal';
 import { fetchTourCards } from '../lib/api/tours';
-import { fetchDestinationTiles } from '../lib/api/destinations';
+import { fetchDestinationTiles, fetchTourDestinationCounts } from '../lib/api/destinations';
 import { pickHomeBento } from '../lib/home-bento';
+import { applyTourCounts } from '../lib/destination-counts';
 import { messages } from '@tourism/i18n';
 
 // ISR: render real featured tours + destination tiles statically; fall back to
@@ -17,11 +18,12 @@ import { messages } from '@tourism/i18n';
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [featured, tiles] = await Promise.all([
+  const [featured, tiles, counts] = await Promise.all([
     fetchTourCards({ featured: true }).catch(() => []),
     fetchDestinationTiles().catch(() => []),
+    fetchTourDestinationCounts().catch(() => ({})),
   ]);
-  const bento = pickHomeBento(tiles);
+  const bento = applyTourCounts(pickHomeBento(tiles), counts);
 
   return (
     <>

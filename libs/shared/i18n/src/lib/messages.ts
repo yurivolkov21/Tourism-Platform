@@ -120,6 +120,7 @@ export const messages = {
       'Begin with a place that calls to you — then let the journey unfold from there.',
     viewAll: 'View all destinations',
     toursLabel: 'tours',
+    toursCountLabel: (n: number) => `${n} ${n === 1 ? 'tour' : 'tours'}`,
   },
   // `/destinations` overview page.
   destinationsPage: {

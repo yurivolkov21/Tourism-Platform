@@ -20,6 +20,7 @@ import { messages } from '@tourism/i18n';
 
 import { TourSection } from './tour-section';
 import type { ItineraryDay } from '../../lib/tours';
+import { parseItinerary } from '../../lib/itinerary';
 
 /** Day-by-day itinerary as a vertical stepper (verbatim from the playground demo, data-bound to the
  * tour's days): numbered day-nav on the left, the selected day's detail in the panel with Back / Next. */
@@ -72,9 +73,18 @@ export function TourItinerary({ days }: { days: ItineraryDay[] }) {
                 <h3 className="font-heading mt-1 text-xl font-semibold text-balance">
                   {step.description}
                 </h3>
-                <p className="text-muted-foreground mt-3 leading-relaxed text-pretty">
-                  {days[index]?.body}
-                </p>
+                <ul className="mt-4 space-y-3">
+                  {parseItinerary(days[index]?.body ?? '').map((m, i) => (
+                    <li key={i} className="flex gap-3 text-pretty sm:gap-4">
+                      {m.time ? (
+                        <span className="text-primary w-24 shrink-0 text-sm font-semibold tabular-nums">
+                          {m.time}
+                        </span>
+                      ) : null}
+                      <span className="text-muted-foreground leading-relaxed">{m.text}</span>
+                    </li>
+                  ))}
+                </ul>
 
                 <div className="mt-6 flex items-center justify-between gap-3 pt-2">
                   <Button

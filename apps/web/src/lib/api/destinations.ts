@@ -1,9 +1,11 @@
 import type { components } from '@tourism/core';
 
 import type { DestinationTileVM } from '../destinations.fixtures';
+import { tallyToursByDestination } from '../destination-counts';
 import { getApiClient } from './client';
 
 type DestinationDto = components['schemas']['DestinationDto'];
+type TourSummaryDto = components['schemas']['TourSummaryDto'];
 
 // Fallback cover when a destination has no media yet (keeps next/image happy).
 const PLACEHOLDER_IMG =
@@ -39,4 +41,16 @@ export async function fetchDestinationTiles(): Promise<DestinationTileVM[]> {
   });
   const list = (data as unknown as { data: DestinationDto[] }).data ?? [];
   return list.map(toDestinationTile);
+}
+
+/**
+ * Real published-tour count per destination slug (M:N). Reads the raw tour
+ * summaries (which carry the full `destinations[]`, unlike the card VM) and
+ * tallies. Empty on error so callers can default counts to 0.
+ */
+export async function fetchTourDestinationCounts(): Promise<Record<string, number>> {
+  const api = getApiClient();
+  const { data } = await api.GET('/api/v1/tours', { params: { query: { pageSize: 100 } } });
+  const list = (data as unknown as { data: TourSummaryDto[] }).data ?? [];
+  return tallyToursByDestination(list);
 }
