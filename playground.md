@@ -1,4 +1,174 @@
-# Playground
+# Shadcn Space Playground
+
+Create a Shadcn block in the codebase.
+
+The codebase should support following:
+
+- Shadcn project structure
+- React ^19
+- Tailwind CSS ^4
+- TypeScript ^5
+
+If it doesn't, provide instructions on how to setup project via shadcn CLI, install Tailwind CSS v4 or Typescript.
+
+Here are the files for the block component:
+
+File path: app/navbar-01/page.tsx
+
+```tsx
+import Navbar from "@/components/shadcn-space/blocks/navbar-01/navbar"
+
+const Navbar01 = () => {
+  return (
+    <>
+    <Navbar />
+    </>
+  )
+}
+
+export default Navbar01
+```
+
+File path: components/shadcn-space/blocks/navbar-01/navbar.tsx
+
+```tsx
+"use client";
+import Logo from "@/assets/logo/logo";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
+import { ArrowUpRight, TextAlignJustify } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+
+export type NavigationSection = {
+  title: string;
+  href: string;
+};
+
+const navigationData: NavigationSection[] = [
+  {
+    title: "About us",
+    href: "#",
+  },
+  {
+    title: "Services",
+    href: "#",
+  },
+  {
+    title: "Work",
+    href: "#",
+  },
+  {
+    title: "Team",
+    href: "#",
+  },
+  {
+    title: "Pricing",
+    href: "#",
+  },
+  {
+    title: "Awards",
+    href: "#",
+  },
+];
+
+const CollaborateButton = ({ className }: { className?: string }) => (
+  <Button className={cn("relative text-sm font-medium rounded-full h-10 p-1 ps-4 pe-12 group transition-all duration-500 hover:ps-12 hover:pe-4 w-fit overflow-hidden hover:bg-primary/80", className)}>
+    <span className="relative z-10 transition-all duration-500 hover:cursor-pointer">
+      Let's Collaborate
+    </span>
+    <div className="absolute right-1 w-8 h-8 bg-background text-foreground rounded-full flex items-center justify-center transition-all duration-500 group-hover:right-[calc(100%-36px)] group-hover:rotate-45">
+      <ArrowUpRight size={16} />
+    </div>
+  </Button>
+);
+
+const Navbar = () => {
+  const [sticky, setSticky] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const handleScroll = useCallback(() => {
+    setSticky(window.scrollY >= 50);
+  }, []);
+
+  const handleResize = useCallback(() => {
+    if (window.innerWidth >= 768) setIsOpen(false);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [handleScroll, handleResize]);
+
+  return (
+    <div>
+      <header className="bg-background">
+        <div className="max-w-7xl mx-auto w-full px-4 py-4 sm:px-6">
+          <nav
+            className={cn(
+              "w-full flex items-center h-fit justify-between gap-3.5 lg:gap-6 transition-all duration-500",
+              sticky
+                ? "p-2.5 bg-background/60 backdrop-blur-lg border border-border/40 shadow-2xl shadow-primary/5 rounded-full"
+                : "bg-transparent border-transparent"
+            )}
+          >
+            <a href="#">
+              <Logo />
+            </a>
+            <div>
+              <NavigationMenu className="max-lg:hidden bg-muted p-0.5 rounded-full">
+                <NavigationMenuList className="flex gap-0">
+                  {navigationData.map((navItem) => (
+                    <NavigationMenuItem key={navItem.title}>
+                      <NavigationMenuLink
+                        href={navItem.href}
+                        className="px-2 lg:px-4 py-2 text-sm font-medium rounded-full text-muted-foreground hover:text-foreground hover:bg-background outline outline-transparent hover:outline-border hover:shadow-xs transition tracking-normal"
+                      >
+                        {navItem.title}
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                  ))}
+                </NavigationMenuList>
+              </NavigationMenu>
+            </div>
+            <CollaborateButton className="hidden lg:flex" />
+
+            <div className="lg:hidden">
+              <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+                <DropdownMenuTrigger className="rounded-full bg-background border border-border p-2 outline-none flex items-center justify-center cursor-pointer transition-colors">
+                  <TextAlignJustify size={20} />
+                  <span className="sr-only">Menu</span>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 mt-2"
+                >
+                  {navigationData.map((item) => (
+                    <DropdownMenuItem key={item.title}>
+                      <a href={item.href} className="w-full cursor-pointer text-sm font-medium">{item.title}</a>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </nav>
+        </div>
+      </header>
+    </div>
+  );
+};
+
+export default Navbar;
+
+```
+
+File path: assets/logo/logo.tsx
 
 ```tsx
 import type { SVGAttributes } from "react";
@@ -38,6 +208,381 @@ const Logo = (props: SVGAttributes<SVGElement>) => {
 
 export default Logo;
 
+```
+
+## Implementation Steps
+
+1. **Inspect `components.json`** — Determine the correct aliased paths for `components`, `utils`, `ui`, `lib`, and `hooks`. Update all import statements and file paths in the code above to match before creating any files.
+2. **Install dependencies** — Using the project's package manager (npm / yarn / pnpm / bun), install any `dependencies` and `devDependencies` listed in the block files.
+3. **Install shadcn/ui components** — Using the appropriate shadcn CLI runner for the project (npx / pnpm dlx / bunx --bun), add any required shadcn/ui components.
+4. **Add global styles** — Append only the CSS variables and custom styles referenced by this block to `globals.css`. Do not add unrelated styles.
+5. **Create block files** — Write each file to the exact target path shown above. Do not rename or restructure files.
+6. **Verify imports** — Ensure every import resolves correctly against the project's alias configuration. Fix any broken paths before finishing.
+
+> The component must be fully functional and visually match the provided code. Once all steps are complete, the block is ready to use in the project.
+
+Create a Shadcn block in the codebase.
+
+The codebase should support following:
+
+- Shadcn project structure
+- React ^19
+- Tailwind CSS ^4
+- TypeScript ^5
+
+If it doesn't, provide instructions on how to setup project via shadcn CLI, install Tailwind CSS v4 or Typescript.
+
+Here are the files for the block component:
+
+File path: app/topbar-01/page.tsx
+
+```tsx
+'use client';
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import LanguageDropdown from "@/components/shadcn-space/blocks/topbar-01/dropdown-language";
+import ProfileDropdown from "@/components/shadcn-space/blocks/topbar-01/dropdown-profile";
+import { BellRing, Globe } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import NotificationDropdown from "@/components/shadcn-space/blocks/topbar-01/notification-dropdown";
+
+const Header = () => {
+  return (
+    <div className="flex min-h-dvh w-full">
+      <div className="flex flex-1 flex-col">
+        <header className="bg-card sticky top-0 z-50 border-b">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-2 sm:px-6">
+            <div className="flex items-center gap-4">
+              <a href="#">
+                <img
+                  src="https://images.shadcnspace.com/assets/logo/shadcnspace.svg"
+                  alt="logo"
+                  className="dark:hidden h-10"
+                />
+                <img
+                  src="https://images.shadcnspace.com/assets/logo/shadcnspace-white.svg"
+                  alt="logo"
+                  className="hidden dark:block h-10"
+                />
+              </a>
+              <Separator orientation="vertical" />
+              <NavigationMenu>
+                <NavigationMenuList>
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger>Menu</NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ul className="grid w-xs gap-4">
+                        <li>
+                          <NavigationMenuLink href="#">
+                            <div className="flex flex-col items-start gap-0.5!">
+                              <p className="font-medium">Components</p>
+                              <p className="text-muted-foreground">
+                                Browse all components in the library.
+                              </p>
+                            </div>
+                          </NavigationMenuLink>
+                          <NavigationMenuLink href="#">
+                            <div className="flex flex-col items-start gap-0.5!">
+                              <p className="font-medium">Documentation</p>
+                              <p className="text-muted-foreground">
+                                Learn how to use the library.
+                              </p>
+                            </div>
+                          </NavigationMenuLink>
+                          <NavigationMenuLink href="#">
+                            <div className="flex flex-col items-start gap-0.5!">
+                              <p className="font-medium">Blog</p>
+                              <p className="text-muted-foreground">
+                                Read our latest blog posts.
+                              </p>
+                            </div>
+                          </NavigationMenuLink>
+                        </li>
+                      </ul>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <NotificationDropdown
+                defaultOpen={false}
+                align="center"
+                trigger={
+                  <div className="rounded-full p-2 hover:bg-accent relative before:absolute before:bottom-0 before:left-1/2 before:z-10 before:w-2 before:h-2 before:rounded-full before:bg-red-500 before:top-1">
+                    <BellRing className="size-4" />
+                  </div>
+                }
+              />
+              <LanguageDropdown
+                trigger={
+                  <div
+                    id="language-dropdown-trigger"
+                    className="rounded-full hover:bg-accent/80 cursor-pointer p-2"
+                  >
+                    <Globe size={16} />
+                  </div>
+                }
+              />
+              <ProfileDropdown
+                trigger={
+                  <div
+                    id="profile-dropdown-trigger"
+                    className="rounded-full cursor-pointer"
+                  >
+                    <Avatar className="size-7 rounded-full">
+                      <AvatarImage src="https://images.shadcnspace.com/assets/profiles/user-11.jpg" />
+                      <AvatarFallback>NJ</AvatarFallback>
+                    </Avatar>
+                  </div>
+                }
+              />
+            </div>
+          </div>
+        </header>
+        <main>
+          <div className="flex flex-1 flex-col gap-4 p-4">
+            {Array.from({ length: 9 }).map((_, index) => (
+              <div
+                key={index}
+                className="skeleton bg-muted/50 aspect-video h-10.5 w-full rounded-lg"
+              />
+            ))}
+          </div>
+        </main>
+
+        <footer className="bg-card h-10 border-t">
+          <div className="flex flex-1 flex-col gap-4 p-4">
+            <div className="skeleton bg-muted/50 aspect-video h-14 w-full rounded-lg" />
+          </div>
+        </footer>
+      </div>
+    </div>
+  );
+};
+
+export default Header;
+
+```
+
+File path: components/shadcn-space/blocks/topbar-01/dropdown-language.tsx
+
+```tsx
+'use client'
+
+import { useState, type ReactElement } from 'react'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+
+type Props = {
+    trigger: ReactElement
+    defaultOpen?: boolean
+    align?: 'start' | 'center' | 'end'
+}
+
+type Language = {
+    value: string
+    label: string
+    icon: string
+}
+
+const LANGUAGES: Language[] = [
+    {
+        value: 'english',
+        label: 'English (UK)',
+        icon: 'https://images.shadcnspace.com/assets/flags/flag-us.svg',
+    },
+    {
+        value: 'chinese',
+        label: '中国人 (Chinese)',
+        icon: 'https://images.shadcnspace.com/assets/flags/flag-china.svg',
+    },
+    {
+        value: 'french',
+        label: 'français (French)',
+        icon: 'https://images.shadcnspace.com/assets/flags/flag-france.svg',
+    },
+    {
+        value: 'arabic',
+        label: 'عربي (Arabic)',
+        icon: 'https://images.shadcnspace.com/assets/flags/flag-australia.svg',
+    },
+]
+
+const itemClass =
+    'cursor-pointer gap-2 pl-2 text-sm data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground [&>span]:hidden'
+
+const LanguageDropdown = ({ trigger, defaultOpen, align = 'end' }: Props) => {
+    const [language, setLanguage] = useState(LANGUAGES[0].value)
+
+    return (
+        <DropdownMenu defaultOpen={defaultOpen}>
+            <DropdownMenuTrigger>
+                {trigger}
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent className="w-50" align={align}>
+                <DropdownMenuRadioGroup
+                    value={language}
+                    onValueChange={setLanguage}
+                    className="flex flex-col gap-2"
+                >
+                    {LANGUAGES.map(({ value, label, icon }) => (
+                        <DropdownMenuRadioItem key={value} value={value} className={itemClass}>
+                            <img src={icon} alt={label} width={16} height={16} className='rounded-full' />
+                            {label}
+                        </DropdownMenuRadioItem>
+                    ))}
+                </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+}
+
+export default LanguageDropdown
+
+```
+
+File path: components/shadcn-space/blocks/topbar-01/dropdown-profile.tsx
+
+```tsx
+"use client";
+
+import type { ReactElement } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Bookmark,
+  LogOut,
+  LucideIcon,
+  ReceiptText,
+  Settings,
+  User,
+} from "lucide-react";
+
+type Props = {
+  trigger: ReactElement;
+  defaultOpen?: boolean;
+  align?: "start" | "center" | "end";
+};
+
+type MenuItem = {
+  label: string;
+  icon: LucideIcon;
+  destructive?: boolean;
+};
+
+const PROFILE_ITEMS: MenuItem[] = [
+  { label: "My Profile", icon: User },
+  { label: "My Subscription", icon: Bookmark },
+  { label: "My Invoice", icon: ReceiptText },
+];
+
+const SETTINGS_ITEMS: MenuItem[] = [
+  { label: "Account Settings", icon: Settings },
+];
+
+const LOGOUT_ITEM: MenuItem = {
+  label: "Signout",
+  icon: LogOut,
+  destructive: true,
+};
+
+const itemClass = "px-4 py-2.5 text-base cursor-pointer gap-3";
+
+const ProfileDropdown = ({ trigger, defaultOpen, align = "end" }: Props) => {
+  return (
+    <DropdownMenu defaultOpen={defaultOpen}>
+      <DropdownMenuTrigger>{trigger}</DropdownMenuTrigger>
+
+      <DropdownMenuContent className="w-80" align={align}>
+        <DropdownMenuGroup>
+          {/* User Info */}
+          <DropdownMenuLabel className="flex items-center gap-4 px-4 py-2.5 font-normal">
+            <div className="relative">
+              <Avatar className="size-10">
+                <AvatarImage
+                  src="https://images.shadcnspace.com/assets/profiles/user-11.jpg"
+                  alt="David McMichael"
+                />
+                <AvatarFallback>DM</AvatarFallback>
+              </Avatar>
+              <span className="ring-card absolute right-0 bottom-0 size-2 rounded-full bg-green-600 ring-2" />
+            </div>
+
+            <div className="flex flex-col">
+              <span className="text-foreground text-lg font-semibold">
+                David McMichael
+              </span>
+              <span className="text-muted-foreground text-sm">
+                david.mcmichael@example.com
+              </span>
+            </div>
+          </DropdownMenuLabel>
+
+          <DropdownMenuSeparator />
+
+          {/* Main Links */}
+          {PROFILE_ITEMS.map(({ label, icon: Icon }) => (
+            <DropdownMenuItem key={label} className={itemClass}>
+              <Icon size={20} className="text-foreground" />
+              <span>{label}</span>
+            </DropdownMenuItem>
+          ))}
+
+          <DropdownMenuSeparator />
+
+          {/* Settings */}
+          <DropdownMenuGroup>
+            {SETTINGS_ITEMS.map(({ label, icon: Icon }) => (
+              <DropdownMenuItem key={label} className={itemClass}>
+                <Icon size={20} className="text-foreground" />
+                <span>{label}</span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuGroup>
+
+          <DropdownMenuSeparator />
+
+          {/* Logout */}
+          <DropdownMenuItem variant="destructive" className={itemClass}>
+            <LOGOUT_ITEM.icon size={20} />
+            <span>{LOGOUT_ITEM.label}</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+export default ProfileDropdown;
+
+```
+
+File path: components/shadcn-space/blocks/topbar-01/notification-dropdown.tsx
+
+```tsx
 "use client";
 
 import type { ReactNode } from "react";
@@ -78,7 +623,7 @@ type MenuItem = {
 
 const PROFILE_ITEMS: MenuItem[] = [
   {
-    textColor: "text-blue-500",
+    textColor: "stroke-blue-500",
     bgColor: "bg-blue-500/10",
     icon: Star,
     title: "Event Today",
@@ -86,7 +631,7 @@ const PROFILE_ITEMS: MenuItem[] = [
     time: "9:00 AM",
   },
   {
-    textColor: "text-orange-400",
+    textColor: "stroke-orange-400",
     bgColor: "bg-orange-400/10",
     icon: Video,
     title: "Team Meeting",
@@ -94,7 +639,7 @@ const PROFILE_ITEMS: MenuItem[] = [
     time: "10:00 AM",
   },
   {
-    textColor: "text-teal-400",
+    textColor: "stroke-teal-400",
     bgColor: "bg-teal-400/10",
     icon: Salad,
     title: "Lunch Break",
@@ -102,7 +647,7 @@ const PROFILE_ITEMS: MenuItem[] = [
     time: "12:30 PM",
   },
   {
-    textColor: "text-red-500",
+    textColor: "stroke-red-500",
     bgColor: "bg-red-500/10",
     icon: Headset,
     title: "Client Call",
@@ -110,7 +655,7 @@ const PROFILE_ITEMS: MenuItem[] = [
     time: "3:00 PM",
   },
   {
-    textColor: "text-sky-400",
+    textColor: "stroke-sky-400",
     bgColor: "bg-sky-400/10",
     icon: ScanText,
     title: "Project Review",
@@ -133,18 +678,16 @@ const NotificationDropdown = ({
           align={align}
           className="p-0 w-sm rounded-2xl data-open:slide-in-from-top-20! data-closed:slide-out-to-top-20 data-open:fade-in-0 data-closed:fade-out-0 data-closed:zoom-out-100 duration-400"
         >
-          {/* title */}
           <DropdownMenuGroup>
+            {/* title */}
             <DropdownMenuLabel className="flex items-center justify-between p-4">
               <p className="text-base font-medium text-popover-foreground">
                 Notifications
               </p>
-              <Badge className="font-normal leading-0">5 New</Badge>
+              <Badge className="h-5 font-normal leading-0">5 New</Badge>
             </DropdownMenuLabel>
-          </DropdownMenuGroup>
 
-          {/* Notifications */}
-          <DropdownMenuGroup>
+            {/* Notifications */}
             {PROFILE_ITEMS.map(
               ({ bgColor, textColor, icon: Icon, title, desc, time }) => (
                 <DropdownMenuItem
@@ -154,8 +697,8 @@ const NotificationDropdown = ({
                   }
                 >
                   <div className="flex items-center gap-3">
-                    <div className={cn("p-2.5 rounded-xl", bgColor, textColor)}>
-                      <Icon size={20} className="size-5" />
+                    <div className={cn("p-2.5 rounded-xl", bgColor)}>
+                      <Icon size={20} className={cn("size-5", textColor)} />
                     </div>
                     <div>
                       <p className="text-sm font-medium text-popover-foreground">
@@ -170,14 +713,14 @@ const NotificationDropdown = ({
                 </DropdownMenuItem>
               ),
             )}
-          </DropdownMenuGroup>
 
-          {/* button */}
-          <div className="mx-1.5 my-1 p-2">
-            <Button className="rounded-xl w-full cursor-pointer h-9 hover:bg-primary/80">
-              See All Notifications
-            </Button>
-          </div>
+            {/* button */}
+            <div className="mx-1.5 my-1 p-2">
+              <Button className="rounded-xl w-full cursor-pointer hover:bg-primary/80">
+                See All Notifications
+              </Button>
+            </div>
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
@@ -186,1522 +729,15 @@ const NotificationDropdown = ({
 
 export default NotificationDropdown;
 
-"use client";
-
-import type { ReactNode } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  LucideIcon,
-  CircleUserRound,
-  CreditCard,
-  ReceiptText,
-  Settings,
-  LogOut,
-} from "lucide-react";
-
-type Props = {
-  trigger: ReactNode;
-  defaultOpen?: boolean;
-  align?: "start" | "center" | "end";
-};
-
-type MenuItem = {
-  label: string;
-  icon: LucideIcon;
-  destructive?: boolean;
-};
-
-const PROFILE_ITEMS: MenuItem[] = [
-  { label: "My Profile", icon: CircleUserRound },
-  { label: "My Subscription", icon: CreditCard },
-  { label: "My Invoice", icon: ReceiptText },
-];
-
-const SETTINGS_ITEMS: MenuItem[] = [
-  { label: "Account Settings", icon: Settings },
-];
-
-const LOGOUT_ITEM: MenuItem = {
-  label: "Signout",
-  icon: LogOut,
-  destructive: true,
-};
-
-const itemClass =
-  "p-2 text-sm font-medium text-popover-foreground cursor-pointer gap-2";
-
-const UserDropdown = ({ trigger, defaultOpen, align = "end" }: Props) => {
-  return (
-    <div className="flex items-center justify-center">
-      <DropdownMenu defaultOpen={defaultOpen}>
-        <DropdownMenuTrigger>{trigger}</DropdownMenuTrigger>
-        <DropdownMenuContent
-          align={align}
-          className="w-3xs rounded-2xl data-open:slide-in-from-bottom-20! data-closed:slide-out-to-bottom-20 data-open:fade-in-0 data-closed:fade-out-0 data-closed:zoom-out-100 duration-400"
-        >
-          {/* User Info */}
-          <DropdownMenuGroup>
-            <DropdownMenuLabel className="flex items-center gap-3 px-4 py-3">
-              <div className="relative">
-                <Avatar className="data-[size=lg]:size-8">
-                  <AvatarImage
-                    src="https://images.shadcnspace.com/assets/profiles/user-11.jpg"
-                    alt="David McMichael"
-                  />
-                  <AvatarFallback>DM</AvatarFallback>
-                </Avatar>
-                <span className="ring-card absolute right-0 bottom-0 size-2 rounded-full bg-green-600 ring-2" />
-              </div>
-
-              <div className="flex flex-col">
-                <span className="text-popover-foreground text-sm font-medium">
-                  David McMichael
-                </span>
-                <span className="text-muted-foreground text-sm">
-                  david@shadcnspace.com
-                </span>
-              </div>
-            </DropdownMenuLabel>
-          </DropdownMenuGroup>
-
-          <DropdownMenuSeparator />
-
-          {/* Main Links */}
-          <DropdownMenuGroup>
-            {PROFILE_ITEMS.map(({ label, icon: Icon }) => (
-              <DropdownMenuItem key={label} className={itemClass}>
-                <Icon size={20} />
-                <span>{label}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuGroup>
-
-          <DropdownMenuSeparator />
-
-          {/* Settings */}
-          <DropdownMenuGroup>
-            {SETTINGS_ITEMS.map(({ label, icon: Icon }) => (
-              <DropdownMenuItem key={label} className={itemClass}>
-                <Icon size={20} />
-                <span>{label}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuGroup>
-
-          <DropdownMenuSeparator />
-
-          {/* Logout */}
-          <DropdownMenuItem variant="destructive" className={itemClass}>
-            <LOGOUT_ITEM.icon size={20} />
-            <span>{LOGOUT_ITEM.label}</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
-};
-
-export default UserDropdown;
-
-"use client";
-import React from "react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Logo from "@/assets/logo/logo";
-import { NavMain } from "@/components/shadcn-space/blocks/dashboard-shell-01/nav-main";
-import {
-  AlignStartVertical,
-  CreditCard,
-  LayoutPanelTop,
-  ChartPie,
-  BarChart3,
-  CircleUserRound,
-  ClipboardList,
-  Languages,
-  LucideIcon,
-  Notebook,
-  NotepadText,
-  Table,
-  Ticket,
-} from "lucide-react";
-import { SiteHeader } from "@/components/shadcn-space/blocks/dashboard-shell-01/site-header";
-import SimpleBar from "simplebar-react";
-import "simplebar-react/dist/simplebar.min.css";
-
-export type NavItem = {
-  label?: string;
-  isSection?: boolean;
-  title?: string;
-  icon?: LucideIcon;
-  href?: string;
-  children?: NavItem[];
-  isActive?: boolean;
-};
-
-export const navData: NavItem[] = [
-  // Dashboards Section
-  { label: "Dashboards", isSection: true },
-  { title: "Analytics", icon: BarChart3, href: "#", isActive: true },
-  { title: "CRM Dashboard", icon: ClipboardList, href: "#" },
-
-  // Pages Section
-  { label: "Pages", isSection: true },
-  { title: "Tables", icon: Table, href: "#" },
-  { title: "Forms", icon: ClipboardList, href: "#" },
-  { title: "User Profile", icon: CircleUserRound, href: "#" },
-
-  // Apps Section
-  { label: "Apps", isSection: true },
-  { title: "Notes", icon: Notebook, href: "#" },
-  { title: "Tickets", icon: Ticket, href: "#" },
-  {
-    title: "Blogs",
-    icon: Languages,
-    children: [
-      { title: "Blog Post", href: "#" },
-      { title: "Blog Detail", href: "#" },
-      { title: "Blog Edit", href: "#" },
-      { title: "Blog Create", href: "#" },
-      { title: "Manage Blogs", href: "#" },
-    ],
-  },
-
-  // Form Elements Section
-  { label: "Form Elements", isSection: true },
-  {
-    title: "Shadcn Forms",
-    icon: NotepadText,
-    children: [
-      { title: "Button", href: "#" },
-      { title: "Input", href: "#" },
-      { title: "Select", href: "#" },
-      { title: "Checkbox", href: "#" },
-      { title: "Radio", href: "#" },
-    ],
-  },
-  {
-    title: "Form layouts",
-    icon: AlignStartVertical,
-    children: [
-      { title: "Forms Horizontal", href: "#" },
-      { title: "Forms Vertical", href: "#" },
-      { title: "Forms Validation", href: "#" },
-      { title: "Forms Examples", href: "#" },
-      { title: "Forms Wizard", href: "#" },
-    ],
-  },
-  { label: "WIDGETS", isSection: true },
-  {
-    title: "Cards",
-    icon: CreditCard,
-    children: [
-      { title: "Ecommerce Actions", href: "#" },
-      { title: "Course ", href: "#" },
-      { title: "Campaign Performance ", href: "#" },
-      { title: "Selling Products ", href: "#" },
-      { title: "Activity Timeline ", href: "#" },
-    ],
-  },
-  {
-    title: "Banners",
-    icon: LayoutPanelTop,
-    children: [{ title: "Analytic Banner ", href: "#" }],
-  },
-  {
-    title: "Charts",
-    icon: ChartPie,
-    children: [
-      { title: "Sales Report", href: "#" },
-      { title: "Weekly Sales", href: "#" },
-    ],
-  },
-];
-
-/* -------------------------------------------------------------------------- */
-/*                                   Page                                     */
-/* -------------------------------------------------------------------------- */
-
-const AppSidebar = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <SidebarProvider>
-      <Sidebar className="py-4 px-0 bg-background">
-        <div className="flex flex-col gap-6 bg-background">
-          {/* ---------------- Header ---------------- */}
-          <SidebarHeader className="py-0 px-4">
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <a href="#" className="w-full h-full">
-                  <Logo />
-                </a>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarHeader>
-
-          {/* ---------------- Content ---------------- */}
-          <SidebarContent className="overflow-hidden gap-0 px-0">
-            <SimpleBar
-              autoHide={true}
-              className="h-[calc(100vh-348px)] border-b border-border"
-            >
-              <div className="px-4">
-                <NavMain items={navData} />
-              </div>
-            </SimpleBar>
-            {/* card */}
-            <div className="pt-4 px-4">
-              <Card className="shadow-none ring-0 bg-blue-500/10 px-4 py-6">
-                <CardContent className="p-0 flex flex-col gap-3 items-center">
-                  <img
-                    src="https://images.shadcnspace.com/assets/backgrounds/download-img.png"
-                    alt="sidebar-img"
-                    width={74}
-                    height={74}
-                    className="h-20 w-20"
-                  />
-                  <div className="flex flex-col gap-4 items-center">
-                    <div>
-                      <p className="text-base font-semibold text-card-foreground text-center">
-                        Grab Pro Now
-                      </p>
-                      <p className="text-sm font-regular text-muted-foreground text-center">
-                        Customize your admin
-                      </p>
-                    </div>
-                    <Button className="w-fit px-4 py-2 shadow-none cursor-pointer rounded-xl bg-blue-500 font-medium hover:bg-blue-500/80 h-9">
-                      Get Premium
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </SidebarContent>
-        </div>
-      </Sidebar>
-
-      {/* ---------------- Main ---------------- */}
-      <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-50 flex items-center border-b px-6 py-3 bg-background">
-          <SiteHeader />
-        </header>
-        <main className="flex-1">{children}</main>
-      </div>
-    </SidebarProvider>
-  );
-};
-
-export default AppSidebar;
-
-"use client";
-
-import * as React from "react";
-import { Label, Pie, PieChart } from "recharts";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { cn } from "@/lib/utils";
-
-const chartData = [
-  { browser: "Website", visitors: 60, fill: "var(--color-blue-500)" },
-  { browser: "Marketplace", visitors: 20, fill: "var(--color-sky-400)" },
-  { browser: "Affiliate", visitors: 20, fill: "rgba(56, 189, 248, 0.5)" },
-];
-
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  Website: {
-    label: "Website",
-    color: "var(--color-blue-500)",
-  },
-  Marketplace: {
-    label: "Marketplace",
-    color: "var(--color-sky-400)",
-  },
-  Affiliate: {
-    label: "Affiliate",
-    color: "var(--color-blue-500)",
-  },
-} satisfies ChartConfig;
-
-export default function EarningReportChart() {
-  const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
-  }, []);
-
-  const CustomerSegmentation = [
-    {
-      id: 1,
-      customer: "Website ",
-      tagColor: "muted-foreground",
-      borderColor: "bg-blue-500",
-      badgeColor: "bg-teal-400/10",
-      earning: 18356,
-      growthPercentage: "+4.7%",
-    },
-    {
-      id: 2,
-      customer: "Marketplace",
-      tagColor: "muted-foreground",
-      borderColor: "bg-sky-400",
-      badgeColor: "bg-teal-400/10",
-      earning: 4590,
-      growthPercentage: "+2.1%",
-    },
-    {
-      id: 3,
-      customer: "Affiliate",
-      tagColor: "muted-foreground",
-      borderColor: "bg-sky-400/50",
-      badgeColor: "bg-teal-400/10",
-      earning: 4385,
-      growthPercentage: "-1.7%",
-    },
-  ];
-
-  return (
-    <Card className="h-full w-full py-6 gap-6">
-      <CardHeader className="px-6">
-        <CardTitle>
-          <h4 className="text-lg font-semibold">Earning Reports</h4>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col justify-between gap-2 flex-1 px-6">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-square max-h-[250px]"
-        >
-          <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Pie
-              data={chartData}
-              dataKey="visitors"
-              nameKey="browser"
-              innerRadius={65}
-              strokeWidth={50}
-            >
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) - 10}
-                          className="fill-muted-foreground text-sm"
-                        >
-                          Total
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 15}
-                          className="fill-foreground text-xl font-medium"
-                        >
-                          $27,850
-                        </tspan>
-                      </text>
-                    );
-                  }
-                }}
-              />
-            </Pie>
-          </PieChart>
-        </ChartContainer>
-        <div className="flex flex-col gap-3">
-          {CustomerSegmentation.map((item) => (
-            <div key={item.id} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div
-                  className={cn(item.borderColor, "w-1 h-4 rounded-full")}
-                ></div>
-                <h6 className={cn("text-sm font-medium leading-tight")}>
-                  {item.customer}
-                </h6>
-              </div>
-              <div className="flex items-center gap-1">
-                <h6 className="text-sm font-medium">${item.earning}</h6>
-                <Badge
-                  className={cn(
-                    item.badgeColor,
-                    `text-${item.tagColor}`,
-                    "shadow-none",
-                  )}
-                >
-                  {item.growthPercentage}
-                </Badge>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-"use client";
-
-import { ChevronRight } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from "@/components/ui/collapsible";
-import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
-} from "@/components/ui/sidebar";
-import { NavItem } from "@/components/shadcn-space/blocks/dashboard-shell-01/app-sidebar";
-import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
-
-export function NavMain({ items }: { items: NavItem[] }) {
-  const pathname = usePathname();
-
-  // Recursive render function
-  const renderItem = (item: NavItem) => {
-    //  Section label
-    if (item.isSection && item.label) {
-      return (
-        <SidebarGroup key={item.label} className="p-0 pt-5 first:pt-0">
-          <SidebarGroupLabel className="p-0 text-xs font-medium uppercase text-sidebar-foreground">
-            {item.label}
-          </SidebarGroupLabel>
-        </SidebarGroup>
-      );
-    }
-    const hasChildren = !!item.children?.length;
-    // Item with children → collapsible
-    if (hasChildren && item.title) {
-      return (
-        <SidebarGroup key={item.title} className="p-0">
-          <SidebarMenu>
-            <Collapsible>
-              <SidebarMenuItem>
-                <CollapsibleTrigger
-                  render={
-                    <SidebarMenuButton
-                      tooltip={item.title}
-                      className="rounded-xl text-sm px-3 py-2 h-9 cursor-pointer"
-                    >
-                      {item.icon && <item.icon size={16} />}
-                      <span>{item.title}</span>
-                      <ChevronRight className="ml-auto transition-transform duration-200 collapsible/button-[aria-expanded='true']:rotate-90" />
-                    </SidebarMenuButton>
-                  }
-                  className="w-full collapsible/button"
-                />
-                <CollapsibleContent>
-                  <SidebarMenuSub className="me-0 pe-0">
-                    {item.children!.map(renderItemSub)}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
-              </SidebarMenuItem>
-            </Collapsible>
-          </SidebarMenu>
-        </SidebarGroup>
-      );
-    }
-    // Item without children
-    if (item.title) {
-      const isActive = item.isActive ?? pathname === item.href;
-
-      return (
-        <SidebarGroup key={item.title} className="p-0">
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                tooltip={item.title}
-                className={cn(
-                  "rounded-lg text-sm px-3 py-2 h-9 ",
-                  isActive
-                    ? "bg-primary hover:bg-primary dark:bg-blue-500 text-white dark:hover:bg-blue-500 hover:text-white"
-                    : "",
-                )}
-              >
-                {item.icon && <item.icon />}
-                <a href={item.href} className="w-full">
-                  {item.title}
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-      );
-    }
-    return null;
-  };
-  // Recursive render function for sub-items
-  const renderItemSub = (item: NavItem) => {
-    const hasChildren = !!item.children?.length;
-    if (hasChildren && item.title) {
-      return (
-        <SidebarMenuSubItem key={item.title}>
-          <Collapsible>
-            <CollapsibleTrigger className="w-full">
-              <SidebarMenuSubButton className="rounded-xl text-sm px-3 py-2 h-9">
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
-                <ChevronRight className="ml-auto transition-transform duration-200 data-[state=open]:rotate-90" />
-              </SidebarMenuSubButton>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <SidebarMenuSub className="me-0 pe-0">
-                {item.children!.map(renderItemSub)}
-              </SidebarMenuSub>
-            </CollapsibleContent>
-          </Collapsible>
-        </SidebarMenuSubItem>
-      );
-    }
-    if (item.title) {
-      return (
-        <SidebarMenuSubItem key={item.title} className="w-full">
-          <SidebarMenuSubButton
-            className="w-full"
-            render={<a href={item.href}>{item.title}</a>}
-          />
-        </SidebarMenuSubItem>
-      );
-    }
-    return null;
-  };
-
-  return <>{items.map(renderItem)}</>;
-}
-
-"use client";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-
-const chartData = [
-  { month: "Jan", expense: 31, profit: 31, earning: 31 },
-  { month: "Feb", expense: 83, profit: 83, earning: 83 },
-  { month: "Mar", expense: 53, profit: 53, earning: 53 },
-  { month: "Apr", expense: 36, profit: 36, earning: 36 },
-  { month: "May", expense: 64, profit: 64, earning: 64 },
-  { month: "Jun", expense: 47, profit: 47, earning: 47 },
-  { month: "Jul", expense: 95, profit: 95, earning: 95 },
-  { month: "Aug", expense: 69, profit: 69, earning: 69 },
-  { month: "Sep", expense: 29, profit: 29, earning: 29 },
-  { month: "Oct", expense: 73, profit: 73, earning: 73 },
-  { month: "Nov", expense: 27, profit: 27, earning: 27 },
-  { month: "Dec", expense: 53, profit: 53, earning: 53 },
-];
-
-const chartConfig = {
-  expense: {
-    label: "Expense",
-    color: "var(--color-blue-500)",
-  },
-  profit: {
-    label: "Profit",
-    color: "var(--color-sky-400)",
-  },
-  earning: {
-    label: "Earning",
-    color: "rgba(56, 189, 248, 0.5)",
-  },
-} satisfies ChartConfig;
-
-export default function SalesOverviewChart() {
-  const Countries = [
-    {
-      id: 1,
-      title: "Earning",
-      color: "bg-sky-400/50",
-    },
-    {
-      id: 2,
-      title: "Profit",
-      color: "bg-sky-400",
-    },
-    {
-      id: 3,
-      title: "Expense",
-      color: "bg-blue-500",
-    },
-  ];
-
-  return (
-    <Card className="w-full py-6 gap-6">
-      <CardHeader className="flex sm:flex-row flex-col justify-between sm:items-center items-start gap-3 px-6">
-        <div className="flex flex-col gap-1">
-          <CardTitle className="text-lg font-medium">Sales Overview</CardTitle>
-          <div className="flex items-center gap-2">
-            <h3 className="text-3xl font-medium text-card-foreground">
-              $386.53K
-            </h3>
-            <Badge
-              className={cn("bg-teal-400/10 text-muted-foreground shadow-none")}
-            >
-              +18%
-            </Badge>
-            <span className="text-xs text-muted-foreground">
-              than last year
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          {Countries.map((item) => (
-            <div key={item.id} className="flex items-center gap-2">
-              <span className={cn("w-2.5 h-2.5 rounded-full", item.color)} />
-              <p className="text-sm text-muted-foreground">{item.title}</p>
-            </div>
-          ))}
-        </div>
-      </CardHeader>
-      <CardContent className="px-6">
-        <ChartContainer config={chartConfig} className="h-[300px] w-full">
-          <BarChart accessibilityLayer data={chartData}>
-            <CartesianGrid
-              vertical={false}
-              strokeDasharray="3 3"
-              stroke="rgba(144, 164, 174, 0.3)"
-            />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-              fontSize={12}
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tickMargin={10}
-              fontSize={12}
-              tickFormatter={(value) => `${value / 10}k`}
-              domain={[0, 100]}
-              ticks={[0, 50, 100, 150, 200, 250, 300]}
-            />
-            <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-            <Bar
-              dataKey="expense"
-              stackId="a"
-              fill="var(--color-expense)"
-              radius={[0, 0, 4, 4]}
-              barSize={20}
-            />
-            <Bar
-              dataKey="profit"
-              stackId="a"
-              fill="var(--color-profit)"
-              radius={[0, 0, 0, 0]}
-              barSize={20}
-            />
-            <Bar
-              dataKey="earning"
-              stackId="a"
-              fill="var(--color-earning)"
-              radius={[4, 4, 0, 0]}
-              barSize={20}
-            />
-          </BarChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
-  );
-}
-
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import {
-  ArrowRight,
-  CalendarDays,
-  LucideIcon,
-  ShoppingBag,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-
-type DashboardMetric = {
-  label: string;
-  value: string;
-  percentage: string;
-  isPositive?: boolean;
-};
-
-type MainDashboardData = {
-  title: string;
-  description: string;
-  metrics: DashboardMetric[];
-};
-
-type StatItem = {
-  title: string;
-  value: string;
-  percentage: string;
-  icon: LucideIcon;
-  isPositive?: boolean;
-};
-
-type StatisticsBlockProps = {
-  mainDashboard?: MainDashboardData;
-  secondaryStats?: StatItem[];
-};
-
-const mainDashboardData: MainDashboardData = {
-  title: "Analytics Dashboard",
-  description: "Check all the statistics",
-  metrics: [
-    {
-      label: "Earnings",
-      value: "$27,850",
-      percentage: "+18%",
-      isPositive: true,
-    },
-    {
-      label: "Expense",
-      value: "$18,453",
-      percentage: "-5%",
-      isPositive: false,
-    },
-  ],
-};
-
-const secondaryStatsData: StatItem[] = [
-  {
-    title: "Weekly Sales",
-    value: "$4,587",
-    percentage: "+18%",
-    icon: CalendarDays,
-    isPositive: true,
-  },
-  {
-    title: "Purchase Orders",
-    value: "230",
-    percentage: "+18%",
-    icon: ShoppingBag,
-    isPositive: true,
-  },
-];
-
-const StatisticsBlock = ({
-  mainDashboard = mainDashboardData,
-  secondaryStats = secondaryStatsData,
-}: StatisticsBlockProps) => {
-  return (
-    <div className="grid grid-cols-12 gap-6 h-full">
-      <div className="col-span-12 xl:col-span-6 h-full">
-        <Card className="p-0 ring-0 border rounded-2xl relative h-full">
-          <CardContent className="p-0">
-            <div className="ps-6 py-4 flex flex-col gap-9 justify-between">
-              <div>
-                <p className="text-lg font-medium text-card-foreground">
-                  {mainDashboard.title}
-                </p>
-                <p className="text-xs font-normal text-muted-foreground">
-                  {mainDashboard.description}
-                </p>
-              </div>
-              <div className="flex items-center gap-6">
-                {mainDashboard.metrics.map((metric, index) => (
-                  <div key={index} className="flex items-center gap-6">
-                    <div>
-                      <p className="text-xs font-normal text-muted-foreground">
-                        {metric.label}
-                      </p>
-                      <div className="flex items-center gap-1">
-                        <p className="text-2xl font-medium text-card-foreground">
-                          {metric.value}
-                        </p>
-                        <Badge
-                          className={cn(
-                            "font-normal text-muted-foreground",
-                            metric.isPositive
-                              ? "bg-teal-400/10 "
-                              : "bg-red-500/10",
-                          )}
-                        >
-                          {metric.percentage}
-                        </Badge>
-                      </div>
-                    </div>
-                    {index < mainDashboard.metrics.length - 1 && (
-                      <Separator orientation="vertical" className={"h-12"} />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-            {/* image */}
-            <img
-              src="https://images.shadcnspace.com/assets/backgrounds/stats-01.webp"
-              alt="user-img"
-              width={211}
-              height={168}
-              className="absolute bottom-0 right-0 hidden sm:block"
-            />
-          </CardContent>
-        </Card>
-      </div>
-      {secondaryStats.map((stat, index) => (
-        <div key={index} className="col-span-12 sm:col-span-6 xl:col-span-3">
-          <Card className="py-6 ring-0 border rounded-2xl">
-            <CardContent className="px-6 flex items-start justify-between">
-              <div className="flex flex-col gap-5 justify-between">
-                <div className="flex flex-col gap-1">
-                  <p className="text-lg font-medium text-card-foreground">
-                    {stat.title}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-2xl font-medium text-card-foreground">
-                      {stat.value}
-                    </p>
-                    <Badge
-                      className={cn(
-                        "font-normal text-muted-foreground",
-                        stat.isPositive !== false
-                          ? "bg-teal-400/10"
-                          : "bg-red-500/10",
-                      )}
-                    >
-                      {stat.percentage}
-                    </Badge>
-                  </div>
-                </div>
-                {/* button */}
-                <Button
-                  variant={"outline"}
-                  className={
-                    "flex items-center gap-1.5 w-fit rounded-xl cursor-pointer shadow-xs h-9"
-                  }
-                >
-                  <span>See Report</span>
-                  <ArrowRight size={16} />
-                </Button>
-              </div>
-              <div className="p-3 rounded-full outline">
-                <stat.icon size={16} />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-export default StatisticsBlock;
-
-"use client";
-
-import {
-  LucideIcon,
-  AppWindowMac,
-  HandMetal,
-  Megaphone,
-  Contrast,
-  Brush,
-  FolderPlus,
-  FolderPen,
-  FolderMinus,
-  SearchIcon,
-  EllipsisVertical,
-} from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Progress } from "@/components/ui/progress";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardDescription,
-} from "@/components/ui/card";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { cn } from "@/lib/utils";
-
-interface TableAction {
-  icon: LucideIcon;
-  listtitle: string;
-}
-
-interface ProjectData {
-  project: string;
-  date: string;
-  budget: string;
-  icon: LucideIcon;
-  iconcolor: string;
-  iconbg: string;
-  avatar: string;
-  name: string;
-  handle: string;
-  progress: number;
-  progressColor: string;
-}
-
-const TopProductTable = () => {
-  const tableActionData: TableAction[] = [
-    { icon: FolderPlus, listtitle: "Add" },
-    { icon: FolderPen, listtitle: "Edit" },
-    { icon: FolderMinus, listtitle: "Delete" },
-  ];
-
-  const checkboxTableData: ProjectData[] = [
-    {
-      project: "Web App Project",
-      date: "04 June 2026",
-      budget: "12,000",
-      icon: AppWindowMac,
-      iconcolor: "text-orange-400",
-      iconbg: "bg-orange-400/20",
-      avatar: "https://images.shadcnspace.com/assets/profiles/user-11.jpg",
-      name: "Olivia Rhye",
-      handle: "olivia@ui.com",
-      progress: 60,
-      progressColor: "**:data-[slot=progress-indicator]:bg-orange-400",
-    },
-    {
-      project: "MaterialM Admin",
-      date: "09 January 2026",
-      budget: "8000",
-      icon: HandMetal,
-      iconcolor: "text-sky-400",
-      iconbg: "bg-sky-400/20",
-      avatar: "https://images.shadcnspace.com/assets/profiles/user-8.jpg",
-      name: "Barbara Steele",
-      handle: "steele@ui.com",
-      progress: 30,
-      progressColor: "**:data-[slot=progress-indicator]:bg-blue-500",
-    },
-    {
-      project: "Digital Marketing",
-      date: "15 April 2026",
-      budget: "15,000",
-      icon: Megaphone,
-      iconcolor: "text-teal-400",
-      iconbg: "bg-teal-400/20",
-      avatar: "https://images.shadcnspace.com/assets/profiles/user-3.jpg",
-      name: "Leonard Gordon",
-      handle: "olivia@ui.com",
-      progress: 45,
-      progressColor: "**:data-[slot=progress-indicator]:bg-amber-300",
-    },
-    {
-      project: "Shadcn Space Design",
-      date: "30 March 2026",
-      budget: "1000",
-      icon: Contrast,
-      iconcolor: "text-red-500",
-      iconbg: "bg-red-500/20",
-      avatar: "https://images.shadcnspace.com/assets/profiles/user-4.jpg",
-      name: "Evelyn Pope",
-      handle: "steele@ui.com",
-      progress: 37,
-      progressColor: "**:data-[slot=progress-indicator]:bg-red-500",
-    },
-    {
-      project: "Graphic Design",
-      date: "23 October 2026",
-      budget: "7000",
-      icon: Brush,
-      iconcolor: "text-blue-500",
-      iconbg: "bg-blue-500/20",
-      avatar: "https://images.shadcnspace.com/assets/profiles/user-5.jpg",
-      name: "Tommy Garza",
-      handle: "olivia@ui.com",
-      progress: 87,
-      progressColor: "**:data-[slot=progress-indicator]:bg-teal-400",
-    },
-    {
-      project: "Digital Marketing",
-      date: "15 April 2026",
-      budget: "15,000",
-      icon: Megaphone,
-      iconcolor: "text-teal-400",
-      iconbg: "bg-teal-400/20",
-      avatar: "https://images.shadcnspace.com/assets/profiles/user-3.jpg",
-      name: "Leonard Gordon",
-      handle: "olivia@ui.com",
-      progress: 45,
-      progressColor: "**:data-[slot=progress-indicator]:bg-amber-300",
-    },
-  ];
-
-  return (
-    <Card className="w-full h-full pb-0 pt-6 gap-6">
-      <CardHeader className="sm:flex items-center justify-between px-6">
-        <div>
-          <CardTitle className="leading-normal">Top Projects</CardTitle>
-          <CardDescription>
-            Checkout the statistics of top projects
-          </CardDescription>
-        </div>
-        <InputGroup className="h-9 rounded-md w-fit">
-            <InputGroupInput placeholder="Search" />
-            <InputGroupAddon>
-                <SearchIcon size={18} />
-            </InputGroupAddon>
-        </InputGroup>
-      </CardHeader>
-      <CardContent className="px-0">
-        <div className="overflow-x-auto">
-          <Table className="min-w-2xl">
-            <TableHeader>
-              <TableRow className="hover:bg-transparent!">
-                <TableHead className="p-3 ps-6">#</TableHead>
-                <TableHead className="p-2">Project Name</TableHead>
-                <TableHead className="p-2">Budget</TableHead>
-                <TableHead className="p-2">Manager</TableHead>
-                <TableHead className="p-2">Progress</TableHead>
-                <TableHead className="p-3 pe-6 flex justify-end">
-                  Action
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-
-            <TableBody className="divide-y divide-border dark:divide-darkborder">
-              {checkboxTableData.map((item, index) => (
-                <TableRow key={index}>
-                  {/* Checkbox */}
-                  <TableCell className="whitespace-nowrap p-3 ps-6">
-                    <Checkbox className="data-[state=checked]:bg-blue-500 dark:data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 dark:data-[state=checked]:border-blue-500 cursor-pointer" />
-                  </TableCell>
-
-                  {/* project */}
-                  <TableCell className="whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={cn(
-                          "h-9 w-9 rounded-full flex items-center justify-center",
-                          item.iconbg,
-                        )}
-                      >
-                        <item.icon
-                          width={18}
-                          height={18}
-                          className={cn(item.iconcolor)}
-                        />
-                      </div>
-                      <div className="">
-                        <h6 className="text-sm font-medium">{item.project}</h6>
-                        <p className="text-xs text-muted-foreground">
-                          {item.date}
-                        </p>
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  {/* Status Badge */}
-                  <TableCell className="whitespace-nowrap">
-                    <p className="text-sm text-foreground">${item.budget}</p>
-                  </TableCell>
-
-                  {/* Customer */}
-                  <TableCell className="whitespace-nowrap">
-                    <div className="flex gap-3 items-center">
-                      <img
-                        src={item.avatar}
-                        alt="icon"
-                        className="h-9 w-9 rounded-full"
-                        width={36}
-                        height={36}
-                      />
-                      <div className="truncate line-clamp-2 max-w-56">
-                        <h6 className="text-base! font-normal!">{item.name}</h6>
-                        <p className="text-sm text-muted-foreground">
-                          {item.handle}
-                        </p>
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  {/* Progress */}
-                  <TableCell className="whitespace-nowrap">
-                    <Progress
-                      value={item.progress}
-                      className={cn(
-                        "w-full h-1.5 [&>div]:h-1.5",
-                        `${item.progressColor}`,
-                      )}
-                    />
-                  </TableCell>
-
-                  {/* Dropdown Menu */}
-                  <TableCell className="whitespace-nowrap p-3 pe-6">
-                    <div className="flex items-center justify-end">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger>
-                          <span className="flex justify-center items-center rounded-full p-2 hover:bg-muted cursor-pointer">
-                            <EllipsisVertical width={16} height={16} />
-                          </span>
-                        </DropdownMenuTrigger>
-
-                        <DropdownMenuContent align="end">
-                          {tableActionData.map((action, idx) => (
-                            <DropdownMenuItem
-                              key={idx}
-                              className="group flex gap-3 hover:bg-accent! cursor-pointer"
-                            >
-                              <action.icon />
-                              <span>{action.listtitle}</span>
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-export default TopProductTable;
-
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import UserDropdown from "@/components/shadcn-space/blocks/dashboard-shell-01/user-dropdown";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import NotificationDropdown from "@/components/shadcn-space/blocks/dashboard-shell-01/notification-dropdown";
-import { BellRing, SearchIcon } from "lucide-react";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
-
-export function SiteHeader() {
-  return (
-    <div className="flex w-full items-center justify-between">
-      <div className="flex items-center gap-2">
-        <SidebarTrigger className="-ml-1 h-8 w-8 cursor-pointer" />
-        <InputGroup className="h-9 rounded-md">
-          <InputGroupInput placeholder="Search" />
-          <InputGroupAddon>
-            <SearchIcon />
-          </InputGroupAddon>
-        </InputGroup>
-      </div>
-      <div className="flex items-center gap-3">
-        <NotificationDropdown
-          defaultOpen={false}
-          align="center"
-          trigger={
-            <div className="rounded-full p-2 hover:bg-accent relative before:absolute before:bottom-0 before:left-1/2 before:z-10 before:w-2 before:h-2 before:rounded-full before:bg-red-500 before:top-1 cursor-pointer">
-              <BellRing className="size-4" />
-            </div>
-          }
-        />
-        <UserDropdown
-          defaultOpen={false}
-          align="center"
-          trigger={
-            <div className="rounded-full">
-              <Avatar className="size-8 cursor-pointer">
-                <AvatarImage
-                  src="https://images.shadcnspace.com/assets/profiles/user-11.jpg"
-                  alt="David McMichael"
-                />
-                <AvatarFallback>DM</AvatarFallback>
-              </Avatar>
-            </div>
-          }
-        />
-      </div>
-    </div>
-  );
-}
-
-"use client";
-
-import React, { useRef } from "react";
-import { Separator } from "@/components/ui/separator";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Icon } from "@iconify/react";
-import {
-  Card,
-  CardTitle,
-  CardHeader,
-  CardContent,
-  CardAction,
-} from "@/components/ui/card";
-import { motion, useInView } from "motion/react";
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-
-const DEFAULT_DROPDOWN_ITEMS = [
-  { title: "Action", link: "#" },
-  { title: "Another action", link: "#" },
-  { title: "Something else", link: "#" },
-];
-
-const DEFAULT_TRANS_DATA = [
-  {
-    img: "https://images.shadcnspace.com/assets/flags/flag-us.svg",
-    title: "PayPal Transfer",
-    country: "United states",
-    rank: "$8,567k",
-    badgeData: "+4.7%",
-    badgeBG: "bg-teal-400/10",
-  },
-  {
-    img: "https://images.shadcnspace.com/assets/flags/flag-brazil.svg",
-    title: "Wallet",
-    country: "Brazil",
-    rank: "$2,415k",
-    badgeData: "-1.7%",
-    badgeBG: "bg-orange-400/10",
-  },
-  {
-    img: "https://images.shadcnspace.com/assets/flags/flag-india.svg",
-    title: "Credit Card",
-    country: "India",
-    rank: "$865k",
-    badgeData: "+4.7%",
-    badgeBG: "bg-teal-400/10",
-  },
-  {
-    img: "https://images.shadcnspace.com/assets/flags/flag-australia.svg",
-    title: "Bank Transfer",
-    country: "Australia",
-    rank: "$745k",
-    badgeData: "-1.7%",
-    badgeBG: "bg-orange-400/10",
-  },
-  {
-    img: "https://images.shadcnspace.com/assets/flags/flag-france.svg",
-    title: "Refund",
-    country: "France",
-    rank: "$45",
-    badgeData: "+4.7%",
-    badgeBG: "bg-teal-400/10",
-  },
-  {
-    img: "https://images.shadcnspace.com/assets/flags/flag-china.svg",
-    title: "Refund",
-    country: "China",
-    rank: "$12k",
-    badgeData: "+4.7%",
-    badgeBG: "bg-teal-400/10",
-  },
-];
-
-interface TransactionProps {
-  img: string;
-  title: string;
-  country: string;
-  rank: string;
-  badgeData: string;
-  badgeBG: string;
-}
-
-interface DropdownItemProps {
-  title: string;
-  link?: string;
-}
-
-interface WidgetProps {
-  recentTransData?: TransactionProps[];
-  dropdownItems?: DropdownItemProps[];
-}
-
-const SalesByCountryWidget = ({
-  recentTransData = DEFAULT_TRANS_DATA,
-  dropdownItems = DEFAULT_DROPDOWN_ITEMS,
-}: WidgetProps) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.2 });
-
-  return (
-    <Card className="h-full py-6 gap-6">
-      <CardHeader className="flex items-center justify-between px-6">
-        <CardTitle className="text-lg font-medium text-foreground">
-          Sales by Countries
-        </CardTitle>
-        <CardAction>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="outline-none">
-              <span className="h-9 w-9 flex justify-center items-center rounded-full hover:bg-accent hover:text-accent-foreground cursor-pointer">
-                <Icon
-                  icon="solar:menu-dots-bold"
-                  width={22}
-                  height={22}
-                  className="rotate-90"
-                />
-              </span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {dropdownItems.map((item, index) => (
-                <DropdownMenuItem
-                  key={index}
-                  className="font-normal cursor-pointer"
-                >
-                  {item.link ? (
-                    <a href={item.link} className="w-full">
-                      {item.title}
-                    </a>
-                  ) : (
-                    <span className="w-full justify-start">{item.title}</span>
-                  )}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </CardAction>
-      </CardHeader>
-      <CardContent className="px-0">
-        <motion.div
-          ref={ref}
-          className="flex flex-col gap-3"
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          variants={{
-            visible: {
-              transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.2,
-              },
-            },
-          }}
-        >
-          {recentTransData.map((item, index) => (
-            <React.Fragment key={index}>
-              <motion.div
-                className="flex gap-3 items-center px-6"
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0 },
-                }}
-                transition={{
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 24,
-                }}
-                whileHover={{ scale: 1.02, x: 4 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <motion.div
-                  className={cn(
-                    `w-8 h-8 rounded-full flex justify-center items-center overflow-hidden`,
-                  )}
-                  whileHover={{ rotate: 5, scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 400 }}
-                >
-                  <img src={item.img} alt="icon" width={32} height={32} />
-                </motion.div>
-                <div className="flex items-center justify-between flex-1">
-                  <div>
-                    <h5 className="text-base font-medium text-foreground">
-                      {item.rank}
-                    </h5>
-                    <p className="text-sm font-normal tracking-wide text-muted-foreground">
-                      {item.country}
-                    </p>
-                  </div>
-                  <Badge
-                    className={cn(`${item.badgeBG}`, "text-muted-foreground")}
-                  >
-                    {item.badgeData}
-                  </Badge>
-                </div>
-              </motion.div>
-              {index < recentTransData.length - 1 && <Separator />}
-            </React.Fragment>
-          ))}
-        </motion.div>
-      </CardContent>
-    </Card>
-  );
-};
-
-export default SalesByCountryWidget;
-
-import AppSidebar from "@/components/shadcn-space/blocks/dashboard-shell-01/app-sidebar";
-import StatisticsBlock from "@/components/shadcn-space/blocks/dashboard-shell-01/statistics";
-import SalesOverviewChart from "@/components/shadcn-space/blocks/dashboard-shell-01/sales-overview-chart";
-import EarningReportChart from "@/components/shadcn-space/blocks/dashboard-shell-01/earning-report-chart";
-import TopProductTable from "@/components/shadcn-space/blocks/dashboard-shell-01/top-product-table";
-import SalesByCountryWidget from "@/components/shadcn-space/blocks/dashboard-shell-01/salesbycountrywidget";
-export default function Page() {
-  return (
-    <AppSidebar>
-      <div className="grid grid-cols-12 gap-6 p-6 max-w-7xl mx-auto">
-        <div className="col-span-12">
-          <StatisticsBlock />
-        </div>
-        <div className="xl:col-span-8 col-span-12">
-          <SalesOverviewChart />
-        </div>
-        <div className="xl:col-span-4 col-span-12">
-          <EarningReportChart />
-        </div>
-        <div className="xl:col-span-8 col-span-12">
-          <TopProductTable />
-        </div>
-        <div className="xl:col-span-4 col-span-12">
-          <SalesByCountryWidget />
-        </div>
-      </div>
-    </AppSidebar>
-  );
-}
 ```
+
+## Implementation Steps
+
+1. **Inspect `components.json`** — Determine the correct aliased paths for `components`, `utils`, `ui`, `lib`, and `hooks`. Update all import statements and file paths in the code above to match before creating any files.
+2. **Install dependencies** — Using the project's package manager (npm / yarn / pnpm / bun), install any `dependencies` and `devDependencies` listed in the block files.
+3. **Install shadcn/ui components** — Using the appropriate shadcn CLI runner for the project (npx / pnpm dlx / bunx --bun), add any required shadcn/ui components.
+4. **Add global styles** — Append only the CSS variables and custom styles referenced by this block to `globals.css`. Do not add unrelated styles.
+5. **Create block files** — Write each file to the exact target path shown above. Do not rename or restructure files.
+6. **Verify imports** — Ensure every import resolves correctly against the project's alias configuration. Fix any broken paths before finishing.
+
+> The component must be fully functional and visually match the provided code. Once all steps are complete, the block is ready to use in the project.

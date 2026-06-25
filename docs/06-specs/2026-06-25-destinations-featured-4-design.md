@@ -30,6 +30,7 @@ FEATURED_DESTINATIONS: Record<string, string[]> = {
 ```
 
 `pickFeaturedDestinations(items, region, limit = 4)` (pure, TDD'd):
+
 1. take the curated slugs that exist in `items`, **in curated order**;
 2. **pad to 4** from the remaining items (input order) if a curated slug is
    missing (renamed/unpublished) — so the row stays full and the design holds;
@@ -42,6 +43,7 @@ The page applies it per group before rendering `RegionGroup`:
 `items={pickFeaturedDestinations(group.items, group.region)}`.
 
 ### Why not the alternatives
+
 - `.slice(0, 4)` — still DB-order dependent (not curated, can shift). ✗
 - `isFeatured`/`order` on the `Destination` model + admin UI — flexible but needs
   a migration + DTO + admin screen. YAGNI now; revisit if admin-controlled

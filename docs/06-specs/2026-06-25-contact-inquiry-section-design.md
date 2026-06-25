@@ -7,6 +7,7 @@ form) with the Shadcn Space **"Contact 01 – Project Inquiry"** layout: contact
 details on the left, a real enquiry form on the right.
 
 ## Changes
+
 - **ContactInquiry** (new, `contact-inquiry.tsx`) — Contact 01 layout, brand-tokenized:
   left = "We can help" eyebrow + heading + contact details + a Separator + a
   "Built with" `TechMarquee`; right = a real enquiry form card (first/last name,
@@ -23,6 +24,7 @@ details on the left, a real enquiry form on the right.
   is reused on both About and Contact.
 
 ## Decisions (confirmed)
+
 - Contact 01 replaces the channel cards + old form (consolidated). "Trusted by"
   fake logos → real "Built with" tech strip. Offices → single "Hà Nội" block.
 - Phone/email shown as "Coming soon" placeholders until the team's real channels
@@ -30,10 +32,12 @@ details on the left, a real enquiry form on the right.
   enquiry `interests`) instead of the sample's country picker.
 
 ## Verification
+
 web jest 58 (+ buildContactPayload), lint/build/no-hex green; built against the
 live API — inquiry section, form, real tech logos, reframed location all render;
 fabricated addresses gone. Live `POST /enquiries` already verified (CORS + 201).
 
 ## Follow-ups
+
 Real phone/email + WhatsApp when ready; footer office-hours/phones still
 placeholder; `PlanTripForm` now unused (kept for reuse).

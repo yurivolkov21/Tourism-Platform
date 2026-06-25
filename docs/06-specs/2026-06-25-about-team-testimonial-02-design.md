@@ -7,6 +7,7 @@ match the Shadcn Space **"Testimonial 02"** block (the user's preferred design),
 and the block's brand-logo strip is repurposed honestly.
 
 ## Changes
+
 - **Team** rebuilt to the Testimonial-02 layout: left-aligned badge + heading with
   the nav arrows top-right, one member per slide — a quote mark, a large bio, then
   name + role, beside a portrait column. Built on `@tourism/ui` Carousel + Badge +
@@ -21,10 +22,12 @@ and the block's brand-logo strip is repurposed honestly.
   `about.builtWith.caption`.
 
 ## Decisions (confirmed with the user)
+
 - Adopt Testimonial-02's own header layout (replacing the previous centered one).
 - Logo cloud = real "Built with" stack (honest), not placeholder/partner logos.
 - No `motion/react` — reuse `Reveal` for the entrance feel.
 
 ## Verification
+
 web jest 56, lint/build/no-hex green; built against the live API — team header,
 real members, nav arrows, and the 8 real tech logos all render.

@@ -7,6 +7,7 @@ MapLibre map of Hà Nội via **mapcn**, in a full-bleed layout with a floating
 info card.
 
 ## Integration
+
 - Added the **`@mapcn`** registry to `libs/web/ui/components.json`
   (`https://www.mapcn.dev/r/{name}.json`) and installed `@mapcn/map` → vendored
   `components/ui/map.tsx` + `maplibre-gl` dep + popup-reset CSS in globals. Map
@@ -29,6 +30,7 @@ info card.
   rule isn't active, so they were hard errors).
 
 ## Design
+
 `ContactLocation` ("Where we're based"): heading/subtitle, then a full-bleed
 rounded map (h-460/520) with `ContactMap` filling it and a **floating glass info
 card** (`bg-background/85 backdrop-blur`, bottom on mobile / top-left on desktop):
@@ -38,6 +40,7 @@ city, lines, hours, "Open in Maps". Marker = a brand pin with a pulsing ring
 Replaces the old `ContactInfo` (deleted).
 
 ## Verification
+
 web jest 58, `@tourism/ui` + web lint clean, web build green (GeoJSON resolved,
 SSG intact), no-hex OK; contact page renders the section + floating card (map
 mounts client-side on scroll). Confirmed against the live API.
