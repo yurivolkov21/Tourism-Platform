@@ -5,6 +5,7 @@
     "lib": ["es2022", "dom", "dom.iterable"],
     "types": [
       "node",
+      "geojson",
       "@nx/react/typings/cssmodule.d.ts",
       "@nx/react/typings/image.d.ts"
     ],

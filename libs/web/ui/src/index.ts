@@ -77,4 +77,8 @@ export * from './components/ui/toggle-group';
 export * from './components/ui/tooltip';
 export * from './components/ui/video-text';
 
+// mapcn — MapLibre-backed map (heavy, client-only). Import via a dynamic(ssr:false)
+// wrapper so it stays in a lazy chunk; sideEffects config keeps it off other pages.
+export * from './components/ui/map';
+
 export * from './hooks/use-mobile';
