@@ -423,39 +423,43 @@ export const messages = {
       imageAlt: 'Our team exploring Vietnam',
     },
     metrics: {
-      heading: 'A decade of crafting journeys',
+      heading: 'Vietnam, end to end',
       subtitle:
-        'Numbers we are proud of — built on years of local expertise and travellers who keep coming back.',
-      items: [
-        { value: '12+', label: 'Years crafting journeys' },
-        { value: '40+', label: 'Local expert guides' },
-        { value: '30+', label: 'Destinations curated' },
-        { value: '98%', label: 'Travellers would return' },
-      ],
+        'A growing catalogue of journeys our travellers love — the real numbers behind the platform.',
+      // Labels only; values are computed from the live catalog (see ByTheNumbers).
+      labels: ['Curated tours', 'Destinations', 'Regions covered', 'Traveller rating'],
     },
     team: {
+      eyebrow: 'Meet the team',
       heading: 'The people behind your journey',
       subtitle: 'A small team of local experts who design, guide, and care for every trip we run.',
+      // Real team (project members) presented in the travel-brand persona. `image`
+      // is empty for now → the slider shows an initials avatar; drop in a portrait
+      // URL later without touching the component.
       members: [
         {
-          name: 'Linh Nguyễn',
+          name: 'Giang Tử Dương',
           role: 'Founder & Travel Curator',
-          bio: 'Built the company around a love of Vietnam’s quieter corners and slow, considered travel.',
+          bio: 'Founded the company around a love of Vietnam’s quieter corners and slow, considered travel.',
+          image: '',
         },
         {
-          name: 'Minh Trần',
+          name: 'Mạch Duy An',
           role: 'Head of Local Guides',
-          bio: 'Leads our network of vetted, story-rich guides across every region we cover.',
+          bio: 'Leads our network of vetted, story-rich local guides across every region we cover.',
+          image: '',
         },
         {
-          name: 'Hương Phạm',
+          name: 'Huỳnh Đại Nghĩa',
           role: 'Trip Designer',
           bio: 'Crafts each itinerary to balance iconic sights with unhurried, personal discoveries.',
+          image: '',
         },
         {
-          name: 'David Lee',
+          name: 'Nguyễn Khánh Minh',
           role: 'Guest Experience Lead',
-          bio: 'Looks after every traveller from first enquiry through to a safe return home.',
+          bio: 'Looks after every traveller from the first enquiry through to a safe return home.',
+          image: '',
         },
       ],
     },
@@ -463,30 +467,40 @@ export const messages = {
       heading: 'Our story',
       subtitle:
         'From a single guided walk to journeys across the country — built slowly, with care.',
+      // `image` per milestone (data-driven so real photos can replace these later
+      // without touching the component); currently neutral Unsplash placeholders.
       milestones: [
         {
           year: '2013',
           title: 'A first guided walk',
           description:
-            'We began with intimate walking tours of Hà Nội’s old quarter, led by friends who knew its every corner.',
+            'It started with a handful of friends walking visitors through Hà Nội’s Old Quarter — pointing out the family-run pho stalls, the hidden temples and the stories behind each crumbling shophouse. Word spread, and the small walking tours quickly filled.',
+          image:
+            'https://images.unsplash.com/photo-1528127269322-539801943592?w=900&q=70&auto=format&fit=crop',
         },
         {
           year: '2016',
           title: 'Beyond the capital',
           description:
-            'Demand grew, and so did we — adding cruises in Hạ Long Bay and treks across the northern highlands.',
+            'As travellers asked to see more of the country, we expanded north and east — overnight cruises among the karsts of Hạ Long Bay and multi-day treks through the rice terraces and hill-tribe villages of the northern highlands.',
+          image:
+            'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=900&q=70&auto=format&fit=crop',
         },
         {
           year: '2019',
           title: 'A network of local guides',
           description:
-            'We built a vetted network of licensed guides spanning all three regions of Vietnam.',
+            'We built a vetted network of licensed local guides spanning all three regions of Vietnam — people who live where they lead, so every trip is rooted in real local knowledge rather than a script.',
+          image:
+            'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=900&q=70&auto=format&fit=crop',
         },
         {
           year: '2024',
           title: 'Journeys, end to end',
           description:
-            'Today we craft seamless trips from first enquiry to safe return, for travellers from around the world.',
+            'Today we craft seamless trips from the first enquiry to a safe return home — flights, transfers, cruises, guides and hand-picked stays — for travellers from around the world, with a 24/7 hotline throughout.',
+          image:
+            'https://images.unsplash.com/photo-1535139262971-c51845709a48?w=900&q=70&auto=format&fit=crop',
         },
       ],
     },

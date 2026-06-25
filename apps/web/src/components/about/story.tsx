@@ -55,7 +55,7 @@ export function Story() {
                   )}
                 >
                   <Image
-                    src={milestoneImages[i % milestoneImages.length]}
+                    src={m.image || milestoneImages[i % milestoneImages.length]}
                     alt={m.title}
                     width={900}
                     height={600}

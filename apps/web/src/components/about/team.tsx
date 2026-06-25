@@ -1,75 +1,89 @@
-import { Card, CardContent, Separator } from '@tourism/ui';
+'use client';
+
+import {
+  Badge,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-import { FacebookIcon, InstagramIcon, TwitterIcon } from '../icons/social';
 import { Reveal } from '../marketing/reveal';
 
-// First-letter initials from the first two name parts (e.g. "Linh Nguyễn" → "LN").
+// First + last name initials (e.g. "Giang Tử Dương" → "GD").
 function initials(name: string): string {
-  return name
-    .split(' ', 2)
-    .map((part) => part[0])
-    .join('');
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0]?.[0] ?? '';
+  const last = parts.length > 1 ? (parts[parts.length - 1][0] ?? '') : '';
+  return (first + last).toUpperCase();
 }
 
-const socialLinks = [
-  { Icon: FacebookIcon, label: 'Facebook' },
-  { Icon: InstagramIcon, label: 'Instagram' },
-  { Icon: TwitterIcon, label: 'X' },
-];
-
-// About-page team / "meet your guides" grid. Portrait images aren't in the schema yet,
-// so each card uses an initials portrait placeholder on a muted top band.
+/**
+ * About-page team showcase — a one-member-per-slide carousel (adapted from the Shadcn Space
+ * "Testimonial 02" block): a large bio, the member's name + role, and a portrait column.
+ * No portrait photos yet → an initials avatar fills the portrait; a real `image` drops in later.
+ */
 export function Team() {
   const t = messages.about.team;
 
   return (
     <section className="py-16 sm:py-20 lg:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto mb-12 max-w-2xl text-center sm:mb-16">
-          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">{t.heading}</h2>
-          <p className="text-muted-foreground mt-4 text-lg text-pretty">{t.subtitle}</p>
-        </div>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <Reveal>
+          <div className="mx-auto mb-12 max-w-2xl text-center sm:mb-16">
+            <Badge className="mb-3 border-0 px-3 py-1 text-sm">{t.eyebrow}</Badge>
+            <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">{t.heading}</h2>
+            <p className="text-muted-foreground mt-4 text-lg text-pretty">{t.subtitle}</p>
+          </div>
+        </Reveal>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-y-10">
-          {t.members.map((member, i) => (
-            <Reveal key={member.name} delay={i * 0.07}>
-            <Card
-              className="overflow-hidden pt-0 transition-all duration-300 ease-out-expo hover:-translate-y-0.5 hover:shadow-card hover:ring-primary/40"
-            >
-              {/* Portrait placeholder — initials on a muted band */}
-              <div className="bg-muted flex justify-center pt-10 pb-8">
-                <span className="bg-primary/10 text-primary font-heading flex size-28 items-center justify-center rounded-full text-3xl font-semibold">
-                  {initials(member.name)}
-                </span>
-              </div>
+        <Reveal>
+          <Carousel opts={{ loop: true }} className="w-full">
+            <CarouselContent>
+              {t.members.map((member) => (
+                <CarouselItem key={member.name}>
+                  <div className="grid items-center gap-8 sm:grid-cols-[1fr_auto] sm:gap-12">
+                    {/* Bio + name + role */}
+                    <div className="order-2 flex flex-col gap-8 sm:order-1">
+                      <blockquote className="font-heading text-2xl leading-snug text-balance sm:text-3xl">
+                        “{member.bio}”
+                      </blockquote>
+                      <div>
+                        <p className="text-lg font-semibold">{member.name}</p>
+                        <p className="text-primary font-medium">{member.role}</p>
+                      </div>
+                    </div>
 
-              <CardContent className="space-y-3">
-                <h3 className="font-sans line-clamp-1 text-lg font-semibold">{member.name}</h3>
-                <Separator />
-                <div>
-                  <p className="text-primary mb-1 line-clamp-1 font-medium">{member.role}</p>
-                  <p className="text-muted-foreground line-clamp-3 min-h-15 text-sm text-pretty">
-                    {member.bio}
-                  </p>
-                </div>
-                <div className="flex gap-1 pt-1">
-                  {socialLinks.map(({ Icon, label }) => (
-                    <a
-                      key={label}
-                      href="#"
-                      aria-label={`${member.name} on ${label}`}
-                      className="text-muted-foreground hover:text-primary hover:bg-muted flex size-9 items-center justify-center rounded-full transition-colors"
-                    >
-                      <Icon className="size-5" />
-                    </a>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-            </Reveal>
-          ))}
-        </div>
+                    {/* Portrait — real image when available, else an initials avatar */}
+                    <div className="order-1 sm:order-2">
+                      {member.image ? (
+                        <img
+                          src={member.image}
+                          alt={member.name}
+                          className="ring-border size-48 rounded-2xl object-cover ring-1 sm:size-60"
+                        />
+                      ) : (
+                        <div
+                          aria-hidden
+                          className="bg-primary/10 text-primary font-heading ring-primary/15 flex size-48 items-center justify-center rounded-2xl text-5xl font-semibold ring-4 sm:size-60"
+                        >
+                          {initials(member.name)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+
+            <div className="mt-8 flex justify-center gap-3 sm:justify-end">
+              <CarouselPrevious className="static translate-y-0" />
+              <CarouselNext className="static translate-y-0" />
+            </div>
+          </Carousel>
+        </Reveal>
       </div>
     </section>
   );

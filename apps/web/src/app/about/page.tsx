@@ -5,6 +5,8 @@ import { Story } from '../../components/about/story';
 import { ByTheNumbers } from '../../components/about/by-the-numbers';
 import { Team } from '../../components/about/team';
 import { EnquiryCta } from '../../components/marketing/enquiry-cta';
+import { fetchAboutMetrics } from '../../lib/api/about';
+import { formatAboutMetricValues } from '../../lib/about-metrics';
 import { messages } from '@tourism/i18n';
 
 export const metadata: Metadata = {
@@ -13,12 +15,18 @@ export const metadata: Metadata = {
     'Meet the local experts behind our boutique heritage journeys across Vietnam — our story, the numbers behind the trips, and the guides who craft them.',
 };
 
-export default function AboutPage() {
+// ISR: serve real catalog metrics without per-request API hits; fall back to zeros on error.
+export const revalidate = 300;
+
+export default async function AboutPage() {
+  const metrics = await fetchAboutMetrics();
+  const metricValues = formatAboutMetricValues(metrics);
+
   return (
     <main>
       <AboutHero />
       <Story />
-      <ByTheNumbers />
+      <ByTheNumbers values={metricValues} />
       <Team />
       <EnquiryCta heading={messages.enquiryCta.headings.about} />
     </main>

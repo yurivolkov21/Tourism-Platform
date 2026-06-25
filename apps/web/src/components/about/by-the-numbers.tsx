@@ -1,15 +1,15 @@
-import { CalendarDaysIcon, HeartIcon, MapPinIcon, UsersIcon } from 'lucide-react';
+import { CompassIcon, Globe2Icon, MapPinIcon, StarIcon } from 'lucide-react';
 
 import { Card, CardContent } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { MetricValue } from '../marketing/metric-value';
 
-// Icons align by index to messages.about.metrics.items (mirrors the Features block pattern).
-const metricIcons = [CalendarDaysIcon, UsersIcon, MapPinIcon, HeartIcon] as const;
+// Icons align by index to messages.about.metrics.labels (tours · destinations · regions · rating).
+const metricIcons = [CompassIcon, MapPinIcon, Globe2Icon, StarIcon] as const;
 
-// About-page "by the numbers" — richer icon+card treatment, distinct from the homepage Trust strip.
-export function ByTheNumbers() {
+// About-page "by the numbers" — real catalog figures (values computed on the page, labels from i18n).
+export function ByTheNumbers({ values }: { values: string[] }) {
   const t = messages.about.metrics;
 
   return (
@@ -24,21 +24,19 @@ export function ByTheNumbers() {
           </div>
 
           <dl className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {t.items.map((item, i) => {
+            {t.labels.map((label, i) => {
               const Icon = metricIcons[i];
               return (
-                <Card key={item.label} className="p-0">
+                <Card key={label} className="p-0">
                   <CardContent className="flex flex-col items-start gap-4 p-6">
                     <span className="bg-primary/10 text-primary flex size-12 items-center justify-center rounded-full">
                       <Icon className="size-6" />
                     </span>
                     <div>
                       <dt className="text-primary font-heading text-4xl font-bold lg:text-5xl">
-                        <MetricValue value={item.value} />
+                        <MetricValue value={values[i] ?? '—'} />
                       </dt>
-                      <dd className="text-muted-foreground mt-1 text-sm font-medium">
-                        {item.label}
-                      </dd>
+                      <dd className="text-muted-foreground mt-1 text-sm font-medium">{label}</dd>
                     </div>
                   </CardContent>
                 </Card>
