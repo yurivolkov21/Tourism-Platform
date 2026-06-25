@@ -6,6 +6,10 @@ import { CheckIcon } from 'lucide-react';
 import { buttonVariants, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { buildPlanTripPayload, isValidEnquiry } from '../../lib/enquiry-form';
+import { submitEnquiry } from '../../lib/api/enquiry';
+import { EnquiryStatus, EnquirySuccess, type EnquiryFormStatus } from './enquiry-status';
+
 const inputClass =
   'border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring/50 h-11 w-full rounded-md border px-3 text-sm outline-none transition-[box-shadow] focus-visible:ring-2';
 
@@ -44,11 +48,37 @@ export function PlanTripForm() {
   const [duration, setDuration] = useState<string | null>(null);
   const [budget, setBudget] = useState<string | null>(null);
   const [interests, setInterests] = useState<string[]>([]);
+  const [status, setStatus] = useState<EnquiryFormStatus>('idle');
 
   const toggleInterest = (value: string) =>
     setInterests((prev) =>
       prev.includes(value) ? prev.filter((i) => i !== value) : [...prev, value],
     );
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const payload = buildPlanTripPayload({
+      name: String(fd.get('name') ?? ''),
+      email: String(fd.get('email') ?? ''),
+      phone: String(fd.get('phone') ?? ''),
+      nationality: String(fd.get('nationality') ?? ''),
+      travelDate: String(fd.get('travelDate') ?? ''),
+      groupSize: String(fd.get('groupSize') ?? ''),
+      message: String(fd.get('message') ?? ''),
+      duration,
+      budget,
+      interests,
+      website: String(fd.get('website') ?? ''),
+    });
+    if (!isValidEnquiry(payload)) {
+      setStatus('invalid');
+      return;
+    }
+    setStatus('submitting');
+    const res = await submitEnquiry(payload);
+    setStatus(res.ok ? 'success' : res.rateLimited ? 'rateLimited' : 'error');
+  }
 
   return (
     <section id="contact" className="py-16 sm:py-20 lg:py-24">
@@ -76,12 +106,19 @@ export function PlanTripForm() {
 
           {/* Form */}
           <div className="bg-card p-8 sm:p-12 lg:col-span-3">
-            <form
-              className="flex flex-col gap-5"
-              onSubmit={(e) => {
-                e.preventDefault();
-              }}
-            >
+            {status === 'success' ? (
+              <EnquirySuccess />
+            ) : (
+            <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+              {/* Honeypot — hidden from real users; the API drops non-empty submissions. */}
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="hidden"
+              />
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field id="pt-name" label={f.name}>
                   <input id="pt-name" name="name" type="text" placeholder={f.namePlaceholder} className={inputClass} />
@@ -164,11 +201,17 @@ export function PlanTripForm() {
                 />
               </Field>
 
-              <button type="submit" className={cn(buttonVariants({ size: 'lg' }), 'mt-1 w-full')}>
-                {t.submit}
+              <EnquiryStatus status={status} />
+              <button
+                type="submit"
+                disabled={status === 'submitting'}
+                className={cn(buttonVariants({ size: 'lg' }), 'mt-1 w-full disabled:opacity-70')}
+              >
+                {status === 'submitting' ? messages.enquiryForm.submitting : t.submit}
               </button>
               <p className="text-muted-foreground text-xs">{t.note}</p>
             </form>
+            )}
           </div>
         </div>
       </div>

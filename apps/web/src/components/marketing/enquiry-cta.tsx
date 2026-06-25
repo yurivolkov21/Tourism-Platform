@@ -1,7 +1,14 @@
+'use client';
+
+import { useState } from 'react';
 import { CheckIcon } from 'lucide-react';
 
 import { buttonVariants, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
+
+import { buildEnquiryCtaPayload, isValidEnquiry } from '../../lib/enquiry-form';
+import { submitEnquiry } from '../../lib/api/enquiry';
+import { EnquiryStatus, EnquirySuccess, type EnquiryFormStatus } from './enquiry-status';
 
 const inputClass =
   'border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring/50 h-11 w-full rounded-md border px-3 text-sm outline-none transition-[box-shadow] focus-visible:ring-2';
@@ -22,6 +29,25 @@ interface EnquiryCtaProps {
 export function EnquiryCta({ id = 'contact', heading, subtitle, prefillDestination }: EnquiryCtaProps = {}) {
   const t = messages.enquiryCta;
   const fm = t.form;
+  const [status, setStatus] = useState<EnquiryFormStatus>('idle');
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const payload = buildEnquiryCtaPayload({
+      name: String(fd.get('name') ?? ''),
+      email: String(fd.get('email') ?? ''),
+      destination: String(fd.get('destination') ?? ''),
+      website: String(fd.get('website') ?? ''),
+    });
+    if (!isValidEnquiry(payload)) {
+      setStatus('invalid');
+      return;
+    }
+    setStatus('submitting');
+    const res = await submitEnquiry(payload);
+    setStatus(res.ok ? 'success' : res.rateLimited ? 'rateLimited' : 'error');
+  }
 
   return (
     <section id={id} className="py-16 sm:py-20 lg:py-24">
@@ -49,7 +75,19 @@ export function EnquiryCta({ id = 'contact', heading, subtitle, prefillDestinati
 
           {/* Form */}
           <div className="bg-card flex flex-col justify-center p-8 sm:p-12 lg:col-span-3">
-            <form action="#contact" className="flex flex-col gap-4">
+            {status === 'success' ? (
+              <EnquirySuccess />
+            ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              {/* Honeypot — hidden from real users; the API drops non-empty submissions. */}
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="hidden"
+              />
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="enq-name" className="text-sm font-medium">
                   {fm.name}
@@ -69,11 +107,17 @@ export function EnquiryCta({ id = 'contact', heading, subtitle, prefillDestinati
                 <input id="enq-destination" name="destination" type="text" defaultValue={prefillDestination} placeholder={fm.destinationPlaceholder} className={inputClass} />
               </div>
 
-              <button type="submit" className={cn(buttonVariants({ size: 'lg' }), 'mt-1 w-full')}>
-                {t.cta}
+              <EnquiryStatus status={status} />
+              <button
+                type="submit"
+                disabled={status === 'submitting'}
+                className={cn(buttonVariants({ size: 'lg' }), 'mt-1 w-full disabled:opacity-70')}
+              >
+                {status === 'submitting' ? messages.enquiryForm.submitting : t.cta}
               </button>
               <p className="text-muted-foreground text-xs">{t.note}</p>
             </form>
+            )}
           </div>
         </div>
       </div>

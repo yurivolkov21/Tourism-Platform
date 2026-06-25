@@ -979,6 +979,15 @@ export const messages = {
     submit: 'Send enquiry',
     note: 'Free and no-obligation — we usually reply within 24 hours.',
   },
+  // Shared submit/feedback states for both enquiry forms (enquiryCta + planTrip).
+  enquiryForm: {
+    submitting: 'Sending…',
+    success: 'Thank you — your enquiry is on its way!',
+    successBody: 'Our local experts will get back to you within about 24 hours.',
+    required: 'Please enter your name and a valid email address.',
+    errorGeneric: 'Something went wrong sending your enquiry. Please try again, or email us directly.',
+    rateLimited: 'You’ve sent a few enquiries already — please wait a minute and try again.',
+  },
   blog: {
     heading: 'Travel guides & stories',
     subtitle:
