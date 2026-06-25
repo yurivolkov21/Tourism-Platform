@@ -1,0 +1,8 @@
+# Code owners — auto-requested as reviewers on every PR.
+# The branch ruleset requires 1 approval (any collaborator can give it; GitHub
+# disallows self-approval, so a teammate or the owner reviews). Listing the owner
+# here just routes a review request automatically.
+#
+# Team: @yurivolkov21 (owner) · @minhmango · @Ngh1az · @NayuD06
+
+* @yurivolkov21
