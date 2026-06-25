@@ -214,7 +214,7 @@ export class BookingsService {
           quantity: 1,
           productName: booking.tour.title,
           productDescription: `Booking ${booking.code} — ${totalSeats} seat(s)`,
-          successUrl: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+          successUrl: `${frontendUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&code=${booking.code}`,
           cancelUrl: `${frontendUrl}/checkout/cancel?code=${booking.code}`,
         });
         providerSessionId = session.id;

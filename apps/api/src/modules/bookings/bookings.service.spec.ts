@@ -334,6 +334,13 @@ describe('BookingsService', () => {
 
     expect(res.checkoutUrl).toBe('https://stripe.test/cs_1');
     expect(stripe.createCheckoutSession).toHaveBeenCalledTimes(1);
+    // The Stripe success_url must carry the booking code so /checkout/success
+    // knows which booking to confirm even before the webhook lands (inc-2).
+    expect(stripe.createCheckoutSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        successUrl: 'https://app.test/checkout/success?session_id={CHECKOUT_SESSION_ID}&code=BK-1',
+      }),
+    );
     expect(update.mock.calls[0][0].data.providerSessionId).toBe('cs_1');
   });
 
