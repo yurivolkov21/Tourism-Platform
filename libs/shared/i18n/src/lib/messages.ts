@@ -3,8 +3,7 @@
 
 export const messages = {
   brand: {
-    // Placeholder project name — swap when the real brand is set.
-    name: 'Tourism Platform',
+    name: 'Nexora',
   },
   common: {
     home: 'Home',
