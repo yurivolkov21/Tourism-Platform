@@ -6,11 +6,9 @@ export const messages = {
     name: 'Nexora',
     tagline: 'Boutique heritage journeys across Vietnam',
   },
-  // Eyebrow for the home "as featured in" press strip. The publication names in
-  // FeaturedPress are FICTIONAL placeholders (not real outlets) until genuine
-  // coverage exists.
-  featuredPress: {
-    eyebrow: 'As featured in',
+  // Eyebrow for the home tech-stack logo cloud (real, coloured brand logos).
+  techCloud: {
+    eyebrow: 'Built with',
   },
   common: {
     home: 'Home',

@@ -1,5 +1,5 @@
 import { Hero } from '../components/marketing/hero';
-import { FeaturedPress } from '../components/marketing/featured-press';
+import { TechCloud } from '../components/marketing/tech-cloud';
 import { Destinations } from '../components/marketing/destinations';
 import { Experiences } from '../components/marketing/experiences';
 import { FeaturedPackages } from '../components/marketing/featured-packages';
@@ -30,8 +30,8 @@ export default async function HomePage() {
     <>
       {/* Hero stays static (above the fold); below-fold sections rise in on scroll */}
       <Hero />
-      {/* Coloured "as featured in" press marquee — breather between hero + below */}
-      <FeaturedPress />
+      {/* Coloured "built with" tech-stack marquee — breather between hero + below */}
+      <TechCloud />
       {bento.length > 0 && (
         <Reveal>
           <Destinations tiles={bento} />
