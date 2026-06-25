@@ -136,6 +136,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
 
             <aside className="mt-10 lg:mt-0">
               <BookingBox
+                slug={tour.slug}
                 currency={tour.currency}
                 basePrice={tour.basePrice}
                 compareAtPrice={tour.compareAtPrice}

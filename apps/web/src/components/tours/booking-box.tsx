@@ -1,4 +1,5 @@
-import { ShieldCheckIcon, StarIcon, UtensilsIcon } from 'lucide-react';
+import Link from 'next/link';
+import { StarIcon, UtensilsIcon } from 'lucide-react';
 
 import { Card, CardContent, Separator, ShineBorder, buttonVariants, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
@@ -10,9 +11,11 @@ function formatPrice(currency: string, amount: number) {
   return currency === 'USD' ? `$${value}` : `${currency} ${value}`;
 }
 
-/** Sticky booking aside — price (with any saving), rating, meals, upcoming departures, and the
- * book/enquire CTAs. UI-only: CTAs jump to the on-page enquiry form (real booking is a later pass). */
+/** Sticky booking aside — price (with any saving), rating, meals, upcoming departures, and the CTAs:
+ * "Book now" opens the real booking flow (`/tours/[slug]/book`); "Ask a question" jumps to the on-page
+ * enquiry form. */
 export function BookingBox({
+  slug,
   currency,
   basePrice,
   compareAtPrice,
@@ -21,6 +24,7 @@ export function BookingBox({
   meals,
   departures,
 }: {
+  slug: string;
   currency: string;
   basePrice: number;
   compareAtPrice?: number;
@@ -30,7 +34,6 @@ export function BookingBox({
   departures: Departure[];
 }) {
   const t = messages.tourDetail.booking;
-  const deposit = formatPrice(currency, Math.max(100, Math.round((basePrice * 0.3) / 10) * 10));
 
   return (
     <ShineBorder radius={12} className="lg:sticky lg:top-24">
@@ -83,10 +86,12 @@ export function BookingBox({
         ) : null}
 
         <div className="space-y-2.5">
-          <a href="#contact" className={cn(buttonVariants({ size: 'lg' }), 'w-full')}>
-            {t.requestCta}
-          </a>
-          <p className="text-muted-foreground text-center text-xs">{t.deposit(deposit)}</p>
+          <Link
+            href={`/tours/${slug}/book`}
+            className={cn(buttonVariants({ size: 'lg' }), 'w-full')}
+          >
+            {messages.booking.box.bookCta}
+          </Link>
           <a
             href="#contact"
             className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'w-full')}
@@ -94,11 +99,6 @@ export function BookingBox({
             {t.enquireCta}
           </a>
         </div>
-
-        <p className="text-muted-foreground flex items-start gap-2 text-xs text-pretty">
-          <ShieldCheckIcon className="text-primary mt-0.5 size-4 shrink-0" />
-          {t.trustLine}
-        </p>
         </CardContent>
       </Card>
     </ShineBorder>
