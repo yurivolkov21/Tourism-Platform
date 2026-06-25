@@ -64,7 +64,9 @@ Non-negotiable unless the user says otherwise in the moment.
 
 1. **One feature = one branch.** Never commit feature work directly to `main`.
    Branch → implement → **the user reviews** → merge → delete branch. Small
-   docs/meta fixes may go straight to `main`.
+   docs/meta fixes may go straight to `main`. **Enforced on GitHub:** a ruleset
+   on `main` requires a **PR + 1 approval** (+ blocks force-push/deletion);
+   **repo admins (owner) bypass**, so non-owner contributors must branch + PR.
 2. **Ask before starting a new feature/phase**, and **confirm before any
    merge/push/branch-delete**.
 3. **Spec → plan → execute.** For multi-step features: write a design spec +

@@ -9,7 +9,7 @@ canonical rules). If these two ever disagree, **CLAUDE.md wins** — then reconc
 
 See CLAUDE.md §"How we work". In one line each:
 
-- **One feature = one branch** (`feat/…`, `chore/…`, `docs/…`); review → merge → delete. Never feature-work on `main`.
+- **One feature = one branch** (`feat/…`, `chore/…`, `docs/…`); review → merge → delete. Never feature-work on `main`. **Enforced:** a GitHub ruleset on `main` **requires a PR + 1 approval** (and blocks force-push/deletion). **Repo admins (the owner) bypass** it — so contributors must branch + open a PR; the owner may still push small docs/meta straight to `main`.
 - **Ask before** a new feature/phase; **confirm before** merge / push / branch-delete.
 - **Spec → plan → execute** for multi-step work (specs+plans under `docs/`).
 - **TDD on pure logic** (≥80% on new logic); visual/layout via e2e.
