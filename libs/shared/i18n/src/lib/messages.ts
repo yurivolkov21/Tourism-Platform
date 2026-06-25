@@ -463,6 +463,9 @@ export const messages = {
         },
       ],
     },
+    builtWith: {
+      caption: 'Built on a modern, production-grade stack',
+    },
     story: {
       heading: 'Our story',
       subtitle:

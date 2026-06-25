@@ -4,6 +4,7 @@ import { AboutHero } from '../../components/about/about-hero';
 import { Story } from '../../components/about/story';
 import { ByTheNumbers } from '../../components/about/by-the-numbers';
 import { Team } from '../../components/about/team';
+import { BuiltWith } from '../../components/about/built-with';
 import { EnquiryCta } from '../../components/marketing/enquiry-cta';
 import { fetchAboutMetrics } from '../../lib/api/about';
 import { formatAboutMetricValues } from '../../lib/about-metrics';
@@ -28,6 +29,7 @@ export default async function AboutPage() {
       <Story />
       <ByTheNumbers values={metricValues} />
       <Team />
+      <BuiltWith />
       <EnquiryCta heading={messages.enquiryCta.headings.about} />
     </main>
   );
