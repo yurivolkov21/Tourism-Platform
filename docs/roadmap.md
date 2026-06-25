@@ -53,20 +53,21 @@ tokens-only (no-hex), reuse `@tourism/ui`, copy in `@tourism/i18n`. Plan:
 
 | Page / area | Route | Status |
 | --- | --- | --- |
-| **Home** (Lily-style clone) | `/` | ✅ hero · destinations bento · experiences · featured · why-choose · trust · blog-teaser · enquiry |
+| **Home** (Lily-style clone) | `/` | ✅ hero · **"Built with" coloured tech-cloud marquee** · destinations bento · experiences · featured · why-choose · trust · blog-teaser · enquiry — **featured/bento wired to live API** (ISR 300) |
 | **Destinations overview** | `/destinations` | ✅ hero · full-bleed region mosaics (feature tiles) · when-to-visit · popular (image posters) · testimonials · travel-tips · enquiry |
 | **Region pages** | `/destinations/[region]` | ✅ SSG ×3 (northern / central / southern) — hero · intro bento · highlights · **per-region L2 signature** (North = dark adventure-stats · Central = heritage timeline · South = delta image-postcards) · tours (tabs, `?d=` client-read) · gallery · value-props · **rich Plan-your-trip form** (maps Enquiry model). Replaced per-destination `[slug]`; 404 on unknown region. |
 | **FAQ** | `/faq` | ✅ searchable grouped accordion (category icons) · sticky TOC · FAQPage JSON-LD |
 | **Privacy / Terms** | `/privacy` `/terms` | ✅ legal pages — **draft, pending legal review** (placeholders + review callout) |
-| **Nav / footer** | — | ✅ **Tours** dropdown + button **→ `/tours`** · Destinations dropdown **→ per-region pages** (`/destinations/[region]`; regions also in mobile menu) · about/contact wired · footer support → about/faq/privacy/terms/contact |
+| **Nav / footer** | — | ✅ **Redesigned navbar** (sticky → floating **glass pill** on scroll · **hover-pill** links · **animated arrow CTA**, motion-safe) with the **Nexora "NEX" logo** · **Tours** dropdown + button **→ `/tours`** · Destinations dropdown **→ per-region pages** · about/contact wired · footer (ivory NEX logo) support → about/faq/privacy/terms/contact |
 | **Shared content template** | — | ✅ `ContentHero` (emerald header) + `OnThisPage` (sticky TOC scroll-spy) |
 | **Tours listing** | `/tours` | ✅ static — sidebar facets (Destination · Duration · Travel style · Theme) + mobile drawer · sort · `TourCard` grid · empty state. **Client-side filter** (`filterTours`/`sortTours` TDD'd in `@tourism/core`) keeps the page static. |
 | **Tour detail** | `/tours/[slug]` | ✅ SSG (all fixture slugs, 404 unknown) — tour hero · overview · highlights · **itinerary accordion** · what's-included · sticky **BookingBox** (UI-only "Request to book" → `#contact`) · photo gallery · enquiry. |
 | **About** | `/about` | ✅ AboutHero · **"Our story" alternating image timeline** (centre spine + haloed year nodes) · by-the-numbers · team (baseline-aligned cards) · enquiry |
-| **Contact** | `/contact` | ✅ ContentHero · **channels** (call/email/WhatsApp action cards) · **two offices + map** (get-directions) · Plan-your-trip form · closing CtaBand |
+| **Contact** | `/contact` | ✅ ContentHero · **Contact-01 inquiry** (details + "Built with" strip + real enquiry form → `POST /enquiries`) · **MapLibre/mapcn map** of Hà Nội (lazy, floating glass card) · **short FAQ accordion** (→ `/faq`) · image-background CtaBand |
 | **Motion pass** | — | 🚧 increment-1 merged (`6666acc`) — home below-fold `<Reveal>` · `<ScrollProgress>` tour detail · glare-hover destination tiles. increment-2 on branch `feat/shadcnspace-adoption-p3` (awaiting review): NumberTicker count-up on stats · featured-first BlogTeaser · story spine-fill · WhyChoose/Team staggers (spec+plan in 06-specs/07-plans). |
 | Booking + account | — | ⬜ (later in P3) |
-| **Wire real data** | — | ⬜ replace fixtures with the live `@tourism/core` client (deferred to end of P3) |
+| **Wire real data** | — | 🚧 **partially wired** — home featured/bento · `/destinations` overview · `/tours` listing · `/tours/[slug]` detail · enquiry forms → `POST /enquiries` (all via `@tourism/core` client, ISR 300). **Remaining:** region-detail `/destinations/[region]` still fixtures |
+| **Branding** | — | ✅ name **"Nexora"** + **"NEX" origami logo** (`.nexora-fold` two-tone, no-tile in header / ivory in footer) + favicon (`app/icon.svg`); set once in `@tourism/i18n` `brand.name` |
 
 > **✅ Resolved (dev tooling, 2026-06-23):** `pnpm nx dev @tourism/web` froze the machine on
 > Windows — root-caused to the **Turbopack dev-server memory leak** (next.js #66326/#81161),
