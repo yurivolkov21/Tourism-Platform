@@ -1,6 +1,7 @@
 'use client';
 
-import { MenuIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowUpRightIcon, MenuIcon } from 'lucide-react';
 
 import {
   Button,
@@ -24,7 +25,10 @@ import { messages } from '@tourism/i18n';
 import { Logo } from '../brand/logo';
 import { TopBar } from './top-bar';
 
-const linkClass = 'text-muted-foreground hover:text-primary px-2.5 py-1.5 text-sm font-medium transition-colors';
+// Hover-pill links (borrowed from shadcnspace Navbar 01): each item lifts into a
+// soft pill on hover instead of just changing colour.
+const linkClass =
+  'text-muted-foreground hover:text-foreground hover:bg-muted rounded-full px-3 py-1.5 text-sm font-medium transition-colors';
 
 const toggleClass =
   'text-muted-foreground hover:bg-muted hover:text-primary inline-flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors [&_svg]:size-5';
@@ -37,16 +41,57 @@ const mobileNav = [
   { label: messages.nav.contact, href: '/contact' },
 ];
 
+// Animated "Plan your trip" CTA (borrowed from shadcnspace Navbar 01): the arrow
+// disc slides across and rotates on hover. Motion gated behind motion-safe.
+function PlanTripButton({ label, className }: { label: string; className?: string }) {
+  return (
+    <a
+      href="#contact"
+      className={cn(
+        'bg-primary text-primary-foreground group relative inline-flex h-10 items-center overflow-hidden rounded-full pe-12 ps-5 text-sm font-medium hover:bg-primary/90 motion-safe:transition-all motion-safe:duration-500 motion-safe:hover:pe-5 motion-safe:hover:ps-12',
+        className,
+      )}
+    >
+      <span className="relative z-10">{label}</span>
+      <span className="bg-background text-foreground absolute right-1 flex size-8 items-center justify-center rounded-full motion-safe:transition-all motion-safe:duration-500 motion-safe:group-hover:right-[calc(100%-2.25rem)] motion-safe:group-hover:rotate-45">
+        <ArrowUpRightIcon className="size-4" />
+      </span>
+    </a>
+  );
+}
+
 export function SiteHeader() {
   const t = messages.nav;
+
+  // #1 Pill-on-scroll: past 50px the bar contracts into a floating glass pill.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <>
       <TopBar />
 
-      <header className="bg-background sticky top-0 z-50 border-b">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
-          <a href="#" aria-label={messages.brand.name}>
+      <header
+        className={cn(
+          'sticky top-0 z-50 motion-safe:transition-all motion-safe:duration-500',
+          scrolled ? 'py-2' : 'bg-background border-b',
+        )}
+      >
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div
+            className={cn(
+              'flex items-center justify-between gap-6 motion-safe:transition-all motion-safe:duration-500',
+              scrolled
+                ? 'border-border/40 bg-background/70 h-14 rounded-full border px-4 shadow-lg shadow-primary/5 backdrop-blur-lg sm:px-6'
+                : 'h-16',
+            )}
+          >
+          <a href="/" aria-label={messages.brand.name}>
             <Logo />
           </a>
 
@@ -90,9 +135,7 @@ export function SiteHeader() {
             <a href="#login" className={linkClass}>
               {t.login}
             </a>
-            <Button render={<a href="#contact" />} nativeButton={false}>
-              {t.planTrip}
-            </Button>
+            <PlanTripButton label={t.planTrip} />
           </div>
 
           {/* Mobile actions */}
@@ -119,6 +162,7 @@ export function SiteHeader() {
                 <DropdownMenuItem render={<a href="#login" />}>{t.login}</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          </div>
           </div>
         </div>
       </header>

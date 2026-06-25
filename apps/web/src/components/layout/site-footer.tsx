@@ -32,8 +32,8 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
         {/* Brand + motto */}
         <div className="mb-12 flex flex-col items-center gap-3 text-center">
-          {/* Invert the monogram badge for the dark footer; ivory wordmark */}
-          <Logo className="[&>span:first-child]:bg-background [&>span:first-child]:text-primary [&>span:last-child]:text-background" />
+          {/* Ivory NEX + ivory wordmark for the dark footer surface */}
+          <Logo className="[&>span:first-child]:[--nx-tone:var(--background)] [&>span:last-child]:text-background" />
           <p className="font-heading text-xl font-semibold sm:text-2xl">{f.motto}</p>
         </div>
 

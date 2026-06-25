@@ -21,6 +21,26 @@
   }
 }
 
+/* Nexora "NEX" brandmark — an origami two-tone fold sweeping diagonally across
+   the letters. Colour follows --nx-tone (defaults to the emerald primary; the
+   dark footer overrides it to ivory). Forced-colors falls back to a flat fill. */
+.nexora-fold {
+  background-image: linear-gradient(
+    122deg,
+    var(--nx-tone, var(--primary)) 0 51%,
+    color-mix(in oklch, var(--nx-tone, var(--primary)) 50%, transparent) 51% 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@media (forced-colors: active) {
+  .nexora-fold {
+    background-image: none;
+    color: var(--nx-tone, var(--primary));
+  }
+}
+
 /* Animated theme toggle (AnimatedThemeToggler): drive the reveal purely via the JS clip-path
    animation — disable the default cross-fade, and pin the new layer to the collapsed clip until
    JS runs so the new theme doesn't flash in (notably Firefox). */
