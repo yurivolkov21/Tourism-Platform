@@ -1,4 +1,5 @@
 import {
+  buildContactPayload,
   buildEnquiryCtaPayload,
   buildPlanTripPayload,
   composeEnquiryMessage,
@@ -90,6 +91,37 @@ describe('buildEnquiryCtaPayload', () => {
       message: "I'd like to enquire about: Sa Pa.",
       website: undefined,
     });
+  });
+});
+
+describe('buildContactPayload', () => {
+  it('joins first+last into name, maps interest to interests[], keeps message', () => {
+    const p = buildContactPayload({
+      firstName: ' Alex ',
+      lastName: ' Carter ',
+      email: ' alex@example.com ',
+      interest: 'Cruises',
+      message: 'We would love a Ha Long Bay cruise in August.',
+      website: '',
+    });
+    expect(p.name).toBe('Alex Carter');
+    expect(p.email).toBe('alex@example.com');
+    expect(p.interests).toEqual(['Cruises']);
+    expect(p.message).toContain('Ha Long Bay');
+    expect(p.website).toBeUndefined();
+  });
+
+  it('falls back when the message is too short and omits empty interest', () => {
+    const p = buildContactPayload({
+      firstName: 'A',
+      lastName: 'B',
+      email: 'a@b.co',
+      interest: '',
+      message: 'hi',
+      website: '',
+    });
+    expect(p.message).toBe(ENQUIRY_FALLBACK_MESSAGE);
+    expect(p.interests).toBeUndefined();
   });
 });
 

@@ -671,56 +671,46 @@ export const messages = {
       title: 'Happy to help',
       body: 'Questions about a tour, a custom itinerary, or an existing booking? Our team is here at every step of the journey.',
     },
-    channelsHeading: 'Ways to reach us',
-    channelsSubtitle:
-      'Pick whatever is easiest — our local experts usually reply within 24 hours.',
-    channels: [
-      {
-        type: 'phone',
-        title: 'Call us',
-        value: '+84 24 1234 5678',
-        sub: 'Mon–Fri, 8:00 am – 6:00 pm (GMT+7)',
-        actionLabel: 'Call now',
-        href: 'tel:+842412345678',
+    // Lead-capture section (Contact 01 layout): contact details + a real enquiry form.
+    inquiry: {
+      eyebrow: 'We can help',
+      heading: 'Let’s plan your trip together',
+      body: 'Tell us about the trip you have in mind and our local experts will craft a tailored itinerary — free and no obligation, with a reply within about 24 hours.',
+      // Phone/email are placeholders until the team's real channels are ready.
+      details: [
+        { label: 'Phone', value: 'Coming soon' },
+        { label: 'Email', value: 'Coming soon' },
+        { label: 'Location', value: 'Hà Nội, Vietnam' },
+      ],
+      trustedByLabel: 'Built with',
+      form: {
+        title: 'Send us a message',
+        firstNamePlaceholder: 'First name',
+        lastNamePlaceholder: 'Last name',
+        emailPlaceholder: 'you@example.com',
+        interestPlaceholder: 'What are you interested in?',
+        interestOptions: ['Cruises', 'Trekking', 'Culture & heritage', 'Food', 'Beaches & islands', 'Family'],
+        messagePlaceholder: 'Tell us about your dream trip, dates, group size, or any questions…',
+        terms: 'I agree to be contacted about my enquiry.',
+        submit: 'Send enquiry',
       },
-      {
-        type: 'email',
-        title: 'Email us',
-        value: 'hello@example.com',
-        sub: 'We reply within 24 hours',
-        actionLabel: 'Send an email',
-        href: 'mailto:hello@example.com',
-      },
-      {
-        type: 'whatsapp',
-        title: 'Chat on WhatsApp',
-        value: '+84 90 123 4567',
-        sub: 'Fastest for quick questions',
-        actionLabel: 'Open WhatsApp',
-        href: 'https://wa.me/84901234567',
-      },
-    ],
-    officesHeading: 'Our offices',
-    officesSubtitle: 'Drop by for a coffee and a chat about your trip — you are always welcome.',
-    getDirections: 'Get directions',
+    },
+    officesHeading: 'Where we’re based',
+    officesSubtitle:
+      'Our local team works out of Hà Nội — reach us any time through the form above.',
+    getDirections: 'Open in Maps',
     offices: [
       {
-        city: 'Hà Nội — Head office',
-        lines: ['12 Hàng Bài Street', 'Hoàn Kiếm, Hà Nội, Vietnam'],
-        hours: 'Mon–Fri, 8:00 am – 6:00 pm',
-        mapHref: 'https://www.google.com/maps?q=Hoan+Kiem+Lake,+Hanoi,+Vietnam',
-      },
-      {
-        city: 'Hồ Chí Minh City',
-        lines: ['45 Lê Lợi Boulevard', 'District 1, Hồ Chí Minh City, Vietnam'],
-        hours: 'Mon–Sat, 8:30 am – 6:30 pm',
-        mapHref: 'https://www.google.com/maps?q=Ben+Thanh+Market,+Ho+Chi+Minh+City,+Vietnam',
+        city: 'Hà Nội, Vietnam',
+        lines: ['Vietnam’s capital — where our local team is based.'],
+        hours: 'Online · we usually reply within 24 hours',
+        mapHref: 'https://www.google.com/maps?q=Hanoi,+Vietnam',
       },
     ],
     // Kept for the site footer's Information column.
     info: [
       { title: 'Office hours', lines: ['Monday – Friday', '8:00 am – 6:00 pm (GMT+7)'] },
-      { title: 'Our office', lines: ['12 Hàng Bài Street', 'Hoàn Kiếm, Hà Nội, Vietnam'] },
+      { title: 'Based in', lines: ['Hà Nội, Vietnam'] },
       { title: 'Call us', lines: ['+84 24 1234 5678', '+84 90 123 4567'] },
       { title: 'Email us', lines: ['hello@example.com', 'support@example.com'] },
     ],

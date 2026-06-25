@@ -98,6 +98,27 @@ export function buildEnquiryCtaPayload(raw: EnquiryCtaRaw): EnquiryPayload {
   };
 }
 
+export interface ContactRaw {
+  firstName: string;
+  lastName: string;
+  email: string;
+  interest: string;
+  message: string;
+  website?: string;
+}
+
+/** Build the enquiry payload from the Contact-page inquiry form (Contact 01 layout). */
+export function buildContactPayload(raw: ContactRaw): EnquiryPayload {
+  const message = raw.message.trim();
+  return {
+    name: `${raw.firstName.trim()} ${raw.lastName.trim()}`.trim(),
+    email: raw.email.trim(),
+    message: message.length >= 10 ? message : ENQUIRY_FALLBACK_MESSAGE,
+    interests: raw.interest ? [raw.interest] : undefined,
+    website: clean(raw.website),
+  };
+}
+
 /** Lightweight client-side guard (the API re-validates fully). */
 export function isValidEnquiry(payload: Pick<EnquiryPayload, 'name' | 'email'>): boolean {
   const nameOk = payload.name.trim().length >= 2;
