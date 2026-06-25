@@ -23,6 +23,9 @@ import {
 import { messages } from '@tourism/i18n';
 
 import { Logo } from '../brand/logo';
+import { UserMenu } from '../auth/user-menu';
+import { useAuth } from '../auth/auth-provider';
+import { signOut } from '../../lib/auth/actions';
 import { TopBar } from './top-bar';
 
 // Hover-pill links (borrowed from shadcnspace Navbar 01): each item lifts into a
@@ -62,6 +65,7 @@ function PlanTripButton({ label, className }: { label: string; className?: strin
 
 export function SiteHeader() {
   const t = messages.nav;
+  const { user } = useAuth();
 
   // #1 Pill-on-scroll: past 50px the bar contracts into a floating glass pill.
   const [scrolled, setScrolled] = useState(false);
@@ -132,9 +136,7 @@ export function SiteHeader() {
           {/* Desktop actions */}
           <div className="flex items-center gap-4 max-md:hidden">
             <ThemeToggle className={toggleClass} />
-            <a href="#login" className={linkClass}>
-              {t.login}
-            </a>
+            <UserMenu linkClassName={linkClass} />
             <PlanTripButton label={t.planTrip} />
           </div>
 
@@ -159,7 +161,24 @@ export function SiteHeader() {
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem render={<a href="#login" />}>{t.login}</DropdownMenuItem>
+                {user ? (
+                  <>
+                    <DropdownMenuItem render={<a href="/account" />}>
+                      {messages.auth.menu.account}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        void signOut();
+                      }}
+                    >
+                      {messages.auth.menu.signOut}
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem render={<a href="/login" />}>
+                    {messages.auth.menu.login}
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
