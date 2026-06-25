@@ -4,6 +4,7 @@
 export const messages = {
   brand: {
     name: 'Nexora',
+    tagline: 'Boutique heritage journeys across Vietnam',
   },
   common: {
     home: 'Home',

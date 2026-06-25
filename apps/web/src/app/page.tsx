@@ -1,4 +1,5 @@
 import { Hero } from '../components/marketing/hero';
+import { BrandInterlude } from '../components/marketing/brand-interlude';
 import { Destinations } from '../components/marketing/destinations';
 import { Experiences } from '../components/marketing/experiences';
 import { FeaturedPackages } from '../components/marketing/featured-packages';
@@ -29,6 +30,8 @@ export default async function HomePage() {
     <>
       {/* Hero stays static (above the fold); below-fold sections rise in on scroll */}
       <Hero />
+      {/* Calm brand breather between the image-led hero and what follows */}
+      <BrandInterlude />
       {bento.length > 0 && (
         <Reveal>
           <Destinations tiles={bento} />
