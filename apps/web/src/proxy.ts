@@ -44,7 +44,8 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
-// Scope to the account area only — the rest of the site is public + static.
+// Scope to the authed surfaces only — the rest of the site is public + static. `/tours/:slug/book`
+// is the booking flow (login-required); everything else under `/tours` stays static/ISR.
 export const config = {
-  matcher: ['/account/:path*'],
+  matcher: ['/account/:path*', '/tours/:slug/book'],
 };
