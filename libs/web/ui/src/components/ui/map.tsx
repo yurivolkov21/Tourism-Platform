@@ -1,3 +1,4 @@
+/// <reference types="geojson" />
 "use client";
 
 import MapLibreGL, { type PopupOptions, type MarkerOptions } from "maplibre-gl";
