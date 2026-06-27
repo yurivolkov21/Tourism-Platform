@@ -124,6 +124,10 @@ export const messages = {
       TOO_SHORT: 'Password must be at least 6 characters.',
       MISMATCH: 'Passwords do not match.',
     } as Record<string, string>,
+    oauth: {
+      continueGoogle: 'Continue with Google',
+      or: 'or',
+    },
   },
   // Booking flow (book → pay → confirm). Login-required; Stripe + PayPal. EN-only (ADR-0005).
   booking: {

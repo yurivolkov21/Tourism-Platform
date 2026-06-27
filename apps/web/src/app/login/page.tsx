@@ -4,6 +4,7 @@ import { messages } from '@tourism/i18n';
 
 import { AuthShell } from '../../components/auth/auth-shell';
 import { LoginForm } from '../../components/auth/login-form';
+import { OAuthButtons } from '../../components/auth/oauth-buttons';
 import { safeRedirect } from '../../lib/auth/safe-redirect';
 
 export const metadata: Metadata = {
@@ -26,6 +27,9 @@ export default async function LoginPage({
           We couldn&apos;t confirm your link. Please sign in or try again.
         </p>
       ) : null}
+      <div className="mb-4">
+        <OAuthButtons redirectTo={redirectTo} />
+      </div>
       <LoginForm redirectTo={redirectTo} />
     </AuthShell>
   );
