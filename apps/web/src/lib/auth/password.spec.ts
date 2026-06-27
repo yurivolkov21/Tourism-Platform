@@ -1,4 +1,9 @@
-import { MIN_PASSWORD, validatePasswordPair } from './password';
+import {
+  MIN_PASSWORD,
+  passwordStrengthTone,
+  scorePassword,
+  validatePasswordPair,
+} from './password';
 
 describe('validatePasswordPair', () => {
   it('accepts a long-enough matching pair', () => {
@@ -18,5 +23,28 @@ describe('validatePasswordPair', () => {
 
   it('reports length before mismatch', () => {
     expect(validatePasswordPair('abc', 'xyz')).toBe('TOO_SHORT');
+  });
+});
+
+describe('scorePassword', () => {
+  it('scores 0 for empty and 5 for a strong password', () => {
+    expect(scorePassword('').score).toBe(0);
+    expect(scorePassword('Abcdef1!').score).toBe(5);
+  });
+
+  it('counts each met requirement', () => {
+    const { score, rules } = scorePassword('abcdefgh'); // length + lower
+    expect(score).toBe(2);
+    expect(rules.find((r) => r.key === 'lower')?.met).toBe(true);
+    expect(rules.find((r) => r.key === 'upper')?.met).toBe(false);
+  });
+});
+
+describe('passwordStrengthTone', () => {
+  it('maps scores to token tones', () => {
+    expect(passwordStrengthTone(0)).toBe('bg-border');
+    expect(passwordStrengthTone(2)).toBe('bg-destructive');
+    expect(passwordStrengthTone(3)).toBe('bg-warning');
+    expect(passwordStrengthTone(5)).toBe('bg-success');
   });
 });

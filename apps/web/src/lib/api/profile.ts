@@ -61,3 +61,8 @@ export async function setAvatar(
 export async function clearAvatar(): Promise<UserDto> {
   return authedJson<UserDto>('/api/v1/users/me/avatar', { method: 'DELETE' });
 }
+
+/** Delete the caller's account (`DELETE /users/me`). Throws `ApiRequestError` (409 if bookings exist). */
+export async function deleteAccount(): Promise<void> {
+  await authedJson<void>('/api/v1/users/me', { method: 'DELETE' });
+}

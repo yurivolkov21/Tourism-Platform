@@ -4,6 +4,7 @@ import { ApiRequestError } from '@tourism/core';
 
 import {
   clearAvatar,
+  deleteAccount as deleteAccountApi,
   setAvatar,
   signAvatarUpload,
   updateProfile,
@@ -63,5 +64,15 @@ export async function removeAvatar(): Promise<{ error?: string }> {
     return {};
   } catch (e) {
     return { error: errorOf(e, 'Could not remove your avatar.') };
+  }
+}
+
+/** Delete the caller's account (the client then signs out + leaves). 409 → has-bookings message. */
+export async function deleteAccount(): Promise<{ error?: string }> {
+  try {
+    await deleteAccountApi();
+    return {};
+  } catch (e) {
+    return { error: errorOf(e, 'Could not delete your account.') };
   }
 }

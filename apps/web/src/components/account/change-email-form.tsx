@@ -42,7 +42,7 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <h2 className="font-heading text-lg font-semibold">{t.heading}</h2>
+      <h3 className="text-sm font-medium">{t.heading}</h3>
       <div className="space-y-1.5">
         <Label htmlFor="current-email">{t.currentLabel}</Label>
         <Input id="current-email" type="email" value={currentEmail} disabled readOnly />

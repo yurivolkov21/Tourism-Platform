@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ShieldCheckIcon, TicketIcon, UserPenIcon } from 'lucide-react';
+import { TicketIcon, UserPenIcon } from 'lucide-react';
 
 import { messages } from '@tourism/i18n';
 
@@ -49,13 +49,6 @@ export default async function AccountPage() {
           >
             <TicketIcon className="size-4" />
             {messages.booking.list.menuLink}
-          </Link>
-          <Link
-            href="/account/security"
-            className="border-primary/30 text-primary hover:bg-primary/5 inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
-          >
-            <ShieldCheckIcon className="size-4" />
-            {messages.auth.account.security}
           </Link>
           <SignOutButton />
         </div>

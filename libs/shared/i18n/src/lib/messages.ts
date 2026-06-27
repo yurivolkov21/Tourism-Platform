@@ -58,6 +58,8 @@ export const messages = {
           submit: 'Update password',
           submitting: 'Updating…',
           success: 'Password updated.',
+          show: 'Show password',
+          hide: 'Hide password',
         },
         email: {
           heading: 'Change email',
@@ -76,7 +78,7 @@ export const messages = {
         fullNameLabel: 'Full name',
         phoneLabel: 'Phone',
         emailLabel: 'Email',
-        emailHint: 'Your sign-in email — change it under account security.',
+        emailHint: 'Your sign-in email — manage it in the Email & password section below.',
         save: 'Save changes',
         saving: 'Saving…',
         saved: 'Profile saved.',
@@ -90,6 +92,35 @@ export const messages = {
           hint: 'JPG, PNG or WebP, up to ~5 MB.',
           error: 'Couldn’t upload that image. Please try another.',
         },
+      },
+      settings: {
+        title: 'Account settings',
+        subtitle: 'Manage your profile, sign-in and account.',
+        personalHeading: 'Personal information',
+        personalDesc: 'Your photo, name and phone number.',
+        securityHeading: 'Email & password',
+        securityDesc: 'Your sign-in email and password.',
+        connectedHeading: 'Connected accounts',
+        connectedDesc: 'Sign-in methods linked to your account.',
+        dangerHeading: 'Danger zone',
+        dangerDesc: 'Irreversible account actions.',
+      },
+      connected: {
+        google: 'Google',
+        email: 'Email & password',
+        none: 'No connected accounts yet.',
+      },
+      danger: {
+        deleteTitle: 'Delete account',
+        deleteDesc:
+          'Permanently delete your account and all associated data. This can’t be undone.',
+        deleteCta: 'Delete account',
+        confirmTitle: 'Delete your account?',
+        confirmBody:
+          'This permanently removes your account and data. This action cannot be undone.',
+        confirmCta: 'Yes, delete my account',
+        cancel: 'Cancel',
+        deleting: 'Deleting…',
       },
     },
     menu: {
@@ -125,6 +156,16 @@ export const messages = {
       TOO_SHORT: 'Password must be at least 6 characters.',
       MISMATCH: 'Passwords do not match.',
     } as Record<string, string>,
+    passwordRules: {
+      length: 'At least 8 characters',
+      lower: 'A lowercase letter',
+      upper: 'An uppercase letter',
+      number: 'A number',
+      special: 'A special character',
+    } as Record<string, string>,
+    passwordStrength: (score: number): string =>
+      ['Enter a password', 'Very weak', 'Weak', 'Medium', 'Strong', 'Very strong'][score] ??
+      'Enter a password',
     oauth: {
       continueGoogle: 'Continue with Google',
       or: 'or',
