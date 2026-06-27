@@ -24,6 +24,8 @@ export function UserMenu({ linkClassName }: { linkClassName?: string }) {
   const { user, loading } = useAuth();
   const signOut = useSignOut();
   const t = messages.auth.menu;
+  const fullName =
+    user && typeof user.user_metadata?.full_name === 'string' ? user.user_metadata.full_name : '';
 
   if (loading || !user) {
     return (
@@ -49,7 +51,10 @@ export function UserMenu({ linkClassName }: { linkClassName?: string }) {
         <CircleUserRoundIcon className="size-5" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <div className="text-muted-foreground truncate px-2 py-1.5 text-xs">{user.email}</div>
+        <div className="px-2 py-1.5">
+          {fullName ? <p className="truncate text-sm font-medium">{fullName}</p> : null}
+          <p className="text-muted-foreground truncate text-xs">{user.email}</p>
+        </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem render={<Link href="/account" />} nativeButton={false}>
           <UserIcon className="size-4" />

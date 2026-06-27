@@ -1,51 +1,13 @@
-import { ApiRequestError, type components } from '@tourism/core';
+import type { components } from '@tourism/core';
 
 import type { CreateBookingPayload } from '../booking/booking-form';
-import { createClient } from '../supabase/server';
+import { authedJson } from './authed';
 import { getApiClient } from './client';
 
 export type DepartureDto = components['schemas']['DepartureDto'];
 export type BookingDto = components['schemas']['BookingDto'];
 export type CheckoutSessionDto = components['schemas']['CheckoutSessionDto'];
 type TourDetailDto = components['schemas']['TourDetailDto'];
-
-// API origin (the routes below already include the `/api/v1` prefix).
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
-
-/**
- * Authed JSON call to the API using native `fetch` with a **string** body. We deliberately bypass the
- * openapi-fetch client for owner-scoped booking calls: on Vercel, outgoing-fetch tracing clones the
- * request, and a body delivered as a stream (openapi-fetch's Request path) trips undici's
- * "expected non-null body source" — a string body is clone-safe. Reads the Bearer token per call from
- * the server Supabase session; unwraps the `{ data, error }` envelope; throws `ApiRequestError` on non-2xx.
- */
-async function authedJson<T>(
-  path: string,
-  init: { method: string; body?: unknown } = { method: 'GET' },
-): Promise<T> {
-  const supabase = await createClient();
-  const { data: session } = await supabase.auth.getSession();
-  const token = session.session?.access_token;
-
-  const headers: Record<string, string> = {};
-  if (token) headers.Authorization = `Bearer ${token}`;
-  if (init.body !== undefined) headers['Content-Type'] = 'application/json';
-
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: init.method,
-    headers,
-    body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
-    cache: 'no-store',
-  });
-
-  const json = (await res.json().catch(() => null)) as
-    | { data?: T; error?: { code: string; message: string } }
-    | null;
-  if (!res.ok) {
-    throw new ApiRequestError(res.status, json?.error ?? { code: 'UNKNOWN', message: res.statusText });
-  }
-  return json?.data as T;
-}
 
 /** The caller's bookings, newest first (top 50 on the API). Empty on error. */
 export async function fetchMyBookings(): Promise<BookingDto[]> {
