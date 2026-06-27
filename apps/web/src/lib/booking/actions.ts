@@ -35,7 +35,12 @@ async function createBookingWithSync(payload: CreateBookingPayload): Promise<Boo
     return await createBooking(payload);
   } catch (e) {
     if (e instanceof ApiRequestError && (e.code === 'USER_NOT_SYNCED' || e.status === 401)) {
+      console.error('[booking] create hit USER_NOT_SYNCED → syncing then retrying', {
+        code: e.code,
+        status: e.status,
+      });
       const synced = await syncUser();
+      console.error('[booking] sync result', { synced });
       if (synced) return await createBooking(payload);
     }
     throw e;

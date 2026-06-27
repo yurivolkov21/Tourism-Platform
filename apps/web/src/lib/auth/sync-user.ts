@@ -17,7 +17,10 @@ export async function syncUser(): Promise<boolean> {
     const supabase = await createClient();
     const { data } = await supabase.auth.getSession();
     const token = data.session?.access_token;
-    if (!token) return false;
+    if (!token) {
+      console.error('[syncUser] no access token in server session');
+      return false;
+    }
 
     const res = await fetch(`${API_BASE}/api/v1/auth/sync`, {
       method: 'POST',
@@ -25,8 +28,14 @@ export async function syncUser(): Promise<boolean> {
       body: '{}',
       cache: 'no-store',
     });
-    return res.ok;
-  } catch {
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      console.error('[syncUser] /auth/sync non-ok', { status: res.status, body: body.slice(0, 300) });
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('[syncUser] threw', e);
     return false;
   }
 }
