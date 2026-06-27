@@ -14,6 +14,8 @@ import type { DepartureOption } from '../../lib/api/booking';
 /**
  * Controlled departure dropdown (UX only — the parent form posts the value via a hidden input, so the
  * Select stays presentational and also drives the live price). Each option shows the date + seats left.
+ * Base UI resolves the *closed* trigger's label from the `items` prop, so we pass it (otherwise the
+ * trigger renders the raw value — the departure UUID — instead of the date).
  */
 export function DeparturePicker({
   departures,
@@ -25,16 +27,20 @@ export function DeparturePicker({
   onChange: (id: string) => void;
 }) {
   const t = messages.booking.box;
+  const items = departures.map((d) => ({
+    value: d.id,
+    label: `${d.label} · ${messages.tourDetail.booking.seatsLeft(d.seatsLeft)}`,
+  }));
 
   return (
-    <Select value={value} onValueChange={(v) => onChange(String(v))}>
+    <Select items={items} value={value} onValueChange={(v) => onChange(String(v))}>
       <SelectTrigger className="w-full" aria-label={messages.booking.form.departure}>
         <SelectValue placeholder={t.selectDeparture} />
       </SelectTrigger>
       <SelectContent>
-        {departures.map((d) => (
-          <SelectItem key={d.id} value={d.id}>
-            {d.label} · {messages.tourDetail.booking.seatsLeft(d.seatsLeft)}
+        {items.map((item) => (
+          <SelectItem key={item.value} value={item.value}>
+            {item.label}
           </SelectItem>
         ))}
       </SelectContent>
