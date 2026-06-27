@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { TicketIcon } from 'lucide-react';
 
 import { messages } from '@tourism/i18n';
 
@@ -33,7 +35,14 @@ export default async function AccountPage() {
         <p className="text-muted-foreground text-sm">{t.signedInAs}</p>
         <p className="font-medium">{user.email}</p>
 
-        <div className="mt-6">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <Link
+            href="/account/bookings"
+            className="border-primary/30 text-primary hover:bg-primary/5 inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
+          >
+            <TicketIcon className="size-4" />
+            {messages.booking.list.menuLink}
+          </Link>
           <SignOutButton />
         </div>
       </div>

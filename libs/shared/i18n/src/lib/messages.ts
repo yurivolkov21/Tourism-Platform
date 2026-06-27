@@ -133,6 +133,26 @@ export const messages = {
       retry: 'Try again',
       backToTours: 'Browse tours',
     },
+    // My bookings list (/account/bookings).
+    list: {
+      menuLink: 'My bookings',
+      title: 'My bookings',
+      subtitle: 'Trips you’ve booked with us.',
+      empty: 'You haven’t booked any trips yet.',
+      browse: 'Browse tours',
+      refLabel: 'Reference',
+      departureLabel: 'Departure',
+      travellersLabel: 'Travellers',
+      totalLabel: 'Total',
+      bookedOn: (date: string) => `Booked ${date}`,
+      viewTour: 'View tour',
+      status: {
+        PENDING: 'Awaiting payment',
+        PAID: 'Paid',
+        CANCELLED: 'Cancelled',
+        REFUNDED: 'Refunded',
+      } as Record<string, string>,
+    },
   },
   common: {
     home: 'Home',

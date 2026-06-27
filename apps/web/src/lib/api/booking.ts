@@ -47,6 +47,16 @@ async function authedJson<T>(
   return json?.data as T;
 }
 
+/** The caller's bookings, newest first (top 50 on the API). Empty on error. */
+export async function fetchMyBookings(): Promise<BookingDto[]> {
+  try {
+    const data = await authedJson<BookingDto[]>('/api/v1/bookings/me', { method: 'GET' });
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
 /** Create a PENDING booking (`POST /bookings`). Throws `ApiRequestError` on failure. */
 export async function createBooking(payload: CreateBookingPayload): Promise<BookingDto> {
   return authedJson<BookingDto>('/api/v1/bookings', { method: 'POST', body: payload });

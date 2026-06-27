@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { CircleUserRoundIcon, LogOutIcon, UserIcon } from 'lucide-react';
+import { CircleUserRoundIcon, LogOutIcon, TicketIcon, UserIcon } from 'lucide-react';
 
 import {
   DropdownMenu,
@@ -54,6 +54,10 @@ export function UserMenu({ linkClassName }: { linkClassName?: string }) {
         <DropdownMenuItem render={<Link href="/account" />} nativeButton={false}>
           <UserIcon className="size-4" />
           {t.account}
+        </DropdownMenuItem>
+        <DropdownMenuItem render={<Link href="/account/bookings" />} nativeButton={false}>
+          <TicketIcon className="size-4" />
+          {messages.booking.list.menuLink}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
