@@ -2,14 +2,11 @@ import Link from 'next/link';
 import {
   ArrowRightIcon,
   CalendarClockIcon,
-  CheckCircle2Icon,
   CompassIcon,
   HeartIcon,
   MapPinIcon,
   SettingsIcon,
-  TicketIcon,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 
 import { Button } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
@@ -68,11 +65,11 @@ export function AccountDashboard({
   const t = messages.auth.account.dashboard;
   const displayName = name.trim() || email.split('@')[0];
 
-  const statCards: { key: string; label: string; value: number; icon: LucideIcon }[] = [
-    { key: 'trips', label: t.stats.trips, value: stats.trips, icon: TicketIcon },
-    { key: 'upcoming', label: t.stats.upcoming, value: stats.upcoming, icon: CalendarClockIcon },
-    { key: 'completed', label: t.stats.completed, value: stats.completed, icon: CheckCircle2Icon },
-    { key: 'saved', label: t.stats.wishlist, value: stats.saved, icon: HeartIcon },
+  const statCards: { key: string; label: string; value: number }[] = [
+    { key: 'trips', label: t.stats.trips, value: stats.trips },
+    { key: 'upcoming', label: t.stats.upcoming, value: stats.upcoming },
+    { key: 'completed', label: t.stats.completed, value: stats.completed },
+    { key: 'saved', label: t.stats.wishlist, value: stats.saved },
   ];
 
   return (
@@ -126,15 +123,14 @@ export function AccountDashboard({
         </div>
       </section>
 
-      {/* Journey stats — one divided card */}
+      {/* Journey stats — one divided card, centered */}
       <section className="bg-card shadow-card grid grid-cols-2 divide-x divide-y rounded-2xl border sm:grid-cols-4 sm:divide-y-0">
-        {statCards.map(({ key, label, value, icon: Icon }) => (
-          <div key={key} className="p-5">
-            <div className="text-muted-foreground flex items-center gap-2 text-xs font-medium">
-              <Icon className="text-primary size-4" />
+        {statCards.map(({ key, label, value }) => (
+          <div key={key} className="flex flex-col items-center justify-center gap-1 p-6 text-center">
+            <p className="font-heading text-3xl font-semibold tabular-nums sm:text-4xl">{value}</p>
+            <p className="text-muted-foreground text-xs font-medium tracking-[0.12em] uppercase">
               {label}
-            </div>
-            <p className="font-heading mt-2 text-3xl font-semibold tabular-nums">{value}</p>
+            </p>
           </div>
         ))}
       </section>
@@ -142,11 +138,17 @@ export function AccountDashboard({
       {/* Bento: next trip + saved */}
       <section className="grid gap-5 lg:grid-cols-3">
         {/* Next trip */}
-        <div className="bg-card shadow-card overflow-hidden rounded-2xl border lg:col-span-2">
+        <div className="bg-card shadow-card overflow-hidden rounded-2xl border transition-all hover:-translate-y-0.5 hover:shadow-lg lg:col-span-2">
           <div className="flex h-full flex-col sm:flex-row">
             <div className="from-primary to-primary/70 relative aspect-video bg-linear-to-br sm:aspect-auto sm:w-2/5">
               {nextTrip?.image ? (
                 <img src={nextTrip.image} alt="" className="absolute inset-0 size-full object-cover" />
+              ) : null}
+              {nextTrip ? (
+                <span className="bg-card/90 text-foreground absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium shadow-sm backdrop-blur-sm">
+                  <CalendarClockIcon className="text-primary size-3.5" />
+                  {nextTrip.countdown}
+                </span>
               ) : null}
             </div>
             <div className="flex flex-1 flex-col justify-center gap-3 p-5 sm:p-6">
@@ -160,10 +162,6 @@ export function AccountDashboard({
                     <MapPinIcon className="size-4" />
                     {nextTrip.dateLabel}
                   </p>
-                  <span className="bg-primary/10 text-primary inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium">
-                    <CalendarClockIcon className="size-3.5" />
-                    {nextTrip.countdown}
-                  </span>
                   <Button
                     render={<Link href="/account/bookings" />}
                     nativeButton={false}
@@ -192,7 +190,7 @@ export function AccountDashboard({
         </div>
 
         {/* Saved for later */}
-        <div className="bg-card shadow-card flex flex-col rounded-2xl border p-5 sm:p-6">
+        <div className="bg-card shadow-card flex flex-col rounded-2xl border p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg sm:p-6">
           <div className="flex items-center justify-between">
             <h2 className="font-heading text-base font-semibold">{t.saved.heading}</h2>
             <Link
