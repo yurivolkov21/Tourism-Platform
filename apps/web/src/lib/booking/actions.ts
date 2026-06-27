@@ -1,15 +1,11 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { ApiRequestError, type components } from '@tourism/core';
+import { ApiRequestError } from '@tourism/core';
 import { messages } from '@tourism/i18n';
 
-import { getAuthedApiClient } from '../api/authed-client';
+import { captureBookingOrder, createBooking, startCheckout } from '../api/booking';
 import { buildCreateBookingPayload, type BookingFormError } from './booking-form';
-
-type CreateBookingBody = components['schemas']['CreateBookingDto'];
-type BookingDto = components['schemas']['BookingDto'];
-type CheckoutSessionDto = components['schemas']['CheckoutSessionDto'];
 
 const errors = messages.booking.errors;
 
@@ -20,16 +16,6 @@ export interface BookingActionState {
 /** Maps a form/API error code to friendly EN; unknown codes fall back to the generic message. */
 function errorMessage(code: BookingFormError | string): string {
   return (errors as Record<string, string>)[code] ?? errors.generic;
-}
-
-/** Reads the booking code out of the (enveloped) create response. */
-function bookingCodeOf(data: unknown): string | undefined {
-  return (data as { data?: BookingDto } | undefined)?.data?.code;
-}
-
-/** Reads the checkout URL out of the (enveloped) checkout response. */
-function checkoutUrlOf(data: unknown): string | undefined {
-  return (data as { data?: CheckoutSessionDto } | undefined)?.data?.checkoutUrl;
 }
 
 /**
@@ -58,22 +44,16 @@ export async function createAndCheckout(
 
   let checkoutUrl: string | undefined;
   try {
-    const api = await getAuthedApiClient();
-    const created = await api.POST('/api/v1/bookings', {
-      body: built.payload as CreateBookingBody,
-    });
-    const code = bookingCodeOf(created.data);
-    if (created.error || !code) {
-      console.error('[booking] create returned no code', { error: created.error });
+    const booking = await createBooking(built.payload);
+    if (!booking?.code) {
+      console.error('[booking] create returned no code', { booking });
       return { error: errors.generic };
     }
 
-    const checkout = await api.POST('/api/v1/bookings/{code}/checkout', {
-      params: { path: { code } },
-    });
-    checkoutUrl = checkoutUrlOf(checkout.data);
-    if (checkout.error || !checkoutUrl) {
-      console.error('[booking] checkout returned no url', { code, error: checkout.error });
+    const session = await startCheckout(booking.code);
+    checkoutUrl = session?.checkoutUrl;
+    if (!checkoutUrl) {
+      console.error('[booking] checkout returned no url', { code: booking.code });
       return { error: errors.CHECKOUT_FAILED };
     }
   } catch (e) {
@@ -101,12 +81,13 @@ export async function createAndCheckout(
  */
 export async function captureBooking(code: string): Promise<boolean> {
   try {
-    const api = await getAuthedApiClient();
-    const { error } = await api.POST('/api/v1/bookings/{code}/capture', {
-      params: { path: { code } },
+    await captureBookingOrder(code);
+    return true;
+  } catch (e) {
+    console.error('[booking] capture failed', {
+      code,
+      ...(e instanceof ApiRequestError ? { apiCode: e.code, status: e.status } : {}),
     });
-    return !error;
-  } catch {
     return false;
   }
 }

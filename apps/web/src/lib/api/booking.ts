@@ -1,11 +1,71 @@
-import type { components } from '@tourism/core';
+import { ApiRequestError, type components } from '@tourism/core';
 
+import type { CreateBookingPayload } from '../booking/booking-form';
+import { createClient } from '../supabase/server';
 import { getApiClient } from './client';
-import { getAuthedApiClient } from './authed-client';
 
 export type DepartureDto = components['schemas']['DepartureDto'];
 export type BookingDto = components['schemas']['BookingDto'];
+export type CheckoutSessionDto = components['schemas']['CheckoutSessionDto'];
 type TourDetailDto = components['schemas']['TourDetailDto'];
+
+// API origin (the routes below already include the `/api/v1` prefix).
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
+
+/**
+ * Authed JSON call to the API using native `fetch` with a **string** body. We deliberately bypass the
+ * openapi-fetch client for owner-scoped booking calls: on Vercel, outgoing-fetch tracing clones the
+ * request, and a body delivered as a stream (openapi-fetch's Request path) trips undici's
+ * "expected non-null body source" — a string body is clone-safe. Reads the Bearer token per call from
+ * the server Supabase session; unwraps the `{ data, error }` envelope; throws `ApiRequestError` on non-2xx.
+ */
+async function authedJson<T>(
+  path: string,
+  init: { method: string; body?: unknown } = { method: 'GET' },
+): Promise<T> {
+  const supabase = await createClient();
+  const { data: session } = await supabase.auth.getSession();
+  const token = session.session?.access_token;
+
+  const headers: Record<string, string> = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (init.body !== undefined) headers['Content-Type'] = 'application/json';
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: init.method,
+    headers,
+    body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
+    cache: 'no-store',
+  });
+
+  const json = (await res.json().catch(() => null)) as
+    | { data?: T; error?: { code: string; message: string } }
+    | null;
+  if (!res.ok) {
+    throw new ApiRequestError(res.status, json?.error ?? { code: 'UNKNOWN', message: res.statusText });
+  }
+  return json?.data as T;
+}
+
+/** Create a PENDING booking (`POST /bookings`). Throws `ApiRequestError` on failure. */
+export async function createBooking(payload: CreateBookingPayload): Promise<BookingDto> {
+  return authedJson<BookingDto>('/api/v1/bookings', { method: 'POST', body: payload });
+}
+
+/** Start a checkout session for a PENDING booking (`POST /bookings/{code}/checkout`). */
+export async function startCheckout(code: string): Promise<CheckoutSessionDto> {
+  return authedJson<CheckoutSessionDto>(
+    `/api/v1/bookings/${encodeURIComponent(code)}/checkout`,
+    { method: 'POST' },
+  );
+}
+
+/** Capture an approved PayPal order (`POST /bookings/{code}/capture`). Idempotent on the API. */
+export async function captureBookingOrder(code: string): Promise<void> {
+  await authedJson<BookingDto>(`/api/v1/bookings/${encodeURIComponent(code)}/capture`, {
+    method: 'POST',
+  });
+}
 
 /** Minimal tour fields the booking page needs (title + per-person base price + hero). */
 export interface BookingTour {
@@ -98,12 +158,9 @@ export async function fetchTourDepartures(slug: string): Promise<DepartureDto[]>
  */
 export async function fetchBooking(code: string): Promise<BookingDto | null> {
   try {
-    const api = await getAuthedApiClient();
-    const { data, error } = await api.GET('/api/v1/bookings/{code}', {
-      params: { path: { code } },
+    return await authedJson<BookingDto>(`/api/v1/bookings/${encodeURIComponent(code)}`, {
+      method: 'GET',
     });
-    if (error) return null;
-    return (data as unknown as { data?: BookingDto } | undefined)?.data ?? null;
   } catch {
     return null;
   }
