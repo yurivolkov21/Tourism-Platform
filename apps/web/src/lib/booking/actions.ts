@@ -4,8 +4,15 @@ import { redirect } from 'next/navigation';
 import { ApiRequestError } from '@tourism/core';
 import { messages } from '@tourism/i18n';
 
-import { captureBookingOrder, createBooking, startCheckout } from '../api/booking';
+import { syncUser } from '../auth/sync-user';
+import {
+  captureBookingOrder,
+  createBooking,
+  startCheckout,
+  type BookingDto,
+} from '../api/booking';
 import { buildCreateBookingPayload, type BookingFormError } from './booking-form';
+import type { CreateBookingPayload } from './booking-form';
 
 const errors = messages.booking.errors;
 
@@ -16,6 +23,23 @@ export interface BookingActionState {
 /** Maps a form/API error code to friendly EN; unknown codes fall back to the generic message. */
 function errorMessage(code: BookingFormError | string): string {
   return (errors as Record<string, string>)[code] ?? errors.generic;
+}
+
+/**
+ * Create a booking, self-healing the first-booking race: if the API reports the caller isn't mirrored
+ * yet (`USER_NOT_SYNCED`), mirror the user (`/auth/sync`) and retry once. This covers a signed-in
+ * session whose sign-in sync hadn't landed, so the buyer never has to sign out and back in.
+ */
+async function createBookingWithSync(payload: CreateBookingPayload): Promise<BookingDto> {
+  try {
+    return await createBooking(payload);
+  } catch (e) {
+    if (e instanceof ApiRequestError && (e.code === 'USER_NOT_SYNCED' || e.status === 401)) {
+      const synced = await syncUser();
+      if (synced) return await createBooking(payload);
+    }
+    throw e;
+  }
 }
 
 /**
@@ -44,7 +68,7 @@ export async function createAndCheckout(
 
   let checkoutUrl: string | undefined;
   try {
-    const booking = await createBooking(built.payload);
+    const booking = await createBookingWithSync(built.payload);
     if (!booking?.code) {
       console.error('[booking] create returned no code', { booking });
       return { error: errors.generic };
