@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { MediaOwnerType, MediaRole, MediaType, User } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MediaInputDto } from '../media/dto/media.dto';
@@ -24,7 +30,49 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly media: MediaService,
+    private readonly config: ConfigService,
   ) {}
+
+  /**
+   * Delete the caller's account. Refuses (409) while the user still has bookings — `Booking.user` is
+   * `onDelete: Restrict` and we keep financial records, so those users are routed to support. Otherwise
+   * deletes the local row (cascades reviews + wishlist) then removes the Supabase auth user via the
+   * Admin REST API (service-role key — no extra dependency).
+   */
+  async deleteMe(user: Pick<User, 'id' | 'supabaseId'>): Promise<void> {
+    const bookings = await this.prisma.booking.count({
+      where: { userId: user.id },
+    });
+    if (bookings > 0) {
+      throw new ConflictException({
+        code: 'ACCOUNT_HAS_BOOKINGS',
+        message:
+          'Your account has bookings on record. Please contact support to close it.',
+      });
+    }
+
+    await this.prisma.user.delete({ where: { id: user.id } });
+    await this.deleteSupabaseUser(user.supabaseId);
+  }
+
+  /** Best-effort removal of the Supabase auth identity (so the email can no longer sign in). */
+  private async deleteSupabaseUser(supabaseId: string): Promise<void> {
+    const url = this.config.getOrThrow<string>('supabase.url');
+    const key = this.config.getOrThrow<string>('supabase.serviceRoleKey');
+    try {
+      const res = await fetch(`${url}/auth/v1/admin/users/${supabaseId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${key}`, apikey: key },
+      });
+      if (!res.ok) {
+        this.logger.warn(
+          `Supabase auth user delete returned ${res.status} for ${supabaseId}`,
+        );
+      }
+    } catch (e) {
+      this.logger.warn(`Supabase auth user delete failed for ${supabaseId}: ${String(e)}`);
+    }
+  }
 
   /**
    * Fetch a `User` by primary key (+ avatar URL). The 404 is a defensive

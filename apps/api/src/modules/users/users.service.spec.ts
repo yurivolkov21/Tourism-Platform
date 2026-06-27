@@ -1,4 +1,4 @@
-import { Logger, NotFoundException } from '@nestjs/common';
+import { ConflictException, Logger, NotFoundException } from '@nestjs/common';
 import { MediaOwnerType, MediaRole, MediaType } from '@prisma/client';
 import { UsersService } from './users.service';
 
@@ -40,10 +40,19 @@ function makeMedia(avatarUrl: string | null) {
   };
 }
 
+function makeConfig(overrides: Record<string, string> = {}) {
+  const values: Record<string, string> = {
+    'supabase.url': 'https://ref.supabase.co',
+    'supabase.serviceRoleKey': 'service-role',
+    ...overrides,
+  };
+  return { getOrThrow: jest.fn((k: string) => values[k]) };
+}
+
 describe('UsersService.getMe', () => {
   it('attaches avatarUrl from the USER media owner', async () => {
     const media = makeMedia('https://cdn/avatar.jpg');
-    const svc = new UsersService(makePrisma({}) as never, media as never);
+    const svc = new UsersService(makePrisma({}) as never, media as never, makeConfig() as never);
 
     const result = await svc.getMe('u-1');
 
@@ -58,6 +67,7 @@ describe('UsersService.getMe', () => {
     const svc = new UsersService(
       makePrisma({}) as never,
       makeMedia(null) as never,
+      makeConfig() as never,
     );
     const result = await svc.getMe('u-1');
     expect(result.avatarUrl).toBeNull();
@@ -67,6 +77,7 @@ describe('UsersService.getMe', () => {
     const svc = new UsersService(
       makePrisma({ findUnique: jest.fn().mockResolvedValue(null) }) as never,
       makeMedia(null) as never,
+      makeConfig() as never,
     );
     await expect(svc.getMe('missing')).rejects.toBeInstanceOf(NotFoundException);
   });
@@ -75,7 +86,7 @@ describe('UsersService.getMe', () => {
 describe('UsersService.setAvatar', () => {
   it('syncs a single IMAGE/avatar asset (replace-all) and returns the url', async () => {
     const media = makeMedia('https://cdn/new.jpg');
-    const svc = new UsersService(makePrisma({}) as never, media as never);
+    const svc = new UsersService(makePrisma({}) as never, media as never, makeConfig() as never);
 
     const result = await svc.setAvatar('u-1', { publicId: 'tourism/users/avatar/x' });
 
@@ -94,6 +105,7 @@ describe('UsersService.setAvatar', () => {
     const svc = new UsersService(
       makePrisma({ findUnique: jest.fn().mockResolvedValue(null) }) as never,
       media as never,
+      makeConfig() as never,
     );
     await expect(
       svc.setAvatar('missing', { publicId: 'x' }),
@@ -102,10 +114,44 @@ describe('UsersService.setAvatar', () => {
   });
 });
 
+describe('UsersService.deleteMe', () => {
+  const caller = { id: 'u-1', supabaseId: 'sub-1' };
+
+  it('refuses (409) when the user still has bookings', async () => {
+    const prisma = {
+      booking: { count: jest.fn().mockResolvedValue(2) },
+      user: { delete: jest.fn() },
+    };
+    const svc = new UsersService(prisma as never, makeMedia(null) as never, makeConfig() as never);
+    await expect(svc.deleteMe(caller)).rejects.toBeInstanceOf(ConflictException);
+    expect(prisma.user.delete).not.toHaveBeenCalled();
+  });
+
+  it('deletes the local row + the Supabase auth user when there are no bookings', async () => {
+    const prisma = {
+      booking: { count: jest.fn().mockResolvedValue(0) },
+      user: { delete: jest.fn().mockResolvedValue({}) },
+    };
+    const fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValue({ ok: true } as Response);
+    const svc = new UsersService(prisma as never, makeMedia(null) as never, makeConfig() as never);
+
+    await svc.deleteMe(caller);
+
+    expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: 'u-1' } });
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'https://ref.supabase.co/auth/v1/admin/users/sub-1',
+      expect.objectContaining({ method: 'DELETE' }),
+    );
+    fetchSpy.mockRestore();
+  });
+});
+
 describe('UsersService.clearAvatar', () => {
   it('syncs the empty set and returns avatarUrl null', async () => {
     const media = makeMedia(null);
-    const svc = new UsersService(makePrisma({}) as never, media as never);
+    const svc = new UsersService(makePrisma({}) as never, media as never, makeConfig() as never);
 
     const result = await svc.clearAvatar('u-1');
 
