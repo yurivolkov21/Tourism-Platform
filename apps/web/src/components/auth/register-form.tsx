@@ -7,6 +7,7 @@ import { Button, Input, Label } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { signUp, type SignUpState } from '../../lib/auth/actions';
+import { ResendConfirmation } from './resend-confirmation';
 
 export function RegisterForm() {
   const t = messages.auth.register;
@@ -17,6 +18,11 @@ export function RegisterForm() {
       <div className="space-y-2 text-center" role="status">
         <h2 className="font-heading text-xl font-semibold">{t.checkInboxTitle}</h2>
         <p className="text-muted-foreground text-sm text-pretty">{t.checkInboxBody}</p>
+        {state.email ? (
+          <div className="pt-2">
+            <ResendConfirmation email={state.email} />
+          </div>
+        ) : null}
         <p className="text-muted-foreground pt-2 text-sm">
           {t.haveAccount}{' '}
           <Link href="/login" className="text-primary font-medium hover:underline">

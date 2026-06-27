@@ -21,6 +21,7 @@ export const messages = {
       submitting: 'Signing in…',
       noAccount: "Don't have an account?",
       registerCta: 'Create one',
+      forgotCta: 'Forgot password?',
     },
     register: {
       title: 'Create your account',
@@ -35,6 +36,9 @@ export const messages = {
       checkInboxTitle: 'Check your inbox',
       checkInboxBody:
         'We sent a confirmation link to your email. Click it to activate your account, then sign in.',
+      resend: 'Resend email',
+      resending: 'Sending…',
+      resent: 'Sent — check your inbox again.',
     },
     account: {
       title: 'My account',
@@ -46,6 +50,34 @@ export const messages = {
       account: 'My account',
       signOut: 'Sign out',
     },
+    // Forgot / reset password (S1).
+    forgot: {
+      title: 'Reset your password',
+      subtitle: 'Enter your email and we’ll send you a reset link.',
+      emailLabel: 'Email',
+      submit: 'Send reset link',
+      submitting: 'Sending…',
+      sentTitle: 'Check your inbox',
+      sentBody: 'If an account exists for that email, a password-reset link is on its way.',
+      backToLogin: 'Back to sign in',
+    },
+    reset: {
+      title: 'Choose a new password',
+      subtitle: 'Enter a new password for your account.',
+      passwordLabel: 'New password',
+      confirmLabel: 'Confirm new password',
+      submit: 'Update password',
+      submitting: 'Updating…',
+      success: 'Password updated. You’re signed in.',
+      goToAccount: 'Go to my account',
+      invalidTitle: 'Link expired',
+      invalidBody: 'This reset link is invalid or has expired. Request a new one.',
+      requestNew: 'Request a new link',
+    },
+    passwordErrors: {
+      TOO_SHORT: 'Password must be at least 6 characters.',
+      MISMATCH: 'Passwords do not match.',
+    } as Record<string, string>,
   },
   // Booking flow (book → pay → confirm). Login-required; Stripe + PayPal. EN-only (ADR-0005).
   booking: {

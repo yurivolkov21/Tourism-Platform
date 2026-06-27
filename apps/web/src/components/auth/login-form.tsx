@@ -71,6 +71,14 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
       <div className="space-y-1.5">
         <Label htmlFor="password">{t.passwordLabel}</Label>
         <Input id="password" name="password" type="password" autoComplete="current-password" required />
+        <div className="text-right">
+          <Link
+            href="/forgot-password"
+            className="text-muted-foreground hover:text-foreground text-sm"
+          >
+            {t.forgotCta}
+          </Link>
+        </div>
       </div>
 
       {error ? (

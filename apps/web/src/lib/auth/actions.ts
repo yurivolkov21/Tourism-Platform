@@ -10,6 +10,8 @@ export interface SignUpState {
   error?: string;
   /** Set once the confirmation email has been sent → the form shows "check your inbox". */
   sent?: boolean;
+  /** The address the confirmation went to (so the UI can offer "resend"). */
+  email?: string;
 }
 
 const MIN_PASSWORD = 6;
@@ -47,5 +49,5 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
   });
   if (error) return { error: authErrorMessage(error) };
 
-  return { sent: true };
+  return { sent: true, email };
 }
