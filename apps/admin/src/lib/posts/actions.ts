@@ -2,18 +2,15 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import type { components } from '@tourism/core';
 
 import { apiErrorMessage } from '../api/error';
-import { getApiClient } from '../api/client';
+import { apiWrite, getApiClient } from '../api/client';
 import { postSchema, toPostPayload } from './schema';
 
 export interface PostFormState {
   error?: string;
   fieldErrors?: Record<string, string>;
 }
-
-type PostBody = components['schemas']['CreatePostDto'];
 
 /** Validates raw form fields against `postSchema`. The author is taken from the JWT by the API. */
 function parsePostForm(formData: FormData) {
@@ -47,8 +44,7 @@ export async function createPost(
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
   try {
-    const api = await getApiClient();
-    await api.POST('/api/v1/admin/posts', { body: toPostPayload(parsed.data) as PostBody });
+    await apiWrite('POST', '/api/v1/admin/posts', toPostPayload(parsed.data));
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }
@@ -67,11 +63,11 @@ export async function updatePost(
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
   try {
-    const api = await getApiClient();
-    await api.PATCH('/api/v1/admin/posts/{slug}', {
-      params: { path: { slug } },
-      body: toPostPayload(parsed.data) as PostBody,
-    });
+    await apiWrite(
+      'PATCH',
+      `/api/v1/admin/posts/${encodeURIComponent(slug)}`,
+      toPostPayload(parsed.data),
+    );
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }

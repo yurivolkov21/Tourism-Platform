@@ -2,18 +2,15 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import type { components } from '@tourism/core';
 
 import { apiErrorMessage } from '../api/error';
-import { getApiClient } from '../api/client';
+import { apiWrite, getApiClient } from '../api/client';
 import { categorySchema, toCategoryPayload } from './schema';
 
 export interface CategoryFormState {
   error?: string;
   fieldErrors?: Record<string, string>;
 }
-
-type CategoryBody = components['schemas']['CreateTourCategoryDto'];
 
 /** Validates raw form fields against `categorySchema`; returns the parsed input or field errors. */
 function parseCategoryForm(formData: FormData) {
@@ -46,10 +43,7 @@ export async function createCategory(
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
   try {
-    const api = await getApiClient();
-    await api.POST('/api/v1/admin/tour-categories', {
-      body: toCategoryPayload(parsed.data) as CategoryBody,
-    });
+    await apiWrite('POST', '/api/v1/admin/tour-categories', toCategoryPayload(parsed.data));
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }
@@ -68,11 +62,11 @@ export async function updateCategory(
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
   try {
-    const api = await getApiClient();
-    await api.PATCH('/api/v1/admin/tour-categories/{slug}', {
-      params: { path: { slug } },
-      body: toCategoryPayload(parsed.data) as CategoryBody,
-    });
+    await apiWrite(
+      'PATCH',
+      `/api/v1/admin/tour-categories/${encodeURIComponent(slug)}`,
+      toCategoryPayload(parsed.data),
+    );
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }

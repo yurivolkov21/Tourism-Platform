@@ -2,18 +2,15 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import type { components } from '@tourism/core';
 
 import { apiErrorMessage } from '../api/error';
-import { getApiClient } from '../api/client';
+import { apiWrite, getApiClient } from '../api/client';
 import { departureSchema, toDeparturePayload } from './schema';
 
 export interface DepartureFormState {
   error?: string;
   fieldErrors?: Record<string, string>;
 }
-
-type DepartureBody = components['schemas']['CreateDepartureDto'];
 
 function opt(formData: FormData, key: string): string | undefined {
   const v = String(formData.get(key) ?? '').trim();
@@ -51,11 +48,11 @@ export async function createDeparture(
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
   try {
-    const api = await getApiClient();
-    await api.POST('/api/v1/admin/tours/{slug}/departures', {
-      params: { path: { slug } },
-      body: toDeparturePayload(parsed.data) as DepartureBody,
-    });
+    await apiWrite(
+      'POST',
+      `/api/v1/admin/tours/${encodeURIComponent(slug)}/departures`,
+      toDeparturePayload(parsed.data),
+    );
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }
@@ -75,11 +72,11 @@ export async function updateDeparture(
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
   try {
-    const api = await getApiClient();
-    await api.PATCH('/api/v1/admin/tours/{slug}/departures/{id}', {
-      params: { path: { slug, id } },
-      body: toDeparturePayload(parsed.data) as DepartureBody,
-    });
+    await apiWrite(
+      'PATCH',
+      `/api/v1/admin/tours/${encodeURIComponent(slug)}/departures/${encodeURIComponent(id)}`,
+      toDeparturePayload(parsed.data),
+    );
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }

@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 
 import { apiErrorMessage } from '../api/error';
-import { getApiClient } from '../api/client';
+import { apiWrite } from '../api/client';
 import { createClient } from '../supabase/server';
 import { authErrorMessage } from './auth-error';
 import { safeRedirect } from './safe-redirect';
@@ -24,12 +24,13 @@ export async function signIn(_prev: SignInState, formData: FormData): Promise<Si
   if (!email || !password) return { error: 'Enter your email and password.' };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: authErrorMessage(error) };
 
   try {
-    const api = await getApiClient();
-    await api.POST('/api/v1/auth/admin/sync', { body: {} });
+    // Pass the just-minted token explicitly (the new session cookie may not be readable yet this
+    // request). Native-fetch write — the typed client's streamed body fails on Vercel.
+    await apiWrite('POST', '/api/v1/auth/admin/sync', {}, data.session?.access_token);
   } catch (e) {
     await supabase.auth.signOut();
     return { error: apiErrorMessage(e) };

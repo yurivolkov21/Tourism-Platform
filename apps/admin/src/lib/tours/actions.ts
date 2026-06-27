@@ -2,18 +2,15 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import type { components } from '@tourism/core';
 
 import { apiErrorMessage } from '../api/error';
-import { getApiClient } from '../api/client';
+import { apiWrite, getApiClient } from '../api/client';
 import { tourSchema, toTourPayload } from './schema';
 
 export interface TourFormState {
   error?: string;
   fieldErrors?: Record<string, string>;
 }
-
-type TourBody = components['schemas']['CreateTourDto'];
 
 /** Empty string → undefined, so a blank optional field doesn't fail coercion. */
 function opt(formData: FormData, key: string): string | undefined {
@@ -66,8 +63,7 @@ export async function createTour(
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
   try {
-    const api = await getApiClient();
-    await api.POST('/api/v1/admin/tours', { body: toTourPayload(parsed.data) as TourBody });
+    await apiWrite('POST', '/api/v1/admin/tours', toTourPayload(parsed.data));
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }
@@ -86,11 +82,11 @@ export async function updateTour(
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
   try {
-    const api = await getApiClient();
-    await api.PATCH('/api/v1/admin/tours/{slug}', {
-      params: { path: { slug } },
-      body: toTourPayload(parsed.data) as TourBody,
-    });
+    await apiWrite(
+      'PATCH',
+      `/api/v1/admin/tours/${encodeURIComponent(slug)}`,
+      toTourPayload(parsed.data),
+    );
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }

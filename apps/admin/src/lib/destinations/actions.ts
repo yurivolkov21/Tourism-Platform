@@ -2,18 +2,15 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import type { components } from '@tourism/core';
 
 import { apiErrorMessage } from '../api/error';
-import { getApiClient } from '../api/client';
+import { apiWrite, getApiClient } from '../api/client';
 import { destinationSchema, toDestinationPayload } from './schema';
 
 export interface DestinationFormState {
   error?: string;
   fieldErrors?: Record<string, string>;
 }
-
-type DestinationBody = components['schemas']['CreateDestinationDto'];
 
 /** Validates raw form fields against `destinationSchema`; returns the parsed input or field errors. */
 function parseDestinationForm(formData: FormData) {
@@ -46,10 +43,7 @@ export async function createDestination(
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
   try {
-    const api = await getApiClient();
-    await api.POST('/api/v1/admin/destinations', {
-      body: toDestinationPayload(parsed.data) as DestinationBody,
-    });
+    await apiWrite('POST', '/api/v1/admin/destinations', toDestinationPayload(parsed.data));
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }
@@ -68,11 +62,11 @@ export async function updateDestination(
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
   try {
-    const api = await getApiClient();
-    await api.PATCH('/api/v1/admin/destinations/{slug}', {
-      params: { path: { slug } },
-      body: toDestinationPayload(parsed.data) as DestinationBody,
-    });
+    await apiWrite(
+      'PATCH',
+      `/api/v1/admin/destinations/${encodeURIComponent(slug)}`,
+      toDestinationPayload(parsed.data),
+    );
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }
