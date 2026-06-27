@@ -48,24 +48,35 @@ export const messages = {
       editProfile: 'Edit profile',
       security: 'Account security',
       dashboard: {
+        eyebrow: 'My account',
         greeting: (name: string) => `Welcome back, ${name}`,
-        subtitle: 'Your trips, saved tours and account — all in one place.',
+        subtitle: 'Your journeys with Nexora, all in one place.',
         traveller: 'Traveller',
         memberSince: (date: string) => `Member since ${date}`,
         stats: {
           trips: 'Trips booked',
           upcoming: 'Upcoming',
           completed: 'Completed',
-          wishlist: 'Wishlist',
+          wishlist: 'Saved',
         },
         nextTrip: {
           heading: 'Your next trip',
           countdown: (days: number) =>
             days <= 0 ? 'Departing today' : days === 1 ? 'In 1 day' : `In ${days} days`,
           view: 'View booking',
-          noneTitle: 'No upcoming trips yet',
+          noneTitle: 'No journeys planned yet',
           noneBody: 'Browse our journeys and start planning your next escape.',
           browse: 'Explore tours',
+        },
+        saved: {
+          heading: 'Saved for later',
+          from: (price: string) => `From ${price}`,
+          browse: 'Browse tours',
+          empty: 'Tours you save will appear here.',
+        },
+        upcoming: {
+          heading: 'Upcoming journeys',
+          viewAll: 'View all bookings',
         },
         links: {
           bookings: 'My bookings',

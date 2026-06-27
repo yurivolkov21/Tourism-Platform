@@ -16,6 +16,9 @@ export interface AccountStats {
   total: number;
   upcoming: number;
   completed: number;
+  /** Active (PAID/PENDING) future trips, soonest first. */
+  upcomingTrips: DashboardBooking[];
+  /** The soonest active future trip (= `upcomingTrips[0]`), or null. */
   nextTrip: DashboardBooking | null;
 }
 
@@ -45,22 +48,28 @@ export function summarizeBookings(
   bookings: readonly DashboardBooking[],
   now: Date,
 ): AccountStats {
-  let upcoming = 0;
   let completed = 0;
-  let nextTrip: DashboardBooking | null = null;
+  const upcomingTrips: DashboardBooking[] = [];
 
   for (const b of bookings) {
     const days = daysUntil(b.departure.startDate, now);
-    const isFuture = days >= 0;
-    if (isFuture && ACTIVE.has(b.status)) {
-      upcoming += 1;
-      if (!nextTrip || days < daysUntil(nextTrip.departure.startDate, now)) {
-        nextTrip = b;
-      }
-    } else if (!isFuture && b.status === 'PAID') {
+    if (days >= 0 && ACTIVE.has(b.status)) {
+      upcomingTrips.push(b);
+    } else if (days < 0 && b.status === 'PAID') {
       completed += 1;
     }
   }
 
-  return { total: bookings.length, upcoming, completed, nextTrip };
+  upcomingTrips.sort(
+    (a, b) =>
+      daysUntil(a.departure.startDate, now) - daysUntil(b.departure.startDate, now),
+  );
+
+  return {
+    total: bookings.length,
+    upcoming: upcomingTrips.length,
+    completed,
+    upcomingTrips,
+    nextTrip: upcomingTrips[0] ?? null,
+  };
 }

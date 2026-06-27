@@ -15,12 +15,28 @@ import { Button } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { SignOutButton } from '../auth/sign-out-button';
+import { bookingStatusTone } from '../../lib/booking/my-bookings';
 
 export interface DashboardNextTrip {
   title: string;
   slug: string;
   dateLabel: string;
   countdown: string;
+  code: string;
+  image: string | null;
+}
+
+export interface DashboardSavedTour {
+  slug: string;
+  title: string;
+  image: string | null;
+  priceLabel: string;
+}
+
+export interface DashboardUpcomingRow {
+  title: string;
+  dateLabel: string;
+  status: string;
   code: string;
 }
 
@@ -29,13 +45,14 @@ export interface AccountDashboardProps {
   email: string;
   avatarUrl: string | null;
   memberSince: string;
-  stats: { trips: number; upcoming: number; completed: number; wishlist: number };
+  stats: { trips: number; upcoming: number; completed: number; saved: number };
   nextTrip: DashboardNextTrip | null;
+  saved: DashboardSavedTour[];
+  upcoming: DashboardUpcomingRow[];
 }
 
-function initials(name: string, email: string): string {
-  const source = name.trim() || email;
-  return source.slice(0, 1).toUpperCase();
+function initial(name: string, email: string): string {
+  return (name.trim() || email).slice(0, 1).toUpperCase();
 }
 
 export function AccountDashboard({
@@ -45,67 +62,74 @@ export function AccountDashboard({
   memberSince,
   stats,
   nextTrip,
+  saved,
+  upcoming,
 }: AccountDashboardProps) {
   const t = messages.auth.account.dashboard;
   const displayName = name.trim() || email.split('@')[0];
 
-  const statCards: { key: keyof typeof stats; label: string; value: number; icon: LucideIcon }[] = [
+  const statCards: { key: string; label: string; value: number; icon: LucideIcon }[] = [
     { key: 'trips', label: t.stats.trips, value: stats.trips, icon: TicketIcon },
     { key: 'upcoming', label: t.stats.upcoming, value: stats.upcoming, icon: CalendarClockIcon },
     { key: 'completed', label: t.stats.completed, value: stats.completed, icon: CheckCircle2Icon },
-    { key: 'wishlist', label: t.stats.wishlist, value: stats.wishlist, icon: HeartIcon },
+    { key: 'saved', label: t.stats.wishlist, value: stats.saved, icon: HeartIcon },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header card: brand cover banner + overlapping avatar + identity */}
-      <section className="bg-card shadow-card overflow-hidden rounded-2xl border">
-        <div className="from-primary via-primary to-primary/65 relative h-32 bg-linear-to-br sm:h-40">
-          <span className="text-primary-foreground/85 absolute top-4 right-5 inline-flex items-center gap-1.5 text-xs font-medium tracking-wide uppercase">
-            <CompassIcon className="size-3.5" />
-            {t.traveller}
-          </span>
-        </div>
+    <div className="space-y-8">
+      {/* Editorial header (no banner overlap) */}
+      <header>
+        <p className="text-primary text-xs font-semibold tracking-[0.18em] uppercase">{t.eyebrow}</p>
+        <h1 className="font-heading mt-2 text-3xl font-semibold sm:text-4xl">
+          {t.greeting(displayName)}
+        </h1>
+        <p className="text-muted-foreground mt-2">{t.subtitle}</p>
+      </header>
 
-        <div className="px-5 pb-5 sm:px-7 sm:pb-7">
-          <div className="-mt-12 flex flex-col gap-4 sm:-mt-14 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex items-end gap-4">
-              <div className="bg-muted ring-card size-24 shrink-0 overflow-hidden rounded-2xl ring-4 sm:size-28">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt={displayName} className="size-full object-cover" />
-                ) : (
-                  <span className="text-muted-foreground flex size-full items-center justify-center text-3xl font-semibold">
-                    {initials(name, email)}
-                  </span>
-                )}
-              </div>
-              <div className="pb-1">
-                <h1 className="font-heading text-2xl font-semibold sm:text-3xl">
-                  {t.greeting(displayName)}
-                </h1>
-                <p className="text-muted-foreground text-sm">{email}</p>
-                <p className="text-muted-foreground/80 mt-1 text-xs">{t.memberSince(memberSince)}</p>
-              </div>
+      {/* Membership card */}
+      <section className="bg-card shadow-card rounded-2xl border p-5 sm:p-6">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <div className="bg-muted ring-border size-18 shrink-0 overflow-hidden rounded-2xl ring-1 sm:size-20">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={displayName} className="size-full object-cover" />
+              ) : (
+                <span className="text-muted-foreground flex size-full items-center justify-center text-2xl font-semibold">
+                  {initial(name, email)}
+                </span>
+              )}
             </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <Button
-                variant="outline"
-                render={<Link href="/account/profile" />}
-                nativeButton={false}
-                className="gap-2"
-              >
-                <SettingsIcon className="size-4" />
-                {t.links.settings}
-              </Button>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="font-heading text-xl font-semibold">{displayName}</h2>
+                <span className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium">
+                  <CompassIcon className="size-3" />
+                  {t.traveller}
+                </span>
+              </div>
+              <p className="text-muted-foreground text-sm">{email}</p>
+              <p className="text-muted-foreground/80 mt-0.5 text-xs">{t.memberSince(memberSince)}</p>
             </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <Button
+              variant="outline"
+              render={<Link href="/account/profile" />}
+              nativeButton={false}
+              className="gap-2"
+            >
+              <SettingsIcon className="size-4" />
+              {t.links.settings}
+            </Button>
+            <SignOutButton />
           </div>
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {/* Journey stats — one divided card */}
+      <section className="bg-card shadow-card grid grid-cols-2 divide-x divide-y rounded-2xl border sm:grid-cols-4 sm:divide-y-0">
         {statCards.map(({ key, label, value, icon: Icon }) => (
-          <div key={key} className="bg-card shadow-card rounded-xl border p-4 sm:p-5">
+          <div key={key} className="p-5">
             <div className="text-muted-foreground flex items-center gap-2 text-xs font-medium">
               <Icon className="text-primary size-4" />
               {label}
@@ -115,76 +139,139 @@ export function AccountDashboard({
         ))}
       </section>
 
-      {/* Next trip + quick links */}
-      <section className="grid gap-4 lg:grid-cols-3">
-        <div className="bg-card shadow-card rounded-2xl border p-5 sm:p-6 lg:col-span-2">
-          <h2 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-            {t.nextTrip.heading}
-          </h2>
-          {nextTrip ? (
-            <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="font-heading text-xl font-semibold">{nextTrip.title}</p>
-                <p className="text-muted-foreground mt-1 flex items-center gap-1.5 text-sm">
-                  <MapPinIcon className="size-4" />
-                  {nextTrip.dateLabel}
-                </p>
-                <span className="bg-primary/10 text-primary mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium">
-                  <CalendarClockIcon className="size-3.5" />
-                  {nextTrip.countdown}
-                </span>
-              </div>
-              <Button
-                render={<Link href="/account/bookings" />}
-                nativeButton={false}
-                className="group gap-2"
-              >
-                {t.nextTrip.view}
-                <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
-              </Button>
+      {/* Bento: next trip + saved */}
+      <section className="grid gap-5 lg:grid-cols-3">
+        {/* Next trip */}
+        <div className="bg-card shadow-card overflow-hidden rounded-2xl border lg:col-span-2">
+          <div className="flex h-full flex-col sm:flex-row">
+            <div className="from-primary to-primary/70 relative aspect-video bg-linear-to-br sm:aspect-auto sm:w-2/5">
+              {nextTrip?.image ? (
+                <img src={nextTrip.image} alt="" className="absolute inset-0 size-full object-cover" />
+              ) : null}
             </div>
-          ) : (
-            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="font-medium">{t.nextTrip.noneTitle}</p>
-                <p className="text-muted-foreground mt-1 text-sm text-pretty">
-                  {t.nextTrip.noneBody}
-                </p>
-              </div>
-              <Button
-                render={<Link href="/tours" />}
-                nativeButton={false}
-                className="group shrink-0 gap-2"
-              >
-                <CompassIcon className="size-4" />
-                {t.nextTrip.browse}
-              </Button>
+            <div className="flex flex-1 flex-col justify-center gap-3 p-5 sm:p-6">
+              <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+                {t.nextTrip.heading}
+              </p>
+              {nextTrip ? (
+                <>
+                  <p className="font-heading text-xl font-semibold">{nextTrip.title}</p>
+                  <p className="text-muted-foreground flex items-center gap-1.5 text-sm">
+                    <MapPinIcon className="size-4" />
+                    {nextTrip.dateLabel}
+                  </p>
+                  <span className="bg-primary/10 text-primary inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium">
+                    <CalendarClockIcon className="size-3.5" />
+                    {nextTrip.countdown}
+                  </span>
+                  <Button
+                    render={<Link href="/account/bookings" />}
+                    nativeButton={false}
+                    className="group mt-1 w-fit gap-2"
+                  >
+                    {t.nextTrip.view}
+                    <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p className="font-heading text-xl font-semibold">{t.nextTrip.noneTitle}</p>
+                  <p className="text-muted-foreground text-sm text-pretty">{t.nextTrip.noneBody}</p>
+                  <Button
+                    render={<Link href="/tours" />}
+                    nativeButton={false}
+                    className="mt-1 w-fit gap-2"
+                  >
+                    <CompassIcon className="size-4" />
+                    {t.nextTrip.browse}
+                  </Button>
+                </>
+              )}
             </div>
-          )}
-        </div>
-
-        <div className="bg-card shadow-card flex flex-col gap-2 rounded-2xl border p-5 sm:p-6">
-          <Link
-            href="/account/bookings"
-            className="hover:bg-muted/60 -mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors"
-          >
-            <TicketIcon className="text-primary size-5" />
-            <span className="text-sm font-medium">{t.links.bookings}</span>
-            <ArrowRightIcon className="text-muted-foreground ml-auto size-4" />
-          </Link>
-          <Link
-            href="/account/profile"
-            className="hover:bg-muted/60 -mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors"
-          >
-            <SettingsIcon className="text-primary size-5" />
-            <span className="text-sm font-medium">{t.links.settings}</span>
-            <ArrowRightIcon className="text-muted-foreground ml-auto size-4" />
-          </Link>
-          <div className="mt-auto border-t pt-3">
-            <SignOutButton />
           </div>
         </div>
+
+        {/* Saved for later */}
+        <div className="bg-card shadow-card flex flex-col rounded-2xl border p-5 sm:p-6">
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-base font-semibold">{t.saved.heading}</h2>
+            <Link
+              href="/tours"
+              className="text-primary inline-flex items-center gap-1 text-xs font-medium hover:underline"
+            >
+              {t.saved.browse}
+              <ArrowRightIcon className="size-3.5" />
+            </Link>
+          </div>
+          {saved.length > 0 ? (
+            <ul className="mt-4 space-y-3">
+              {saved.map((s) => (
+                <li key={s.slug}>
+                  <Link href={`/tours/${s.slug}`} className="group flex items-center gap-3">
+                    <div className="bg-muted size-12 shrink-0 overflow-hidden rounded-lg">
+                      {s.image ? (
+                        <img src={s.image} alt="" className="size-full object-cover" />
+                      ) : (
+                        <HeartIcon className="text-muted-foreground m-auto mt-3.5 size-4" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="group-hover:text-primary truncate text-sm font-medium transition-colors">
+                        {s.title}
+                      </p>
+                      <p className="text-muted-foreground text-xs">{t.saved.from(s.priceLabel)}</p>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-muted-foreground mt-4 text-sm text-pretty">{t.saved.empty}</p>
+          )}
+        </div>
       </section>
+
+      {/* Upcoming journeys list */}
+      {upcoming.length > 0 ? (
+        <section className="bg-card shadow-card rounded-2xl border p-5 sm:p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-heading text-base font-semibold">{t.upcoming.heading}</h2>
+            <Link
+              href="/account/bookings"
+              className="text-primary inline-flex items-center gap-1 text-xs font-medium hover:underline"
+            >
+              {t.upcoming.viewAll}
+              <ArrowRightIcon className="size-3.5" />
+            </Link>
+          </div>
+          <ul className="divide-y">
+            {upcoming.map((row) => (
+              <li key={row.code}>
+                <Link
+                  href="/account/bookings"
+                  className="hover:bg-muted/40 -mx-2 flex items-center gap-3 rounded-lg px-2 py-3 transition-colors"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{row.title}</p>
+                    <p className="text-muted-foreground text-xs">{row.dateLabel}</p>
+                  </div>
+                  <span
+                    className={`hidden rounded-full px-2.5 py-0.5 text-xs font-medium sm:inline-flex ${bookingStatusTone(
+                      row.status,
+                    )}`}
+                  >
+                    {row.status}
+                  </span>
+                  <span className="text-muted-foreground hidden font-mono text-xs sm:inline">
+                    {row.code}
+                  </span>
+                  <ArrowRightIcon className="text-muted-foreground size-4" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </div>
   );
 }

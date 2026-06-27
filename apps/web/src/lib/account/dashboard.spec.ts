@@ -34,11 +34,12 @@ describe('summarizeBookings', () => {
     expect(stats.completed).toBe(1);
   });
 
-  it('picks the soonest active future trip as nextTrip', () => {
+  it('sorts upcomingTrips soonest-first and exposes the first as nextTrip', () => {
     const stats = summarizeBookings(
       [booking('PAID', '2026-09-01', 'late'), booking('PAID', '2026-07-09', 'soon')],
       NOW,
     );
+    expect(stats.upcomingTrips.map((b) => b.code)).toEqual(['soon', 'late']);
     expect(stats.nextTrip?.code).toBe('soon');
   });
 
