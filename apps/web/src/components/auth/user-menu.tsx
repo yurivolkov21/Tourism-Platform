@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { CircleUserRoundIcon, LogOutIcon, TicketIcon, UserIcon } from 'lucide-react';
 
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -26,6 +29,8 @@ export function UserMenu({ linkClassName }: { linkClassName?: string }) {
   const t = messages.auth.menu;
   const fullName =
     user && typeof user.user_metadata?.full_name === 'string' ? user.user_metadata.full_name : '';
+  const avatarUrl =
+    user && typeof user.user_metadata?.avatar_url === 'string' ? user.user_metadata.avatar_url : '';
 
   if (loading || !user) {
     return (
@@ -48,7 +53,16 @@ export function UserMenu({ linkClassName }: { linkClassName?: string }) {
           />
         }
       >
-        <CircleUserRoundIcon className="size-5" />
+        {avatarUrl ? (
+          <Avatar className="size-7">
+            <AvatarImage src={avatarUrl} alt="" />
+            <AvatarFallback>
+              <CircleUserRoundIcon className="size-5" />
+            </AvatarFallback>
+          </Avatar>
+        ) : (
+          <CircleUserRoundIcon className="size-5" />
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <div className="px-2 py-1.5">

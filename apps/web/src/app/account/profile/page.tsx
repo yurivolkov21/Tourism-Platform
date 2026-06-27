@@ -5,6 +5,7 @@ import { ArrowLeftIcon } from 'lucide-react';
 
 import { messages } from '@tourism/i18n';
 
+import { AvatarUploader } from '../../../components/account/avatar-uploader';
 import { ProfileForm } from '../../../components/account/profile-form';
 import { fetchProfile } from '../../../lib/api/profile';
 import { createClient } from '../../../lib/supabase/server';
@@ -40,7 +41,11 @@ export default async function ProfilePage() {
         <p className="text-muted-foreground mt-2">{t.subtitle}</p>
       </header>
 
-      <div className="bg-card shadow-card rounded-xl border p-6">
+      <div className="bg-card shadow-card space-y-6 rounded-xl border p-6">
+        <AvatarUploader
+          initialUrl={profile?.avatarUrl ?? null}
+          name={profile?.fullName ?? user.email ?? ''}
+        />
         <ProfileForm
           email={profile?.email ?? user.email ?? ''}
           fullName={profile?.fullName ?? ''}

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MediaModule } from '../media/media.module';
+import { UploadsModule } from '../uploads/uploads.module';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
@@ -9,7 +10,7 @@ import { UsersService } from './users.service';
  * reviews) that need user lookups without going through HTTP.
  */
 @Module({
-  imports: [MediaModule],
+  imports: [MediaModule, UploadsModule],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],

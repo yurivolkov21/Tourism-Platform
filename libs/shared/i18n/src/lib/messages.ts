@@ -81,6 +81,14 @@ export const messages = {
         saved: 'Profile saved.',
         memberSince: (date: string) => `Member since ${date}`,
         back: 'Back to account',
+        avatar: {
+          heading: 'Photo',
+          change: 'Change photo',
+          uploading: 'Uploading…',
+          remove: 'Remove',
+          hint: 'JPG, PNG or WebP, up to ~5 MB.',
+          error: 'Couldn’t upload that image. Please try another.',
+        },
       },
     },
     menu: {

@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Patch,
+  Post,
   Put,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -18,7 +19,10 @@ import {
 } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { UploadPurpose } from '../uploads/dto/create-signed-upload-url.dto';
+import { type SignedUploadParams, UploadsService } from '../uploads/uploads.service';
 import { SetAvatarDto } from './dto/set-avatar.dto';
+import { SignAvatarDto } from './dto/sign-avatar.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
 import { UserDto } from './dto/user.dto';
 import { UsersService, UserWithAvatar } from './users.service';
@@ -33,7 +37,33 @@ import { UsersService, UserWithAvatar } from './users.service';
 @ApiBearerAuth('supabase-jwt')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly uploadsService: UploadsService,
+  ) {}
+
+  /**
+   * `POST /users/me/avatar/sign` — sign a Cloudinary direct upload for the caller's avatar. Unlike the
+   * admin signing endpoint, `purpose` is pinned to `USER_AVATAR` server-side so a customer can only
+   * ever upload into their own avatar folder. The FE uploads the bytes to Cloudinary, then calls
+   * `PUT /users/me/avatar` with the returned `publicId`.
+   */
+  @Post('me/avatar/sign')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Sign a Cloudinary avatar upload for the caller" })
+  @ApiOkResponse({ description: 'Signed upload params (purpose pinned to USER_AVATAR)' })
+  @ApiResponse({ status: 401, description: 'Missing/invalid JWT or not synced' })
+  signAvatar(
+    @CurrentUser() user: User | null,
+    @Body() body: SignAvatarDto,
+  ): SignedUploadParams {
+    this.requireUser(user);
+    return this.uploadsService.createSignedUploadParams({
+      purpose: UploadPurpose.USER_AVATAR,
+      filename: body.filename,
+      contentType: body.contentType,
+    });
+  }
 
   /** `GET /users/me` — the caller's profile. */
   @Get('me')
