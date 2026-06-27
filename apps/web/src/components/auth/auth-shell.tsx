@@ -3,9 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeftIcon, MapPinIcon } from 'lucide-react';
 
+import { AnimatedGridPattern, Card, CardContent } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
-
-import { Logo } from '../brand/logo';
 
 // A real destination from the catalog (same Hạ Long shot the site uses elsewhere) — the auth screen
 // opens on the product's own world, not a stock login illustration.
@@ -28,16 +27,7 @@ export function AuthShell({
   children: ReactNode;
 }) {
   return (
-    <main className="relative grid min-h-svh lg:grid-cols-[1.05fr_1fr]">
-      {/* Back to home — the auth screens render without the navbar, so this is the way out. */}
-      <Link
-        href="/"
-        className="absolute top-5 left-5 z-10 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/25 lg:text-white"
-      >
-        <ArrowLeftIcon className="size-4" />
-        {messages.auth.backHome}
-      </Link>
-
+    <main className="grid min-h-svh lg:grid-cols-[1.05fr_1fr]">
       {/* Visual panel — full height on lg, slim band on mobile. */}
       <aside className="relative h-44 overflow-hidden lg:h-auto">
         <Image
@@ -71,18 +61,30 @@ export function AuthShell({
         </div>
       </aside>
 
-      {/* Form column. */}
-      <section className="bg-background flex items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
-        <div className="w-full max-w-md">
-          <div className="mb-8 flex justify-center lg:hidden">
-            <Logo />
-          </div>
-          <div className="mb-6 space-y-1 text-center lg:text-left">
-            <h1 className="font-heading text-2xl font-semibold sm:text-3xl">{title}</h1>
-            <p className="text-muted-foreground text-sm text-pretty">{subtitle}</p>
-          </div>
-          {children}
-        </div>
+      {/* Form column — animated grid backdrop with the form lifted into a card. */}
+      <section className="bg-background relative flex items-center justify-center overflow-hidden px-4 py-10 sm:px-6 lg:px-10">
+        <AnimatedGridPattern
+          numSquares={28}
+          maxOpacity={0.18}
+          duration={3}
+          className="stroke-primary/15 text-primary/25 motion-reduce:hidden inset-y-[-30%] h-[160%] skew-y-12 mask-[radial-gradient(440px_circle_at_center,white,transparent)]"
+        />
+        <Card className="shadow-card relative z-10 w-full max-w-md">
+          <CardContent className="p-6 sm:p-8">
+            <Link
+              href="/"
+              className="text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-1.5 text-sm transition-colors"
+            >
+              <ArrowLeftIcon className="size-4" />
+              {messages.auth.backHome}
+            </Link>
+            <div className="mb-6 space-y-1">
+              <h1 className="font-heading text-2xl font-semibold sm:text-3xl">{title}</h1>
+              <p className="text-muted-foreground text-sm text-pretty">{subtitle}</p>
+            </div>
+            {children}
+          </CardContent>
+        </Card>
       </section>
     </main>
   );

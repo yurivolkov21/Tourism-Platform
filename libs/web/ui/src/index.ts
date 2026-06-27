@@ -5,6 +5,7 @@ export * from './lib/utils';
 
 export * from './components/ui/accordion';
 export * from './components/ui/alert';
+export * from './components/ui/animated-grid-pattern';
 export * from './components/ui/alert-dialog';
 export * from './components/ui/animated-content';
 export * from './components/ui/animated-theme-toggler';
