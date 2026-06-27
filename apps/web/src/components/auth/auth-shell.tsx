@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
-import { MapPinIcon } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowLeftIcon, MapPinIcon } from 'lucide-react';
+
+import { messages } from '@tourism/i18n';
 
 import { Logo } from '../brand/logo';
 
@@ -25,7 +28,16 @@ export function AuthShell({
   children: ReactNode;
 }) {
   return (
-    <main className="grid min-h-[calc(100svh-4rem)] lg:grid-cols-[1.05fr_1fr]">
+    <main className="relative grid min-h-svh lg:grid-cols-[1.05fr_1fr]">
+      {/* Back to home — the auth screens render without the navbar, so this is the way out. */}
+      <Link
+        href="/"
+        className="absolute top-5 left-5 z-10 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/25 lg:text-white"
+      >
+        <ArrowLeftIcon className="size-4" />
+        {messages.auth.backHome}
+      </Link>
+
       {/* Visual panel — full height on lg, slim band on mobile. */}
       <aside className="relative h-44 overflow-hidden lg:h-auto">
         <Image

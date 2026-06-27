@@ -128,6 +128,7 @@ export const messages = {
       continueGoogle: 'Continue with Google',
       or: 'or',
     },
+    backHome: 'Back to home',
   },
   // Booking flow (book → pay → confirm). Login-required; Stripe + PayPal. EN-only (ADR-0005).
   booking: {
