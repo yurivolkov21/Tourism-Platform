@@ -114,7 +114,7 @@ export const messages = {
       confirmedBody: 'Thank you — your payment went through and your trip is booked.',
       pendingTitle: 'Confirming your payment…',
       pendingBody:
-        'Your payment is being confirmed. This usually takes a few seconds — refresh to check again.',
+        'Your payment is being confirmed — this usually takes a few seconds. This page updates automatically; you can also refresh.',
       refresh: 'Refresh',
       refLabel: 'Booking reference',
       tourLabel: 'Tour',

@@ -6,7 +6,7 @@ import { messages } from '@tourism/i18n';
 
 import type { BookingDto } from '../../lib/api/booking';
 import { formatPrice } from './order-summary';
-import { RefreshButton } from './refresh-button';
+import { AutoRefresh } from './auto-refresh';
 
 /** "15 Aug 2026" from a `YYYY-MM-DD` date (UTC to avoid an off-by-one). */
 function formatDate(isoDate: string): string {
@@ -82,7 +82,7 @@ export function CheckoutResult({ booking }: { booking: BookingDto }) {
             </Link>
           </>
         ) : (
-          <RefreshButton label={t.refresh} />
+          <AutoRefresh label={t.refresh} />
         )}
       </CardContent>
     </Card>
