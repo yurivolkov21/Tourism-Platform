@@ -46,9 +46,12 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
       return;
     }
 
-    await mirrorUser().catch(() => {
-      // Best-effort; the booking flow self-heals an unsynced user. Don't block sign-in.
-    });
+    // Mirror the user, but never let it block the redirect — a cold API (Render free tier) can take
+    // tens of seconds, and the booking flow self-heals an unsynced user anyway. Wait briefly, then go.
+    await Promise.race([
+      mirrorUser().catch(() => undefined),
+      new Promise((resolve) => setTimeout(resolve, 2500)),
+    ]);
 
     router.push(safeRedirect(redirectTo, '/account'));
     router.refresh();
