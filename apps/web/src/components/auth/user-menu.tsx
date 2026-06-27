@@ -13,8 +13,8 @@ import {
 } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-import { signOut } from '../../lib/auth/actions';
 import { useAuth } from './auth-provider';
+import { useSignOut } from './use-sign-out';
 
 /**
  * Navbar auth control: logged-out → a "Log in" link styled like the other nav links; logged-in → an
@@ -22,6 +22,7 @@ import { useAuth } from './auth-provider';
  */
 export function UserMenu({ linkClassName }: { linkClassName?: string }) {
   const { user, loading } = useAuth();
+  const signOut = useSignOut();
   const t = messages.auth.menu;
 
   if (loading || !user) {

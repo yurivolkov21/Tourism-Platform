@@ -1,10 +1,9 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
-import { Button } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-import { signOut } from '../../lib/auth/actions';
+import { SignOutButton } from '../../components/auth/sign-out-button';
 import { createClient } from '../../lib/supabase/server';
 
 export const metadata: Metadata = {
@@ -34,11 +33,9 @@ export default async function AccountPage() {
         <p className="text-muted-foreground text-sm">{t.signedInAs}</p>
         <p className="font-medium">{user.email}</p>
 
-        <form action={signOut} className="mt-6">
-          <Button type="submit" variant="outline">
-            {t.signOut}
-          </Button>
-        </form>
+        <div className="mt-6">
+          <SignOutButton />
+        </div>
       </div>
     </main>
   );

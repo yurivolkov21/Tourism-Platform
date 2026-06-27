@@ -25,7 +25,7 @@ import { messages } from '@tourism/i18n';
 import { Logo } from '../brand/logo';
 import { UserMenu } from '../auth/user-menu';
 import { useAuth } from '../auth/auth-provider';
-import { signOut } from '../../lib/auth/actions';
+import { useSignOut } from '../auth/use-sign-out';
 import { TopBar } from './top-bar';
 
 // Hover-pill links (borrowed from shadcnspace Navbar 01): each item lifts into a
@@ -66,6 +66,7 @@ function PlanTripButton({ label, className }: { label: string; className?: strin
 export function SiteHeader() {
   const t = messages.nav;
   const { user } = useAuth();
+  const signOut = useSignOut();
 
   // #1 Pill-on-scroll: past 50px the bar contracts into a floating glass pill.
   const [scrolled, setScrolled] = useState(false);

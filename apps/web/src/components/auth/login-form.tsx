@@ -1,21 +1,61 @@
 'use client';
 
 import Link from 'next/link';
-import { useActionState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState, type FormEvent } from 'react';
 
 import { Button, Input, Label } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-import { signIn, type SignInState } from '../../lib/auth/actions';
+import { mirrorUser } from '../../lib/auth/actions';
+import { authErrorMessage } from '../../lib/auth/auth-error';
+import { safeRedirect } from '../../lib/auth/safe-redirect';
+import { createClient } from '../../lib/supabase/client';
 
+/**
+ * Client-side sign-in: authenticate in the browser so the AuthProvider's `onAuthStateChange` updates
+ * the navbar immediately (a server action wouldn't notify the browser client → stale until reload).
+ * Then mirror the user server-side (best-effort) and navigate to a safe local path.
+ */
 export function LoginForm({ redirectTo }: { redirectTo: string }) {
   const t = messages.auth.login;
-  const [state, formAction, pending] = useActionState<SignInState, FormData>(signIn, {});
+  const router = useRouter();
+  const [error, setError] = useState<string>();
+  const [pending, setPending] = useState(false);
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (pending) return;
+    setPending(true);
+    setError(undefined);
+
+    const form = new FormData(event.currentTarget);
+    const email = String(form.get('email') ?? '').trim();
+    const password = String(form.get('password') ?? '');
+    if (!email || !password) {
+      setError('Enter your email and password.');
+      setPending(false);
+      return;
+    }
+
+    const supabase = createClient();
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    if (signInError) {
+      setError(authErrorMessage(signInError));
+      setPending(false);
+      return;
+    }
+
+    await mirrorUser().catch(() => {
+      // Best-effort; the booking flow self-heals an unsynced user. Don't block sign-in.
+    });
+
+    router.push(safeRedirect(redirectTo, '/account'));
+    router.refresh();
+  }
 
   return (
-    <form action={formAction} className="space-y-4">
-      <input type="hidden" name="redirect" value={redirectTo} />
-
+    <form onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="email">{t.emailLabel}</Label>
         <Input
@@ -33,9 +73,9 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
         <Input id="password" name="password" type="password" autoComplete="current-password" required />
       </div>
 
-      {state.error ? (
+      {error ? (
         <p className="text-destructive text-sm" role="alert">
-          {state.error}
+          {error}
         </p>
       ) : null}
 

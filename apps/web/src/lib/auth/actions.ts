@@ -1,16 +1,10 @@
 'use server';
 
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
 
 import { createClient } from '../supabase/server';
 import { authErrorMessage } from './auth-error';
-import { safeRedirect } from './safe-redirect';
 import { syncUser } from './sync-user';
-
-export interface SignInState {
-  error?: string;
-}
 
 export interface SignUpState {
   error?: string;
@@ -20,20 +14,13 @@ export interface SignUpState {
 
 const MIN_PASSWORD = 6;
 
-/** Email + password sign-in → mirror the user (best-effort) → redirect to a safe local path. */
-export async function signIn(_prev: SignInState, formData: FormData): Promise<SignInState> {
-  const email = String(formData.get('email') ?? '').trim();
-  const password = String(formData.get('password') ?? '');
-  const redirectTo = safeRedirect(formData.get('redirect')?.toString(), '/account');
-
-  if (!email || !password) return { error: 'Enter your email and password.' };
-
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return { error: authErrorMessage(error) };
-
+/**
+ * Mirror the signed-in Supabase user into the API's local DB (best-effort). Called from the client
+ * right after a browser sign-in — sign-in/out run in the browser so the AuthProvider reacts live;
+ * this server action just performs the server-side mirror that needs the cookie-bound session.
+ */
+export async function mirrorUser(): Promise<void> {
   await syncUser();
-  redirect(redirectTo);
 }
 
 /** Email + password sign-up with email confirmation → returns `sent` so the UI shows "check inbox". */
@@ -61,11 +48,4 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
   if (error) return { error: authErrorMessage(error) };
 
   return { sent: true };
-}
-
-/** Sign out and return to the home page. */
-export async function signOut(): Promise<void> {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
-  redirect('/');
 }
