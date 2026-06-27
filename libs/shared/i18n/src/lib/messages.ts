@@ -104,6 +104,8 @@ export const messages = {
       DEPARTURE_NOT_OPEN: 'That departure is no longer open for booking.',
       DEPARTURE_DEPARTED: 'That departure has already started.',
       CHECKOUT_FAILED: 'We couldn’t start the payment session. Please try again.',
+      UNAUTHORIZED: 'Your session has expired — please sign in again, then retry.',
+      USER_NOT_SYNCED: 'We couldn’t verify your account. Sign out and back in, then try again.',
       generic: 'Something went wrong. Please try again.',
     },
     // /checkout/success.

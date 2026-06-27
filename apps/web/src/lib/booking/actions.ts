@@ -63,16 +63,32 @@ export async function createAndCheckout(
       body: built.payload as CreateBookingBody,
     });
     const code = bookingCodeOf(created.data);
-    if (created.error || !code) return { error: errors.generic };
+    if (created.error || !code) {
+      console.error('[booking] create returned no code', { error: created.error });
+      return { error: errors.generic };
+    }
 
     const checkout = await api.POST('/api/v1/bookings/{code}/checkout', {
       params: { path: { code } },
     });
     checkoutUrl = checkoutUrlOf(checkout.data);
-    if (checkout.error || !checkoutUrl) return { error: errors.CHECKOUT_FAILED };
+    if (checkout.error || !checkoutUrl) {
+      console.error('[booking] checkout returned no url', { code, error: checkout.error });
+      return { error: errors.CHECKOUT_FAILED };
+    }
   } catch (e) {
-    const code = e instanceof ApiRequestError ? e.code : '';
-    return { error: errorMessage(code) };
+    // Surface the real API failure server-side (never silently swallow) — the user still gets a
+    // friendly message, but the logs carry the actual error code + HTTP status for diagnosis.
+    if (e instanceof ApiRequestError) {
+      console.error('[booking] createAndCheckout failed', {
+        code: e.code,
+        status: e.status,
+        message: e.message,
+      });
+      return { error: errorMessage(e.code) };
+    }
+    console.error('[booking] createAndCheckout unexpected error', e);
+    return { error: errors.generic };
   }
 
   redirect(checkoutUrl);
