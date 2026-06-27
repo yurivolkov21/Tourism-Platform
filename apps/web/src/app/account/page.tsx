@@ -1,58 +1,73 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { TicketIcon, UserPenIcon } from 'lucide-react';
 
 import { messages } from '@tourism/i18n';
 
-import { SignOutButton } from '../../components/auth/sign-out-button';
+import { AccountDashboard } from '../../components/account/account-dashboard';
+import type { DashboardNextTrip } from '../../components/account/account-dashboard';
+import { fetchMyBookings } from '../../lib/api/booking';
+import { fetchProfile } from '../../lib/api/profile';
+import { fetchWishlistCount } from '../../lib/api/wishlist';
+import { daysUntil, summarizeBookings } from '../../lib/account/dashboard';
+import { formatTripDate } from '../../lib/booking/my-bookings';
 import { createClient } from '../../lib/supabase/server';
 
 export const metadata: Metadata = {
-  title: `My account — ${messages.brand.name}`,
+  title: `${messages.auth.account.title} — ${messages.brand.name}`,
 };
 
-/**
- * Protected account stub. The proxy already gates `/account*`, but we re-check here (defence in depth)
- * and read the user for display. Real account content (profile · my bookings · wishlist) is the next
- * increment.
- */
+export const dynamic = 'force-dynamic';
+
 export default async function AccountPage() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
   if (!user) redirect('/login?redirect=/account');
 
-  const t = messages.auth.account;
+  const [profile, bookings, wishlistCount] = await Promise.all([
+    fetchProfile(),
+    fetchMyBookings(),
+    fetchWishlistCount(),
+  ]);
+
+  const now = new Date();
+  const stats = summarizeBookings(bookings, now);
+  const t = messages.auth.account.dashboard;
+
+  const nextTrip: DashboardNextTrip | null = stats.nextTrip
+    ? {
+        title: stats.nextTrip.tour.title,
+        slug: stats.nextTrip.tour.slug,
+        code: stats.nextTrip.code,
+        dateLabel: formatTripDate(stats.nextTrip.departure.startDate),
+        countdown: t.nextTrip.countdown(daysUntil(stats.nextTrip.departure.startDate, now)),
+      }
+    : null;
+
+  const memberSince = profile?.createdAt
+    ? new Date(profile.createdAt).toLocaleDateString('en-GB', {
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+      })
+    : '—';
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="font-heading text-3xl font-semibold">{t.title}</h1>
-
-      <div className="bg-card shadow-card mt-6 rounded-xl border p-6">
-        <p className="text-muted-foreground text-sm">{t.signedInAs}</p>
-        <p className="font-medium">{user.email}</p>
-
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <Link
-            href="/account/profile"
-            className="border-primary/30 text-primary hover:bg-primary/5 inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
-          >
-            <UserPenIcon className="size-4" />
-            {messages.auth.account.editProfile}
-          </Link>
-          <Link
-            href="/account/bookings"
-            className="border-primary/30 text-primary hover:bg-primary/5 inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
-          >
-            <TicketIcon className="size-4" />
-            {messages.booking.list.menuLink}
-          </Link>
-          <SignOutButton />
-        </div>
-      </div>
+    <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+      <AccountDashboard
+        name={profile?.fullName ?? ''}
+        email={profile?.email ?? user.email ?? ''}
+        avatarUrl={profile?.avatarUrl ?? null}
+        memberSince={memberSince}
+        stats={{
+          trips: stats.total,
+          upcoming: stats.upcoming,
+          completed: stats.completed,
+          wishlist: wishlistCount,
+        }}
+        nextTrip={nextTrip}
+      />
     </main>
   );
 }

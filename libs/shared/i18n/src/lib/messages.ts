@@ -47,6 +47,31 @@ export const messages = {
       signOut: 'Sign out',
       editProfile: 'Edit profile',
       security: 'Account security',
+      dashboard: {
+        greeting: (name: string) => `Welcome back, ${name}`,
+        subtitle: 'Your trips, saved tours and account — all in one place.',
+        traveller: 'Traveller',
+        memberSince: (date: string) => `Member since ${date}`,
+        stats: {
+          trips: 'Trips booked',
+          upcoming: 'Upcoming',
+          completed: 'Completed',
+          wishlist: 'Wishlist',
+        },
+        nextTrip: {
+          heading: 'Your next trip',
+          countdown: (days: number) =>
+            days <= 0 ? 'Departing today' : days === 1 ? 'In 1 day' : `In ${days} days`,
+          view: 'View booking',
+          noneTitle: 'No upcoming trips yet',
+          noneBody: 'Browse our journeys and start planning your next escape.',
+          browse: 'Explore tours',
+        },
+        links: {
+          bookings: 'My bookings',
+          settings: 'Account settings',
+        },
+      },
       securityPage: {
         title: 'Account security',
         subtitle: 'Change your password or email.',
