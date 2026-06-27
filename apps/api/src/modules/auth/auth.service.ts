@@ -68,24 +68,41 @@ export class AuthService {
     const phone = body.phone?.trim() || null;
     const emailLower = identity.email.toLowerCase();
     const updateRole = role === UserRole.ADMIN ? { role } : {};
+    // Profile fields refreshed on every sync. Only overwrite when provided — an empty re-sync must
+    // not wipe data — and a customer sync never sets `role` (preserves any prior ADMIN promotion).
+    const profile = {
+      email: emailLower,
+      ...(fullName !== null ? { fullName } : {}),
+      ...(phone !== null ? { phone } : {}),
+      ...updateRole,
+    };
 
-    const user = await this.prisma.user.upsert({
-      where: { supabaseId: identity.sub },
-      create: {
-        supabaseId: identity.sub,
-        email: emailLower,
-        fullName,
-        phone,
-        role,
-      },
-      update: {
-        email: emailLower,
-        // Only overwrite when provided — an empty re-sync must not wipe data.
-        ...(fullName !== null ? { fullName } : {}),
-        ...(phone !== null ? { phone } : {}),
-        ...updateRole,
-      },
-    });
+    // Resolve the row by its two unique keys in parallel (the single-connection pooler can't batch a
+    // $transaction, but parallel reads are fine — BLUEPRINT gotcha).
+    const [bySub, byEmail] = await Promise.all([
+      this.prisma.user.findUnique({ where: { supabaseId: identity.sub } }),
+      this.prisma.user.findUnique({ where: { email: emailLower } }),
+    ]);
+
+    let user: User;
+    if (bySub) {
+      // Known identity → refresh the profile.
+      user = await this.prisma.user.update({ where: { id: bySub.id }, data: profile });
+    } else if (byEmail) {
+      // No row for this Supabase id yet, but one already owns this (Supabase-verified) email — e.g. a
+      // seeded user, or a Supabase account re-created with a new id. Relink that row to this identity
+      // instead of colliding on the unique `email`. Safe: Supabase only issues a JWT after the email
+      // is confirmed, so the caller provably controls this address.
+      user = await this.prisma.user.update({
+        where: { id: byEmail.id },
+        data: { ...profile, supabaseId: identity.sub },
+      });
+    } else {
+      // Brand-new user.
+      user = await this.prisma.user.create({
+        data: { supabaseId: identity.sub, email: emailLower, fullName, phone, role },
+      });
+    }
 
     this.logger.log(
       `Synced ${user.role.toLowerCase()} ${user.email} (supabaseId=${user.supabaseId})`,
