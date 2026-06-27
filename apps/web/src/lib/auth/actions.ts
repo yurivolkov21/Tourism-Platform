@@ -27,10 +27,12 @@ export async function mirrorUser(): Promise<void> {
 
 /** Email + password sign-up with email confirmation → returns `sent` so the UI shows "check inbox". */
 export async function signUp(_prev: SignUpState, formData: FormData): Promise<SignUpState> {
+  const fullName = String(formData.get('fullName') ?? '').trim();
   const email = String(formData.get('email') ?? '').trim();
   const password = String(formData.get('password') ?? '');
   const confirm = String(formData.get('confirm') ?? '');
 
+  if (fullName.length < 2) return { error: 'Enter your full name.' };
   if (!email || !password) return { error: 'Enter your email and password.' };
   if (password.length < MIN_PASSWORD) {
     return { error: `Password must be at least ${MIN_PASSWORD} characters.` };
@@ -45,7 +47,9 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: `${origin}/auth/callback` },
+    // Store the name in user metadata → the navbar greets by name immediately, and `syncUser`
+    // forwards it to the API so the profile is pre-filled.
+    options: { emailRedirectTo: `${origin}/auth/callback`, data: { full_name: fullName } },
   });
   if (error) return { error: authErrorMessage(error) };
 

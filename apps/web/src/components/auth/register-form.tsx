@@ -36,6 +36,11 @@ export function RegisterForm() {
   return (
     <form action={formAction} className="space-y-4">
       <div className="space-y-1.5">
+        <Label htmlFor="fullName">{t.fullNameLabel}</Label>
+        <Input id="fullName" name="fullName" autoComplete="name" required placeholder="Nguyen Van A" />
+      </div>
+
+      <div className="space-y-1.5">
         <Label htmlFor="email">{t.emailLabel}</Label>
         <Input
           id="email"

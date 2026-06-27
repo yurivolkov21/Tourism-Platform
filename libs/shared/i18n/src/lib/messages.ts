@@ -26,6 +26,7 @@ export const messages = {
     register: {
       title: 'Create your account',
       subtitle: 'Save trips, book tours, and track your journeys.',
+      fullNameLabel: 'Full name',
       emailLabel: 'Email',
       passwordLabel: 'Password',
       confirmLabel: 'Confirm password',

@@ -16,16 +16,21 @@ export async function syncUser(): Promise<boolean> {
   try {
     const supabase = await createClient();
     const { data } = await supabase.auth.getSession();
-    const token = data.session?.access_token;
+    const session = data.session;
+    const token = session?.access_token;
     if (!token) {
       console.error('[syncUser] no access token in server session');
       return false;
     }
 
+    // Forward the sign-up display name (Supabase user metadata) so the API profile is pre-filled.
+    const metaName = session.user?.user_metadata?.full_name;
+    const body = typeof metaName === 'string' && metaName.trim() ? { fullName: metaName.trim() } : {};
+
     const res = await fetch(`${API_BASE}/api/v1/auth/sync`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: '{}',
+      body: JSON.stringify(body),
       cache: 'no-store',
     });
     if (!res.ok) {
