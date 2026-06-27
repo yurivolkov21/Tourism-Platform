@@ -45,6 +45,30 @@ export const messages = {
       signedInAs: 'Signed in as',
       signOut: 'Sign out',
       editProfile: 'Edit profile',
+      security: 'Account security',
+      securityPage: {
+        title: 'Account security',
+        subtitle: 'Change your password or email.',
+        back: 'Back to account',
+        password: {
+          heading: 'Change password',
+          newLabel: 'New password',
+          confirmLabel: 'Confirm new password',
+          submit: 'Update password',
+          submitting: 'Updating…',
+          success: 'Password updated.',
+        },
+        email: {
+          heading: 'Change email',
+          currentLabel: 'Current email',
+          newLabel: 'New email',
+          submit: 'Send confirmation',
+          submitting: 'Sending…',
+          sent: 'Confirmation sent.',
+          sentHint:
+            'Check both your current and new inbox and confirm the change — your email updates once confirmed.',
+        },
+      },
       profile: {
         title: 'Profile',
         subtitle: 'Update your contact details.',
