@@ -3,7 +3,10 @@ import {
   priceBucket,
   filterTours,
   sortTours,
+  searchTours,
+  normalizeText,
   type FilterableTour,
+  type SearchableTour,
 } from './tours-filter.js';
 
 type Row = FilterableTour & { slug: string };
@@ -95,6 +98,59 @@ describe('filterTours', () => {
 
   it('preserves input order', () => {
     expect(slugs(filterTours(tours, { themes: ['cultural'] }))).toEqual(['b', 'c', 'd']);
+  });
+});
+
+describe('normalizeText', () => {
+  it('lowercases, trims and strips Vietnamese diacritics', () => {
+    expect(normalizeText('  Hà Nội ')).toBe('ha noi');
+    expect(normalizeText('Hội An')).toBe('hoi an');
+    expect(normalizeText('SA PA')).toBe('sa pa');
+  });
+
+  it('folds the Vietnamese đ/Đ (which has no NFD decomposition) to d', () => {
+    expect(normalizeText('Đà Nẵng')).toBe('da nang');
+  });
+});
+
+describe('searchTours', () => {
+  type SRow = SearchableTour & { slug: string };
+  const rows: SRow[] = [
+    { slug: 'a', title: 'Hạ Long Bay Overnight Cruise', destination: 'Hạ Long Bay', categoryName: 'Cruises' },
+    { slug: 'b', title: 'Sa Pa Hill-Tribe Trek', destination: 'Sa Pa', categoryName: 'Trekking' },
+    { slug: 'c', title: 'Old Quarter Walk', destination: 'Hà Nội', categoryName: 'Cultural' },
+    { slug: 'd', title: 'Central Coast Beach Escape', destination: 'Đà Nẵng', categoryName: 'Beach' },
+  ];
+  const srch = (q: string) => searchTours(rows, q).map((r) => r.slug);
+
+  it('returns all tours (a copy) for an empty or whitespace query', () => {
+    expect(searchTours(rows, '')).toHaveLength(4);
+    expect(searchTours(rows, '   ')).toHaveLength(4);
+    expect(searchTours(rows, '')).not.toBe(rows);
+  });
+
+  it('matches the destination, case- and diacritic-insensitively', () => {
+    expect(srch('sa pa')).toEqual(['b']);
+    expect(srch('HA NOI')).toEqual(['c']);
+    expect(srch('da nang')).toEqual(['d']);
+  });
+
+  it('matches the tour title', () => {
+    expect(srch('overnight')).toEqual(['a']);
+  });
+
+  it('matches the category name', () => {
+    expect(srch('trekking')).toEqual(['b']);
+  });
+
+  it('returns empty when nothing matches', () => {
+    expect(searchTours(rows, 'antarctica')).toEqual([]);
+  });
+
+  it('preserves input order and does not mutate the input', () => {
+    const before = rows.map((r) => r.slug);
+    searchTours(rows, 'a');
+    expect(rows.map((r) => r.slug)).toEqual(before);
   });
 });
 

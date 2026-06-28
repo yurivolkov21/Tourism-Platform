@@ -50,7 +50,7 @@ export function Hero() {
             <Input
               id="hero-destination"
               type="text"
-              name="destination"
+              name="q"
               placeholder={t.searchPlaceholder}
               className="text-foreground placeholder:text-muted-foreground h-auto flex-1 rounded-none border-0 bg-transparent px-0 py-0 text-sm shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
             />

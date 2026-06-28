@@ -1259,6 +1259,8 @@ export const messages = {
     hideFilters: 'Hide filters',
     showFilters: 'Show filters',
     clearAll: 'Clear all',
+    searchPlaceholder: 'Search by destination or tour name…',
+    searchAriaLabel: 'Search tours',
     sortLabel: 'Sort by',
     sortOptions: {
       popular: 'Most popular',

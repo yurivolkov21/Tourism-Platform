@@ -3,15 +3,17 @@
 import { useMemo, useState } from 'react';
 import {
   SlidersHorizontalIcon,
+  SearchIcon,
   SearchXIcon,
   XIcon,
   PanelLeftCloseIcon,
   PanelLeftOpenIcon,
 } from 'lucide-react';
 
-import { filterTours, sortTours, type TourSort } from '@tourism/core';
+import { filterTours, searchTours, sortTours, type TourSort } from '@tourism/core';
 import {
   Button,
+  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -45,14 +47,18 @@ const SORT_KEYS: TourSort[] = ['popular', 'price-asc', 'price-desc', 'rating'];
 export function ToursListing({
   tours,
   initialCategory = null,
+  initialQuery = '',
 }: {
   tours: TourCardData[];
   initialCategory?: string | null;
+  /** Seed free-text search (e.g. from the home hero's `?q=`). Kept as local state thereafter. */
+  initialQuery?: string;
 }) {
   const t = messages.toursPage;
   const [filters, setFilters] = useState<ToursFilterState>(() =>
     initialCategory ? { ...EMPTY, categories: [initialCategory] } : EMPTY,
   );
+  const [query, setQuery] = useState(initialQuery);
   const [sort, setSort] = useState<TourSort>('popular');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -83,8 +89,8 @@ export function ToursListing({
     filters.prices.length;
 
   const results = useMemo(
-    () => sortTours(filterTours(tours, filters), sort),
-    [tours, filters, sort],
+    () => sortTours(searchTours(filterTours(tours, filters), query), sort),
+    [tours, filters, query, sort],
   );
 
   // Active selections flattened into removable chips (label resolved per facet).
@@ -106,7 +112,10 @@ export function ToursListing({
       return { ...prev, [facet]: next };
     });
 
-  const clearAll = () => setFilters(EMPTY);
+  const clearAll = () => {
+    setFilters(EMPTY);
+    setQuery('');
+  };
 
   const sortLabel: Record<TourSort, string> = {
     popular: t.sortOptions.popular,
@@ -142,6 +151,19 @@ export function ToursListing({
 
           {/* Results */}
           <div className="min-w-0">
+            {/* Free-text search — seeded from the home hero's `?q=`, then filters live as you type. */}
+            <div className="relative mb-6">
+              <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2" />
+              <Input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={t.searchPlaceholder}
+                aria-label={t.searchAriaLabel}
+                className="bg-background h-11 rounded-full pr-4 pl-10"
+              />
+            </div>
+
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 {/* Mobile: open drawer */}

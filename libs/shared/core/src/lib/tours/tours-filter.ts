@@ -95,6 +95,41 @@ export function filterTours<T extends FilterableTour>(
   });
 }
 
+/**
+ * Lowercase, trim and strip diacritics so free-text matching is accent- and case-insensitive
+ * (e.g. "ha noi" matches "Hà Nội"). The Vietnamese đ/Đ has no NFD decomposition, so it is folded
+ * to `d` explicitly.
+ */
+export function normalizeText(input: string): string {
+  return input
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/đ/gi, 'd')
+    .toLowerCase()
+    .trim();
+}
+
+/** Free-text searchable shape. The web `TourCardData` is structurally compatible. */
+export interface SearchableTour {
+  title: string;
+  destination: string;
+  /** Human-readable category name (not the slug), when present. */
+  categoryName?: string;
+}
+
+/**
+ * Free-text search over a tour's title, destination and category name — accent- and
+ * case-insensitive (see {@link normalizeText}). An empty/whitespace query returns a copy of all
+ * tours. Input order is preserved; input is not mutated.
+ */
+export function searchTours<T extends SearchableTour>(tours: readonly T[], query: string): T[] {
+  const q = normalizeText(query);
+  if (q === '') return [...tours];
+  return tours.filter((tour) =>
+    normalizeText(`${tour.title} ${tour.destination} ${tour.categoryName ?? ''}`).includes(q),
+  );
+}
+
 /** Return a sorted copy of the tours (does not mutate the input). */
 export function sortTours<T extends FilterableTour>(tours: readonly T[], sort: TourSort): T[] {
   const copy = [...tours];

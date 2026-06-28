@@ -21,10 +21,10 @@ export const revalidate = 300;
 export default async function ToursPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
   const t = messages.toursPage;
-  const { category } = await searchParams;
+  const { category, q } = await searchParams;
 
   let tours: TourCardData[] = [];
   try {
@@ -36,7 +36,11 @@ export default async function ToursPage({
   return (
     <main>
       <ContentHero breadcrumb={t.breadcrumb} title={t.title} subtitle={t.subtitle} />
-      <ToursListing tours={tours} initialCategory={category ?? null} />
+      <ToursListing
+        tours={tours}
+        initialCategory={category ?? null}
+        initialQuery={q ?? ''}
+      />
     </main>
   );
 }
