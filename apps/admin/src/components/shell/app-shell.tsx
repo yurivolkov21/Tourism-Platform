@@ -1,6 +1,14 @@
 'use client';
 
-import { Compass, FileText, ImageIcon, LayoutDashboard, MapPin, Tags } from 'lucide-react';
+import {
+  Compass,
+  FileText,
+  ImageIcon,
+  LayoutDashboard,
+  MapPin,
+  MessageSquareQuote,
+  Tags,
+} from 'lucide-react';
 
 import {
   ScrollArea,
@@ -26,6 +34,7 @@ const NAV: NavSection[] = [
       { title: 'Categories', href: '/categories', icon: Tags },
       { title: 'Media', href: '/media', icon: ImageIcon, soon: true },
       { title: 'Posts', href: '/posts', icon: FileText },
+      { title: 'Reviews', href: '/reviews', icon: MessageSquareQuote },
     ],
   },
 ];
