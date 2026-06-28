@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { MediaOwnerType, Prisma, Tour } from '@prisma/client';
+import { DepartureStatus, MediaOwnerType, Prisma, Tour } from '@prisma/client';
 import { slugify } from '../../common/slugify';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MediaItemDto, MediaInputDto } from '../media/dto/media.dto';
@@ -16,6 +16,7 @@ import { TourFaqInput } from './dto/nested/tour-faq.input';
 import { TourItineraryDayInput } from './dto/nested/tour-itinerary-day.input';
 import { TourPolicyInput } from './dto/nested/tour-policy.input';
 import { UpdateTourDto } from './dto/update-tour.dto';
+import { nextDepartureInfo, type NextDepartureInfo } from './next-departure.util';
 
 /** Lean relations for list rows — category + destination links (with primary flag). */
 const LIST_INCLUDE: Prisma.TourInclude = {
@@ -39,11 +40,11 @@ const DETAIL_INCLUDE: Prisma.TourInclude = {
 /** A tour row enriched with its media set (delivery URLs built at read time). */
 export type TourWithMedia = Tour & { media: MediaItemDto[] };
 
-/** Read-path tour: media + computed review stats (for catalog cards / detail). */
+/** Read-path tour: media + computed review stats + next-departure availability (catalog cards / detail). */
 export type TourWithStats = TourWithMedia & {
   averageRating: number;
   reviewsCount: number;
-};
+} & NextDepartureInfo;
 
 /** Pagination envelope; `TransformInterceptor` hoists `meta` to the top level. */
 export interface PaginatedTours {
@@ -108,7 +109,7 @@ export class ToursService {
     });
     if (!tour) throw this.notFound(slug);
     const withMedia = await this.media.attachToOwner(MediaOwnerType.TOUR, tour);
-    return (await this.attachRatings([withMedia]))[0];
+    return (await this.attachNextDeparture(await this.attachRatings([withMedia])))[0];
   }
 
   // ── Admin reads + mutations ───────────────────────────────────────────────
@@ -124,7 +125,7 @@ export class ToursService {
     });
     if (!tour) throw this.notFound(slug);
     const withMedia = await this.media.attachToOwner(MediaOwnerType.TOUR, tour);
-    return (await this.attachRatings([withMedia]))[0];
+    return (await this.attachNextDeparture(await this.attachRatings([withMedia])))[0];
   }
 
   /**
@@ -152,6 +153,34 @@ export class ToursService {
         reviewsCount: g?._count._all ?? 0,
       };
     });
+  }
+
+  /**
+   * Attaches each tour's **next departure** availability (soonest OPEN, upcoming departure → date +
+   * seats left) for the card "Only N seats left" / "Next: …" badge. One batched query for the whole
+   * page (the rows arrive earliest-first, so the first per tour is the soonest); tours with no open
+   * upcoming departure get `null`/`null`.
+   */
+  private async attachNextDeparture<T extends { id: string }>(
+    rows: T[],
+  ): Promise<(T & NextDepartureInfo)[]> {
+    if (rows.length === 0) return [];
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const departures = await this.prisma.tourDeparture.findMany({
+      where: {
+        tourId: { in: rows.map((r) => r.id) },
+        status: DepartureStatus.OPEN,
+        startDate: { gte: today },
+      },
+      orderBy: { startDate: 'asc' },
+      select: { tourId: true, startDate: true, seatsTotal: true, seatsBooked: true },
+    });
+    const soonestByTour = new Map<string, (typeof departures)[number]>();
+    for (const d of departures) {
+      if (!soonestByTour.has(d.tourId)) soonestByTour.set(d.tourId, d);
+    }
+    return rows.map((r) => ({ ...r, ...nextDepartureInfo(soonestByTour.get(r.id)) }));
   }
 
   /** Create. Resolves refs (400 on bad ones), slugifies, nested-writes children. */
@@ -369,7 +398,7 @@ export class ToursService {
 
     const withMedia = await this.media.attachToOwners(MediaOwnerType.TOUR, items);
     return {
-      items: await this.attachRatings(withMedia),
+      items: await this.attachNextDeparture(await this.attachRatings(withMedia)),
       meta: {
         page,
         pageSize,

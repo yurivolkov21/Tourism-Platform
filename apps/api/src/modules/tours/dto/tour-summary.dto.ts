@@ -63,6 +63,23 @@ export class TourSummaryDto {
   @ApiProperty({ example: 214, description: 'Count of approved reviews' })
   reviewsCount!: number;
 
+  @ApiProperty({
+    type: String,
+    format: 'date',
+    nullable: true,
+    example: '2026-08-15',
+    description: 'Soonest open upcoming departure date; null if none scheduled',
+  })
+  nextDepartureDate!: string | null;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    example: 6,
+    description: 'Seats left on the soonest open upcoming departure; null if none',
+  })
+  nextDepartureSeatsLeft!: number | null;
+
   @ApiProperty({ type: TourCategoryRefDto })
   category!: TourCategoryRefDto;
 

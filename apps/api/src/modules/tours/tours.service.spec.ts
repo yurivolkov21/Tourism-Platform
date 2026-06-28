@@ -19,6 +19,7 @@ interface PrismaMocks {
   tourCategory?: Record<string, unknown>;
   destination?: Record<string, unknown>;
   review?: Record<string, unknown>;
+  tourDeparture?: Record<string, unknown>;
 }
 
 function makePrisma(m: PrismaMocks = {}): PrismaService {
@@ -49,6 +50,10 @@ function makePrisma(m: PrismaMocks = {}): PrismaService {
     review: {
       groupBy: jest.fn().mockResolvedValue([]),
       ...m.review,
+    },
+    tourDeparture: {
+      findMany: jest.fn().mockResolvedValue([]),
+      ...m.tourDeparture,
     },
   };
   // Interactive tx runs its callback against the same mock (tx.tour.delete etc.).
@@ -173,6 +178,46 @@ describe('ToursService', () => {
       pageSize: 10,
       total: 21,
       totalPages: 3,
+    });
+  });
+
+  it('findPublicList attaches next-departure availability (soonest open upcoming)', async () => {
+    const findMany = jest.fn().mockResolvedValue([{ id: 't-1' }]);
+    const count = jest.fn().mockResolvedValue(1);
+    const departureFindMany = jest.fn().mockResolvedValue([
+      {
+        tourId: 't-1',
+        startDate: new Date('2026-08-15T00:00:00.000Z'),
+        seatsTotal: 15,
+        seatsBooked: 12,
+      },
+    ]);
+    const svc = makeService(
+      makePrisma({
+        tour: { findMany, count },
+        tourDeparture: { findMany: departureFindMany },
+      }),
+    );
+
+    const res = await svc.findPublicList({ page: 1, pageSize: 10 });
+
+    expect(departureFindMany.mock.calls[0][0].where.status).toBe('OPEN');
+    expect(res.items[0]).toMatchObject({
+      nextDepartureDate: '2026-08-15',
+      nextDepartureSeatsLeft: 3,
+    });
+  });
+
+  it('next-departure fields are null when a tour has no open upcoming departure', async () => {
+    const findMany = jest.fn().mockResolvedValue([{ id: 't-1' }]);
+    const count = jest.fn().mockResolvedValue(1);
+    const svc = makeService(makePrisma({ tour: { findMany, count } }));
+
+    const res = await svc.findPublicList({ page: 1, pageSize: 10 });
+
+    expect(res.items[0]).toMatchObject({
+      nextDepartureDate: null,
+      nextDepartureSeatsLeft: null,
     });
   });
 
