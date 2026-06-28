@@ -51,7 +51,7 @@ export function TourCard({ tour }: { tour: TourCardData }) {
   const t = messages.featuredTours;
 
   return (
-    <Card className="group flex flex-col overflow-hidden p-0 transition-all duration-200 ease-out-expo hover:-translate-y-0.5 hover:shadow-dropdown">
+    <Card className="group flex h-full flex-col overflow-hidden p-0 transition-all duration-200 ease-out-expo hover:-translate-y-0.5 hover:shadow-dropdown">
       {/* Cover — temporary Unsplash image when provided, else a placeholder slot */}
       <div className="relative aspect-(--aspect-card) w-full overflow-hidden">
         {tour.image ? (
@@ -90,7 +90,11 @@ export function TourCard({ tour }: { tour: TourCardData }) {
           </span>
         </div>
 
-        <h3 className="font-sans text-lg font-semibold text-balance">{tour.title}</h3>
+        {/* Reserve a fixed 2-line block (min-h-14 = 2× the text-lg line-height) so 1- and 2-line
+            titles take the same height; longer titles clamp with an ellipsis. */}
+        <h3 className="font-sans text-lg font-semibold leading-7 line-clamp-2 min-h-14">
+          {tour.title}
+        </h3>
 
         <div className="flex items-center gap-1.5 text-sm">
           <StarIcon className="text-rating fill-rating size-4" />
