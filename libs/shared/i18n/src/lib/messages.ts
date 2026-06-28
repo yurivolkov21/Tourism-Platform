@@ -1002,15 +1002,6 @@ export const messages = {
       counter: (current: number, total: number) => `${current} / ${total}`,
     },
   },
-  tours: {
-    eyebrow: 'All tours',
-    heading: 'Find your journey',
-    subtitle:
-      'Browse our curated trips by style, or search for a place you have in mind.',
-    all: 'All',
-    searchPlaceholder: 'Search tours',
-    empty: 'No tours match your search yet.',
-  },
   paymentTrust: {
     heading: 'Book with confidence',
     subtitle:
