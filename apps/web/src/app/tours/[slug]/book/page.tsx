@@ -11,6 +11,7 @@ import {
   fetchTourDepartures,
   toDepartureOptions,
 } from '../../../../lib/api/booking';
+import { fetchProfile } from '../../../../lib/api/profile';
 import { createClient } from '../../../../lib/supabase/server';
 
 export const metadata: Metadata = {
@@ -44,14 +45,16 @@ export default async function BookTourPage({
     redirect(`/login?redirect=${encodeURIComponent(target)}`);
   }
 
-  const [tour, departures] = await Promise.all([
+  const [tour, departures, profile] = await Promise.all([
     fetchBookingTour(slug),
     fetchTourDepartures(slug),
+    fetchProfile(),
   ]);
   if (!tour) notFound();
 
   const options = toDepartureOptions(departures, tour.basePrice);
-  const initialDepartureId = options.find((o) => o.id === d)?.id ?? options[0]?.id ?? '';
+  const initialDepartureId =
+    options.find((o) => o.id === d)?.id ?? options[0]?.id ?? '';
   const t = messages.booking.page;
 
   return (
@@ -65,7 +68,9 @@ export default async function BookTourPage({
       </Link>
 
       <header className="mt-4 mb-8">
-        <h1 className="font-heading text-3xl font-semibold sm:text-4xl">{t.title}</h1>
+        <h1 className="font-heading text-3xl font-semibold sm:text-4xl">
+          {t.title}
+        </h1>
         <p className="text-muted-foreground mt-2">{t.subtitle}</p>
       </header>
 
@@ -76,7 +81,9 @@ export default async function BookTourPage({
           currency={tour.currency}
           departures={options}
           initialDepartureId={initialDepartureId}
-          defaultEmail={user.email}
+          defaultName={profile?.fullName ?? ''}
+          defaultEmail={profile?.email ?? user.email}
+          defaultPhone={profile?.phone ?? ''}
         />
       ) : (
         <p className="text-muted-foreground rounded-lg border p-6">

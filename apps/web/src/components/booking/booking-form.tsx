@@ -50,14 +50,19 @@ export function BookingForm({
   currency,
   departures,
   initialDepartureId,
+  defaultName,
   defaultEmail,
+  defaultPhone,
 }: {
   tourSlug: string;
   tourTitle: string;
   currency: string;
   departures: DepartureOption[];
   initialDepartureId: string;
+  // Pre-filled (but editable) from the signed-in user's profile — they may book for someone else.
+  defaultName?: string;
   defaultEmail?: string;
+  defaultPhone?: string;
 }) {
   const t = messages.booking.form;
   const [state, formAction, pending] = useActionState<
@@ -160,6 +165,7 @@ export function BookingForm({
                 id="contactName"
                 name="contactName"
                 autoComplete="name"
+                defaultValue={defaultName}
                 required
               />
             </Field>
@@ -182,6 +188,7 @@ export function BookingForm({
                   name="contactPhone"
                   type="tel"
                   autoComplete="tel"
+                  defaultValue={defaultPhone}
                 />
               </Field>
             </div>
