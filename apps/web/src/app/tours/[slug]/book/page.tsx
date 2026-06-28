@@ -31,10 +31,10 @@ export default async function BookTourPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ d?: string }>;
+  searchParams: Promise<{ d?: string; mode?: string }>;
 }) {
   const { slug } = await params;
-  const { d } = await searchParams;
+  const { d, mode } = await searchParams;
 
   const supabase = await createClient();
   const {
@@ -74,22 +74,19 @@ export default async function BookTourPage({
         <p className="text-muted-foreground mt-2">{t.subtitle}</p>
       </header>
 
-      {options.length > 0 ? (
-        <BookingForm
-          tourSlug={slug}
-          tourTitle={tour.title}
-          currency={tour.currency}
-          departures={options}
-          initialDepartureId={initialDepartureId}
-          defaultName={profile?.fullName ?? ''}
-          defaultEmail={profile?.email ?? user.email}
-          defaultPhone={profile?.phone ?? ''}
-        />
-      ) : (
-        <p className="text-muted-foreground rounded-lg border p-6">
-          {messages.booking.box.noDepartures}
-        </p>
-      )}
+      <BookingForm
+        tourSlug={slug}
+        tourTitle={tour.title}
+        tourId={tour.id}
+        currency={tour.currency}
+        departures={options}
+        durationDays={tour.durationDays}
+        initialDepartureId={initialDepartureId}
+        initialMode={mode === 'private' ? 'private' : 'scheduled'}
+        defaultName={profile?.fullName ?? ''}
+        defaultEmail={profile?.email ?? user.email}
+        defaultPhone={profile?.phone ?? ''}
+      />
     </main>
   );
 }

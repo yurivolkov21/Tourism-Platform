@@ -273,6 +273,36 @@ export const messages = {
       submitting: 'Starting secure checkout…',
       trustLine:
         'You’ll be redirected to a secure payment page. No card details touch our servers.',
+      modeToggle: {
+        label: 'Travel on my own dates',
+        hint: 'Private tour — pick any date. Quote-based: we confirm within 24h, no payment now.',
+        noDepartures:
+          'No scheduled dates right now — request your own dates below.',
+      },
+      private: {
+        datesHeading: 'Your dates',
+        datesDesc:
+          'Pick a preferred start date — we’ll plan the rest around it.',
+        startDate: 'Preferred start date',
+        endHint: (end: string, days: number) =>
+          `Ends around ${end} · ${days} days`,
+        preferencesHeading: 'Trip preferences',
+        preferencesDesc:
+          'Tell us anything that helps us tailor your private departure.',
+        requests: 'Anything else? (optional)',
+        requestsPlaceholder: 'Flexible dates, dietary needs, a private guide…',
+        submit: 'Request a quote',
+        submitting: 'Sending request…',
+        confirmNote:
+          'No payment now — we’ll email your private-departure quote within 24h.',
+        summaryHeading: 'Your request',
+        priceOnRequest: 'Price on request',
+        successTitle: 'Request sent',
+        successBody:
+          'Thanks! Our team will email you a tailored private-departure quote within 24 hours.',
+        error: 'Couldn’t send your request. Please try again.',
+        rateLimited: 'Too many requests — please wait a minute and try again.',
+      },
     },
     // Friendly EN for each error code (form + API). Keep the keys in sync with BookingFormError.
     errors: {

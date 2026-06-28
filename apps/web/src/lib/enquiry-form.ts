@@ -11,6 +11,8 @@ export interface EnquiryPayload {
   email: string;
   message: string;
   phone?: string;
+  /** Links the lead to a tour (e.g. a private-departure request from /book). */
+  tourId?: string;
   nationality?: string;
   travelDate?: string;
   groupSize?: number;
@@ -37,7 +39,10 @@ export function parseGroupSize(value: string | undefined): number | undefined {
 }
 
 /** PlanTrip message: the visitor's note plus a "Preferred duration" line; falls back when too short. */
-export function composePlanTripMessage(message: string, duration: string | null): string {
+export function composePlanTripMessage(
+  message: string,
+  duration: string | null,
+): string {
   const note = message.trim();
   const durationLine = duration ? `Preferred duration: ${duration}.` : '';
   const composed = [note, durationLine].filter(Boolean).join('\n\n');
@@ -120,7 +125,9 @@ export function buildContactPayload(raw: ContactRaw): EnquiryPayload {
 }
 
 /** Lightweight client-side guard (the API re-validates fully). */
-export function isValidEnquiry(payload: Pick<EnquiryPayload, 'name' | 'email'>): boolean {
+export function isValidEnquiry(
+  payload: Pick<EnquiryPayload, 'name' | 'email'>,
+): boolean {
   const nameOk = payload.name.trim().length >= 2;
   const emailOk = /^\S+@\S+\.\S+$/.test(payload.email.trim());
   return nameOk && emailOk;

@@ -12,7 +12,9 @@ type TourDetailDto = components['schemas']['TourDetailDto'];
 /** The caller's bookings, newest first (top 50 on the API). Empty on error. */
 export async function fetchMyBookings(): Promise<BookingDto[]> {
   try {
-    const data = await authedJson<BookingDto[]>('/api/v1/bookings/me', { method: 'GET' });
+    const data = await authedJson<BookingDto[]>('/api/v1/bookings/me', {
+      method: 'GET',
+    });
     return Array.isArray(data) ? data : [];
   } catch {
     return [];
@@ -20,8 +22,13 @@ export async function fetchMyBookings(): Promise<BookingDto[]> {
 }
 
 /** Create a PENDING booking (`POST /bookings`). Throws `ApiRequestError` on failure. */
-export async function createBooking(payload: CreateBookingPayload): Promise<BookingDto> {
-  return authedJson<BookingDto>('/api/v1/bookings', { method: 'POST', body: payload });
+export async function createBooking(
+  payload: CreateBookingPayload,
+): Promise<BookingDto> {
+  return authedJson<BookingDto>('/api/v1/bookings', {
+    method: 'POST',
+    body: payload,
+  });
 }
 
 /** Start a checkout session for a PENDING booking (`POST /bookings/{code}/checkout`). */
@@ -34,17 +41,22 @@ export async function startCheckout(code: string): Promise<CheckoutSessionDto> {
 
 /** Capture an approved PayPal order (`POST /bookings/{code}/capture`). Idempotent on the API. */
 export async function captureBookingOrder(code: string): Promise<void> {
-  await authedJson<BookingDto>(`/api/v1/bookings/${encodeURIComponent(code)}/capture`, {
-    method: 'POST',
-  });
+  await authedJson<BookingDto>(
+    `/api/v1/bookings/${encodeURIComponent(code)}/capture`,
+    {
+      method: 'POST',
+    },
+  );
 }
 
 /** Minimal tour fields the booking page needs (title + per-person base price + hero). */
 export interface BookingTour {
+  id: string;
   slug: string;
   title: string;
   basePrice: number;
   currency: string;
+  durationDays: number;
   image?: string;
 }
 
@@ -84,7 +96,9 @@ export function toDepartureOptions(
 }
 
 /** Minimal tour read for the booking page (public, enveloped → unwrap `.data`). `null` if unknown. */
-export async function fetchBookingTour(slug: string): Promise<BookingTour | null> {
+export async function fetchBookingTour(
+  slug: string,
+): Promise<BookingTour | null> {
   try {
     const api = getApiClient();
     const { data, error } = await api.GET('/api/v1/tours/{slug}', {
@@ -94,10 +108,12 @@ export async function fetchBookingTour(slug: string): Promise<BookingTour | null
     if (error || !dto) return null;
     const hero = dto.media.find((m) => m.role === 'hero') ?? dto.media[0];
     return {
+      id: dto.id,
       slug: dto.slug,
       title: dto.title,
       basePrice: Number(dto.basePrice),
       currency: dto.currency,
+      durationDays: dto.durationDays,
       image: hero?.url,
     };
   } catch {
@@ -110,14 +126,18 @@ export async function fetchBookingTour(slug: string): Promise<BookingTour | null
  * `{ data }` envelope, so we unwrap `.data`. Returns `[]` on any error so the booking page can render
  * a graceful "no departures" state instead of throwing.
  */
-export async function fetchTourDepartures(slug: string): Promise<DepartureDto[]> {
+export async function fetchTourDepartures(
+  slug: string,
+): Promise<DepartureDto[]> {
   try {
     const api = getApiClient();
     const { data, error } = await api.GET('/api/v1/tours/{slug}/departures', {
       params: { path: { slug }, query: { status: 'OPEN' } },
     });
     if (error) return [];
-    return (data as unknown as { data?: DepartureDto[] } | undefined)?.data ?? [];
+    return (
+      (data as unknown as { data?: DepartureDto[] } | undefined)?.data ?? []
+    );
   } catch {
     return [];
   }
@@ -130,9 +150,12 @@ export async function fetchTourDepartures(slug: string): Promise<DepartureDto[]>
  */
 export async function fetchBooking(code: string): Promise<BookingDto | null> {
   try {
-    return await authedJson<BookingDto>(`/api/v1/bookings/${encodeURIComponent(code)}`, {
-      method: 'GET',
-    });
+    return await authedJson<BookingDto>(
+      `/api/v1/bookings/${encodeURIComponent(code)}`,
+      {
+        method: 'GET',
+      },
+    );
   } catch {
     return null;
   }
