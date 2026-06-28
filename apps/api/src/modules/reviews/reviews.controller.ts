@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -9,15 +10,18 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { Review, User } from '@prisma/client';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Public } from '../../common/decorators/public.decorator';
 import { CreateReviewDto } from './dto/create-review.dto';
+import { FeaturedReviewsDto } from './dto/featured-review.dto';
 import { ReviewDto } from './dto/review.dto';
-import { ReviewsService } from './reviews.service';
+import { FeaturedReview, ReviewsService } from './reviews.service';
 
 /**
  * Customer review surface mounted at `/reviews`. Public read of approved reviews
@@ -28,6 +32,15 @@ import { ReviewsService } from './reviews.service';
 @Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
+
+  @Public()
+  @Get('featured')
+  @ApiOperation({ summary: 'Featured testimonials for the homepage' })
+  @ApiOkResponse({ type: FeaturedReviewsDto, description: 'Approved + featured reviews' })
+  featured(): Promise<FeaturedReview[]> {
+    // Plain array → the transform interceptor envelopes it as `{ data: [...], error: null }`.
+    return this.reviewsService.findFeatured();
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

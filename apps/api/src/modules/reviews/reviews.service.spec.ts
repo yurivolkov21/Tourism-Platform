@@ -285,6 +285,45 @@ describe('ReviewsService.findAllForAdmin', () => {
   });
 });
 
+describe('ReviewsService.findFeatured', () => {
+  it('queries approved+featured and resolves tripLabel (explicit wins, else tour title)', async () => {
+    const findMany = jest.fn().mockResolvedValue([
+      {
+        id: 'f-1',
+        rating: 5,
+        title: null,
+        body: 'great',
+        authorName: 'Emily',
+        authorLocation: 'Sydney, Australia',
+        tripLabel: null,
+        createdAt: new Date('2026-06-01'),
+        tour: { title: 'Ha Long Bay Cruise' },
+      },
+      {
+        id: 'f-2',
+        rating: 4,
+        title: 't',
+        body: 'nice',
+        authorName: 'Sam',
+        authorLocation: null,
+        tripLabel: 'Custom trip',
+        createdAt: new Date('2026-06-02'),
+        tour: null,
+      },
+    ]);
+    const svc = new ReviewsService({ review: { findMany } } as never);
+
+    const result = await svc.findFeatured();
+
+    type WhereCall = { where: { isApproved: boolean; isFeatured: boolean } };
+    const calls = findMany.mock.calls as unknown as WhereCall[][];
+    expect(calls[0][0].where).toEqual({ isApproved: true, isFeatured: true });
+    expect(result[0].tripLabel).toBe('Ha Long Bay Cruise'); // fell back to tour title
+    expect(result[1].tripLabel).toBe('Custom trip'); // explicit wins
+    expect(result[0].authorLocation).toBe('Sydney, Australia');
+  });
+});
+
 describe('ReviewsService.moderateById', () => {
   it('throws REVIEW_NOT_FOUND when id missing', async () => {
     const update = jest.fn();

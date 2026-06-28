@@ -64,6 +64,17 @@ export interface PaginatedAdminReviews {
   meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
 
+export interface FeaturedReview {
+  id: string;
+  rating: number;
+  title: string | null;
+  body: string;
+  authorName: string;
+  authorLocation: string | null;
+  tripLabel: string | null;
+  createdAt: Date;
+}
+
 /**
  * Customer review surface.
  *
@@ -212,6 +223,40 @@ export class ReviewsService {
         averageRating: aggregate._avg.rating ?? null,
       },
     };
+  }
+
+  /**
+   * Featured testimonials for the homepage — approved + featured, CURATED first (admin's marketing
+   * picks), then newest. `tripLabel` falls back to the linked tour's title.
+   */
+  async findFeatured(limit = 12): Promise<FeaturedReview[]> {
+    const rows = await this.prisma.review.findMany({
+      where: { isApproved: true, isFeatured: true },
+      // 'CURATED' < 'VERIFIED' alphabetically, so source asc puts curated picks first.
+      orderBy: [{ source: 'asc' }, { createdAt: 'desc' }],
+      take: limit,
+      select: {
+        id: true,
+        rating: true,
+        title: true,
+        body: true,
+        authorName: true,
+        authorLocation: true,
+        tripLabel: true,
+        createdAt: true,
+        tour: { select: { title: true } },
+      },
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      rating: row.rating,
+      title: row.title,
+      body: row.body,
+      authorName: row.authorName,
+      authorLocation: row.authorLocation,
+      tripLabel: row.tripLabel ?? row.tour?.title ?? null,
+      createdAt: row.createdAt,
+    }));
   }
 
   /**
