@@ -31,12 +31,35 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P0 + P1.1–P1.6 DONE (`main` @ `a98998a`)
+## Current state — P1 + P2 DONE · P3 web ~90% · P4 admin CRUD DONE · **DEPLOYED** (`main` @ `c75ac8d`)
 
 ```text
 apps/   api (NestJS 11) · web + admin (Next 16) · mobile (Expo SDK 54)
 libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
 ```
+
+**Now (frontier):**
+
+- **API (P1) — complete + DEPLOYED on Render.** P1.1–P1.8 + P1.x (jobs). Schema+RLS,
+  envelope, auth, CRUD, bookings, **Stripe + PayPal (+ admin refund)**, media, reviews/
+  wishlist/enquiry/stats, seed + typed `@tourism/core` client, pg-boss outbox+cron.
+  **+ blog Posts CRUD + admin bookings list/detail.** ~203 api tests.
+- **Design (P2) — done.** `@tourism/tokens` ("Emerald Heritage", no-hex) + `@tourism/ui`
+  (shadcn/Base UI, 54 comps). Brand **"Nexora"** (NEX origami logo).
+- **Web (P3) — ~90%, customer-facing live on Vercel.** Home · destinations overview · 3
+  region pages · tours listing (**+ free-text search**, accent/đ-insensitive) · tour detail ·
+  about · contact (**real enquiry → DB + interest dropdown from live categories**) · faq/
+  privacy/terms · **auth (login/register/forgot/reset, Supabase)** · **account (dashboard ·
+  settings = profile+security+connected+delete · bookings list)** · **booking flow** (sectioned
+  form · Stripe/PayPal pay · **private-departure request** · checkout success/cancel · inline
+  date-picker) · reviews (real DB) · redesigned footer. **Component reform done** (Tier 1/2/3a:
+  native forms → `@tourism/ui`; shared lead-form field baseline; dead-code swept).
+- **Admin (P4) — CRUD breadth done + DEPLOYED on Vercel.** Auth + shell + dashboard +
+  CRUD (Destinations · Categories · Tours · Departures · Posts). UI polish deferred.
+- **Real data wired:** home · destinations overview · tours listing+detail · enquiry ·
+  reviews · contact. **Remaining fixtures:** `/destinations/[region]` region-detail.
+
+### History (P0–P1.6 detail)
 
 - **P0 / P0.6 / P0.8** — 9-project scaffold; module boundaries enforced
   (`@nx/enforce-module-boundaries`, scope+type); `@tourism/*` scope; donor
@@ -71,19 +94,33 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
 - **Gate:** `nx run-many -t lint typecheck test` + `build` green; mobile `build`
   is an Expo EAS cloud build (needs global `eas-cli`) → excluded from the local gate.
 
-## Next steps (resume order)
+## Next steps (resume order) — finishing P3 web
 
-1. **P1.7 — Reviews + wishlist + enquiry (+ admin-stats)** — *next*. Tables exist
-   (`Review` one-per-booking + rating CHECK, `Wishlist` composite PK, `Enquiry` lead
-   - status enum). Port donor `modules/{reviews,wishlist,enquiry,admin-stats}` to the
-   EN-only schema; follow the P1.4/P1.5 pattern. Also wire the deferred **user-avatar**
-   media (`USER_AVATAR` purpose already signable) into `/users/me`.
-2. **P1.x** pg-boss jobs — deferred confirmation/refund emails (Resend) + abandoned-cart
-   cleanup + media reconcile (ADR-0007). **P1.8** seed + Swagger + `shared/core` API
-   client + tests ≥80% (unblocks the deferred PayPal e2e + full-flow runs).
-3. Then P2 design system → P3 web → P4 admin → P5 mobile (BLUEPRINT §7).
-4. Then P2 design system → P3 web → P4 admin → P5 mobile (BLUEPRINT §7).
+1. **Region-detail real data** — `/destinations/[region]` is the last surface still on
+   fixtures; wire it to the API (destination + its tours), matching the ISR pattern used by
+   the rest of the web.
+2. **Wishlist UX** — backend + the account dashboard count exist, but there's **no "save"
+   (heart) affordance** on tour cards/detail, so a customer can't actually add a tour.
+   Either build the save toggle (`lib/api/wishlist.ts` is ready) or hide the dashboard stat.
+3. **Customer booking management** — bookings list only; no booking-detail view and **no
+   self-service cancel / refund request** (refund is admin-only — see below). Optional, and
+   the notification side is email/domain-gated.
+4. **Final passes** — motion increment-2 (confirm merged), a11y, performance/Lighthouse, SEO
+   metadata; `/privacy` + `/terms` content needs counsel (placeholders).
+5. **Then:** P4 admin UI polish · P5 mobile · P6 content/SEO (BLUEPRINT §7).
 
+> **Domain-gated (deferred until a real domain is bought):** Resend email delivery
+> (enquiry ack / booking confirm / refund) + Supabase custom-domain email confirmation.
+> The DB rows + in-app flows work regardless; only the outbound emails wait on the domain.
+>
+> **Seats / inventory model (business logic):** seats are tracked **per `TourDeparture`**
+> (`seatsTotal` + `seatsBooked`), **not** per tour. `seatsBooked` is incremented **only on
+> PAID** (payment capture) via `PaymentsService.claimSeatsForPaid` — an atomic, conditional
+> CTE (`+ seats WHERE booked + seats <= total`); creating a PENDING booking does **not**
+> hold seats. Overbook race → auto-refund + cancel; admin refund releases seats back.
+> Seats-left is shown on **tour detail** (BookingBox) + the **booking page** departure
+> picker, but **not** on the listing/search grid (potential "few seats left" badge later).
+>
 > Live resume buffer with finer detail: [`.remember/remember.md`](.remember/remember.md).
 > Per-phase 06-specs/plans: [`docs/06-specs/`](docs/06-specs/) + [`docs/07-plans/`](docs/07-plans/).
 
