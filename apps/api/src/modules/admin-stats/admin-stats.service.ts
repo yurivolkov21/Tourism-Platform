@@ -83,7 +83,9 @@ export class AdminStatsService {
       }),
       this.prisma.review.groupBy({
         by: ['tourId'],
-        where: { isApproved: true },
+        // Only tour-bound (verified) reviews count toward per-tour ratings; curated
+        // testimonials have a null tourId.
+        where: { isApproved: true, tourId: { not: null } },
         _avg: { rating: true },
         _count: { _all: true },
         orderBy: { _avg: { rating: 'desc' } },
@@ -128,11 +130,13 @@ export class AdminStatsService {
 
     // Resolve tour metadata for the top lists in one round-trip.
     const allTourIds = Array.from(
-      new Set([
-        ...topRevenueGroups.map((r) => r.tourId),
-        ...topRatingGroups.map((r) => r.tourId),
-        ...topWishlistGroups.map((r) => r.tourId),
-      ]),
+      new Set(
+        [
+          ...topRevenueGroups.map((r) => r.tourId),
+          ...topRatingGroups.map((r) => r.tourId),
+          ...topWishlistGroups.map((r) => r.tourId),
+        ].filter((id): id is string => id !== null),
+      ),
     );
     const tours =
       allTourIds.length > 0
@@ -153,16 +157,18 @@ export class AdminStatsService {
         bookingsCount: row._count._all,
       };
     });
-    const topToursByRating = topRatingGroups.map((row) => {
-      const t = tourById.get(row.tourId);
-      return {
-        tourId: row.tourId,
-        slug: t?.slug ?? '<unknown>',
-        title: t?.title ?? '<unknown>',
-        averageRating: row._avg.rating ?? 0,
-        reviewsCount: row._count._all,
-      };
-    });
+    const topToursByRating = topRatingGroups
+      .filter((row): row is typeof row & { tourId: string } => row.tourId !== null)
+      .map((row) => {
+        const t = tourById.get(row.tourId);
+        return {
+          tourId: row.tourId,
+          slug: t?.slug ?? '<unknown>',
+          title: t?.title ?? '<unknown>',
+          averageRating: row._avg.rating ?? 0,
+          reviewsCount: row._count._all,
+        };
+      });
     const topToursByWishlist = topWishlistGroups.map((row) => {
       const t = tourById.get(row.tourId);
       return {

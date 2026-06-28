@@ -87,6 +87,12 @@ enum TravellerType {
   BUSINESS
 }
 
+// VERIFIED = earned from a real booking; CURATED = admin-authored testimonial.
+enum ReviewSource {
+  VERIFIED
+  CURATED
+}
+
 /// Merchandising badge on a tour card (P1.7e — donor/Lily's labels).
 enum TourBadge {
   BEST_VALUE
@@ -379,22 +385,33 @@ model Booking {
 
 model Review {
   id         String   @id @default(uuid()) @db.Uuid
-  tourId     String   @map("tour_id") @db.Uuid
-  userId     String   @map("user_id") @db.Uuid
-  bookingId  String   @unique @map("booking_id") @db.Uuid
+  // FKs are nullable so a CURATED testimonial can exist without a real booking/user/tour.
+  // VERIFIED reviews keep all three set (unchanged behaviour).
+  tourId     String?  @map("tour_id") @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  bookingId  String?  @unique @map("booking_id") @db.Uuid
   rating     Int
   title      String?  @db.VarChar(120)
   body       String   @db.VarChar(2000)
+  // Snapshot display name (verified: copied from user.fullName at create; curated: admin-entered).
+  authorName     String       @map("author_name") @db.VarChar(120)
+  // Free-text "City, Country" — curated only (the customer review form doesn't capture it).
+  authorLocation String?      @map("author_location") @db.VarChar(120)
+  source         ReviewSource @default(VERIFIED)
+  isFeatured     Boolean      @default(false) @map("is_featured")
+  // Free-text trip name for curated rows with no tourId (else the tour title is used).
+  tripLabel      String?      @map("trip_label") @db.VarChar(160)
   isApproved Boolean  @default(false) @map("is_approved")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
-  tour    Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  tour    Tour?    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  user    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
   @@index([tourId, isApproved])
   @@index([userId])
+  @@index([isApproved, isFeatured])
   @@map("reviews")
 }
 

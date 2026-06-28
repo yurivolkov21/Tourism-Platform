@@ -6,7 +6,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { BookingStatus, EmailType, Prisma, Review } from '@prisma/client';
+import { BookingStatus, EmailType, Prisma, Review, ReviewSource } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ListAdminReviewsQueryDto } from './dto/list-admin-reviews-query.dto';
@@ -43,11 +43,14 @@ export interface PaginatedPublicReviews {
 /** Admin moderation-queue item — full row + reviewer name + tour slug. */
 export interface AdminReviewItem {
   id: string;
-  tourId: string;
-  tourSlug: string;
-  userId: string;
-  reviewerName: string | null;
-  bookingId: string;
+  tourId: string | null;
+  tourSlug: string | null;
+  userId: string | null;
+  authorName: string;
+  authorLocation: string | null;
+  bookingId: string | null;
+  source: ReviewSource;
+  isFeatured: boolean;
   rating: number;
   title: string | null;
   body: string;
@@ -84,7 +87,14 @@ export class ReviewsService {
   ): Promise<Review> {
     const booking = await this.prisma.booking.findUnique({
       where: { code: body.bookingCode },
-      select: { id: true, code: true, userId: true, tourId: true, status: true },
+      select: {
+        id: true,
+        code: true,
+        userId: true,
+        tourId: true,
+        status: true,
+        user: { select: { fullName: true } },
+      },
     });
     if (!booking) {
       throw new NotFoundException({
@@ -116,6 +126,9 @@ export class ReviewsService {
           rating: body.rating,
           title: body.title,
           body: body.body,
+          // Snapshot the display name so it survives a later user rename/delete.
+          authorName: booking.user?.fullName ?? 'Anonymous',
+          source: ReviewSource.VERIFIED,
         },
       });
       this.logger.log(
@@ -173,7 +186,7 @@ export class ReviewsService {
           title: true,
           body: true,
           createdAt: true,
-          user: { select: { fullName: true } },
+          authorName: true,
         },
       }),
       this.prisma.review.count({ where }),
@@ -186,7 +199,7 @@ export class ReviewsService {
       title: row.title,
       body: row.body,
       createdAt: row.createdAt,
-      reviewer: { fullName: row.user?.fullName ?? 'Anonymous' },
+      reviewer: { fullName: row.authorName },
     }));
 
     return {
@@ -222,7 +235,6 @@ export class ReviewsService {
         take: pageSize,
         include: {
           tour: { select: { slug: true } },
-          user: { select: { fullName: true } },
         },
       }),
       this.prisma.review.count({ where }),
@@ -231,10 +243,13 @@ export class ReviewsService {
     const items: AdminReviewItem[] = rows.map((row) => ({
       id: row.id,
       tourId: row.tourId,
-      tourSlug: row.tour.slug,
+      tourSlug: row.tour?.slug ?? null,
       userId: row.userId,
-      reviewerName: row.user.fullName,
+      authorName: row.authorName,
+      authorLocation: row.authorLocation,
       bookingId: row.bookingId,
+      source: row.source,
+      isFeatured: row.isFeatured,
       rating: row.rating,
       title: row.title,
       body: row.body,

@@ -152,6 +152,13 @@ export class OutboxService {
       this.logger.warn(`Outbox ${row.id}: review ${reviewId} not found`);
       return;
     }
+    if (!review.user || !review.tour) {
+      // CURATED testimonials have no customer/tour to notify — nothing to send.
+      this.logger.warn(
+        `Outbox ${row.id}: review ${reviewId} has no user/tour (curated) — skipping email`,
+      );
+      return;
+    }
     await this.email.sendReviewApproved({
       to: review.user.email,
       vars: {

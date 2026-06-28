@@ -30,6 +30,7 @@ const paidBooking = {
   userId: 'u-customer',
   tourId: 't-1',
   status: BookingStatus.PAID,
+  user: { fullName: 'Alice Nguyen' },
 };
 
 function makePrisma(overrides: {
@@ -90,12 +91,21 @@ describe('ReviewsService.createForCustomer', () => {
     await svc.createForCustomer('u-customer', baseDto);
 
     type CreateCall = {
-      data: { rating: number; tourId: string; bookingId: string };
+      data: {
+        rating: number;
+        tourId: string;
+        bookingId: string;
+        authorName: string;
+        source: string;
+      };
     };
     const calls = reviewCreate.mock.calls as unknown as CreateCall[][];
     expect(calls[0][0].data.rating).toBe(5);
     expect(calls[0][0].data.tourId).toBe('t-1');
     expect(calls[0][0].data.bookingId).toBe('b-1');
+    // Snapshots the booking owner's name + marks the source VERIFIED.
+    expect(calls[0][0].data.authorName).toBe('Alice Nguyen');
+    expect(calls[0][0].data.source).toBe('VERIFIED');
   });
 
   it('translates P2002 (UNIQUE booking_id) into REVIEW_ALREADY_EXISTS', async () => {
@@ -126,7 +136,7 @@ describe('ReviewsService.findApprovedForTour', () => {
       title: string | null;
       body: string;
       createdAt: Date;
-      user: { fullName: string | null } | null;
+      authorName: string;
     }>;
     total?: number;
     avg?: number | null;
@@ -163,7 +173,7 @@ describe('ReviewsService.findApprovedForTour', () => {
           title: 'Good',
           body: 'great',
           createdAt: new Date('2026-05-01'),
-          user: { fullName: 'Alice' },
+          authorName: 'Alice',
         },
       ],
       total: 1,
@@ -183,7 +193,7 @@ describe('ReviewsService.findApprovedForTour', () => {
     expect(calls[0][0].where.isApproved).toBe(true);
   });
 
-  it('falls back to "Anonymous" when the reviewer has no name', async () => {
+  it('surfaces the snapshot authorName (e.g. "Anonymous") as the reviewer name', async () => {
     const svc = new ReviewsService(
       makeListPrisma({
         rows: [
@@ -193,7 +203,7 @@ describe('ReviewsService.findApprovedForTour', () => {
             title: null,
             body: 'nice',
             createdAt: new Date('2026-05-02'),
-            user: { fullName: null },
+            authorName: 'Anonymous',
           },
         ],
         total: 1,
@@ -235,7 +245,11 @@ describe('ReviewsService.findAllForAdmin', () => {
           id: 'r-1',
           tourId: 't-1',
           userId: 'u-1',
+          authorName: 'Alice',
+          authorLocation: null,
           bookingId: 'b-1',
+          source: 'VERIFIED',
+          isFeatured: false,
           rating: 5,
           title: 'Good',
           body: 'great',
@@ -243,7 +257,6 @@ describe('ReviewsService.findAllForAdmin', () => {
           createdAt: new Date('2026-05-01'),
           updatedAt: new Date('2026-05-01'),
           tour: { slug: 'hoi-an-walking-tour' },
-          user: { fullName: 'Alice' },
         },
       ],
       1,
@@ -253,7 +266,7 @@ describe('ReviewsService.findAllForAdmin', () => {
     const result = await svc.findAllForAdmin({ isApproved: false });
 
     expect(result.items[0].tourSlug).toBe('hoi-an-walking-tour');
-    expect(result.items[0].reviewerName).toBe('Alice');
+    expect(result.items[0].authorName).toBe('Alice');
     expect(result.meta.total).toBe(1);
     type WhereCall = { where: { isApproved?: boolean } };
     const calls = prisma.review.findMany.mock.calls as unknown as WhereCall[][];
