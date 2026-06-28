@@ -3,17 +3,7 @@
 import { useState } from 'react';
 import { CalendarIcon } from 'lucide-react';
 
-import {
-  Button,
-  Calendar,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Separator,
-  cn,
-} from '@tourism/ui';
-
-import { formatTripDate } from '../../lib/booking/my-bookings';
+import { Calendar, Card, CardContent, CardHeader, Input } from '@tourism/ui';
 
 function toISO(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
@@ -21,90 +11,76 @@ function toISO(d: Date): string {
   ).padStart(2, '0')}`;
 }
 
-function addDays(base: Date, days: number): Date {
-  const d = new Date(base);
-  d.setDate(d.getDate() + days);
-  return d;
-}
-
-const PRESETS = [
-  { label: 'In 1 week', days: 7 },
-  { label: 'In 2 weeks', days: 14 },
-  { label: 'In 1 month', days: 30 },
-] as const;
-
 /**
- * Single-date picker (Popover + Calendar): future-only, month/year dropdown for quick jumps, and a
- * few quick presets. Emits a `YYYY-MM-DD` string. A nicer replacement for the native date input.
+ * Inline calendar + a typeable date input, kept in sync (type or click). Future-only, with a
+ * month/year dropdown for quick jumps. Emits a `YYYY-MM-DD` string. (Adapted from the Shadcn
+ * "Calendar with date input" pattern.)
  */
 export function DatePicker({
   value,
   onChange,
   id,
-  placeholder = 'Pick a date',
 }: {
   value?: string;
   onChange: (iso: string) => void;
   id?: string;
-  placeholder?: string;
 }) {
-  const [open, setOpen] = useState(false);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const selected = value ? new Date(`${value}T00:00:00`) : undefined;
+  const [month, setMonth] = useState<Date>(selected ?? today);
 
-  const pick = (date?: Date) => {
-    if (!date) return;
+  const handleSelect = (date?: Date) => {
+    if (!date) {
+      onChange('');
+      return;
+    }
     onChange(toISO(date));
-    setOpen(false);
+    setMonth(date);
+  };
+
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const next = e.target.value;
+    onChange(next);
+    if (next) {
+      const parsed = new Date(`${next}T00:00:00`);
+      if (!Number.isNaN(parsed.getTime())) setMonth(parsed);
+    }
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
-        render={
-          <Button
+    <Card className="gap-0 overflow-hidden py-0">
+      <CardHeader className="border-b px-3 py-3">
+        <div className="relative">
+          <Input
             id={id}
-            type="button"
-            variant="outline"
-            className={cn(
-              'w-full justify-start gap-2 font-normal',
-              !value && 'text-muted-foreground',
-            )}
+            type="date"
+            min={toISO(today)}
+            value={value ?? ''}
+            onChange={handleInput}
+            aria-label="Enter a date"
+            className="peer pl-9 [&::-webkit-calendar-picker-indicator]:hidden"
           />
-        }
-      >
-        <CalendarIcon className="size-4" />
-        {value ? formatTripDate(value) : placeholder}
-      </PopoverTrigger>
-      <PopoverContent align="start" className="w-auto p-0">
+          <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <CalendarIcon className="size-4" aria-hidden />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="px-3 py-3">
         <Calendar
           mode="single"
           selected={selected}
-          defaultMonth={selected ?? today}
-          onSelect={pick}
+          onSelect={handleSelect}
+          month={month}
+          onMonthChange={setMonth}
           disabled={{ before: today }}
           captionLayout="dropdown"
           startMonth={today}
           endMonth={new Date(today.getFullYear() + 2, 11)}
+          className="mx-auto bg-transparent p-0"
         />
-        <Separator />
-        <div className="flex flex-wrap gap-1.5 p-2">
-          {PRESETS.map((p) => (
-            <Button
-              key={p.days}
-              type="button"
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={() => pick(addDays(today, p.days))}
-            >
-              {p.label}
-            </Button>
-          ))}
-        </div>
-      </PopoverContent>
-    </Popover>
+      </CardContent>
+    </Card>
   );
 }
 

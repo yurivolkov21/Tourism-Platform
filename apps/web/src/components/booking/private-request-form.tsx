@@ -132,7 +132,6 @@ export function PrivateRequestForm({
                 id="startDate"
                 value={startDate}
                 onChange={setStartDate}
-                placeholder={tp.startDate}
               />
               {endDate ? (
                 <FieldDescription>
