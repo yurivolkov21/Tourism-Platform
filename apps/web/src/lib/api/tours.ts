@@ -24,6 +24,8 @@ export function toTourCard(dto: TourSummaryDto): TourCardData {
     summary: dto.summary ?? undefined,
     category: dto.category?.slug,
     categoryName: dto.category?.name,
+    nextDepartureDate: dto.nextDepartureDate,
+    nextDepartureSeatsLeft: dto.nextDepartureSeatsLeft,
   };
 }
 

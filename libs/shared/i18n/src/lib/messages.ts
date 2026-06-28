@@ -1002,6 +1002,12 @@ export const messages = {
       counter: (current: number, total: number) => `${current} / ${total}`,
     },
   },
+  // Tour-card availability badge (soft urgency — never "sold out").
+  availability: {
+    seatsLeft: (n: number) => `Only ${n} ${n === 1 ? 'seat' : 'seats'} left`,
+    next: (date: string) => `Next: ${date}`,
+    onRequest: 'On request',
+  },
   paymentTrust: {
     heading: 'Book with confidence',
     subtitle:

@@ -5,6 +5,7 @@ import { ClockIcon, MapPinIcon, StarIcon } from 'lucide-react';
 import { messages } from '@tourism/i18n';
 
 import type { TourCardData } from './tour-card';
+import { TourAvailability } from './tour-availability';
 
 function formatPrice(currency: string, amount: number) {
   const value = amount.toLocaleString('en-US');
@@ -51,6 +52,12 @@ export function TourTile({ tour }: { tour: TourCardData }) {
         <h3 className="font-heading line-clamp-2 text-xl leading-tight font-semibold text-balance">
           {tour.title}
         </h3>
+
+        <TourAvailability
+          nextDepartureDate={tour.nextDepartureDate}
+          nextDepartureSeatsLeft={tour.nextDepartureSeatsLeft}
+          onMedia
+        />
 
         <div className="border-primary-foreground/15 mt-1 flex items-center justify-between gap-2 border-t pt-3">
           <span className="inline-flex items-center gap-1.5 text-sm">

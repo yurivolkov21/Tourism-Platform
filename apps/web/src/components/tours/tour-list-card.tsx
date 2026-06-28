@@ -6,6 +6,7 @@ import { buttonVariants, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import type { TourCardData } from './tour-card';
+import { TourAvailability } from './tour-availability';
 
 function formatPrice(currency: string, amount: number) {
   const value = amount.toLocaleString('en-US');
@@ -86,6 +87,10 @@ export function TourListCard({ tour }: { tour: TourCardData }) {
                 </span>
               ))}
             </div>
+            <TourAvailability
+              nextDepartureDate={tour.nextDepartureDate}
+              nextDepartureSeatsLeft={tour.nextDepartureSeatsLeft}
+            />
           </div>
         </div>
 

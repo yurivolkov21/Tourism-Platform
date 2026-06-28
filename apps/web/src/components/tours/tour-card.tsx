@@ -6,6 +6,8 @@ import type { TravelStyle, TourTheme } from '@tourism/core';
 import { Badge, Button, Card, CardContent, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { TourAvailability } from './tour-availability';
+
 export type TourBadgeKey = keyof typeof messages.featuredTours.badges;
 
 // Shape mirrors a future tour-card DTO from @tourism/core (basePrice/compareAtPrice/durationDays/
@@ -32,6 +34,9 @@ export type TourCardData = {
   // Filter tags (optional; populated on fixtures for the /tours facets).
   travelStyles?: TravelStyle[];
   themes?: TourTheme[];
+  // Next-departure availability (soonest open upcoming departure) for the card badge.
+  nextDepartureDate?: string | null;
+  nextDepartureSeatsLeft?: number | null;
 };
 
 const badgeClass: Record<TourBadgeKey, string> = {
@@ -96,12 +101,18 @@ export function TourCard({ tour }: { tour: TourCardData }) {
           {tour.title}
         </h3>
 
-        <div className="flex items-center gap-1.5 text-sm">
-          <StarIcon className="text-rating fill-rating size-4" />
-          <span className="font-medium">{tour.rating.toFixed(1)}</span>
-          <span className="text-muted-foreground">
-            ({tour.reviewCount} {t.reviewsLabel})
+        <div className="flex items-center justify-between gap-2 text-sm">
+          <span className="flex items-center gap-1.5">
+            <StarIcon className="text-rating fill-rating size-4" />
+            <span className="font-medium">{tour.rating.toFixed(1)}</span>
+            <span className="text-muted-foreground">
+              ({tour.reviewCount} {t.reviewsLabel})
+            </span>
           </span>
+          <TourAvailability
+            nextDepartureDate={tour.nextDepartureDate}
+            nextDepartureSeatsLeft={tour.nextDepartureSeatsLeft}
+          />
         </div>
 
         <div className="mt-auto flex items-end justify-between gap-2 pt-2">
