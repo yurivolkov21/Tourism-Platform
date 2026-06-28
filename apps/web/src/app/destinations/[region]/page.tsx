@@ -16,10 +16,15 @@ import { Gallery, type GallerySection } from '../../../components/marketing/gall
 import { EnquiryCta } from '../../../components/marketing/enquiry-cta';
 import { getRegion, regionSlugs } from '../../../lib/regions';
 import { getRegionTheme } from '../../../lib/region-theme';
+import { fetchRegionBookables } from '../../../lib/api/destinations';
 
 export function generateStaticParams() {
   return regionSlugs().map((region) => ({ region }));
 }
+
+// ISR: serve the region's live destinations + tours without per-request API hits; the editorial
+// imagery/copy stays curated. Falls back to the fixtures if the API is unreachable.
+export const revalidate = 300;
 
 export async function generateMetadata({
   params,
@@ -36,6 +41,13 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
   const { region } = await params;
   const data = getRegion(region);
   if (!data) notFound();
+
+  // Live destinations (tabs) + tours for this region; fall back to the curated fixtures on API error.
+  const live = await fetchRegionBookables(data.name);
+  const bookables =
+    live.destinations.length > 0
+      ? live
+      : { destinations: data.destinations, tours: data.tours };
 
   const t = messages.regionPage;
   const meta = t.regions[data.name];
@@ -133,7 +145,11 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
           {signatureNode}
         </>
       )}
-      <RegionTours destinations={data.destinations} tours={data.tours} chipOn={theme.chipOn} />
+      <RegionTours
+        destinations={bookables.destinations}
+        tours={bookables.tours}
+        chipOn={theme.chipOn}
+      />
       <Gallery
         sections={gallerySections}
         heading={t.galleryHeading(data.name)}

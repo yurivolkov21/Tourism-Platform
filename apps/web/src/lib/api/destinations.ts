@@ -2,6 +2,11 @@ import type { components } from '@tourism/core';
 
 import type { DestinationTileVM } from '../destinations.fixtures';
 import { tallyToursByDestination } from '../destination-counts';
+import {
+  selectRegionBookables,
+  type RegionBookables,
+} from '../region-bookables';
+import { fetchTourCards } from './tours';
 import { getApiClient } from './client';
 
 type DestinationDto = components['schemas']['DestinationDto'];
@@ -41,6 +46,25 @@ export async function fetchDestinationTiles(): Promise<DestinationTileVM[]> {
   });
   const list = (data as unknown as { data: DestinationDto[] }).data ?? [];
   return list.map(toDestinationTile);
+}
+
+/**
+ * Real destinations (tabs) + tours for a region page, by region display name (e.g. "Northern
+ * Vietnam"). Composes the live destination tiles + tour cards through the pure selector. Returns
+ * empty on any error so the page can fall back to its curated fixtures.
+ */
+export async function fetchRegionBookables(
+  regionName: string,
+): Promise<RegionBookables> {
+  try {
+    const [tiles, tours] = await Promise.all([
+      fetchDestinationTiles(),
+      fetchTourCards(),
+    ]);
+    return selectRegionBookables(tiles, tours, regionName);
+  } catch {
+    return { destinations: [], tours: [] };
+  }
 }
 
 /**
