@@ -1478,6 +1478,13 @@ export const messages = {
         `Or deposit at least ${amount} to hold your dates`,
       trustLine:
         'No payment now — we confirm availability and send a tailored quote.',
+      twoWays: {
+        scheduledTitle: 'Book a scheduled date',
+        scheduledDesc: 'Join a set departure — book and pay instantly.',
+        privateTitle: 'Travel on your own dates',
+        privateDesc: 'Any date, private tour — we quote within 24h.',
+        privateBadge: 'On request',
+      },
     },
   },
   enquiryCta: {
