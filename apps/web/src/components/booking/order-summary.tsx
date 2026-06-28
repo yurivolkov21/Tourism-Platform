@@ -31,10 +31,14 @@ export function OrderSummary({
   return (
     <Card className="lg:sticky lg:top-24">
       <CardContent className="space-y-4 p-6">
-        <h2 className="font-heading text-lg font-semibold">{t.summaryHeading}</h2>
+        <h2 className="font-heading text-lg font-semibold">
+          {t.summaryHeading}
+        </h2>
 
         <div className="space-y-1">
-          <p className="text-muted-foreground text-xs tracking-wide uppercase">{t.departureLabel}</p>
+          <p className="text-muted-foreground text-xs tracking-wide uppercase">
+            {t.departureLabel}
+          </p>
           <p className="font-medium">{tourTitle}</p>
           {departureLabel ? <p className="text-sm">{departureLabel}</p> : null}
         </div>
@@ -43,12 +47,20 @@ export function OrderSummary({
 
         <ul className="space-y-2 text-sm">
           {lines.map((line) => (
-            <li key={line.kind} className="flex items-baseline justify-between gap-3">
+            <li
+              key={line.kind}
+              className="flex items-baseline justify-between gap-3"
+            >
               <span className="text-muted-foreground">
-                {line.quantity} × {line.kind === 'adult' ? t.perAdult : t.perChild}{' '}
-                <span className="text-foreground/70">({formatPrice(currency, line.unitPrice)})</span>
+                {line.quantity} ×{' '}
+                {line.kind === 'adult' ? t.perAdult : t.perChild}{' '}
+                <span className="text-foreground/70">
+                  ({formatPrice(currency, line.unitPrice)})
+                </span>
               </span>
-              <span className="font-medium tabular-nums">{formatPrice(currency, line.subtotal)}</span>
+              <span className="font-medium tabular-nums">
+                {formatPrice(currency, line.subtotal)}
+              </span>
             </li>
           ))}
         </ul>

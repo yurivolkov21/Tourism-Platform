@@ -33,8 +33,15 @@ export function DeparturePicker({
   }));
 
   return (
-    <Select items={items} value={value} onValueChange={(v) => onChange(String(v))}>
-      <SelectTrigger className="w-full" aria-label={messages.booking.form.departure}>
+    <Select
+      items={items}
+      value={value}
+      onValueChange={(v) => onChange(String(v))}
+    >
+      <SelectTrigger
+        className="w-full"
+        aria-label={messages.booking.form.departure}
+      >
         <SelectValue placeholder={t.selectDeparture} />
       </SelectTrigger>
       <SelectContent>

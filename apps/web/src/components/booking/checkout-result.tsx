@@ -65,7 +65,10 @@ export function CheckoutResult({ booking }: { booking: BookingDto }) {
         <div className="space-y-2.5">
           <Row label={t.refLabel} value={booking.code} />
           <Row label={t.tourLabel} value={booking.tour.title} />
-          <Row label={t.departureLabel} value={formatDate(booking.departure.startDate)} />
+          <Row
+            label={t.departureLabel}
+            value={formatDate(booking.departure.startDate)}
+          />
           <Row label={t.travellersLabel} value={travellers} />
           <Row
             label={t.totalLabel}
@@ -77,7 +80,10 @@ export function CheckoutResult({ booking }: { booking: BookingDto }) {
         {paid ? (
           <>
             <p className="text-muted-foreground text-sm">{t.emailNote}</p>
-            <Link href="/tours" className={cn(buttonVariants({ size: 'lg' }), 'w-full')}>
+            <Link
+              href="/tours"
+              className={cn(buttonVariants({ size: 'lg' }), 'w-full')}
+            >
               {t.viewTours}
             </Link>
           </>

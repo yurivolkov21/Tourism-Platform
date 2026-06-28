@@ -5,13 +5,18 @@ import { Badge, Card, CardContent, Separator, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import type { BookingDto } from '../../lib/api/booking';
-import { bookingStatusTone, formatTripDate } from '../../lib/booking/my-bookings';
+import {
+  bookingStatusTone,
+  formatTripDate,
+} from '../../lib/booking/my-bookings';
 import { formatPrice } from './order-summary';
 
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-muted-foreground text-xs tracking-wide uppercase">{label}</p>
+      <p className="text-muted-foreground text-xs tracking-wide uppercase">
+        {label}
+      </p>
       <p className="mt-0.5 font-medium">{value}</p>
     </div>
   );
@@ -30,7 +35,9 @@ export function BookingCard({ booking }: { booking: BookingDto }) {
     <Card>
       <CardContent className="space-y-4 p-5 sm:p-6">
         <div className="flex items-start justify-between gap-4">
-          <h2 className="font-heading text-lg font-semibold text-balance">{booking.tour.title}</h2>
+          <h2 className="font-heading text-lg font-semibold text-balance">
+            {booking.tour.title}
+          </h2>
           <Badge className={cn('shrink-0', bookingStatusTone(booking.status))}>
             {t.status[booking.status] ?? booking.status}
           </Badge>
@@ -39,7 +46,10 @@ export function BookingCard({ booking }: { booking: BookingDto }) {
         <Separator />
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Field label={t.departureLabel} value={formatTripDate(booking.departure.startDate)} />
+          <Field
+            label={t.departureLabel}
+            value={formatTripDate(booking.departure.startDate)}
+          />
           <Field label={t.travellersLabel} value={travellers} />
           <Field label={t.refLabel} value={booking.code} />
           <Field
