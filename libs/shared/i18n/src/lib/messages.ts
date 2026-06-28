@@ -1154,11 +1154,10 @@ export const messages = {
       eyebrow: 'We can help',
       heading: 'Let’s plan your trip together',
       body: 'Tell us about the trip you have in mind and our local experts will craft a tailored itinerary — free and no obligation, with a reply within about 24 hours.',
-      // Phone/email are placeholders until the team's real channels are ready.
       details: [
-        { label: 'Phone', value: 'Coming soon' },
-        { label: 'Email', value: 'Coming soon' },
-        { label: 'Location', value: 'Hà Nội, Vietnam' },
+        { label: 'Phone', value: '1900 292 958' },
+        { label: 'Email', value: 'tourism.platform.online@gmail.com' },
+        { label: 'Location', value: 'Hồ Chí Minh City, Vietnam' },
       ],
       trustedByLabel: 'Built with',
       form: {
