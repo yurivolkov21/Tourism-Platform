@@ -4,6 +4,12 @@ import { useActionState, useMemo, useState } from 'react';
 
 import {
   Button,
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
   Input,
   Label,
   RadioGroup,
@@ -14,7 +20,10 @@ import {
 import { messages } from '@tourism/i18n';
 
 import type { DepartureOption } from '../../lib/api/booking';
-import { createAndCheckout, type BookingActionState } from '../../lib/booking/actions';
+import {
+  createAndCheckout,
+  type BookingActionState,
+} from '../../lib/booking/actions';
 import { computeBookingTotal } from '../../lib/booking/price';
 import { DeparturePicker } from './departure-picker';
 import { OrderSummary } from './order-summary';
@@ -51,10 +60,10 @@ export function BookingForm({
   defaultEmail?: string;
 }) {
   const t = messages.booking.form;
-  const [state, formAction, pending] = useActionState<BookingActionState, FormData>(
-    createAndCheckout,
-    {},
-  );
+  const [state, formAction, pending] = useActionState<
+    BookingActionState,
+    FormData
+  >(createAndCheckout, {});
 
   const [departureId, setDepartureId] = useState(initialDepartureId);
   const [adults, setAdults] = useState(1);
@@ -79,117 +88,166 @@ export function BookingForm({
         <input type="hidden" name="departureId" value={departureId} />
         <input type="hidden" name="paymentProvider" value={provider} />
 
-        <fieldset className="space-y-4">
-          <legend className="font-heading text-lg font-semibold">{t.heading}</legend>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="departure">{t.departure}</Label>
-            <DeparturePicker
-              departures={departures}
-              value={departureId}
-              onChange={setDepartureId}
-            />
+        {/* ① Your trip — dates + party */}
+        <FieldSet className="grid grid-cols-1 gap-x-10 gap-y-4 md:grid-cols-3">
+          <div>
+            <FieldLegend className="font-heading text-base font-semibold">
+              {t.datesHeading}
+            </FieldLegend>
+            <FieldDescription>{t.datesDesc}</FieldDescription>
           </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="numAdults">{t.adults}</Label>
-              <Input
-                id="numAdults"
-                name="numAdults"
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={MAX_ADULTS}
-                value={adults}
-                onChange={(e) => setAdults(clampInt(e.target.valueAsNumber, 1, MAX_ADULTS))}
-                required
+          <FieldGroup className="grid grid-cols-1 gap-4 md:col-span-2">
+            <Field className="gap-1.5">
+              <FieldLabel htmlFor="departure">{t.departure}</FieldLabel>
+              <DeparturePicker
+                departures={departures}
+                value={departureId}
+                onChange={setDepartureId}
               />
+            </Field>
+            <div className="grid grid-cols-2 gap-4">
+              <Field className="gap-1.5">
+                <FieldLabel htmlFor="numAdults">{t.adults}</FieldLabel>
+                <Input
+                  id="numAdults"
+                  name="numAdults"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={MAX_ADULTS}
+                  value={adults}
+                  onChange={(e) =>
+                    setAdults(clampInt(e.target.valueAsNumber, 1, MAX_ADULTS))
+                  }
+                  required
+                />
+              </Field>
+              <Field className="gap-1.5">
+                <FieldLabel htmlFor="numChildren">{t.children}</FieldLabel>
+                <Input
+                  id="numChildren"
+                  name="numChildren"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={MAX_CHILDREN}
+                  value={children}
+                  onChange={(e) =>
+                    setChildren(
+                      clampInt(e.target.valueAsNumber, 0, MAX_CHILDREN),
+                    )
+                  }
+                />
+              </Field>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="numChildren">{t.children}</Label>
-              <Input
-                id="numChildren"
-                name="numChildren"
-                type="number"
-                inputMode="numeric"
-                min={0}
-                max={MAX_CHILDREN}
-                value={children}
-                onChange={(e) => setChildren(clampInt(e.target.valueAsNumber, 0, MAX_CHILDREN))}
-              />
-            </div>
-          </div>
-        </fieldset>
+          </FieldGroup>
+        </FieldSet>
 
         <Separator />
 
-        <fieldset className="space-y-4">
-          <legend className="font-heading text-lg font-semibold">{messages.booking.page.partyLabel}</legend>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="contactName">{t.contactName}</Label>
-            <Input id="contactName" name="contactName" autoComplete="name" required />
+        {/* ② Traveller details */}
+        <FieldSet className="grid grid-cols-1 gap-x-10 gap-y-4 md:grid-cols-3">
+          <div>
+            <FieldLegend className="font-heading text-base font-semibold">
+              {t.travellersHeading}
+            </FieldLegend>
+            <FieldDescription>{t.travellersDesc}</FieldDescription>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="contactEmail">{t.contactEmail}</Label>
+          <FieldGroup className="grid grid-cols-1 gap-4 md:col-span-2">
+            <Field className="gap-1.5">
+              <FieldLabel htmlFor="contactName">{t.contactName}</FieldLabel>
               <Input
-                id="contactEmail"
-                name="contactEmail"
-                type="email"
-                autoComplete="email"
-                defaultValue={defaultEmail}
+                id="contactName"
+                name="contactName"
+                autoComplete="name"
                 required
               />
+            </Field>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field className="gap-1.5">
+                <FieldLabel htmlFor="contactEmail">{t.contactEmail}</FieldLabel>
+                <Input
+                  id="contactEmail"
+                  name="contactEmail"
+                  type="email"
+                  autoComplete="email"
+                  defaultValue={defaultEmail}
+                  required
+                />
+              </Field>
+              <Field className="gap-1.5">
+                <FieldLabel htmlFor="contactPhone">{t.contactPhone}</FieldLabel>
+                <Input
+                  id="contactPhone"
+                  name="contactPhone"
+                  type="tel"
+                  autoComplete="tel"
+                />
+              </Field>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="contactPhone">{t.contactPhone}</Label>
-              <Input id="contactPhone" name="contactPhone" type="tel" autoComplete="tel" />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="specialRequests">{t.specialRequests}</Label>
-            <Textarea
-              id="specialRequests"
-              name="specialRequests"
-              rows={3}
-              placeholder={t.specialRequestsPlaceholder}
-            />
-          </div>
-        </fieldset>
+            <Field className="gap-1.5">
+              <FieldLabel htmlFor="specialRequests">
+                {t.specialRequests}
+              </FieldLabel>
+              <Textarea
+                id="specialRequests"
+                name="specialRequests"
+                rows={3}
+                placeholder={t.specialRequestsPlaceholder}
+              />
+            </Field>
+          </FieldGroup>
+        </FieldSet>
 
         <Separator />
 
-        <fieldset className="space-y-3">
-          <legend className="font-heading text-lg font-semibold">{t.paymentHeading}</legend>
+        {/* ③ Payment */}
+        <FieldSet className="grid grid-cols-1 gap-x-10 gap-y-4 md:grid-cols-3">
+          <div>
+            <FieldLegend className="font-heading text-base font-semibold">
+              {t.paymentHeading}
+            </FieldLegend>
+            <FieldDescription>{t.paymentDesc}</FieldDescription>
+          </div>
           <RadioGroup
             value={provider}
             onValueChange={(v) => setProvider(v as Provider)}
-            className="gap-3"
+            className="gap-3 md:col-span-2"
           >
             <Label
               htmlFor="pay-stripe"
-              className="hover:border-primary/60 flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5"
+              className="hover:border-primary/60 flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors has-data-checked:border-primary has-data-checked:bg-primary/5"
             >
-              <RadioGroupItem id="pay-stripe" value="STRIPE" className="mt-0.5" />
+              <RadioGroupItem
+                id="pay-stripe"
+                value="STRIPE"
+                className="mt-0.5"
+              />
               <span className="space-y-0.5">
                 <span className="block font-medium">{t.stripe}</span>
-                <span className="text-muted-foreground block text-sm">{t.stripeHint}</span>
+                <span className="text-muted-foreground block text-sm">
+                  {t.stripeHint}
+                </span>
               </span>
             </Label>
             <Label
               htmlFor="pay-paypal"
-              className="hover:border-primary/60 flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5"
+              className="hover:border-primary/60 flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors has-data-checked:border-primary has-data-checked:bg-primary/5"
             >
-              <RadioGroupItem id="pay-paypal" value="PAYPAL" className="mt-0.5" />
+              <RadioGroupItem
+                id="pay-paypal"
+                value="PAYPAL"
+                className="mt-0.5"
+              />
               <span className="space-y-0.5">
                 <span className="block font-medium">{t.paypal}</span>
-                <span className="text-muted-foreground block text-sm">{t.paypalHint}</span>
+                <span className="text-muted-foreground block text-sm">
+                  {t.paypalHint}
+                </span>
               </span>
             </Label>
           </RadioGroup>
-        </fieldset>
+        </FieldSet>
 
         {state.error ? (
           <p className="text-destructive text-sm" role="alert">
@@ -197,10 +255,17 @@ export function BookingForm({
           </p>
         ) : null}
 
-        <Button type="submit" size="lg" className="w-full" disabled={pending || !departureId}>
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          disabled={pending || !departureId}
+        >
           {pending ? t.submitting : t.submit}
         </Button>
-        <p className="text-muted-foreground text-center text-xs text-pretty">{t.trustLine}</p>
+        <p className="text-muted-foreground text-center text-xs text-pretty">
+          {t.trustLine}
+        </p>
       </form>
 
       <OrderSummary

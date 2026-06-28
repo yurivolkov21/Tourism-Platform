@@ -62,7 +62,11 @@ export const messages = {
         nextTrip: {
           heading: 'Your next trip',
           countdown: (days: number) =>
-            days <= 0 ? 'Departing today' : days === 1 ? 'In 1 day' : `In ${days} days`,
+            days <= 0
+              ? 'Departing today'
+              : days === 1
+                ? 'In 1 day'
+                : `In ${days} days`,
           view: 'View booking',
           noneTitle: 'No journeys planned yet',
           noneBody: 'Browse our journeys and start planning your next escape.',
@@ -114,7 +118,8 @@ export const messages = {
         fullNameLabel: 'Full name',
         phoneLabel: 'Phone',
         emailLabel: 'Email',
-        emailHint: 'Your sign-in email — manage it in the Email & password section below.',
+        emailHint:
+          'Your sign-in email — manage it in the Email & password section below.',
         save: 'Save changes',
         saving: 'Saving…',
         saved: 'Profile saved.',
@@ -172,7 +177,8 @@ export const messages = {
       submit: 'Send reset link',
       submitting: 'Sending…',
       sentTitle: 'Check your inbox',
-      sentBody: 'If an account exists for that email, a password-reset link is on its way.',
+      sentBody:
+        'If an account exists for that email, a password-reset link is on its way.',
       backToLogin: 'Back to sign in',
     },
     reset: {
@@ -185,7 +191,8 @@ export const messages = {
       success: 'Password updated. You’re signed in.',
       goToAccount: 'Go to my account',
       invalidTitle: 'Link expired',
-      invalidBody: 'This reset link is invalid or has expired. Request a new one.',
+      invalidBody:
+        'This reset link is invalid or has expired. Request a new one.',
       requestNew: 'Request a new link',
     },
     passwordErrors: {
@@ -200,8 +207,14 @@ export const messages = {
       special: 'A special character',
     } as Record<string, string>,
     passwordStrength: (score: number): string =>
-      ['Enter a password', 'Very weak', 'Weak', 'Medium', 'Strong', 'Very strong'][score] ??
-      'Enter a password',
+      [
+        'Enter a password',
+        'Very weak',
+        'Weak',
+        'Medium',
+        'Strong',
+        'Very strong',
+      ][score] ?? 'Enter a password',
     oauth: {
       continueGoogle: 'Continue with Google',
       or: 'or',
@@ -217,7 +230,8 @@ export const messages = {
       children: 'Children',
       childrenHint: 'Ages 2–11',
       bookCta: 'Book now',
-      noDepartures: 'No upcoming departures — send an enquiry and we’ll arrange dates.',
+      noDepartures:
+        'No upcoming departures — send an enquiry and we’ll arrange dates.',
     },
     // Booking page (/tours/[slug]/book).
     page: {
@@ -237,22 +251,28 @@ export const messages = {
     // Booking form fields.
     form: {
       heading: 'Your details',
+      datesHeading: 'Your trip',
+      datesDesc: 'Choose a departure date and how many are travelling.',
       departure: 'Departure date',
       adults: 'Adults',
       children: 'Children',
+      travellersHeading: 'Traveller details',
+      travellersDesc: 'Who should we send the confirmation to?',
       contactName: 'Full name',
       contactEmail: 'Email',
       contactPhone: 'Phone (optional)',
       specialRequests: 'Special requests (optional)',
       specialRequestsPlaceholder: 'Dietary needs, accessibility, occasions…',
-      paymentHeading: 'Payment method',
+      paymentHeading: 'Payment',
+      paymentDesc: 'Secure checkout — pick how you’d like to pay.',
       stripe: 'Card (Stripe)',
       stripeHint: 'Visa, Mastercard, Amex',
       paypal: 'PayPal',
       paypalHint: 'Pay with your PayPal balance or card',
       submit: 'Continue to payment',
       submitting: 'Starting secure checkout…',
-      trustLine: 'You’ll be redirected to a secure payment page. No card details touch our servers.',
+      trustLine:
+        'You’ll be redirected to a secure payment page. No card details touch our servers.',
     },
     // Friendly EN for each error code (form + API). Keep the keys in sync with BookingFormError.
     errors: {
@@ -261,18 +281,23 @@ export const messages = {
       INVALID_PARTY_SIZE: 'Please enter 1–20 adults and up to 20 children.',
       INVALID_PROVIDER: 'Please choose a payment method.',
       INVALID_CONTACT: 'Please enter a valid name and email.',
-      SEATS_NOT_AVAILABLE: 'Sorry — those seats just sold out. Try a different departure.',
+      SEATS_NOT_AVAILABLE:
+        'Sorry — those seats just sold out. Try a different departure.',
       DEPARTURE_NOT_OPEN: 'That departure is no longer open for booking.',
       DEPARTURE_DEPARTED: 'That departure has already started.',
-      CHECKOUT_FAILED: 'We couldn’t start the payment session. Please try again.',
-      UNAUTHORIZED: 'Your session has expired — please sign in again, then retry.',
-      USER_NOT_SYNCED: 'We couldn’t verify your account. Sign out and back in, then try again.',
+      CHECKOUT_FAILED:
+        'We couldn’t start the payment session. Please try again.',
+      UNAUTHORIZED:
+        'Your session has expired — please sign in again, then retry.',
+      USER_NOT_SYNCED:
+        'We couldn’t verify your account. Sign out and back in, then try again.',
       generic: 'Something went wrong. Please try again.',
     },
     // /checkout/success.
     success: {
       confirmedTitle: 'Booking confirmed',
-      confirmedBody: 'Thank you — your payment went through and your trip is booked.',
+      confirmedBody:
+        'Thank you — your payment went through and your trip is booked.',
       pendingTitle: 'Confirming your payment…',
       pendingBody:
         'Your payment is being confirmed — this usually takes a few seconds. This page updates automatically; you can also refresh.',
@@ -334,21 +359,61 @@ export const messages = {
     toursMenu: {
       label: 'Tours',
       items: [
-        { label: 'Cruises', href: '/tours', hint: 'Overnight bays & river journeys' },
-        { label: 'Trekking', href: '/tours', hint: 'Mountain trails & hill-tribe routes' },
-        { label: 'Cultural', href: '/tours', hint: 'Heritage towns, temples & history' },
-        { label: 'Culinary', href: '/tours', hint: 'Markets, street food & cooking' },
-        { label: 'Family', href: '/tours', hint: 'Easy-paced trips for all ages' },
-        { label: 'Beach & relax', href: '/tours', hint: 'Island escapes & coastal stays' },
+        {
+          label: 'Cruises',
+          href: '/tours',
+          hint: 'Overnight bays & river journeys',
+        },
+        {
+          label: 'Trekking',
+          href: '/tours',
+          hint: 'Mountain trails & hill-tribe routes',
+        },
+        {
+          label: 'Cultural',
+          href: '/tours',
+          hint: 'Heritage towns, temples & history',
+        },
+        {
+          label: 'Culinary',
+          href: '/tours',
+          hint: 'Markets, street food & cooking',
+        },
+        {
+          label: 'Family',
+          href: '/tours',
+          hint: 'Easy-paced trips for all ages',
+        },
+        {
+          label: 'Beach & relax',
+          href: '/tours',
+          hint: 'Island escapes & coastal stays',
+        },
       ],
     },
     destinationsMenu: {
       label: 'Destinations',
       items: [
-        { label: 'All destinations', href: '/destinations', hint: 'Browse every place we cover' },
-        { label: 'Northern Vietnam', href: '/destinations/northern-vietnam', hint: 'Hạ Long, Sa Pa, Ninh Bình' },
-        { label: 'Central Vietnam', href: '/destinations/central-vietnam', hint: 'Hội An, Huế, Đà Nẵng' },
-        { label: 'Southern Vietnam', href: '/destinations/southern-vietnam', hint: 'Mekong, Hồ Chí Minh City' },
+        {
+          label: 'All destinations',
+          href: '/destinations',
+          hint: 'Browse every place we cover',
+        },
+        {
+          label: 'Northern Vietnam',
+          href: '/destinations/northern-vietnam',
+          hint: 'Hạ Long, Sa Pa, Ninh Bình',
+        },
+        {
+          label: 'Central Vietnam',
+          href: '/destinations/central-vietnam',
+          hint: 'Hội An, Huế, Đà Nẵng',
+        },
+        {
+          label: 'Southern Vietnam',
+          href: '/destinations/southern-vietnam',
+          hint: 'Mekong, Hồ Chí Minh City',
+        },
       ],
     },
   },
@@ -484,19 +549,30 @@ export const messages = {
     allTab: 'All',
     noTours: 'New tours for this destination are coming soon.',
     galleryHeading: (region: string) => `${region} in photos`,
-    gallerySubtitle: 'A glimpse of the landscapes, towns, and moments that await.',
+    gallerySubtitle:
+      'A glimpse of the landscapes, towns, and moments that await.',
     regions: {
       'Northern Vietnam': {
-        tagline: 'From Sa Pa to Hạ Long Bay — culture and natural wonders in the misty north.',
+        tagline:
+          'From Sa Pa to Hạ Long Bay — culture and natural wonders in the misty north.',
         intro:
           'Awe-inspiring landscapes of limestone bays and terraced highlands, diverse hill-tribe cultures, and the frontier passes of the far north — this is Northern Vietnam at its most dramatic.',
         intro2:
           'Cruise the emerald karsts of Hạ Long, trek between Hmong and Dao villages around Sa Pa, and ride the legendary Hà Giang Loop. Browse our tours below, or read our itinerary suggestions.',
         tags: ['Cruises', 'Trekking', 'Hill-tribe culture', 'Mountain passes'],
         highlights: [
-          { title: 'Emerald bays', body: 'Overnight on a junk among the limestone islands of Hạ Long and Lan Hạ.' },
-          { title: 'Highland treks', body: 'Walk the rice terraces and hill-tribe trails around Sa Pa and Pù Luông.' },
-          { title: 'The northern loop', body: 'Ride the switchbacks of Hà Giang past the Mã Pí Lèng pass.' },
+          {
+            title: 'Emerald bays',
+            body: 'Overnight on a junk among the limestone islands of Hạ Long and Lan Hạ.',
+          },
+          {
+            title: 'Highland treks',
+            body: 'Walk the rice terraces and hill-tribe trails around Sa Pa and Pù Luông.',
+          },
+          {
+            title: 'The northern loop',
+            body: 'Ride the switchbacks of Hà Giang past the Mã Pí Lèng pass.',
+          },
         ],
         signature: {
           eyebrow: 'Signature',
@@ -516,16 +592,26 @@ export const messages = {
         },
       },
       'Central Vietnam': {
-        tagline: 'Imperial heritage, lantern-lit old towns and a golden coastline.',
+        tagline:
+          'Imperial heritage, lantern-lit old towns and a golden coastline.',
         intro:
           'Ancient citadels and UNESCO old towns beside white-sand beaches, and some of the world’s largest cave systems — Central Vietnam is the country’s cultural heart.',
         intro2:
           'Step inside the walled citadel of Huế, wander the lantern-lit lanes of Hội An, and explore the Chăm temples of Mỹ Sơn. Browse our tours below, or read our itinerary suggestions.',
         tags: ['Heritage', 'Old towns', 'Beaches', 'Caves'],
         highlights: [
-          { title: 'Imperial Huế', body: 'The citadel, royal tombs, and refined cuisine of the Nguyễn emperors.' },
-          { title: 'Hội An lanterns', body: 'A car-free UNESCO old town of tailors, tea houses, and riverside lights.' },
-          { title: 'Golden coast', body: 'Đà Nẵng’s beaches and the Marble Mountains, the Bà Nà hills above.' },
+          {
+            title: 'Imperial Huế',
+            body: 'The citadel, royal tombs, and refined cuisine of the Nguyễn emperors.',
+          },
+          {
+            title: 'Hội An lanterns',
+            body: 'A car-free UNESCO old town of tailors, tea houses, and riverside lights.',
+          },
+          {
+            title: 'Golden coast',
+            body: 'Đà Nẵng’s beaches and the Marble Mountains, the Bà Nà hills above.',
+          },
         ],
         signature: {
           eyebrow: 'Signature',
@@ -556,16 +642,26 @@ export const messages = {
         },
       },
       'Southern Vietnam': {
-        tagline: 'River deltas, island beaches and the restless energy of Sài Gòn.',
+        tagline:
+          'River deltas, island beaches and the restless energy of Sài Gòn.',
         intro:
           'Floating markets and flooded paddies, cosmopolitan cities and tropical islands — the warm, easy-going south runs at the pace of the water.',
         intro2:
           'Drift the Mekong’s waterways, trace history from the Củ Chi tunnels to the colonial centre, and unwind on the beaches of Phú Quốc. Browse our tours below, or read our itinerary suggestions.',
         tags: ['River life', 'Islands', 'City & history', 'Street food'],
         highlights: [
-          { title: 'The Mekong', body: 'Floating markets at dawn, orchards, and riverside homestays.' },
-          { title: 'Sài Gòn energy', body: 'Củ Chi tunnels, colonial landmarks, and endless street food.' },
-          { title: 'Island escapes', body: 'White-sand beaches and clear seas on Phú Quốc.' },
+          {
+            title: 'The Mekong',
+            body: 'Floating markets at dawn, orchards, and riverside homestays.',
+          },
+          {
+            title: 'Sài Gòn energy',
+            body: 'Củ Chi tunnels, colonial landmarks, and endless street food.',
+          },
+          {
+            title: 'Island escapes',
+            body: 'White-sand beaches and clear seas on Phú Quốc.',
+          },
         ],
         signature: {
           eyebrow: 'Signature',
@@ -577,7 +673,10 @@ export const messages = {
             'Island hopping around Phú Quốc',
           ],
           postcards: [
-            { title: 'The Mekong Delta', caption: 'Floating markets & waterways' },
+            {
+              title: 'The Mekong Delta',
+              caption: 'Floating markets & waterways',
+            },
             { title: 'Sài Gòn', caption: 'City energy & history' },
             { title: 'Phú Quốc', caption: 'Island beaches' },
           ],
@@ -629,7 +728,8 @@ export const messages = {
   // `/destinations` — practical know-before-you-go tips (unique to the destinations page).
   travelTips: {
     heading: 'Know before you go',
-    subtitle: 'A few practical notes to make planning your Vietnam trip easier.',
+    subtitle:
+      'A few practical notes to make planning your Vietnam trip easier.',
     items: [
       {
         title: 'Visas',
@@ -665,12 +765,42 @@ export const messages = {
     toursLabel: 'tours',
     // Shape mirrors the TourCategory model (slug/name/description) + a derived tour count.
     items: [
-      { slug: 'cruises', name: 'Cruises', description: 'Overnight bays and slow river journeys', tourCount: 9 },
-      { slug: 'trekking', name: 'Trekking', description: 'Mountain trails and hill-tribe routes', tourCount: 7 },
-      { slug: 'cultural', name: 'Cultural', description: 'Heritage towns, temples and history', tourCount: 14 },
-      { slug: 'culinary', name: 'Culinary', description: 'Markets, street food and cooking', tourCount: 6 },
-      { slug: 'family', name: 'Family', description: 'Easy-paced trips the whole family loves', tourCount: 8 },
-      { slug: 'beach', name: 'Beach & relax', description: 'Island escapes and coastal stays', tourCount: 5 },
+      {
+        slug: 'cruises',
+        name: 'Cruises',
+        description: 'Overnight bays and slow river journeys',
+        tourCount: 9,
+      },
+      {
+        slug: 'trekking',
+        name: 'Trekking',
+        description: 'Mountain trails and hill-tribe routes',
+        tourCount: 7,
+      },
+      {
+        slug: 'cultural',
+        name: 'Cultural',
+        description: 'Heritage towns, temples and history',
+        tourCount: 14,
+      },
+      {
+        slug: 'culinary',
+        name: 'Culinary',
+        description: 'Markets, street food and cooking',
+        tourCount: 6,
+      },
+      {
+        slug: 'family',
+        name: 'Family',
+        description: 'Easy-paced trips the whole family loves',
+        tourCount: 8,
+      },
+      {
+        slug: 'beach',
+        name: 'Beach & relax',
+        description: 'Island escapes and coastal stays',
+        tourCount: 5,
+      },
     ],
   },
   trust: {
@@ -736,12 +866,18 @@ export const messages = {
       // Brand keyword pills (icons + token colours live in the ByTheNumbers component).
       pills: ['Heritage', 'Local experts', 'Slow travel'],
       // Stat labels; values are computed from the live catalog (see ByTheNumbers).
-      labels: ['Curated tours', 'Destinations', 'Regions covered', 'Traveller rating'],
+      labels: [
+        'Curated tours',
+        'Destinations',
+        'Regions covered',
+        'Traveller rating',
+      ],
     },
     team: {
       eyebrow: 'Meet the team',
       heading: 'The people behind your journey',
-      subtitle: 'A small team of local experts who design, guide, and care for every trip we run.',
+      subtitle:
+        'A small team of local experts who design, guide, and care for every trip we run.',
       // Real team (project members) presented in the travel-brand persona. `image`
       // is empty for now → the slider shows an initials avatar; drop in a portrait
       // URL later without touching the component.
@@ -839,7 +975,8 @@ export const messages = {
   tours: {
     eyebrow: 'All tours',
     heading: 'Find your journey',
-    subtitle: 'Browse our curated trips by style, or search for a place you have in mind.',
+    subtitle:
+      'Browse our curated trips by style, or search for a place you have in mind.',
     all: 'All',
     searchPlaceholder: 'Search tours',
     empty: 'No tours match your search yet.',
@@ -864,9 +1001,11 @@ export const messages = {
       'Everything travellers ask us most, grouped so you can find your answer fast. Still unsure? Our team is one message away.',
     searchPlaceholder: 'Search questions…',
     searchLabel: 'Search frequently asked questions',
-    noResults: 'No questions match your search. Try different keywords or contact our team.',
+    noResults:
+      'No questions match your search. Try different keywords or contact our team.',
     ctaHeading: 'Still have a question?',
-    ctaBody: 'Our trip designers reply within a day — tell us what you’re planning.',
+    ctaBody:
+      'Our trip designers reply within a day — tell us what you’re planning.',
     ctaButton: 'Ask our team',
     categories: [
       {
@@ -998,8 +1137,16 @@ export const messages = {
         lastNamePlaceholder: 'Last name',
         emailPlaceholder: 'you@example.com',
         interestPlaceholder: 'What are you interested in?',
-        interestOptions: ['Cruises', 'Trekking', 'Culture & heritage', 'Food', 'Beaches & islands', 'Family'],
-        messagePlaceholder: 'Tell us about your dream trip, dates, group size, or any questions…',
+        interestOptions: [
+          'Cruises',
+          'Trekking',
+          'Culture & heritage',
+          'Food',
+          'Beaches & islands',
+          'Family',
+        ],
+        messagePlaceholder:
+          'Tell us about your dream trip, dates, group size, or any questions…',
         terms: 'I agree to be contacted about my enquiry.',
         submit: 'Send enquiry',
       },
@@ -1013,18 +1160,23 @@ export const messages = {
         city: 'Hà Nội',
         lines: ['18 Tam Trinh, Tương Mai', 'Hà Nội, Vietnam'],
         hours: 'Mon–Fri · 8:00 am – 6:00 pm (GMT+7)',
-        mapHref: 'https://www.google.com/maps?q=18+Tam+Trinh,+Tuong+Mai,+Ha+Noi',
+        mapHref:
+          'https://www.google.com/maps?q=18+Tam+Trinh,+Tuong+Mai,+Ha+Noi',
       },
       {
         city: 'Hồ Chí Minh City',
         lines: ['184 Lê Đại Hành, Phú Thọ', 'Hồ Chí Minh City, Vietnam'],
         hours: 'Mon–Fri · 8:00 am – 6:00 pm (GMT+7)',
-        mapHref: 'https://www.google.com/maps?q=184+Le+Dai+Hanh,+Phu+Tho,+Ho+Chi+Minh',
+        mapHref:
+          'https://www.google.com/maps?q=184+Le+Dai+Hanh,+Phu+Tho,+Ho+Chi+Minh',
       },
     ],
     // Kept for the site footer's Information column.
     info: [
-      { title: 'Office hours', lines: ['Monday – Friday', '8:00 am – 6:00 pm (GMT+7)'] },
+      {
+        title: 'Office hours',
+        lines: ['Monday – Friday', '8:00 am – 6:00 pm (GMT+7)'],
+      },
       { title: 'Offices', lines: ['Hà Nội · Hồ Chí Minh City'] },
       { title: 'Call us', lines: ['1900 292 958'] },
       { title: 'Email us', lines: ['tourism.platform.online@gmail.com'] },
@@ -1063,7 +1215,8 @@ export const messages = {
     },
     ctaBand: {
       heading: 'Prefer to explore first?',
-      subtitle: 'Browse our destinations and tours, or find quick answers in our FAQs.',
+      subtitle:
+        'Browse our destinations and tours, or find quick answers in our FAQs.',
       cta: { label: 'Browse destinations', href: '/destinations' },
     },
   },
@@ -1093,7 +1246,11 @@ export const messages = {
       price: 'Price',
     },
     durationLabels: { '1': 'Day trip', '2-3': '2–3 days', '4+': '4+ days' },
-    priceLabels: { '<100': 'Under $100', '100-300': '$100–$300', '300+': '$300+' },
+    priceLabels: {
+      '<100': 'Under $100',
+      '100-300': '$100–$300',
+      '300+': '$300+',
+    },
     activeFiltersLabel: 'Active filters',
     viewTour: 'View tour',
     perPerson: 'per person',
@@ -1222,12 +1379,30 @@ export const messages = {
     trust: {
       heading: 'Why travel with us',
       items: [
-        { title: '15 years of local expertise', body: 'A decade and a half crafting journeys across Vietnam — refined trip by trip.' },
-        { title: 'Designed by locals', body: 'No middlemen and no off-the-shelf scripts — real itineraries from people who live here.' },
-        { title: 'Loved by travellers', body: 'Thousands of guests, and the kind of reviews that turn first-timers into regulars.' },
-        { title: '24/7 on-trip support', body: 'A real person before, during and after your trip — wherever the road takes you.' },
-        { title: 'Fair, transparent pricing', body: 'Clear quotes, no surprise fees, and flexible options to suit your budget.' },
-        { title: 'Flexible & tailored', body: 'Every itinerary flexes to your pace, dates, interests and group size.' },
+        {
+          title: '15 years of local expertise',
+          body: 'A decade and a half crafting journeys across Vietnam — refined trip by trip.',
+        },
+        {
+          title: 'Designed by locals',
+          body: 'No middlemen and no off-the-shelf scripts — real itineraries from people who live here.',
+        },
+        {
+          title: 'Loved by travellers',
+          body: 'Thousands of guests, and the kind of reviews that turn first-timers into regulars.',
+        },
+        {
+          title: '24/7 on-trip support',
+          body: 'A real person before, during and after your trip — wherever the road takes you.',
+        },
+        {
+          title: 'Fair, transparent pricing',
+          body: 'Clear quotes, no surprise fees, and flexible options to suit your budget.',
+        },
+        {
+          title: 'Flexible & tailored',
+          body: 'Every itinerary flexes to your pace, dates, interests and group size.',
+        },
       ],
     },
     // Tour FAQ
@@ -1269,8 +1444,10 @@ export const messages = {
       seatsLeft: (n: number) => `${n} seats left`,
       requestCta: 'Request to book',
       enquireCta: 'Ask a question',
-      deposit: (amount: string) => `Or deposit at least ${amount} to hold your dates`,
-      trustLine: 'No payment now — we confirm availability and send a tailored quote.',
+      deposit: (amount: string) =>
+        `Or deposit at least ${amount} to hold your dates`,
+      trustLine:
+        'No payment now — we confirm availability and send a tailored quote.',
     },
   },
   enquiryCta: {
@@ -1324,14 +1501,22 @@ export const messages = {
       travellers: 'Travellers',
       travellersPlaceholder: 'e.g. 2',
       message: 'Anything else?',
-      messagePlaceholder: 'Tell us about your dream trip, must-sees, or any questions…',
+      messagePlaceholder:
+        'Tell us about your dream trip, must-sees, or any questions…',
     },
     durationLabel: 'How long in Vietnam?',
     duration: ['1–3 days', '4–6 days', 'About a week', '2+ weeks'],
     budgetLabel: 'Hotel preference',
     budget: ['Comfort · 3★', 'Premium · 4★', 'Luxury · 5★'],
     interestsLabel: 'What are you into?',
-    interests: ['Cruises', 'Trekking', 'Culture & heritage', 'Food', 'Beaches & islands', 'Family'],
+    interests: [
+      'Cruises',
+      'Trekking',
+      'Culture & heritage',
+      'Food',
+      'Beaches & islands',
+      'Family',
+    ],
     submit: 'Send enquiry',
     note: 'Free and no-obligation — we usually reply within 24 hours.',
   },
@@ -1339,10 +1524,13 @@ export const messages = {
   enquiryForm: {
     submitting: 'Sending…',
     success: 'Thank you — your enquiry is on its way!',
-    successBody: 'Our local experts will get back to you within about 24 hours.',
+    successBody:
+      'Our local experts will get back to you within about 24 hours.',
     required: 'Please enter your name and a valid email address.',
-    errorGeneric: 'Something went wrong sending your enquiry. Please try again, or email us directly.',
-    rateLimited: 'You’ve sent a few enquiries already — please wait a minute and try again.',
+    errorGeneric:
+      'Something went wrong sending your enquiry. Please try again, or email us directly.',
+    rateLimited:
+      'You’ve sent a few enquiries already — please wait a minute and try again.',
   },
   blog: {
     heading: 'Travel guides & stories',
