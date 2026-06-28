@@ -4,8 +4,8 @@ import { MapPinIcon } from 'lucide-react';
 
 import { Map, MapMarker, MarkerContent, MapControls } from '@tourism/ui';
 
-// Hà Nội (Hoàn Kiếm) — where the team is based.
-const HANOI: [number, number] = [105.8342, 21.0278];
+// Hà Nội office — 18 Tam Trinh, Tương Mai (VTC Online building).
+const HANOI: [number, number] = [105.8606, 20.9895];
 
 // Free, no-API-key vector tiles (OpenStreetMap data) instead of mapcn's default
 // CARTO basemap (which needs a commercial licence). Theme-aware light/dark.

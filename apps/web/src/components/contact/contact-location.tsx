@@ -23,7 +23,7 @@ function MapSkeleton() {
  */
 export function ContactLocation() {
   const t = messages.contact;
-  const office = t.offices[0];
+  const offices = t.offices;
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
 
@@ -53,41 +53,49 @@ export function ContactLocation() {
           <p className="text-muted-foreground mt-4 text-lg text-pretty">{t.officesSubtitle}</p>
         </div>
 
-        {/* Full-bleed map with a floating info card */}
+        {/* Full-bleed map */}
         <div
           ref={ref}
-          className="ring-border relative h-[460px] overflow-hidden rounded-2xl ring-1 sm:h-[520px]"
+          className="ring-border relative h-90 overflow-hidden rounded-2xl ring-1 sm:h-110"
         >
           {inView ? <ContactMap /> : <MapSkeleton />}
+        </div>
 
-          <div className="bg-background/85 ring-border shadow-card absolute inset-x-4 bottom-4 max-w-sm rounded-xl p-5 ring-1 backdrop-blur-md sm:inset-x-auto sm:top-6 sm:left-6 sm:p-6">
-            <h3 className="font-heading text-xl font-semibold">{office.city}</h3>
-            <div className="mt-3 space-y-3 text-sm">
-              <div className="flex items-start gap-2.5">
-                <MapPinIcon className="text-primary mt-0.5 size-4.5 shrink-0" />
-                <span className="text-muted-foreground">
-                  {office.lines.map((line) => (
-                    <span key={line} className="block">
-                      {line}
-                    </span>
-                  ))}
-                </span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <Clock8Icon className="text-primary size-4.5 shrink-0" />
-                <span className="text-muted-foreground">{office.hours}</span>
-              </div>
-            </div>
-            <a
-              href={office.mapHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary mt-4 inline-flex items-center gap-1.5 text-sm font-semibold"
+        {/* Office cards — one per location */}
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          {offices.map((office) => (
+            <div
+              key={office.city}
+              className="bg-background ring-border shadow-card rounded-xl p-5 ring-1 sm:p-6"
             >
-              {t.getDirections}
-              <ArrowUpRightIcon className="size-4" />
-            </a>
-          </div>
+              <h3 className="font-heading text-xl font-semibold">{office.city}</h3>
+              <div className="mt-3 space-y-3 text-sm">
+                <div className="flex items-start gap-2.5">
+                  <MapPinIcon className="text-primary mt-0.5 size-4.5 shrink-0" />
+                  <span className="text-muted-foreground">
+                    {office.lines.map((line) => (
+                      <span key={line} className="block">
+                        {line}
+                      </span>
+                    ))}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Clock8Icon className="text-primary size-4.5 shrink-0" />
+                  <span className="text-muted-foreground">{office.hours}</span>
+                </div>
+              </div>
+              <a
+                href={office.mapHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary mt-4 inline-flex items-center gap-1.5 text-sm font-semibold"
+              >
+                {t.getDirections}
+                <ArrowUpRightIcon className="size-4" />
+              </a>
+            </div>
+          ))}
         </div>
       </div>
     </section>

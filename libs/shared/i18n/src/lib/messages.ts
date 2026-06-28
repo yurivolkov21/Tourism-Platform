@@ -1006,22 +1006,28 @@ export const messages = {
     },
     officesHeading: 'Where we’re based',
     officesSubtitle:
-      'Our local team works out of Hà Nội — reach us any time through the form above.',
+      'Our local teams work out of Hà Nội and Hồ Chí Minh City — reach us any time through the form above.',
     getDirections: 'Open in Maps',
     offices: [
       {
-        city: 'Hà Nội, Vietnam',
-        lines: ['Vietnam’s capital — where our local team is based.'],
-        hours: 'Online · we usually reply within 24 hours',
-        mapHref: 'https://www.google.com/maps?q=Hanoi,+Vietnam',
+        city: 'Hà Nội',
+        lines: ['18 Tam Trinh, Tương Mai', 'Hà Nội, Vietnam'],
+        hours: 'Mon–Fri · 8:00 am – 6:00 pm (GMT+7)',
+        mapHref: 'https://www.google.com/maps?q=18+Tam+Trinh,+Tuong+Mai,+Ha+Noi',
+      },
+      {
+        city: 'Hồ Chí Minh City',
+        lines: ['184 Lê Đại Hành, Phú Thọ', 'Hồ Chí Minh City, Vietnam'],
+        hours: 'Mon–Fri · 8:00 am – 6:00 pm (GMT+7)',
+        mapHref: 'https://www.google.com/maps?q=184+Le+Dai+Hanh,+Phu+Tho,+Ho+Chi+Minh',
       },
     ],
     // Kept for the site footer's Information column.
     info: [
       { title: 'Office hours', lines: ['Monday – Friday', '8:00 am – 6:00 pm (GMT+7)'] },
-      { title: 'Based in', lines: ['Hà Nội, Vietnam'] },
-      { title: 'Call us', lines: ['+84 24 1234 5678', '+84 90 123 4567'] },
-      { title: 'Email us', lines: ['hello@example.com', 'support@example.com'] },
+      { title: 'Offices', lines: ['Hà Nội · Hồ Chí Minh City'] },
+      { title: 'Call us', lines: ['1900 292 958'] },
+      { title: 'Email us', lines: ['tourism.platform.online@gmail.com'] },
     ],
     // Short pre-sales FAQ for the contact page (curated from the full /faq).
     faq: {
@@ -1354,10 +1360,14 @@ export const messages = {
     socialHeading: 'Follow us',
     mapHeading: 'Find us on map',
     viewOnMap: 'View on map',
+    ctaHeading: 'Ready to explore Vietnam? Talk to a local expert.',
+    ctaButton: 'Get in touch',
     newsletterHeading: 'Travel inspiration',
     newsletterText: 'Seasonal offers and new journeys, straight to your inbox.',
     newsletterPlaceholder: 'Your email',
     newsletterCta: 'Subscribe',
+    browseHeading: 'Browse tours',
+    allTours: 'All tours',
     exploreHeading: 'Explore',
     explore: [
       { label: 'Tours', href: '/tours' },
@@ -1374,8 +1384,8 @@ export const messages = {
       { label: 'Contact', href: '/contact' },
     ],
     contactHeading: 'Contact',
-    email: 'hello@example.com',
-    phone: '+84 00 000 0000',
+    email: 'tourism.platform.online@gmail.com',
+    phone: '1900 292 958',
     rights: 'All rights reserved.',
   },
 } as const;
