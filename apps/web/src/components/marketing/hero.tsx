@@ -52,7 +52,7 @@ export function Hero() {
               type="text"
               name="destination"
               placeholder={t.searchPlaceholder}
-              className="h-auto flex-1 rounded-none border-0 bg-transparent px-0 py-0 text-sm shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
+              className="text-foreground placeholder:text-muted-foreground h-auto flex-1 rounded-none border-0 bg-transparent px-0 py-0 text-sm shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
             />
           </label>
           <Button type="submit" size="lg" className="shrink-0 rounded-full">
