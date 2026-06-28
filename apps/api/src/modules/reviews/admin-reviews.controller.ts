@@ -7,10 +7,12 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
+  Post,
   Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiResponse,
@@ -19,6 +21,8 @@ import {
 import { Review, UserRole } from '@prisma/client';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { PaginatedAdminReviewsDto } from './dto/admin-review.dto';
+import { CreateCuratedReviewDto } from './dto/create-curated-review.dto';
+import { FeatureReviewDto } from './dto/feature-review.dto';
 import { ListAdminReviewsQueryDto } from './dto/list-admin-reviews-query.dto';
 import { ModerateReviewDto } from './dto/moderate-review.dto';
 import { ReviewDto } from './dto/review.dto';
@@ -64,5 +68,27 @@ export class AdminReviewsController {
     @Body() body: ModerateReviewDto,
   ): Promise<Review> {
     return this.reviewsService.moderateById(id, body.isApproved);
+  }
+
+  @Patch(':id/feature')
+  @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Pin/unpin a review on the homepage carousel' })
+  @ApiOkResponse({ type: ReviewDto, description: 'Updated review row' })
+  @ApiResponse({ status: 404, description: 'Review not found' })
+  feature(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: FeatureReviewDto,
+  ): Promise<Review> {
+    return this.reviewsService.setFeatured(id, body.isFeatured);
+  }
+
+  @Post('curated')
+  @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a curated testimonial (no booking)' })
+  @ApiCreatedResponse({ type: ReviewDto, description: 'Created (approved + featured)' })
+  createCurated(@Body() body: CreateCuratedReviewDto): Promise<Review> {
+    return this.reviewsService.createCurated(body);
   }
 }

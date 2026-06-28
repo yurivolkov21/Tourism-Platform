@@ -398,3 +398,56 @@ describe('ReviewsService.moderateById', () => {
     expect(outboxCreateMany).not.toHaveBeenCalled();
   });
 });
+
+describe('ReviewsService.setFeatured', () => {
+  it('throws REVIEW_NOT_FOUND when the id is missing', async () => {
+    const prisma = {
+      review: { findUnique: jest.fn().mockResolvedValue(null), update: jest.fn() },
+    };
+    const svc = new ReviewsService(prisma as never);
+    await expect(svc.setFeatured('missing', true)).rejects.toBeInstanceOf(NotFoundException);
+    expect(prisma.review.update).not.toHaveBeenCalled();
+  });
+
+  it('updates isFeatured when the review exists', async () => {
+    const update = jest.fn().mockResolvedValue({ id: 'r-1', isFeatured: true });
+    const prisma = {
+      review: { findUnique: jest.fn().mockResolvedValue({ id: 'r-1' }), update },
+    };
+    const svc = new ReviewsService(prisma as never);
+    await svc.setFeatured('r-1', true);
+    type UpdCall = { where: { id: string }; data: { isFeatured: boolean } };
+    const calls = update.mock.calls as unknown as UpdCall[][];
+    expect(calls[0][0].data.isFeatured).toBe(true);
+    expect(calls[0][0].where.id).toBe('r-1');
+  });
+});
+
+describe('ReviewsService.createCurated', () => {
+  it('creates a CURATED review, approved + featured, with null booking/user/tour', async () => {
+    const create = jest.fn().mockResolvedValue({ id: 'c-1' });
+    const svc = new ReviewsService({ review: { create } } as never);
+    await svc.createCurated({
+      authorName: 'Emily Carter',
+      authorLocation: 'Sydney, Australia',
+      tripLabel: 'Ha Long Bay Cruise',
+      rating: 5,
+      body: 'Flawless from start to finish, would book again.',
+    });
+    type CreateCall = {
+      data: {
+        authorName: string;
+        authorLocation: string | null;
+        source: string;
+        isApproved: boolean;
+        isFeatured: boolean;
+      };
+    };
+    const calls = create.mock.calls as unknown as CreateCall[][];
+    expect(calls[0][0].data.authorName).toBe('Emily Carter');
+    expect(calls[0][0].data.authorLocation).toBe('Sydney, Australia');
+    expect(calls[0][0].data.source).toBe('CURATED');
+    expect(calls[0][0].data.isApproved).toBe(true);
+    expect(calls[0][0].data.isFeatured).toBe(true);
+  });
+});

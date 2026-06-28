@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { BookingStatus, EmailType, Prisma, Review, ReviewSource } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { CreateCuratedReviewDto } from './dto/create-curated-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ListAdminReviewsQueryDto } from './dto/list-admin-reviews-query.dto';
 import { ListReviewsQueryDto } from './dto/list-reviews-query.dto';
@@ -358,5 +359,40 @@ export class ReviewsService {
       `Admin moderated review ${reviewId} → isApproved=${isApproved}`,
     );
     return updated;
+  }
+
+  /** Pin/unpin a review on the homepage carousel (admin). */
+  async setFeatured(reviewId: string, isFeatured: boolean): Promise<Review> {
+    const existing = await this.prisma.review.findUnique({
+      where: { id: reviewId },
+      select: { id: true },
+    });
+    if (!existing) {
+      throw new NotFoundException({
+        code: 'REVIEW_NOT_FOUND',
+        message: `Review "${reviewId}" not found`,
+      });
+    }
+    return this.prisma.review.update({
+      where: { id: reviewId },
+      data: { isFeatured },
+    });
+  }
+
+  /** Create an admin-authored testimonial (CURATED) — approved + featured immediately. */
+  async createCurated(dto: CreateCuratedReviewDto): Promise<Review> {
+    return this.prisma.review.create({
+      data: {
+        authorName: dto.authorName,
+        authorLocation: dto.authorLocation ?? null,
+        tripLabel: dto.tripLabel ?? null,
+        rating: dto.rating,
+        title: dto.title ?? null,
+        body: dto.body,
+        source: ReviewSource.CURATED,
+        isApproved: true,
+        isFeatured: true,
+      },
+    });
   }
 }
