@@ -35,12 +35,18 @@ import { TechMarquee } from '../marketing/tech-marquee';
 /**
  * Contact-page lead section (Shadcn Space "Contact 01" layout, brand-tokenized):
  * contact details + "Built with" strip on the left, a real enquiry form on the right.
- * The form posts to /enquiries via submitEnquiry (the first-class contact channel);
- * phone/email details are placeholders until the team's real channels are ready.
+ * The form posts to /enquiries via submitEnquiry (the first-class contact channel).
  */
-export function ContactInquiry() {
+export function ContactInquiry({
+  interestOptions = [],
+}: {
+  /** Interest dropdown options (live tour-category names). Falls back to the curated i18n list. */
+  interestOptions?: string[];
+} = {}) {
   const t = messages.contact.inquiry;
   const f = t.form;
+  const options: readonly string[] =
+    interestOptions.length > 0 ? interestOptions : f.interestOptions;
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -152,7 +158,7 @@ export function ContactInquiry() {
                         <SelectValue placeholder={f.interestPlaceholder} />
                       </SelectTrigger>
                       <SelectContent>
-                        {f.interestOptions.map((opt) => (
+                        {options.map((opt) => (
                           <SelectItem key={opt} value={opt}>
                             {opt}
                           </SelectItem>
