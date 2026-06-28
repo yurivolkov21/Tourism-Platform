@@ -5,7 +5,7 @@ import { MinusIcon, PlusIcon } from 'lucide-react';
 
 import type { DurationBucket, PriceBucket, TourTheme, TravelStyle } from '@tourism/core';
 
-import { Checkbox } from '@tourism/ui';
+import { Button, Checkbox } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 export interface ToursFilterState {
@@ -110,13 +110,9 @@ export function ToursFilters({
       <div className="flex items-center justify-between">
         <h2 className="font-heading text-lg font-semibold">{t.filtersLabel}</h2>
         {activeCount > 0 ? (
-          <button
-            type="button"
-            onClick={onClearAll}
-            className="text-primary text-sm font-medium hover:underline"
-          >
+          <Button variant="link" onClick={onClearAll} className="h-auto p-0">
             {t.clearAll}
-          </button>
+          </Button>
         ) : null}
       </div>
 

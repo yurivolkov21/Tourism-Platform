@@ -234,13 +234,9 @@ export function ToursListing({
                     <XIcon className="size-3.5" />
                   </button>
                 ))}
-                <button
-                  type="button"
-                  onClick={clearAll}
-                  className="text-primary ml-1 text-sm font-medium hover:underline"
-                >
+                <Button variant="link" onClick={clearAll} className="ml-1 h-auto p-0">
                   {t.clearAll}
-                </button>
+                </Button>
               </div>
             ) : null}
 

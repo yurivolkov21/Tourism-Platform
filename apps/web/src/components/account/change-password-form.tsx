@@ -71,14 +71,16 @@ export function ChangePasswordForm() {
             className="pr-10"
             required
           />
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-sm"
             onClick={() => setShow((v) => !v)}
-            className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex w-10 items-center justify-center"
+            className="text-muted-foreground absolute top-1/2 right-1 -translate-y-1/2"
             aria-label={show ? t.hide : t.show}
           >
             {show ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
-          </button>
+          </Button>
         </div>
         {pw ? (
           <div className="space-y-2 pt-1">
