@@ -78,6 +78,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/me/avatar/sign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sign a Cloudinary avatar upload for the caller */
+        post: operations["UsersController_signAvatar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/me": {
         parameters: {
             query?: never;
@@ -89,7 +106,8 @@ export interface paths {
         get: operations["UsersController_getMe"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete the current account */
+        delete: operations["UsersController_deleteMe"];
         options?: never;
         head?: never;
         /** Update the current user profile */
@@ -109,6 +127,23 @@ export interface paths {
         post?: never;
         /** Clear the caller's avatar */
         delete: operations["UsersController_clearAvatar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/uploads/signed-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Admin: sign a Cloudinary direct upload */
+        post: operations["AdminUploadsController_sign"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -601,17 +636,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/uploads/signed-url": {
+    "/api/v1/reviews/featured": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Featured testimonials for the homepage */
+        get: operations["ReviewsController_featured"];
         put?: never;
-        /** Admin: sign a Cloudinary direct upload */
-        post: operations["AdminUploadsController_sign"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -684,6 +719,40 @@ export interface paths {
         head?: never;
         /** Approve or re-draft a review (admin) */
         patch: operations["AdminReviewsController_moderate"];
+        trace?: never;
+    };
+    "/api/v1/admin/reviews/{id}/feature": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Pin/unpin a review on the homepage carousel */
+        patch: operations["AdminReviewsController_feature"];
+        trace?: never;
+    };
+    "/api/v1/admin/reviews/curated": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a curated testimonial (no booking) */
+        post: operations["AdminReviewsController_createCurated"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/wishlist/{tourId}": {
@@ -902,6 +971,15 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
         };
+        SignAvatarDto: {
+            /**
+             * @description Original filename (single extension).
+             * @example me.jpg
+             */
+            filename: string;
+            /** @example image/jpeg */
+            contentType?: string;
+        };
         UpdateMeDto: {
             /** @example Nguyen Van A */
             fullName?: string;
@@ -920,6 +998,20 @@ export interface components {
             width?: number;
             /** @example 512 */
             height?: number;
+        };
+        CreateSignedUploadUrlDto: {
+            /**
+             * @description Upload classification — determines the storage folder.
+             * @enum {string}
+             */
+            purpose: "TOUR_HERO" | "TOUR_GALLERY" | "TOUR_VIDEO" | "DESTINATION_HERO" | "DESTINATION_VIDEO" | "USER_AVATAR";
+            /**
+             * @description Original filename (single extension). The backend sanitizes + timestamps it.
+             * @example hero-shot.jpg
+             */
+            filename: string;
+            /** @example image/jpeg */
+            contentType?: string;
         };
         MediaItemDto: {
             /** Format: uri */
@@ -1173,6 +1265,17 @@ export interface components {
              * @example 214
              */
             reviewsCount: number;
+            /**
+             * Format: date
+             * @description Soonest open upcoming departure date; null if none scheduled
+             * @example 2026-08-15
+             */
+            nextDepartureDate: string | null;
+            /**
+             * @description Seats left on the soonest open upcoming departure; null if none
+             * @example 6
+             */
+            nextDepartureSeatsLeft: number | null;
             category: components["schemas"]["TourCategoryRefDto"];
             destinations: components["schemas"]["TourDestinationLinkDto"][];
             media: components["schemas"]["MediaItemDto"][];
@@ -1269,6 +1372,17 @@ export interface components {
              * @example 214
              */
             reviewsCount: number;
+            /**
+             * Format: date
+             * @description Soonest open upcoming departure date; null if none scheduled
+             * @example 2026-08-15
+             */
+            nextDepartureDate: string | null;
+            /**
+             * @description Seats left on the soonest open upcoming departure; null if none
+             * @example 6
+             */
+            nextDepartureSeatsLeft: number | null;
             category: components["schemas"]["TourCategoryRefDto"];
             destinations: components["schemas"]["TourDestinationLinkDto"][];
             media: components["schemas"]["MediaItemDto"][];
@@ -1730,19 +1844,24 @@ export interface components {
             /** @example Customer cancelled within the free window */
             reason?: string;
         };
-        CreateSignedUploadUrlDto: {
-            /**
-             * @description Upload classification — determines the storage folder.
-             * @enum {string}
-             */
-            purpose: "TOUR_HERO" | "TOUR_GALLERY" | "TOUR_VIDEO" | "DESTINATION_HERO" | "DESTINATION_VIDEO" | "USER_AVATAR";
-            /**
-             * @description Original filename (single extension). The backend sanitizes + timestamps it.
-             * @example hero-shot.jpg
-             */
-            filename: string;
-            /** @example image/jpeg */
-            contentType?: string;
+        FeaturedReviewDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example 5 */
+            rating: number;
+            title: string | null;
+            body: string;
+            /** @example Emily Carter */
+            authorName: string;
+            /** @example Sydney, Australia */
+            authorLocation: string | null;
+            /** @example Hạ Long Bay Cruise */
+            tripLabel: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        FeaturedReviewsDto: {
+            data: components["schemas"]["FeaturedReviewDto"][];
         };
         CreateReviewDto: {
             /**
@@ -1823,14 +1942,27 @@ export interface components {
             /** Format: uuid */
             id: string;
             /** Format: uuid */
-            tourId: string;
+            tourId: string | null;
             /** @example hoi-an-walking-tour */
-            tourSlug: string;
+            tourSlug: string | null;
             /** Format: uuid */
-            userId: string;
-            reviewerName: string | null;
+            userId: string | null;
+            /**
+             * @description Snapshot display name
+             * @example Alice Nguyen
+             */
+            authorName: string;
+            /** @example Sydney, Australia */
+            authorLocation: string | null;
             /** Format: uuid */
-            bookingId: string;
+            bookingId: string | null;
+            /**
+             * @example VERIFIED
+             * @enum {string}
+             */
+            source: "VERIFIED" | "CURATED";
+            /** @example false */
+            isFeatured: boolean;
             /** @example 5 */
             rating: number;
             title: string | null;
@@ -1851,6 +1983,25 @@ export interface components {
              * @example true
              */
             isApproved: boolean;
+        };
+        FeatureReviewDto: {
+            /**
+             * @description true to pin to the homepage testimonials; false to unpin.
+             * @example true
+             */
+            isFeatured: boolean;
+        };
+        CreateCuratedReviewDto: {
+            /** @example Emily Carter */
+            authorName: string;
+            /** @example Sydney, Australia */
+            authorLocation?: string;
+            /** @example Hạ Long Bay Cruise */
+            tripLabel?: string;
+            /** @example 5 */
+            rating: number;
+            title?: string;
+            body: string;
         };
         WishlistTourPreviewDto: {
             /** Format: uuid */
@@ -2218,6 +2369,35 @@ export interface operations {
             };
         };
     };
+    UsersController_signAvatar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignAvatarDto"];
+            };
+        };
+        responses: {
+            /** @description Signed upload params (purpose pinned to USER_AVATAR) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing/invalid JWT or not synced */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     UsersController_getMe: {
         parameters: {
             query?: never;
@@ -2238,6 +2418,38 @@ export interface operations {
             };
             /** @description Missing/invalid JWT or not synced */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UsersController_deleteMe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Account deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing/invalid JWT or not synced */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Account still has bookings */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -2327,6 +2539,42 @@ export interface operations {
             };
             /** @description Missing/invalid JWT or not synced */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminUploadsController_sign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSignedUploadUrlDto"];
+            };
+        };
+        responses: {
+            /** @description Signed upload params envelope */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Format rejected for the purpose */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not an ADMIN */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3702,39 +3950,23 @@ export interface operations {
             };
         };
     };
-    AdminUploadsController_sign: {
+    ReviewsController_featured: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateSignedUploadUrlDto"];
-            };
-        };
+        requestBody?: never;
         responses: {
-            /** @description Signed upload params envelope */
+            /** @description Approved + featured reviews */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
-            };
-            /** @description Format rejected for the purpose */
-            400: {
-                headers: {
-                    [name: string]: unknown;
+                content: {
+                    "application/json": components["schemas"]["FeaturedReviewsDto"];
                 };
-                content?: never;
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -3912,6 +4144,63 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    AdminReviewsController_feature: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeatureReviewDto"];
+            };
+        };
+        responses: {
+            /** @description Updated review row */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewDto"];
+                };
+            };
+            /** @description Review not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminReviewsController_createCurated: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCuratedReviewDto"];
+            };
+        };
+        responses: {
+            /** @description Created (approved + featured) */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewDto"];
+                };
             };
         };
     };
