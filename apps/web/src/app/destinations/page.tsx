@@ -13,6 +13,7 @@ import { Testimonials } from '../../components/marketing/testimonials';
 import { EnquiryCta } from '../../components/marketing/enquiry-cta';
 import { fetchDestinationTiles } from '../../lib/api/destinations';
 import { fetchTourCards } from '../../lib/api/tours';
+import { fetchFeaturedReviews } from '../../lib/api/reviews';
 import { pickFeaturedDestinations } from '../../lib/featured-destinations';
 
 // Placeholder frames for the editorial gallery (data-ready; maps to MediaAsset later).
@@ -37,11 +38,19 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function DestinationsPage() {
-  const [tiles, popular] = await Promise.all([
+  const [tiles, popular, featured] = await Promise.all([
     fetchDestinationTiles().catch(() => []),
     fetchTourCards({ featured: true }).catch(() => []),
+    fetchFeaturedReviews(),
   ]);
   const groups = groupByRegion(tiles);
+  // Map featured reviews → testimonial items; the component falls back to the i18n fixture when empty.
+  const testimonials = featured.map((r) => ({
+    name: r.authorName,
+    trip: r.tripLabel,
+    location: r.authorLocation,
+    content: r.body,
+  }));
 
   return (
     <main>
@@ -56,7 +65,7 @@ export default async function DestinationsPage() {
       <BestTime />
       <PopularTours tours={popular} />
       <Gallery variant="editorial" sections={galleryFrames} />
-      <Testimonials />
+      <Testimonials items={testimonials} />
       <TravelTips />
       <EnquiryCta heading={messages.enquiryCta.headings.destinations} />
     </main>

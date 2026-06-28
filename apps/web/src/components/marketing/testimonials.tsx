@@ -12,6 +12,13 @@ import {
 } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+export interface TestimonialItem {
+  name: string;
+  trip?: string | null;
+  location?: string | null;
+  content: string;
+}
+
 // First-letter initials from the first two name parts (e.g. "Emily Carter" → "EC").
 function initials(name: string): string {
   return name
@@ -20,13 +27,19 @@ function initials(name: string): string {
     .join('');
 }
 
+// "trip · location", dropping whichever side is missing (verified reviews have no location).
+function metaLine(item: TestimonialItem): string {
+  return [item.trip, item.location].filter(Boolean).join(' · ');
+}
+
 /**
  * Minimal split testimonials: a sticky intro + control column on the left, and a one-up carousel
- * of large pull-quotes on the right (oversized quote mark, no card chrome). Reads guest stories
- * from `@tourism/i18n`.
+ * of large pull-quotes on the right (oversized quote mark, no card chrome). Renders real featured
+ * reviews when supplied, falling back to the `@tourism/i18n` curated fixture.
  */
-export function Testimonials() {
+export function Testimonials({ items }: { items?: TestimonialItem[] }) {
   const t = messages.testimonials;
+  const list: readonly TestimonialItem[] = items && items.length > 0 ? items : t.items;
 
   return (
     <section className="py-16 sm:py-20 lg:py-24">
@@ -55,8 +68,8 @@ export function Testimonials() {
         {/* Right — one-up pull-quote carousel */}
         <div className="relative">
           <CarouselContent className="sm:-ml-6">
-            {t.items.map((item) => (
-              <CarouselItem key={item.name} className="sm:pl-6">
+            {list.map((item, idx) => (
+              <CarouselItem key={`${item.name}-${idx}`} className="sm:pl-6">
                 <figure className="flex flex-col gap-8">
                   <div className="space-y-1">
                     <p className="font-heading text-primary/25 h-12 text-7xl leading-none select-none" aria-hidden>
@@ -75,9 +88,7 @@ export function Testimonials() {
                     </Avatar>
                     <div>
                       <p className="font-medium">{item.name}</p>
-                      <p className="text-muted-foreground text-sm">
-                        {item.trip} · {item.location}
-                      </p>
+                      <p className="text-muted-foreground text-sm">{metaLine(item)}</p>
                     </div>
                   </figcaption>
                 </figure>

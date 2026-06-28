@@ -47,6 +47,7 @@ import {
   PolicyKind,
   PostStatus,
   PrismaClient,
+  ReviewSource,
   TourBadge,
   TravellerType,
   UserRole,
@@ -702,6 +703,7 @@ interface ReviewSeed {
   rating: number; // 1..5
   title: string;
   body: string;
+  featured?: boolean; // pinned to the homepage testimonials carousel
 }
 
 /** APPROVED reviews keyed by tour slug — drives card averageRating/reviewsCount. */
@@ -731,8 +733,8 @@ const REVIEWS: Record<string, ReviewSeed[]> = {
     { reviewer: 7, rating: 4, title: 'Authentic and beautiful', body: 'A genuine look at mountain life away from the tourist track. Basic comforts at the homestays, but that’s the point.' },
   ],
   'north-vietnam-5d4n': [
-    { reviewer: 1, rating: 5, title: 'Perfect first trip to the north', body: 'Hanoi, Ha Long and Ninh Binh in five days sounds rushed but it flowed beautifully. The Vespa tour was a brilliant start and the cruise was the highlight.' },
-    { reviewer: 4, rating: 5, title: 'Brilliant value', body: 'Everything was taken care of — transfers, guides, entrance fees. We just turned up and enjoyed it. Fantastic value for what’s included.' },
+    { reviewer: 1, rating: 5, title: 'Perfect first trip to the north', body: 'Hanoi, Ha Long and Ninh Binh in five days sounds rushed but it flowed beautifully. The Vespa tour was a brilliant start and the cruise was the highlight.', featured: true },
+    { reviewer: 4, rating: 5, title: 'Brilliant value', body: 'Everything was taken care of — transfers, guides, entrance fees. We just turned up and enjoyed it. Fantastic value for what’s included.', featured: true },
     { reviewer: 6, rating: 4, title: 'Smooth and well-paced', body: 'Great mix of city, bay and countryside. Long-ish drive to Ninh Binh but the scenery makes up for it.' },
   ],
   'vietnam-romantic-10d': [
@@ -1073,13 +1075,56 @@ async function main(): Promise<void> {
           title: rv.title,
           body: rv.body,
           isApproved: true,
+          authorName: reviewer.fullName,
+          source: ReviewSource.VERIFIED,
+          isFeatured: rv.featured ?? false,
         },
-        update: { rating: rv.rating, title: rv.title, body: rv.body, isApproved: true },
+        update: {
+          rating: rv.rating,
+          title: rv.title,
+          body: rv.body,
+          isApproved: true,
+          authorName: reviewer.fullName,
+          isFeatured: rv.featured ?? false,
+        },
       });
       reviewsCreated += 1;
     }
   }
   console.log(`[seed] reviews: ${reviewsCreated} approved across ${Object.keys(REVIEWS).length} tours`);
+
+  // Curated testimonials — admin-authored, not tied to a booking. Featured on the homepage carousel.
+  const CURATED_TESTIMONIALS = [
+    { id: '44444444-4444-4444-4444-000000000001', authorName: 'Emily Carter', authorLocation: 'Sydney, Australia', tripLabel: 'Hạ Long Bay Cruise', rating: 5, body: 'Our overnight cruise was flawless from start to finish. The guide knew every hidden cave, and the sunrise over the karsts is something I will never forget.' },
+    { id: '44444444-4444-4444-4444-000000000002', authorName: 'Lukas Meyer', authorLocation: 'Munich, Germany', tripLabel: 'Hội An Heritage Walk', rating: 5, body: 'Wandering the lantern-lit old town with a local historian made Hội An come alive. Every detail of the trip was thoughtfully arranged.' },
+    { id: '44444444-4444-4444-4444-000000000003', authorName: 'Sophie Laurent', authorLocation: 'Lyon, France', tripLabel: 'Sa Pa Trekking', rating: 4, body: 'The hill-tribe trek was the highlight of our month in Vietnam — challenging, beautiful, and our guide looked after us the whole way.' },
+  ];
+  for (const c of CURATED_TESTIMONIALS) {
+    await prisma.review.upsert({
+      where: { id: c.id },
+      create: {
+        id: c.id,
+        rating: c.rating,
+        title: null,
+        body: c.body,
+        authorName: c.authorName,
+        authorLocation: c.authorLocation,
+        tripLabel: c.tripLabel,
+        source: ReviewSource.CURATED,
+        isApproved: true,
+        isFeatured: true,
+      },
+      update: {
+        body: c.body,
+        authorName: c.authorName,
+        authorLocation: c.authorLocation,
+        tripLabel: c.tripLabel,
+        isApproved: true,
+        isFeatured: true,
+      },
+    });
+  }
+  console.log(`[seed] curated testimonials: ${CURATED_TESTIMONIALS.length} featured`);
 
   // 6c. Editorial posts (P-Content) — a few PUBLISHED articles authored by the admin.
   const POSTS = [
