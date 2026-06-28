@@ -21,6 +21,8 @@ export interface FilterableTour {
   basePrice: number;
   rating: number;
   reviewCount: number;
+  /** Category slug (admin-managed taxonomy) — the facet value the navbar used to link to. */
+  category?: string;
   travelStyles?: TravelStyle[];
   themes?: TourTheme[];
 }
@@ -28,6 +30,7 @@ export interface FilterableTour {
 /** Selected facet values. An empty/absent facet imposes no constraint. */
 export interface TourFilters {
   destinations?: string[];
+  categories?: string[];
   durations?: DurationBucket[];
   styles?: TravelStyle[];
   themes?: TourTheme[];
@@ -56,9 +59,16 @@ export function filterTours<T extends FilterableTour>(
   tours: readonly T[],
   filters: TourFilters = {},
 ): T[] {
-  const { destinations, durations, styles, themes, prices } = filters;
+  const { destinations, categories, durations, styles, themes, prices } = filters;
   return tours.filter((tour) => {
     if (destinations && destinations.length > 0 && !destinations.includes(tour.destination)) {
+      return false;
+    }
+    if (
+      categories &&
+      categories.length > 0 &&
+      !(tour.category != null && categories.includes(tour.category))
+    ) {
       return false;
     }
     if (

@@ -22,6 +22,8 @@ export function toTourCard(dto: TourSummaryDto): TourCardData {
     badges: (dto.badges ?? []) as TourBadgeKey[],
     image: hero?.url,
     summary: dto.summary ?? undefined,
+    category: dto.category?.slug,
+    categoryName: dto.category?.name,
   };
 }
 

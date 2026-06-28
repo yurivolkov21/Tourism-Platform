@@ -26,6 +26,9 @@ export type TourCardData = {
   image?: string;
   // One-line summary for the listing card (optional; populated on fixtures).
   summary?: string;
+  // Category slug (filter value) + display name, from the API's TourCategoryRefDto.
+  category?: string;
+  categoryName?: string;
   // Filter tags (optional; populated on fixtures for the /tours facets).
   travelStyles?: TravelStyle[];
   themes?: TourTheme[];

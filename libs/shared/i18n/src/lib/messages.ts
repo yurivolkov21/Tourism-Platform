@@ -1080,6 +1080,7 @@ export const messages = {
     resultCount: (n: number) => `${n} ${n === 1 ? 'tour' : 'tours'}`,
     facets: {
       destination: 'Destination',
+      category: 'Category',
       duration: 'Duration',
       travelStyle: 'Travel style',
       theme: 'Theme',

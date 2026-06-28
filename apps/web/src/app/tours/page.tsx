@@ -18,8 +18,13 @@ export const metadata: Metadata = {
 // empty state) rather than failing the page.
 export const revalidate = 300;
 
-export default async function ToursPage() {
+export default async function ToursPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
   const t = messages.toursPage;
+  const { category } = await searchParams;
 
   let tours: TourCardData[] = [];
   try {
@@ -31,7 +36,7 @@ export default async function ToursPage() {
   return (
     <main>
       <ContentHero breadcrumb={t.breadcrumb} title={t.title} subtitle={t.subtitle} />
-      <ToursListing tours={tours} />
+      <ToursListing tours={tours} initialCategory={category ?? null} />
     </main>
   );
 }

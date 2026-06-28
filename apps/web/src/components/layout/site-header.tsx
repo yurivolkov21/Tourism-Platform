@@ -102,9 +102,12 @@ export function SiteHeader() {
 
           {/* Desktop nav */}
           <nav className="flex items-center gap-1 max-md:hidden" aria-label="Primary">
+            <a href="/tours" className={linkClass}>
+              {t.tours}
+            </a>
             <NavigationMenu>
               <NavigationMenuList>
-                {[t.toursMenu, t.destinationsMenu].map((menu) => (
+                {[t.destinationsMenu].map((menu) => (
                   <NavigationMenuItem key={menu.label}>
                     <NavigationMenuTrigger>{menu.label}</NavigationMenuTrigger>
                     <NavigationMenuContent>

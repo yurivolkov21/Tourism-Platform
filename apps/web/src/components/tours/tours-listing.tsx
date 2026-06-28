@@ -31,6 +31,7 @@ import { ToursFilters, type FacetKey, type ToursFilterState } from './tours-filt
 
 const EMPTY: ToursFilterState = {
   destinations: [],
+  categories: [],
   durations: [],
   styles: [],
   themes: [],
@@ -41,9 +42,17 @@ const SORT_KEYS: TourSort[] = ['popular', 'price-asc', 'price-desc', 'rating'];
 
 /** Tours catalogue — desktop sidebar + mobile drawer facets, sort, and a responsive `TourCard` grid.
  * Owns the filter/sort state; filtering runs client-side over the full set so the page stays static. */
-export function ToursListing({ tours }: { tours: TourCardData[] }) {
+export function ToursListing({
+  tours,
+  initialCategory = null,
+}: {
+  tours: TourCardData[];
+  initialCategory?: string | null;
+}) {
   const t = messages.toursPage;
-  const [filters, setFilters] = useState<ToursFilterState>(EMPTY);
+  const [filters, setFilters] = useState<ToursFilterState>(() =>
+    initialCategory ? { ...EMPTY, categories: [initialCategory] } : EMPTY,
+  );
   const [sort, setSort] = useState<TourSort>('popular');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -52,8 +61,22 @@ export function ToursListing({ tours }: { tours: TourCardData[] }) {
     () => Array.from(new Set(tours.map((tour) => tour.destination))),
     [tours],
   );
+  // Category facet options (slug → name), de-duped, only for tours that carry a category.
+  const categoryOptions = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const tour of tours) {
+      if (tour.category && !seen.has(tour.category)) {
+        seen.set(tour.category, tour.categoryName ?? tour.category);
+      }
+    }
+    return Array.from(seen, ([value, label]) => ({ value, label }));
+  }, [tours]);
+  const categoryLabel = (slug: string) =>
+    categoryOptions.find((o) => o.value === slug)?.label ?? slug;
+
   const activeCount =
     filters.destinations.length +
+    filters.categories.length +
     filters.durations.length +
     filters.styles.length +
     filters.themes.length +
@@ -67,6 +90,7 @@ export function ToursListing({ tours }: { tours: TourCardData[] }) {
   // Active selections flattened into removable chips (label resolved per facet).
   const activeChips: { facet: FacetKey; value: string; label: string }[] = [
     ...filters.destinations.map((v) => ({ facet: 'destinations' as const, value: v, label: v })),
+    ...filters.categories.map((v) => ({ facet: 'categories' as const, value: v, label: categoryLabel(v) })),
     ...filters.durations.map((v) => ({ facet: 'durations' as const, value: v, label: t.durationLabels[v] })),
     ...filters.styles.map((v) => ({ facet: 'styles' as const, value: v, label: t.styleLabels[v] })),
     ...filters.themes.map((v) => ({ facet: 'themes' as const, value: v, label: t.themeLabels[v] })),
@@ -97,6 +121,7 @@ export function ToursListing({ tours }: { tours: TourCardData[] }) {
       onToggle={toggle}
       onClearAll={clearAll}
       destinationOptions={destinationOptions}
+      categoryOptions={categoryOptions}
       activeCount={activeCount}
     />
   );

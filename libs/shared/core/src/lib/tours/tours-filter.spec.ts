@@ -9,11 +9,11 @@ import {
 type Row = FilterableTour & { slug: string };
 
 const tours: Row[] = [
-  { slug: 'a', destination: 'Hạ Long Bay', durationDays: 2, basePrice: 320, rating: 4.8, reviewCount: 124, travelStyles: ['couples', 'luxury'], themes: ['cruise', 'nature'] },
-  { slug: 'b', destination: 'Sa Pa', durationDays: 2, basePrice: 210, rating: 4.7, reviewCount: 64, travelStyles: ['adventure', 'group'], themes: ['trekking', 'nature', 'cultural'] },
-  { slug: 'c', destination: 'Hội An', durationDays: 1, basePrice: 95, rating: 4.9, reviewCount: 210, travelStyles: ['family', 'couples'], themes: ['cultural', 'culinary'] },
-  { slug: 'd', destination: 'Hà Giang', durationDays: 3, basePrice: 295, rating: 4.9, reviewCount: 71, travelStyles: ['adventure', 'group'], themes: ['trekking', 'nature', 'cultural'] },
-  { slug: 'e', destination: 'Phú Quốc', durationDays: 5, basePrice: 450, rating: 4.6, reviewCount: 30, travelStyles: ['couples', 'luxury'], themes: ['beach'] },
+  { slug: 'a', destination: 'Hạ Long Bay', durationDays: 2, basePrice: 320, rating: 4.8, reviewCount: 124, category: 'cruises', travelStyles: ['couples', 'luxury'], themes: ['cruise', 'nature'] },
+  { slug: 'b', destination: 'Sa Pa', durationDays: 2, basePrice: 210, rating: 4.7, reviewCount: 64, category: 'trekking', travelStyles: ['adventure', 'group'], themes: ['trekking', 'nature', 'cultural'] },
+  { slug: 'c', destination: 'Hội An', durationDays: 1, basePrice: 95, rating: 4.9, reviewCount: 210, category: 'cultural', travelStyles: ['family', 'couples'], themes: ['cultural', 'culinary'] },
+  { slug: 'd', destination: 'Hà Giang', durationDays: 3, basePrice: 295, rating: 4.9, reviewCount: 71, category: 'trekking', travelStyles: ['adventure', 'group'], themes: ['trekking', 'nature', 'cultural'] },
+  { slug: 'e', destination: 'Phú Quốc', durationDays: 5, basePrice: 450, rating: 4.6, reviewCount: 30, category: 'beach', travelStyles: ['couples', 'luxury'], themes: ['beach'] },
 ];
 
 const slugs = (rows: Row[]) => rows.map((r) => r.slug);
@@ -51,6 +51,16 @@ describe('filterTours', () => {
 
   it('treats multiple values within a facet as OR', () => {
     expect(slugs(filterTours(tours, { destinations: ['Sa Pa', 'Hội An'] }))).toEqual(['b', 'c']);
+  });
+
+  it('filters by category slug (OR within the facet)', () => {
+    expect(slugs(filterTours(tours, { categories: ['trekking'] }))).toEqual(['b', 'd']);
+    expect(slugs(filterTours(tours, { categories: ['cruises', 'beach'] }))).toEqual(['a', 'e']);
+  });
+
+  it('excludes tours with no category when a category filter is active', () => {
+    const rows: Row[] = [{ slug: 'x', destination: 'X', durationDays: 1, basePrice: 50, rating: 4, reviewCount: 1 }];
+    expect(slugs(filterTours(rows, { categories: ['cruises'] }))).toEqual([]);
   });
 
   it('filters by duration bucket', () => {

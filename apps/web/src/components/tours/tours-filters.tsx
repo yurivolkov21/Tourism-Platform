@@ -10,6 +10,7 @@ import { messages } from '@tourism/i18n';
 
 export interface ToursFilterState {
   destinations: string[];
+  categories: string[];
   durations: DurationBucket[];
   styles: TravelStyle[];
   themes: TourTheme[];
@@ -92,12 +93,14 @@ export function ToursFilters({
   onToggle,
   onClearAll,
   destinationOptions,
+  categoryOptions,
   activeCount,
 }: {
   value: ToursFilterState;
   onToggle: (facet: FacetKey, optionValue: string) => void;
   onClearAll: () => void;
   destinationOptions: string[];
+  categoryOptions: Option[];
   activeCount: number;
 }) {
   const t = messages.toursPage;
@@ -117,6 +120,14 @@ export function ToursFilters({
         ) : null}
       </div>
 
+      {categoryOptions.length > 0 ? (
+        <FacetGroup
+          heading={t.facets.category}
+          options={categoryOptions}
+          selected={value.categories}
+          onToggle={(v) => onToggle('categories', v)}
+        />
+      ) : null}
       <FacetGroup
         heading={t.facets.destination}
         options={destinationOptions.map((d) => ({ value: d, label: d }))}
