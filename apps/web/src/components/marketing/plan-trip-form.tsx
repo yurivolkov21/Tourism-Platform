@@ -19,6 +19,7 @@ import { messages } from '@tourism/i18n';
 
 import { buildPlanTripPayload, isValidEnquiry } from '../../lib/enquiry-form';
 import { submitEnquiry } from '../../lib/api/enquiry';
+import { LEAD_FIELD_CLASS, LEAD_TEXTAREA_CLASS } from '../../lib/form-field';
 import { DatePicker } from '../booking/date-picker';
 import { EnquiryStatus, EnquirySuccess, type EnquiryFormStatus } from './enquiry-status';
 
@@ -144,7 +145,13 @@ export function PlanTripForm() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field className="gap-1.5">
                     <FieldLabel htmlFor="pt-name">{f.name}</FieldLabel>
-                    <Input id="pt-name" name="name" type="text" placeholder={f.namePlaceholder} />
+                    <Input
+                      id="pt-name"
+                      name="name"
+                      type="text"
+                      placeholder={f.namePlaceholder}
+                      className={LEAD_FIELD_CLASS}
+                    />
                   </Field>
                   <Field className="gap-1.5">
                     <FieldLabel htmlFor="pt-email">{f.email}</FieldLabel>
@@ -153,11 +160,18 @@ export function PlanTripForm() {
                       name="email"
                       type="email"
                       placeholder={f.emailPlaceholder}
+                      className={LEAD_FIELD_CLASS}
                     />
                   </Field>
                   <Field className="gap-1.5">
                     <FieldLabel htmlFor="pt-phone">{f.phone}</FieldLabel>
-                    <Input id="pt-phone" name="phone" type="tel" placeholder={f.phonePlaceholder} />
+                    <Input
+                      id="pt-phone"
+                      name="phone"
+                      type="tel"
+                      placeholder={f.phonePlaceholder}
+                      className={LEAD_FIELD_CLASS}
+                    />
                   </Field>
                   <Field className="gap-1.5">
                     <FieldLabel htmlFor="pt-nationality">{f.nationality}</FieldLabel>
@@ -166,11 +180,17 @@ export function PlanTripForm() {
                       name="nationality"
                       type="text"
                       placeholder={f.nationalityPlaceholder}
+                      className={LEAD_FIELD_CLASS}
                     />
                   </Field>
                   <Field className="gap-1.5">
                     <FieldLabel htmlFor="pt-date">{f.travelDate}</FieldLabel>
-                    <DatePicker id="pt-date" value={travelDate} onChange={setTravelDate} />
+                    <DatePicker
+                      id="pt-date"
+                      value={travelDate}
+                      onChange={setTravelDate}
+                      className={LEAD_FIELD_CLASS}
+                    />
                   </Field>
                   <Field className="gap-1.5">
                     <FieldLabel htmlFor="pt-travellers">{f.travellers}</FieldLabel>
@@ -180,6 +200,7 @@ export function PlanTripForm() {
                       type="number"
                       min={1}
                       placeholder={f.travellersPlaceholder}
+                      className={LEAD_FIELD_CLASS}
                     />
                   </Field>
                 </div>
@@ -211,6 +232,7 @@ export function PlanTripForm() {
                     name="message"
                     rows={3}
                     placeholder={f.messagePlaceholder}
+                    className={LEAD_TEXTAREA_CLASS}
                   />
                 </Field>
 

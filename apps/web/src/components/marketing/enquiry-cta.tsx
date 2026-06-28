@@ -8,6 +8,7 @@ import { messages } from '@tourism/i18n';
 
 import { buildEnquiryCtaPayload, isValidEnquiry } from '../../lib/enquiry-form';
 import { submitEnquiry } from '../../lib/api/enquiry';
+import { LEAD_FIELD_CLASS } from '../../lib/form-field';
 import { EnquiryStatus, EnquirySuccess, type EnquiryFormStatus } from './enquiry-status';
 
 interface EnquiryCtaProps {
@@ -87,11 +88,23 @@ export function EnquiryCta({ id = 'contact', heading, subtitle, prefillDestinati
               />
               <Field className="gap-1.5">
                 <FieldLabel htmlFor="enq-name">{fm.name}</FieldLabel>
-                <Input id="enq-name" name="name" type="text" placeholder={fm.namePlaceholder} />
+                <Input
+                  id="enq-name"
+                  name="name"
+                  type="text"
+                  placeholder={fm.namePlaceholder}
+                  className={LEAD_FIELD_CLASS}
+                />
               </Field>
               <Field className="gap-1.5">
                 <FieldLabel htmlFor="enq-email">{fm.email}</FieldLabel>
-                <Input id="enq-email" name="email" type="email" placeholder={fm.emailPlaceholder} />
+                <Input
+                  id="enq-email"
+                  name="email"
+                  type="email"
+                  placeholder={fm.emailPlaceholder}
+                  className={LEAD_FIELD_CLASS}
+                />
               </Field>
               <Field className="gap-1.5">
                 <FieldLabel htmlFor="enq-destination">{fm.destination}</FieldLabel>
@@ -101,6 +114,7 @@ export function EnquiryCta({ id = 'contact', heading, subtitle, prefillDestinati
                   type="text"
                   defaultValue={prefillDestination}
                   placeholder={fm.destinationPlaceholder}
+                  className={LEAD_FIELD_CLASS}
                 />
               </Field>
 

@@ -23,11 +23,14 @@ import { messages } from '@tourism/i18n';
 
 import { buildContactPayload, isValidEnquiry } from '../../lib/enquiry-form';
 import { submitEnquiry } from '../../lib/api/enquiry';
+import {
+  LEAD_FIELD_CLASS,
+  LEAD_SELECT_CLASS,
+  LEAD_TEXTAREA_CLASS,
+} from '../../lib/form-field';
 import { EnquiryStatus, EnquirySuccess, type EnquiryFormStatus } from '../marketing/enquiry-status';
 import { Reveal } from '../marketing/reveal';
 import { TechMarquee } from '../marketing/tech-marquee';
-
-const inputClass = 'bg-background h-10 shadow-xs';
 
 /**
  * Contact-page lead section (Shadcn Space "Contact 01" layout, brand-tokenized):
@@ -123,7 +126,7 @@ export function ContactInquiry() {
                         placeholder={f.firstNamePlaceholder}
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        className={inputClass}
+                        className={LEAD_FIELD_CLASS}
                         required
                       />
                       <Input
@@ -131,7 +134,7 @@ export function ContactInquiry() {
                         placeholder={f.lastNamePlaceholder}
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        className={inputClass}
+                        className={LEAD_FIELD_CLASS}
                         required
                       />
                     </div>
@@ -141,11 +144,11 @@ export function ContactInquiry() {
                       placeholder={f.emailPlaceholder}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className={inputClass}
+                      className={LEAD_FIELD_CLASS}
                       required
                     />
                     <Select value={interest} onValueChange={(v) => setInterest(v ?? '')}>
-                      <SelectTrigger className="bg-background h-10! w-full shadow-xs">
+                      <SelectTrigger className={LEAD_SELECT_CLASS}>
                         <SelectValue placeholder={f.interestPlaceholder} />
                       </SelectTrigger>
                       <SelectContent>
@@ -162,7 +165,7 @@ export function ContactInquiry() {
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       rows={4}
-                      className="bg-background shadow-xs"
+                      className={LEAD_TEXTAREA_CLASS}
                     />
                     <Label className="text-muted-foreground flex items-start gap-2.5 text-sm font-normal">
                       <Checkbox

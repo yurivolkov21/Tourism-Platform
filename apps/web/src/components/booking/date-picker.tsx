@@ -44,10 +44,13 @@ export function DatePicker({
   value,
   onChange,
   id,
+  className,
 }: {
   value?: string;
   onChange: (iso: string) => void;
   id?: string;
+  /** Extra classes for the field shell (e.g. to match a taller form field). */
+  className?: string;
 }) {
   const today = React.useMemo(() => {
     const d = new Date();
@@ -94,7 +97,7 @@ export function DatePicker({
   };
 
   return (
-    <InputGroup>
+    <InputGroup className={className}>
       <InputGroupInput
         id={id}
         value={text}
