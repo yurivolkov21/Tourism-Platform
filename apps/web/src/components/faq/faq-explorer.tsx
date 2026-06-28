@@ -13,7 +13,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { Accordion, AccordionContent, AccordionItem } from '@tourism/ui';
+import { Accordion, AccordionContent, AccordionItem, Input } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { slugify } from '../../lib/slug';
@@ -49,14 +49,14 @@ export function FaqExplorer() {
     <div>
       {/* Search */}
       <div className="relative mb-10">
-        <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2" />
-        <input
+        <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-4 z-10 size-4 -translate-y-1/2" />
+        <Input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t.searchPlaceholder}
           aria-label={t.searchLabel}
-          className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring/50 h-12 w-full rounded-full border pr-4 pl-11 text-sm outline-none transition-[box-shadow] focus-visible:ring-2"
+          className="bg-background h-12 rounded-full pr-4 pl-11 text-sm"
         />
       </div>
 
@@ -65,12 +65,18 @@ export function FaqExplorer() {
       ) : (
         <div className="space-y-12">
           {groups.map(({ category, icon: Icon, items }) => (
-            <section key={category.title} id={slugify(category.title)} className="scroll-mt-24">
+            <section
+              key={category.title}
+              id={slugify(category.title)}
+              className="scroll-mt-24"
+            >
               <div className="mb-4 flex items-center gap-3">
                 <span className="border-border bg-card text-primary flex size-10 shrink-0 items-center justify-center rounded-full border">
                   <Icon className="size-5" />
                 </span>
-                <h2 className="font-heading text-xl font-semibold">{category.title}</h2>
+                <h2 className="font-heading text-xl font-semibold">
+                  {category.title}
+                </h2>
               </div>
 
               <Accordion className="space-y-3">

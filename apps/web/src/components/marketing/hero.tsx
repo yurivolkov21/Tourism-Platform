@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { MapPinIcon, SearchIcon } from 'lucide-react';
 
-import { Badge, Button } from '@tourism/ui';
+import { Badge, Button, Input } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 // Temporary Unsplash hero image (review only) — swap for a real asset later.
@@ -43,14 +43,16 @@ export function Hero() {
           action="/tours"
           className="bg-background shadow-dropdown mt-2 flex w-full max-w-xl items-center gap-2 rounded-full p-2"
         >
-          <label className="flex flex-1 items-center gap-2 pl-3">
+          <label htmlFor="hero-destination" className="flex flex-1 items-center gap-2 pl-3">
             <MapPinIcon className="text-muted-foreground size-4 shrink-0" />
             <span className="sr-only">{t.searchLabel}</span>
-            <input
+            {/* Bare-styled Input so the surrounding pill owns the chrome (border/shadow/radius). */}
+            <Input
+              id="hero-destination"
               type="text"
               name="destination"
               placeholder={t.searchPlaceholder}
-              className="text-foreground placeholder:text-muted-foreground w-full bg-transparent text-sm outline-none"
+              className="h-auto flex-1 rounded-none border-0 bg-transparent px-0 py-0 text-sm shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
             />
           </label>
           <Button type="submit" size="lg" className="shrink-0 rounded-full">

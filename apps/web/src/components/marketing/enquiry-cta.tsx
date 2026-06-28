@@ -3,15 +3,12 @@
 import { useState } from 'react';
 import { CheckIcon } from 'lucide-react';
 
-import { buttonVariants, cn } from '@tourism/ui';
+import { Button, Field, FieldLabel, Input } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { buildEnquiryCtaPayload, isValidEnquiry } from '../../lib/enquiry-form';
 import { submitEnquiry } from '../../lib/api/enquiry';
 import { EnquiryStatus, EnquirySuccess, type EnquiryFormStatus } from './enquiry-status';
-
-const inputClass =
-  'border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring/50 h-11 w-full rounded-md border px-3 text-sm outline-none transition-[box-shadow] focus-visible:ring-2';
 
 interface EnquiryCtaProps {
   /** Anchor id — kept as `contact` so in-page "Request to book" CTAs can scroll here. */
@@ -88,33 +85,29 @@ export function EnquiryCta({ id = 'contact', heading, subtitle, prefillDestinati
                 aria-hidden="true"
                 className="hidden"
               />
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="enq-name" className="text-sm font-medium">
-                  {fm.name}
-                </label>
-                <input id="enq-name" name="name" type="text" placeholder={fm.namePlaceholder} className={inputClass} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="enq-email" className="text-sm font-medium">
-                  {fm.email}
-                </label>
-                <input id="enq-email" name="email" type="email" placeholder={fm.emailPlaceholder} className={inputClass} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="enq-destination" className="text-sm font-medium">
-                  {fm.destination}
-                </label>
-                <input id="enq-destination" name="destination" type="text" defaultValue={prefillDestination} placeholder={fm.destinationPlaceholder} className={inputClass} />
-              </div>
+              <Field className="gap-1.5">
+                <FieldLabel htmlFor="enq-name">{fm.name}</FieldLabel>
+                <Input id="enq-name" name="name" type="text" placeholder={fm.namePlaceholder} />
+              </Field>
+              <Field className="gap-1.5">
+                <FieldLabel htmlFor="enq-email">{fm.email}</FieldLabel>
+                <Input id="enq-email" name="email" type="email" placeholder={fm.emailPlaceholder} />
+              </Field>
+              <Field className="gap-1.5">
+                <FieldLabel htmlFor="enq-destination">{fm.destination}</FieldLabel>
+                <Input
+                  id="enq-destination"
+                  name="destination"
+                  type="text"
+                  defaultValue={prefillDestination}
+                  placeholder={fm.destinationPlaceholder}
+                />
+              </Field>
 
               <EnquiryStatus status={status} />
-              <button
-                type="submit"
-                disabled={status === 'submitting'}
-                className={cn(buttonVariants({ size: 'lg' }), 'mt-1 w-full disabled:opacity-70')}
-              >
+              <Button type="submit" size="lg" disabled={status === 'submitting'} className="mt-1 w-full">
                 {status === 'submitting' ? messages.enquiryForm.submitting : t.cta}
-              </button>
+              </Button>
               <p className="text-muted-foreground text-xs">{t.note}</p>
             </form>
             )}
