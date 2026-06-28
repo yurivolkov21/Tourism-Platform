@@ -41,6 +41,7 @@ Why nullable FKs: a curated testimonial has no real user/booking, and may not ma
 Verified reviews keep all three set, so their behaviour is identical.
 
 Reads after the change:
+
 - Tour-detail: unchanged query, but reviewer name reads `authorName` (fallback `user.fullName`).
 - Homepage: `reviews WHERE isApproved AND isFeatured` ordered newest/curated-first.
 
@@ -80,21 +81,25 @@ Suggested sequencing: **1 → 2 → 3 → 5** lands the homepage on real data wi
 is the largest piece and can follow once the core is verified. (Admin UI can be split out if preferred.)
 
 ## Testing
+
 TDD the pure/service logic: `reviews.service` create (snapshots authorName/source), the featured query,
 and the curated-create validation. Gate + `check:no-hex`. Manual: apply migration to a scratch DB, verify
 tour-detail still renders + homepage pulls featured.
 
 ## Rollout (prod)
+
 1. Land Inc 1 code on `main`.
 2. **Manually** `DIRECT_URL=… prisma migrate deploy` against prod (additive → safe with old code live).
 3. Deploy API (Render) + web (Vercel).
 4. Run the curated/feature seed or feature a couple of reviews via admin (Inc 4) so the homepage fills.
 
 ## Out of scope (this round)
+
 Per-tour rating recompute changes; review photos; multi-language reviews; capturing reviewer country in
 the customer review form; review replies.
 
 ## Open decisions (confirm before coding)
+
 1. **Admin UI now or later?** Full Inc 4 in this feature, or land 1–3 + 5 first and do the admin UI as a
    fast follow-up? *(recommend: core first, admin UI right after.)*
 2. **`authorName` snapshot on every review** (recommended) — OK?

@@ -18,6 +18,7 @@
 ## Backend (new)
 
 `DELETE /api/v1/users/me` (auth):
+
 - If the caller has **any bookings** → 409 `ACCOUNT_HAS_BOOKINGS` (Booking.user is `onDelete: Restrict`;
   keep financial records — tell them to contact support). Else:
 - Delete the local `User` row (cascades reviews + wishlist), then delete the Supabase auth user via the
@@ -35,8 +36,10 @@
 - i18n `messages.auth.account.settings.*`.
 
 ## Out of scope
+
 Link/unlink OAuth providers; social URLs; preferences/users tabs; anonymise-instead-of-delete.
 
 ## Testing
+
 TDD `scorePassword` + the delete-account controller branch. Gate + `check:no-hex`. Full delete/email
 flows = manual (need a no-booking account / real email).

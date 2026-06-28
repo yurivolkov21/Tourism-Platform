@@ -9,6 +9,7 @@ A signed-in customer opens **My bookings** and sees their bookings (newest first
 tour, departure date, status, party size, reference and total. Read-only this slice.
 
 **Locked decisions (from product):**
+
 - PENDING bookings show a **status badge only** (no "Pay now" re-checkout yet).
 - **No per-booking detail page** — each card links to the tour (`/tours/[slug]`).
 - Route is **`/account/bookings`** (already gated by the `proxy.ts` `/account/:path*` matcher — no proxy change).
@@ -36,8 +37,10 @@ tour, departure date, status, party size, reference and total. Read-only this sl
 - **i18n:** `messages.account.bookings.*` (title, empty, browse, statusLabels, field labels). EN-only.
 
 ## Out of scope
+
 Pay-now re-checkout · per-booking detail page · cancel/refund UI · pagination (BE caps at 50).
 
 ## Testing
+
 Unit (TDD) on the three pure helpers. Gate (lint/typecheck/test/build) + `check:no-hex` green. Live
 list render = manual (needs a signed-in user with bookings — we have several PAID test bookings).

@@ -10,6 +10,7 @@ Let a signed-in customer book a tour end to end: pick a departure + party size +
 create a booking, pay via **Stripe or PayPal** (buyer picks), and land on a **confirmation** page.
 
 **Locked decisions (from product):**
+
 - **Login required** to book (matches BE: `POST /bookings` needs a CUSTOMER JWT). Not signed in →
   redirect to `/login?redirect=<booking page>` then back.
 - **Both gateways**, buyer chooses on the booking form (`paymentProvider` is set at create).
@@ -38,7 +39,7 @@ to it in `bookings.service.ts` so `/checkout/success` always knows which booking
 ## Flow
 
 1. **Tour detail → BookingBox** ("Book this tour"): pick a departure (from `GET /tours/{slug}/departures`)
-   + adults/children → go to the booking page (carry `?d=<departureId>`). (Replaces the UI-only
+   - adults/children → go to the booking page (carry `?d=<departureId>`). (Replaces the UI-only
    "Request to book → #contact".)
 2. **Booking page `/tours/[slug]/book`** (auth-gated): summary (tour + chosen departure + live price) +
    form (party size, contact name/email/phone, special requests, **gateway radio: Stripe | PayPal**).
