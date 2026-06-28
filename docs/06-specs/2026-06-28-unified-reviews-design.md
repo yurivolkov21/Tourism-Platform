@@ -1,6 +1,10 @@
 # Design + plan — Unified reviews (verified + curated/featured)
 
-> Status: **awaiting approval** · Branch: `feat/reviews-unified` · Date: 2026-06-28
+> Status: **DONE** (merged to `main`, deployed; migration applied to prod) · Date: 2026-06-28
+> Decisions locked: admin UI in-scope · `authorName` snapshot on every review · `authorLocation`
+> curated-only. Inc 1–3 + 5 verified live on prod (homepage shows real featured reviews). Inc 4
+> (admin endpoints + `/reviews` admin UI) built + green + deployed, **not yet hands-on-verified** —
+> deferred to the admin-frontend phase.
 > One `reviews` table powers both surfaces: the tour-detail **verified** reviews (already DB-backed)
 > and the homepage **testimonials** (currently a hardcoded i18n fixture). Additive + backward-compatible.
 
