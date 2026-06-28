@@ -27,6 +27,7 @@ import {
   deriveEndDate,
 } from '../../lib/booking/private-request';
 import { formatTripDate } from '../../lib/booking/my-bookings';
+import { DatePicker } from './date-picker';
 
 const MAX_ADULTS = 20;
 const MAX_CHILDREN = 20;
@@ -34,10 +35,6 @@ const MAX_CHILDREN = 20;
 function clampInt(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) return min;
   return Math.min(max, Math.max(min, Math.trunc(value)));
-}
-
-function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
 }
 
 /**
@@ -131,13 +128,11 @@ export function PrivateRequestForm({
           <FieldGroup className="grid grid-cols-1 gap-4 md:col-span-2">
             <Field className="gap-1.5">
               <FieldLabel htmlFor="startDate">{tp.startDate}</FieldLabel>
-              <Input
+              <DatePicker
                 id="startDate"
-                type="date"
-                min={todayISO()}
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                required
+                onChange={setStartDate}
+                placeholder={tp.startDate}
               />
               {endDate ? (
                 <FieldDescription>
