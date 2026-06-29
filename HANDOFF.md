@@ -101,7 +101,8 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
 ## Next steps (resume order) — finishing P3 web
 
 1. **Final passes** — motion increment-2 (confirm merged), a11y, performance/Lighthouse, SEO
-   metadata; `/privacy` + `/terms` content needs counsel (placeholders).
+   metadata. *(Legal pages `/privacy` `/terms` `/cancellation-policy` are now complete real-looking
+   content — not lawyer-reviewed, fine for the demo.)*
 2. **Then:** P4 admin UI polish · P5 mobile · P6 content/SEO (BLUEPRINT §7).
    - **Fold into the admin-UI phase:** refund **execution** UI — partial/amount refund (`refundByAdmin` is full-only today; Stripe/PayPal accept an `amount`) + a first-class **cancellation-request queue** (today the PAID "Request cancellation" posts an Enquiry; promoting it to a booking-tied request only pays off once admin has a screen to act on it). Customer-facing policy is already live at `/cancellation-policy`.
 

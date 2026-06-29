@@ -57,7 +57,7 @@ tokens-only (no-hex), reuse `@tourism/ui`, copy in `@tourism/i18n`. Plan:
 | **Destinations overview** | `/destinations` | ✅ hero · full-bleed region mosaics (feature tiles) · when-to-visit · popular (image posters) · testimonials · travel-tips · enquiry |
 | **Region pages** | `/destinations/[region]` | ✅ SSG ×3 (northern / central / southern) — hero · intro bento · highlights · **per-region L2 signature** (North = dark adventure-stats · Central = heritage timeline · South = delta image-postcards) · **tours + destination tabs wired to live data** (`selectRegionBookables`, ISR 300, fixture fallback) · gallery · value-props · **rich Plan-your-trip form** (maps Enquiry model). Editorial imagery stays curated. 404 on unknown region. |
 | **FAQ** | `/faq` | ✅ searchable grouped accordion (category icons) · sticky TOC · FAQPage JSON-LD |
-| **Privacy / Terms / Cancellation** | `/privacy` `/terms` `/cancellation-policy` | ✅ legal pages (`LegalArticle`) — **draft, pending legal review**. **Cancellation & Refund policy**: request-based + human-handled (timeframe tiers as *guidelines*, not an engine); linked from footer + booking-detail request panel. Refund **execution** (partial-amount + first-class request queue) deferred to the **admin-UI phase** (needs admin consumer). |
+| **Privacy / Terms / Cancellation** | `/privacy` `/terms` `/cancellation-policy` | ✅ **complete pages** (`LegalArticle`) — placeholders filled with real facts (Nexora · real email/phone/HCM address · Supabase Singapore region · Vietnam law · age 18); draft callout removed (`reviewNote` now optional). *Not lawyer-reviewed — fine for the demo.* **Cancellation & Refund**: request-based + human-handled (tiers as *guidelines*, not an engine); linked from footer + booking-detail. Refund **execution** (partial-amount + first-class request queue) deferred to the **admin-UI phase**. |
 | **Nav / footer** | — | ✅ **Redesigned navbar** (sticky → floating **glass pill** on scroll · **hover-pill** links · **animated arrow CTA**, motion-safe) with the **Nexora "NEX" logo** · **Tours** dropdown + button **→ `/tours`** · Destinations dropdown **→ per-region pages** · about/contact wired · footer (ivory NEX logo) support → about/faq/privacy/terms/contact |
 | **Shared content template** | — | ✅ `ContentHero` (emerald header) + `OnThisPage` (sticky TOC scroll-spy) |
 | **Tours listing** | `/tours` | ✅ static — sidebar facets (Destination · Category · Duration · Price) + mobile drawer · sort · `TourCard` grid · empty state · **free-text search** (`searchTours` in `@tourism/core`, accent/đ-insensitive; hero `?q=` feeds it) · **client-side pagination** (`pageView`/`pageNumbers` TDD; 10/15/25 per page) · **availability badge** per card. **Client-side filter** (`filterTours`/`sortTours`) keeps the page static. |
@@ -84,9 +84,10 @@ tokens-only (no-hex), reuse `@tourism/ui`, copy in `@tourism/i18n`. Plan:
 
 ---
 
-> **⚠ Legal note:** `/privacy` + `/terms` are grounded drafts with bracketed placeholders and a
-> "pending review" callout. They **must be reviewed by qualified counsel** and the placeholders
-> completed before launch. Long-form content lives in `apps/web/src/content/{privacy,terms}.ts`.
+> **⚠ Legal note:** `/privacy`, `/terms`, `/cancellation-policy` now read as complete pages
+> (placeholders filled with real project facts; draft callout removed). They are **not
+> lawyer-reviewed** — fine for this demo, but a real launch should have qualified counsel review
+> them. Long-form content lives in `apps/web/src/content/{privacy,terms,cancellation}.ts`.
 
 ## Donor code worth porting
 
