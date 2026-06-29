@@ -35,7 +35,7 @@ export async function SiteFooter() {
         {/* Conversion band — CTA + newsletter */}
         <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-10">
           <div className="space-y-4 lg:col-span-7">
-            <Logo className="[&>span:first-child]:[--nx-tone:var(--background)] [&>span:last-child]:text-background" />
+            <Logo className="[--nx-tone:var(--background)]" />
             <h2 className="font-heading text-2xl font-semibold text-balance sm:text-3xl">
               {f.ctaHeading}
             </h2>

@@ -22,18 +22,21 @@ export function LogoMark({ className }: { className?: string }) {
 }
 
 /**
- * Full lockup: the NEX mark + the "Nexora" wordmark (Fraunces). No tile — the
- * mark sits as emerald letters beside the serif wordmark, so it never competes
- * with the emerald CTA in the header. The footer overrides `--nx-tone` (mark)
- * and the wordmark colour for its dark surface.
+ * Brand logo: the full "Nexora" wordmark carrying the origami two-tone fold itself
+ * (no separate "NEX" monogram — the name *is* the mark). The diagonal fold falls
+ * naturally between "Nex" and "ora", keeping continuity with the old monogram while
+ * showing the full name once. Colour follows `--nx-tone` (emerald default); the
+ * footer overrides it to ivory for its dark surface via the passed className.
  */
 export function Logo({ className }: { className?: string }) {
   return (
-    <span className={cn('inline-flex items-baseline gap-2', className)}>
-      <LogoMark className="text-[1.55rem]" />
-      <span className="font-heading text-lg font-semibold tracking-tight">
-        {messages.brand.name}
-      </span>
+    <span
+      className={cn(
+        'nexora-fold font-sans text-[1.5rem] leading-none font-extrabold tracking-[-0.045em]',
+        className,
+      )}
+    >
+      {messages.brand.name}
     </span>
   );
 }
