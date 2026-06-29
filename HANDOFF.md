@@ -31,7 +31,7 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web ~90% · P4 admin CRUD DONE · **DEPLOYED** (`main` @ `8ee25de`)
+## Current state — P1 + P2 DONE · P3 web ~92% · P4 admin CRUD DONE · **DEPLOYED** (`main` @ `cb9e12a`)
 
 ```text
 apps/   api (NestJS 11) · web + admin (Next 16) · mobile (Expo SDK 54)
@@ -53,8 +53,9 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
   (login/register/forgot/reset, Supabase)** · **account (dashboard · settings =
   profile+security+connected+delete · bookings list)** · **booking flow** (sectioned form ·
   Stripe/PayPal pay · **private-departure request** · checkout success/cancel · inline
-  date-picker) · reviews (real DB) · redesigned footer. **Component reform done** (Tier 1/2/3a:
-  native forms → `@tourism/ui`; shared lead-form field baseline; dead-code swept).
+  date-picker) · reviews (real DB) · **wishlist save-UI** (heart on tour-detail BookingBox,
+  signed-in only; manage/un-save in account) · redesigned footer. **Component reform done**
+  (Tier 1/2/3a: native forms → `@tourism/ui`; shared lead-form field baseline; dead-code swept).
 - **Admin (P4) — CRUD breadth done + DEPLOYED on Vercel.** Auth + shell + dashboard +
   CRUD (Destinations · Categories · Tours · Departures · Posts). UI polish deferred.
 - **Real data wired:** home · destinations overview · **region-detail** · tours listing+detail ·
@@ -98,17 +99,14 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
 
 ## Next steps (resume order) — finishing P3 web
 
-1. **Wishlist UX** — backend + the account dashboard count exist, but there's **no "save"
-   (heart) affordance** on tour cards/detail, so a customer can't actually add a tour.
-   Either build the save toggle (`lib/api/wishlist.ts` is ready) or hide the dashboard stat.
-2. **Customer booking management** — bookings list only; no booking-detail view and **no
+1. **Customer booking management** — bookings list only; no booking-detail view and **no
    self-service cancel / refund request** (refund is admin-only — see below). The
    notification side is email/domain-gated.
-3. **Final passes** — motion increment-2 (confirm merged), a11y, performance/Lighthouse, SEO
+2. **Final passes** — motion increment-2 (confirm merged), a11y, performance/Lighthouse, SEO
    metadata; `/privacy` + `/terms` content needs counsel (placeholders).
-4. **Then:** P4 admin UI polish · P5 mobile · P6 content/SEO (BLUEPRINT §7).
+3. **Then:** P4 admin UI polish · P5 mobile · P6 content/SEO (BLUEPRINT §7).
 
-*Done since last handoff: region-detail real data · tour-card availability badge (B-1, full-stack) · tours pagination.*
+*Done since last handoff: region-detail real data · tour-card availability badge (B-1, full-stack) · tours pagination · wishlist save-UI (heart on detail + account manage).*
 
 > **Domain-gated (deferred until a real domain is bought):** Resend email delivery
 > (enquiry ack / booking confirm / refund) + Supabase custom-domain email confirmation.
