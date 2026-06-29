@@ -31,7 +31,7 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web ~95% · P4 admin CRUD DONE · **DEPLOYED** (`main` @ `1360761`)
+## Current state — P1 + P2 DONE · P3 web ~95% · P4 admin CRUD DONE · **DEPLOYED** (`main` @ `dc261c7`)
 
 ```text
 apps/   api (NestJS 11) · web + admin (Next 16) · mobile (Expo SDK 54)
@@ -103,6 +103,7 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
 1. **Final passes** — motion increment-2 (confirm merged), a11y, performance/Lighthouse, SEO
    metadata; `/privacy` + `/terms` content needs counsel (placeholders).
 2. **Then:** P4 admin UI polish · P5 mobile · P6 content/SEO (BLUEPRINT §7).
+   - **Fold into the admin-UI phase:** refund **execution** UI — partial/amount refund (`refundByAdmin` is full-only today; Stripe/PayPal accept an `amount`) + a first-class **cancellation-request queue** (today the PAID "Request cancellation" posts an Enquiry; promoting it to a booking-tied request only pays off once admin has a screen to act on it). Customer-facing policy is already live at `/cancellation-policy`.
 
 *Done since last handoff: region-detail real data · tour-card availability badge (B-1) · tours pagination · wishlist save-UI (heart on detail + `/account/saved`) · booking detail + cancel (PENDING) / refund-request (PAID→Enquiry).*
 
