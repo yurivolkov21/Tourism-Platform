@@ -27,10 +27,12 @@ export function LegalArticle({ doc }: { doc: LegalDoc }) {
 
           {/* Document body */}
           <div className="min-w-0 max-w-3xl">
-            <div className="border-warning/40 bg-warning/10 mb-10 flex gap-3 rounded-lg border p-4 text-sm">
-              <TriangleAlertIcon className="text-warning size-5 shrink-0" />
-              <p className="text-foreground/90 leading-relaxed">{doc.reviewNote}</p>
-            </div>
+            {doc.reviewNote ? (
+              <div className="border-warning/40 bg-warning/10 mb-10 flex gap-3 rounded-lg border p-4 text-sm">
+                <TriangleAlertIcon className="text-warning size-5 shrink-0" />
+                <p className="text-foreground/90 leading-relaxed">{doc.reviewNote}</p>
+              </div>
+            ) : null}
 
             <div className="space-y-4">
               {doc.intro.map((p, i) => (

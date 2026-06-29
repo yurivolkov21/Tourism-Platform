@@ -3,16 +3,15 @@ import type { LegalDoc } from './legal-page';
 /**
  * Terms & Conditions — tour-operator booking terms grounded in the platform's actual flow
  * (enquiry → confirmation, deposit/balance, Stripe/PayPal payment, supplier-delivered services).
- * Bracketed values are placeholders; the document needs legal review before publication.
+ * Operating name "Nexora"; governed by the laws of Vietnam. Cancellation specifics live in the
+ * dedicated Cancellation & Refund Policy.
  */
 export const termsDoc: LegalDoc = {
   title: 'Terms & Conditions',
   breadcrumb: 'Terms & Conditions',
-  updated: 'Last updated: [date]',
-  reviewNote:
-    'Draft for review. These terms describe how bookings currently work, but the bracketed details ([…]), cancellation tiers, liability limits, and governing law must be confirmed and the whole document reviewed and approved by a qualified lawyer before it is published or relied upon.',
+  updated: 'Last updated: 29 June 2026',
   intro: [
-    'These Terms & Conditions govern the booking and provision of tours and travel services by [Company legal name] (“we”, “us”, “our”). They form a binding agreement between us and the person making the booking (“you”), who accepts these terms on behalf of everyone in the booking.',
+    'These Terms & Conditions govern the booking and provision of tours and travel services by Nexora (“we”, “us”, “our”). They form a binding agreement between us and the person making the booking (“you”), who accepts these terms on behalf of everyone in the booking.',
     'Please read them carefully before you book. By placing a booking you confirm that you have read, understood, and agree to these terms.',
   ],
   sections: [
@@ -27,7 +26,7 @@ export const termsDoc: LegalDoc = {
       heading: 'Prices, inclusions and payment',
       paragraphs: [
         'Prices are shown in the currency stated at the time of booking (for example, USD or VND) and apply to the services described on the relevant tour. Inclusions and exclusions are listed on each tour; anything not listed is not included.',
-        'Depending on the tour, we may require a deposit to confirm your booking, with the balance due before departure as set out in your confirmation. Payments are processed securely through our payment providers (Stripe and PayPal). Prices may change before your booking is confirmed; once confirmed, the agreed price is fixed except where a change is permitted by these terms.',
+        'Depending on the tour, we may require a deposit to confirm your booking, with the balance due before departure as set out in your confirmation. Payments are processed securely through our payment providers (Stripe and PayPal); we do not store your full card details. Prices may change before your booking is confirmed; once confirmed, the agreed price is fixed except where a change is permitted by these terms.',
       ],
     },
     {
@@ -37,9 +36,10 @@ export const termsDoc: LegalDoc = {
       ],
     },
     {
-      heading: 'Cancellations by you',
+      heading: 'Cancellations and refunds by you',
       paragraphs: [
-        'If you need to cancel, you must tell us in writing. Cancellation charges depend on the tour and how close to departure you cancel; the applicable terms are shown on the tour and in your confirmation before you book. [Insert the cancellation-fee schedule here.] Some payments, such as non-refundable deposits or supplier fees, may not be recoverable.',
+        'If you need to cancel, request it from your account (open the booking under “My bookings” and choose “Request cancellation”) or contact our team. Our team reviews each request and arranges any refund to your original payment method.',
+        'As a general guide, cancellations 30 or more days before departure are refunded in full less any non-recoverable supplier costs; 15–29 days before, around half; and fewer than 14 days before, the booking is usually non-refundable. These are guidelines — the exact outcome depends on the tour and any supplier costs already committed, and some payments (such as non-refundable deposits or third-party fees) may not be recoverable. The full details are in our Cancellation & Refund Policy.',
       ],
     },
     {
@@ -77,7 +77,7 @@ export const termsDoc: LegalDoc = {
     {
       heading: 'Our liability',
       paragraphs: [
-        'We will provide our services with reasonable skill and care. We are not liable for failures or delays caused by events beyond our reasonable control, or by you or a third party unconnected with the services. To the extent permitted by law, our total liability in connection with a booking is limited to [the price paid for the affected services]. Nothing in these terms excludes or limits any liability that cannot be excluded or limited under applicable law, including for death or personal injury caused by negligence.',
+        'We will provide our services with reasonable skill and care. We are not liable for failures or delays caused by events beyond our reasonable control, or by you or a third party unconnected with the services. To the extent permitted by law, our total liability in connection with a booking is limited to the price paid for the affected services. Nothing in these terms excludes or limits any liability that cannot be excluded or limited under applicable law, including for death or personal injury caused by negligence.',
       ],
     },
     {
@@ -89,7 +89,7 @@ export const termsDoc: LegalDoc = {
     {
       heading: 'Complaints',
       paragraphs: [
-        'If a problem arises during your trip, please tell your guide or our team straight away so we can try to resolve it on the spot. If the matter is not resolved, contact us in writing within [number] days of returning, and we will respond as quickly as we can.',
+        'If a problem arises during your trip, please tell your guide or our team straight away so we can try to resolve it on the spot. If the matter is not resolved, contact us in writing within 30 days of returning, and we will respond as quickly as we can.',
       ],
     },
     {
@@ -107,7 +107,7 @@ export const termsDoc: LegalDoc = {
     {
       heading: 'Governing law and jurisdiction',
       paragraphs: [
-        'These terms and any dispute arising from them are governed by the laws of [governing-law country/state], and you and we submit to the exclusive jurisdiction of the courts of [jurisdiction], except where applicable consumer law gives you the right to bring proceedings elsewhere.',
+        'These terms and any dispute arising from them are governed by the laws of Vietnam, and you and we submit to the exclusive jurisdiction of the courts of Hồ Chí Minh City, Vietnam, except where applicable consumer law gives you the right to bring proceedings elsewhere.',
       ],
     },
     {
@@ -119,7 +119,7 @@ export const termsDoc: LegalDoc = {
     {
       heading: 'Contact us',
       paragraphs: [
-        'For any question about these terms or your booking, contact us at [hello@example.com] or by post at [Company legal name, registered address].',
+        'For any question about these terms or your booking, contact us at tourism.platform.online@gmail.com, by phone at 1900 292 958, or by post at Nexora, 184 Lê Đại Hành, Phú Thọ, Hồ Chí Minh City, Vietnam.',
       ],
     },
   ],

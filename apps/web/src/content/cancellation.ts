@@ -9,9 +9,7 @@ import type { LegalDoc } from './legal-page';
 export const cancellationDoc: LegalDoc = {
   title: 'Cancellation & Refund Policy',
   breadcrumb: 'Cancellation & Refund Policy',
-  updated: 'Last updated: [date]',
-  reviewNote:
-    'Draft for review. This policy reflects how cancellations and refunds currently work, but the timeframe guidelines, fee amounts, processing times, and any non-refundable items must be confirmed and the whole document reviewed and approved by a qualified lawyer before it is published or relied upon.',
+  updated: 'Last updated: 29 June 2026',
   intro: [
     'We want you to book with confidence. This policy explains how to cancel a booking, what to expect, and how refunds are handled. It applies alongside our Terms & Conditions and any cancellation terms shown on the specific tour you booked.',
     'Plans change — if you need to cancel, get in touch as early as you can. The sooner you tell us, the more we are usually able to refund.',

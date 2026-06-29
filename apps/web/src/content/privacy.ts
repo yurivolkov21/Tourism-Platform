@@ -1,19 +1,17 @@
 import type { LegalDoc } from './legal-page';
 
 /**
- * Privacy Statement — grounded in the platform's actual data practices (account auth, enquiries,
- * bookings, payments via Stripe/PayPal, transactional email, media). Bracketed values are
- * placeholders the business must complete; the whole document needs legal review before launch.
+ * Privacy Statement — grounded in the platform's actual data practices (account auth via Supabase,
+ * enquiries, bookings, payments via Stripe/PayPal, transactional email via Resend, media via
+ * Cloudinary). Operating name "Nexora"; contact details match the site footer.
  */
 export const privacyDoc: LegalDoc = {
   title: 'Privacy Statement',
   breadcrumb: 'Privacy Statement',
-  updated: 'Last updated: [date]',
-  reviewNote:
-    'Draft for review. This statement reflects how the platform currently handles data, but the bracketed details ([…]) must be completed and the whole document reviewed and approved by a qualified data-protection lawyer before it is published or relied upon.',
+  updated: 'Last updated: 29 June 2026',
   intro: [
-    'This Privacy Statement explains how [Company legal name] (“we”, “us”, “our”) collects, uses, shares, and protects your personal information when you use this website, make an enquiry, or book a tour with us.',
-    'We are the data controller for the personal information described here. If you have any questions, contact us at [privacy@example.com].',
+    'This Privacy Statement explains how Nexora (“we”, “us”, “our”) collects, uses, shares, and protects your personal information when you use this website, make an enquiry, or book a tour with us.',
+    'We are the controller of the personal information described here. If you have any questions, contact us at tourism.platform.online@gmail.com.',
   ],
   sections: [
     {
@@ -21,8 +19,8 @@ export const privacyDoc: LegalDoc = {
       paragraphs: ['We collect the following categories of personal information:'],
       bullets: [
         'Information you provide directly: your name, email address, and phone number; enquiry details such as nationality, travel dates, group size, budget range, and travel interests; booking details; reviews you submit; and newsletter sign-ups.',
-        'Account information: if you create an account, your email and authentication details. Sign-in is handled by our authentication provider; we never see your password.',
-        'Payment information: card and payment details are collected and processed directly by our payment providers (Stripe and PayPal). We do not store full card numbers on our systems.',
+        'Account information: if you create an account, your email and authentication details. Sign-in is handled by our authentication provider (Supabase); we never see or store your password.',
+        'Payment information: card and payment details are collected and processed directly by our payment providers (Stripe and PayPal). We do not store full card numbers on our systems — we only keep a reference to the transaction.',
         'Information collected automatically: device and usage data, IP address, browser type, and pages visited, gathered through cookies and similar technologies.',
       ],
     },
@@ -33,8 +31,8 @@ export const privacyDoc: LegalDoc = {
         'Respond to your enquiries and prepare tour proposals;',
         'Confirm, manage, and deliver your bookings, including arranging transport, accommodation, and guides;',
         'Process payments and prevent fraud;',
-        'Send service messages such as booking confirmations and updates;',
-        'Manage your account and the reviews or wishlist items you create;',
+        'Send service messages such as booking confirmations, cancellation updates, and changes to your trip;',
+        'Manage your account and the reviews or saved tours you create;',
         'Send marketing communications where you have consented, which you can opt out of at any time;',
         'Improve and secure our website and services, and comply with our legal obligations.',
       ],
@@ -48,10 +46,10 @@ export const privacyDoc: LegalDoc = {
     {
       heading: 'How we share your information',
       paragraphs: [
-        'We do not sell your personal information. We share it only as needed to provide our services, with:',
+        'We do not sell or rent your personal information. We share it only as needed to provide our services, with:',
       ],
       bullets: [
-        'Service providers (processors) who operate the platform on our behalf, including our hosting and database/authentication provider (Supabase), payment providers (Stripe and PayPal), our transactional email provider (Resend), and our media/image provider (Cloudinary);',
+        'Service providers who operate the platform on our behalf, including our hosting, database, and authentication provider (Supabase), payment providers (Stripe and PayPal), our transactional email provider (Resend), and our media/image provider (Cloudinary);',
         'Travel suppliers — such as hotels, transport operators, and local guides — strictly to the extent needed to deliver the trip you book;',
         'Professional advisers, and authorities or regulators where we are required to do so by law or to protect our rights.',
       ],
@@ -59,13 +57,13 @@ export const privacyDoc: LegalDoc = {
     {
       heading: 'International data transfers',
       paragraphs: [
-        'Some of our providers process data outside your country, including outside the European Economic Area (for example, our database may be hosted in the [Singapore] region). Where we transfer personal information internationally, we rely on appropriate safeguards such as standard contractual clauses or an adequacy decision. Contact us for more detail on the safeguards in place.',
+        'Some of our providers process data outside Vietnam, including our database, which is hosted in the Singapore region. Where we transfer personal information internationally, we rely on appropriate safeguards such as standard contractual clauses or an adequacy decision. Contact us for more detail on the safeguards in place.',
       ],
     },
     {
       heading: 'Cookies',
       paragraphs: [
-        'We use strictly necessary cookies to operate the site (for example, to keep you signed in), and, with your consent, analytics or similar technologies to understand how the site is used. You can control non-essential cookies through your browser settings and our cookie controls. A detailed description of the cookies we use is available at [cookie policy link].',
+        'We use strictly necessary cookies to operate the site (for example, to keep you signed in), and, with your consent, analytics or similar technologies to understand how the site is used. You can control non-essential cookies through your browser settings. Blocking strictly necessary cookies may stop parts of the site, such as signing in, from working.',
       ],
     },
     {
@@ -77,7 +75,7 @@ export const privacyDoc: LegalDoc = {
     {
       heading: 'Your rights',
       paragraphs: [
-        'Depending on where you live, you may have the right to access the personal information we hold about you; to correct inaccurate information; to request erasure; to restrict or object to certain processing; to data portability; and to withdraw consent at any time. To exercise any of these rights, contact us at [privacy@example.com]. You also have the right to lodge a complaint with your local data-protection supervisory authority.',
+        'Depending on where you live, you may have the right to access the personal information we hold about you; to correct inaccurate information; to request erasure; to restrict or object to certain processing; to data portability; and to withdraw consent at any time. You can update your details or delete your account directly from your account settings, or contact us at tourism.platform.online@gmail.com. You also have the right to lodge a complaint with your local data-protection authority.',
       ],
     },
     {
@@ -89,7 +87,7 @@ export const privacyDoc: LegalDoc = {
     {
       heading: 'Children’s privacy',
       paragraphs: [
-        'Our services are intended for adults. We do not knowingly collect personal information from children under [16/18]. If you believe a child has provided us with personal information, contact us and we will delete it.',
+        'Our services are intended for adults. We do not knowingly collect personal information from children under 18. If you believe a child has provided us with personal information, contact us and we will delete it.',
       ],
     },
     {
@@ -101,7 +99,7 @@ export const privacyDoc: LegalDoc = {
     {
       heading: 'Contact us',
       paragraphs: [
-        'For any privacy question or to exercise your rights, contact us at [privacy@example.com] or by post at [Company legal name, registered address]. [If applicable, our data protection officer can be reached at [dpo@example.com].]',
+        'For any privacy question or to exercise your rights, contact us at tourism.platform.online@gmail.com, by phone at 1900 292 958, or by post at Nexora, 184 Lê Đại Hành, Phú Thọ, Hồ Chí Minh City, Vietnam.',
       ],
     },
   ],
