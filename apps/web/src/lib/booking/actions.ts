@@ -1,11 +1,13 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { ApiRequestError } from '@tourism/core';
 import { messages } from '@tourism/i18n';
 
 import { syncUser } from '../auth/sync-user';
 import {
+  cancelBooking,
   captureBookingOrder,
   createBooking,
   startCheckout,
@@ -104,6 +106,43 @@ export async function createAndCheckout(
  * the API (an already-PAID booking is a no-op), so the success page can call it whenever a PayPal
  * booking is still PENDING. Returns `true` when the call succeeded (the page then re-reads the booking).
  */
+/** Cancel the caller's own PENDING booking, then revalidate the detail + list. */
+export async function cancelBookingAction(
+  code: string,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    await cancelBooking(code);
+    revalidatePath(`/account/bookings/${code}`);
+    revalidatePath('/account/bookings');
+    return { ok: true };
+  } catch (e) {
+    if (e instanceof ApiRequestError) {
+      console.error('[booking] cancel failed', { code, apiCode: e.code, status: e.status });
+      return { ok: false, error: errorMessage(e.code) };
+    }
+    console.error('[booking] cancel unexpected error', e);
+    return { ok: false, error: errors.generic };
+  }
+}
+
+/** "Pay now" for a PENDING booking: start a checkout session → redirect to the gateway. */
+export async function payNowAction(code: string): Promise<BookingActionState> {
+  let checkoutUrl: string | undefined;
+  try {
+    const session = await startCheckout(code);
+    checkoutUrl = session?.checkoutUrl;
+    if (!checkoutUrl) return { error: errors.CHECKOUT_FAILED };
+  } catch (e) {
+    if (e instanceof ApiRequestError) {
+      console.error('[booking] payNow failed', { code, apiCode: e.code, status: e.status });
+      return { error: errorMessage(e.code) };
+    }
+    console.error('[booking] payNow unexpected error', e);
+    return { error: errors.generic };
+  }
+  redirect(checkoutUrl);
+}
+
 export async function captureBooking(code: string): Promise<boolean> {
   try {
     await captureBookingOrder(code);

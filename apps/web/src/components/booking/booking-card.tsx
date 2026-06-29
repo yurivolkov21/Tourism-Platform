@@ -63,10 +63,10 @@ export function BookingCard({ booking }: { booking: BookingDto }) {
             {t.bookedOn(formatTripDate(booking.createdAt))}
           </p>
           <Link
-            href={`/tours/${booking.tour.slug}`}
+            href={`/account/bookings/${booking.code}`}
             className="text-primary inline-flex items-center gap-1 text-sm font-medium hover:underline"
           >
-            {t.viewTour}
+            {t.viewDetails}
             <ArrowUpRightIcon className="size-3.5" />
           </Link>
         </div>

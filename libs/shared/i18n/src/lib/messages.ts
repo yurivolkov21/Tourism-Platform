@@ -379,6 +379,35 @@ export const messages = {
         CANCELLED: 'Cancelled',
         REFUNDED: 'Refunded',
       } as Record<string, string>,
+      viewDetails: 'View details',
+    },
+    detail: {
+      back: 'Back to my bookings',
+      title: 'Booking details',
+      paymentLabel: 'Payment',
+      contactLabel: 'Contact',
+      requestsLabel: 'Special requests',
+      payNow: 'Pay now',
+      // PENDING self-cancel
+      cancel: 'Cancel booking',
+      cancelConfirmTitle: 'Cancel this booking?',
+      cancelConfirmBody:
+        'This releases your pending reservation. You can book again any time.',
+      cancelConfirmCta: 'Yes, cancel it',
+      keep: 'Keep booking',
+      cancelling: 'Cancelling…',
+      cancelled: 'Booking cancelled.',
+      // PAID cancellation/refund request (admin processes refunds)
+      requestTitle: 'Need to cancel?',
+      requestBody:
+        'Paid bookings are cancelled by our team. Send a request and we’ll get back to you about a refund.',
+      requestCta: 'Request cancellation',
+      reasonLabel: 'Reason (optional)',
+      reasonPlaceholder: 'Tell us why you need to cancel…',
+      submitRequest: 'Send request',
+      submitting: 'Sending…',
+      requestSent: 'Request sent — our team will follow up shortly.',
+      requestError: 'Couldn’t send your request. Please try again.',
     },
   },
   common: {

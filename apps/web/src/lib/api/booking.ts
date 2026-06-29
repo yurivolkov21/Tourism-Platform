@@ -31,6 +31,13 @@ export async function createBooking(
   });
 }
 
+/** Cancel the caller's own PENDING booking (`POST /bookings/{code}/cancel`). Throws on failure. */
+export async function cancelBooking(code: string): Promise<void> {
+  await authedJson(`/api/v1/bookings/${encodeURIComponent(code)}/cancel`, {
+    method: 'POST',
+  });
+}
+
 /** Start a checkout session for a PENDING booking (`POST /bookings/{code}/checkout`). */
 export async function startCheckout(code: string): Promise<CheckoutSessionDto> {
   return authedJson<CheckoutSessionDto>(
