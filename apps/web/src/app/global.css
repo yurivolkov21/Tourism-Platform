@@ -26,6 +26,20 @@
   }
 }
 
+/* Reduced-motion baseline: neutralise CSS transitions/animations for users who ask for less
+   motion. This is a safety net under the explicit `motion-reduce:` variants and useReducedMotion
+   hooks — it covers hover zoom / card-lift transforms that have no per-element guard. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Nexora "NEX" brandmark — an origami two-tone fold sweeping diagonally across
    the letters. Colour follows --nx-tone (defaults to the emerald primary; the
    dark footer overrides it to ivory). Forced-colors falls back to a flat fill. */

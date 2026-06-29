@@ -1,3 +1,5 @@
+import { cache } from 'react';
+
 import type { components } from '@tourism/core';
 
 import type { TourBadgeKey, TourCardData } from '../../components/tours/tour-card';
@@ -108,18 +110,23 @@ export async function fetchTourDetailSlugs(): Promise<string[]> {
  * Full detail view-model for a tour, or `null` when the slug is unknown/unpublished.
  * Reviews + related are fetched alongside the detail. The single-resource response is
  * enveloped (`{ data }`), so we unwrap `.data` (see admin envelope-unwrap gotcha).
+ *
+ * Wrapped in React `cache()` so `generateMetadata` and the page body share one fetch per
+ * request instead of hitting the API twice for the same slug.
  */
-export async function fetchTourDetail(slug: string): Promise<TourDetailVM | null> {
-  const api = getApiClient();
-  const { data, error } = await api.GET('/api/v1/tours/{slug}', {
-    params: { path: { slug } },
-  });
-  const dto = (data as unknown as { data?: TourDetailDto } | undefined)?.data;
-  if (error || !dto) return null;
+export const fetchTourDetail = cache(
+  async (slug: string): Promise<TourDetailVM | null> => {
+    const api = getApiClient();
+    const { data, error } = await api.GET('/api/v1/tours/{slug}', {
+      params: { path: { slug } },
+    });
+    const dto = (data as unknown as { data?: TourDetailDto } | undefined)?.data;
+    if (error || !dto) return null;
 
-  const [reviews, cards] = await Promise.all([
-    fetchTourReviews(slug).catch(() => []),
-    fetchTourCards().catch(() => []),
-  ]);
-  return toTourDetail(dto, reviews, pickRelated(cards, slug));
-}
+    const [reviews, cards] = await Promise.all([
+      fetchTourReviews(slug).catch(() => []),
+      fetchTourCards().catch(() => []),
+    ]);
+    return toTourDetail(dto, reviews, pickRelated(cards, slug));
+  },
+);

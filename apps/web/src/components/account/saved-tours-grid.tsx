@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ImageIcon, XIcon } from 'lucide-react';
 
@@ -44,15 +45,17 @@ export function SavedToursGrid({ items: initial }: { items: SavedTour[] }) {
             aria-label={t.remove}
             className="bg-background/80 text-muted-foreground hover:text-destructive absolute top-3 right-3 z-10 inline-flex size-8 items-center justify-center rounded-full backdrop-blur-sm transition-colors disabled:opacity-50"
           >
-            <XIcon className="size-4" />
+            <XIcon className="size-4" aria-hidden="true" />
           </button>
           <Link href={`/tours/${s.slug}`} className="flex flex-1 flex-col">
             <div className="bg-muted relative aspect-(--aspect-card) w-full overflow-hidden">
               {s.image ? (
-                <img
+                <Image
                   src={s.image}
                   alt={s.title}
-                  className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               ) : (
                 <div className="text-muted-foreground flex size-full items-center justify-center">

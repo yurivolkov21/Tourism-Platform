@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { ImageIcon } from 'lucide-react';
 
 import { cn } from '@tourism/ui';
@@ -39,8 +40,14 @@ const PLACEHOLDER_SECTIONS: GallerySection[] = [
 export function Tile({ image, className }: { image: GalleryImage; className?: string }) {
   if (image.src) {
     return (
-      <div className={cn('overflow-hidden rounded-lg', className)}>
-        <img src={image.src} alt={image.alt} className="size-full object-cover" />
+      <div className={cn('relative overflow-hidden rounded-lg', className)}>
+        <Image
+          src={image.src}
+          alt={image.alt}
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover"
+        />
       </div>
     );
   }
