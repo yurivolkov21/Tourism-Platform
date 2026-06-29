@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   SlidersHorizontalIcon,
   SearchIcon,
@@ -8,12 +8,22 @@ import {
   XIcon,
   PanelLeftCloseIcon,
   PanelLeftOpenIcon,
+  ChevronFirstIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronLastIcon,
 } from 'lucide-react';
 
 import { filterTours, searchTours, sortTours, type TourSort } from '@tourism/core';
 import {
   Button,
   Input,
+  Label,
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
   Select,
   SelectContent,
   SelectItem,
@@ -30,6 +40,10 @@ import { messages } from '@tourism/i18n';
 import type { TourCardData } from './tour-card';
 import { TourListCard } from './tour-list-card';
 import { ToursFilters, type FacetKey, type ToursFilterState } from './tours-filters';
+import { pageNumbers, pageView, type PageView } from '../../lib/paginate';
+
+const PAGE_SIZES = [10, 15, 25] as const;
+const DEFAULT_PAGE_SIZE = 10;
 
 const EMPTY: ToursFilterState = {
   destinations: [],
@@ -60,6 +74,8 @@ export function ToursListing({
   );
   const [query, setQuery] = useState(initialQuery);
   const [sort, setSort] = useState<TourSort>('popular');
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -92,6 +108,15 @@ export function ToursListing({
     () => sortTours(searchTours(filterTours(tours, filters), query), sort),
     [tours, filters, query, sort],
   );
+
+  // Reset to the first page whenever the result set or page size changes (so we never strand the
+  // user on a now-empty page after filtering).
+  useEffect(() => {
+    setPage(1);
+  }, [filters, query, sort, pageSize]);
+
+  const view = pageView(results.length, page, pageSize);
+  const visible = results.slice((view.page - 1) * pageSize, view.page * pageSize);
 
   // Active selections flattened into removable chips (label resolved per facet).
   const activeChips: { facet: FacetKey; value: string; label: string }[] = [
@@ -241,11 +266,20 @@ export function ToursListing({
             ) : null}
 
             {results.length > 0 ? (
-              <div className="flex flex-col gap-5">
-                {results.map((tour) => (
-                  <TourListCard key={tour.slug} tour={tour} />
-                ))}
-              </div>
+              <>
+                <div className="flex flex-col gap-5">
+                  {visible.map((tour) => (
+                    <TourListCard key={tour.slug} tour={tour} />
+                  ))}
+                </div>
+                <PaginationBar
+                  view={view}
+                  total={results.length}
+                  pageSize={pageSize}
+                  onPageChange={setPage}
+                  onPageSizeChange={setPageSize}
+                />
+              </>
             ) : (
               <div className="border-border flex flex-col items-center gap-4 rounded-2xl border border-dashed px-6 py-20 text-center">
                 <span className="bg-muted text-muted-foreground flex size-14 items-center justify-center rounded-full">
@@ -274,6 +308,135 @@ export function ToursListing({
         </SheetContent>
       </Sheet>
     </section>
+  );
+}
+
+/** Result-set pager: rows-per-page select · "Showing X–Y of Z" · first/prev/pages/next/last.
+ * Client-side (the list is already filtered in memory), so links update local state. */
+function PaginationBar({
+  view,
+  total,
+  pageSize,
+  onPageChange,
+  onPageSizeChange,
+}: {
+  view: PageView;
+  total: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
+}) {
+  const t = messages.toursPage;
+  const { page, totalPages, start, end } = view;
+  const isFirst = page <= 1;
+  const isLast = page >= totalPages;
+
+  const go = (target: number) => (event: React.MouseEvent) => {
+    event.preventDefault();
+    if (target >= 1 && target <= totalPages && target !== page) onPageChange(target);
+  };
+  const edge = 'rounded-full';
+  const disabled = 'pointer-events-none opacity-40';
+
+  return (
+    <div className="mt-8 flex w-full flex-wrap items-center justify-between gap-4 max-sm:justify-center">
+      <div className="flex shrink-0 items-center gap-2.5">
+        <Label htmlFor="tours-page-size" className="text-muted-foreground text-sm">
+          {t.perPage}
+        </Label>
+        <Select
+          value={String(pageSize)}
+          onValueChange={(v) => onPageSizeChange(Number(v))}
+          items={PAGE_SIZES.map((s) => ({ value: String(s), label: String(s) }))}
+        >
+          <SelectTrigger id="tours-page-size" className="w-fit">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PAGE_SIZES.map((s) => (
+              <SelectItem key={s} value={String(s)}>
+                {s}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <p className="text-muted-foreground text-sm whitespace-nowrap" aria-live="polite">
+        {t.showing(start, end, total)}
+      </p>
+
+      {totalPages > 1 ? (
+        <Pagination className="w-fit max-sm:mx-0">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationLink
+                href="#"
+                aria-label="Go to first page"
+                size="icon"
+                className={cn(edge, isFirst && disabled)}
+                onClick={go(1)}
+              >
+                <ChevronFirstIcon className="size-4" />
+              </PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink
+                href="#"
+                aria-label="Go to previous page"
+                size="icon"
+                className={cn(edge, isFirst && disabled)}
+                onClick={go(page - 1)}
+              >
+                <ChevronLeftIcon className="size-4" />
+              </PaginationLink>
+            </PaginationItem>
+
+            {pageNumbers(totalPages, page).map((p, i) =>
+              p === 'ellipsis' ? (
+                <PaginationItem key={`e-${i}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={p}>
+                  <PaginationLink
+                    href="#"
+                    isActive={p === page}
+                    className={edge}
+                    onClick={go(p)}
+                  >
+                    {p}
+                  </PaginationLink>
+                </PaginationItem>
+              ),
+            )}
+
+            <PaginationItem>
+              <PaginationLink
+                href="#"
+                aria-label="Go to next page"
+                size="icon"
+                className={cn(edge, isLast && disabled)}
+                onClick={go(page + 1)}
+              >
+                <ChevronRightIcon className="size-4" />
+              </PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink
+                href="#"
+                aria-label="Go to last page"
+                size="icon"
+                className={cn(edge, isLast && disabled)}
+                onClick={go(totalPages)}
+              >
+                <ChevronLastIcon className="size-4" />
+              </PaginationLink>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      ) : null}
+    </div>
   );
 }
 

@@ -1265,6 +1265,9 @@ export const messages = {
       rating: 'Top rated',
     },
     resultCount: (n: number) => `${n} ${n === 1 ? 'tour' : 'tours'}`,
+    perPage: 'Per page',
+    showing: (from: number, to: number, total: number) =>
+      `Showing ${from}–${to} of ${total}`,
     facets: {
       destination: 'Destination',
       category: 'Category',
