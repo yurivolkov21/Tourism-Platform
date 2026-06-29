@@ -31,7 +31,7 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web ~90% · P4 admin CRUD DONE · **DEPLOYED** (`main` @ `c75ac8d`)
+## Current state — P1 + P2 DONE · P3 web ~90% · P4 admin CRUD DONE · **DEPLOYED** (`main` @ `8ee25de`)
 
 ```text
 apps/   api (NestJS 11) · web + admin (Next 16) · mobile (Expo SDK 54)
@@ -43,21 +43,23 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
 - **API (P1) — complete + DEPLOYED on Render.** P1.1–P1.8 + P1.x (jobs). Schema+RLS,
   envelope, auth, CRUD, bookings, **Stripe + PayPal (+ admin refund)**, media, reviews/
   wishlist/enquiry/stats, seed + typed `@tourism/core` client, pg-boss outbox+cron.
-  **+ blog Posts CRUD + admin bookings list/detail.** ~203 api tests.
+  **+ blog Posts CRUD + admin bookings list/detail + next-departure availability.** ~223 api tests.
 - **Design (P2) — done.** `@tourism/tokens` ("Emerald Heritage", no-hex) + `@tourism/ui`
   (shadcn/Base UI, 54 comps). Brand **"Nexora"** (NEX origami logo).
 - **Web (P3) — ~90%, customer-facing live on Vercel.** Home · destinations overview · 3
-  region pages · tours listing (**+ free-text search**, accent/đ-insensitive) · tour detail ·
-  about · contact (**real enquiry → DB + interest dropdown from live categories**) · faq/
-  privacy/terms · **auth (login/register/forgot/reset, Supabase)** · **account (dashboard ·
-  settings = profile+security+connected+delete · bookings list)** · **booking flow** (sectioned
-  form · Stripe/PayPal pay · **private-departure request** · checkout success/cancel · inline
+  region pages (**tours+destinations wired to live data**) · tours listing (**+ free-text search**
+  · **pagination 10/15/25** · **availability badge**) · tour detail · about · contact (**real
+  enquiry → DB + interest dropdown from live categories**) · faq/privacy/terms · **auth
+  (login/register/forgot/reset, Supabase)** · **account (dashboard · settings =
+  profile+security+connected+delete · bookings list)** · **booking flow** (sectioned form ·
+  Stripe/PayPal pay · **private-departure request** · checkout success/cancel · inline
   date-picker) · reviews (real DB) · redesigned footer. **Component reform done** (Tier 1/2/3a:
   native forms → `@tourism/ui`; shared lead-form field baseline; dead-code swept).
 - **Admin (P4) — CRUD breadth done + DEPLOYED on Vercel.** Auth + shell + dashboard +
   CRUD (Destinations · Categories · Tours · Departures · Posts). UI polish deferred.
-- **Real data wired:** home · destinations overview · tours listing+detail · enquiry ·
-  reviews · contact. **Remaining fixtures:** `/destinations/[region]` region-detail.
+- **Real data wired:** home · destinations overview · **region-detail** · tours listing+detail ·
+  enquiry · reviews · contact · **tour-card availability**. Only curated editorial imagery stays
+  static (real `MediaAsset` pending admin upload).
 
 ### History (P0–P1.6 detail)
 
@@ -96,18 +98,17 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
 
 ## Next steps (resume order) — finishing P3 web
 
-1. **Region-detail real data** — `/destinations/[region]` is the last surface still on
-   fixtures; wire it to the API (destination + its tours), matching the ISR pattern used by
-   the rest of the web.
-2. **Wishlist UX** — backend + the account dashboard count exist, but there's **no "save"
+1. **Wishlist UX** — backend + the account dashboard count exist, but there's **no "save"
    (heart) affordance** on tour cards/detail, so a customer can't actually add a tour.
    Either build the save toggle (`lib/api/wishlist.ts` is ready) or hide the dashboard stat.
-3. **Customer booking management** — bookings list only; no booking-detail view and **no
-   self-service cancel / refund request** (refund is admin-only — see below). Optional, and
-   the notification side is email/domain-gated.
-4. **Final passes** — motion increment-2 (confirm merged), a11y, performance/Lighthouse, SEO
+2. **Customer booking management** — bookings list only; no booking-detail view and **no
+   self-service cancel / refund request** (refund is admin-only — see below). The
+   notification side is email/domain-gated.
+3. **Final passes** — motion increment-2 (confirm merged), a11y, performance/Lighthouse, SEO
    metadata; `/privacy` + `/terms` content needs counsel (placeholders).
-5. **Then:** P4 admin UI polish · P5 mobile · P6 content/SEO (BLUEPRINT §7).
+4. **Then:** P4 admin UI polish · P5 mobile · P6 content/SEO (BLUEPRINT §7).
+
+*Done since last handoff: region-detail real data · tour-card availability badge (B-1, full-stack) · tours pagination.*
 
 > **Domain-gated (deferred until a real domain is bought):** Resend email delivery
 > (enquiry ack / booking confirm / refund) + Supabase custom-domain email confirmation.
