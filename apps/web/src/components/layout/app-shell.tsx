@@ -32,7 +32,9 @@ export function AppShell({
   return (
     <div className="relative flex min-h-screen flex-col">
       {header}
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1">
+        {children}
+      </main>
       {footer}
       {floating}
       <ScrollToTop />

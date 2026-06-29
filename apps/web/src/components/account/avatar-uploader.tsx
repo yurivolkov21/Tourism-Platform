@@ -99,7 +99,8 @@ export function AvatarUploader({ initialUrl, name }: { initialUrl: string | null
             ref={inputRef}
             type="file"
             accept="image/png,image/jpeg,image/webp"
-            className="hidden"
+            className="sr-only"
+            aria-label={t.change}
             onChange={onPick}
           />
           <Button

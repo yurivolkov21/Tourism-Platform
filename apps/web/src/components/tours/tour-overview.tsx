@@ -17,12 +17,12 @@ export function TourOverview({ tour }: { tour: TourDetailVM }) {
   const themes = (tour.themes ?? []).map((k) => themeLabels[k]).join(', ');
 
   const rows: { icon: ReactNode; label: string; value: string }[] = [
-    { icon: <MapPinIcon className="size-5" />, label: s.destination, value: tour.destination },
-    { icon: <ClockIcon className="size-5" />, label: s.duration, value: t.durationValue(tour.durationDays) },
-    { icon: <CalendarDaysIcon className="size-5" />, label: s.departure, value: tour.departureFrequency },
-    ...(styles ? [{ icon: <CompassIcon className="size-5" />, label: s.travelStyle, value: styles }] : []),
-    ...(themes ? [{ icon: <UsersIcon className="size-5" />, label: s.theme, value: themes }] : []),
-    { icon: <BedDoubleIcon className="size-5" />, label: s.accommodation, value: tour.accommodation },
+    { icon: <MapPinIcon className="size-5" aria-hidden="true" />, label: s.destination, value: tour.destination },
+    { icon: <ClockIcon className="size-5" aria-hidden="true" />, label: s.duration, value: t.durationValue(tour.durationDays) },
+    { icon: <CalendarDaysIcon className="size-5" aria-hidden="true" />, label: s.departure, value: tour.departureFrequency },
+    ...(styles ? [{ icon: <CompassIcon className="size-5" aria-hidden="true" />, label: s.travelStyle, value: styles }] : []),
+    ...(themes ? [{ icon: <UsersIcon className="size-5" aria-hidden="true" />, label: s.theme, value: themes }] : []),
+    { icon: <BedDoubleIcon className="size-5" aria-hidden="true" />, label: s.accommodation, value: tour.accommodation },
   ];
 
   return (

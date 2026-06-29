@@ -127,60 +127,84 @@ export function ContactInquiry({
                       className="hidden"
                     />
                     <div className="grid gap-5 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="contact-firstName">{f.firstNameLabel}</Label>
+                        <Input
+                          id="contact-firstName"
+                          autoComplete="given-name"
+                          placeholder={f.firstNamePlaceholder}
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          className={LEAD_FIELD_CLASS}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="contact-lastName">{f.lastNameLabel}</Label>
+                        <Input
+                          id="contact-lastName"
+                          autoComplete="family-name"
+                          placeholder={f.lastNamePlaceholder}
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          className={LEAD_FIELD_CLASS}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="contact-email">{f.emailLabel}</Label>
                       <Input
-                        aria-label={f.firstNamePlaceholder}
-                        placeholder={f.firstNamePlaceholder}
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        className={LEAD_FIELD_CLASS}
-                        required
-                      />
-                      <Input
-                        aria-label={f.lastNamePlaceholder}
-                        placeholder={f.lastNamePlaceholder}
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
+                        id="contact-email"
+                        type="email"
+                        autoComplete="email"
+                        placeholder={f.emailPlaceholder}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className={LEAD_FIELD_CLASS}
                         required
                       />
                     </div>
-                    <Input
-                      type="email"
-                      aria-label={f.emailPlaceholder}
-                      placeholder={f.emailPlaceholder}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className={LEAD_FIELD_CLASS}
-                      required
-                    />
-                    <Select value={interest} onValueChange={(v) => setInterest(v ?? '')}>
-                      <SelectTrigger className={LEAD_SELECT_CLASS}>
-                        <SelectValue placeholder={f.interestPlaceholder} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {options.map((opt) => (
-                          <SelectItem key={opt} value={opt}>
-                            {opt}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Textarea
-                      aria-label={f.messagePlaceholder}
-                      placeholder={f.messagePlaceholder}
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      rows={4}
-                      className={LEAD_TEXTAREA_CLASS}
-                    />
-                    <Label className="text-muted-foreground flex items-start gap-2.5 text-sm font-normal">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="contact-interest">{f.interestLabel}</Label>
+                      <Select value={interest} onValueChange={(v) => setInterest(v ?? '')}>
+                        <SelectTrigger id="contact-interest" className={LEAD_SELECT_CLASS}>
+                          <SelectValue placeholder={f.interestPlaceholder} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.map((opt) => (
+                            <SelectItem key={opt} value={opt}>
+                              {opt}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="contact-message">{f.messageLabel}</Label>
+                      <Textarea
+                        id="contact-message"
+                        placeholder={f.messagePlaceholder}
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        rows={4}
+                        className={LEAD_TEXTAREA_CLASS}
+                      />
+                    </div>
+                    <div className="flex items-start gap-2.5">
                       <Checkbox
+                        id="contact-terms"
                         checked={terms}
                         onCheckedChange={(c) => setTerms(c === true)}
                         className="mt-0.5"
                       />
-                      {f.terms}
-                    </Label>
+                      <Label
+                        htmlFor="contact-terms"
+                        className="text-muted-foreground text-sm font-normal"
+                      >
+                        {f.terms}
+                      </Label>
+                    </div>
                     <EnquiryStatus status={status} />
                     <Button
                       type="submit"

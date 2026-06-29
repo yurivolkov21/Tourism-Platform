@@ -86,11 +86,11 @@ export function TourCard({ tour }: { tour: TourCardData }) {
       <CardContent className="flex flex-1 flex-col gap-3 p-5">
         <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
           <span className="inline-flex items-center gap-1">
-            <MapPinIcon className="size-3.5" />
+            <MapPinIcon className="size-3.5" aria-hidden="true" />
             {tour.destination}
           </span>
           <span className="inline-flex items-center gap-1">
-            <ClockIcon className="size-3.5" />
+            <ClockIcon className="size-3.5" aria-hidden="true" />
             {tour.durationDays} {t.daysLabel}
           </span>
         </div>
@@ -103,7 +103,7 @@ export function TourCard({ tour }: { tour: TourCardData }) {
 
         <div className="flex items-center justify-between gap-2 text-sm">
           <span className="flex items-center gap-1.5">
-            <StarIcon className="text-rating fill-rating size-4" />
+            <StarIcon className="text-rating fill-rating size-4" aria-hidden="true" />
             <span className="font-medium">{tour.rating.toFixed(1)}</span>
             <span className="text-muted-foreground">
               ({tour.reviewCount} {t.reviewsLabel})

@@ -133,7 +133,7 @@ export function Lightbox({
               aria-label={t.previous}
               className={cn(CONTROL, 'absolute left-3 size-11 sm:left-5 sm:size-12')}
             >
-              <ChevronLeftIcon className="size-6 sm:size-7" />
+              <ChevronLeftIcon className="size-6 sm:size-7" aria-hidden="true" />
             </button>
             <button
               type="button"
@@ -141,7 +141,7 @@ export function Lightbox({
               aria-label={t.next}
               className={cn(CONTROL, 'absolute right-3 size-11 sm:right-5 sm:size-12')}
             >
-              <ChevronRightIcon className="size-6 sm:size-7" />
+              <ChevronRightIcon className="size-6 sm:size-7" aria-hidden="true" />
             </button>
           </div>
         </DialogPrimitive.Popup>

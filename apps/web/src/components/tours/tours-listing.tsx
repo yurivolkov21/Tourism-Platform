@@ -232,7 +232,7 @@ export function ToursListing({
               <div className="flex items-center gap-2">
                 <span className="text-muted-foreground hidden text-sm sm:inline">{t.sortLabel}</span>
                 <Select value={sort} onValueChange={(value) => setSort(value as TourSort)}>
-                  <SelectTrigger className="w-44">
+                  <SelectTrigger className="w-44" aria-label={t.sortLabel}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -252,11 +252,12 @@ export function ToursListing({
                   <button
                     key={`${chip.facet}-${chip.value}`}
                     type="button"
+                    aria-label={`${messages.a11y.removeFilter}: ${chip.label}`}
                     onClick={() => toggle(chip.facet, chip.value)}
                     className="border-border bg-muted text-foreground/80 hover:text-foreground hover:border-foreground/30 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors"
                   >
-                    {chip.label}
-                    <XIcon className="size-3.5" />
+                    <span aria-hidden="true">{chip.label}</span>
+                    <XIcon className="size-3.5" aria-hidden="true" />
                   </button>
                 ))}
                 <Button variant="link" onClick={clearAll} className="ml-1 h-auto p-0">
@@ -337,6 +338,11 @@ function PaginationBar({
   };
   const edge = 'rounded-full';
   const disabled = 'pointer-events-none opacity-40';
+  // Keep CSS-disabled edge links out of the tab order and announce them as disabled to AT.
+  const edgeProps = (off: boolean) => ({
+    'aria-disabled': off || undefined,
+    tabIndex: off ? -1 : undefined,
+  });
 
   return (
     <div className="mt-8 flex w-full flex-wrap items-center justify-between gap-4 max-sm:justify-center">
@@ -376,8 +382,9 @@ function PaginationBar({
                 size="icon"
                 className={cn(edge, isFirst && disabled)}
                 onClick={go(1)}
+                {...edgeProps(isFirst)}
               >
-                <ChevronFirstIcon className="size-4" />
+                <ChevronFirstIcon className="size-4" aria-hidden="true" />
               </PaginationLink>
             </PaginationItem>
             <PaginationItem>
@@ -387,8 +394,9 @@ function PaginationBar({
                 size="icon"
                 className={cn(edge, isFirst && disabled)}
                 onClick={go(page - 1)}
+                {...edgeProps(isFirst)}
               >
-                <ChevronLeftIcon className="size-4" />
+                <ChevronLeftIcon className="size-4" aria-hidden="true" />
               </PaginationLink>
             </PaginationItem>
 
@@ -418,8 +426,9 @@ function PaginationBar({
                 size="icon"
                 className={cn(edge, isLast && disabled)}
                 onClick={go(page + 1)}
+                {...edgeProps(isLast)}
               >
-                <ChevronRightIcon className="size-4" />
+                <ChevronRightIcon className="size-4" aria-hidden="true" />
               </PaginationLink>
             </PaginationItem>
             <PaginationItem>
@@ -429,8 +438,9 @@ function PaginationBar({
                 size="icon"
                 className={cn(edge, isLast && disabled)}
                 onClick={go(totalPages)}
+                {...edgeProps(isLast)}
               >
-                <ChevronLastIcon className="size-4" />
+                <ChevronLastIcon className="size-4" aria-hidden="true" />
               </PaginationLink>
             </PaginationItem>
           </PaginationContent>

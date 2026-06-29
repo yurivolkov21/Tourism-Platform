@@ -52,11 +52,11 @@ export function TourListCard({ tour }: { tour: TourCardData }) {
         <div className="min-w-0 flex-1 space-y-2.5">
           <div className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1 text-xs tracking-wide uppercase">
             <span className="inline-flex items-center gap-1.5">
-              <MapPinIcon className="size-3.5" />
+              <MapPinIcon className="size-3.5" aria-hidden="true" />
               {tour.destination}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <ClockIcon className="size-3.5" />
+              <ClockIcon className="size-3.5" aria-hidden="true" />
               {tour.durationDays === 1 ? '1 day' : `${tour.durationDays} days`}
             </span>
           </div>
@@ -73,7 +73,7 @@ export function TourListCard({ tour }: { tour: TourCardData }) {
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1">
             <span className="inline-flex items-center gap-1.5 text-sm">
-              <StarIcon className="fill-rating text-rating size-4" />
+              <StarIcon className="fill-rating text-rating size-4" aria-hidden="true" />
               <span className="font-semibold">{tour.rating.toFixed(1)}</span>
               <span className="text-muted-foreground">({tour.reviewCount})</span>
             </span>

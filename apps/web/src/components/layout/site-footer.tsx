@@ -104,7 +104,8 @@ export async function SiteFooter() {
               className="text-background/80 hover:text-background inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
             >
               {f.viewOnMap}
-              <ArrowRightIcon className="size-3.5" />
+              <span className="sr-only">{messages.a11y.opensNewTab}</span>
+              <ArrowRightIcon className="size-3.5" aria-hidden="true" />
             </a>
           </div>
 
@@ -174,7 +175,7 @@ function FooterLink({ href, label }: { href: string; label: string }) {
         href={href}
         className="text-background/80 hover:text-background inline-flex items-center gap-1.5 text-sm transition-colors"
       >
-        <ChevronRightIcon className="size-3.5" />
+        <ChevronRightIcon className="size-3.5" aria-hidden="true" />
         {label}
       </a>
     </li>

@@ -36,7 +36,7 @@ export function ContentHero({
           <Link href="/" className="hover:text-on-media">
             {messages.common.home}
           </Link>
-          <ChevronRightIcon className="size-4" />
+          <ChevronRightIcon className="size-4" aria-hidden="true" />
           <span className="text-on-media">{breadcrumb}</span>
         </nav>
 

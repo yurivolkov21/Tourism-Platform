@@ -44,11 +44,14 @@ export function CheckoutResult({ booking }: { booking: BookingDto }) {
   return (
     <Card>
       <CardContent className="space-y-6 p-6 sm:p-8">
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3" role="status" aria-live="polite">
           {paid ? (
-            <CheckCircle2Icon className="text-primary mt-0.5 size-7 shrink-0" />
+            <CheckCircle2Icon className="text-primary mt-0.5 size-7 shrink-0" aria-hidden="true" />
           ) : (
-            <Loader2Icon className="text-muted-foreground mt-0.5 size-7 shrink-0 animate-spin" />
+            <Loader2Icon
+              className="text-muted-foreground mt-0.5 size-7 shrink-0 animate-spin"
+              aria-hidden="true"
+            />
           )}
           <div>
             <h1 className="font-heading text-2xl font-semibold">

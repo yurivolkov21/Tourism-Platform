@@ -33,11 +33,11 @@ export function RegionHero({
           <Link href="/" className="hover:text-on-media">
             {messages.common.home}
           </Link>
-          <ChevronRightIcon className="size-4" />
+          <ChevronRightIcon className="size-4" aria-hidden="true" />
           <Link href="/destinations" className="hover:text-on-media">
             {messages.nav.destinations}
           </Link>
-          <ChevronRightIcon className="size-4" />
+          <ChevronRightIcon className="size-4" aria-hidden="true" />
           <span>{name}</span>
         </nav>
         <h1 className="text-4xl leading-tight font-bold text-balance sm:text-5xl lg:text-6xl">

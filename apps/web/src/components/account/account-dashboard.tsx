@@ -254,7 +254,7 @@ export function AccountDashboard({
             {upcoming.map((row) => (
               <li key={row.code}>
                 <Link
-                  href="/account/bookings"
+                  href={`/account/bookings/${row.code}`}
                   className="hover:bg-muted/40 -mx-2 flex items-center gap-3 rounded-lg px-2 py-3 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
@@ -271,7 +271,7 @@ export function AccountDashboard({
                   <span className="text-muted-foreground hidden font-mono text-xs sm:inline">
                     {row.code}
                   </span>
-                  <ArrowRightIcon className="text-muted-foreground size-4" />
+                  <ArrowRightIcon className="text-muted-foreground size-4" aria-hidden="true" />
                 </Link>
               </li>
             ))}

@@ -44,7 +44,7 @@ export function Hero() {
           className="bg-background shadow-dropdown mt-2 flex w-full max-w-xl items-center gap-2 rounded-full p-2"
         >
           <label htmlFor="hero-destination" className="flex flex-1 items-center gap-2 pl-3">
-            <MapPinIcon className="text-muted-foreground size-4 shrink-0" />
+            <MapPinIcon className="text-muted-foreground size-4 shrink-0" aria-hidden="true" />
             <span className="sr-only">{t.searchLabel}</span>
             {/* Bare-styled Input so the surrounding pill owns the chrome (border/shadow/radius). */}
             <Input

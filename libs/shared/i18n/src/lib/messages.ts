@@ -6,6 +6,12 @@ export const messages = {
     name: 'Nexora',
     tagline: 'Boutique heritage journeys across Vietnam',
   },
+  // Assistive-tech-only copy (skip links, screen-reader hints, new-tab warnings).
+  a11y: {
+    skipToContent: 'Skip to main content',
+    opensNewTab: '(opens in a new tab)',
+    removeFilter: 'Remove filter',
+  },
   // Eyebrow for the home tech-stack logo cloud (real, coloured brand logos).
   techCloud: {
     eyebrow: 'Built with',
@@ -1201,6 +1207,11 @@ export const messages = {
       trustedByLabel: 'Built with',
       form: {
         title: 'Send us a message',
+        firstNameLabel: 'First name',
+        lastNameLabel: 'Last name',
+        emailLabel: 'Email',
+        interestLabel: 'Interest',
+        messageLabel: 'Message',
         firstNamePlaceholder: 'First name',
         lastNamePlaceholder: 'Last name',
         emailPlaceholder: 'you@example.com',

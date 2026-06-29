@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { MinusIcon, PlusIcon } from 'lucide-react';
 
 import type { DurationBucket, PriceBucket, TourTheme, TravelStyle } from '@tourism/core';
@@ -41,6 +41,7 @@ function FacetGroup({
   const activeInGroup = options.filter((o) => selected.includes(o.value)).length;
   // Collapsed by default to save space; opens automatically if the group already has a selection.
   const [open, setOpen] = useState(activeInGroup > 0);
+  const panelId = useId();
 
   return (
     <div className="border-border border-b pb-5 last:border-b-0 last:pb-0">
@@ -49,6 +50,7 @@ function FacetGroup({
           type="button"
           onClick={() => setOpen((o) => !o)}
           aria-expanded={open}
+          aria-controls={panelId}
           className="text-foreground flex w-full items-center justify-between gap-2"
         >
           <span className="font-sans text-sm font-semibold tracking-wide uppercase">
@@ -58,25 +60,32 @@ function FacetGroup({
             ) : null}
           </span>
           {open ? (
-            <MinusIcon className="text-muted-foreground size-4 shrink-0" />
+            <MinusIcon className="text-muted-foreground size-4 shrink-0" aria-hidden="true" />
           ) : (
-            <PlusIcon className="text-muted-foreground size-4 shrink-0" />
+            <PlusIcon className="text-muted-foreground size-4 shrink-0" aria-hidden="true" />
           )}
         </button>
       </h3>
       {open ? (
-        <ul className="mt-3 space-y-2.5">
-          {options.map((option) => (
-            <li key={option.value}>
-              <label className="text-foreground/90 hover:text-foreground flex cursor-pointer items-center gap-2.5 text-sm transition-colors">
+        <ul id={panelId} className="mt-3 space-y-2.5">
+          {options.map((option) => {
+            const id = `${panelId}-${option.value}`;
+            return (
+              <li key={option.value} className="flex items-center gap-2.5">
                 <Checkbox
+                  id={id}
                   checked={selected.includes(option.value)}
                   onCheckedChange={() => onToggle(option.value)}
                 />
-                {option.label}
-              </label>
-            </li>
-          ))}
+                <label
+                  htmlFor={id}
+                  className="text-foreground/90 hover:text-foreground cursor-pointer text-sm transition-colors"
+                >
+                  {option.label}
+                </label>
+              </li>
+            );
+          })}
         </ul>
       ) : null}
     </div>

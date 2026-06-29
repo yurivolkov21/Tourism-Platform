@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { ArrowUpRightIcon, MenuIcon } from 'lucide-react';
 
 import {
@@ -67,6 +68,10 @@ export function SiteHeader() {
   const t = messages.nav;
   const { user } = useAuth();
   const signOut = useSignOut();
+  const pathname = usePathname();
+  // aria-current="page" marks the active route. Use exact match so a parent like /tours
+  // isn't flagged active while on a deeper, unrelated page.
+  const current = (href: string) => (pathname === href ? ('page' as const) : undefined);
 
   // #1 Pill-on-scroll: past 50px the bar contracts into a floating glass pill.
   const [scrolled, setScrolled] = useState(false);
@@ -102,7 +107,7 @@ export function SiteHeader() {
 
           {/* Desktop nav */}
           <nav className="flex items-center gap-1 max-md:hidden" aria-label="Primary">
-            <a href="/tours" className={linkClass}>
+            <a href="/tours" className={linkClass} aria-current={current('/tours')}>
               {t.tours}
             </a>
             <NavigationMenu>
@@ -114,7 +119,7 @@ export function SiteHeader() {
                       <ul className="grid w-md grid-cols-2 gap-1 p-2">
                         {menu.items.map((item) => (
                           <li key={item.label}>
-                            <NavigationMenuLink render={<a href={item.href} />}>
+                            <NavigationMenuLink render={<a href={item.href} aria-current={current(item.href)} />}>
                               <div className="flex flex-col gap-0.5">
                                 <span className="font-medium">{item.label}</span>
                                 <span className="text-muted-foreground text-xs">{item.hint}</span>
@@ -129,10 +134,10 @@ export function SiteHeader() {
               </NavigationMenuList>
             </NavigationMenu>
 
-            <a href="/about" className={linkClass}>
+            <a href="/about" className={linkClass} aria-current={current('/about')}>
               {t.about}
             </a>
-            <a href="/contact" className={linkClass}>
+            <a href="/contact" className={linkClass} aria-current={current('/contact')}>
               {t.contact}
             </a>
           </nav>
@@ -160,7 +165,10 @@ export function SiteHeader() {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end">
                 {mobileNav.map((item) => (
-                  <DropdownMenuItem key={item.label} render={<a href={item.href} />}>
+                  <DropdownMenuItem
+                    key={item.label}
+                    render={<a href={item.href} aria-current={current(item.href)} />}
+                  >
                     {item.label}
                   </DropdownMenuItem>
                 ))}

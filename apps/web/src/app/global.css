@@ -11,7 +11,12 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+  }
+  /* A visible, full-opacity focus ring that meets WCAG 2.2 SC 2.4.11 (3:1 contrast,
+     2px offset). Scoped to :focus-visible so it only shows for keyboard / AT users. */
+  *:focus-visible {
+    @apply outline-ring outline-2 outline-offset-2;
   }
   body {
     @apply bg-background text-foreground;

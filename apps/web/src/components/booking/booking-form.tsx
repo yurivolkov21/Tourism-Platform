@@ -104,7 +104,7 @@ export function BookingForm({
       <div className="bg-muted/40 flex items-center justify-between gap-4 rounded-xl border p-4">
         <div>
           <p className="font-medium">{t.modeToggle.label}</p>
-          <p className="text-muted-foreground text-sm text-pretty">
+          <p id="booking-mode-hint" className="text-muted-foreground text-sm text-pretty">
             {noDepartures ? t.modeToggle.noDepartures : t.modeToggle.hint}
           </p>
         </div>
@@ -113,6 +113,7 @@ export function BookingForm({
           onCheckedChange={(v) => setMode(v ? 'private' : 'scheduled')}
           disabled={noDepartures}
           aria-label={t.modeToggle.label}
+          aria-describedby="booking-mode-hint"
         />
       </div>
 
@@ -303,7 +304,7 @@ export function BookingForm({
             </FieldSet>
 
             {state.error ? (
-              <p className="text-destructive text-sm" role="alert">
+              <p id="booking-error" className="text-destructive text-sm" role="alert">
                 {state.error}
               </p>
             ) : null}
@@ -313,6 +314,7 @@ export function BookingForm({
               size="lg"
               className="w-full"
               disabled={pending || !departureId}
+              aria-describedby={state.error ? 'booking-error' : undefined}
             >
               {pending ? t.submitting : t.submit}
             </Button>

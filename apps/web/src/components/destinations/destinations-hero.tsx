@@ -14,7 +14,7 @@ export function DestinationsHero() {
     <section className="relative isolate flex min-h-96 items-center justify-center overflow-hidden lg:min-h-120">
       <Image
         src={HERO_IMAGE}
-        alt={t.heroTitle}
+        alt=""
         fill
         priority
         sizes="100vw"

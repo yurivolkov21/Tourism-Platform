@@ -75,11 +75,11 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
             <Link href="/" className="hover:text-on-media">
               {messages.common.home}
             </Link>
-            <ChevronRightIcon className="size-4" />
+            <ChevronRightIcon className="size-4" aria-hidden="true" />
             <Link href="/tours" className="hover:text-on-media">
               {td.breadcrumb}
             </Link>
-            <ChevronRightIcon className="size-4" />
+            <ChevronRightIcon className="size-4" aria-hidden="true" />
             <span className="text-on-media line-clamp-1">{tour.title}</span>
           </nav>
 
@@ -95,15 +95,15 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
 
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm">
             <span className="inline-flex items-center gap-1.5">
-              <MapPinIcon className="size-4" />
+              <MapPinIcon className="size-4" aria-hidden="true" />
               {tour.destination}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <ClockIcon className="size-4" />
+              <ClockIcon className="size-4" aria-hidden="true" />
               {tour.durationDays} {messages.featuredTours.daysLabel}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <StarIcon className="fill-rating text-rating size-4" />
+              <StarIcon className="fill-rating text-rating size-4" aria-hidden="true" />
               <span className="font-semibold">{tour.rating.toFixed(1)}</span>
               <span className="text-on-media/75">({tour.reviewCount})</span>
             </span>

@@ -40,11 +40,11 @@ export function TourTile({ tour }: { tour: TourCardData }) {
       <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 p-5">
         <div className="text-on-media/85 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs tracking-wide uppercase">
           <span className="inline-flex items-center gap-1">
-            <MapPinIcon className="size-3.5" />
+            <MapPinIcon className="size-3.5" aria-hidden="true" />
             {tour.destination}
           </span>
           <span className="inline-flex items-center gap-1">
-            <ClockIcon className="size-3.5" />
+            <ClockIcon className="size-3.5" aria-hidden="true" />
             {tour.durationDays} {t.daysLabel}
           </span>
         </div>
@@ -61,7 +61,7 @@ export function TourTile({ tour }: { tour: TourCardData }) {
 
         <div className="border-primary-foreground/15 mt-1 flex items-center justify-between gap-2 border-t pt-3">
           <span className="inline-flex items-center gap-1.5 text-sm">
-            <StarIcon className="text-rating fill-rating size-4" />
+            <StarIcon className="text-rating fill-rating size-4" aria-hidden="true" />
             <span className="font-semibold">{tour.rating.toFixed(1)}</span>
             <span className="text-on-media/70">({tour.reviewCount})</span>
           </span>
