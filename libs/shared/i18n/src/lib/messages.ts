@@ -76,6 +76,7 @@ export const messages = {
           heading: 'Saved for later',
           from: (price: string) => `From ${price}`,
           browse: 'Browse tours',
+          viewAll: (n: number) => `View all (${n})`,
           empty: 'Tours you save will appear here.',
           remove: 'Remove from saved',
         },
@@ -87,6 +88,15 @@ export const messages = {
           bookings: 'My bookings',
           settings: 'Account settings',
         },
+      },
+      savedPage: {
+        title: 'Saved tours',
+        subtitle: 'Tours you’ve saved to plan later.',
+        empty: 'You haven’t saved any tours yet.',
+        browse: 'Browse tours',
+        from: (price: string) => `From ${price}`,
+        remove: 'Remove from saved',
+        view: 'View tour',
       },
       securityPage: {
         title: 'Account security',

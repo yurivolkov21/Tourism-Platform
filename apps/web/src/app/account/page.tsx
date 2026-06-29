@@ -92,7 +92,7 @@ export default async function AccountPage() {
           saved: saved.length,
         }}
         nextTrip={nextTrip}
-        saved={saved.map((s) => ({
+        saved={saved.slice(0, 3).map((s) => ({
           tourId: s.tourId,
           slug: s.slug,
           title: s.title,
