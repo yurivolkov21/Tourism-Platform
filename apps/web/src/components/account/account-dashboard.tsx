@@ -136,8 +136,8 @@ export function AccountDashboard({
         ))}
       </section>
 
-      {/* Bento: left column (next trip + upcoming) · right column (saved, tall) */}
-      <section className="grid items-start gap-5 lg:grid-cols-3">
+      {/* Bento: left column (next trip + upcoming) · right column (saved, height pinned to left) */}
+      <section className="grid gap-5 lg:grid-cols-3">
         {/* Left column: next trip + upcoming journeys */}
         <div className="flex flex-col gap-5 lg:col-span-2">
         {/* Next trip */}
@@ -235,19 +235,22 @@ export function AccountDashboard({
         ) : null}
         </div>
 
-        {/* Saved for later — right column, full height + its own scroll when long */}
-        <div className="bg-card shadow-card flex max-h-128 flex-col rounded-2xl border p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg sm:p-6 lg:max-h-none">
-          <div className="flex items-center justify-between">
-            <h2 className="font-heading text-base font-semibold">{t.saved.heading}</h2>
-            <Link
-              href="/tours"
-              className="text-primary inline-flex items-center gap-1 text-xs font-medium hover:underline"
-            >
-              {t.saved.browse}
-              <ArrowRightIcon className="size-3.5" />
-            </Link>
+        {/* Saved for later — right column. On lg the card fills the cell absolutely so its content
+            never grows the row (height stays pinned to the left column); the list scrolls inside. */}
+        <div className="lg:relative lg:col-span-1">
+          <div className="bg-card shadow-card flex max-h-128 flex-col rounded-2xl border p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg sm:p-6 lg:absolute lg:inset-0 lg:max-h-none">
+            <div className="flex items-center justify-between">
+              <h2 className="font-heading text-base font-semibold">{t.saved.heading}</h2>
+              <Link
+                href="/tours"
+                className="text-primary inline-flex items-center gap-1 text-xs font-medium hover:underline"
+              >
+                {t.saved.browse}
+                <ArrowRightIcon className="size-3.5" />
+              </Link>
+            </div>
+            <SavedToursList items={saved} className="mt-4 min-h-0 flex-1" />
           </div>
-          <SavedToursList items={saved} className="mt-4 min-h-0 flex-1" />
         </div>
       </section>
     </div>
