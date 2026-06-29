@@ -31,7 +31,7 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web ~92% · P4 admin CRUD DONE · **DEPLOYED** (`main` @ `cb9e12a`)
+## Current state — P1 + P2 DONE · P3 web ~95% · P4 admin CRUD DONE · **DEPLOYED** (`main` @ `1360761`)
 
 ```text
 apps/   api (NestJS 11) · web + admin (Next 16) · mobile (Expo SDK 54)
@@ -51,7 +51,8 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
   · **pagination 10/15/25** · **availability badge**) · tour detail · about · contact (**real
   enquiry → DB + interest dropdown from live categories**) · faq/privacy/terms · **auth
   (login/register/forgot/reset, Supabase)** · **account (dashboard · settings =
-  profile+security+connected+delete · bookings list)** · **booking flow** (sectioned form ·
+  profile+security+connected+delete · bookings list+detail+cancel/refund-request · saved tours)** ·
+  **booking flow** (sectioned form ·
   Stripe/PayPal pay · **private-departure request** · checkout success/cancel · inline
   date-picker) · reviews (real DB) · **wishlist save-UI** (heart on tour-detail BookingBox,
   signed-in only; manage/un-save in account) · redesigned footer. **Component reform done**
@@ -99,14 +100,11 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
 
 ## Next steps (resume order) — finishing P3 web
 
-1. **Customer booking management** — bookings list only; no booking-detail view and **no
-   self-service cancel / refund request** (refund is admin-only — see below). The
-   notification side is email/domain-gated.
-2. **Final passes** — motion increment-2 (confirm merged), a11y, performance/Lighthouse, SEO
+1. **Final passes** — motion increment-2 (confirm merged), a11y, performance/Lighthouse, SEO
    metadata; `/privacy` + `/terms` content needs counsel (placeholders).
-3. **Then:** P4 admin UI polish · P5 mobile · P6 content/SEO (BLUEPRINT §7).
+2. **Then:** P4 admin UI polish · P5 mobile · P6 content/SEO (BLUEPRINT §7).
 
-*Done since last handoff: region-detail real data · tour-card availability badge (B-1, full-stack) · tours pagination · wishlist save-UI (heart on detail + account manage).*
+*Done since last handoff: region-detail real data · tour-card availability badge (B-1) · tours pagination · wishlist save-UI (heart on detail + `/account/saved`) · booking detail + cancel (PENDING) / refund-request (PAID→Enquiry).*
 
 > **Domain-gated (deferred until a real domain is bought):** Resend email delivery
 > (enquiry ack / booking confirm / refund) + Supabase custom-domain email confirmation.
