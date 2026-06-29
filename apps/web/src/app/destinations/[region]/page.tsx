@@ -17,6 +17,7 @@ import { EnquiryCta } from '../../../components/marketing/enquiry-cta';
 import { getRegion, regionSlugs } from '../../../lib/regions';
 import { getRegionTheme } from '../../../lib/region-theme';
 import { fetchRegionBookables } from '../../../lib/api/destinations';
+import { BreadcrumbJsonLd } from '../../../components/seo/json-ld';
 
 export function generateStaticParams() {
   return regionSlugs().map((region) => ({ region }));
@@ -34,7 +35,10 @@ export async function generateMetadata({
   const { region } = await params;
   const data = getRegion(region);
   if (!data) return { title: 'Region not found' };
-  return { title: `${data.name} tours` };
+  return {
+    title: `${data.name} tours`,
+    alternates: { canonical: `/destinations/${region}` },
+  };
 }
 
 export default async function RegionPage({ params }: { params: Promise<{ region: string }> }) {
@@ -116,6 +120,13 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
 
   return (
     <main>
+      <BreadcrumbJsonLd
+        items={[
+          { name: messages.common.home, path: '/' },
+          { name: messages.nav.destinations, path: '/destinations' },
+          { name: data.name, path: `/destinations/${region}` },
+        ]}
+      />
       <RegionHero
         name={data.name}
         image={data.image}

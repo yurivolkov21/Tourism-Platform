@@ -20,6 +20,7 @@ import { RelatedTours } from '../../../components/tours/related-tours';
 import { Gallery, type GallerySection } from '../../../components/marketing/gallery';
 import { EnquiryCta } from '../../../components/marketing/enquiry-cta';
 import { fetchTourDetail, fetchTourDetailSlugs } from '../../../lib/api/tour-detail';
+import { BreadcrumbJsonLd, TourJsonLd } from '../../../components/seo/json-ld';
 
 // ISR: render real tour detail statically; revalidate so the free API tier isn't hit per request.
 export const revalidate = 300;
@@ -37,9 +38,18 @@ export async function generateMetadata({
   const { slug } = await params;
   const tour = await fetchTourDetail(slug);
   if (!tour) return { title: 'Tour not found' };
+  const cover = tour.image ?? tour.gallery[0];
   return {
-    title: `${tour.title} — Tourism Platform`,
+    title: tour.title,
     description: tour.overview,
+    alternates: { canonical: `/tours/${slug}` },
+    openGraph: {
+      type: 'website',
+      title: tour.title,
+      description: tour.overview,
+      url: `/tours/${slug}`,
+      ...(cover ? { images: [{ url: cover }] } : {}),
+    },
   };
 }
 
@@ -59,6 +69,23 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
 
   return (
     <main>
+      <TourJsonLd
+        name={tour.title}
+        description={tour.overview}
+        image={cover || undefined}
+        slug={slug}
+        price={tour.basePrice}
+        currency={tour.currency}
+        rating={tour.rating}
+        reviewCount={tour.reviewCount}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: messages.common.home, path: '/' },
+          { name: td.breadcrumb, path: '/tours' },
+          { name: tour.title, path: `/tours/${slug}` },
+        ]}
+      />
       {/* Reading-progress bar for this long detail page */}
       <ScrollProgress />
 
