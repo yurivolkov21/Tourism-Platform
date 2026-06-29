@@ -136,10 +136,12 @@ export function AccountDashboard({
         ))}
       </section>
 
-      {/* Bento: next trip + saved */}
-      <section className="grid gap-5 lg:grid-cols-3">
+      {/* Bento: left column (next trip + upcoming) · right column (saved, tall) */}
+      <section className="grid items-start gap-5 lg:grid-cols-3">
+        {/* Left column: next trip + upcoming journeys */}
+        <div className="flex flex-col gap-5 lg:col-span-2">
         {/* Next trip */}
-        <div className="bg-card shadow-card overflow-hidden rounded-2xl border transition-all hover:-translate-y-0.5 hover:shadow-lg lg:col-span-2">
+        <div className="bg-card shadow-card overflow-hidden rounded-2xl border transition-all hover:-translate-y-0.5 hover:shadow-lg">
           <div className="flex h-full flex-col sm:flex-row">
             <div className="from-primary to-primary/70 relative aspect-video bg-linear-to-br sm:aspect-auto sm:w-2/5">
               {nextTrip?.image ? (
@@ -190,8 +192,51 @@ export function AccountDashboard({
           </div>
         </div>
 
-        {/* Saved for later */}
-        <div className="bg-card shadow-card flex flex-col rounded-2xl border p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg sm:p-6">
+        {/* Upcoming journeys (under next trip, in the left column) */}
+        {upcoming.length > 0 ? (
+          <div className="bg-card shadow-card rounded-2xl border p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg sm:p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-heading text-base font-semibold">{t.upcoming.heading}</h2>
+              <Link
+                href="/account/bookings"
+                className="text-primary inline-flex items-center gap-1 text-xs font-medium hover:underline"
+              >
+                {t.upcoming.viewAll}
+                <ArrowRightIcon className="size-3.5" />
+              </Link>
+            </div>
+            <ul className="divide-y">
+              {upcoming.map((row) => (
+                <li key={row.code}>
+                  <Link
+                    href="/account/bookings"
+                    className="hover:bg-muted/40 -mx-2 flex items-center gap-3 rounded-lg px-2 py-3 transition-colors"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{row.title}</p>
+                      <p className="text-muted-foreground text-xs">{row.dateLabel}</p>
+                    </div>
+                    <span
+                      className={`hidden rounded-full px-2.5 py-0.5 text-xs font-medium sm:inline-flex ${bookingStatusTone(
+                        row.status,
+                      )}`}
+                    >
+                      {row.status}
+                    </span>
+                    <span className="text-muted-foreground hidden font-mono text-xs sm:inline">
+                      {row.code}
+                    </span>
+                    <ArrowRightIcon className="text-muted-foreground size-4" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        </div>
+
+        {/* Saved for later — right column, full height + its own scroll when long */}
+        <div className="bg-card shadow-card flex max-h-128 flex-col rounded-2xl border p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg sm:p-6 lg:max-h-none">
           <div className="flex items-center justify-between">
             <h2 className="font-heading text-base font-semibold">{t.saved.heading}</h2>
             <Link
@@ -202,51 +247,9 @@ export function AccountDashboard({
               <ArrowRightIcon className="size-3.5" />
             </Link>
           </div>
-          <SavedToursList items={saved} />
+          <SavedToursList items={saved} className="mt-4 min-h-0 flex-1" />
         </div>
       </section>
-
-      {/* Upcoming journeys list */}
-      {upcoming.length > 0 ? (
-        <section className="bg-card shadow-card rounded-2xl border p-5 sm:p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-heading text-base font-semibold">{t.upcoming.heading}</h2>
-            <Link
-              href="/account/bookings"
-              className="text-primary inline-flex items-center gap-1 text-xs font-medium hover:underline"
-            >
-              {t.upcoming.viewAll}
-              <ArrowRightIcon className="size-3.5" />
-            </Link>
-          </div>
-          <ul className="divide-y">
-            {upcoming.map((row) => (
-              <li key={row.code}>
-                <Link
-                  href="/account/bookings"
-                  className="hover:bg-muted/40 -mx-2 flex items-center gap-3 rounded-lg px-2 py-3 transition-colors"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{row.title}</p>
-                    <p className="text-muted-foreground text-xs">{row.dateLabel}</p>
-                  </div>
-                  <span
-                    className={`hidden rounded-full px-2.5 py-0.5 text-xs font-medium sm:inline-flex ${bookingStatusTone(
-                      row.status,
-                    )}`}
-                  >
-                    {row.status}
-                  </span>
-                  <span className="text-muted-foreground hidden font-mono text-xs sm:inline">
-                    {row.code}
-                  </span>
-                  <ArrowRightIcon className="text-muted-foreground size-4" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
     </div>
   );
 }
