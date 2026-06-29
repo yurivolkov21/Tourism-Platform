@@ -32,9 +32,11 @@ export function AppShell({
   return (
     <div className="relative flex min-h-screen flex-col">
       {header}
-      <main id="main-content" className="flex-1">
+      {/* Skip-link target + flex spacer. Not a landmark itself — each page owns its <main>,
+          so this stays a plain focusable container to avoid nested/duplicate main landmarks. */}
+      <div id="main-content" tabIndex={-1} className="flex-1 outline-none">
         {children}
-      </main>
+      </div>
       {footer}
       {floating}
       <ScrollToTop />

@@ -27,7 +27,7 @@ export default async function HomePage() {
   const bento = applyTourCounts(pickHomeBento(tiles), counts);
 
   return (
-    <>
+    <main>
       {/* Hero stays static (above the fold); below-fold sections rise in on scroll */}
       <Hero />
       {/* Coloured "built with" tech-stack marquee — breather between hero + below */}
@@ -56,6 +56,6 @@ export default async function HomePage() {
       <Reveal>
         <EnquiryCta heading={messages.enquiryCta.headings.home} />
       </Reveal>
-    </>
+    </main>
   );
 }
