@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2Icon } from 'lucide-react';
 
@@ -174,6 +175,9 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
             {t.requestCta}
           </Button>
         )}
+        <Link href="/cancellation-policy" className="text-muted-foreground inline-block text-xs hover:underline">
+          {t.policyLink}
+        </Link>
       </div>
     );
   }

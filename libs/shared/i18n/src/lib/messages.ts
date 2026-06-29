@@ -409,6 +409,7 @@ export const messages = {
       submitting: 'Sending…',
       requestSent: 'Request sent — our team will follow up shortly.',
       requestError: 'Couldn’t send your request. Please try again.',
+      policyLink: 'Read our cancellation & refund policy',
     },
   },
   common: {
@@ -1648,6 +1649,7 @@ export const messages = {
     support: [
       { label: 'About us', href: '/about' },
       { label: 'FAQs', href: '/faq' },
+      { label: 'Cancellation & Refunds', href: '/cancellation-policy' },
       { label: 'Privacy Statement', href: '/privacy' },
       { label: 'Terms & Conditions', href: '/terms' },
       { label: 'Contact', href: '/contact' },
