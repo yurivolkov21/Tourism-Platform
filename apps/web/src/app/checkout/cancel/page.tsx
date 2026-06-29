@@ -12,16 +12,16 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 /**
- * Payment-cancelled return (`/checkout/cancel?code=<code>`). The booking stays PENDING on the API, so
- * the buyer can retry: we don't know the tour slug here, so "Try again" sends them back to the tours
- * listing (the pending booking can be re-checked-out from the account area in a later slice).
+ * Payment-cancelled return (`/checkout/cancel?code=<code>`). The booking stays PENDING on the API
+ * (retry-friendly; the cleanup cron releases stale PENDING after 30m). When we have the code, the
+ * primary CTA goes to the booking detail where the buyer can **pay now** or **cancel** in one click.
  */
 export default async function CheckoutCancelPage({
   searchParams,
 }: {
   searchParams: Promise<{ code?: string }>;
 }) {
-  await searchParams; // code is informational only — the booking remains PENDING server-side.
+  const { code } = await searchParams;
   const t = messages.booking.cancel;
 
   return (
@@ -33,9 +33,26 @@ export default async function CheckoutCancelPage({
             <h1 className="font-heading text-2xl font-semibold">{t.title}</h1>
             <p className="text-muted-foreground text-sm text-pretty">{t.body}</p>
           </div>
-          <Link href="/tours" className={cn(buttonVariants({ size: 'lg' }), 'w-full')}>
-            {t.backToTours}
-          </Link>
+          {code ? (
+            <div className="flex flex-col gap-3">
+              <Link
+                href={`/account/bookings/${code}`}
+                className={cn(buttonVariants({ size: 'lg' }), 'w-full')}
+              >
+                {t.manage}
+              </Link>
+              <Link
+                href="/tours"
+                className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'w-full')}
+              >
+                {t.backToTours}
+              </Link>
+            </div>
+          ) : (
+            <Link href="/tours" className={cn(buttonVariants({ size: 'lg' }), 'w-full')}>
+              {t.backToTours}
+            </Link>
+          )}
         </CardContent>
       </Card>
     </main>

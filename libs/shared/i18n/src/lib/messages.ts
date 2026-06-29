@@ -356,7 +356,8 @@ export const messages = {
     // /checkout/cancel.
     cancel: {
       title: 'Payment cancelled',
-      body: 'No payment was taken. Your booking is held as pending — you can try paying again.',
+      body: 'No payment was taken. Your booking is held as pending — pay now or manage it from your bookings. Unpaid bookings are released automatically after a while.',
+      manage: 'Pay now or manage booking',
       retry: 'Try again',
       backToTours: 'Browse tours',
     },
