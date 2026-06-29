@@ -3,7 +3,6 @@ import {
   ArrowRightIcon,
   CalendarClockIcon,
   CompassIcon,
-  HeartIcon,
   MapPinIcon,
   SettingsIcon,
 } from 'lucide-react';
@@ -12,6 +11,7 @@ import { Button } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { SignOutButton } from '../auth/sign-out-button';
+import { SavedToursList } from './saved-tours-list';
 import { bookingStatusTone } from '../../lib/booking/my-bookings';
 
 export interface DashboardNextTrip {
@@ -24,6 +24,7 @@ export interface DashboardNextTrip {
 }
 
 export interface DashboardSavedTour {
+  tourId: string;
   slug: string;
   title: string;
   image: string | null;
@@ -201,31 +202,7 @@ export function AccountDashboard({
               <ArrowRightIcon className="size-3.5" />
             </Link>
           </div>
-          {saved.length > 0 ? (
-            <ul className="mt-4 space-y-3">
-              {saved.map((s) => (
-                <li key={s.slug}>
-                  <Link href={`/tours/${s.slug}`} className="group flex items-center gap-3">
-                    <div className="bg-muted size-12 shrink-0 overflow-hidden rounded-lg">
-                      {s.image ? (
-                        <img src={s.image} alt="" className="size-full object-cover" />
-                      ) : (
-                        <HeartIcon className="text-muted-foreground m-auto mt-3.5 size-4" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="group-hover:text-primary truncate text-sm font-medium transition-colors">
-                        {s.title}
-                      </p>
-                      <p className="text-muted-foreground text-xs">{t.saved.from(s.priceLabel)}</p>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-muted-foreground mt-4 text-sm text-pretty">{t.saved.empty}</p>
-          )}
+          <SavedToursList items={saved} />
         </div>
       </section>
 

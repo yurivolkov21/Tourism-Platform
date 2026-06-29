@@ -55,6 +55,7 @@ function toTourDetail(
   }));
 
   return {
+    id: dto.id,
     slug: dto.slug,
     title: dto.title,
     destination: primary?.destination.name ?? '',

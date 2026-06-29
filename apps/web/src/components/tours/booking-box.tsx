@@ -12,6 +12,7 @@ import {
 import { messages } from '@tourism/i18n';
 
 import type { Departure } from '../../lib/tours';
+import { WishlistButton } from './wishlist-button';
 
 function formatPrice(currency: string, amount: number) {
   const value = amount.toLocaleString('en-US');
@@ -23,6 +24,7 @@ function formatPrice(currency: string, amount: number) {
  * enquiry form. */
 export function BookingBox({
   slug,
+  tourId,
   currency,
   basePrice,
   compareAtPrice,
@@ -32,6 +34,8 @@ export function BookingBox({
   departures,
 }: {
   slug: string;
+  /** Real tour UUID — powers the wishlist save toggle (signed-in only). */
+  tourId: string;
   currency: string;
   basePrice: number;
   compareAtPrice?: number;
@@ -142,6 +146,7 @@ export function BookingBox({
             >
               {t.enquireCta}
             </a>
+            <WishlistButton tourId={tourId} />
           </div>
         </CardContent>
       </Card>

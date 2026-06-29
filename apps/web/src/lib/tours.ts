@@ -31,6 +31,8 @@ export interface Departure {
 
 /** Tour-detail view-model: the card + generated placeholder detail (review-only; from API later). */
 export interface TourDetailVM extends TourCardData {
+  /** Real tour UUID (from the API) — needed by owner-scoped actions like the wishlist toggle. */
+  id: string;
   destinationSlug: string;
   region: string;
   overview: string;
@@ -250,6 +252,7 @@ export function getTourDetail(slug: string): TourDetailVM | undefined {
 
   return {
     ...tour,
+    id: slug, // fixtures are slug-keyed (this path isn't used by the live API-backed page)
     destinationSlug: owner?.slug ?? '',
     region,
     overview: owner?.intro ?? '',

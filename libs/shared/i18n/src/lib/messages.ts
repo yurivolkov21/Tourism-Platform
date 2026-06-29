@@ -77,6 +77,7 @@ export const messages = {
           from: (price: string) => `From ${price}`,
           browse: 'Browse tours',
           empty: 'Tours you save will appear here.',
+          remove: 'Remove from saved',
         },
         upcoming: {
           heading: 'Upcoming journeys',
@@ -1486,6 +1487,8 @@ export const messages = {
         privateDesc: 'Any date, private tour — we quote within 24h.',
         privateBadge: 'On request',
       },
+      save: 'Save to wishlist',
+      saved: 'Saved',
     },
   },
   enquiryCta: {
