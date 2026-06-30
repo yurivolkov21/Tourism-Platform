@@ -159,7 +159,7 @@ export function DestinationsTable({ rows }: { rows: Destination[] }) {
                         deleteAction={deleteDestination}
                         deleteId={destination.slug}
                         deleteTitle={`Delete “${destination.name}”?`}
-                        deleteDescription="This permanently removes the destination. It must be inactive and have no tours attached before it can be deleted."
+                        deleteDescription="This permanently deletes the destination and can’t be undone. You can only delete one that’s turned off (Draft) and has no tours attached."
                       />
                     </TableCell>
                   </TableRow>
