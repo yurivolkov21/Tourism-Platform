@@ -26,7 +26,9 @@ import {
 
 import type { DestinationFormState } from '../../lib/destinations/actions';
 import type { Destination } from '../../lib/destinations/data';
+import type { MediaInput } from '../../lib/destinations/media';
 import { slugify } from '../../lib/slugify';
+import { DestinationMediaField } from './destination-media-field';
 
 interface DestinationFormProps {
   /** Bound server action (create, or update with the slug already applied). */
@@ -51,6 +53,20 @@ export function DestinationForm({ action, destination, submitLabel }: Destinatio
   const [region, setRegion] = useState(destination?.region ?? '');
   const [isActive, setIsActive] = useState(destination?.isActive ?? true);
   const errors = state.fieldErrors ?? {};
+
+  // Seed images from the existing destination on edit. `publicId` is a recent BE read field; cast
+  // loosely so the form compiles ahead of `/regen-types`, and drop items missing it.
+  const initialMedia: MediaInput[] = (destination?.media ?? [])
+    .filter((m) => m.role === 'hero' || m.role === 'gallery')
+    .map((m) => ({
+      publicId: String((m as { publicId?: string }).publicId ?? ''),
+      role: m.role as 'hero' | 'gallery',
+      width: m.width ?? undefined,
+      height: m.height ?? undefined,
+      url: m.url,
+    }))
+    .filter((m) => m.publicId);
+  const [media, setMedia] = useState<MediaInput[]>(initialMedia);
 
   return (
     <form action={formAction}>
@@ -136,6 +152,12 @@ export function DestinationForm({ action, destination, submitLabel }: Destinatio
           </Field>
         </FieldGroup>
       </FieldSet>
+
+      <Separator className="my-8" />
+
+      {/* Images */}
+      <DestinationMediaField initial={initialMedia} onChange={setMedia} />
+      <input type="hidden" name="media" value={JSON.stringify(media)} />
 
       <Separator className="my-8" />
 

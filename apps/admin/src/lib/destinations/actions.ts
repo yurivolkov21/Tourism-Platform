@@ -5,7 +5,22 @@ import { redirect } from 'next/navigation';
 
 import { apiErrorMessage } from '../api/error';
 import { apiWrite, getApiClient } from '../api/client';
+import { assembleMediaSet, parseMediaField } from './media';
 import { destinationSchema, toDestinationPayload } from './schema';
+
+/**
+ * Best-effort attach of the form's media set (`PUT /admin/destinations/:slug/media`, replace-all).
+ * The destination is already saved at this point, so a failure here is swallowed — images can be
+ * re-attached from the edit form (the Cloudinary upload already succeeded).
+ */
+async function putDestinationMedia(slug: string, mediaJson: string): Promise<void> {
+  try {
+    const media = assembleMediaSet(parseMediaField(mediaJson));
+    await apiWrite('PUT', `/api/v1/admin/destinations/${encodeURIComponent(slug)}/media`, { media });
+  } catch {
+    // Saved without images; recoverable via edit.
+  }
+}
 
 export interface DestinationFormState {
   error?: string;
@@ -42,12 +57,19 @@ export async function createDestination(
   const parsed = parseDestinationForm(formData);
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
+  let createdSlug: string;
   try {
-    await apiWrite('POST', '/api/v1/admin/destinations', toDestinationPayload(parsed.data));
+    const created = await apiWrite<{ slug: string }>(
+      'POST',
+      '/api/v1/admin/destinations',
+      toDestinationPayload(parsed.data),
+    );
+    createdSlug = created.slug;
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }
 
+  await putDestinationMedia(createdSlug, String(formData.get('media') ?? '[]'));
   revalidatePath('/destinations');
   redirect('/destinations');
 }
@@ -71,6 +93,7 @@ export async function updateDestination(
     return { error: apiErrorMessage(e) };
   }
 
+  await putDestinationMedia(slug, String(formData.get('media') ?? '[]'));
   revalidatePath('/destinations');
   revalidatePath(`/destinations/${slug}/edit`);
   redirect('/destinations');
