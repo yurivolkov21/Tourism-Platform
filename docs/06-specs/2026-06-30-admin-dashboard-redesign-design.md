@@ -118,6 +118,7 @@ counts from `bookingsByStatus` or derived from the fetched rows.
 ### Pure logic (TDD, ≥80% on new logic)
 
 In `lib/dashboard/`:
+
 - `sliceDailyTrend(daily, range: '90d'|'30d'|'7d')` → tail slice.
 - `computeCardModels(overview, monthlyTrend)` → the 4 card view-models incl. deltas.
 - `toBookingRows(apiBookings)` → table row view-models.

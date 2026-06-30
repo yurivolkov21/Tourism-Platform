@@ -24,11 +24,13 @@
 ### Task 1: Backend — `dailyTrend` (90-day daily series)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/admin-stats/admin-stats.service.ts` (add a daily `$queryRaw` inside the existing `Promise.all`; map + return `dailyTrend`)
 - Modify: `apps/api/src/modules/admin-stats/dto/admin-stats-response.dto.ts` (add `DailyTrendDto` + field)
 - Test: `apps/api/src/modules/admin-stats/admin-stats.service.spec.ts`
 
 **Interfaces:**
+
 - Produces: response gains `dailyTrend: Array<{ date: string /* YYYY-MM-DD */, bookings: number, revenue: string }>`, ascending by date, revenue = sum of PAID `total_amount` that day.
 
 - [ ] **Step 1: Write the failing test** — extend the existing service spec. Mirror the monthly-trend assertions. Add to `admin-stats.service.spec.ts`:
@@ -117,9 +119,11 @@ git commit -m "feat(api): add dailyTrend (90d) to admin dashboard stats"
 ### Task 2: FE data layer — stats fetch (recreate, with `dailyTrend`)
 
 **Files:**
+
 - Create: `apps/admin/src/lib/dashboard/stats.ts`
 
 **Interfaces:**
+
 - Produces: `getDashboardStats(): Promise<DashboardStats>` where `DashboardStats` includes the old fields **plus** `dailyTrend: { date: string; bookings: number; revenue: string }[]`.
 
 - [ ] **Step 1: Implement** (recreate the file deleted in `6812b60`, adding `dailyTrend`). The FE declares the shape locally and unwraps the `{ data }` envelope:
@@ -163,9 +167,11 @@ git commit -m "feat(admin): dashboard stats fetch (+dailyTrend)"
 ### Task 3: FE data layer — recent bookings fetch
 
 **Files:**
+
 - Create: `apps/admin/src/lib/dashboard/bookings-table.ts`
 
 **Interfaces:**
+
 - Consumes: `GET /api/v1/admin/bookings` (paginated; row fields `code`, `status`, `totalAmount` (string), `currency`, `contactName`, `createdAt`, `tour: { slug, title }`).
 - Produces: `getRecentBookings(limit = 50): Promise<AdminBookingRow[]>` and the exported `AdminBookingRow` type.
 
@@ -218,10 +224,12 @@ git commit -m "feat(admin): recent-bookings fetch for the dashboard table"
 ### Task 4: Pure transforms + formatters (TDD)
 
 **Files:**
+
 - Create: `apps/admin/src/lib/dashboard/transforms.ts`
 - Test: `apps/admin/src/lib/dashboard/transforms.spec.ts`
 
 **Interfaces:**
+
 - Produces:
   - `sliceDailyTrend(daily: {date:string;bookings:number;revenue:string}[], range: '90d'|'30d'|'7d'): typeof daily` — last N entries (90/30/7).
   - `computeCardModels(overview, monthlyTrend): CardModel[]` where `CardModel = { key: string; label: string; value: string; delta: number | null }` (4 cards: revenue, bookings, conversion, aov).
@@ -327,6 +335,7 @@ git commit -m "feat(admin): dashboard pure transforms (slice/cards/format) — T
 ### Task 5: Install table + dnd dependencies
 
 **Files:**
+
 - Modify: `apps/admin/package.json` (dependencies)
 
 - [ ] **Step 1: Add deps** — edit `apps/admin/package.json` dependencies (alphabetical), then install:
@@ -354,9 +363,11 @@ git commit -m "chore(admin): add @tanstack/react-table + @dnd-kit for the dashbo
 ### Task 6: SectionCards
 
 **Files:**
+
 - Create: `apps/admin/src/components/dashboard/section-cards.tsx`
 
 **Interfaces:**
+
 - Consumes: `computeCardModels` output (`CardModel[]`).
 - Produces: `<SectionCards cards={CardModel[]} />`.
 
@@ -418,9 +429,11 @@ git commit -m "feat(admin): dashboard SectionCards (4 KPIs + trend badge)"
 ### Task 7: ChartAreaInteractive (daily area + 3m/30d/7d toggle)
 
 **Files:**
+
 - Create: `apps/admin/src/components/dashboard/chart-area-interactive.tsx`
 
 **Interfaces:**
+
 - Consumes: `DashboardStats['dailyTrend']` + `sliceDailyTrend`.
 - Produces: `<ChartAreaInteractive daily={dailyTrend} />` (client component).
 
@@ -472,9 +485,11 @@ git commit -m "feat(admin): dashboard interactive daily area chart (90/30/7d)"
 ### Task 8: DataTable — columns, status badges, base table
 
 **Files:**
+
 - Create: `apps/admin/src/components/dashboard/data-table.tsx`
 
 **Interfaces:**
+
 - Consumes: `AdminBookingRow[]`.
 - Produces: `<DataTable rows={AdminBookingRow[]} />` (client component).
 
@@ -538,6 +553,7 @@ git commit -m "feat(admin): dashboard data-table — columns + status badges"
 ### Task 12: Page assembly + error/empty states + tab title
 
 **Files:**
+
 - Modify: `apps/admin/src/app/(admin)/page.tsx` (assemble the three blocks)
 - Modify: `apps/admin/src/app/layout.tsx` (metadata title `Tourism Admin` → Nexora)
 
