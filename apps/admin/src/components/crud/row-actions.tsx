@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
@@ -36,13 +37,18 @@ export function RowActions({
   deleteId,
   deleteTitle,
   deleteDescription,
+  redirectTo,
 }: {
   editHref: string;
   deleteAction: (id: string) => Promise<{ error?: string }>;
   deleteId: string;
   deleteTitle: string;
   deleteDescription: string;
+  /** Where to go after a successful delete (e.g. a detail page returning to the list). The list
+   * pages omit this — the row just disappears via revalidation. */
+  redirectTo?: string;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -51,8 +57,12 @@ export function RowActions({
     setError(null);
     startTransition(async () => {
       const result = await deleteAction(deleteId);
-      if (result.error) setError(result.error);
-      else setOpen(false);
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setOpen(false);
+        if (redirectTo) router.push(redirectTo);
+      }
     });
   };
 

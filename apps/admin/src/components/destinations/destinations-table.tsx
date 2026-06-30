@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, MapPin, Search } from 'lucide-react';
 
@@ -144,7 +145,14 @@ export function DestinationsTable({ rows }: { rows: Destination[] }) {
               <TableBody>
                 {paged.map((destination) => (
                   <TableRow key={destination.id}>
-                    <TableCell className="font-medium">{destination.name}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/destinations/${destination.slug}`}
+                        className="hover:text-primary hover:underline"
+                      >
+                        {destination.name}
+                      </Link>
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{destination.region ?? '—'}</TableCell>
                     <TableCell className="text-muted-foreground">{destination.country}</TableCell>
                     <TableCell>
