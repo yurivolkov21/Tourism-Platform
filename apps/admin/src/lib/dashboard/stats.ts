@@ -28,5 +28,8 @@ export interface DashboardStats {
 export async function getDashboardStats(): Promise<DashboardStats> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/stats/dashboard', {});
-  return (data as unknown as { data: DashboardStats }).data;
+  const payload = (data as unknown as { data: DashboardStats }).data;
+  // `dailyTrend` is a new BE field — default it so the chart never crashes against an
+  // API instance that hasn't shipped it yet (e.g. a branch preview hitting prod).
+  return { ...payload, dailyTrend: payload.dailyTrend ?? [] };
 }

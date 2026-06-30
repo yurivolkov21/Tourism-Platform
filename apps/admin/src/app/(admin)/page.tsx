@@ -1,11 +1,26 @@
-/**
- * Dashboard — intentionally empty for now. The previous stats/charts were a
- * throwaway test build; the real dashboard will be designed from scratch later.
- */
-export default function DashboardPage() {
+import { ChartAreaInteractive } from '../../components/dashboard/chart-area-interactive';
+import { SectionCards } from '../../components/dashboard/section-cards';
+import { getDashboardStats } from '../../lib/dashboard/stats';
+import { computeCardModels } from '../../lib/dashboard/transforms';
+
+export default async function DashboardPage() {
+  const stats = await getDashboardStats().catch(() => null);
+
   return (
-    <div className="mx-auto max-w-7xl p-6">
-      <h1 className="font-heading text-2xl font-bold">Dashboard</h1>
+    <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+      {stats ? (
+        <>
+          <SectionCards cards={computeCardModels(stats.overview, stats.monthlyTrend)} />
+          <div className="px-4 lg:px-6">
+            <ChartAreaInteractive daily={stats.dailyTrend} />
+          </div>
+        </>
+      ) : (
+        <div className="border-destructive/30 bg-destructive/5 text-destructive mx-4 rounded-lg border p-4 text-sm lg:mx-6">
+          Couldn’t load stats. The API may be waking up — refresh in a moment.
+        </div>
+      )}
+      {/* DataTable (recent bookings) lands in the next batch. */}
     </div>
   );
 }
