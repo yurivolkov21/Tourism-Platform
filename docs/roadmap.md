@@ -18,7 +18,7 @@ Founding phase list: [BLUEPRINT §7](BLUEPRINT.md#7-phased-roadmap). Decisions: 
 | **P4** | Admin: manage tours/destinations/departures/media/reviews/bookings | ✅ **CRUD breadth done + DEPLOYED** — admin auth (Supabase SSR + proxy, `/auth/admin/sync` allowlist) · app shell (sidebar/topbar/theme/user-menu) · dashboard (live `/admin/stats/dashboard`) · **CRUD: Destinations · Categories · Tours · Departures · Posts** (Server-Component fetch + Server-Action mutations, `@tourism/ui`, token-only). Dev port **:3002**. Remaining (optional): Tours increment-2 (itinerary/FAQs/policies sub-forms) · Media upload · **admin CRUD UI polish pass** · dashboard redesign. |
 | **DEPLOY** | Free-tier cloud deploy (Vercel + Render + Supabase) | ✅ **LIVE** — web+admin on **Vercel**, API (NestJS+pg-boss) on **Render** free, DB on **Supabase**; `/health` (DB ping) + **cron-job.org** keep-alive (every 10 min, free; auto-disables after 25 consecutive fails) + Cloudflare-tunnel fallback. Render free = 750 instance-h/workspace/month (one always-on service ≈744h fits). Runbook: [deploy](05-runbooks/deploy.md). Upgrade-to-paid path = no code change. |
 | **P5** | Mobile (Expo): browse → detail → booking → account (reuse `shared/core`) | ⬜ |
-| **P6** | Content/SEO (blog/tips) + trust polish | ⬜ |
+| **P6** | Content/SEO (blog/tips) + trust polish | ⬜ — **BE done** (public `GET /posts` + `/posts/:slug`, admin Posts CRUD). **Web blog reader MISSING:** no `/blog` or `/blog/[slug]` route, no posts API client; home `BlogTeaser` uses **fixtures + dead `#` anchors** (not clickable). TODO: `/blog` index + `/blog/[slug]` (markdown render + Article JSON-LD) + wire home teaser to real `GET /posts` + nav/footer link + sitemap. |
 
 ## P1 — Backend breakdown (proposed sub-phases)
 
