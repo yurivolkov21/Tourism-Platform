@@ -123,7 +123,7 @@ export function DestinationForm({ action, destination, submitLabel }: Destinatio
               <SelectTrigger id="region" className="w-full">
                 <SelectValue placeholder="Select a region" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent align="start" alignItemWithTrigger={false}>
                 {REGION_ORDER.map((r) => (
                   <SelectItem key={r} value={r}>
                     {r}
