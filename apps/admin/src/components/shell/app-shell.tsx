@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import {
   Compass,
   FileText,
@@ -14,6 +15,7 @@ import {
   ScrollArea,
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarInset,
   SidebarProvider,
@@ -21,8 +23,9 @@ import {
   ThemeToggle,
 } from '@tourism/ui';
 
+import { Logo } from '../brand/logo';
 import { NavMain, type NavSection } from './nav-main';
-import { UserMenu } from './user-menu';
+import { NavUser } from './nav-user';
 
 const NAV: NavSection[] = [
   { label: 'Overview', items: [{ title: 'Dashboard', href: '/', icon: LayoutDashboard }] },
@@ -42,32 +45,43 @@ const NAV: NavSection[] = [
 const TOGGLE_CLASS =
   'text-muted-foreground hover:bg-muted hover:text-primary inline-flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors [&_svg]:size-5';
 
-/** Admin app shell: brand sidebar (nav) + a sticky topbar (trigger · theme · account). */
+/** Resolve the current page title from the nav (longest matching href wins). */
+function usePageTitle(): string {
+  const pathname = usePathname();
+  const items = NAV.flatMap((s) => s.items);
+  const match = items
+    .filter((i) => (i.href === '/' ? pathname === '/' : pathname.startsWith(i.href)))
+    .sort((a, b) => b.href.length - a.href.length)[0];
+  return match?.title ?? 'Console';
+}
+
+/** Admin app shell: inset brand sidebar (nav + account) + a sticky topbar (trigger · title · theme). */
 export function AppShell({ email, children }: { email: string; children: React.ReactNode }) {
+  const title = usePageTitle();
+
   return (
     <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader className="px-4 py-4">
-          <div className="flex items-center gap-2.5">
-            <span className="bg-primary text-primary-foreground font-heading flex size-8 items-center justify-center rounded-md text-sm font-bold tracking-tight">
-              TP
-            </span>
-            <span className="font-heading text-base font-semibold">Tourism Admin</span>
-          </div>
+      <Sidebar variant="inset">
+        <SidebarHeader className="px-3 py-3.5">
+          <Logo className="text-[1.35rem]" />
         </SidebarHeader>
         <SidebarContent className="px-2">
           <ScrollArea className="h-full px-2">
             <NavMain sections={NAV} />
           </ScrollArea>
         </SidebarContent>
+        <SidebarFooter>
+          <NavUser email={email} />
+        </SidebarFooter>
       </Sidebar>
 
       <SidebarInset>
-        <header className="bg-background sticky top-0 z-30 flex h-14 items-center gap-3 border-b px-4 sm:px-6">
-          <SidebarTrigger className="-ml-1 cursor-pointer" />
-          <div className="ml-auto flex items-center gap-2">
+        <header className="bg-background sticky top-0 z-30 flex h-14 items-center gap-2 rounded-t-xl border-b px-4 sm:px-6">
+          <SidebarTrigger className="text-muted-foreground -ml-1 cursor-pointer" />
+          <span className="bg-border mx-1 h-4 w-px" aria-hidden />
+          <h1 className="font-heading text-sm font-semibold">{title}</h1>
+          <div className="ml-auto flex items-center gap-1.5">
             <ThemeToggle className={TOGGLE_CLASS} />
-            <UserMenu email={email} />
           </div>
         </header>
         <main className="flex-1">{children}</main>
