@@ -142,6 +142,7 @@ export class MediaService {
         posterId: asset.posterId,
       });
       const item: MediaItemDto = {
+        publicId: asset.publicId,
         url: urls.url,
         type: asset.type,
         role: asset.role,

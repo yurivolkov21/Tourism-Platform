@@ -108,6 +108,7 @@ describe('MediaService', () => {
 
     expect(findMany).toHaveBeenCalledTimes(1);
     expect(res[0].media).toHaveLength(1);
+    expect(res[0].media[0].publicId).toBe('p1');
     expect(res[0].media[0].url).toContain(
       'res.cloudinary.com/demo/image/upload/f_auto,q_auto/p1',
     );

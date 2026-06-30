@@ -88,6 +88,12 @@ export class MediaInputDto {
  * `publicId` at read time, so transforms can change without a data migration.
  */
 export class MediaItemDto {
+  @ApiProperty({
+    example: 'tourism/destinations/hero/1717000000000-hoi-an',
+    description: 'Cloudinary public_id — lets the admin re-submit an unchanged item.',
+  })
+  publicId!: string;
+
   @ApiProperty({ format: 'uri' })
   url!: string;
 
