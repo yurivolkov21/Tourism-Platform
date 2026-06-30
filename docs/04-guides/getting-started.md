@@ -75,7 +75,7 @@ Each app has a committed **`.env.example`**; copy it to `.env` (gitignored) and 
 | File | Key values |
 | --- | --- |
 | `apps/api/.env` | `DATABASE_URL`, `DIRECT_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWKS_URL`, `ADMIN_EMAILS`, `STRIPE_*`, `PAYPAL_*`, `CLOUDINARY_*`, `RESEND_*`, `FRONTEND_URL`, `CORS_ORIGINS` |
-| `apps/web/.env` | `NEXT_PUBLIC_API_BASE_URL` (API **origin**, no `/api/v1`) |
+| `apps/web/.env` | `NEXT_PUBLIC_API_BASE_URL` (API **origin**, no `/api/v1`), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (customer auth), `NEXT_PUBLIC_SITE_URL` *(optional — canonical origin for SEO sitemap/robots/OG; falls back to the Vercel production URL, then `localhost:3001`)* |
 | `apps/admin/.env` | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_API_BASE_URL` |
 
 ## 5. Test it

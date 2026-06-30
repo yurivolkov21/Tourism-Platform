@@ -32,8 +32,8 @@ Goal for the rebuild: **optimal security + tighter integrity**.
 
 **Surface hardening**
 
-- **Webhook signature verification** for *both* Stripe (HMAC, raw body) and MoMo
-  (HMAC-SHA256); reject → 400, never 500.
+- **Webhook signature verification** for *both* Stripe (HMAC, raw body) and PayPal
+  (webhook signature verification); reject → 400, never 500.
 - **Secrets**: env + Joi fail-fast at boot; nothing hardcoded; rotate on exposure.
 - **HTTP**: helmet security headers, strict CORS allowlist, HSTS.
 - **Rate limiting**: per-route; move to a shared store (Upstash Redis) if/when

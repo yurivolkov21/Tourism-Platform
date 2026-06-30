@@ -244,4 +244,4 @@ changed some defaults; we read the live docs at scaffold time.)*
 3. **ADR-0007 — pg-boss** outbox + jobs (email retry, cleanup/reconcile crons).
 4. **ADR-0008 — Security & integrity hardening:** ✅ RLS backstop, real FKs where cheap, CHECK constraints, webhook HMAC (both gateways), email-unique at DB, Sentry.
 
-→ **P0 done. P1 (backend) is next — needs D-P1.1, D-P1.3–D-P1.6 chốt.**
+→ **Status (2026-06-30, `main` @ `ca1cfd0`): P0–P2 done · P1 backend complete + deployed · P3 web ~99% + deployed · P4 admin CRUD done + deployed · P5 mobile = scaffold · P6 pending.** Product brand is **"Nexora"** (single-wordmark origami-fold logo; visual direction = "Emerald Heritage" tokens). This founding sketch is kept as the original plan of record — for live progress see [`roadmap.md`](roadmap.md), [`../HANDOFF.md`](../HANDOFF.md), and `git log`.

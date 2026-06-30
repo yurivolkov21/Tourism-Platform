@@ -5,8 +5,12 @@
 ## Shared foundation
 
 - **Tokens:** `@tourism/tokens` → web CSS vars + RN theme (no hex; tokens only). Built with **Style
-  Dictionary**; brand **"Emerald Heritage"** (deep emerald + ivory + brass, Fraunces serif h1–h3 +
-  Geist body, radius `0.375rem`, WCAG AA). `pnpm check:no-hex` enforces tokens-only.
+  Dictionary**; visual direction **"Emerald Heritage"** (deep emerald + ivory + brass, Fraunces serif
+  h1–h3 + Geist body, radius `0.375rem`, WCAG AA). `pnpm check:no-hex` enforces tokens-only.
+- **Brand:** product name is **"Nexora"** (set in `@tourism/i18n` `brand.name`) — a single "Nexora"
+  wordmark carrying the origami two-tone fold (`.nexora-fold`); the standalone "NEX" monogram was
+  dropped from the lockup (`ca1cfd0`). "Emerald Heritage" names the *palette/visual direction*, not
+  the product.
 - **UI:** `@tourism/ui` (web, React) — shadcn on **Base UI** (`base-nova`), 54 components. admin reuses
   it. `@tourism/mobile-ui` (RN) later. *(Base UI: `Button` is the primitive — use `render`/`nativeButton`,
   no `asChild`.)*
@@ -85,11 +89,15 @@ content/       privacy.ts · terms.ts · legal-page.ts       (long-form legal do
 - Tokens-only (no hex), reuse `@tourism/ui` first, app imports **relative** (not `@/`).
 - Inspiration surfaces image-forward + Fraunces serif; per section/page: build → `/gate` (+ no-hex) →
   review → branch → rebase-merge.
-- **Legal pages need counsel review** before launch — they carry bracketed placeholders + a "draft" callout.
+- **Legal pages** (`/privacy` `/terms` `/cancellation-policy`) are **complete real content** (placeholders filled, draft callout dropped) — **not lawyer-reviewed**, fine for the demo; have counsel review before a real launch.
 
 ## Admin (`@tourism/admin`) — P4
 
-📝 Scaffold. App Router structure, auth-protected layout, CRUD UIs — fill when P4 lands.
+🟢 **CRUD breadth done + DEPLOYED** (Vercel, dev port :3002). Supabase SSR auth + `proxy.ts` gate +
+`/auth/admin/sync` allowlist · app shell (sidebar / topbar / theme / user-menu) · dashboard (live
+`/admin/stats/dashboard`) · **CRUD: Destinations · Categories · Tours · Departures · Posts** (Server
+Components fetch + Server Actions mutate, `@tourism/ui`, tokens-only). Remaining (optional): Tours
+increment-2 sub-forms (itinerary/FAQs/policies) · media upload · UI polish pass.
 
 ## Mobile (`@tourism/mobile`) — P5
 

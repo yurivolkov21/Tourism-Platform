@@ -14,7 +14,7 @@
 | Limit (verified) | Effect | Mitigation |
 | --- | --- | --- |
 | Render Free spins down after **15 min idle** (~1 min cold start) | pg-boss jobs pause while asleep | **Keep-alive pinger** hits `/health` every 10 min (§3) |
-| Render Free: **750 instance-hours/month** (sleeping hrs don't count) | 24/7 awake ≈ 744h (tight) | Pinger runs **VN daytime only** (~527h) — see `keepalive.yml` cron |
+| Render Free: **750 instance-hours/month** (sleeping hrs don't count) | 24/7 awake ≈ 744h (tight) | One always-on service ≈744h fits under 750; the cron-job.org ping (every 10 min, §3) keeps it warm |
 | Supabase Free **pauses after ~7 days idle** | DB unreachable → app down | `/health` runs `SELECT 1` → the ping keeps the DB active too |
 | Cold start on a truly-idle hit | first request ~1 min | pinger keeps it warm; during a live demo, your own traffic keeps it warm |
 
@@ -53,12 +53,15 @@ pg-boss jobs are **persisted in Postgres** → a spin-down only *delays* them; o
 
 ## 3. Keep-alive pinger
 
-**Option A — GitHub Actions (in-repo, committed):** [`.github/workflows/keepalive.yml`](../../.github/workflows/keepalive.yml) already pings every 10 min (VN daytime).
+**Active: cron-job.org** (what's actually running). Free account → new cron job → URL = the `/health` URL
+(`https://tourism-api-XXXX.onrender.com/api/v1/health`) → interval **10 min** → done. Rock-solid for the
+demo. Caveat: cron-job.org **auto-disables a job after 25 consecutive failures** (30s timeout each) — if
+Render is down for a long stretch, re-enable the job manually. (UptimeRobot 5-min free works too.)
 
-- Set repo **Variable** `API_HEALTH_URL` = `https://tourism-api-XXXX.onrender.com/api/v1/health` (Settings → Secrets and variables → Actions → **Variables**).
-- Caveat: GitHub-scheduled runs are best-effort (can be delayed under load; auto-disable after 60 days of no repo activity).
-
-**Option B — cron-job.org (more reliable, recommended for demo week):** create a free account → new cron job → URL = the `/health` URL → interval 10 min → done. Use this if you want rock-solid uptime around the presentation. (UptimeRobot 5-min free works too.)
+> **No in-repo workflow.** There is intentionally **no** `.github/workflows/keepalive.yml` — only `ci.yml`
+> exists. If you ever want the ping committed to the repo instead, add a scheduled GitHub Actions workflow
+> hitting `API_HEALTH_URL` every 10 min (note: GitHub-scheduled runs are best-effort and auto-disable after
+> 60 days of repo inactivity), but cron-job.org is the chosen mechanism.
 
 ## 4. Vercel — web + admin (two projects, same repo)
 
