@@ -21,11 +21,15 @@ import { MAX_GALLERY, cloudinaryUrl, type MediaInput } from '../../lib/destinati
 
 const ACCEPT = 'image/png,image/jpeg,image/webp';
 
-/** Sign → POST straight to Cloudinary → return the new media item (mirrors the web avatar uploader). */
-async function uploadFile(file: File, role: 'hero' | 'gallery'): Promise<MediaInput | null> {
+type UploadResult = { item: MediaInput } | { error: string };
+
+/** Sign → POST straight to Cloudinary → return the new media item, or the reason it failed. */
+async function uploadFile(file: File, role: 'hero' | 'gallery'): Promise<UploadResult> {
   const purpose = role === 'hero' ? 'DESTINATION_HERO' : 'DESTINATION_GALLERY';
   const signed = await signDestinationUpload(purpose, file.name, file.type);
-  if (signed.error || !signed.params) return null;
+  if (signed.error || !signed.params) {
+    return { error: signed.error ?? 'Could not sign the upload.' };
+  }
   const p = signed.params;
   const fd = new FormData();
   fd.append('file', file);
@@ -34,8 +38,17 @@ async function uploadFile(file: File, role: 'hero' | 'gallery'): Promise<MediaIn
   fd.append('signature', p.signature);
   fd.append('folder', p.folder);
   fd.append('public_id', p.publicId);
-  const res = await fetch(p.uploadUrl, { method: 'POST', body: fd });
-  if (!res.ok) return null;
+  let res: Response;
+  try {
+    res = await fetch(p.uploadUrl, { method: 'POST', body: fd });
+  } catch {
+    return { error: 'Could not reach Cloudinary.' };
+  }
+  if (!res.ok) {
+    const detail = await res.json().catch(() => null);
+    const msg = (detail as { error?: { message?: string } } | null)?.error?.message;
+    return { error: `Cloudinary rejected the upload${msg ? `: ${msg}` : ` (HTTP ${res.status})`}.` };
+  }
   const up = (await res.json()) as {
     public_id: string;
     format?: string;
@@ -43,12 +56,14 @@ async function uploadFile(file: File, role: 'hero' | 'gallery'): Promise<MediaIn
     height?: number;
   };
   return {
-    publicId: up.public_id,
-    role,
-    format: up.format,
-    width: up.width,
-    height: up.height,
-    url: cloudinaryUrl(p.cloudName, up.public_id, up.format),
+    item: {
+      publicId: up.public_id,
+      role,
+      format: up.format,
+      width: up.width,
+      height: up.height,
+      url: cloudinaryUrl(p.cloudName, up.public_id, up.format),
+    },
   };
 }
 
@@ -120,9 +135,9 @@ export function DestinationMediaField({
     if (!file) return;
     setBusy(true);
     setError(null);
-    const m = await uploadFile(file, 'hero');
-    if (!m) setError('Hero image failed to upload.');
-    else setItems((prev) => [m, ...prev.filter((x) => x.role !== 'hero')]);
+    const r = await uploadFile(file, 'hero');
+    if ('error' in r) setError(r.error);
+    else setItems((prev) => [r.item, ...prev.filter((x) => x.role !== 'hero')]);
     setBusy(false);
   }
 
@@ -134,8 +149,9 @@ export function DestinationMediaField({
     setBusy(true);
     setError(null);
     const results = await Promise.all(toUpload.map((f) => uploadFile(f, 'gallery')));
-    const ok = results.filter((m): m is MediaInput => m !== null);
-    if (ok.length < toUpload.length) setError('Some images failed to upload.');
+    const ok = results.flatMap((r) => ('item' in r ? [r.item] : []));
+    const firstErr = results.find((r): r is { error: string } => 'error' in r);
+    if (firstErr) setError(firstErr.error);
     if (ok.length) setItems((prev) => [...prev, ...ok]);
     setBusy(false);
   }
