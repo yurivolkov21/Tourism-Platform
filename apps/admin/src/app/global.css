@@ -20,3 +20,23 @@
     @apply font-sans;
   }
 }
+
+/* Nexora brandmark — the wordmark carries an origami two-tone diagonal fold.
+   Ported from the web app (apps/web global.css) so both surfaces share one logo.
+   Colour follows `--nx-tone` (emerald `--primary` by default; override per surface). */
+.nexora-fold {
+  background-image: linear-gradient(
+    122deg,
+    var(--nx-tone, var(--primary)) 0 51%,
+    color-mix(in oklch, var(--nx-tone, var(--primary)) 50%, transparent) 51% 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@media (forced-colors: active) {
+  .nexora-fold {
+    background-image: none;
+    color: var(--nx-tone, var(--primary));
+  }
+}

@@ -1,3 +1,4 @@
+import { Logo } from '../../components/brand/logo';
 import { LoginBackdrop } from '../../components/auth/login-backdrop';
 import { LoginForm } from '../../components/auth/login-form';
 import { safeRedirect } from '../../lib/auth/safe-redirect';
@@ -20,15 +21,10 @@ export default async function LoginPage({
 
       <section className="relative z-10 w-full max-w-sm">
         <div className="border-border/40 bg-card/70 ring-primary/10 rounded-2xl border p-8 shadow-2xl ring-1 backdrop-blur-xl">
-          {/* Brand lockup */}
+          {/* Brand lockup — shared Nexora wordmark (same fold mark as the web app). */}
           <div className="mb-7 flex flex-col items-center text-center">
-            <div className="mb-4 flex items-center gap-2.5">
-              <span className="from-primary to-primary/70 text-primary-foreground shadow-primary/30 font-heading grid size-9 place-items-center rounded-xl bg-linear-to-br text-sm font-bold shadow-lg">
-                N
-              </span>
-              <span className="font-heading text-xl font-semibold tracking-tight">Nexora</span>
-            </div>
-            <span className="text-primary/80 text-[0.7rem] font-semibold tracking-[0.18em] uppercase">
+            <Logo className="text-[1.7rem]" />
+            <span className="text-primary/80 mt-2 text-[0.7rem] font-semibold tracking-[0.18em] uppercase">
               Operations Console
             </span>
           </div>
