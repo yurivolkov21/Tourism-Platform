@@ -9,6 +9,8 @@ export interface DestinationListParams {
   page?: number;
   pageSize?: number;
   search?: string;
+  /** Admin-only status filter; omit for all (active + drafts). */
+  isActive?: boolean;
 }
 
 export interface DestinationList {
@@ -30,6 +32,7 @@ export async function listDestinations(params: DestinationListParams = {}): Prom
         page: params.page,
         pageSize: params.pageSize ?? DEFAULT_PAGE_SIZE,
         search: params.search,
+        isActive: params.isActive,
       },
     },
   });
