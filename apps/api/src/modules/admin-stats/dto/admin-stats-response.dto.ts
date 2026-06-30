@@ -76,6 +76,9 @@ class MonthlyTrendPointDto {
   @ApiProperty({ example: 18 })
   bookings!: number;
 
+  @ApiProperty({ example: 12 })
+  paidBookings!: number;
+
   @ApiProperty({ example: '2700.00' })
   revenue!: string;
 }

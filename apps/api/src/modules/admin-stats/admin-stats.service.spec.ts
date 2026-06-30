@@ -27,6 +27,7 @@ function makePrisma(opts: {
   monthlyRows?: Array<{
     month: Date;
     bookings: bigint;
+    paid: bigint;
     revenue: Prisma.Decimal | null;
   }>;
   dailyRows?: Array<{
@@ -134,11 +135,13 @@ describe('AdminStatsService.getDashboard', () => {
           {
             month: new Date('2026-04-01T00:00:00Z'),
             bookings: 2n,
+            paid: 1n,
             revenue: new Prisma.Decimal('100'),
           },
           {
             month: new Date('2026-05-01T00:00:00Z'),
             bookings: 4n,
+            paid: 3n,
             revenue: new Prisma.Decimal('150'),
           },
         ],
@@ -151,6 +154,7 @@ describe('AdminStatsService.getDashboard', () => {
     expect(result.monthlyTrend[0]).toMatchObject({
       month: '2026-04',
       bookings: 2,
+      paidBookings: 1,
       revenue: '100',
     });
     expect(result.overview.monthOverMonthGrowth).toBeCloseTo(0.5);

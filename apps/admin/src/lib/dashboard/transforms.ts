@@ -11,8 +11,15 @@ export interface CardModel {
   key: 'revenue' | 'bookings' | 'conversion' | 'aov';
   label: string;
   value: string;
-  /** Fractional change (0.25 = +25%) when a real historical delta exists, else null. */
+  /** Fractional change (0.25 = +25%) vs the prior month when both exist, else null. */
   delta: number | null;
+  /** Muted footer descriptor line. */
+  descriptor: string;
+}
+
+/** Relative change last-vs-prev, or null when prev is non-positive / missing. */
+function rel(last: number, prev: number): number | null {
+  return prev > 0 ? last / prev - 1 : null;
 }
 
 interface Overview {
@@ -42,14 +49,23 @@ export function formatDay(iso: string): string {
     : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-/** The four KPI cards, with deltas only where a real historical comparison exists. */
+/** The four KPI cards. Deltas are real month-over-month (last vs prior month) when both exist. */
 export function computeCardModels(
   overview: Overview,
-  monthly: { month: string; bookings: number; revenue: string }[],
+  monthly: { month: string; bookings: number; paidBookings: number; revenue: string }[],
 ): CardModel[] {
-  const bookingsDelta =
-    monthly.length >= 2 && monthly[monthly.length - 2].bookings > 0
-      ? monthly[monthly.length - 1].bookings / monthly[monthly.length - 2].bookings - 1
+  const last = monthly.length >= 2 ? monthly[monthly.length - 1] : null;
+  const prev = monthly.length >= 2 ? monthly[monthly.length - 2] : null;
+
+  const revenueDelta = last && prev ? rel(Number(last.revenue), Number(prev.revenue)) : null;
+  const bookingsDelta = last && prev ? rel(last.bookings, prev.bookings) : null;
+  const conversionDelta =
+    last && prev && last.bookings > 0 && prev.bookings > 0
+      ? rel(last.paidBookings / last.bookings, prev.paidBookings / prev.bookings)
+      : null;
+  const aovDelta =
+    last && prev && last.paidBookings > 0 && prev.paidBookings > 0
+      ? rel(Number(last.revenue) / last.paidBookings, Number(prev.revenue) / prev.paidBookings)
       : null;
 
   const aov = overview.paidBookings > 0 ? Number(overview.totalRevenue) / overview.paidBookings : 0;
@@ -57,27 +73,31 @@ export function computeCardModels(
   return [
     {
       key: 'revenue',
-      label: 'Total revenue',
+      label: 'Total Revenue',
       value: formatMoney(overview.totalRevenue, overview.currency),
-      delta: overview.monthOverMonthGrowth,
+      delta: revenueDelta,
+      descriptor: 'Paid bookings revenue',
     },
     {
       key: 'bookings',
       label: 'Bookings',
       value: String(overview.totalBookings),
       delta: bookingsDelta,
+      descriptor: 'All bookings to date',
     },
     {
       key: 'conversion',
-      label: 'Conversion rate',
+      label: 'Conversion Rate',
       value: formatPct(overview.conversionRate),
-      delta: null,
+      delta: conversionDelta,
+      descriptor: 'Paid ÷ total bookings',
     },
     {
       key: 'aov',
-      label: 'Avg order value',
+      label: 'Avg Order Value',
       value: formatMoney(aov, overview.currency),
-      delta: null,
+      delta: aovDelta,
+      descriptor: 'Revenue per paid booking',
     },
   ];
 }

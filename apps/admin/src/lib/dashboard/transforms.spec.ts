@@ -13,7 +13,7 @@ test('sliceDailyTrend returns the last N days', () => {
   expect(sliceDailyTrend(daily, '7d')[6]).toEqual(daily[89]);
 });
 
-test('computeCardModels: revenue/bookings deltas; conversion/aov have none', () => {
+test('computeCardModels: real month-over-month deltas for all four cards', () => {
   const overview = {
     totalRevenue: '1000.00',
     currency: 'USD',
@@ -23,20 +23,20 @@ test('computeCardModels: revenue/bookings deltas; conversion/aov have none', () 
     monthOverMonthGrowth: 0.25,
   };
   const monthly = [
-    { month: '2026-05', bookings: 20, revenue: '800' },
-    { month: '2026-06', bookings: 30, revenue: '1000' },
+    { month: '2026-05', bookings: 20, paidBookings: 10, revenue: '800' },
+    { month: '2026-06', bookings: 30, paidBookings: 24, revenue: '1000' },
   ];
   const cards = computeCardModels(overview, monthly);
   const byKey = Object.fromEntries(cards.map((c) => [c.key, c]));
 
-  expect(byKey.revenue.delta).toBeCloseTo(0.25);
-  expect(byKey.bookings.delta).toBeCloseTo(0.5); // 30 vs 20
-  expect(byKey.conversion.delta).toBeNull();
-  expect(byKey.aov.delta).toBeNull();
+  expect(byKey.revenue.delta).toBeCloseTo(0.25); // 1000 / 800 - 1
+  expect(byKey.bookings.delta).toBeCloseTo(0.5); // 30 / 20 - 1
+  expect(byKey.conversion.delta).toBeCloseTo(0.6); // (24/30) / (10/20) - 1
+  expect(byKey.aov.delta).toBeCloseTo((1000 / 24 / (800 / 10)) - 1);
   expect(byKey.aov.value).toBe(formatMoney(25, 'USD')); // 1000 / 40
 });
 
-test('computeCardModels: no deltas with <2 months and zero paid bookings', () => {
+test('computeCardModels: no deltas with <2 months', () => {
   const overview = {
     totalRevenue: '0',
     currency: 'USD',
@@ -49,6 +49,8 @@ test('computeCardModels: no deltas with <2 months and zero paid bookings', () =>
   const byKey = Object.fromEntries(cards.map((c) => [c.key, c]));
   expect(byKey.revenue.delta).toBeNull();
   expect(byKey.bookings.delta).toBeNull();
+  expect(byKey.conversion.delta).toBeNull();
+  expect(byKey.aov.delta).toBeNull();
   expect(byKey.aov.value).toBe(formatMoney(0, 'USD'));
 });
 

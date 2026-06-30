@@ -20,7 +20,7 @@ export interface DashboardStats {
     revenue: string;
     bookingsCount: number;
   }[];
-  monthlyTrend: { month: string; bookings: number; revenue: string }[];
+  monthlyTrend: { month: string; bookings: number; paidBookings: number; revenue: string }[];
   dailyTrend: { date: string; bookings: number; revenue: string }[];
 }
 

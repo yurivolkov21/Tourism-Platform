@@ -32,13 +32,14 @@ export interface AdminStatsResponse {
     title: string;
     wishlistCount: number;
   }>;
-  monthlyTrend: Array<{ month: string; bookings: number; revenue: string }>;
+  monthlyTrend: Array<{ month: string; bookings: number; paidBookings: number; revenue: string }>;
   dailyTrend: Array<{ date: string; bookings: number; revenue: string }>;
 }
 
 interface MonthlyRow {
   month: Date;
   bookings: bigint;
+  paid: bigint;
   revenue: Prisma.Decimal | null;
 }
 
@@ -109,6 +110,7 @@ export class AdminStatsService {
         SELECT
           date_trunc('month', created_at) AS month,
           COUNT(*)::bigint AS bookings,
+          COUNT(*) FILTER (WHERE status = 'PAID')::bigint AS paid,
           COALESCE(SUM(total_amount) FILTER (WHERE status = 'PAID'), 0) AS revenue
         FROM bookings
         WHERE created_at >= (date_trunc('month', NOW()) - INTERVAL '5 months')
@@ -201,6 +203,7 @@ export class AdminStatsService {
     const monthlyTrend = monthlyRows.map((row) => ({
       month: row.month.toISOString().slice(0, 7),
       bookings: Number(row.bookings),
+      paidBookings: Number(row.paid),
       revenue: (row.revenue ?? new Prisma.Decimal(0)).toString(),
     }));
 
