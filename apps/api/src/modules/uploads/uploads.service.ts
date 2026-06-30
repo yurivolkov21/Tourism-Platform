@@ -111,6 +111,7 @@ export class UploadsService implements OnModuleInit {
       case UploadPurpose.TOUR_HERO:
       case UploadPurpose.TOUR_GALLERY:
       case UploadPurpose.DESTINATION_HERO:
+      case UploadPurpose.DESTINATION_GALLERY:
       case UploadPurpose.USER_AVATAR:
         return 'image';
     }
@@ -126,6 +127,8 @@ export class UploadsService implements OnModuleInit {
         return `${this.rootFolder}/tours/video`;
       case UploadPurpose.DESTINATION_HERO:
         return `${this.rootFolder}/destinations/hero`;
+      case UploadPurpose.DESTINATION_GALLERY:
+        return `${this.rootFolder}/destinations/gallery`;
       case UploadPurpose.DESTINATION_VIDEO:
         return `${this.rootFolder}/destinations/video`;
       case UploadPurpose.USER_AVATAR:

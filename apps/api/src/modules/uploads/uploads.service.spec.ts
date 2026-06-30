@@ -65,6 +65,15 @@ describe('UploadsService.createSignedUploadParams', () => {
     ).toThrow(BadRequestException);
   });
 
+  it('signs DESTINATION_GALLERY into the destinations/gallery image folder', () => {
+    const res = makeService().createSignedUploadParams(
+      body({ purpose: UploadPurpose.DESTINATION_GALLERY, filename: 'beach.jpg' }),
+    );
+    expect(res.resourceType).toBe('image');
+    expect(res.folder).toBe('tourism/destinations/gallery');
+    expect(res.uploadUrl).toBe('https://api.cloudinary.com/v1_1/demo/image/upload');
+  });
+
   it('sanitizes the public_id from the filename', () => {
     const res = makeService().createSignedUploadParams(
       body({ purpose: UploadPurpose.TOUR_GALLERY, filename: 'My Photo!!.png' }),
