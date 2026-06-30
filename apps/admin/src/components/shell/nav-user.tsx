@@ -9,7 +9,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   SidebarMenu,
@@ -22,10 +21,11 @@ import { signOut } from '../../lib/auth/actions';
  * Sidebar-footer account block (shadcn dashboard-01 pattern): a full-width row
  * with avatar + email and a dropdown (account/notifications + sign-out).
  *
- * The trigger is a plain `<button type="button">` via Base UI's `render` prop —
- * NOT a `<SidebarMenuButton>`. Composing two `useRender` layers (Menu.Trigger +
- * SidebarMenuButton) dropped the open-on-click wiring, so the row navigated
- * instead of opening the menu. This flat pattern matches the rest of the app.
+ * Base UI gotchas this avoids (both crash the page — Base UI error #31 / missing
+ * MenuGroupContext): a `Menu.Item` may NOT `render` a native `<button>` while its
+ * default `nativeButton` is false, so sign-out is a plain item with `onClick`
+ * (not a `<form action>` + submit button); and `DropdownMenuLabel` is a group
+ * part that must live inside a `<DropdownMenuGroup>`, so the header is a plain div.
  */
 export function NavUser({ email }: { email: string }) {
   const initials = (email.slice(0, 2) || 'AD').toUpperCase();
@@ -54,17 +54,16 @@ export function NavUser({ email }: { email: string }) {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end" side="right" sideOffset={8} className="w-56 rounded-lg">
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left">
-                <Avatar className="size-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg text-xs">{initials}</AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 leading-tight">
-                  <span className="truncate text-sm font-medium">Administrator</span>
-                  <span className="text-muted-foreground truncate text-xs">{email}</span>
-                </div>
+            {/* Header is a plain div — DropdownMenuLabel requires a Group ancestor. */}
+            <div className="flex items-center gap-2 px-1 py-1.5 text-left">
+              <Avatar className="size-8 rounded-lg">
+                <AvatarFallback className="rounded-lg text-xs">{initials}</AvatarFallback>
+              </Avatar>
+              <div className="grid flex-1 leading-tight">
+                <span className="truncate text-sm font-medium">Administrator</span>
+                <span className="text-muted-foreground truncate text-xs">{email}</span>
               </div>
-            </DropdownMenuLabel>
+            </div>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               {/* Not wired yet — shown for parity with dashboard-01, disabled so they never 404. */}
@@ -78,15 +77,15 @@ export function NavUser({ email }: { email: string }) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <form action={signOut}>
-              <DropdownMenuItem
-                variant="destructive"
-                render={<button type="submit" className="w-full cursor-pointer" />}
-              >
-                <LogOut className="size-4" />
-                Log out
-              </DropdownMenuItem>
-            </form>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => {
+                void signOut();
+              }}
+            >
+              <LogOut className="size-4" />
+              Log out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
