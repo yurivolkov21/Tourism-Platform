@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useActionState, useState } from 'react';
 
+import { REGION_ORDER } from '@tourism/core';
 import {
   Button,
   Field,
@@ -13,6 +14,11 @@ import {
   FieldLegend,
   FieldSet,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Separator,
   Switch,
   Textarea,
@@ -20,6 +26,7 @@ import {
 
 import type { DestinationFormState } from '../../lib/destinations/actions';
 import type { Destination } from '../../lib/destinations/data';
+import { slugify } from '../../lib/slugify';
 
 interface DestinationFormProps {
   /** Bound server action (create, or update with the slug already applied). */
@@ -31,11 +38,17 @@ interface DestinationFormProps {
 
 /**
  * Create/edit form for a destination — shadcn "Form Layout 2" (sectioned: a left title/description
- * column beside the fields). Submits to a Server Action via `useActionState`. Shared by the create
- * and edit pages; the reusable section shape is the template for other CRUD forms.
+ * column beside the fields). Slug auto-derives from the name (until the admin edits it), country is
+ * fixed to Vietnam (Vietnam-only for now), and region is a fixed dropdown — all to keep the catalog
+ * consistent. Shared by create + edit; the section shape is the template for other CRUD forms.
  */
 export function DestinationForm({ action, destination, submitLabel }: DestinationFormProps) {
   const [state, formAction, pending] = useActionState<DestinationFormState, FormData>(action, {});
+  const [name, setName] = useState(destination?.name ?? '');
+  const [slug, setSlug] = useState(destination?.slug ?? '');
+  // On edit the slug is pre-set → treat as user-owned so editing the name doesn't clobber the URL.
+  const [slugEdited, setSlugEdited] = useState(Boolean(destination?.slug));
+  const [region, setRegion] = useState(destination?.region ?? '');
   const [isActive, setIsActive] = useState(destination?.isActive ?? true);
   const errors = state.fieldErrors ?? {};
 
@@ -58,7 +71,11 @@ export function DestinationForm({ action, destination, submitLabel }: Destinatio
               name="name"
               required
               maxLength={120}
-              defaultValue={destination?.name ?? ''}
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (!slugEdited) setSlug(slugify(e.target.value));
+              }}
               placeholder="Hoi An"
               aria-invalid={Boolean(errors.name)}
             />
@@ -71,39 +88,50 @@ export function DestinationForm({ action, destination, submitLabel }: Destinatio
               id="slug"
               name="slug"
               maxLength={80}
-              defaultValue={destination?.slug ?? ''}
+              value={slug}
+              onChange={(e) => {
+                setSlug(e.target.value);
+                setSlugEdited(true);
+              }}
               placeholder="hoi-an"
               aria-invalid={Boolean(errors.slug)}
             />
             <FieldDescription className="text-xs">
-              Leave blank to generate one from the name. Lowercase, words separated by hyphens.
+              Auto-generated from the name. Edit it only for a custom URL — keep it lowercase with
+              words separated by hyphens.
             </FieldDescription>
             {errors.slug ? <FieldError>{errors.slug}</FieldError> : null}
           </Field>
 
-          <Field className="gap-2" data-invalid={Boolean(errors.country)}>
+          <Field className="gap-2">
             <FieldLabel htmlFor="country">Country</FieldLabel>
             <Input
               id="country"
               name="country"
-              maxLength={60}
-              defaultValue={destination?.country ?? 'Vietnam'}
-              placeholder="Vietnam"
-              aria-invalid={Boolean(errors.country)}
+              value="Vietnam"
+              readOnly
+              tabIndex={-1}
+              aria-readonly
+              className="bg-muted/50 cursor-default"
             />
-            {errors.country ? <FieldError>{errors.country}</FieldError> : null}
+            <FieldDescription className="text-xs">We only run Vietnam tours for now.</FieldDescription>
           </Field>
 
           <Field className="gap-2" data-invalid={Boolean(errors.region)}>
             <FieldLabel htmlFor="region">Region</FieldLabel>
-            <Input
-              id="region"
-              name="region"
-              maxLength={80}
-              defaultValue={destination?.region ?? ''}
-              placeholder="Central Vietnam"
-              aria-invalid={Boolean(errors.region)}
-            />
+            <Select value={region} onValueChange={(v) => setRegion(v ?? '')}>
+              <SelectTrigger id="region" className="w-full">
+                <SelectValue placeholder="Select a region" />
+              </SelectTrigger>
+              <SelectContent>
+                {REGION_ORDER.map((r) => (
+                  <SelectItem key={r} value={r}>
+                    {r}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <input type="hidden" name="region" value={region} />
             {errors.region ? <FieldError>{errors.region}</FieldError> : null}
           </Field>
         </FieldGroup>
