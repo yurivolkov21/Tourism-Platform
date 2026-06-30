@@ -1,7 +1,8 @@
+import { LoginBackdrop } from '../../components/auth/login-backdrop';
 import { LoginForm } from '../../components/auth/login-form';
 import { safeRedirect } from '../../lib/auth/safe-redirect';
 
-export const metadata = { title: 'Sign in — Tourism Admin' };
+export const metadata = { title: 'Sign in — Nexora Console' };
 
 export default async function LoginPage({
   searchParams,
@@ -12,14 +13,38 @@ export default async function LoginPage({
   const redirectTo = safeRedirect(params.redirect, '/');
 
   return (
-    <main className="bg-muted/30 flex min-h-screen items-center justify-center p-4">
-      <div className="bg-card ring-border/60 shadow-card w-full max-w-sm rounded-xl p-8 ring-1">
-        <div className="mb-6 space-y-1.5 text-center">
-          <h1 className="font-heading text-2xl font-bold">Tourism Admin</h1>
-          <p className="text-muted-foreground text-sm">Sign in to the admin console.</p>
+    // `dark` is forced here: the sign-in screen is its own dark surface regardless
+    // of the admin app's light/dark theme.
+    <main className="dark text-foreground relative flex min-h-screen items-center justify-center overflow-hidden p-4">
+      <LoginBackdrop />
+
+      <section className="relative z-10 w-full max-w-sm">
+        <div className="border-border/40 bg-card/70 ring-primary/10 rounded-2xl border p-8 shadow-2xl ring-1 backdrop-blur-xl">
+          {/* Brand lockup */}
+          <div className="mb-7 flex flex-col items-center text-center">
+            <div className="mb-4 flex items-center gap-2.5">
+              <span className="from-primary to-primary/70 text-primary-foreground shadow-primary/30 font-heading grid size-9 place-items-center rounded-xl bg-linear-to-br text-sm font-bold shadow-lg">
+                N
+              </span>
+              <span className="font-heading text-xl font-semibold tracking-tight">Nexora</span>
+            </div>
+            <span className="text-primary/80 text-[0.7rem] font-semibold tracking-[0.18em] uppercase">
+              Operations Console
+            </span>
+          </div>
+
+          <div className="mb-6 space-y-1.5 text-center">
+            <h1 className="font-heading text-2xl font-semibold">Sign in to the console</h1>
+            <p className="text-muted-foreground text-sm">Manage tours, bookings, and content.</p>
+          </div>
+
+          <LoginForm redirectTo={redirectTo} />
         </div>
-        <LoginForm redirectTo={redirectTo} />
-      </div>
+
+        <p className="text-muted-foreground/80 mt-5 text-center text-xs">
+          Access is restricted to authorized staff accounts.
+        </p>
+      </section>
     </main>
   );
 }
