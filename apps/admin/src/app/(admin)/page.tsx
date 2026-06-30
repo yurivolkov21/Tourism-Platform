@@ -1,10 +1,15 @@
 import { ChartAreaInteractive } from '../../components/dashboard/chart-area-interactive';
+import { DataTable } from '../../components/dashboard/data-table';
 import { SectionCards } from '../../components/dashboard/section-cards';
+import { getRecentBookings } from '../../lib/dashboard/bookings-table';
 import { getDashboardStats } from '../../lib/dashboard/stats';
 import { computeCardModels } from '../../lib/dashboard/transforms';
 
 export default async function DashboardPage() {
-  const stats = await getDashboardStats().catch(() => null);
+  const [stats, bookings] = await Promise.all([
+    getDashboardStats().catch(() => null),
+    getRecentBookings(50).catch(() => null),
+  ]);
 
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -20,7 +25,10 @@ export default async function DashboardPage() {
           Couldn’t load stats. The API may be waking up — refresh in a moment.
         </div>
       )}
-      {/* DataTable (recent bookings) lands in the next batch. */}
+
+      <div className="px-4 lg:px-6">
+        <DataTable rows={bookings ?? []} />
+      </div>
     </div>
   );
 }

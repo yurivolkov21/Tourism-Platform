@@ -7,8 +7,8 @@ const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-heading' });
 
 export const metadata = {
-  title: 'Tourism Admin',
-  description: 'Tourism Platform — admin console',
+  title: 'Nexora Console',
+  description: 'Nexora — operations console',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
