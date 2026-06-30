@@ -33,10 +33,17 @@ export interface AdminStatsResponse {
     wishlistCount: number;
   }>;
   monthlyTrend: Array<{ month: string; bookings: number; revenue: string }>;
+  dailyTrend: Array<{ date: string; bookings: number; revenue: string }>;
 }
 
 interface MonthlyRow {
   month: Date;
+  bookings: bigint;
+  revenue: Prisma.Decimal | null;
+}
+
+interface DailyRow {
+  day: Date;
   bookings: bigint;
   revenue: Prisma.Decimal | null;
 }
@@ -66,6 +73,7 @@ export class AdminStatsService {
       topRatingGroups,
       topWishlistGroups,
       monthlyRows,
+      dailyRows,
     ] = await Promise.all([
       this.prisma.booking.groupBy({ by: ['status'], _count: { _all: true } }),
       this.prisma.booking.aggregate({
@@ -104,6 +112,17 @@ export class AdminStatsService {
           COALESCE(SUM(total_amount) FILTER (WHERE status = 'PAID'), 0) AS revenue
         FROM bookings
         WHERE created_at >= (date_trunc('month', NOW()) - INTERVAL '5 months')
+        GROUP BY 1
+        ORDER BY 1 ASC
+      `,
+      // Daily trend for the last 90 days — the FE slices it to 90/30/7 days client-side.
+      this.prisma.$queryRaw<DailyRow[]>`
+        SELECT
+          date_trunc('day', created_at) AS day,
+          COUNT(*)::bigint AS bookings,
+          COALESCE(SUM(total_amount) FILTER (WHERE status = 'PAID'), 0) AS revenue
+        FROM bookings
+        WHERE created_at >= (NOW() - INTERVAL '90 days')
         GROUP BY 1
         ORDER BY 1 ASC
       `,
@@ -185,6 +204,12 @@ export class AdminStatsService {
       revenue: (row.revenue ?? new Prisma.Decimal(0)).toString(),
     }));
 
+    const dailyTrend = dailyRows.map((row) => ({
+      date: row.day.toISOString().slice(0, 10),
+      bookings: Number(row.bookings),
+      revenue: (row.revenue ?? new Prisma.Decimal(0)).toString(),
+    }));
+
     // MoM growth — last month vs the month before, when both exist.
     let monthOverMonthGrowth: number | null = null;
     if (monthlyTrend.length >= 2) {
@@ -209,6 +234,7 @@ export class AdminStatsService {
       topToursByRating,
       topToursByWishlist,
       monthlyTrend,
+      dailyTrend,
     };
   }
 }

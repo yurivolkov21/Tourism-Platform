@@ -29,6 +29,11 @@ function makePrisma(opts: {
     bookings: bigint;
     revenue: Prisma.Decimal | null;
   }>;
+  dailyRows?: Array<{
+    day: Date;
+    bookings: bigint;
+    revenue: Prisma.Decimal | null;
+  }>;
   tours?: Array<{ id: string; slug: string; title: string }>;
 }) {
   return {
@@ -45,7 +50,11 @@ function makePrisma(opts: {
     review: { groupBy: jest.fn().mockResolvedValue(opts.topRating ?? []) },
     wishlist: { groupBy: jest.fn().mockResolvedValue(opts.topWishlist ?? []) },
     tour: { findMany: jest.fn().mockResolvedValue(opts.tours ?? []) },
-    $queryRaw: jest.fn().mockResolvedValue(opts.monthlyRows ?? []),
+    // The service issues two raw queries in order: monthly trend, then daily trend.
+    $queryRaw: jest
+      .fn()
+      .mockResolvedValueOnce(opts.monthlyRows ?? [])
+      .mockResolvedValueOnce(opts.dailyRows ?? []),
   };
 }
 
@@ -145,5 +154,35 @@ describe('AdminStatsService.getDashboard', () => {
       revenue: '100',
     });
     expect(result.overview.monthOverMonthGrowth).toBeCloseTo(0.5);
+  });
+
+  it('maps the daily trend (ascending, YYYY-MM-DD, PAID revenue as string)', async () => {
+    const svc = new AdminStatsService(
+      makePrisma({
+        dailyRows: [
+          {
+            day: new Date('2026-06-28T00:00:00Z'),
+            bookings: 1n,
+            revenue: new Prisma.Decimal('120'),
+          },
+          {
+            day: new Date('2026-06-29T00:00:00Z'),
+            bookings: 3n,
+            revenue: new Prisma.Decimal('450'),
+          },
+        ],
+      }) as never,
+    );
+
+    const result = await svc.getDashboard();
+
+    expect(result.dailyTrend).toHaveLength(2);
+    expect(result.dailyTrend[0]).toMatchObject({
+      date: '2026-06-28',
+      bookings: 1,
+      revenue: '120',
+    });
+    const dates = result.dailyTrend.map((d) => d.date);
+    expect([...dates].sort()).toEqual(dates);
   });
 });

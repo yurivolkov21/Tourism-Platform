@@ -80,6 +80,17 @@ class MonthlyTrendPointDto {
   revenue!: string;
 }
 
+class DailyTrendPointDto {
+  @ApiProperty({ example: '2026-06-30' })
+  date!: string;
+
+  @ApiProperty({ example: 3 })
+  bookings!: number;
+
+  @ApiProperty({ example: '450.00' })
+  revenue!: string;
+}
+
 /** Wide dashboard payload — the admin FE renders the whole page from one fetch. */
 export class AdminStatsResponseDto {
   @ApiProperty({ type: StatsOverviewDto })
@@ -102,4 +113,7 @@ export class AdminStatsResponseDto {
 
   @ApiProperty({ type: [MonthlyTrendPointDto] })
   monthlyTrend!: MonthlyTrendPointDto[];
+
+  @ApiProperty({ type: [DailyTrendPointDto] })
+  dailyTrend!: DailyTrendPointDto[];
 }
