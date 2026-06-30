@@ -16,6 +16,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 import { Button, FieldDescription, FieldLegend, FieldSet, cn } from '@tourism/ui';
 
+import { ImageLightbox, type LightboxImage } from '../crud/image-lightbox';
 import { signDestinationUpload } from '../../lib/destinations/actions';
 import { MAX_GALLERY, cloudinaryUrl, type MediaInput } from '../../lib/destinations/media';
 
@@ -67,7 +68,15 @@ async function uploadFile(file: File, role: 'hero' | 'gallery'): Promise<UploadR
   };
 }
 
-function GalleryTile({ item, onRemove }: { item: MediaInput; onRemove: () => void }) {
+function GalleryTile({
+  item,
+  onRemove,
+  onView,
+}: {
+  item: MediaInput;
+  onRemove: () => void;
+  onView: () => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.publicId,
   });
@@ -80,7 +89,9 @@ function GalleryTile({ item, onRemove }: { item: MediaInput; onRemove: () => voi
         isDragging && 'z-10 opacity-70',
       )}
     >
-      <img src={item.url} alt="" className="size-full object-cover" />
+      <button type="button" onClick={onView} className="block size-full cursor-zoom-in" aria-label="View image">
+        <img src={item.url} alt="" className="size-full object-cover" />
+      </button>
       <button
         type="button"
         {...attributes}
@@ -117,6 +128,7 @@ export function DestinationMediaField({
   const [items, setItems] = useState<MediaInput[]>(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [viewIndex, setViewIndex] = useState<number | null>(null);
   const heroInput = useRef<HTMLInputElement>(null);
   const galleryInput = useRef<HTMLInputElement>(null);
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
@@ -128,6 +140,11 @@ export function DestinationMediaField({
   const hero = items.find((m) => m.role === 'hero');
   const gallery = items.filter((m) => m.role === 'gallery');
   const galleryFull = gallery.length >= MAX_GALLERY;
+
+  // Lightbox list in display order (hero first), so a tile maps to its viewer index.
+  const viewList = hero ? [hero, ...gallery] : gallery;
+  const viewImages: LightboxImage[] = viewList.map((m) => ({ src: m.url, alt: '' }));
+  const galleryOffset = hero ? 1 : 0;
 
   async function onHeroPick(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -170,6 +187,7 @@ export function DestinationMediaField({
   }
 
   return (
+    <>
     <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
       <div>
         <FieldLegend className="mb-1.5 font-semibold">Images</FieldLegend>
@@ -184,7 +202,14 @@ export function DestinationMediaField({
           <span className="text-sm font-medium">Hero image</span>
           {hero ? (
             <div className="bg-muted relative aspect-video w-full max-w-md overflow-hidden rounded-lg border">
-              <img src={hero.url} alt="" className="size-full object-cover" />
+              <button
+                type="button"
+                onClick={() => setViewIndex(0)}
+                className="block size-full cursor-zoom-in"
+                aria-label="View hero image"
+              >
+                <img src={hero.url} alt="" className="size-full object-cover" />
+              </button>
               <Button
                 type="button"
                 variant="secondary"
@@ -243,11 +268,12 @@ export function DestinationMediaField({
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
               <SortableContext items={gallery.map((g) => g.publicId)} strategy={rectSortingStrategy}>
                 <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-                  {gallery.map((g) => (
+                  {gallery.map((g, i) => (
                     <GalleryTile
                       key={g.publicId}
                       item={g}
                       onRemove={() => setItems((prev) => prev.filter((x) => x.publicId !== g.publicId))}
+                      onView={() => setViewIndex(galleryOffset + i)}
                     />
                   ))}
                 </div>
@@ -270,6 +296,14 @@ export function DestinationMediaField({
         ) : null}
       </div>
     </FieldSet>
+
+      <ImageLightbox
+        images={viewImages}
+        index={viewIndex}
+        onClose={() => setViewIndex(null)}
+        onIndex={setViewIndex}
+      />
+    </>
   );
 }
 
