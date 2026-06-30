@@ -44,6 +44,13 @@ import {
   Badge,
   Button,
   Checkbox,
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -119,6 +126,7 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [statusTab, setStatusTab] = useState<'all' | BookingRowStatus>('all');
+  const [detail, setDetail] = useState<AdminBookingRow | null>(null);
 
   const columns = useMemo<ColumnDef<AdminBookingRow>[]>(() => {
     const editCell = (code: string, key: 'tourTitle' | 'totalAmount', value: string) =>
@@ -139,7 +147,19 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
         ),
         enableHiding: false,
       },
-      { accessorKey: 'code', header: 'Code', cell: ({ row }) => <span className="font-medium">{row.original.code}</span> },
+      {
+        accessorKey: 'code',
+        header: 'Code',
+        cell: ({ row }) => (
+          <button
+            type="button"
+            onClick={() => setDetail(row.original)}
+            className="cursor-pointer font-medium hover:underline"
+          >
+            {row.original.code}
+          </button>
+        ),
+      },
       {
         accessorKey: 'tourTitle',
         header: 'Tour',
@@ -341,6 +361,47 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
           </div>
         </div>
       </div>
+
+      {/* Row-detail drawer (read-only summary) */}
+      <Drawer
+        direction="right"
+        open={detail !== null}
+        onOpenChange={(open) => {
+          if (!open) setDetail(null);
+        }}
+      >
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>{detail?.code}</DrawerTitle>
+            <DrawerDescription>{detail?.tourTitle}</DrawerDescription>
+          </DrawerHeader>
+          {detail ? (
+            <dl className="grid grid-cols-3 gap-x-4 gap-y-3 px-4 text-sm">
+              <dt className="text-muted-foreground">Status</dt>
+              <dd className="col-span-2">
+                <Badge variant={STATUS_VARIANT[detail.status]} className="capitalize">
+                  {detail.status.toLowerCase()}
+                </Badge>
+              </dd>
+              <dt className="text-muted-foreground">Customer</dt>
+              <dd className="col-span-2">{detail.contactName || '—'}</dd>
+              <dt className="text-muted-foreground">Travellers</dt>
+              <dd className="col-span-2 tabular-nums">{detail.travellers}</dd>
+              <dt className="text-muted-foreground">Amount</dt>
+              <dd className="col-span-2 tabular-nums">{detail.totalAmount} {detail.currency}</dd>
+              <dt className="text-muted-foreground">Created</dt>
+              <dd className="col-span-2">{formatDay(detail.createdAt)}</dd>
+            </dl>
+          ) : null}
+          <DrawerFooter>
+            <DrawerClose asChild>
+              <Button variant="outline" className="cursor-pointer">
+                Close
+              </Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }
