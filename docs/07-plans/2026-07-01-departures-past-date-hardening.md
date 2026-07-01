@@ -54,8 +54,15 @@ logic guard + it defines the `DEPARTURE_IN_PAST` error the admin then surfaces),
 
 ## Progress
 
-- [ ] Slice 1 — BE update guard + admin error copy
-- [ ] Slice 2 — Admin departed-row badge
+- [x] Slice 1 — BE update guard + admin error copy (merged `3eb2ee9`)
+- [x] Slice 2 — Admin departed-row badge (merged `6cd2f50`)
+
+**DONE 2026-07-01.** `assertNotPast()` now shared by create + update (update guards only when
+`body.startDate` is sent, so history stays editable); admin surfaces friendly copy for the three 400
+codes; the admin departures list marks past rows with a muted `Departed` chip + dimmed date cells.
+Gate-green both projects; BE reviewed (ecc code-reviewer, 0 findings), admin self-certified (UI + pure
+helper with tests). Booking a past departure was already blocked at 4 layers; this closed the
+create/update asymmetry + the admin-visibility gap.
 
 ## Out of scope (deferred)
 
