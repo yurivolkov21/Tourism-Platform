@@ -3,6 +3,12 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { Compass, Inbox, Search } from 'lucide-react';
+import {
+  getCoreRowModel,
+  useReactTable,
+  type ColumnDef,
+  type VisibilityState,
+} from '@tanstack/react-table';
 
 import {
   Badge,
@@ -24,17 +30,13 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   cn,
   toast,
 } from '@tourism/ui';
 
 import { ServerTablePagination } from '../crud/server-table-pagination';
+import { ColumnsMenu } from '../crud/columns-menu';
+import { AdminTableShell } from '../crud/admin-table-shell';
 import { updateEnquiryStatus } from '../../lib/enquiries/actions';
 import type { Enquiry, PageMeta } from '../../lib/enquiries/data';
 import { ENQUIRY_STATUSES, enquiryStatusMeta, type EnquiryStatus } from '../../lib/enquiries/status';
@@ -60,6 +62,53 @@ function receivedAt(iso: string): string {
       });
 }
 
+const enquiryColumns: ColumnDef<Enquiry>[] = [
+  {
+    id: 'name',
+    header: 'Name',
+    enableHiding: false,
+    meta: { label: 'Name' },
+    cell: ({ row }) => (
+      <>
+        <span className="block font-medium">{row.original.name}</span>
+        <span className="text-muted-foreground text-xs">{row.original.email}</span>
+      </>
+    ),
+  },
+  {
+    id: 'message',
+    header: 'Message',
+    meta: { label: 'Message' },
+    cell: ({ row }) => (
+      <span className="text-muted-foreground flex max-w-md items-center gap-2">
+        {row.original.tourId ? (
+          <Badge variant="outline" className="gap-1 whitespace-nowrap">
+            <Compass className="size-3" aria-hidden />
+            Tour
+          </Badge>
+        ) : null}
+        <span className="line-clamp-1">{row.original.message}</span>
+      </span>
+    ),
+  },
+  {
+    id: 'received',
+    header: 'Received',
+    meta: { label: 'Received' },
+    cell: ({ row }) => (
+      <span className="text-muted-foreground tabular-nums whitespace-nowrap">
+        {receivedAt(row.original.createdAt)}
+      </span>
+    ),
+  },
+  {
+    id: 'status',
+    header: 'Status',
+    meta: { label: 'Status' },
+    cell: ({ row }) => <EnquiryStatusBadge status={row.original.status} />,
+  },
+];
+
 /**
  * Enquiries CRM surface. Status tabs + pagination are URL-driven (server-side filtering); name/email
  * **search is client-side** within the current page (the API has no search param). Clicking a row
@@ -82,6 +131,7 @@ export function EnquiriesView({
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<Enquiry | null>(null);
   const [statusError, setStatusError] = useState<string | null>(null);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [saving, startSaving] = useTransition();
 
   const pushParams = (changes: { status?: TabValue; page?: number }) => {
@@ -106,6 +156,16 @@ export function EnquiriesView({
       (r) => r.name.toLowerCase().includes(needle) || r.email.toLowerCase().includes(needle),
     );
   }, [rows, query]);
+
+  const table = useReactTable({
+    data: filtered,
+    columns: enquiryColumns,
+    state: { columnVisibility },
+    manualPagination: true,
+    manualFiltering: true,
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   // Keep the open drawer in sync with freshly revalidated rows (e.g. a concurrent edit by another
   // admin). Skipped while a save is in flight so it never clobbers an in-flight optimistic update.
@@ -160,16 +220,19 @@ export function EnquiriesView({
           })}
         </div>
 
-        <div className="relative w-full sm:max-w-xs">
-          <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
-          <Input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search name or email…"
-            aria-label="Search enquiries on this page"
-            className="bg-background pl-8"
-          />
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <div className="relative w-full sm:max-w-xs">
+            <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+            <Input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search name or email…"
+              aria-label="Search enquiries on this page"
+              className="bg-background pl-8"
+            />
+          </div>
+          <ColumnsMenu table={table} />
         </div>
       </div>
 
@@ -193,57 +256,7 @@ export function EnquiriesView({
           </EmptyHeader>
         </Empty>
       ) : (
-        <div className="overflow-hidden rounded-lg border">
-          <Table>
-            <TableHeader className="bg-muted/50">
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Message</TableHead>
-                <TableHead>Received</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((enquiry) => (
-                <TableRow
-                  key={enquiry.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setSelected(enquiry)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      setSelected(enquiry);
-                    }
-                  }}
-                  className="focus-visible:bg-muted/60 cursor-pointer"
-                >
-                  <TableCell>
-                    <span className="block font-medium">{enquiry.name}</span>
-                    <span className="text-muted-foreground text-xs">{enquiry.email}</span>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground max-w-md">
-                    <span className="flex items-center gap-2">
-                      {enquiry.tourId ? (
-                        <Badge variant="outline" className="gap-1 whitespace-nowrap">
-                          <Compass className="size-3" aria-hidden />
-                          Tour
-                        </Badge>
-                      ) : null}
-                      <span className="line-clamp-1">{enquiry.message}</span>
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground tabular-nums whitespace-nowrap">
-                    {receivedAt(enquiry.createdAt)}
-                  </TableCell>
-                  <TableCell>
-                    <EnquiryStatusBadge status={enquiry.status} />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <AdminTableShell table={table} onRowClick={setSelected} />
       )}
 
       {meta.total > 0 ? (
