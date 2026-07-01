@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { FileText, Plus, Search } from 'lucide-react';
 
 import {
-  Badge,
   Button,
   Empty,
   EmptyDescription,
@@ -10,16 +9,10 @@ import {
   EmptyMedia,
   EmptyTitle,
   Input,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
 } from '@tourism/ui';
 
 import { apiErrorMessage } from '../../../lib/api/error';
-import { DeletePost } from '../../../components/posts/delete-post';
+import { PostsTable } from '../../../components/posts/posts-table';
 import { listPosts, type PostList } from '../../../lib/posts/data';
 import { ErrorAlert } from '../../../components/crud/error-alert';
 import { ServerTablePagination } from '../../../components/crud/server-table-pagination';
@@ -116,46 +109,7 @@ export default async function PostsPage({ searchParams }: PostsPageProps) {
         </Empty>
       ) : (
         <>
-          <div className="rounded-xl border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Published</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((post) => (
-                  <TableRow key={post.id}>
-                    <TableCell className="font-medium">{post.title}</TableCell>
-                    <TableCell>
-                      <Badge variant={post.status === 'PUBLISHED' ? 'default' : 'secondary'}>
-                        {post.status === 'PUBLISHED' ? 'Published' : 'Draft'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground tabular-nums">
-                      {post.publishedAt ? post.publishedAt.slice(0, 10) : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          nativeButton={false}
-                          render={<Link href={`/posts/${post.slug}/edit`} />}
-                        >
-                          Edit
-                        </Button>
-                        <DeletePost slug={post.slug} title={post.title} />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <PostsTable rows={rows} />
 
           {meta ? (
             <ServerTablePagination

@@ -1,17 +1,19 @@
-import Link from 'next/link';
+'use client';
 
+import Link from 'next/link';
+import { useState } from 'react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@tourism/ui';
+  getCoreRowModel,
+  useReactTable,
+  type ColumnDef,
+  type VisibilityState,
+} from '@tanstack/react-table';
 
 import { formatMoney } from '../../lib/bookings/format';
 import type { Booking } from '../../lib/bookings/data';
 import { BookingStatusBadge } from './booking-status-badge';
+import { ColumnsMenu } from '../crud/columns-menu';
+import { AdminTableShell } from '../crud/admin-table-shell';
 
 /** Short date like "15 Aug 2026" from an ISO/`YYYY-MM-DD` string; em dash when unparseable. */
 function shortDate(iso: string): string {
@@ -21,51 +23,97 @@ function shortDate(iso: string): string {
     : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-/** Read-only bookings table. Rows link to the detail page by code; filtering/paging are URL-driven. */
+const bookingColumns: ColumnDef<Booking>[] = [
+  {
+    id: 'code',
+    header: 'Code',
+    enableHiding: false,
+    meta: { label: 'Code' },
+    cell: ({ row }) => (
+      <Link href={`/bookings/${row.original.code}`} className="hover:text-primary font-medium hover:underline">
+        {row.original.code}
+      </Link>
+    ),
+  },
+  {
+    id: 'tour',
+    header: 'Tour',
+    meta: { label: 'Tour' },
+    cell: ({ row }) => (
+      <span className="text-muted-foreground block max-w-56 truncate">{row.original.tour.title}</span>
+    ),
+  },
+  {
+    id: 'guest',
+    header: 'Guest',
+    meta: { label: 'Guest' },
+    cell: ({ row }) => (
+      <>
+        <span className="block font-medium">{row.original.contactName}</span>
+        <span className="text-muted-foreground text-xs">{row.original.contactEmail}</span>
+      </>
+    ),
+  },
+  {
+    id: 'travelDate',
+    header: 'Travel date',
+    meta: { label: 'Travel date' },
+    cell: ({ row }) => (
+      <span className="text-muted-foreground tabular-nums">{shortDate(row.original.departure.startDate)}</span>
+    ),
+  },
+  {
+    id: 'payment',
+    header: 'Payment',
+    meta: { label: 'Payment' },
+    cell: ({ row }) => (
+      <span className="text-muted-foreground">
+        {row.original.paymentProvider === 'STRIPE' ? 'Stripe' : 'PayPal'}
+      </span>
+    ),
+  },
+  {
+    id: 'total',
+    header: 'Total',
+    meta: { label: 'Total', align: 'right' },
+    cell: ({ row }) => (
+      <span className="font-medium tabular-nums">
+        {formatMoney(row.original.totalAmount, row.original.currency)}
+      </span>
+    ),
+  },
+  {
+    id: 'status',
+    header: 'Status',
+    meta: { label: 'Status' },
+    cell: ({ row }) => <BookingStatusBadge status={row.original.status} />,
+  },
+];
+
+/**
+ * Read-only bookings table on TanStack. Rows link to the detail page by code; filtering/paging stay
+ * URL-driven (the page owns `BookingsFilters` + `ServerTablePagination`), so the table runs in manual
+ * mode and owns only the column model + the "Columns" show/hide button.
+ */
 export function BookingsTable({ rows }: { rows: Booking[] }) {
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+
+  const table = useReactTable({
+    data: rows,
+    columns: bookingColumns,
+    state: { columnVisibility },
+    manualPagination: true,
+    manualFiltering: true,
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
   return (
-    <div className="overflow-hidden rounded-lg border">
-      <Table>
-        <TableHeader className="bg-muted/50">
-          <TableRow>
-            <TableHead>Code</TableHead>
-            <TableHead>Tour</TableHead>
-            <TableHead>Guest</TableHead>
-            <TableHead>Travel date</TableHead>
-            <TableHead>Payment</TableHead>
-            <TableHead className="text-right">Total</TableHead>
-            <TableHead>Status</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((b) => (
-            <TableRow key={b.id}>
-              <TableCell className="font-medium">
-                <Link href={`/bookings/${b.code}`} className="hover:text-primary hover:underline">
-                  {b.code}
-                </Link>
-              </TableCell>
-              <TableCell className="max-w-56 truncate text-muted-foreground">{b.tour.title}</TableCell>
-              <TableCell>
-                <span className="block font-medium">{b.contactName}</span>
-                <span className="text-muted-foreground text-xs">{b.contactEmail}</span>
-              </TableCell>
-              <TableCell className="text-muted-foreground tabular-nums">
-                {shortDate(b.departure.startDate)}
-              </TableCell>
-              <TableCell className="text-muted-foreground">
-                {b.paymentProvider === 'STRIPE' ? 'Stripe' : 'PayPal'}
-              </TableCell>
-              <TableCell className="text-right font-medium tabular-nums">
-                {formatMoney(b.totalAmount, b.currency)}
-              </TableCell>
-              <TableCell>
-                <BookingStatusBadge status={b.status} />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    <div className="flex flex-col gap-3">
+      <div className="flex justify-end">
+        <ColumnsMenu table={table} />
+      </div>
+      <AdminTableShell table={table} />
     </div>
   );
 }
