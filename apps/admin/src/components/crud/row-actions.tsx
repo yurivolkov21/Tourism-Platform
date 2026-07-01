@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, type LucideIcon } from 'lucide-react';
 
 import {
   AlertDialog,
@@ -38,6 +38,7 @@ export function RowActions({
   deleteTitle,
   deleteDescription,
   redirectTo,
+  extraItems,
 }: {
   editHref: string;
   deleteAction: (id: string) => Promise<{ error?: string }>;
@@ -47,6 +48,8 @@ export function RowActions({
   /** Where to go after a successful delete (e.g. a detail page returning to the list). The list
    * pages omit this — the row just disappears via revalidation. */
   redirectTo?: string;
+  /** Extra link items rendered above the Delete action (e.g. a tour's "Departures"). */
+  extraItems?: { label: string; href: string; icon?: LucideIcon }[];
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -86,6 +89,19 @@ export function RowActions({
             <Pencil className="size-4" />
             Edit
           </DropdownMenuItem>
+          {extraItems?.map((item) => {
+            const Icon = item.icon;
+            return (
+              <DropdownMenuItem
+                key={item.href}
+                render={<Link href={item.href} />}
+                nativeButton={false}
+              >
+                {Icon ? <Icon className="size-4" /> : null}
+                {item.label}
+              </DropdownMenuItem>
+            );
+          })}
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={() => setOpen(true)}>
             <Trash2 className="size-4" />

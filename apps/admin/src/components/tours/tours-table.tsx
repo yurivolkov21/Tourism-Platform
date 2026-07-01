@@ -1,0 +1,284 @@
+'use client';
+
+import Link from 'next/link';
+import { useMemo, useState } from 'react';
+import { CalendarRange, ChevronLeft, ChevronRight, Compass, Search } from 'lucide-react';
+
+import {
+  Badge,
+  Button,
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  Input,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  cn,
+} from '@tourism/ui';
+
+import { RowActions } from '../crud/row-actions';
+import { deleteTour } from '../../lib/tours/actions';
+import type { TourSummary } from '../../lib/tours/data';
+
+type Tab = 'all' | 'published' | 'draft';
+const PAGE_SIZE = 25;
+
+const FILTER_CLASS =
+  'border-input bg-background h-9 rounded-lg border px-2.5 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50';
+
+function money(value: string, currency: string): string {
+  const n = Number(value);
+  const body = Number.isFinite(n) ? n.toLocaleString('en-US', { maximumFractionDigits: 0 }) : value;
+  return currency === 'USD' ? `$${body}` : `${currency} ${body}`;
+}
+
+function primaryDestination(tour: TourSummary): string {
+  const primary = tour.destinations.find((d) => d.isPrimary) ?? tour.destinations[0];
+  return primary?.destination.name ?? '—';
+}
+
+/**
+ * Client-side Tours table: tab (status) + category + search filtering happens in memory (instant, no
+ * server round-trip — the catalog is small and loaded once). Tabs show live counts; the category
+ * options are derived from the loaded rows; pagination kicks in past {@link PAGE_SIZE} rows.
+ */
+export function ToursTable({ rows }: { rows: TourSummary[] }) {
+  const [tab, setTab] = useState<Tab>('all');
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('');
+  const [page, setPage] = useState(1);
+
+  const counts = useMemo(
+    () => ({
+      all: rows.length,
+      published: rows.filter((r) => r.isPublished).length,
+      draft: rows.filter((r) => !r.isPublished).length,
+    }),
+    [rows],
+  );
+
+  // Unique category options from the loaded rows (slug → name), alphabetical.
+  const categoryOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const r of rows) map.set(r.category.slug, r.category.name);
+    return [...map.entries()]
+      .map(([slug, name]) => ({ slug, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [rows]);
+
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (tab === 'published' && !r.isPublished) return false;
+      if (tab === 'draft' && r.isPublished) return false;
+      if (category && r.category.slug !== category) return false;
+      if (needle) {
+        const haystack = `${r.title} ${r.category.name} ${r.destinations
+          .map((d) => d.destination.name)
+          .join(' ')}`.toLowerCase();
+        if (!haystack.includes(needle)) return false;
+      }
+      return true;
+    });
+  }, [rows, tab, category, query]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const current = Math.min(page, totalPages);
+  const paged = filtered.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
+
+  const tabs: { value: Tab; label: string; count: number }[] = [
+    { value: 'all', label: 'All', count: counts.all },
+    { value: 'published', label: 'Published', count: counts.published },
+    { value: 'draft', label: 'Draft', count: counts.draft },
+  ];
+  const selectTab = (next: Tab) => {
+    setTab(next);
+    setPage(1);
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Toolbar */}
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div
+          role="tablist"
+          className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
+        >
+          {tabs.map((t) => {
+            const isActive = t.value === tab;
+            return (
+              <button
+                key={t.value}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => selectTab(t.value)}
+                className={cn(
+                  'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
+                  isActive ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+                )}
+              >
+                {t.label}
+                <Badge variant="secondary" className="px-1.5 tabular-nums">
+                  {t.count}
+                </Badge>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <select
+            value={category}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              setPage(1);
+            }}
+            className={FILTER_CLASS}
+            aria-label="Filter by category"
+          >
+            <option value="">All categories</option>
+            {categoryOptions.map((c) => (
+              <option key={c.slug} value={c.slug}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <div className="relative w-full sm:max-w-xs">
+            <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+            <Input
+              type="search"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setPage(1);
+              }}
+              placeholder="Search title, category, destination…"
+              aria-label="Search tours"
+              className="bg-background pl-8"
+            />
+          </div>
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Compass />
+            </EmptyMedia>
+            <EmptyTitle>No tours match your filters</EmptyTitle>
+            <EmptyDescription>Try different filters or clear them to see them all.</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      ) : (
+        <>
+          <div className="overflow-hidden rounded-lg border">
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Primary destination</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                  <TableHead className="text-right">Days</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-12 text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paged.map((tour) => (
+                  <TableRow key={tour.id}>
+                    <TableCell className="font-medium">
+                      <Link href={`/tours/${tour.slug}`} className="hover:text-primary hover:underline">
+                        {tour.title}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{tour.category.name}</TableCell>
+                    <TableCell className="text-muted-foreground">{primaryDestination(tour)}</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      <span className="font-medium">{money(tour.basePrice, tour.currency)}</span>
+                      {tour.compareAtPrice ? (
+                        <span className="text-muted-foreground ml-1 text-xs line-through">
+                          {money(tour.compareAtPrice, tour.currency)}
+                        </span>
+                      ) : null}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">{tour.durationDays}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap items-center gap-1">
+                        <Badge variant={tour.isPublished ? 'default' : 'secondary'} className="gap-1.5">
+                          <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+                          {tour.isPublished ? 'Published' : 'Draft'}
+                        </Badge>
+                        {tour.isFeatured ? <Badge variant="outline">Featured</Badge> : null}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <RowActions
+                        editHref={`/tours/${tour.slug}/edit`}
+                        deleteAction={deleteTour}
+                        deleteId={tour.slug}
+                        deleteTitle={`Delete “${tour.title}”?`}
+                        deleteDescription="This permanently deletes the tour and can’t be undone. You can only delete one that’s unpublished (Draft) and has no bookings."
+                        extraItems={[
+                          {
+                            label: 'Departures',
+                            href: `/tours/${tour.slug}/departures`,
+                            icon: CalendarRange,
+                          },
+                        ]}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {totalPages > 1 ? (
+            <div className="flex items-center justify-between px-1">
+              <p className="text-muted-foreground text-sm">
+                Showing {(current - 1) * PAGE_SIZE + 1}–{Math.min(current * PAGE_SIZE, filtered.length)} of{' '}
+                {filtered.length}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  className="cursor-pointer"
+                  disabled={current <= 1}
+                  onClick={() => setPage(current - 1)}
+                  aria-label="Previous page"
+                >
+                  <ChevronLeft className="size-4" />
+                </Button>
+                <span className="text-sm font-medium">
+                  Page {current} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  className="cursor-pointer"
+                  disabled={current >= totalPages}
+                  onClick={() => setPage(current + 1)}
+                  aria-label="Next page"
+                >
+                  <ChevronRight className="size-4" />
+                </Button>
+              </div>
+            </div>
+          ) : null}
+        </>
+      )}
+    </div>
+  );
+}
+
+export default ToursTable;
