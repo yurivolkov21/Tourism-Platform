@@ -6,11 +6,25 @@ import { redirect } from 'next/navigation';
 import { apiErrorMessage } from '../api/error';
 import { apiWrite, getApiClient } from '../api/client';
 import { flashPath } from '../flash';
+import { assembleMediaSet, parseMediaField } from '../media';
 import { tourSchema, toTourPayload } from './schema';
 
 export interface TourFormState {
   error?: string;
   fieldErrors?: Record<string, string>;
+}
+
+/**
+ * Best-effort attach of the form's media set (`PUT /admin/tours/:slug/media`, replace-all). The tour
+ * is already saved, so a failure here is swallowed — images can be re-attached from the edit form.
+ */
+async function putTourMedia(slug: string, mediaJson: string): Promise<void> {
+  try {
+    const media = assembleMediaSet(parseMediaField(mediaJson));
+    await apiWrite('PUT', `/api/v1/admin/tours/${encodeURIComponent(slug)}/media`, { media });
+  } catch {
+    // Saved without images; recoverable via edit.
+  }
 }
 
 /** Empty string → undefined, so a blank optional field doesn't fail coercion. */
@@ -63,12 +77,19 @@ export async function createTour(
   const parsed = parseTourForm(formData);
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
+  let createdSlug: string;
   try {
-    await apiWrite('POST', '/api/v1/admin/tours', toTourPayload(parsed.data));
+    const created = await apiWrite<{ slug: string }>(
+      'POST',
+      '/api/v1/admin/tours',
+      toTourPayload(parsed.data),
+    );
+    createdSlug = created.slug;
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }
 
+  await putTourMedia(createdSlug, String(formData.get('media') ?? '[]'));
   revalidatePath('/tours');
   redirect(flashPath('/tours', 'created'));
 }
@@ -92,6 +113,7 @@ export async function updateTour(
     return { error: apiErrorMessage(e) };
   }
 
+  await putTourMedia(slug, String(formData.get('media') ?? '[]'));
   revalidatePath('/tours');
   revalidatePath(`/tours/${slug}/edit`);
   redirect(flashPath('/tours', 'updated'));

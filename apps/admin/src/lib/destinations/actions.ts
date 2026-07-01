@@ -122,31 +122,3 @@ export async function deleteDestination(slug: string): Promise<DeleteDestination
   revalidatePath('/destinations');
   return {};
 }
-
-export interface SignParams {
-  signature: string;
-  timestamp: number;
-  apiKey: string;
-  cloudName: string;
-  folder: string;
-  publicId: string;
-  uploadUrl: string;
-}
-
-/** Signs a direct-to-Cloudinary upload for a destination image (hero or gallery). */
-export async function signDestinationUpload(
-  purpose: 'DESTINATION_HERO' | 'DESTINATION_GALLERY',
-  filename: string,
-  contentType: string,
-): Promise<{ params?: SignParams; error?: string }> {
-  try {
-    const data = await apiWrite<SignParams>('POST', '/api/v1/admin/uploads/signed-url', {
-      purpose,
-      filename,
-      contentType,
-    });
-    return { params: data };
-  } catch (e) {
-    return { error: apiErrorMessage(e) };
-  }
-}

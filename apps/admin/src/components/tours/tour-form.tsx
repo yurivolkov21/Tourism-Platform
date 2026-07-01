@@ -21,6 +21,8 @@ import type { TourDetail } from '../../lib/tours/data';
 import { ChipInput } from './chip-input';
 import { DestinationPicker, type DestinationOption } from './destination-picker';
 import { ErrorAlert } from '../crud/error-alert';
+import { MediaField } from '../crud/media-field';
+import type { MediaInput } from '../../lib/media';
 
 interface TourFormProps {
   action: (prev: TourFormState, formData: FormData) => Promise<TourFormState>;
@@ -54,6 +56,19 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
   const [primary, setPrimary] = useState<string>(initialPrimary);
   const [isPublished, setIsPublished] = useState(tour?.isPublished ?? false);
   const [isFeatured, setIsFeatured] = useState(tour?.isFeatured ?? false);
+
+  // Seed images from the existing tour on edit (hero + gallery).
+  const initialMedia: MediaInput[] = (tour?.media ?? [])
+    .filter((m) => m.role === 'hero' || m.role === 'gallery')
+    .map((m) => ({
+      publicId: m.publicId,
+      role: m.role as 'hero' | 'gallery',
+      width: m.width ?? undefined,
+      height: m.height ?? undefined,
+      url: m.url,
+    }))
+    .filter((m) => m.publicId);
+  const [media, setMedia] = useState<MediaInput[]>(initialMedia);
 
   // Keep the primary destination valid: default to / reset within the chosen set.
   useEffect(() => {
@@ -261,6 +276,15 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
           </Field>
         </FieldGroup>
       </section>
+
+      {/* Images — shared MediaField (hero + gallery → Cloudinary → PUT /admin/tours/:slug/media) */}
+      <MediaField
+        initial={initialMedia}
+        onChange={setMedia}
+        heroPurpose="TOUR_HERO"
+        galleryPurpose="TOUR_GALLERY"
+      />
+      <input type="hidden" name="media" value={JSON.stringify(media)} />
 
       {state.error ? <ErrorAlert>{state.error}</ErrorAlert> : null}
 
