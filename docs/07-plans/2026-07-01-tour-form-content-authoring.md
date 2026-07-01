@@ -59,9 +59,17 @@ break — but this order avoids ever showing raw `**` markers.
 
 ## Progress
 
-- [ ] Slice 1 — Admin quick-wins (slug · meeting-point · content textareas · faq/policy hints)
-- [ ] Slice 2 — Web itinerary markdown + highlights wiring
-- [ ] Slice 3 — Admin markdown authoring + API itinerary length bump
+- [x] Slice 1 — Admin quick-wins (merged `687301a`)
+- [x] Slice 2 — Web itinerary markdown + highlights wiring (merged `174b15d`)
+- [x] Slice 3 — Admin markdown authoring + API itinerary length bump (merged `24979ef`)
+
+**DONE 2026-07-01.** Slug auto-fills from title; meeting-point format hint; Content lists →
+one-per-line textareas; policy/faq hints. Web renders itinerary days as Markdown (react-markdown +
+remark-gfm, scoped styles, no raw-HTML) inside the day Stepper; Highlights now wired into the VM +
+shown on the tour detail. Itinerary day cap raised 2000→8000 on the API DTO + admin schema; admin
+authors Markdown in a monospace textarea with a cheatsheet. Slices 1–2 reviewed (ecc, 0 CRITICAL/HIGH;
+one LOW list-marker fix folded into Slice 2). `react-markdown` infra is reusable for the deferred blog
+reader (Post.content is markdown).
 
 ## Out of scope (deferred)
 
