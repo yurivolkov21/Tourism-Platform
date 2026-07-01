@@ -68,10 +68,15 @@ the simple client tables, then the server tables, then the special one (Enquirie
 
 ## Progress
 
-- [ ] Slice 1 — Foundation + Tours
-- [ ] Slice 2 — Destinations + Categories
-- [ ] Slice 3 — Bookings + Posts
-- [ ] Slice 4 — Enquiries
+- [x] Slice 1 — Foundation + Tours (merged `475b293`)
+- [x] Slice 2 — Destinations + Categories (merged `bbe96b0`)
+- [x] Slice 3 — Bookings + Posts (merged `790db0e`)
+- [x] Slice 4 — Enquiries (merged `1e19597`)
+
+**DONE 2026-07-01.** All six admin tables migrated to TanStack Table with the shared foundation
+(`crud/{columns-menu,admin-table-shell,client-table-pagination}` + `lib/table.ts`); each has a working
+"Columns" show/hide button. Reviewed (ecc code-reviewer, 0 findings each) + gate-green per slice.
+Reviews list has no table yet (backlog); when built it should adopt the same foundation.
 
 ## Out of scope (deferred)
 
