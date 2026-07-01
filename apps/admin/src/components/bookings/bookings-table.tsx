@@ -32,6 +32,7 @@ export function BookingsTable({ rows }: { rows: Booking[] }) {
             <TableHead>Tour</TableHead>
             <TableHead>Guest</TableHead>
             <TableHead>Travel date</TableHead>
+            <TableHead>Payment</TableHead>
             <TableHead className="text-right">Total</TableHead>
             <TableHead>Status</TableHead>
           </TableRow>
@@ -51,6 +52,9 @@ export function BookingsTable({ rows }: { rows: Booking[] }) {
               </TableCell>
               <TableCell className="text-muted-foreground tabular-nums">
                 {shortDate(b.departure.startDate)}
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {b.paymentProvider === 'STRIPE' ? 'Stripe' : 'PayPal'}
               </TableCell>
               <TableCell className="text-right font-medium tabular-nums">
                 {formatMoney(b.totalAmount, b.currency)}

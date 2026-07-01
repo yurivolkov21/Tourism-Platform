@@ -667,12 +667,80 @@ describe('BookingsService', () => {
   });
 
   describe('findByCodeForAdmin', () => {
-    it('returns the booking when found (no owner check)', async () => {
+    it('maps the enriched detail (audit fields) when found (no owner check)', async () => {
       const prisma = makePrisma({
-        booking: { findUnique: jest.fn().mockResolvedValue({ id: 'bk-1', code: 'BK-1' }) },
+        booking: {
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'bk-1',
+            code: 'BK-1',
+            status: 'REFUNDED',
+            numAdults: 2,
+            numChildren: 1,
+            totalAmount: { toString: () => '99.00' },
+            currency: 'USD',
+            paymentProvider: 'STRIPE',
+            contactName: 'Jane',
+            contactEmail: 'jane@example.com',
+            contactPhone: null,
+            specialRequests: null,
+            tour: { slug: 'hoi-an', title: 'Hoi An Walking Tour' },
+            departure: {
+              startDate: new Date('2026-08-15T00:00:00Z'),
+              endDate: new Date('2026-08-18T00:00:00Z'),
+            },
+            paidAt: new Date('2026-07-01T10:00:00Z'),
+            cancelledAt: new Date('2026-07-02T09:00:00Z'),
+            providerPaymentId: 'pi_123',
+            refundReason: 'Customer request',
+            refundedBy: { fullName: 'Admin One', email: 'admin@example.com' },
+            createdAt: new Date('2026-06-30T08:00:00Z'),
+            updatedAt: new Date('2026-07-02T09:00:00Z'),
+          }),
+        },
       });
       const result = await svcWith(prisma).findByCodeForAdmin('BK-1');
       expect(result.code).toBe('BK-1');
+      expect(result.totalAmount).toBe('99.00');
+      expect(result.paidAt).toBe('2026-07-01T10:00:00.000Z');
+      expect(result.providerPaymentId).toBe('pi_123');
+      expect(result.refundReason).toBe('Customer request');
+      expect(result.refundedBy).toEqual({ fullName: 'Admin One', email: 'admin@example.com' });
+    });
+
+    it('maps refundedBy to null when the booking was never refunded', async () => {
+      const prisma = makePrisma({
+        booking: {
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'bk-2',
+            code: 'BK-2',
+            status: 'PAID',
+            numAdults: 1,
+            numChildren: 0,
+            totalAmount: { toString: () => '39.00' },
+            currency: 'USD',
+            paymentProvider: 'STRIPE',
+            contactName: 'Bob',
+            contactEmail: 'bob@example.com',
+            contactPhone: null,
+            specialRequests: null,
+            tour: { slug: 'hoi-an', title: 'Hoi An Walking Tour' },
+            departure: {
+              startDate: new Date('2026-08-15T00:00:00Z'),
+              endDate: new Date('2026-08-18T00:00:00Z'),
+            },
+            paidAt: new Date('2026-07-01T10:00:00Z'),
+            cancelledAt: null,
+            providerPaymentId: 'pi_999',
+            refundReason: null,
+            refundedBy: null,
+            createdAt: new Date('2026-06-30T08:00:00Z'),
+            updatedAt: new Date('2026-07-01T10:00:00Z'),
+          }),
+        },
+      });
+      const result = await svcWith(prisma).findByCodeForAdmin('BK-2');
+      expect(result.refundedBy).toBeNull();
+      expect(result.cancelledAt).toBeNull();
     });
 
     it('throws 404 when the code is missing', async () => {

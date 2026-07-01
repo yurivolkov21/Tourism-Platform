@@ -19,7 +19,8 @@ import {
 import { Booking, User, UserRole } from '@prisma/client';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { BookingsService, PaginatedBookings } from './bookings.service';
+import { AdminBookingDetail, BookingsService, PaginatedBookings } from './bookings.service';
+import { AdminBookingDetailDto } from './dto/admin-booking-detail.dto';
 import { BookingDto } from './dto/booking.dto';
 import { ListAdminBookingsQueryDto } from './dto/list-admin-bookings-query.dto';
 import { PaginatedBookingsDto } from './dto/paginated-bookings.dto';
@@ -45,11 +46,11 @@ export class AdminBookingsController {
   }
 
   @Get(':code')
-  @ApiOperation({ summary: 'Admin: get one booking by code' })
-  @ApiOkResponse({ type: BookingDto })
+  @ApiOperation({ summary: 'Admin: get one booking by code (with lifecycle + refund audit)' })
+  @ApiOkResponse({ type: AdminBookingDetailDto })
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   @ApiResponse({ status: 404, description: 'Booking not found' })
-  detail(@Param('code') code: string): Promise<Booking> {
+  detail(@Param('code') code: string): Promise<AdminBookingDetail> {
     return this.bookingsService.findByCodeForAdmin(code);
   }
 

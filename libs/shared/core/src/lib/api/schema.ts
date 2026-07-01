@@ -575,7 +575,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Admin: get one booking by code */
+        /** Admin: get one booking by code (with lifecycle + refund audit) */
         get: operations["AdminBookingsController_detail"];
         put?: never;
         post?: never;
@@ -1004,7 +1004,7 @@ export interface components {
              * @description Upload classification — determines the storage folder.
              * @enum {string}
              */
-            purpose: "TOUR_HERO" | "TOUR_GALLERY" | "TOUR_VIDEO" | "DESTINATION_HERO" | "DESTINATION_VIDEO" | "USER_AVATAR";
+            purpose: "TOUR_HERO" | "TOUR_GALLERY" | "TOUR_VIDEO" | "DESTINATION_HERO" | "DESTINATION_GALLERY" | "DESTINATION_VIDEO" | "USER_AVATAR";
             /**
              * @description Original filename (single extension). The backend sanitizes + timestamps it.
              * @example hero-shot.jpg
@@ -1014,6 +1014,11 @@ export interface components {
             contentType?: string;
         };
         MediaItemDto: {
+            /**
+             * @description Cloudinary public_id — lets the admin re-submit an unchanged item.
+             * @example tourism/destinations/hero/1717000000000-hoi-an
+             */
+            publicId: string;
             /** Format: uri */
             url: string;
             /** @enum {string} */
@@ -1840,6 +1845,61 @@ export interface components {
             data: components["schemas"]["BookingDto"][];
             meta: components["schemas"]["PageMetaDto"];
         };
+        RefundedByDto: {
+            /** @example Jane Admin */
+            fullName: string | null;
+            /** @example admin@example.com */
+            email: string;
+        };
+        AdminBookingDetailDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example BK-7Q2KX9AB */
+            code: string;
+            /**
+             * @example PENDING
+             * @enum {string}
+             */
+            status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED";
+            /** @example 2 */
+            numAdults: number;
+            /** @example 1 */
+            numChildren: number;
+            /** @example 99.00 */
+            totalAmount: string;
+            /** @example USD */
+            currency: string;
+            /**
+             * @example STRIPE
+             * @enum {string}
+             */
+            paymentProvider: "STRIPE" | "PAYPAL";
+            /** @example Nguyen Van A */
+            contactName: string;
+            /** @example guest@example.com */
+            contactEmail: string;
+            /** @example +84901234567 */
+            contactPhone: string | null;
+            specialRequests: string | null;
+            tour: components["schemas"]["BookingTourRefDto"];
+            departure: components["schemas"]["BookingDepartureRefDto"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            paidAt: string | null;
+            /** Format: date-time */
+            cancelledAt: string | null;
+            /**
+             * @description Captured charge/order id at the payment gateway (Stripe PaymentIntent / PayPal capture).
+             * @example pi_3QabcXYZ
+             */
+            providerPaymentId: string | null;
+            /** @example Customer cancelled within the free window */
+            refundReason: string | null;
+            refundedBy: components["schemas"]["RefundedByDto"] | null;
+        };
         RefundBookingDto: {
             /** @example Customer cancelled within the free window */
             reason?: string;
@@ -2171,7 +2231,17 @@ export interface components {
             month: string;
             /** @example 18 */
             bookings: number;
+            /** @example 12 */
+            paidBookings: number;
             /** @example 2700.00 */
+            revenue: string;
+        };
+        DailyTrendPointDto: {
+            /** @example 2026-06-30 */
+            date: string;
+            /** @example 3 */
+            bookings: number;
+            /** @example 450.00 */
             revenue: string;
         };
         AdminStatsResponseDto: {
@@ -2190,6 +2260,7 @@ export interface components {
             topToursByRating: components["schemas"]["TopTourByRatingDto"][];
             topToursByWishlist: components["schemas"]["TopTourByWishlistDto"][];
             monthlyTrend: components["schemas"]["MonthlyTrendPointDto"][];
+            dailyTrend: components["schemas"]["DailyTrendPointDto"][];
         };
         PostDto: {
             /** Format: uuid */
@@ -3832,7 +3903,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["BookingDto"];
+                    "application/json": components["schemas"]["AdminBookingDetailDto"];
                 };
             };
             /** @description Not an ADMIN */

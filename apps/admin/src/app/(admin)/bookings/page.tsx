@@ -81,6 +81,13 @@ export default async function BookingsPage({ searchParams }: BookingsPageProps) 
           </Empty>
         ) : (
           <>
+            {meta ? (
+              <p className="text-muted-foreground text-sm">
+                {meta.total} {meta.total === 1 ? 'booking' : 'bookings'}
+                {status ? ` · ${status.toLowerCase()}` : ''}
+                {search ? ` · matching “${search}”` : ''}
+              </p>
+            ) : null}
             <BookingsTable rows={rows} />
             {meta && meta.totalPages > 1 ? (
               <BookingsPagination

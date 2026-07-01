@@ -44,6 +44,76 @@ const BOOKING_INCLUDE: Prisma.BookingInclude = {
   departure: { select: { startDate: true, endDate: true } },
 };
 
+/** Detail read adds the admin refunder (name/email) for the audit panel. */
+const BOOKING_DETAIL_INCLUDE = {
+  tour: { select: { slug: true, title: true } },
+  departure: { select: { startDate: true, endDate: true } },
+  refundedBy: { select: { fullName: true, email: true } },
+} satisfies Prisma.BookingInclude;
+
+type BookingWithDetail = Prisma.BookingGetPayload<{ include: typeof BOOKING_DETAIL_INCLUDE }>;
+
+/**
+ * Admin booking detail — the full customer-facing shape plus admin-only audit
+ * fields (lifecycle timestamps, captured payment ref, refund audit). Kept separate
+ * from the shared `BookingDto` so these never leak to customer endpoints.
+ */
+export interface AdminBookingDetail {
+  id: string;
+  code: string;
+  status: BookingStatus;
+  numAdults: number;
+  numChildren: number;
+  totalAmount: string;
+  currency: string;
+  paymentProvider: PaymentProvider;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string | null;
+  specialRequests: string | null;
+  tour: { slug: string; title: string };
+  departure: { startDate: string; endDate: string };
+  paidAt: string | null;
+  cancelledAt: string | null;
+  providerPaymentId: string | null;
+  refundReason: string | null;
+  refundedBy: { fullName: string | null; email: string } | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Explicit allow-list mapper — no accidental passthrough of internal columns. */
+function toAdminBookingDetail(b: BookingWithDetail): AdminBookingDetail {
+  return {
+    id: b.id,
+    code: b.code,
+    status: b.status,
+    numAdults: b.numAdults,
+    numChildren: b.numChildren,
+    totalAmount: b.totalAmount.toString(),
+    currency: b.currency,
+    paymentProvider: b.paymentProvider,
+    contactName: b.contactName,
+    contactEmail: b.contactEmail,
+    contactPhone: b.contactPhone,
+    specialRequests: b.specialRequests,
+    tour: { slug: b.tour.slug, title: b.tour.title },
+    departure: {
+      startDate: b.departure.startDate.toISOString(),
+      endDate: b.departure.endDate.toISOString(),
+    },
+    paidAt: b.paidAt ? b.paidAt.toISOString() : null,
+    cancelledAt: b.cancelledAt ? b.cancelledAt.toISOString() : null,
+    providerPaymentId: b.providerPaymentId,
+    refundReason: b.refundReason,
+    refundedBy: b.refundedBy
+      ? { fullName: b.refundedBy.fullName, email: b.refundedBy.email }
+      : null,
+    createdAt: b.createdAt.toISOString(),
+    updatedAt: b.updatedAt.toISOString(),
+  };
+}
+
 /** Identity of the calling user, for owner-or-admin authorization. */
 interface Caller {
   id: string;
@@ -537,10 +607,10 @@ export class BookingsService {
   }
 
   /** One booking by code for an admin (sees any booking; no owner check). 404 if missing. */
-  async findByCodeForAdmin(code: string): Promise<Booking> {
+  async findByCodeForAdmin(code: string): Promise<AdminBookingDetail> {
     const booking = await this.prisma.booking.findUnique({
       where: { code },
-      include: BOOKING_INCLUDE,
+      include: BOOKING_DETAIL_INCLUDE,
     });
     if (!booking) {
       throw new NotFoundException({
@@ -548,7 +618,7 @@ export class BookingsService {
         message: `Booking "${code}" not found`,
       });
     }
-    return booking;
+    return toAdminBookingDetail(booking);
   }
 
   // ── Internals ───────────────────────────────────────────────────────────────

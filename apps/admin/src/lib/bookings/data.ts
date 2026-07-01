@@ -1,8 +1,10 @@
 import type { components } from '@tourism/core';
 
 import { getApiClient } from '../api/client';
+import type { AdminBookingDetail } from './detail';
 import type { BookingStatus } from './format';
 
+/** List-row shape (`GET /admin/bookings`). Detail uses the richer {@link AdminBookingDetail}. */
 export type Booking = components['schemas']['BookingDto'];
 export type PageMeta = components['schemas']['PageMetaDto'];
 
@@ -45,10 +47,10 @@ export async function listBookings(params: BookingListParams = {}): Promise<Book
  * Fetches one booking by code for the detail page. Single resources come back wrapped in the
  * `{ data, error }` envelope at runtime (the generated client types it bare), so we unwrap here.
  */
-export async function getBooking(code: string): Promise<Booking> {
+export async function getBooking(code: string): Promise<AdminBookingDetail> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/bookings/{code}', {
     params: { path: { code } },
   });
-  return (data as unknown as { data: Booking }).data;
+  return (data as unknown as { data: AdminBookingDetail }).data;
 }
