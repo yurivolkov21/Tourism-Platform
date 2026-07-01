@@ -15,6 +15,7 @@ the simple client tables, then the server tables, then the special one (Enquirie
 ## Slices
 
 ### Slice 1 — Foundation + **Tours** pilot
+
 **Branch:** `feat/admin-table-tanstack-tours`
 
 - Add `lib/table.ts` (ColumnMeta augmentation).
@@ -32,6 +33,7 @@ the simple client tables, then the server tables, then the special one (Enquirie
 - **Gate + review + deploy check.** This proves the whole pattern end-to-end.
 
 ### Slice 2 — **Destinations + Categories**
+
 **Branch:** `feat/admin-table-tanstack-simple`
 
 - Same recipe as Tours, minus the category filter. Destinations cols: Name(link), Region, Country,
@@ -39,6 +41,7 @@ the simple client tables, then the server tables, then the special one (Enquirie
 - Both are straight copies of the Tours pattern → low risk, batched into one slice.
 
 ### Slice 3 — **Bookings + Posts** (server tables, manual mode)
+
 **Branch:** `feat/admin-table-tanstack-server`
 
 - **Bookings:** `bookings-table.tsx` → `'use client'`, TanStack `manualPagination`, `data = rows`,
@@ -49,6 +52,7 @@ the simple client tables, then the server tables, then the special one (Enquirie
   keeps the filter `<form>`, `Empty`, and `ServerTablePagination`; render `<PostsTable rows={rows} />`.
 
 ### Slice 4 — **Enquiries** (special: drawer + row click)
+
 **Branch:** `feat/admin-table-tanstack-enquiries`
 
 - In `enquiries-view.tsx`, replace the inner `<Table>` with a TanStack table rendered via
