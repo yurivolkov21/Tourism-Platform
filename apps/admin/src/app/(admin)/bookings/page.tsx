@@ -15,6 +15,7 @@ import { BookingsPagination } from '../../../components/bookings/bookings-pagina
 import { BookingsTable } from '../../../components/bookings/bookings-table';
 import { DEFAULT_PAGE_SIZE, listBookings, type BookingList } from '../../../lib/bookings/data';
 import type { BookingStatus } from '../../../lib/bookings/format';
+import { ErrorAlert } from '../../../components/crud/error-alert';
 
 const STATUSES: BookingStatus[] = ['PENDING', 'PAID', 'CANCELLED', 'REFUNDED'];
 
@@ -61,10 +62,10 @@ export default async function BookingsPage({ searchParams }: BookingsPageProps) 
         <BookingsFilters status={status ?? 'all'} search={search} />
 
         {error ? (
-          <div className="border-destructive/30 bg-destructive/5 text-destructive rounded-lg border p-4 text-sm">
+          <ErrorAlert>
             Couldn&apos;t load bookings: {error}. Check that the API is running and your admin session
             is valid.
-          </div>
+          </ErrorAlert>
         ) : rows.length === 0 ? (
           <Empty className="border">
             <EmptyHeader>

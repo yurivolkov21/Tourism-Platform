@@ -8,6 +8,7 @@ import { listCategories } from '../../../../lib/categories/data';
 import { listDestinations } from '../../../../lib/destinations/data';
 import { TourForm } from '../../../../components/tours/tour-form';
 import { createTour } from '../../../../lib/tours/actions';
+import { ErrorAlert } from '../../../../components/crud/error-alert';
 
 export default async function NewTourPage() {
   let categories: { slug: string; name: string }[] = [];
@@ -40,10 +41,10 @@ export default async function NewTourPage() {
       </div>
 
       {error ? (
-        <div className="border-destructive/30 bg-destructive/5 text-destructive rounded-lg border p-4 text-sm">
+        <ErrorAlert>
           Couldn&apos;t load categories/destinations: {error}. Check that the API is running and your
           admin session is valid.
-        </div>
+        </ErrorAlert>
       ) : (
         <TourForm
           action={createTour}

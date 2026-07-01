@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
-import { GripVertical, ImagePlus, Loader2, X } from 'lucide-react';
+import { GripVertical, ImagePlus, X } from 'lucide-react';
 import {
   DndContext,
   KeyboardSensor,
@@ -14,8 +14,9 @@ import {
 import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { Button, FieldDescription, FieldLegend, FieldSet, cn } from '@tourism/ui';
+import { Button, FieldDescription, FieldLegend, FieldSet, Spinner, cn } from '@tourism/ui';
 
+import { ErrorAlert } from '../crud/error-alert';
 import { ImageLightbox, type LightboxImage } from '../crud/image-lightbox';
 import { signDestinationUpload } from '../../lib/destinations/actions';
 import { MAX_GALLERY, cloudinaryUrl, type MediaInput } from '../../lib/destinations/media';
@@ -229,7 +230,7 @@ export function DestinationMediaField({
                 disabled={busy}
                 className="cursor-pointer"
               >
-                {busy ? <Loader2 className="size-4 animate-spin" /> : <ImagePlus className="size-4" />}
+                {busy ? <Spinner /> : <ImagePlus className="size-4" />}
                 Upload hero image
               </Button>
             </div>
@@ -289,11 +290,7 @@ export function DestinationMediaField({
           ) : null}
         </div>
 
-        {error ? (
-          <p className="text-destructive text-sm" role="alert">
-            {error}
-          </p>
-        ) : null}
+        {error ? <ErrorAlert>{error}</ErrorAlert> : null}
       </div>
     </FieldSet>
 

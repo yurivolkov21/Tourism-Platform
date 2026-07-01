@@ -3,6 +3,7 @@ import { AdminListHeader } from '../../../components/crud/list-header';
 import { EnquiriesView } from '../../../components/enquiries/enquiries-view';
 import { listEnquiries, type EnquiryList } from '../../../lib/enquiries/data';
 import { ENQUIRY_STATUSES, type EnquiryStatus } from '../../../lib/enquiries/status';
+import { ErrorAlert } from '../../../components/crud/error-alert';
 
 /** Narrows a raw `?status=` value to a valid pipeline stage (or undefined = all). */
 function parseStatus(raw?: string): EnquiryStatus | undefined {
@@ -40,10 +41,10 @@ export default async function EnquiriesPage({ searchParams }: EnquiriesPageProps
       />
 
       {error ? (
-        <div className="border-destructive/30 bg-destructive/5 text-destructive rounded-lg border p-4 text-sm">
+        <ErrorAlert>
           Couldn&apos;t load enquiries: {error}. Check that the API is running and your admin session
           is valid.
-        </div>
+        </ErrorAlert>
       ) : result ? (
         <EnquiriesView rows={result.data} status={status ?? 'all'} meta={result.meta} />
       ) : null}

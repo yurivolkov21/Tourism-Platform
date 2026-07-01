@@ -27,6 +27,7 @@ import {
 import { apiErrorMessage } from '../../../lib/api/error';
 import { DeletePost } from '../../../components/posts/delete-post';
 import { listPosts, type PostList } from '../../../lib/posts/data';
+import { ErrorAlert } from '../../../components/crud/error-alert';
 
 interface PostsPageProps {
   searchParams: Promise<{ page?: string; search?: string; status?: string }>;
@@ -99,10 +100,10 @@ export default async function PostsPage({ searchParams }: PostsPageProps) {
       </form>
 
       {error ? (
-        <div className="border-destructive/30 bg-destructive/5 text-destructive rounded-lg border p-4 text-sm">
+        <ErrorAlert>
           Couldn&apos;t load posts: {error}. Check that the API is running and your admin session is
           valid.
-        </div>
+        </ErrorAlert>
       ) : rows.length === 0 ? (
         <Empty className="border">
           <EmptyHeader>

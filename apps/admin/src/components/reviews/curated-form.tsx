@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Button, Input, Label, Textarea } from '@tourism/ui';
 
 import { createCurated, type CuratedFormState } from '../../lib/reviews/actions';
+import { ErrorAlert } from '../crud/error-alert';
 
 const INITIAL: CuratedFormState = {};
 
@@ -64,7 +65,7 @@ export function CuratedForm() {
         ) : null}
       </div>
 
-      {state.error ? <p className="text-destructive text-sm">{state.error}</p> : null}
+      {state.error ? <ErrorAlert>{state.error}</ErrorAlert> : null}
 
       <div className="flex items-center gap-2">
         <Button type="submit" disabled={pending}>

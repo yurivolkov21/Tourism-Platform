@@ -14,6 +14,7 @@ import { apiErrorMessage } from '../../../lib/api/error';
 import { AdminListHeader } from '../../../components/crud/list-header';
 import { DestinationsTable } from '../../../components/destinations/destinations-table';
 import { listDestinations, type DestinationList } from '../../../lib/destinations/data';
+import { ErrorAlert } from '../../../components/crud/error-alert';
 
 export default async function DestinationsPage() {
   // Load the whole (small) catalog once; the table filters/searches client-side for instant UX.
@@ -41,10 +42,10 @@ export default async function DestinationsPage() {
       />
 
       {error ? (
-        <div className="border-destructive/30 bg-destructive/5 text-destructive rounded-lg border p-4 text-sm">
+        <ErrorAlert>
           Couldn&apos;t load destinations: {error}. Check that the API is running and your admin
           session is valid.
-        </div>
+        </ErrorAlert>
       ) : rows.length === 0 ? (
         <Empty className="border">
           <EmptyHeader>

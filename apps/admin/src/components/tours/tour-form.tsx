@@ -20,6 +20,7 @@ import { TOUR_BADGES, TRAVELLER_TYPES } from '../../lib/tours/schema';
 import type { TourDetail } from '../../lib/tours/data';
 import { ChipInput } from './chip-input';
 import { DestinationPicker, type DestinationOption } from './destination-picker';
+import { ErrorAlert } from '../crud/error-alert';
 
 interface TourFormProps {
   action: (prev: TourFormState, formData: FormData) => Promise<TourFormState>;
@@ -261,11 +262,7 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
         </FieldGroup>
       </section>
 
-      {state.error ? (
-        <p className="text-destructive text-sm" role="alert">
-          {state.error}
-        </p>
-      ) : null}
+      {state.error ? <ErrorAlert>{state.error}</ErrorAlert> : null}
 
       <div className="flex items-center gap-3">
         <Button type="submit" disabled={pending}>

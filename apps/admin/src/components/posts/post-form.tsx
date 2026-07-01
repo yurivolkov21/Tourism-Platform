@@ -17,6 +17,7 @@ import {
 import type { PostFormState } from '../../lib/posts/actions';
 import { POST_STATUSES } from '../../lib/posts/schema';
 import type { Post } from '../../lib/posts/data';
+import { ErrorAlert } from '../crud/error-alert';
 
 interface PostFormProps {
   action: (prev: PostFormState, formData: FormData) => Promise<PostFormState>;
@@ -75,11 +76,7 @@ export function PostForm({ action, post, submitLabel }: PostFormProps) {
         </Field>
       </FieldGroup>
 
-      {state.error ? (
-        <p className="text-destructive text-sm" role="alert">
-          {state.error}
-        </p>
-      ) : null}
+      {state.error ? <ErrorAlert>{state.error}</ErrorAlert> : null}
 
       <div className="flex items-center gap-3">
         <Button type="submit" disabled={pending}>

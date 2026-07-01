@@ -29,6 +29,7 @@ import type { Destination } from '../../lib/destinations/data';
 import type { MediaInput } from '../../lib/destinations/media';
 import { slugify } from '../../lib/slugify';
 import { DestinationMediaField } from './destination-media-field';
+import { ErrorAlert } from '../crud/error-alert';
 
 interface DestinationFormProps {
   /** Bound server action (create, or update with the slug already applied). */
@@ -198,11 +199,7 @@ export function DestinationForm({ action, destination, submitLabel }: Destinatio
         </FieldGroup>
       </FieldSet>
 
-      {state.error ? (
-        <p className="text-destructive mt-6 text-sm" role="alert">
-          {state.error}
-        </p>
-      ) : null}
+      {state.error ? <ErrorAlert className="mt-6">{state.error}</ErrorAlert> : null}
 
       <Separator className="my-8" />
 

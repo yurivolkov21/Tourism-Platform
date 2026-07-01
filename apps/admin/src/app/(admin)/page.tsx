@@ -4,6 +4,7 @@ import { SectionCards } from '../../components/dashboard/section-cards';
 import { getRecentBookings } from '../../lib/dashboard/bookings-table';
 import { getDashboardStats } from '../../lib/dashboard/stats';
 import { computeCardModels } from '../../lib/dashboard/transforms';
+import { ErrorAlert } from '../../components/crud/error-alert';
 
 export default async function DashboardPage() {
   const [stats, bookings] = await Promise.all([
@@ -21,9 +22,9 @@ export default async function DashboardPage() {
           </div>
         </>
       ) : (
-        <div className="border-destructive/30 bg-destructive/5 text-destructive mx-4 rounded-lg border p-4 text-sm lg:mx-6">
+        <ErrorAlert className="mx-4 lg:mx-6">
           Couldn’t load stats. The API may be waking up — refresh in a moment.
-        </div>
+        </ErrorAlert>
       )}
 
       <div className="px-4 lg:px-6">

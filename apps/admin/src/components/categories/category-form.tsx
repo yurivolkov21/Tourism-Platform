@@ -21,6 +21,7 @@ import {
 import type { CategoryFormState } from '../../lib/categories/actions';
 import type { Category } from '../../lib/categories/data';
 import { slugify } from '../../lib/slugify';
+import { ErrorAlert } from '../crud/error-alert';
 
 interface CategoryFormProps {
   /** Bound server action (create, or update with the slug already applied). */
@@ -151,11 +152,7 @@ export function CategoryForm({ action, category, submitLabel }: CategoryFormProp
         </FieldGroup>
       </FieldSet>
 
-      {state.error ? (
-        <p className="text-destructive mt-6 text-sm" role="alert">
-          {state.error}
-        </p>
-      ) : null}
+      {state.error ? <ErrorAlert className="mt-6">{state.error}</ErrorAlert> : null}
 
       <Separator className="my-8" />
 

@@ -1,10 +1,11 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
-import { Button, Input, Label } from '@tourism/ui';
+import { Button, Input, Label, Spinner } from '@tourism/ui';
 
+import { ErrorAlert } from '../crud/error-alert';
 import { signIn, type SignInState } from '../../lib/auth/actions';
 
 export function LoginForm({ redirectTo }: { redirectTo: string }) {
@@ -53,19 +54,12 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
         </div>
       </div>
 
-      {state.error ? (
-        <p
-          className="border-destructive/30 bg-destructive/10 text-destructive rounded-lg border px-3 py-2 text-sm"
-          role="alert"
-        >
-          {state.error}
-        </p>
-      ) : null}
+      {state.error ? <ErrorAlert>{state.error}</ErrorAlert> : null}
 
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? (
           <>
-            <Loader2 className="size-4 animate-spin" />
+            <Spinner />
             Signing in…
           </>
         ) : (

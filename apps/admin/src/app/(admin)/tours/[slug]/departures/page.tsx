@@ -23,6 +23,7 @@ import { DeleteDeparture } from '../../../../../components/departures/delete-dep
 import { listDepartures, type Departure } from '../../../../../lib/departures/data';
 import { toDateOnly } from '../../../../../lib/departures/format';
 import { getTour, type TourDetail } from '../../../../../lib/tours/data';
+import { ErrorAlert } from '../../../../../components/crud/error-alert';
 
 interface DeparturesPageProps {
   params: Promise<{ slug: string }>;
@@ -97,9 +98,9 @@ export default async function DeparturesPage({ params, searchParams }: Departure
       </form>
 
       {error ? (
-        <div className="border-destructive/30 bg-destructive/5 text-destructive rounded-lg border p-4 text-sm">
+        <ErrorAlert>
           Couldn&apos;t load departures: {error}.
-        </div>
+        </ErrorAlert>
       ) : rows.length === 0 ? (
         <Empty className="border">
           <EmptyHeader>

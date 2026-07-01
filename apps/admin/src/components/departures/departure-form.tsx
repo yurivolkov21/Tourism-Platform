@@ -17,6 +17,7 @@ import type { DepartureFormState } from '../../lib/departures/actions';
 import { DEPARTURE_STATUSES } from '../../lib/departures/schema';
 import type { Departure } from '../../lib/departures/data';
 import { toDateOnly } from '../../lib/departures/format';
+import { ErrorAlert } from '../crud/error-alert';
 
 interface DepartureFormProps {
   /** Bound server action (create with slug, or update with slug + id). */
@@ -89,11 +90,7 @@ export function DepartureForm({ action, departure, slug, submitLabel }: Departur
         </Field>
       </FieldGroup>
 
-      {state.error ? (
-        <p className="text-destructive text-sm" role="alert">
-          {state.error}
-        </p>
-      ) : null}
+      {state.error ? <ErrorAlert>{state.error}</ErrorAlert> : null}
 
       <div className="flex items-center gap-3">
         <Button type="submit" disabled={pending}>
