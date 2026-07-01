@@ -45,8 +45,14 @@
 
 ## Progress
 
-- [ ] Slice 1 — List reskin (table + page + drop bespoke delete)
-- [ ] Slice 2 — Form reskin (Form Layout 2 + Select)
+- [x] Slice 1 — List reskin (table + page + drop bespoke delete) (merged `cd1e4b0`)
+- [x] Slice 2 — Form reskin (Form Layout 2 + Select) (merged `b81bc54`)
+
+**DONE 2026-07-01.** Departures is now the 7th table on the shared TanStack foundation (template
+header + status tabs with counts + Columns button + pagination + `RowActions` ⋮, Departed chip in the
+Status column); bespoke `delete-departure.tsx` removed. Form rebuilt to Form Layout 2 with a real
+`Select` — the last native `<select>` in the admin is gone. Slice 1 reviewed (ecc code-reviewer, 0
+findings); Slice 2 self-certified (form reskin mirroring the reviewed destination form). Gate-green each.
 
 ## Out of scope (deferred)
 
