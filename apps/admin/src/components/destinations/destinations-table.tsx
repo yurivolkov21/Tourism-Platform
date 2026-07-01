@@ -2,11 +2,10 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, MapPin, Search } from 'lucide-react';
+import { MapPin, Search } from 'lucide-react';
 
 import {
   Badge,
-  Button,
   Empty,
   EmptyDescription,
   EmptyHeader,
@@ -25,19 +24,20 @@ import {
 import { RowActions } from '../crud/row-actions';
 import { deleteDestination } from '../../lib/destinations/actions';
 import type { Destination } from '../../lib/destinations/data';
+import { DataTablePagination, DEFAULT_PAGE_SIZE } from '../crud/data-table-pagination';
 
 type Tab = 'all' | 'active' | 'draft';
-const PAGE_SIZE = 25;
 
 /**
  * Client-side Destinations table: tab + search filtering happens in memory (instant, no server
  * round-trip — the catalog is small and loaded once). Tabs show live counts; pagination kicks in
- * only past {@link PAGE_SIZE} rows.
+ * only past {@link pageSize} rows.
  */
 export function DestinationsTable({ rows }: { rows: Destination[] }) {
   const [tab, setTab] = useState<Tab>('all');
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
 
   const counts = useMemo(
     () => ({
@@ -58,9 +58,9 @@ export function DestinationsTable({ rows }: { rows: Destination[] }) {
     });
   }, [rows, tab, query]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const current = Math.min(page, totalPages);
-  const paged = filtered.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
+  const paged = filtered.slice((current - 1) * pageSize, current * pageSize);
 
   const tabs: { value: Tab; label: string; count: number }[] = [
     { value: 'all', label: 'All', count: counts.all },
@@ -176,39 +176,17 @@ export function DestinationsTable({ rows }: { rows: Destination[] }) {
             </Table>
           </div>
 
-          {totalPages > 1 ? (
-            <div className="flex items-center justify-between px-1">
-              <p className="text-muted-foreground text-sm">
-                Showing {(current - 1) * PAGE_SIZE + 1}–{Math.min(current * PAGE_SIZE, filtered.length)} of{' '}
-                {filtered.length}
-              </p>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon-sm"
-                  className="cursor-pointer"
-                  disabled={current <= 1}
-                  onClick={() => setPage(current - 1)}
-                  aria-label="Previous page"
-                >
-                  <ChevronLeft className="size-4" />
-                </Button>
-                <span className="text-sm font-medium">
-                  Page {current} of {totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  size="icon-sm"
-                  className="cursor-pointer"
-                  disabled={current >= totalPages}
-                  onClick={() => setPage(current + 1)}
-                  aria-label="Next page"
-                >
-                  <ChevronRight className="size-4" />
-                </Button>
-              </div>
-            </div>
-          ) : null}
+          <DataTablePagination
+            page={current}
+            pageCount={totalPages}
+            total={filtered.length}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={(s) => {
+              setPageSize(s);
+              setPage(1);
+            }}
+          />
         </>
       )}
     </div>

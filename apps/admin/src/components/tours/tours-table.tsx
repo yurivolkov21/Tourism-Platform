@@ -5,8 +5,6 @@ import { useMemo, useState } from 'react';
 import {
   CalendarRange,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   Compass,
   ListFilter,
   Search,
@@ -41,9 +39,9 @@ import {
 import { RowActions } from '../crud/row-actions';
 import { deleteTour } from '../../lib/tours/actions';
 import type { TourSummary } from '../../lib/tours/data';
+import { DataTablePagination, DEFAULT_PAGE_SIZE } from '../crud/data-table-pagination';
 
 type Tab = 'all' | 'published' | 'draft';
-const PAGE_SIZE = 25;
 
 function money(value: string, currency: string): string {
   const n = Number(value);
@@ -59,13 +57,14 @@ function primaryDestination(tour: TourSummary): string {
 /**
  * Client-side Tours table: tab (status) + category + search filtering happens in memory (instant, no
  * server round-trip — the catalog is small and loaded once). Tabs show live counts; the category
- * options are derived from the loaded rows; pagination kicks in past {@link PAGE_SIZE} rows.
+ * options are derived from the loaded rows; pagination kicks in past {@link pageSize} rows.
  */
 export function ToursTable({ rows }: { rows: TourSummary[] }) {
   const [tab, setTab] = useState<Tab>('all');
   const [query, setQuery] = useState('');
   const [selectedCats, setSelectedCats] = useState<string[]>([]);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
 
   const counts = useMemo(
     () => ({
@@ -114,9 +113,9 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
         ? (categoryOptions.find((c) => c.slug === selectedCats[0])?.name ?? '1 category')
         : `${selectedCats.length} categories`;
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const current = Math.min(page, totalPages);
-  const paged = filtered.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
+  const paged = filtered.slice((current - 1) * pageSize, current * pageSize);
 
   const tabs: { value: Tab; label: string; count: number }[] = [
     { value: 'all', label: 'All', count: counts.all },
@@ -300,39 +299,17 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
             </Table>
           </div>
 
-          {totalPages > 1 ? (
-            <div className="flex items-center justify-between px-1">
-              <p className="text-muted-foreground text-sm">
-                Showing {(current - 1) * PAGE_SIZE + 1}–{Math.min(current * PAGE_SIZE, filtered.length)} of{' '}
-                {filtered.length}
-              </p>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon-sm"
-                  className="cursor-pointer"
-                  disabled={current <= 1}
-                  onClick={() => setPage(current - 1)}
-                  aria-label="Previous page"
-                >
-                  <ChevronLeft className="size-4" />
-                </Button>
-                <span className="text-sm font-medium">
-                  Page {current} of {totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  size="icon-sm"
-                  className="cursor-pointer"
-                  disabled={current >= totalPages}
-                  onClick={() => setPage(current + 1)}
-                  aria-label="Next page"
-                >
-                  <ChevronRight className="size-4" />
-                </Button>
-              </div>
-            </div>
-          ) : null}
+          <DataTablePagination
+            page={current}
+            pageCount={totalPages}
+            total={filtered.length}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={(s) => {
+              setPageSize(s);
+              setPage(1);
+            }}
+          />
         </>
       )}
     </div>
