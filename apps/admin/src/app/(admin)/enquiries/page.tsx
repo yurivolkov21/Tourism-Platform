@@ -1,0 +1,52 @@
+import { apiErrorMessage } from '../../../lib/api/error';
+import { AdminListHeader } from '../../../components/crud/list-header';
+import { EnquiriesView } from '../../../components/enquiries/enquiries-view';
+import { listEnquiries, type EnquiryList } from '../../../lib/enquiries/data';
+import { ENQUIRY_STATUSES, type EnquiryStatus } from '../../../lib/enquiries/status';
+
+/** Narrows a raw `?status=` value to a valid pipeline stage (or undefined = all). */
+function parseStatus(raw?: string): EnquiryStatus | undefined {
+  return ENQUIRY_STATUSES.find((s) => s === raw);
+}
+
+/** Narrows a raw `?page=` value to a positive integer (defaults to 1). */
+function parsePage(raw?: string): number {
+  const n = Number(raw);
+  return Number.isInteger(n) && n >= 1 ? n : 1;
+}
+
+interface EnquiriesPageProps {
+  searchParams: Promise<{ status?: string; page?: string }>;
+}
+
+export default async function EnquiriesPage({ searchParams }: EnquiriesPageProps) {
+  const sp = await searchParams;
+  const status = parseStatus(sp.status);
+  const page = parsePage(sp.page);
+
+  let result: EnquiryList | undefined;
+  let error: string | null = null;
+  try {
+    result = await listEnquiries({ page, status });
+  } catch (e) {
+    error = apiErrorMessage(e);
+  }
+
+  return (
+    <div className="flex flex-col gap-6 px-4 py-6 lg:px-6">
+      <AdminListHeader
+        title="Enquiries"
+        description="Leads from the contact, plan-a-trip, and private-departure forms. Filter by pipeline stage; open one to read the full message and move it along."
+      />
+
+      {error ? (
+        <div className="border-destructive/30 bg-destructive/5 text-destructive rounded-lg border p-4 text-sm">
+          Couldn&apos;t load enquiries: {error}. Check that the API is running and your admin session
+          is valid.
+        </div>
+      ) : result ? (
+        <EnquiriesView rows={result.data} status={status ?? 'all'} meta={result.meta} />
+      ) : null}
+    </div>
+  );
+}

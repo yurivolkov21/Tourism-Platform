@@ -46,7 +46,7 @@ const NAV: NavSection[] = [
     label: 'Operations',
     items: [
       { title: 'Bookings', href: '/bookings', icon: Receipt },
-      { title: 'Enquiries', href: '/enquiries', icon: Inbox, soon: true },
+      { title: 'Enquiries', href: '/enquiries', icon: Inbox },
     ],
   },
 ];
