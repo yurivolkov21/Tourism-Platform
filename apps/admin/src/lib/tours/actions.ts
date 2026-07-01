@@ -33,6 +33,15 @@ function opt(formData: FormData, key: string): string | undefined {
   return v === '' ? undefined : v;
 }
 
+/** Splits a one-item-per-line textarea into a trimmed, de-duplicated, non-empty list. */
+function lines(formData: FormData, key: string): string[] {
+  const seen = new Set<string>();
+  return String(formData.get(key) ?? '')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l !== '' && !seen.has(l) && (seen.add(l), true));
+}
+
 /** Parse a hidden JSON array field, dropping rows whose string values are all blank (empty cards). */
 function parseJsonRows(formData: FormData, key: string): unknown[] {
   let raw: unknown;
@@ -72,9 +81,9 @@ function parseTourForm(formData: FormData) {
     isFeatured: formData.get('isFeatured') === 'true',
     suitableFor: formData.getAll('suitableFor').map(String),
     badges: formData.getAll('badges').map(String),
-    highlights: formData.getAll('highlights').map(String),
-    included: formData.getAll('included').map(String),
-    excluded: formData.getAll('excluded').map(String),
+    highlights: lines(formData, 'highlights'),
+    included: lines(formData, 'included'),
+    excluded: lines(formData, 'excluded'),
     itinerary: parseJsonRows(formData, 'itinerary'),
     faqs: parseJsonRows(formData, 'faqs'),
     policies: parseJsonRows(formData, 'policies'),

@@ -26,7 +26,7 @@ import {
 import type { TourFormState } from '../../lib/tours/actions';
 import { POLICY_KINDS, TOUR_BADGES, TRAVELLER_TYPES } from '../../lib/tours/schema';
 import type { TourDetail } from '../../lib/tours/data';
-import { ChipInput } from './chip-input';
+import { slugify } from '../../lib/slugify';
 import { DestinationPicker, type DestinationOption } from './destination-picker';
 import { ErrorAlert } from '../crud/error-alert';
 import { MediaField } from '../crud/media-field';
@@ -57,6 +57,10 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
   const initialPrimary =
     tour?.destinations.find((d) => d.isPrimary)?.destination.slug ?? initialDests[0] ?? '';
 
+  const [title, setTitle] = useState(tour?.title ?? '');
+  const [slug, setSlug] = useState(tour?.slug ?? '');
+  // On edit the slug is pre-set → treat as user-owned so editing the title doesn't clobber the URL.
+  const [slugEdited, setSlugEdited] = useState(Boolean(tour?.slug));
   const [category, setCategory] = useState<string>(tour?.category.slug ?? '');
   const [destSlugs, setDestSlugs] = useState<string[]>(initialDests);
   const [primary, setPrimary] = useState<string>(initialPrimary);
@@ -98,13 +102,39 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
         <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
           <Field data-invalid={Boolean(errors.title)}>
             <FieldLabel htmlFor="title">Title</FieldLabel>
-            <Input id="title" name="title" required maxLength={200} defaultValue={tour?.title ?? ''} placeholder="Hoi An Ancient Town Walking Tour" aria-invalid={Boolean(errors.title)} />
+            <Input
+              id="title"
+              name="title"
+              required
+              maxLength={200}
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (!slugEdited) setSlug(slugify(e.target.value));
+              }}
+              placeholder="Hoi An Ancient Town Walking Tour"
+              aria-invalid={Boolean(errors.title)}
+            />
             {errors.title ? <FieldError>{errors.title}</FieldError> : null}
           </Field>
           <Field data-invalid={Boolean(errors.slug)}>
             <FieldLabel htmlFor="slug">Slug</FieldLabel>
-            <Input id="slug" name="slug" maxLength={200} defaultValue={tour?.slug ?? ''} placeholder="hoi-an-walking-tour" aria-invalid={Boolean(errors.slug)} />
-            <FieldDescription>Leave blank to generate one from the title.</FieldDescription>
+            <Input
+              id="slug"
+              name="slug"
+              maxLength={200}
+              value={slug}
+              onChange={(e) => {
+                setSlug(e.target.value);
+                setSlugEdited(true);
+              }}
+              placeholder="hoi-an-walking-tour"
+              aria-invalid={Boolean(errors.slug)}
+            />
+            <FieldDescription>
+              Auto-generated from the title. Edit it only for a custom URL — lowercase, words separated
+              by hyphens.
+            </FieldDescription>
             {errors.slug ? <FieldError>{errors.slug}</FieldError> : null}
           </Field>
           <Field data-invalid={Boolean(errors.summary)}>
@@ -196,7 +226,11 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
           </div>
           <Field data-invalid={Boolean(errors.meetingPoint)}>
             <FieldLabel htmlFor="meetingPoint">Meeting point</FieldLabel>
-            <Input id="meetingPoint" name="meetingPoint" maxLength={300} defaultValue={tour?.meetingPoint ?? ''} placeholder="Hoi An tourist info centre, 78 Le Loi street" aria-invalid={Boolean(errors.meetingPoint)} />
+            <Input id="meetingPoint" name="meetingPoint" maxLength={300} defaultValue={tour?.meetingPoint ?? ''} placeholder="Hoi An Tourist Info Centre, 78 Le Loi Street, Hoi An" aria-invalid={Boolean(errors.meetingPoint)} />
+            <FieldDescription>
+              Use a consistent format: <strong>venue name, street address, city</strong> — e.g. “Hoi An
+              Tourist Info Centre, 78 Le Loi Street, Hoi An”.
+            </FieldDescription>
             {errors.meetingPoint ? <FieldError>{errors.meetingPoint}</FieldError> : null}
           </Field>
         </FieldGroup>
@@ -312,15 +346,39 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
         <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
           <Field>
             <FieldLabel htmlFor="highlights">Highlights</FieldLabel>
-            <ChipInput id="highlights" name="highlights" defaultValue={tour?.highlights ?? []} placeholder="Type a highlight and press Enter" />
+            <Textarea
+              id="highlights"
+              name="highlights"
+              rows={4}
+              defaultValue={(tour?.highlights ?? []).join('\n')}
+              placeholder={'Skip-the-line entry\nLocal expert guide\nSmall group of 12'}
+            />
+            <FieldDescription>One highlight per line. Shown as a bulleted list on the tour page.</FieldDescription>
           </Field>
           <Field>
             <FieldLabel htmlFor="included">What&apos;s included</FieldLabel>
-            <ChipInput id="included" name="included" defaultValue={tour?.included ?? []} placeholder="Type an item and press Enter" />
+            <Textarea
+              id="included"
+              name="included"
+              rows={4}
+              defaultValue={(tour?.included ?? []).join('\n')}
+              placeholder={'2 breakfasts, 1 lunch\nPrivate air-conditioned transfers\nEntrance fees'}
+            />
+            <FieldDescription>
+              One item per line. Tip: include a meals line and a transport line — the tour page pulls
+              those out into their own rows.
+            </FieldDescription>
           </Field>
           <Field>
             <FieldLabel htmlFor="excluded">What&apos;s excluded</FieldLabel>
-            <ChipInput id="excluded" name="excluded" defaultValue={tour?.excluded ?? []} placeholder="Type an item and press Enter" />
+            <Textarea
+              id="excluded"
+              name="excluded"
+              rows={3}
+              defaultValue={(tour?.excluded ?? []).join('\n')}
+              placeholder={'International flights\nPersonal expenses\nTravel insurance'}
+            />
+            <FieldDescription>One item per line.</FieldDescription>
           </Field>
         </FieldGroup>
       </FieldSet>
@@ -383,7 +441,7 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
       <RepeatableCards<{ kind: string; title: string; body: string }>
         name="policies"
         legend="Policies"
-        description="Cancellation, booking, and general policies."
+        description="Cancellation, booking, and general policies. Kind is for grouping (not shown as-is); Title is the heading and Body is the text travellers read."
         addLabel="Add policy"
         emptyText="No policies yet."
         itemLabel="Policy"
