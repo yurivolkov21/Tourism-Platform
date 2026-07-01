@@ -24,11 +24,13 @@
 ### Task 1: Backend — `DESTINATION_GALLERY` upload purpose
 
 **Files:**
+
 - Modify: `apps/api/src/modules/uploads/dto/create-signed-upload-url.dto.ts` (enum case)
 - Modify: `apps/api/src/modules/uploads/uploads.service.ts` (two switches)
 - Test: `apps/api/src/modules/uploads/uploads.service.spec.ts`
 
 **Interfaces:**
+
 - Produces: signing a `{ purpose: 'DESTINATION_GALLERY', filename, contentType }` returns `SignedUploadParams` with `folder` ending `/destinations/gallery` and `resourceType: 'image'`.
 
 - [ ] **Step 1: Write the failing test** — add to `uploads.service.spec.ts` (mirror the existing `DESTINATION_HERO`/`TOUR_GALLERY` cases):
@@ -87,10 +89,12 @@ git commit -m "feat(api): add DESTINATION_GALLERY upload purpose"
 ### Task 2: FE media pure logic — parse / assemble / preview URL (TDD)
 
 **Files:**
+
 - Create: `apps/admin/src/lib/destinations/media.ts`
 - Test: `apps/admin/src/lib/destinations/media.spec.ts`
 
 **Interfaces:**
+
 - Produces:
   - type `MediaInput = { publicId: string; role: 'hero' | 'gallery'; format?: string; width?: number; height?: number; url?: string }`
   - type `MediaPayload = { publicId: string; type: 'IMAGE'; role: 'hero' | 'gallery'; format?: string; width?: number; height?: number; sortOrder: number }`
@@ -222,9 +226,11 @@ git commit -m "feat(admin): destination media pure helpers (parse/assemble/url) 
 ### Task 3: FE — `signDestinationUpload` server action
 
 **Files:**
+
 - Modify: `apps/admin/src/lib/destinations/actions.ts` (append the action)
 
 **Interfaces:**
+
 - Consumes: `apiWrite` (`../api/client`), `apiErrorMessage` (`../api/error`).
 - Produces: `signDestinationUpload(purpose: 'DESTINATION_HERO' | 'DESTINATION_GALLERY', filename: string, contentType: string): Promise<{ params?: SignParams; error?: string }>` where `SignParams = { signature: string; timestamp: number; apiKey: string; cloudName: string; folder: string; publicId: string; uploadUrl: string }`.
 
@@ -276,9 +282,11 @@ git commit -m "feat(admin): signDestinationUpload server action"
 ### Task 4: FE — `DestinationMediaField` widget
 
 **Files:**
+
 - Create: `apps/admin/src/components/destinations/destination-media-field.tsx`
 
 **Interfaces:**
+
 - Consumes: `MediaInput`, `cloudinaryUrl`, `MAX_GALLERY` (Task 2); `signDestinationUpload` (Task 3); `@tourism/ui` (`Button`, `FieldLegend`, `FieldDescription`); `@dnd-kit/*`.
 - Produces: `<DestinationMediaField initial={MediaInput[]} onChange={(items: MediaInput[]) => void} />`.
 
@@ -308,6 +316,7 @@ async function uploadFile(file: File, role: 'hero' | 'gallery'): Promise<MediaIn
 ```
 
 Render two sub-areas inside a `FieldSet`-style section (match the form's "Form Layout 2" section: a left `<div>` with `FieldLegend` "Images" + `FieldDescription`, and a right `md:col-span-2` content column):
+
 - **Hero**: a single `~16/9` drop card. If a hero exists → show `<img src={hero.url}>` with a Remove button; else a "Upload hero image" button (hidden `<input type=file accept="image/png,image/jpeg,image/webp">`). On pick → set a per-slot busy state, `uploadFile(file,'hero')`, replace the hero item; on failure show an inline error.
 - **Gallery**: a responsive thumbnail grid wrapped in `DndContext` + `SortableContext` (`rectSortingStrategy` or vertical), each tile a `useSortable` item with a drag cursor + a Remove (×) button. An "Add images" button (hidden multi `<input type=file multiple>`); on pick, upload each (sequentially or `Promise.all`), append the successful ones. Disable "Add images" when `gallery.length >= MAX_GALLERY` and show a "9 max" hint. `onDragEnd` → `arrayMove` the gallery items.
 - Show a small per-item spinner while uploading; failed uploads aren't added and surface a dismissible inline error line.
@@ -328,10 +337,12 @@ git commit -m "feat(admin): DestinationMediaField (hero slot + gallery grid + dn
 ### Task 5: Form + actions integration (create AND edit)
 
 **Files:**
+
 - Modify: `apps/admin/src/components/destinations/destination-form.tsx`
 - Modify: `apps/admin/src/lib/destinations/actions.ts` (create + update set media)
 
 **Interfaces:**
+
 - Consumes: `DestinationMediaField` (Task 4), `MediaInput`/`assembleMediaSet`/`parseMediaField` (Task 2), `signDestinationUpload` (Task 3).
 
 - [ ] **Step 1: Wire the widget into the form** — in `destination-form.tsx`, seed the initial media from `destination?.media` (map `MediaItemDto` → `MediaInput`: `{ publicId` is not on `MediaItemDto` — it returns `url`/`role`/dims; so for existing items store `{ publicId: deriveFromUrl?, role, url, width, height }`}`).
