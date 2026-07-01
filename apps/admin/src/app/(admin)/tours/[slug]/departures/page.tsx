@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, CalendarRange, Plus } from 'lucide-react';
+import { ArrowLeft, CalendarRange, History, Plus } from 'lucide-react';
 
 import {
   Badge,
@@ -16,12 +16,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  cn,
 } from '@tourism/ui';
 
 import { apiErrorMessage } from '../../../../../lib/api/error';
 import { DeleteDeparture } from '../../../../../components/departures/delete-departure';
 import { listDepartures, type Departure } from '../../../../../lib/departures/data';
-import { toDateOnly } from '../../../../../lib/departures/format';
+import { isDeparturePast, toDateOnly } from '../../../../../lib/departures/format';
 import { getTour, type TourDetail } from '../../../../../lib/tours/data';
 import { ErrorAlert } from '../../../../../components/crud/error-alert';
 
@@ -135,10 +136,16 @@ export default async function DeparturesPage({ params, searchParams }: Departure
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((d) => (
+              {rows.map((d) => {
+                const past = isDeparturePast(d.startDate);
+                return (
                 <TableRow key={d.id}>
-                  <TableCell className="font-medium tabular-nums">{toDateOnly(d.startDate)}</TableCell>
-                  <TableCell className="tabular-nums">{toDateOnly(d.endDate)}</TableCell>
+                  <TableCell className={cn('font-medium tabular-nums', past && 'text-muted-foreground')}>
+                    {toDateOnly(d.startDate)}
+                  </TableCell>
+                  <TableCell className={cn('tabular-nums', past && 'text-muted-foreground')}>
+                    {toDateOnly(d.endDate)}
+                  </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {d.seatsBooked}/{d.seatsTotal}
                   </TableCell>
@@ -153,7 +160,15 @@ export default async function DeparturesPage({ params, searchParams }: Departure
                     ) : null}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={STATUS_VARIANT[d.status]}>{d.status}</Badge>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <Badge variant={STATUS_VARIANT[d.status]}>{d.status}</Badge>
+                      {past ? (
+                        <Badge variant="outline" className="text-muted-foreground gap-1">
+                          <History className="size-3" aria-hidden />
+                          Departed
+                        </Badge>
+                      ) : null}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
@@ -169,7 +184,8 @@ export default async function DeparturesPage({ params, searchParams }: Departure
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
         </div>

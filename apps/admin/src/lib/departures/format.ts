@@ -7,3 +7,14 @@
 export function toDateOnly(value: string): string {
   return value.slice(0, 10);
 }
+
+/**
+ * True when a departure's start date is strictly before today (UTC calendar-date compare, mirroring
+ * the API's `DEPARTURE_IN_PAST` / `DEPARTURE_DEPARTED` guards). Same-day returns false — a departure is
+ * still bookable on its start date (walk-in). Used to mark "Departed" rows in the admin list; accepts
+ * an ISO datetime or a bare `YYYY-MM-DD` (only the date part is compared).
+ */
+export function isDeparturePast(startDate: string): boolean {
+  const todayUtc = new Date().toISOString().slice(0, 10);
+  return startDate.slice(0, 10) < todayUtc;
+}
