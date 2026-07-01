@@ -10,7 +10,15 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
+  FieldLegend,
+  FieldSet,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
   Switch,
   Textarea,
 } from '@tourism/ui';
@@ -32,18 +40,14 @@ interface TourFormProps {
   submitLabel: string;
 }
 
-const SELECT_CLASS =
-  'border-input bg-background h-9 w-full max-w-sm rounded-lg border px-2.5 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50';
-
-const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h2 className="text-muted-foreground border-b pb-1.5 text-xs font-semibold tracking-wide uppercase">
-    {children}
-  </h2>
-);
-
 /** Title-cases an enum constant: `BEST_VALUE` → `Best value`. */
 const labelize = (s: string) => s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, ' ');
 
+/**
+ * Create/edit form for a tour — shadcn "Form Layout 2" (sectioned: a left title/description column
+ * beside the fields), matching the Destinations form. Object arrays (media now; itinerary/FAQs/
+ * policies in a later slice) serialise to hidden JSON inputs. Shared by create + edit.
+ */
 export function TourForm({ action, categories, destinations, tour, submitLabel }: TourFormProps) {
   const [state, formAction, pending] = useActionState<TourFormState, FormData>(action, {});
   const errors = state.fieldErrors ?? {};
@@ -52,6 +56,7 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
   const initialPrimary =
     tour?.destinations.find((d) => d.isPrimary)?.destination.slug ?? initialDests[0] ?? '';
 
+  const [category, setCategory] = useState<string>(tour?.category.slug ?? '');
   const [destSlugs, setDestSlugs] = useState<string[]>(initialDests);
   const [primary, setPrimary] = useState<string>(initialPrimary);
   const [isPublished, setIsPublished] = useState(tour?.isPublished ?? false);
@@ -82,11 +87,14 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
   const primaryOptions = destinations.filter((d) => destSlugs.includes(d.slug));
 
   return (
-    <form action={formAction} className="space-y-8">
-      {/* Identity */}
-      <section className="space-y-4">
-        <SectionTitle>Identity</SectionTitle>
-        <FieldGroup>
+    <form action={formAction}>
+      {/* Tour details */}
+      <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div>
+          <FieldLegend className="mb-1.5 font-semibold">Tour details</FieldLegend>
+          <FieldDescription>The public title, its URL slug, and the card summary.</FieldDescription>
+        </div>
+        <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
           <Field data-invalid={Boolean(errors.title)}>
             <FieldLabel htmlFor="title">Title</FieldLabel>
             <Input id="title" name="title" required maxLength={200} defaultValue={tour?.title ?? ''} placeholder="Hoi An Ancient Town Walking Tour" aria-invalid={Boolean(errors.title)} />
@@ -104,24 +112,32 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
             {errors.summary ? <FieldError>{errors.summary}</FieldError> : null}
           </Field>
         </FieldGroup>
-      </section>
+      </FieldSet>
 
-      {/* References */}
-      <section className="space-y-4">
-        <SectionTitle>Category &amp; destinations</SectionTitle>
-        <FieldGroup>
+      <Separator className="my-8" />
+
+      {/* Category & destinations */}
+      <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div>
+          <FieldLegend className="mb-1.5 font-semibold">Category &amp; destinations</FieldLegend>
+          <FieldDescription>Where the tour is grouped and the places it visits.</FieldDescription>
+        </div>
+        <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
           <Field data-invalid={Boolean(errors.categorySlug)}>
             <FieldLabel htmlFor="categorySlug">Category</FieldLabel>
-            <select id="categorySlug" name="categorySlug" defaultValue={tour?.category.slug ?? ''} className={SELECT_CLASS} aria-invalid={Boolean(errors.categorySlug)}>
-              <option value="" disabled>
-                Select a category…
-              </option>
-              {categories.map((c) => (
-                <option key={c.slug} value={c.slug}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            <Select value={category} onValueChange={(v) => setCategory(v ?? '')}>
+              <SelectTrigger id="categorySlug" className="w-full" aria-invalid={Boolean(errors.categorySlug)}>
+                <SelectValue placeholder="Select a category…" />
+              </SelectTrigger>
+              <SelectContent align="start" alignItemWithTrigger={false}>
+                {categories.map((c) => (
+                  <SelectItem key={c.slug} value={c.slug}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <input type="hidden" name="categorySlug" value={category} />
             {errors.categorySlug ? <FieldError>{errors.categorySlug}</FieldError> : null}
           </Field>
 
@@ -134,26 +150,38 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
 
           <Field data-invalid={Boolean(errors.primaryDestinationSlug)}>
             <FieldLabel htmlFor="primaryDestinationSlug">Primary destination</FieldLabel>
-            <select id="primaryDestinationSlug" name="primaryDestinationSlug" value={primary} onChange={(e) => setPrimary(e.target.value)} className={SELECT_CLASS} disabled={primaryOptions.length === 0} aria-invalid={Boolean(errors.primaryDestinationSlug)}>
-              <option value="" disabled>
-                {primaryOptions.length === 0 ? 'Pick destinations first' : 'Select primary…'}
-              </option>
-              {primaryOptions.map((d) => (
-                <option key={d.slug} value={d.slug}>
-                  {d.name}
-                </option>
-              ))}
-            </select>
+            <Select
+              value={primary}
+              onValueChange={(v) => setPrimary(v ?? '')}
+              disabled={primaryOptions.length === 0}
+            >
+              <SelectTrigger id="primaryDestinationSlug" className="w-full" aria-invalid={Boolean(errors.primaryDestinationSlug)}>
+                <SelectValue placeholder={primaryOptions.length === 0 ? 'Pick destinations first' : 'Select primary…'} />
+              </SelectTrigger>
+              <SelectContent align="start" alignItemWithTrigger={false}>
+                {primaryOptions.map((d) => (
+                  <SelectItem key={d.slug} value={d.slug}>
+                    {d.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <input type="hidden" name="primaryDestinationSlug" value={primary} />
             {errors.primaryDestinationSlug ? <FieldError>{errors.primaryDestinationSlug}</FieldError> : null}
           </Field>
         </FieldGroup>
-      </section>
+      </FieldSet>
+
+      <Separator className="my-8" />
 
       {/* Logistics */}
-      <section className="space-y-4">
-        <SectionTitle>Logistics</SectionTitle>
-        <FieldGroup>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div>
+          <FieldLegend className="mb-1.5 font-semibold">Logistics</FieldLegend>
+          <FieldDescription>Duration, group size, and where travellers meet.</FieldDescription>
+        </div>
+        <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <Field data-invalid={Boolean(errors.durationDays)}>
               <FieldLabel htmlFor="durationDays">Duration (days)</FieldLabel>
               <Input id="durationDays" name="durationDays" type="number" min={1} max={60} step={1} inputMode="numeric" defaultValue={tour?.durationDays ?? 1} aria-invalid={Boolean(errors.durationDays)} />
@@ -171,19 +199,24 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
             {errors.meetingPoint ? <FieldError>{errors.meetingPoint}</FieldError> : null}
           </Field>
         </FieldGroup>
-      </section>
+      </FieldSet>
+
+      <Separator className="my-8" />
 
       {/* Pricing */}
-      <section className="space-y-4">
-        <SectionTitle>Pricing</SectionTitle>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div>
+          <FieldLegend className="mb-1.5 font-semibold">Pricing</FieldLegend>
+          <FieldDescription>The base price, an optional strike-through anchor, and currency.</FieldDescription>
+        </div>
+        <FieldGroup className="grid grid-cols-1 gap-6 sm:grid-cols-3 md:col-span-2">
           <Field data-invalid={Boolean(errors.basePrice)}>
             <FieldLabel htmlFor="basePrice">Base price</FieldLabel>
             <Input id="basePrice" name="basePrice" type="number" min={0} step="0.01" inputMode="decimal" defaultValue={tour?.basePrice ?? ''} placeholder="49.50" aria-invalid={Boolean(errors.basePrice)} />
             {errors.basePrice ? <FieldError>{errors.basePrice}</FieldError> : null}
           </Field>
           <Field data-invalid={Boolean(errors.compareAtPrice)}>
-            <FieldLabel htmlFor="compareAtPrice">Compare-at price</FieldLabel>
+            <FieldLabel htmlFor="compareAtPrice">Compare-at</FieldLabel>
             <Input id="compareAtPrice" name="compareAtPrice" type="number" min={0} step="0.01" inputMode="decimal" defaultValue={tour?.compareAtPrice ?? ''} placeholder="69.00" aria-invalid={Boolean(errors.compareAtPrice)} />
             {errors.compareAtPrice ? <FieldError>{errors.compareAtPrice}</FieldError> : null}
           </Field>
@@ -192,41 +225,51 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
             <Input id="currency" name="currency" maxLength={3} defaultValue={tour?.currency ?? 'USD'} placeholder="USD" className="uppercase" aria-invalid={Boolean(errors.currency)} />
             {errors.currency ? <FieldError>{errors.currency}</FieldError> : null}
           </Field>
-        </div>
-      </section>
+        </FieldGroup>
+      </FieldSet>
+
+      <Separator className="my-8" />
 
       {/* Classification */}
-      <section className="space-y-4">
-        <SectionTitle>Classification</SectionTitle>
-        <FieldGroup>
+      <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div>
+          <FieldLegend className="mb-1.5 font-semibold">Classification &amp; visibility</FieldLegend>
+          <FieldDescription>Difficulty, and whether the tour is live / featured.</FieldDescription>
+        </div>
+        <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
           <Field data-invalid={Boolean(errors.difficulty)}>
             <FieldLabel htmlFor="difficulty">Difficulty</FieldLabel>
-            <Input id="difficulty" name="difficulty" maxLength={30} defaultValue={tour?.difficulty ?? ''} placeholder="easy" className="max-w-sm" aria-invalid={Boolean(errors.difficulty)} />
+            <Input id="difficulty" name="difficulty" maxLength={30} defaultValue={tour?.difficulty ?? ''} placeholder="easy" className="max-w-xs" aria-invalid={Boolean(errors.difficulty)} />
             {errors.difficulty ? <FieldError>{errors.difficulty}</FieldError> : null}
           </Field>
-          <Field orientation="horizontal">
+          <Field orientation="horizontal" className="items-center">
             <Switch id="isPublished" checked={isPublished} onCheckedChange={setIsPublished} />
             <input type="hidden" name="isPublished" value={isPublished ? 'true' : 'false'} />
-            <FieldLabel htmlFor="isPublished" className="font-normal">
-              Published
-            </FieldLabel>
-            <FieldDescription>Unpublished tours are hidden from the public site.</FieldDescription>
+            <div>
+              <FieldLabel htmlFor="isPublished" className="font-normal">Published</FieldLabel>
+              <FieldDescription>Unpublished tours are hidden from the public site.</FieldDescription>
+            </div>
           </Field>
-          <Field orientation="horizontal">
+          <Field orientation="horizontal" className="items-center">
             <Switch id="isFeatured" checked={isFeatured} onCheckedChange={setIsFeatured} />
             <input type="hidden" name="isFeatured" value={isFeatured ? 'true' : 'false'} />
-            <FieldLabel htmlFor="isFeatured" className="font-normal">
-              Featured
-            </FieldLabel>
-            <FieldDescription>Featured tours surface on the home-page shelf.</FieldDescription>
+            <div>
+              <FieldLabel htmlFor="isFeatured" className="font-normal">Featured</FieldLabel>
+              <FieldDescription>Featured tours surface on the home-page shelf.</FieldDescription>
+            </div>
           </Field>
         </FieldGroup>
-      </section>
+      </FieldSet>
+
+      <Separator className="my-8" />
 
       {/* Merchandising */}
-      <section className="space-y-4">
-        <SectionTitle>Merchandising</SectionTitle>
-        <FieldGroup>
+      <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div>
+          <FieldLegend className="mb-1.5 font-semibold">Merchandising</FieldLegend>
+          <FieldDescription>Who the tour suits and the badges shown on its card.</FieldDescription>
+        </div>
+        <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
           <Field>
             <FieldLabel>Suitable for</FieldLabel>
             <div className="flex flex-wrap gap-x-4 gap-y-2">
@@ -251,17 +294,21 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
           </Field>
           {tour ? (
             <FieldDescription>
-              These aren&apos;t returned by the API yet, so they show empty when editing. Check any to
-              replace the current set; leave all unchecked to keep it unchanged.
+              Check any to replace the current set; leave all unchecked to keep it unchanged.
             </FieldDescription>
           ) : null}
         </FieldGroup>
-      </section>
+      </FieldSet>
+
+      <Separator className="my-8" />
 
       {/* Content */}
-      <section className="space-y-4">
-        <SectionTitle>Content</SectionTitle>
-        <FieldGroup>
+      <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div>
+          <FieldLegend className="mb-1.5 font-semibold">Content</FieldLegend>
+          <FieldDescription>Highlights and the what&apos;s-included / excluded lists.</FieldDescription>
+        </div>
+        <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
           <Field>
             <FieldLabel htmlFor="highlights">Highlights</FieldLabel>
             <ChipInput id="highlights" name="highlights" defaultValue={tour?.highlights ?? []} placeholder="Type a highlight and press Enter" />
@@ -275,9 +322,11 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
             <ChipInput id="excluded" name="excluded" defaultValue={tour?.excluded ?? []} placeholder="Type an item and press Enter" />
           </Field>
         </FieldGroup>
-      </section>
+      </FieldSet>
 
-      {/* Images — shared MediaField (hero + gallery → Cloudinary → PUT /admin/tours/:slug/media) */}
+      <Separator className="my-8" />
+
+      {/* Images — shared MediaField (its own Form-Layout-2 section) */}
       <MediaField
         initial={initialMedia}
         onChange={setMedia}
@@ -286,14 +335,21 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
       />
       <input type="hidden" name="media" value={JSON.stringify(media)} />
 
-      {state.error ? <ErrorAlert>{state.error}</ErrorAlert> : null}
+      {state.error ? (
+        <>
+          <Separator className="my-8" />
+          <ErrorAlert>{state.error}</ErrorAlert>
+        </>
+      ) : null}
 
-      <div className="flex items-center gap-3">
+      <Separator className="my-8" />
+
+      <div className="flex justify-end gap-3">
+        <Button type="button" variant="outline" nativeButton={false} render={<Link href="/tours" />}>
+          Cancel
+        </Button>
         <Button type="submit" disabled={pending}>
           {pending ? 'Saving…' : submitLabel}
-        </Button>
-        <Button type="button" variant="ghost" nativeButton={false} render={<Link href="/tours" />}>
-          Cancel
         </Button>
       </div>
     </form>
