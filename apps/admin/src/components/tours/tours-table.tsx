@@ -2,7 +2,15 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { CalendarRange, ChevronLeft, ChevronRight, Compass, Search } from 'lucide-react';
+import {
+  CalendarRange,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Compass,
+  ListFilter,
+  Search,
+} from 'lucide-react';
 
 import {
   Badge,
@@ -12,6 +20,14 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
   Input,
   Table,
   TableBody,
@@ -28,9 +44,6 @@ import type { TourSummary } from '../../lib/tours/data';
 
 type Tab = 'all' | 'published' | 'draft';
 const PAGE_SIZE = 25;
-
-const FILTER_CLASS =
-  'border-input bg-background h-9 rounded-lg border px-2.5 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50';
 
 function money(value: string, currency: string): string {
   const n = Number(value);
@@ -51,7 +64,7 @@ function primaryDestination(tour: TourSummary): string {
 export function ToursTable({ rows }: { rows: TourSummary[] }) {
   const [tab, setTab] = useState<Tab>('all');
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('');
+  const [selectedCats, setSelectedCats] = useState<string[]>([]);
   const [page, setPage] = useState(1);
 
   const counts = useMemo(
@@ -77,7 +90,7 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
     return rows.filter((r) => {
       if (tab === 'published' && !r.isPublished) return false;
       if (tab === 'draft' && r.isPublished) return false;
-      if (category && r.category.slug !== category) return false;
+      if (selectedCats.length && !selectedCats.includes(r.category.slug)) return false;
       if (needle) {
         const haystack = `${r.title} ${r.category.name} ${r.destinations
           .map((d) => d.destination.name)
@@ -86,7 +99,20 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
       }
       return true;
     });
-  }, [rows, tab, category, query]);
+  }, [rows, tab, selectedCats, query]);
+
+  const toggleCategory = (slug: string, checked: boolean) => {
+    setSelectedCats((prev) => (checked ? [...prev, slug] : prev.filter((s) => s !== slug)));
+    setPage(1);
+  };
+
+  // Trigger label: "All categories" / the single name / "N categories".
+  const categoryLabel =
+    selectedCats.length === 0
+      ? 'All categories'
+      : selectedCats.length === 1
+        ? (categoryOptions.find((c) => c.slug === selectedCats[0])?.name ?? '1 category')
+        : `${selectedCats.length} categories`;
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const current = Math.min(page, totalPages);
@@ -134,22 +160,51 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <select
-            value={category}
-            onChange={(e) => {
-              setCategory(e.target.value);
-              setPage(1);
-            }}
-            className={FILTER_CLASS}
-            aria-label="Filter by category"
-          >
-            <option value="">All categories</option>
-            {categoryOptions.map((c) => (
-              <option key={c.slug} value={c.slug}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="outline"
+                  className="w-full justify-between font-normal sm:w-52"
+                  aria-label="Filter by category"
+                />
+              }
+            >
+              <span className="inline-flex items-center gap-2">
+                <ListFilter className="size-4 shrink-0" />
+                <span className="truncate">{categoryLabel}</span>
+              </span>
+              <ChevronDown className="text-muted-foreground size-4 shrink-0" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-52">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Filter by category</DropdownMenuLabel>
+                {categoryOptions.map((c) => (
+                  <DropdownMenuCheckboxItem
+                    key={c.slug}
+                    checked={selectedCats.includes(c.slug)}
+                    onCheckedChange={(checked) => toggleCategory(c.slug, checked === true)}
+                    closeOnClick={false}
+                  >
+                    {c.name}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuGroup>
+              {selectedCats.length ? (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSelectedCats([]);
+                      setPage(1);
+                    }}
+                  >
+                    Clear filter
+                  </DropdownMenuItem>
+                </>
+              ) : null}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <div className="relative w-full sm:max-w-xs">
             <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
             <Input
