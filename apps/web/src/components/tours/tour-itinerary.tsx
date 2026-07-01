@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ComponentPropsWithoutRef } from 'react';
 import { ArrowLeftIcon, ArrowRightIcon } from 'lucide-react';
+import ReactMarkdown, { type Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 import {
   Button,
@@ -20,10 +22,32 @@ import { messages } from '@tourism/i18n';
 
 import { TourSection } from './tour-section';
 import type { ItineraryDay } from '../../lib/tours';
-import { parseItinerary } from '../../lib/itinerary';
 
-/** Day-by-day itinerary as a vertical stepper (verbatim from the playground demo, data-bound to the
- * tour's days): numbered day-nav on the left, the selected day's detail in the panel with Back / Next. */
+/**
+ * Markdown → styled elements for an itinerary day's body. Scoped classes (no typography plugin) keep
+ * the bundle lean and the rendering on-brand. Raw HTML is NOT enabled (no `rehype-raw`), so authored
+ * content can't inject scripts.
+ */
+const MD_COMPONENTS: Components = {
+  p: (props) => <p className="text-muted-foreground mb-3 leading-relaxed text-pretty last:mb-0" {...props} />,
+  strong: (props) => <strong className="text-foreground font-semibold" {...props} />,
+  em: (props) => <em className="italic" {...props} />,
+  ul: (props) => <ul className="mb-3 list-disc space-y-1.5 pl-5 last:mb-0" {...props} />,
+  ol: (props) => <ol className="mb-3 list-decimal space-y-1.5 pl-5 last:mb-0" {...props} />,
+  li: ({ children, ...props }: ComponentPropsWithoutRef<'li'>) => (
+    <li className="text-muted-foreground marker:text-primary/60 leading-relaxed text-pretty" {...props}>
+      {children}
+    </li>
+  ),
+  h3: (props) => <h3 className="font-heading text-foreground mt-4 mb-1.5 text-lg font-semibold first:mt-0" {...props} />,
+  h4: (props) => <h4 className="text-foreground mt-3 mb-1 font-semibold first:mt-0" {...props} />,
+  a: (props) => <a className="text-primary font-medium hover:underline" {...props} />,
+  hr: () => <hr className="border-border/60 my-4" />,
+};
+
+/** Day-by-day itinerary as a vertical stepper: numbered day-nav on the left, the selected day's
+ * markdown content in the panel with Back / Next. The day `body` is authored as Markdown (headings,
+ * bold, bullets, paragraphs) so each day reads as a structured mini-document. */
 export function TourItinerary({ days }: { days: ItineraryDay[] }) {
   const t = messages.tourDetail;
   const steps = days.map((day) => ({
@@ -70,21 +94,14 @@ export function TourItinerary({ days }: { days: ItineraryDay[] }) {
                 <span className="text-primary font-sans text-xs font-bold tracking-wide uppercase">
                   {step.title}
                 </span>
-                <h3 className="font-heading mt-1 text-xl font-semibold text-balance">
+                <h3 className="font-heading mt-1 mb-4 text-xl font-semibold text-balance">
                   {step.description}
                 </h3>
-                <ul className="mt-4 space-y-3">
-                  {parseItinerary(days[index]?.body ?? '').map((m, i) => (
-                    <li key={i} className="flex gap-3 text-pretty sm:gap-4">
-                      {m.time ? (
-                        <span className="text-primary w-24 shrink-0 text-sm font-semibold tabular-nums">
-                          {m.time}
-                        </span>
-                      ) : null}
-                      <span className="text-muted-foreground leading-relaxed">{m.text}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="min-w-0 text-sm">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>
+                    {days[index]?.body ?? ''}
+                  </ReactMarkdown>
+                </div>
 
                 <div className="mt-6 flex items-center justify-between gap-3 pt-2">
                   <Button

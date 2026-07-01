@@ -9,6 +9,7 @@ import { messages } from '@tourism/i18n';
 
 import { BookingBox } from '../../../components/tours/booking-box';
 import { TourOverview } from '../../../components/tours/tour-overview';
+import { TourHighlights } from '../../../components/tours/tour-highlights';
 import { TourValue } from '../../../components/tours/tour-value';
 import { TourItinerary } from '../../../components/tours/tour-itinerary';
 import { TourIncluded } from '../../../components/tours/tour-included';
@@ -147,6 +148,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
           <div className="lg:grid lg:grid-cols-[1fr_22rem] lg:gap-12">
             <div className="min-w-0 space-y-6 lg:space-y-8">
               <TourOverview tour={tour} />
+              <TourHighlights highlights={tour.highlights} />
               <TourValue />
               <TourItinerary days={tour.itinerary} />
               <TourIncluded

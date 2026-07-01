@@ -75,6 +75,7 @@ function toTourDetail(
     overview: dto.summary ?? '',
     gallery: dto.media.map((m) => m.url),
     itinerary,
+    highlights: dto.highlights ?? [],
     included,
     notIncluded: dto.excluded ?? [],
     departures: [],

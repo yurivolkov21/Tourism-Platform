@@ -38,6 +38,8 @@ export interface TourDetailVM extends TourCardData {
   overview: string;
   gallery: string[];
   itinerary: ItineraryDay[];
+  /** Marketing bullet points shown near the overview (empty when none). */
+  highlights: string[];
   included: string[];
   notIncluded: string[];
   departures: Departure[];
@@ -258,6 +260,7 @@ export function getTourDetail(slug: string): TourDetailVM | undefined {
     overview: owner?.intro ?? '',
     gallery,
     itinerary,
+    highlights: [],
     included: [...INCLUDED],
     notIncluded: [...NOT_INCLUDED],
     departures,
