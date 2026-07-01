@@ -208,7 +208,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Admin: get one destination by slug */
+        /** Admin: get one destination by slug (with the tours that use it) */
         get: operations["AdminDestinationsController_detail"];
         put?: never;
         post?: never;
@@ -296,7 +296,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Admin: get one tour category by slug */
+        /** Admin: get one tour category by slug (with its tours) */
         get: operations["AdminTourCategoriesController_detail"];
         put?: never;
         post?: never;
@@ -1071,6 +1071,38 @@ export interface components {
             data: components["schemas"]["DestinationDto"][];
             meta: components["schemas"]["PageMetaDto"];
         };
+        DestinationTourDto: {
+            /** @example hoi-an-walking-tour */
+            slug: string;
+            /** @example Hoi An Ancient Town Walking Tour */
+            title: string;
+            /** @example true */
+            isPublished: boolean;
+            /**
+             * @description Whether this destination is the tour’s primary one.
+             * @example true
+             */
+            isPrimary: boolean;
+        };
+        AdminDestinationDetailDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example hoi-an */
+            slug: string;
+            /** @example Hoi An */
+            name: string;
+            /** @example Vietnam */
+            country: string;
+            region: string | null;
+            description: string | null;
+            isActive: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            media: components["schemas"]["MediaItemDto"][];
+            tours: components["schemas"]["DestinationTourDto"][];
+        };
         CreateDestinationDto: {
             /** @example Hoi An */
             name: string;
@@ -1169,6 +1201,31 @@ export interface components {
         PaginatedTourCategoriesDto: {
             data: components["schemas"]["TourCategoryDto"][];
             meta: components["schemas"]["PageMetaDto"];
+        };
+        CategoryTourDto: {
+            /** @example hoi-an-walking-tour */
+            slug: string;
+            /** @example Hoi An Ancient Town Walking Tour */
+            title: string;
+            /** @example true */
+            isPublished: boolean;
+        };
+        AdminTourCategoryDetailDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example adventure-tours */
+            slug: string;
+            /** @example Adventure Tours */
+            name: string;
+            description: string | null;
+            /** @example 0 */
+            order: number;
+            isActive: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            tours: components["schemas"]["CategoryTourDto"][];
         };
         CreateTourCategoryDto: {
             /** @example Adventure Tours */
@@ -2786,7 +2843,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DestinationDto"];
+                    "application/json": components["schemas"]["AdminDestinationDetailDto"];
                 };
             };
             /** @description Not found */
@@ -3039,7 +3096,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TourCategoryDto"];
+                    "application/json": components["schemas"]["AdminTourCategoryDetailDto"];
                 };
             };
             /** @description Not found */

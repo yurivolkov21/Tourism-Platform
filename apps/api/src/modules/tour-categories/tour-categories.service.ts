@@ -18,6 +18,16 @@ export interface PaginatedTourCategories {
   meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
 
+/** A tour in a category (1:N) — for the admin detail "tours in this category" list. */
+export interface LinkedCategoryTour {
+  slug: string;
+  title: string;
+  isPublished: boolean;
+}
+
+/** Admin category detail — the category row plus the tours that belong to it. */
+export type AdminTourCategoryDetail = TourCategory & { tours: LinkedCategoryTour[] };
+
 /**
  * CRUD for the `TourCategory` lookup (D-P1.5; replaces the donor enum). Public
  * reads force `isActive: true`; admin reads see drafts. Slug uniqueness is a DB
@@ -59,6 +69,24 @@ export class TourCategoriesService {
   async findBySlug(slug: string): Promise<TourCategory> {
     const category = await this.prisma.tourCategory.findUnique({
       where: { slug },
+    });
+    if (!category) throw this.notFound(slug);
+    return category;
+  }
+
+  /**
+   * Admin detail read — like {@link findBySlug} plus the tours in this category (1:N), alphabetical.
+   * Each tour is trimmed to `{ slug, title, isPublished }`.
+   */
+  async findDetailForAdmin(slug: string): Promise<AdminTourCategoryDetail> {
+    const category = await this.prisma.tourCategory.findUnique({
+      where: { slug },
+      include: {
+        tours: {
+          select: { slug: true, title: true, isPublished: true },
+          orderBy: { title: 'asc' },
+        },
+      },
     });
     if (!category) throw this.notFound(slug);
     return category;

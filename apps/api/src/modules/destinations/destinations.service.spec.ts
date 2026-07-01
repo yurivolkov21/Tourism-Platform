@@ -116,4 +116,33 @@ describe('DestinationsService', () => {
       NotFoundException,
     );
   });
+
+  it('findDetailForAdmin flattens the M:N join rows to a tours list (no nested .tour) + attaches media', async () => {
+    const findUnique = jest.fn().mockResolvedValue({
+      id: '1',
+      slug: 'hoi-an',
+      name: 'Hoi An',
+      isActive: true,
+      tours: [
+        { isPrimary: true, tour: { slug: 't1', title: 'T1', isPublished: true } },
+        { isPrimary: false, tour: { slug: 't2', title: 'T2', isPublished: false } },
+      ],
+    });
+    const svc = makeService(makePrisma({ findUnique }));
+
+    const res = await svc.findDetailForAdmin('hoi-an');
+
+    expect(res.tours).toEqual([
+      { slug: 't1', title: 'T1', isPublished: true, isPrimary: true },
+      { slug: 't2', title: 'T2', isPublished: false, isPrimary: false },
+    ]);
+    expect(res.media).toEqual([]);
+    expect((res.tours[0] as unknown as Record<string, unknown>).tour).toBeUndefined();
+  });
+
+  it('findDetailForAdmin throws 404 when missing', async () => {
+    const findUnique = jest.fn().mockResolvedValue(null);
+    const svc = makeService(makePrisma({ findUnique }));
+    await expect(svc.findDetailForAdmin('nope')).rejects.toThrow(NotFoundException);
+  });
 });

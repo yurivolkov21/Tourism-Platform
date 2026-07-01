@@ -20,12 +20,14 @@ import {
 } from '@nestjs/swagger';
 import { TourCategory, UserRole } from '@prisma/client';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { AdminTourCategoryDetailDto } from './dto/admin-tour-category-detail.dto';
 import { CreateTourCategoryDto } from './dto/create-tour-category.dto';
 import { ListTourCategoriesQueryDto } from './dto/list-tour-categories-query.dto';
 import { PaginatedTourCategoriesDto } from './dto/paginated-tour-categories.dto';
 import { TourCategoryDto } from './dto/tour-category.dto';
 import { UpdateTourCategoryDto } from './dto/update-tour-category.dto';
 import {
+  AdminTourCategoryDetail,
   PaginatedTourCategories,
   TourCategoriesService,
 } from './tour-categories.service';
@@ -56,11 +58,11 @@ export class AdminTourCategoriesController {
   }
 
   @Get(':slug')
-  @ApiOperation({ summary: 'Admin: get one tour category by slug' })
-  @ApiOkResponse({ type: TourCategoryDto })
+  @ApiOperation({ summary: 'Admin: get one tour category by slug (with its tours)' })
+  @ApiOkResponse({ type: AdminTourCategoryDetailDto })
   @ApiResponse({ status: 404, description: 'Not found' })
-  detail(@Param('slug') slug: string): Promise<TourCategory> {
-    return this.tourCategoriesService.findBySlug(slug);
+  detail(@Param('slug') slug: string): Promise<AdminTourCategoryDetail> {
+    return this.tourCategoriesService.findDetailForAdmin(slug);
   }
 
   @Post()

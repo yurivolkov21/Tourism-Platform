@@ -24,9 +24,11 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { MediaItemDto } from '../media/dto/media.dto';
 import { SetMediaDto } from '../media/dto/set-media.dto';
 import {
+  AdminDestinationDetail,
   DestinationsService,
   PaginatedDestinations,
 } from './destinations.service';
+import { AdminDestinationDetailDto } from './dto/admin-destination-detail.dto';
 import { CreateDestinationDto } from './dto/create-destination.dto';
 import { DestinationDto } from './dto/destination.dto';
 import { ListDestinationsQueryDto } from './dto/list-destinations-query.dto';
@@ -57,11 +59,11 @@ export class AdminDestinationsController {
   }
 
   @Get(':slug')
-  @ApiOperation({ summary: 'Admin: get one destination by slug' })
-  @ApiOkResponse({ type: DestinationDto })
+  @ApiOperation({ summary: 'Admin: get one destination by slug (with the tours that use it)' })
+  @ApiOkResponse({ type: AdminDestinationDetailDto })
   @ApiResponse({ status: 404, description: 'Not found' })
-  detail(@Param('slug') slug: string): Promise<Destination> {
-    return this.destinationsService.findBySlug(slug);
+  detail(@Param('slug') slug: string): Promise<AdminDestinationDetail> {
+    return this.destinationsService.findDetailForAdmin(slug);
   }
 
   @Post()

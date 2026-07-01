@@ -100,4 +100,29 @@ describe('TourCategoriesService', () => {
       NotFoundException,
     );
   });
+
+  it('findDetailForAdmin returns the category with its tours (1:N)', async () => {
+    const findUnique = jest.fn().mockResolvedValue({
+      id: '1',
+      slug: 'adventure',
+      name: 'Adventure',
+      tours: [{ slug: 't1', title: 'T1', isPublished: true }],
+    });
+    const svc = new TourCategoriesService(makePrisma({ findUnique }));
+
+    const res = await svc.findDetailForAdmin('adventure');
+
+    expect(findUnique.mock.calls[0][0].include.tours.select).toEqual({
+      slug: true,
+      title: true,
+      isPublished: true,
+    });
+    expect(res.tours).toEqual([{ slug: 't1', title: 'T1', isPublished: true }]);
+  });
+
+  it('findDetailForAdmin throws 404 when missing', async () => {
+    const findUnique = jest.fn().mockResolvedValue(null);
+    const svc = new TourCategoriesService(makePrisma({ findUnique }));
+    await expect(svc.findDetailForAdmin('nope')).rejects.toThrow(NotFoundException);
+  });
 });

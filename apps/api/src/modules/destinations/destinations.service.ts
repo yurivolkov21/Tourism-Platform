@@ -17,6 +17,17 @@ import { UpdateDestinationDto } from './dto/update-destination.dto';
 /** A destination row enriched with its media set (delivery URLs built at read). */
 export type DestinationWithMedia = Destination & { media: MediaItemDto[] };
 
+/** A tour that uses a destination (via the M:N join) — for the admin detail "used by" list. */
+export interface LinkedDestinationTour {
+  slug: string;
+  title: string;
+  isPublished: boolean;
+  isPrimary: boolean;
+}
+
+/** Admin destination detail — the media-enriched row plus the tours that use it. */
+export type AdminDestinationDetail = DestinationWithMedia & { tours: LinkedDestinationTour[] };
+
 /** Pagination envelope; `TransformInterceptor` hoists `meta` to the top level. */
 export interface PaginatedDestinations {
   items: DestinationWithMedia[];
@@ -87,6 +98,37 @@ export class DestinationsService {
     });
     if (!destination) throw this.notFound(slug);
     return this.media.attachToOwner(MediaOwnerType.DESTINATION, destination);
+  }
+
+  /**
+   * Admin detail read — like {@link findBySlug} plus the tours that use this destination (M:N join),
+   * primary destinations first. The raw join rows are mapped to a flat `{ slug, title, isPublished,
+   * isPrimary }[]` and never sent on the wire.
+   */
+  async findDetailForAdmin(slug: string): Promise<AdminDestinationDetail> {
+    const destination = await this.prisma.destination.findUnique({
+      where: { slug },
+      include: {
+        tours: {
+          select: {
+            isPrimary: true,
+            tour: { select: { slug: true, title: true, isPublished: true } },
+          },
+          orderBy: [{ isPrimary: 'desc' }, { tour: { title: 'asc' } }],
+        },
+      },
+    });
+    if (!destination) throw this.notFound(slug);
+
+    const { tours: joinRows, ...scalar } = destination;
+    const withMedia = await this.media.attachToOwner(MediaOwnerType.DESTINATION, scalar);
+    const tours: LinkedDestinationTour[] = joinRows.map((row) => ({
+      slug: row.tour.slug,
+      title: row.tour.title,
+      isPublished: row.tour.isPublished,
+      isPrimary: row.isPrimary,
+    }));
+    return { ...withMedia, tours };
   }
 
   /** Create. Slug normalized from input (or `name`); duplicate → 409. */

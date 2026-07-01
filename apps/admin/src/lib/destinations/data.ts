@@ -3,6 +3,9 @@ import type { components } from '@tourism/core';
 import { getApiClient } from '../api/client';
 
 export type Destination = components['schemas']['DestinationDto'];
+/** Admin detail shape — the destination plus the tours that use it (superset of {@link Destination}). */
+export type DestinationDetail = components['schemas']['AdminDestinationDetailDto'];
+export type LinkedTour = components['schemas']['DestinationTourDto'];
 export type PageMeta = components['schemas']['PageMetaDto'];
 
 export interface DestinationListParams {
@@ -43,10 +46,10 @@ export async function listDestinations(params: DestinationListParams = {}): Prom
  * Fetches one destination by slug for the edit form. Single resources come back wrapped in the
  * `{ data, error }` envelope at runtime (the generated client types it bare), so we unwrap here.
  */
-export async function getDestination(slug: string): Promise<Destination> {
+export async function getDestination(slug: string): Promise<DestinationDetail> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/destinations/{slug}', {
     params: { path: { slug } },
   });
-  return (data as unknown as { data: Destination }).data;
+  return (data as unknown as { data: DestinationDetail }).data;
 }

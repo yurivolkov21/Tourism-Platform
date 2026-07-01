@@ -3,6 +3,9 @@ import type { components } from '@tourism/core';
 import { getApiClient } from '../api/client';
 
 export type Category = components['schemas']['TourCategoryDto'];
+/** Admin detail shape — the category plus its tours (superset of {@link Category}). */
+export type CategoryDetail = components['schemas']['AdminTourCategoryDetailDto'];
+export type CategoryTour = components['schemas']['CategoryTourDto'];
 export type PageMeta = components['schemas']['PageMetaDto'];
 
 export interface CategoryListParams {
@@ -40,10 +43,10 @@ export async function listCategories(params: CategoryListParams = {}): Promise<C
  * Fetches one tour category by slug for the edit form. Single resources come back wrapped in the
  * `{ data, error }` envelope at runtime (the generated client types it bare), so we unwrap here.
  */
-export async function getCategory(slug: string): Promise<Category> {
+export async function getCategory(slug: string): Promise<CategoryDetail> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/tour-categories/{slug}', {
     params: { path: { slug } },
   });
-  return (data as unknown as { data: Category }).data;
+  return (data as unknown as { data: CategoryDetail }).data;
 }
