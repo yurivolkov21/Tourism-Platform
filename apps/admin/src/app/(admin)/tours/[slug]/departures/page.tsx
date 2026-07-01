@@ -1,56 +1,29 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, CalendarRange, History, Plus } from 'lucide-react';
+import { ArrowLeft, CalendarRange, Plus } from 'lucide-react';
 
 import {
-  Badge,
   Button,
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  cn,
 } from '@tourism/ui';
 
 import { apiErrorMessage } from '../../../../../lib/api/error';
-import { DeleteDeparture } from '../../../../../components/departures/delete-departure';
+import { AdminListHeader } from '../../../../../components/crud/list-header';
+import { DeparturesTable } from '../../../../../components/departures/departures-table';
 import { listDepartures, type Departure } from '../../../../../lib/departures/data';
-import { isDeparturePast, toDateOnly } from '../../../../../lib/departures/format';
 import { getTour, type TourDetail } from '../../../../../lib/tours/data';
 import { ErrorAlert } from '../../../../../components/crud/error-alert';
 
 interface DeparturesPageProps {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ status?: string }>;
 }
 
-const FILTER_CLASS =
-  'border-input bg-background h-9 rounded-lg border px-2.5 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50';
-
-const STATUS_VARIANT: Record<Departure['status'], 'default' | 'secondary' | 'destructive'> = {
-  OPEN: 'default',
-  CLOSED: 'secondary',
-  CANCELLED: 'destructive',
-};
-
-function price(departure: Departure, currency: string): string {
-  if (!departure.priceOverride) return 'Tour base';
-  const n = Number(departure.priceOverride);
-  const body = Number.isFinite(n) ? n.toLocaleString('en-US', { maximumFractionDigits: 0 }) : departure.priceOverride;
-  return currency === 'USD' ? `$${body}` : `${currency} ${body}`;
-}
-
-export default async function DeparturesPage({ params, searchParams }: DeparturesPageProps) {
+export default async function DeparturesPage({ params }: DeparturesPageProps) {
   const { slug } = await params;
-  const sp = await searchParams;
-  const status = sp.status === 'OPEN' || sp.status === 'CLOSED' || sp.status === 'CANCELLED' ? sp.status : undefined;
 
   let tour: TourDetail;
   try {
@@ -59,136 +32,57 @@ export default async function DeparturesPage({ params, searchParams }: Departure
     notFound();
   }
 
+  // Load the full (small) schedule once; the table filters by status client-side for instant UX.
   let rows: Departure[] = [];
   let error: string | null = null;
   try {
-    rows = await listDepartures(slug, { status });
+    rows = await listDepartures(slug);
   } catch (e) {
     error = apiErrorMessage(e);
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-6">
-      <div className="space-y-3">
-        <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/tours" />}>
-          <ArrowLeft data-icon="inline-start" />
-          Back to tours
-        </Button>
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="font-heading text-2xl font-bold">Departures</h1>
-            <p className="text-muted-foreground text-sm">{tour.title}</p>
-          </div>
+    <div className="flex flex-col gap-6 px-4 py-6 lg:px-6">
+      <Button
+        variant="ghost"
+        size="sm"
+        nativeButton={false}
+        render={<Link href="/tours" />}
+        className="w-fit"
+      >
+        <ArrowLeft data-icon="inline-start" />
+        Back to tours
+      </Button>
+
+      <AdminListHeader
+        title="Departures"
+        description={`Scheduled dates for ${tour.title}. Past dates are marked “Departed” and can’t be booked.`}
+        action={
           <Button nativeButton={false} render={<Link href={`/tours/${slug}/departures/new`} />}>
             <Plus data-icon="inline-start" />
             New departure
           </Button>
-        </div>
-      </div>
-
-      <form action={`/tours/${slug}/departures`} method="get" className="flex items-center gap-2">
-        <select name="status" defaultValue={status ?? ''} className={FILTER_CLASS} aria-label="Status">
-          <option value="">All statuses</option>
-          <option value="OPEN">Open</option>
-          <option value="CLOSED">Closed</option>
-          <option value="CANCELLED">Cancelled</option>
-        </select>
-        <Button type="submit" variant="outline">
-          Filter
-        </Button>
-      </form>
+        }
+      />
 
       {error ? (
-        <ErrorAlert>
-          Couldn&apos;t load departures: {error}.
-        </ErrorAlert>
+        <ErrorAlert>Couldn&apos;t load departures: {error}.</ErrorAlert>
       ) : rows.length === 0 ? (
         <Empty className="border">
           <EmptyHeader>
             <EmptyMedia variant="icon">
               <CalendarRange />
             </EmptyMedia>
-            <EmptyTitle>{status ? 'No departures with this status' : 'No departures yet'}</EmptyTitle>
-            <EmptyDescription>
-              {status
-                ? 'Try a different status, or clear the filter.'
-                : 'Add a departure date so customers can book this tour.'}
-            </EmptyDescription>
+            <EmptyTitle>No departures yet</EmptyTitle>
+            <EmptyDescription>Add a departure date so customers can book this tour.</EmptyDescription>
           </EmptyHeader>
-          {!status ? (
-            <Button nativeButton={false} render={<Link href={`/tours/${slug}/departures/new`} />}>
-              <Plus data-icon="inline-start" />
-              New departure
-            </Button>
-          ) : null}
+          <Button nativeButton={false} render={<Link href={`/tours/${slug}/departures/new`} />}>
+            <Plus data-icon="inline-start" />
+            New departure
+          </Button>
         </Empty>
       ) : (
-        <div className="rounded-xl border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Start</TableHead>
-                <TableHead>End</TableHead>
-                <TableHead className="text-right">Seats</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((d) => {
-                const past = isDeparturePast(d.startDate);
-                return (
-                <TableRow key={d.id}>
-                  <TableCell className={cn('font-medium tabular-nums', past && 'text-muted-foreground')}>
-                    {toDateOnly(d.startDate)}
-                  </TableCell>
-                  <TableCell className={cn('tabular-nums', past && 'text-muted-foreground')}>
-                    {toDateOnly(d.endDate)}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {d.seatsBooked}/{d.seatsTotal}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    <span className={d.priceOverride ? 'font-medium' : 'text-muted-foreground'}>
-                      {price(d, tour.currency)}
-                    </span>
-                    {d.compareAtPrice ? (
-                      <span className="text-muted-foreground ml-1 text-xs line-through">
-                        {price({ ...d, priceOverride: d.compareAtPrice }, tour.currency)}
-                      </span>
-                    ) : null}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <Badge variant={STATUS_VARIANT[d.status]}>{d.status}</Badge>
-                      {past ? (
-                        <Badge variant="outline" className="text-muted-foreground gap-1">
-                          <History className="size-3" aria-hidden />
-                          Departed
-                        </Badge>
-                      ) : null}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        nativeButton={false}
-                        render={<Link href={`/tours/${slug}/departures/${d.id}/edit`} />}
-                      >
-                        Edit
-                      </Button>
-                      <DeleteDeparture slug={slug} id={d.id} label={`${toDateOnly(d.startDate)} → ${toDateOnly(d.endDate)}`} />
-                    </div>
-                  </TableCell>
-                </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+        <DeparturesTable rows={rows} slug={slug} currency={tour.currency} />
       )}
     </div>
   );
