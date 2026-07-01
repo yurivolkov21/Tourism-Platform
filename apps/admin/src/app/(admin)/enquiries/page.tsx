@@ -4,6 +4,7 @@ import { EnquiriesView } from '../../../components/enquiries/enquiries-view';
 import { listEnquiries, type EnquiryList } from '../../../lib/enquiries/data';
 import { ENQUIRY_STATUSES, type EnquiryStatus } from '../../../lib/enquiries/status';
 import { ErrorAlert } from '../../../components/crud/error-alert';
+import { parsePageSize } from '../../../lib/pagination';
 
 /** Narrows a raw `?status=` value to a valid pipeline stage (or undefined = all). */
 function parseStatus(raw?: string): EnquiryStatus | undefined {
@@ -17,18 +18,19 @@ function parsePage(raw?: string): number {
 }
 
 interface EnquiriesPageProps {
-  searchParams: Promise<{ status?: string; page?: string }>;
+  searchParams: Promise<{ status?: string; page?: string; pageSize?: string }>;
 }
 
 export default async function EnquiriesPage({ searchParams }: EnquiriesPageProps) {
   const sp = await searchParams;
   const status = parseStatus(sp.status);
   const page = parsePage(sp.page);
+  const pageSize = parsePageSize(sp.pageSize);
 
   let result: EnquiryList | undefined;
   let error: string | null = null;
   try {
-    result = await listEnquiries({ page, status });
+    result = await listEnquiries({ page, pageSize, status });
   } catch (e) {
     error = apiErrorMessage(e);
   }

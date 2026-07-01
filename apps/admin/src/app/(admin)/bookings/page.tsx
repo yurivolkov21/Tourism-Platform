@@ -11,11 +11,12 @@ import {
 import { apiErrorMessage } from '../../../lib/api/error';
 import { AdminListHeader } from '../../../components/crud/list-header';
 import { BookingsFilters } from '../../../components/bookings/bookings-filters';
-import { BookingsPagination } from '../../../components/bookings/bookings-pagination';
 import { BookingsTable } from '../../../components/bookings/bookings-table';
-import { DEFAULT_PAGE_SIZE, listBookings, type BookingList } from '../../../lib/bookings/data';
+import { listBookings, type BookingList } from '../../../lib/bookings/data';
 import type { BookingStatus } from '../../../lib/bookings/format';
 import { ErrorAlert } from '../../../components/crud/error-alert';
+import { ServerTablePagination } from '../../../components/crud/server-table-pagination';
+import { parsePageSize } from '../../../lib/pagination';
 
 const STATUSES: BookingStatus[] = ['PENDING', 'PAID', 'CANCELLED', 'REFUNDED'];
 
@@ -31,19 +32,20 @@ function parsePage(raw?: string): number {
 }
 
 interface BookingsPageProps {
-  searchParams: Promise<{ status?: string; page?: string; q?: string }>;
+  searchParams: Promise<{ status?: string; page?: string; q?: string; pageSize?: string }>;
 }
 
 export default async function BookingsPage({ searchParams }: BookingsPageProps) {
   const sp = await searchParams;
   const status = parseStatus(sp.status);
   const page = parsePage(sp.page);
+  const pageSize = parsePageSize(sp.pageSize);
   const search = sp.q?.trim() ?? '';
 
   let result: BookingList | undefined;
   let error: string | null = null;
   try {
-    result = await listBookings({ page, status, search: search || undefined });
+    result = await listBookings({ page, pageSize, status, search: search || undefined });
   } catch (e) {
     error = apiErrorMessage(e);
   }
@@ -82,20 +84,13 @@ export default async function BookingsPage({ searchParams }: BookingsPageProps) 
           </Empty>
         ) : (
           <>
-            {meta ? (
-              <p className="text-muted-foreground text-sm">
-                {meta.total} {meta.total === 1 ? 'booking' : 'bookings'}
-                {status ? ` · ${status.toLowerCase()}` : ''}
-                {search ? ` · matching “${search}”` : ''}
-              </p>
-            ) : null}
             <BookingsTable rows={rows} />
-            {meta && meta.totalPages > 1 ? (
-              <BookingsPagination
+            {meta ? (
+              <ServerTablePagination
                 page={meta.page}
-                totalPages={meta.totalPages}
+                pageCount={meta.totalPages}
                 total={meta.total}
-                pageSize={meta.pageSize ?? DEFAULT_PAGE_SIZE}
+                pageSize={meta.pageSize}
               />
             ) : null}
           </>

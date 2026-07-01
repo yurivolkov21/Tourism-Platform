@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import { ChevronLeft, ChevronRight, Compass, Inbox, Search } from 'lucide-react';
+import { Compass, Inbox, Search } from 'lucide-react';
 
 import {
   Badge,
@@ -34,6 +34,7 @@ import {
   toast,
 } from '@tourism/ui';
 
+import { ServerTablePagination } from '../crud/server-table-pagination';
 import { updateEnquiryStatus } from '../../lib/enquiries/actions';
 import type { Enquiry, PageMeta } from '../../lib/enquiries/data';
 import { ENQUIRY_STATUSES, enquiryStatusMeta, type EnquiryStatus } from '../../lib/enquiries/status';
@@ -245,34 +246,13 @@ export function EnquiriesView({
         </div>
       )}
 
-      {meta.totalPages > 1 ? (
-        <div className="flex items-center justify-between px-1">
-          <p className="text-muted-foreground text-sm">
-            Page {meta.page} of {meta.totalPages}
-          </p>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon-sm"
-              className="cursor-pointer"
-              disabled={meta.page <= 1}
-              onClick={() => pushParams({ page: meta.page - 1 })}
-              aria-label="Previous page"
-            >
-              <ChevronLeft className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon-sm"
-              className="cursor-pointer"
-              disabled={meta.page >= meta.totalPages}
-              onClick={() => pushParams({ page: meta.page + 1 })}
-              aria-label="Next page"
-            >
-              <ChevronRight className="size-4" />
-            </Button>
-          </div>
-        </div>
+      {meta.total > 0 ? (
+        <ServerTablePagination
+          page={meta.page}
+          pageCount={meta.totalPages}
+          total={meta.total}
+          pageSize={meta.pageSize}
+        />
       ) : null}
 
       {/* Detail drawer */}

@@ -11,9 +11,10 @@ import {
   SelectValue,
 } from '@tourism/ui';
 
-/** Standard rows-per-page options across the admin (matches the Dashboard data table). */
-export const PAGE_SIZE_OPTIONS = [10, 20, 30] as const;
-export const DEFAULT_PAGE_SIZE = 10;
+import { PAGE_SIZE_OPTIONS } from '../../lib/pagination';
+
+// Re-export so existing imports from this component keep working.
+export { PAGE_SIZE_OPTIONS, DEFAULT_PAGE_SIZE } from '../../lib/pagination';
 
 /**
  * Shared table pagination — a "Rows per page" selector + "Page X of Y" + first/prev/next/last,

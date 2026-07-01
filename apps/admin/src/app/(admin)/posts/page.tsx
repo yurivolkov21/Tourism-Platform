@@ -10,12 +10,6 @@ import {
   EmptyMedia,
   EmptyTitle,
   Input,
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
   Table,
   TableBody,
   TableCell,
@@ -28,39 +22,33 @@ import { apiErrorMessage } from '../../../lib/api/error';
 import { DeletePost } from '../../../components/posts/delete-post';
 import { listPosts, type PostList } from '../../../lib/posts/data';
 import { ErrorAlert } from '../../../components/crud/error-alert';
+import { ServerTablePagination } from '../../../components/crud/server-table-pagination';
+import { parsePageSize } from '../../../lib/pagination';
 
 interface PostsPageProps {
-  searchParams: Promise<{ page?: string; search?: string; status?: string }>;
+  searchParams: Promise<{ page?: string; search?: string; status?: string; pageSize?: string }>;
 }
 
 const FILTER_CLASS =
   'border-input bg-background h-9 rounded-lg border px-2.5 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50';
-
-function pageHref(page: number, params: Record<string, string>): string {
-  const sp = new URLSearchParams();
-  for (const [k, v] of Object.entries(params)) if (v) sp.set(k, v);
-  if (page > 1) sp.set('page', String(page));
-  const qs = sp.toString();
-  return qs ? `/posts?${qs}` : '/posts';
-}
 
 export default async function PostsPage({ searchParams }: PostsPageProps) {
   const sp = await searchParams;
   const page = Math.max(1, Number.parseInt(sp.page ?? '1', 10) || 1);
   const search = (sp.search ?? '').trim();
   const status = sp.status === 'DRAFT' || sp.status === 'PUBLISHED' ? sp.status : '';
+  const pageSize = parsePageSize(sp.pageSize);
 
   let result: PostList | undefined;
   let error: string | null = null;
   try {
-    result = await listPosts({ page, search: search || undefined, status: status || undefined });
+    result = await listPosts({ page, pageSize, search: search || undefined, status: status || undefined });
   } catch (e) {
     error = apiErrorMessage(e);
   }
 
   const rows = result?.data ?? [];
   const meta = result?.meta;
-  const activeParams = { search, status };
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
@@ -78,6 +66,8 @@ export default async function PostsPage({ searchParams }: PostsPageProps) {
       </div>
 
       <form action="/posts" method="get" className="flex flex-wrap items-center gap-2">
+        {/* Carry the chosen page size across a filter submit (native GET replaces the whole query). */}
+        <input type="hidden" name="pageSize" value={String(pageSize)} />
         <div className="relative min-w-48 flex-1">
           <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
           <Input
@@ -167,35 +157,13 @@ export default async function PostsPage({ searchParams }: PostsPageProps) {
             </Table>
           </div>
 
-          {meta && meta.totalPages > 1 ? (
-            <Pagination className="justify-between">
-              <p className="text-muted-foreground self-center text-sm">
-                Page {meta.page} of {meta.totalPages} · {meta.total} total
-              </p>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href={pageHref(meta.page - 1, activeParams)}
-                    aria-disabled={meta.page <= 1}
-                    className={meta.page <= 1 ? 'pointer-events-none opacity-50' : undefined}
-                  />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href={pageHref(meta.page, activeParams)} isActive>
-                    {meta.page}
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext
-                    href={pageHref(meta.page + 1, activeParams)}
-                    aria-disabled={meta.page >= meta.totalPages}
-                    className={
-                      meta.page >= meta.totalPages ? 'pointer-events-none opacity-50' : undefined
-                    }
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+          {meta ? (
+            <ServerTablePagination
+              page={meta.page}
+              pageCount={meta.totalPages}
+              total={meta.total}
+              pageSize={meta.pageSize}
+            />
           ) : null}
         </>
       )}
