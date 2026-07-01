@@ -5,9 +5,11 @@ import {
   Compass,
   FileText,
   ImageIcon,
+  Inbox,
   LayoutDashboard,
   MapPin,
   MessageSquareQuote,
+  Receipt,
   Tags,
 } from 'lucide-react';
 
@@ -38,6 +40,13 @@ const NAV: NavSection[] = [
       { title: 'Media', href: '/media', icon: ImageIcon, soon: true },
       { title: 'Posts', href: '/posts', icon: FileText },
       { title: 'Reviews', href: '/reviews', icon: MessageSquareQuote },
+    ],
+  },
+  {
+    label: 'Operations',
+    items: [
+      { title: 'Bookings', href: '/bookings', icon: Receipt },
+      { title: 'Enquiries', href: '/enquiries', icon: Inbox, soon: true },
     ],
   },
 ];

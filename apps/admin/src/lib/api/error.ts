@@ -41,11 +41,23 @@ const FRIENDLY_409: Record<string, string> = {
 };
 
 /**
+ * Plain-language messages keyed by API `code`, regardless of HTTP status (e.g. booking refund
+ * 400s). Checked before the status switch so these win over the generic per-status fallback.
+ */
+const FRIENDLY_BY_CODE: Record<string, string> = {
+  BOOKING_NOT_REFUNDABLE:
+    'Only a paid booking can be refunded. This one isn’t in the “Paid” state, so there’s nothing to refund.',
+  REFUND_FAILED:
+    'The refund couldn’t be completed with the payment provider. Please try again in a moment, or check the Stripe dashboard.',
+};
+
+/**
  * Maps an API failure to a short, friendly English message. For 409 conflicts it prefers a
  * plain-language message keyed by the API `code` (the raw backend messages are developer-flavoured).
  */
 export function apiErrorMessage(error: unknown): string {
   if (isApiError(error)) {
+    if (FRIENDLY_BY_CODE[error.code]) return FRIENDLY_BY_CODE[error.code];
     switch (error.status) {
       case 401:
         return 'Your session has expired. Please sign in again.';
