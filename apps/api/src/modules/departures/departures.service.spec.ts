@@ -128,6 +128,62 @@ describe('DeparturesService', () => {
     ).rejects.toThrow(NotFoundException);
   });
 
+  it('update rejects moving startDate into the past (400 DEPARTURE_IN_PAST)', async () => {
+    const findFirst = jest.fn().mockResolvedValue({
+      id: 'd-1',
+      tourId: 'tour-1',
+      seatsBooked: 0,
+      startDate: new Date(FUTURE),
+      endDate: new Date(FUTURE_END),
+    });
+    const svc = new DeparturesService(
+      makePrisma({ tourDeparture: { findFirst } }),
+    );
+    await expect(
+      svc.update('hoi-an', 'd-1', { startDate: '2000-01-01', endDate: '2000-01-02' }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('update allows editing an already-past departure when startDate is not sent', async () => {
+    // A finished trip (past start) can still be tidied — e.g. marked CANCELLED —
+    // as long as the caller does not move its startDate. The "startDate present"
+    // gate is what keeps this legal.
+    const findFirst = jest.fn().mockResolvedValue({
+      id: 'd-1',
+      tourId: 'tour-1',
+      seatsBooked: 0,
+      startDate: new Date('2000-01-01'),
+      endDate: new Date('2000-01-02'),
+    });
+    const update = jest.fn().mockResolvedValue({ id: 'd-1' });
+    const svc = new DeparturesService(
+      makePrisma({ tourDeparture: { findFirst, update } }),
+    );
+
+    await expect(
+      svc.update('hoi-an', 'd-1', { status: DepartureStatus.CANCELLED }),
+    ).resolves.toEqual({ id: 'd-1' });
+    expect(update.mock.calls[0][0].data.status).toBe(DepartureStatus.CANCELLED);
+  });
+
+  it('update allows moving startDate to a future date', async () => {
+    const findFirst = jest.fn().mockResolvedValue({
+      id: 'd-1',
+      tourId: 'tour-1',
+      seatsBooked: 0,
+      startDate: new Date(FUTURE),
+      endDate: new Date(FUTURE_END),
+    });
+    const update = jest.fn().mockResolvedValue({ id: 'd-1' });
+    const svc = new DeparturesService(
+      makePrisma({ tourDeparture: { findFirst, update } }),
+    );
+
+    await expect(
+      svc.update('hoi-an', 'd-1', { startDate: '2999-02-01', endDate: '2999-02-03' }),
+    ).resolves.toEqual({ id: 'd-1' });
+  });
+
   // ── remove ────────────────────────────────────────────────────────────────
 
   it('remove refuses a departure that already has booked seats (409)', async () => {

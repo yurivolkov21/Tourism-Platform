@@ -49,6 +49,11 @@ const FRIENDLY_BY_CODE: Record<string, string> = {
     'Only a paid booking can be refunded. This one isn’t in the “Paid” state, so there’s nothing to refund.',
   REFUND_FAILED:
     'The refund couldn’t be completed with the payment provider. Please try again in a moment, or check the Stripe dashboard.',
+  DEPARTURE_IN_PAST:
+    'The start date can’t be in the past. Pick today or a later date — past departures can’t be booked.',
+  INVALID_DATE_RANGE: 'The end date must be on or after the start date.',
+  SEATS_TOTAL_BELOW_BOOKED:
+    'You can’t set total seats below the number already booked. Increase the total, or cancel some bookings first.',
 };
 
 /**

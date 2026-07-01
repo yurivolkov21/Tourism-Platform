@@ -83,17 +83,8 @@ export class DeparturesService {
   async create(slug: string, body: CreateDepartureDto): Promise<TourDeparture> {
     const tour = await this.findTourBySlugOrThrow(slug);
     this.assertDateRange(body.startDate, body.endDate);
-
-    // A departure must not be born already departed. Same-day allowed (walk-in
-    // sales). UTC calendar-date compare mirrors the booking flow's "past" check.
-    const todayUtc = new Date().toISOString().slice(0, 10);
-    const startUtc = new Date(body.startDate).toISOString().slice(0, 10);
-    if (startUtc < todayUtc) {
-      throw new BadRequestException({
-        code: 'DEPARTURE_IN_PAST',
-        message: `startDate ${startUtc} is in the past — departures must start today or later`,
-      });
-    }
+    // A departure must not be born already departed (same-day allowed — walk-ins).
+    this.assertNotPast(body.startDate);
 
     const departure = await this.prisma.tourDeparture.create({
       data: {
@@ -110,7 +101,9 @@ export class DeparturesService {
     });
 
     this.logger.log(
-      `Created departure ${departure.id} for tour ${slug} (start=${startUtc})`,
+      `Created departure ${departure.id} for tour ${slug} (start=${departure.startDate
+        .toISOString()
+        .slice(0, 10)})`,
     );
     return departure;
   }
@@ -128,6 +121,14 @@ export class DeparturesService {
       const nextStart = body.startDate ?? existing.startDate.toISOString();
       const nextEnd = body.endDate ?? existing.endDate.toISOString();
       this.assertDateRange(nextStart, nextEnd);
+    }
+
+    // A departure may not be MOVED into the past — but only guard when the caller
+    // is actually changing `startDate`. Editing other fields on an already-past
+    // departure (e.g. marking a finished trip CANCELLED, correcting seats) stays
+    // allowed, so history can be tidied. Same-day is fine (walk-in parity).
+    if (body.startDate !== undefined) {
+      this.assertNotPast(body.startDate);
     }
 
     if (
@@ -219,6 +220,23 @@ export class DeparturesService {
       });
     }
     return departure;
+  }
+
+  /**
+   * Throws 400 `DEPARTURE_IN_PAST` when `startDate` is before today. UTC calendar-date compare
+   * (mirrors the booking flow's "past" guard and is server-timezone independent). Same-day is allowed
+   * (walk-in sales). Shared by create + update so a departure can neither be born nor moved into the
+   * past.
+   */
+  private assertNotPast(startDate: string): void {
+    const todayUtc = new Date().toISOString().slice(0, 10);
+    const startUtc = new Date(startDate).toISOString().slice(0, 10);
+    if (startUtc < todayUtc) {
+      throw new BadRequestException({
+        code: 'DEPARTURE_IN_PAST',
+        message: `startDate ${startUtc} is in the past — departures must start today or later`,
+      });
+    }
   }
 
   /** Throws 400 `INVALID_DATE_RANGE` when `endDate < startDate`. */
