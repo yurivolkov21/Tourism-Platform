@@ -242,6 +242,7 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
                   <TableHead>Category</TableHead>
                   <TableHead>Primary destination</TableHead>
                   <TableHead className="text-right">Price</TableHead>
+                  <TableHead className="text-right">Compare-at</TableHead>
                   <TableHead className="text-right">Days</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="w-12 text-right">Actions</TableHead>
@@ -257,13 +258,15 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
                     </TableCell>
                     <TableCell className="text-muted-foreground">{tour.category.name}</TableCell>
                     <TableCell className="text-muted-foreground">{primaryDestination(tour)}</TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      <span className="font-medium">{money(tour.basePrice, tour.currency)}</span>
+                    <TableCell className="text-right font-medium tabular-nums">
+                      {money(tour.basePrice, tour.currency)}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-right tabular-nums">
                       {tour.compareAtPrice ? (
-                        <span className="text-muted-foreground ml-1 text-xs line-through">
-                          {money(tour.compareAtPrice, tour.currency)}
-                        </span>
-                      ) : null}
+                        <span className="line-through">{money(tour.compareAtPrice, tour.currency)}</span>
+                      ) : (
+                        '—'
+                      )}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">{tour.durationDays}</TableCell>
                     <TableCell>
