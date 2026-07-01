@@ -16,6 +16,7 @@ import {
   Field,
   FieldLabel,
   Textarea,
+  toast,
 } from '@tourism/ui';
 
 import { refundBooking } from '../../lib/bookings/actions';
@@ -58,7 +59,9 @@ export function RefundBooking({
       const result = await refundBooking(code, reason);
       if (result.error) {
         setError(result.error);
+        toast.error(result.error);
       } else {
+        toast.success('Refund issued.');
         setOpen(false);
         setReason('');
       }

@@ -20,6 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  toast,
 } from '@tourism/ui';
 
 /**
@@ -62,7 +63,9 @@ export function RowActions({
       const result = await deleteAction(deleteId);
       if (result.error) {
         setError(result.error);
+        toast.error(result.error);
       } else {
+        toast.success('Deleted.');
         setOpen(false);
         if (redirectTo) router.push(redirectTo);
       }

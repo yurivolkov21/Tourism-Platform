@@ -31,6 +31,7 @@ import {
   TableHeader,
   TableRow,
   cn,
+  toast,
 } from '@tourism/ui';
 
 import { updateEnquiryStatus } from '../../lib/enquiries/actions';
@@ -123,6 +124,9 @@ export function EnquiriesView({
       if (result.error) {
         setStatusError(result.error);
         setSelected(prev); // rollback
+        toast.error(result.error);
+      } else {
+        toast.success('Status updated.');
       }
     });
   };
