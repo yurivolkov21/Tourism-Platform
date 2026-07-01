@@ -3,16 +3,9 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Separator,
-} from '@tourism/ui';
+import { Card, CardContent, CardHeader, CardTitle, Separator } from '@tourism/ui';
 
 import { BookingStatusBadge } from '../../../../components/bookings/booking-status-badge';
-import { BookingTimeline } from '../../../../components/bookings/booking-timeline';
 import { CopyCodeButton } from '../../../../components/bookings/copy-code-button';
 import { RefundBooking } from '../../../../components/bookings/refund-booking';
 import { getBooking } from '../../../../lib/bookings/data';
@@ -24,6 +17,14 @@ interface BookingDetailPageProps {
   params: Promise<{ code: string }>;
 }
 
+/** Label shown for each lifecycle event in the order summary (friendlier than the raw step key). */
+const LIFECYCLE_LABELS: Record<string, string> = {
+  created: 'Booked',
+  paid: 'Paid',
+  cancelled: 'Cancelled',
+  refunded: 'Refunded',
+};
+
 function formatDate(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
@@ -31,19 +32,17 @@ function formatDate(iso: string): string {
     : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-function formatDateTime(iso: string): string {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? '—'
-    : d.toLocaleString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+/** One label/value row in the summary rail. */
+function SummaryRow({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4">
+      <dt className="text-muted-foreground text-sm">{label}</dt>
+      <dd className="text-right text-sm font-medium">{value}</dd>
+    </div>
+  );
 }
 
+/** One label/value pair in the main content cards. */
 function Fact({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="space-y-0.5">
@@ -65,7 +64,8 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
 
   const paymentLabel = booking.paymentProvider === 'STRIPE' ? 'Stripe' : 'PayPal';
   const stripeUrl = stripePaymentUrl(booking.providerPaymentId, booking.paymentProvider);
-  const timeline = buildBookingTimeline(booking);
+  // Lifecycle events that actually happened (have a timestamp) — rendered as compact date rows.
+  const lifecycle = buildBookingTimeline(booking).filter((s) => s.at);
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 lg:px-6">
@@ -98,19 +98,9 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
         />
       </div>
 
-      {/* Two-column: main + summary rail */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Main */}
+        {/* Main content */}
         <div className="space-y-6 lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Timeline</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <BookingTimeline steps={timeline} />
-            </CardContent>
-          </Card>
-
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Trip</CardTitle>
@@ -181,7 +171,7 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
           </Card>
         </div>
 
-        {/* Summary rail */}
+        {/* Order summary rail */}
         <div className="space-y-6">
           <Card>
             <CardHeader>
@@ -189,28 +179,39 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
             </CardHeader>
             <CardContent className="space-y-4">
               <dl className="space-y-3">
-                <div className="flex items-center justify-between gap-4">
-                  <dt className="text-muted-foreground text-sm">Status</dt>
-                  <dd>
-                    <BookingStatusBadge status={booking.status} />
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between gap-4">
-                  <dt className="text-muted-foreground text-sm">Total</dt>
-                  <dd className="text-sm font-semibold tabular-nums">
-                    {formatMoney(booking.totalAmount, booking.currency)}
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between gap-4">
-                  <dt className="text-muted-foreground text-sm">Guests</dt>
-                  <dd className="text-sm font-medium">
-                    {formatGuests(booking.numAdults, booking.numChildren)}
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between gap-4">
-                  <dt className="text-muted-foreground text-sm">Payment</dt>
-                  <dd className="text-sm font-medium">{paymentLabel}</dd>
-                </div>
+                <SummaryRow label="Status" value={<BookingStatusBadge status={booking.status} />} />
+                <SummaryRow
+                  label="Total"
+                  value={
+                    <span className="font-semibold tabular-nums">
+                      {formatMoney(booking.totalAmount, booking.currency)}
+                    </span>
+                  }
+                />
+                <SummaryRow
+                  label="Guests"
+                  value={formatGuests(booking.numAdults, booking.numChildren)}
+                />
+                <SummaryRow label="Payment" value={paymentLabel} />
+              </dl>
+
+              {/* Lifecycle dates — only events that happened, as compact rows (replaces the timeline). */}
+              <Separator />
+              <dl className="space-y-3">
+                {lifecycle.map((step) => (
+                  <SummaryRow
+                    key={step.key}
+                    label={LIFECYCLE_LABELS[step.key] ?? step.label}
+                    value={
+                      <span className="font-normal">
+                        {formatDate(step.at as string)}
+                        <span className="text-muted-foreground ml-1.5 text-xs">
+                          {formatRelativeTime(step.at as string)}
+                        </span>
+                      </span>
+                    }
+                  />
+                ))}
               </dl>
 
               {booking.providerPaymentId ? (
@@ -233,36 +234,29 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
                   </div>
                 </>
               ) : null}
+
+              {booking.status === 'REFUNDED' ? (
+                <>
+                  <Separator />
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Refund</p>
+                    <dl className="space-y-2">
+                      <Fact
+                        label="Reason"
+                        value={booking.refundReason?.trim() || 'No reason recorded'}
+                      />
+                      {booking.refundedBy ? (
+                        <Fact
+                          label="By"
+                          value={booking.refundedBy.fullName?.trim() || booking.refundedBy.email}
+                        />
+                      ) : null}
+                    </dl>
+                  </div>
+                </>
+              ) : null}
             </CardContent>
           </Card>
-
-          {booking.status === 'REFUNDED' ? (
-            <Card className="border-destructive/30">
-              <CardHeader>
-                <CardTitle className="text-base">Refund</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <dl className="space-y-3">
-                  <Fact
-                    label="Reason"
-                    value={booking.refundReason?.trim() || 'No reason recorded'}
-                  />
-                  {booking.cancelledAt ? (
-                    <Fact
-                      label="Refunded"
-                      value={`${formatDateTime(booking.cancelledAt)} · ${formatRelativeTime(booking.cancelledAt)}`}
-                    />
-                  ) : null}
-                  {booking.refundedBy ? (
-                    <Fact
-                      label="By"
-                      value={booking.refundedBy.fullName?.trim() || booking.refundedBy.email}
-                    />
-                  ) : null}
-                </dl>
-              </CardContent>
-            </Card>
-          ) : null}
         </div>
       </div>
     </div>
