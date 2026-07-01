@@ -389,7 +389,7 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
       <RepeatableCards<{ title: string; description: string }>
         name="itinerary"
         legend="Itinerary"
-        description="Day-by-day plan. Drag to reorder — the day number follows the order."
+        description="Day-by-day plan. Drag to reorder — the day number follows the order. The description supports Markdown for rich, structured days."
         addLabel="Add day"
         emptyText="No itinerary days yet."
         itemLabel="Day"
@@ -402,8 +402,22 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
               <Input value={item.title} onChange={(e) => patch({ title: e.target.value })} maxLength={200} placeholder="Arrival & old town walk" />
             </label>
             <label className="block space-y-1.5">
-              <span className="text-xs font-medium">Description</span>
-              <Textarea value={item.description} onChange={(e) => patch({ description: e.target.value })} rows={2} maxLength={2000} placeholder="What happens on this day…" />
+              <span className="text-xs font-medium">Description (Markdown)</span>
+              <Textarea
+                value={item.description}
+                onChange={(e) => patch({ description: e.target.value })}
+                rows={8}
+                maxLength={8000}
+                className="font-mono text-sm"
+                placeholder={
+                  '**08:00 — Hotel pickup** in the Old Town, then drive to Cu Chi.\n\nMorning highlights:\n- Watch the tunnel documentary\n- Crawl a tourist-safe tunnel section\n\n**12:00 — Lunch** by the river *(included)*.'
+                }
+              />
+              <span className="text-muted-foreground text-xs">
+                Markdown: <code>**bold**</code>, <code>*italic*</code>, <code>- bullet</code> (one per
+                line), <code>### sub-heading</code>, blank line = new paragraph. Times like{' '}
+                <code>08:00</code> read best in <strong>bold</strong> at the start of a line.
+              </span>
             </label>
           </div>
         )}

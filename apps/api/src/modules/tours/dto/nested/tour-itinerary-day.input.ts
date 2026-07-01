@@ -21,9 +21,11 @@ export class TourItineraryDayInput {
   @Length(1, 200)
   title!: string;
 
-  @ApiPropertyOptional({ maxLength: 2000 })
+  // Markdown-authored day plan (headings / bold / bullets / paragraphs), so it runs longer than a
+  // plain sentence — hence the generous cap.
+  @ApiPropertyOptional({ maxLength: 8000 })
   @IsOptional()
   @IsString()
-  @MaxLength(2000)
+  @MaxLength(8000)
   description?: string;
 }

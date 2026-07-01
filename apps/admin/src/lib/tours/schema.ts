@@ -12,7 +12,7 @@ const itineraryList = z
   .array(
     z.object({
       title: z.string().trim().min(1, 'Day title is required').max(200, 'Day title must be 200 characters or fewer'),
-      description: z.string().trim().max(2000, 'Description must be 2000 characters or fewer').optional(),
+      description: z.string().trim().max(8000, 'Description must be 8000 characters or fewer').optional(),
     }),
   )
   .max(60, 'At most 60 itinerary days');
