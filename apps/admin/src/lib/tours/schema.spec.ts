@@ -63,6 +63,24 @@ describe('tourSchema', () => {
     });
     expect(r.success).toBe(true);
   });
+
+  it('accepts valid itinerary / FAQs / policies', () => {
+    const r = tourSchema.safeParse({
+      ...base,
+      itinerary: [{ title: 'Day one', description: 'Arrive' }, { title: 'Day two' }],
+      faqs: [{ question: 'Pickup?', answer: 'Yes' }],
+      policies: [{ kind: 'CANCELLATION', title: 'Free cancel', body: 'Up to 24h' }],
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it('rejects an itinerary day / FAQ / policy missing a required field', () => {
+    expect(tourSchema.safeParse({ ...base, itinerary: [{ title: '' }] }).success).toBe(false);
+    expect(tourSchema.safeParse({ ...base, faqs: [{ question: 'Q', answer: '' }] }).success).toBe(false);
+    expect(
+      tourSchema.safeParse({ ...base, policies: [{ kind: 'NOPE', title: 'T', body: 'B' }] }).success,
+    ).toBe(false);
+  });
 });
 
 describe('toTourPayload', () => {
@@ -95,5 +113,32 @@ describe('toTourPayload', () => {
     expect(out.isPublished).toBe(true);
     expect(out.suitableFor).toEqual(['SOLO']);
     expect(out.included).toEqual(['Guide', 'Water']);
+  });
+
+  it('assigns dayNumber (1-based) + order (0-based) to nested lists by position', () => {
+    const input = tourSchema.parse({
+      ...base,
+      itinerary: [{ title: 'One', description: 'D1' }, { title: 'Two' }],
+      faqs: [{ question: 'Q1', answer: 'A1' }, { question: 'Q2', answer: 'A2' }],
+      policies: [{ kind: 'CANCELLATION', title: 'C', body: 'cb' }],
+    }) as TourInput;
+    const out = toTourPayload(input);
+    expect(out.itinerary).toEqual([
+      { dayNumber: 1, title: 'One', description: 'D1' },
+      { dayNumber: 2, title: 'Two' },
+    ]);
+    expect(out.faqs).toEqual([
+      { question: 'Q1', answer: 'A1', order: 0 },
+      { question: 'Q2', answer: 'A2', order: 1 },
+    ]);
+    expect(out.policies).toEqual([{ kind: 'CANCELLATION', title: 'C', body: 'cb', order: 0 }]);
+  });
+
+  it('omits empty nested lists (API leaves them untouched)', () => {
+    const input = tourSchema.parse({ ...base, itinerary: [], faqs: [], policies: [] }) as TourInput;
+    const out = toTourPayload(input);
+    expect(out.itinerary).toBeUndefined();
+    expect(out.faqs).toBeUndefined();
+    expect(out.policies).toBeUndefined();
   });
 });

@@ -33,7 +33,26 @@ function opt(formData: FormData, key: string): string | undefined {
   return v === '' ? undefined : v;
 }
 
-/** Validates raw form fields against `tourSchema`. Array fields arrive as repeated inputs. */
+/** Parse a hidden JSON array field, dropping rows whose string values are all blank (empty cards). */
+function parseJsonRows(formData: FormData, key: string): unknown[] {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(String(formData.get(key) ?? '[]'));
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(
+    (it) =>
+      !!it &&
+      typeof it === 'object' &&
+      Object.values(it as Record<string, unknown>).some(
+        (v) => typeof v === 'string' && v.trim() !== '',
+      ),
+  );
+}
+
+/** Validates raw form fields against `tourSchema`. Array fields arrive as repeated inputs / JSON. */
 function parseTourForm(formData: FormData) {
   return tourSchema.safeParse({
     title: String(formData.get('title') ?? ''),
@@ -56,6 +75,9 @@ function parseTourForm(formData: FormData) {
     highlights: formData.getAll('highlights').map(String),
     included: formData.getAll('included').map(String),
     excluded: formData.getAll('excluded').map(String),
+    itinerary: parseJsonRows(formData, 'itinerary'),
+    faqs: parseJsonRows(formData, 'faqs'),
+    policies: parseJsonRows(formData, 'policies'),
   });
 }
 

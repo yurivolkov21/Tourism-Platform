@@ -24,12 +24,13 @@ import {
 } from '@tourism/ui';
 
 import type { TourFormState } from '../../lib/tours/actions';
-import { TOUR_BADGES, TRAVELLER_TYPES } from '../../lib/tours/schema';
+import { POLICY_KINDS, TOUR_BADGES, TRAVELLER_TYPES } from '../../lib/tours/schema';
 import type { TourDetail } from '../../lib/tours/data';
 import { ChipInput } from './chip-input';
 import { DestinationPicker, type DestinationOption } from './destination-picker';
 import { ErrorAlert } from '../crud/error-alert';
 import { MediaField } from '../crud/media-field';
+import { RepeatableCards } from '../crud/repeatable-cards';
 import type { MediaInput } from '../../lib/media';
 
 interface TourFormProps {
@@ -323,6 +324,101 @@ export function TourForm({ action, categories, destinations, tour, submitLabel }
           </Field>
         </FieldGroup>
       </FieldSet>
+
+      <Separator className="my-8" />
+
+      {/* Itinerary */}
+      <RepeatableCards<{ title: string; description: string }>
+        name="itinerary"
+        legend="Itinerary"
+        description="Day-by-day plan. Drag to reorder — the day number follows the order."
+        addLabel="Add day"
+        emptyText="No itinerary days yet."
+        itemLabel="Day"
+        initial={(tour?.itinerary ?? []).map((d) => ({ title: d.title, description: d.description ?? '' }))}
+        makeItem={() => ({ title: '', description: '' })}
+        renderFields={(item, patch) => (
+          <div className="space-y-3">
+            <label className="block space-y-1.5">
+              <span className="text-xs font-medium">Title</span>
+              <Input value={item.title} onChange={(e) => patch({ title: e.target.value })} maxLength={200} placeholder="Arrival & old town walk" />
+            </label>
+            <label className="block space-y-1.5">
+              <span className="text-xs font-medium">Description</span>
+              <Textarea value={item.description} onChange={(e) => patch({ description: e.target.value })} rows={2} maxLength={2000} placeholder="What happens on this day…" />
+            </label>
+          </div>
+        )}
+      />
+
+      <Separator className="my-8" />
+
+      {/* FAQs */}
+      <RepeatableCards<{ question: string; answer: string }>
+        name="faqs"
+        legend="FAQs"
+        description="Common questions and answers shown on the tour page."
+        addLabel="Add FAQ"
+        emptyText="No FAQs yet."
+        itemLabel="FAQ"
+        initial={(tour?.faqs ?? []).map((f) => ({ question: f.question, answer: f.answer }))}
+        makeItem={() => ({ question: '', answer: '' })}
+        renderFields={(item, patch) => (
+          <div className="space-y-3">
+            <label className="block space-y-1.5">
+              <span className="text-xs font-medium">Question</span>
+              <Input value={item.question} onChange={(e) => patch({ question: e.target.value })} maxLength={300} placeholder="Is hotel pickup included?" />
+            </label>
+            <label className="block space-y-1.5">
+              <span className="text-xs font-medium">Answer</span>
+              <Textarea value={item.answer} onChange={(e) => patch({ answer: e.target.value })} rows={2} maxLength={2000} placeholder="Yes, within the old town." />
+            </label>
+          </div>
+        )}
+      />
+
+      <Separator className="my-8" />
+
+      {/* Policies */}
+      <RepeatableCards<{ kind: string; title: string; body: string }>
+        name="policies"
+        legend="Policies"
+        description="Cancellation, booking, and general policies."
+        addLabel="Add policy"
+        emptyText="No policies yet."
+        itemLabel="Policy"
+        initial={(tour?.policies ?? []).map((p) => ({ kind: p.kind, title: p.title, body: p.body }))}
+        makeItem={() => ({ kind: 'CANCELLATION', title: '', body: '' })}
+        renderFields={(item, patch) => (
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <span className="text-xs font-medium">Kind</span>
+                <Select value={item.kind} onValueChange={(v) => patch({ kind: v ?? 'CANCELLATION' })}>
+                  <SelectTrigger className="w-full" aria-label="Policy kind">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent align="start" alignItemWithTrigger={false}>
+                    {POLICY_KINDS.map((k) => (
+                      <SelectItem key={k} value={k}>
+                        {labelize(k)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <label className="block space-y-1.5">
+                <span className="text-xs font-medium">Title</span>
+                <Input value={item.title} onChange={(e) => patch({ title: e.target.value })} maxLength={200} placeholder="Free cancellation up to 24h" />
+              </label>
+            </div>
+            <label className="block space-y-1.5">
+              <span className="text-xs font-medium">Body</span>
+              <Textarea value={item.body} onChange={(e) => patch({ body: e.target.value })} rows={2} maxLength={4000} placeholder="Full refund if cancelled 24h before departure." />
+            </label>
+          </div>
+        )}
+      />
 
       <Separator className="my-8" />
 
