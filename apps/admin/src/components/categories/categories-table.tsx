@@ -3,6 +3,14 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { Search, Tags } from 'lucide-react';
+import {
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  useReactTable,
+  type ColumnDef,
+  type VisibilityState,
+} from '@tanstack/react-table';
 
 import {
   Badge,
@@ -12,35 +20,82 @@ import {
   EmptyMedia,
   EmptyTitle,
   Input,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   cn,
 } from '@tourism/ui';
 
 import { RowActions } from '../crud/row-actions';
 import { deleteCategory } from '../../lib/categories/actions';
 import type { Category } from '../../lib/categories/data';
-import { DataTablePagination, DEFAULT_PAGE_SIZE } from '../crud/data-table-pagination';
+import { DEFAULT_PAGE_SIZE } from '../crud/data-table-pagination';
+import { ColumnsMenu } from '../crud/columns-menu';
+import { AdminTableShell } from '../crud/admin-table-shell';
+import { ClientTablePagination } from '../crud/client-table-pagination';
 
 type Tab = 'all' | 'active' | 'draft';
 
 const DELETE_DESCRIPTION =
   'This permanently deletes the category and can’t be undone. You can only delete one that’s turned off (Draft) and has no tours attached.';
 
+const categoryColumns: ColumnDef<Category>[] = [
+  {
+    id: 'name',
+    header: 'Name',
+    enableHiding: false,
+    meta: { label: 'Name' },
+    cell: ({ row }) => (
+      <Link
+        href={`/categories/${row.original.slug}`}
+        className="hover:text-primary font-medium hover:underline"
+      >
+        {row.original.name}
+      </Link>
+    ),
+  },
+  {
+    id: 'order',
+    header: 'Order',
+    meta: { label: 'Order', align: 'right' },
+    cell: ({ row }) => <span className="text-muted-foreground tabular-nums">{row.original.order}</span>,
+  },
+  {
+    id: 'status',
+    header: 'Status',
+    meta: { label: 'Status' },
+    cell: ({ row }) => (
+      <Badge variant={row.original.isActive ? 'default' : 'secondary'} className="gap-1.5">
+        <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+        {row.original.isActive ? 'Active' : 'Draft'}
+      </Badge>
+    ),
+  },
+  {
+    id: 'actions',
+    header: 'Actions',
+    enableHiding: false,
+    meta: { align: 'right' },
+    cell: ({ row }) => (
+      <RowActions
+        editHref={`/categories/${row.original.slug}/edit`}
+        deleteAction={deleteCategory}
+        deleteId={row.original.slug}
+        deleteTitle={`Delete “${row.original.name}”?`}
+        deleteDescription={DELETE_DESCRIPTION}
+      />
+    ),
+  },
+];
+
 /**
- * Client-side Categories table: tab + search filtering happens in memory (instant, no server
- * round-trip — the catalog is small and loaded once). Tabs show live counts; pagination kicks in
- * only past {@link pageSize} rows. Mirrors the Destinations table (no images for categories).
+ * Client-side Categories table on TanStack: tab + search filtering happens in memory (instant, no
+ * server round-trip — the catalog is small and loaded once) and feeds the already-filtered rows into
+ * the table. TanStack owns only the column model, visibility (the "Columns" button), and in-memory
+ * paging; `autoResetPageIndex` returns to page 1 whenever the filtered set changes. Mirrors the
+ * Destinations table (no images for categories).
  */
 export function CategoriesTable({ rows }: { rows: Category[] }) {
   const [tab, setTab] = useState<Tab>('all');
   const [query, setQuery] = useState('');
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const counts = useMemo(
     () => ({
@@ -61,19 +116,22 @@ export function CategoriesTable({ rows }: { rows: Category[] }) {
     });
   }, [rows, tab, query]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const current = Math.min(page, totalPages);
-  const paged = filtered.slice((current - 1) * pageSize, current * pageSize);
+  const table = useReactTable({
+    data: filtered,
+    columns: categoryColumns,
+    state: { columnVisibility },
+    initialState: { pagination: { pageSize: DEFAULT_PAGE_SIZE } },
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
 
   const tabs: { value: Tab; label: string; count: number }[] = [
     { value: 'all', label: 'All', count: counts.all },
     { value: 'active', label: 'Active', count: counts.active },
     { value: 'draft', label: 'Draft', count: counts.draft },
   ];
-  const selectTab = (next: Tab) => {
-    setTab(next);
-    setPage(1);
-  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -91,7 +149,7 @@ export function CategoriesTable({ rows }: { rows: Category[] }) {
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                onClick={() => selectTab(t.value)}
+                onClick={() => setTab(t.value)}
                 className={cn(
                   'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
                   isActive ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
@@ -106,19 +164,19 @@ export function CategoriesTable({ rows }: { rows: Category[] }) {
           })}
         </div>
 
-        <div className="relative w-full sm:max-w-xs">
-          <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
-          <Input
-            type="search"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setPage(1);
-            }}
-            placeholder="Search by name…"
-            aria-label="Search by name"
-            className="bg-background pl-8"
-          />
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="relative w-full sm:max-w-xs">
+            <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+            <Input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by name…"
+              aria-label="Search by name"
+              className="bg-background pl-8"
+            />
+          </div>
+          <ColumnsMenu table={table} />
         </div>
       </div>
 
@@ -134,62 +192,8 @@ export function CategoriesTable({ rows }: { rows: Category[] }) {
         </Empty>
       ) : (
         <>
-          <div className="overflow-hidden rounded-lg border">
-            <Table>
-              <TableHeader className="bg-muted/50">
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="w-20 text-right">Order</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-12 text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paged.map((category) => (
-                  <TableRow key={category.id}>
-                    <TableCell className="font-medium">
-                      <Link
-                        href={`/categories/${category.slug}`}
-                        className="hover:text-primary hover:underline"
-                      >
-                        {category.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-right tabular-nums">
-                      {category.order}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={category.isActive ? 'default' : 'secondary'} className="gap-1.5">
-                        <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
-                        {category.isActive ? 'Active' : 'Draft'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <RowActions
-                        editHref={`/categories/${category.slug}/edit`}
-                        deleteAction={deleteCategory}
-                        deleteId={category.slug}
-                        deleteTitle={`Delete “${category.name}”?`}
-                        deleteDescription={DELETE_DESCRIPTION}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-
-          <DataTablePagination
-            page={current}
-            pageCount={totalPages}
-            total={filtered.length}
-            pageSize={pageSize}
-            onPageChange={setPage}
-            onPageSizeChange={(s) => {
-              setPageSize(s);
-              setPage(1);
-            }}
-          />
+          <AdminTableShell table={table} />
+          <ClientTablePagination table={table} />
         </>
       )}
     </div>
