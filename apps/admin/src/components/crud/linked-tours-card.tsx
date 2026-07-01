@@ -11,9 +11,9 @@ export interface LinkedTourItem {
 }
 
 /**
- * Card listing the tours linked to a destination or category. Each tour links to its admin edit page
- * (no admin tour-detail route yet); a "Draft" chip flags unpublished tours and a "Primary" chip marks
- * a tour's primary destination. Shows a count in the header and an empty hint when there are none.
+ * Card listing the tours linked to a destination or category. Each tour links to its admin detail
+ * page; a "Draft" chip flags unpublished tours and a "Primary" chip marks a tour's primary
+ * destination. Shows a count in the header and an empty hint when there are none.
  */
 export function LinkedToursCard({
   tours,
@@ -43,7 +43,7 @@ export function LinkedToursCard({
                 className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
               >
                 <Link
-                  href={`/tours/${tour.slug}/edit`}
+                  href={`/tours/${tour.slug}`}
                   className="hover:text-primary truncate text-sm font-medium hover:underline"
                 >
                   {tour.title}

@@ -4,8 +4,18 @@ import { useState } from 'react';
 
 import { ImageLightbox, type LightboxImage } from '../crud/image-lightbox';
 
-/** Read-only hero + gallery for the destination detail page; click any image to open the lightbox. */
-export function DestinationMediaView({ media }: { media: { url: string; role: string }[] }) {
+/**
+ * Read-only hero + gallery viewer; click any image to open the lightbox. Media roles (`hero` /
+ * `gallery`) are the shared closed enum, so this works for any owner (destinations, tours…) —
+ * pass `emptyText` to tailor the no-images message.
+ */
+export function DestinationMediaView({
+  media,
+  emptyText = 'No images for this destination yet.',
+}: {
+  media: { url: string; role: string }[];
+  emptyText?: string;
+}) {
   const [index, setIndex] = useState<number | null>(null);
 
   const hero = media.find((m) => m.role === 'hero');
@@ -17,7 +27,7 @@ export function DestinationMediaView({ media }: { media: { url: string; role: st
   if (ordered.length === 0) {
     return (
       <p className="text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm">
-        No images for this destination yet.
+        {emptyText}
       </p>
     );
   }

@@ -107,12 +107,11 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
             </CardHeader>
             <CardContent>
               <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-                {/* No admin tour detail route yet (only /tours/[slug]/edit) — link to the editable page. */}
                 <Fact
                   label="Tour"
                   value={
                     <Link
-                      href={`/tours/${booking.tour.slug}/edit`}
+                      href={`/tours/${booking.tour.slug}`}
                       className="hover:text-primary hover:underline"
                     >
                       {booking.tour.title}

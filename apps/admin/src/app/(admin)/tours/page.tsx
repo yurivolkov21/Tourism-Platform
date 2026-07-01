@@ -180,7 +180,14 @@ export default async function ToursPage({ searchParams }: ToursPageProps) {
               <TableBody>
                 {rows.map((tour) => (
                   <TableRow key={tour.id}>
-                    <TableCell className="font-medium">{tour.title}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/tours/${tour.slug}`}
+                        className="hover:text-primary hover:underline"
+                      >
+                        {tour.title}
+                      </Link>
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{tour.category.name}</TableCell>
                     <TableCell className="text-muted-foreground">{primaryDestination(tour)}</TableCell>
                     <TableCell className="text-right tabular-nums">
