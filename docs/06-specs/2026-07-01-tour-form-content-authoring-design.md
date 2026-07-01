@@ -49,19 +49,19 @@ poor**, so a hint alone won't fix it — the itinerary body needs real rich text
 
 ### B. Web — rich itinerary + highlights
 
-5. **Itinerary Markdown rendering.** Add `react-markdown` + `remark-gfm` to `@tourism/web`. In
+1. **Itinerary Markdown rendering.** Add `react-markdown` + `remark-gfm` to `@tourism/web`. In
    `tour-itinerary.tsx`, replace the `parseItinerary` time-list in the Stepper **panel** with a
    `<ReactMarkdown>` render of the day's `body`, styled via a `components` map (Tailwind classes on
    `h3/h4/strong/em/ul/ol/li/p/a`) — **no `@tailwindcss/typography` plugin needed**, keeping the bundle
    lean and the styling on-brand. Keep the Stepper day-nav (left) + panel (right) shell. `parseItinerary`
-   + its spec are removed once unused. **Security:** react-markdown does not render raw HTML by default
+   - its spec are removed once unused. **Security:** react-markdown does not render raw HTML by default
    (no `rehype-raw`), so no XSS from authored content.
-6. **Highlights on the web.** Map `dto.highlights` into `TourDetailVM` and render a **Highlights**
+2. **Highlights on the web.** Map `dto.highlights` into `TourDetailVM` and render a **Highlights**
    section on the tour detail (a clean checklist near the overview). Empty → section hidden.
 
 ### C. API — itinerary length
 
-7. **Bump `TourItineraryDayInput.description` `@MaxLength(2000)` → 8000** (rich markdown days run long).
+1. **Bump `TourItineraryDayInput.description` `@MaxLength(2000)` → 8000** (rich markdown days run long).
    Match the admin `tourSchema` itinerary description `max(2000)` → `max(8000)` in lockstep. No response
    shape change → **no type regen**; it's a validation bound only (Render redeploy).
 

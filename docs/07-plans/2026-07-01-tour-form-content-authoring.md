@@ -31,7 +31,7 @@ break — but this order avoids ever showing raw `**` markers.
 
 - Add deps `react-markdown` + `remark-gfm` to `apps/web`.
 - `components/tours/tour-itinerary.tsx`: render the day `body` with `<ReactMarkdown remarkPlugins={[remarkGfm]}>`
-  + a `components` map (Tailwind classes on headings/strong/em/lists/p/a) inside the Stepper panel;
+  - a `components` map (Tailwind classes on headings/strong/em/lists/p/a) inside the Stepper panel;
   drop the `parseItinerary` milestone list. Keep the day-nav + Back/Next.
 - Remove `lib/itinerary.ts` + `lib/itinerary.spec.ts` once unused.
 - Highlights: map `dto.highlights` in `lib/api/tour-detail.ts` into `TourDetailVM` (add the field), and
