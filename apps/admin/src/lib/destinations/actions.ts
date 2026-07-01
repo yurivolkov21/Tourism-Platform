@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 
 import { apiErrorMessage } from '../api/error';
 import { apiWrite, getApiClient } from '../api/client';
+import { flashPath } from '../flash';
 import { assembleMediaSet, parseMediaField } from './media';
 import { destinationSchema, toDestinationPayload } from './schema';
 
@@ -71,7 +72,7 @@ export async function createDestination(
 
   await putDestinationMedia(createdSlug, String(formData.get('media') ?? '[]'));
   revalidatePath('/destinations');
-  redirect('/destinations');
+  redirect(flashPath('/destinations', 'created'));
 }
 
 /** Updates a destination (`PATCH /admin/destinations/:slug`); the slug is bound at call sites. */
@@ -96,7 +97,7 @@ export async function updateDestination(
   await putDestinationMedia(slug, String(formData.get('media') ?? '[]'));
   revalidatePath('/destinations');
   revalidatePath(`/destinations/${slug}/edit`);
-  redirect('/destinations');
+  redirect(flashPath('/destinations', 'updated'));
 }
 
 export interface DeleteDestinationState {

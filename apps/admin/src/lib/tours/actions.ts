@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 
 import { apiErrorMessage } from '../api/error';
 import { apiWrite, getApiClient } from '../api/client';
+import { flashPath } from '../flash';
 import { tourSchema, toTourPayload } from './schema';
 
 export interface TourFormState {
@@ -69,7 +70,7 @@ export async function createTour(
   }
 
   revalidatePath('/tours');
-  redirect('/tours');
+  redirect(flashPath('/tours', 'created'));
 }
 
 /** Updates a tour (`PATCH /admin/tours/:slug`); the slug is bound at call sites. */
@@ -93,7 +94,7 @@ export async function updateTour(
 
   revalidatePath('/tours');
   revalidatePath(`/tours/${slug}/edit`);
-  redirect('/tours');
+  redirect(flashPath('/tours', 'updated'));
 }
 
 export interface DeleteTourState {

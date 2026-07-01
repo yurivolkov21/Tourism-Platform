@@ -46,4 +46,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
   )
 }
 
+// Re-export the imperative API so consumers import `{ Toaster, toast } from '@tourism/ui'`
+// (sonner is a dependency of this lib, not of the apps).
+export { toast } from "sonner"
 export { Toaster }

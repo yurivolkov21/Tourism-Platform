@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 
 import { apiErrorMessage } from '../api/error';
 import { apiWrite, getApiClient } from '../api/client';
+import { flashPath } from '../flash';
 import { categorySchema, toCategoryPayload } from './schema';
 
 export interface CategoryFormState {
@@ -49,7 +50,7 @@ export async function createCategory(
   }
 
   revalidatePath('/categories');
-  redirect('/categories');
+  redirect(flashPath('/categories', 'created'));
 }
 
 /** Updates a category (`PATCH /admin/tour-categories/:slug`); the slug is bound at call sites. */
@@ -73,7 +74,7 @@ export async function updateCategory(
 
   revalidatePath('/categories');
   revalidatePath(`/categories/${slug}/edit`);
-  redirect('/categories');
+  redirect(flashPath('/categories', 'updated'));
 }
 
 export interface DeleteCategoryState {

@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 
 import { apiErrorMessage } from '../api/error';
 import { apiWrite, getApiClient } from '../api/client';
+import { flashPath } from '../flash';
 import { postSchema, toPostPayload } from './schema';
 
 export interface PostFormState {
@@ -50,7 +51,7 @@ export async function createPost(
   }
 
   revalidatePath('/posts');
-  redirect('/posts');
+  redirect(flashPath('/posts', 'created'));
 }
 
 /** Updates a post (`PATCH /admin/posts/:slug`); the slug is bound at call sites. */
@@ -74,7 +75,7 @@ export async function updatePost(
 
   revalidatePath('/posts');
   revalidatePath(`/posts/${slug}/edit`);
-  redirect('/posts');
+  redirect(flashPath('/posts', 'updated'));
 }
 
 export interface DeletePostState {

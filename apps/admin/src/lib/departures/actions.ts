@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 
 import { apiErrorMessage } from '../api/error';
 import { apiWrite, getApiClient } from '../api/client';
+import { flashPath } from '../flash';
 import { departureSchema, toDeparturePayload } from './schema';
 
 export interface DepartureFormState {
@@ -58,7 +59,7 @@ export async function createDeparture(
   }
 
   revalidatePath(`/tours/${slug}/departures`);
-  redirect(`/tours/${slug}/departures`);
+  redirect(flashPath(`/tours/${slug}/departures`, 'created'));
 }
 
 /** Updates a departure (`PATCH /admin/tours/:slug/departures/:id`); 400 if seatsTotal < booked. */
@@ -82,7 +83,7 @@ export async function updateDeparture(
   }
 
   revalidatePath(`/tours/${slug}/departures`);
-  redirect(`/tours/${slug}/departures`);
+  redirect(flashPath(`/tours/${slug}/departures`, 'updated'));
 }
 
 export interface DeleteDepartureState {
