@@ -20,6 +20,9 @@ interface PrismaMocks {
   destination?: Record<string, unknown>;
   review?: Record<string, unknown>;
   tourDeparture?: Record<string, unknown>;
+  booking?: Record<string, unknown>;
+  wishlist?: Record<string, unknown>;
+  enquiry?: Record<string, unknown>;
 }
 
 function makePrisma(m: PrismaMocks = {}): PrismaService {
@@ -54,6 +57,19 @@ function makePrisma(m: PrismaMocks = {}): PrismaService {
     tourDeparture: {
       findMany: jest.fn().mockResolvedValue([]),
       ...m.tourDeparture,
+    },
+    booking: {
+      count: jest.fn().mockResolvedValue(0),
+      aggregate: jest.fn().mockResolvedValue({ _sum: { totalAmount: null } }),
+      ...m.booking,
+    },
+    wishlist: {
+      count: jest.fn().mockResolvedValue(0),
+      ...m.wishlist,
+    },
+    enquiry: {
+      count: jest.fn().mockResolvedValue(0),
+      ...m.enquiry,
     },
   };
   // Interactive tx runs its callback against the same mock (tx.tour.delete etc.).
@@ -330,6 +346,53 @@ describe('ToursService', () => {
     await expect(svc.remove('x')).resolves.toMatchObject({ slug: 'x' });
     expect(media.deleteForOwner).toHaveBeenCalledTimes(1);
     expect(del).toHaveBeenCalledTimes(1);
+  });
+
+  describe('findDetailForAdmin (ops aggregates)', () => {
+    it('attaches ops aggregates', async () => {
+      const svc = makeService(
+        makePrisma({
+          tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }) },
+          booking: {
+            count: jest
+              .fn()
+              .mockResolvedValueOnce(30) // bookingsTotal
+              .mockResolvedValueOnce(24), // bookingsPaid
+            aggregate: jest.fn().mockResolvedValue({ _sum: { totalAmount: new Prisma.Decimal(4500) } }),
+          },
+          wishlist: { count: jest.fn().mockResolvedValue(42) },
+          enquiry: { count: jest.fn().mockResolvedValue(7) },
+        }),
+      );
+
+      const res = await svc.findDetailForAdmin('x');
+
+      expect(res.ops).toEqual({
+        bookingsTotal: 30,
+        bookingsPaid: 24,
+        revenue: '4500',
+        wishlistCount: 42,
+        enquiriesCount: 7,
+      });
+    });
+
+    it('ops are zero-safe (no bookings)', async () => {
+      const svc = makeService(
+        makePrisma({
+          tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }) },
+        }),
+      );
+
+      const res = await svc.findDetailForAdmin('x');
+
+      expect(res.ops).toEqual({
+        bookingsTotal: 0,
+        bookingsPaid: 0,
+        revenue: '0',
+        wishlistCount: 0,
+        enquiriesCount: 0,
+      });
+    });
   });
 
   describe('review stats', () => {

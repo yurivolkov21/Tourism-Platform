@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { DepartureStatus, MediaOwnerType, Prisma, Tour } from '@prisma/client';
+import { BookingStatus, DepartureStatus, MediaOwnerType, Prisma, Tour } from '@prisma/client';
 import { slugify } from '../../common/slugify';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MediaItemDto, MediaInputDto } from '../media/dto/media.dto';
@@ -51,6 +51,18 @@ export interface PaginatedTours {
   items: TourWithStats[];
   meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
+
+/** Commercial signals for one tour — admin detail only. */
+export interface TourOps {
+  bookingsTotal: number;
+  bookingsPaid: number;
+  revenue: string;
+  wishlistCount: number;
+  enquiriesCount: number;
+}
+
+/** `TourWithStats` + commercial ops aggregates — the admin detail read. */
+export type AdminTourDetail = TourWithStats & { ops: TourOps };
 
 /**
  * CRUD + catalog for `Tour`. Adapts the donor's `modules/tours` to our clean
@@ -126,6 +138,32 @@ export class ToursService {
     if (!tour) throw this.notFound(slug);
     const withMedia = await this.media.attachToOwner(MediaOwnerType.TOUR, tour);
     return (await this.attachNextDeparture(await this.attachRatings([withMedia])))[0];
+  }
+
+  /** Admin detail: the enriched tour + commercial ops aggregates. Public reads stay ops-free. */
+  async findDetailForAdmin(slug: string): Promise<AdminTourDetail> {
+    const tour = await this.findBySlug(slug);
+    const [bookingsTotal, bookingsPaid, revenueAgg, wishlistCount, enquiriesCount] =
+      await Promise.all([
+        this.prisma.booking.count({ where: { tourId: tour.id } }),
+        this.prisma.booking.count({ where: { tourId: tour.id, status: BookingStatus.PAID } }),
+        this.prisma.booking.aggregate({
+          where: { tourId: tour.id, status: BookingStatus.PAID },
+          _sum: { totalAmount: true },
+        }),
+        this.prisma.wishlist.count({ where: { tourId: tour.id } }),
+        this.prisma.enquiry.count({ where: { tourId: tour.id } }),
+      ]);
+    return {
+      ...tour,
+      ops: {
+        bookingsTotal,
+        bookingsPaid,
+        revenue: (revenueAgg._sum.totalAmount ?? new Prisma.Decimal(0)).toString(),
+        wishlistCount,
+        enquiriesCount,
+      },
+    };
   }
 
   /**

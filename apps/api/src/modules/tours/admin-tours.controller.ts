@@ -23,12 +23,13 @@ import { Tour, UserRole } from '@prisma/client';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { MediaItemDto } from '../media/dto/media.dto';
 import { SetMediaDto } from '../media/dto/set-media.dto';
+import { AdminTourDetailDto } from './dto/admin-tour-detail.dto';
 import { CreateTourDto } from './dto/create-tour.dto';
 import { ListToursQueryDto } from './dto/list-tours-query.dto';
 import { PaginatedToursDto } from './dto/paginated-tours.dto';
 import { TourDetailDto } from './dto/tour.dto';
 import { UpdateTourDto } from './dto/update-tour.dto';
-import { PaginatedTours, ToursService } from './tours.service';
+import { AdminTourDetail, PaginatedTours, ToursService } from './tours.service';
 
 /**
  * Admin CRUD at `/admin/tours` — every route gated by `@Roles(ADMIN)` (the
@@ -52,11 +53,11 @@ export class AdminToursController {
   }
 
   @Get(':slug')
-  @ApiOperation({ summary: 'Admin: get one tour by slug (enriched)' })
-  @ApiOkResponse({ type: TourDetailDto })
+  @ApiOperation({ summary: 'Admin: get one tour by slug (enriched + ops)' })
+  @ApiOkResponse({ type: AdminTourDetailDto })
   @ApiResponse({ status: 404, description: 'Not found' })
-  detail(@Param('slug') slug: string): Promise<Tour> {
-    return this.toursService.findBySlug(slug);
+  detail(@Param('slug') slug: string): Promise<AdminTourDetail> {
+    return this.toursService.findDetailForAdmin(slug);
   }
 
   @Post()
