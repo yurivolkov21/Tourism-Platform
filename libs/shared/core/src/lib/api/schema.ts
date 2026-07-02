@@ -2249,6 +2249,25 @@ export interface components {
             message: string;
             /** Format: uuid */
             tourId: string | null;
+            /** @example ha-long-bay-cruise */
+            tourSlug: string | null;
+            /** @example Hạ Long Bay Cruise 2D1N */
+            tourTitle: string | null;
+            /** @example United Kingdom */
+            nationality: string | null;
+            /** Format: date-time */
+            travelDate: string | null;
+            /** @example 4 */
+            groupSize: number | null;
+            /** @example $1000–$2000 */
+            budgetTier: string | null;
+            /**
+             * @example [
+             *       "culture",
+             *       "food"
+             *     ]
+             */
+            interests: string[];
             /** @enum {string} */
             status: "NEW" | "CONTACTED" | "QUOTED" | "WON" | "LOST";
             /** Format: date-time */
@@ -4577,6 +4596,7 @@ export interface operations {
                 page?: number;
                 pageSize?: number;
                 status?: "NEW" | "CONTACTED" | "QUOTED" | "WON" | "LOST";
+                search?: string;
             };
             header?: never;
             path?: never;
