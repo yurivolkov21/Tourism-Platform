@@ -63,7 +63,8 @@ export default async function DestinationsPage() {
         />
       ))}
       <BestTime />
-      <PopularTours tours={popular} />
+      {/* Curated teaser — cap the featured shelf at 8; the full set lives on /tours. */}
+      <PopularTours tours={popular.slice(0, 8)} />
       <Gallery variant="editorial" sections={galleryFrames} />
       <Testimonials items={testimonials} />
       <TravelTips />

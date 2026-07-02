@@ -594,6 +594,7 @@ export const messages = {
     viewMore: 'View more',
     popularHeading: 'Most popular journeys',
     popularSubtitle: 'Traveller favourites across the country.',
+    popularViewAll: 'View all tours',
   },
   // `/destinations/[slug]` destination page.
   destinationDetail: {
