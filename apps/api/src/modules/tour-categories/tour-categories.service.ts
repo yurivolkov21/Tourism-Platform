@@ -14,7 +14,7 @@ import { UpdateTourCategoryDto } from './dto/update-tour-category.dto';
 
 /** Pagination envelope; `TransformInterceptor` hoists `meta` to the top level. */
 export interface PaginatedTourCategories {
-  items: TourCategory[];
+  items: (TourCategory & { toursCount: number })[];
   meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
 
@@ -190,12 +190,16 @@ export class TourCategoriesService {
         orderBy: { [sortBy]: sortOrder },
         skip: (page - 1) * pageSize,
         take: pageSize,
+        include: { _count: { select: { tours: true } } },
       }),
       this.prisma.tourCategory.count({ where }),
     ]);
 
     return {
-      items,
+      items: items.map(({ _count, ...row }) => ({
+        ...row,
+        toursCount: _count?.tours ?? 0,
+      })),
       meta: {
         page,
         pageSize,

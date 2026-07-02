@@ -145,4 +145,20 @@ describe('DestinationsService', () => {
     const svc = makeService(makePrisma({ findUnique }));
     await expect(svc.findDetailForAdmin('nope')).rejects.toThrow(NotFoundException);
   });
+
+  it('list maps the tours count onto each row', async () => {
+    const findMany = jest.fn().mockResolvedValue([
+      { id: 'd1', slug: 'hoi-an', _count: { tours: 4 } },
+    ]);
+    const count = jest.fn().mockResolvedValue(1);
+    const svc = makeService(makePrisma({ findMany, count }));
+
+    const res = await svc.findAll({});
+
+    expect(findMany.mock.calls[0][0].include).toEqual({
+      _count: { select: { tours: true } },
+    });
+    expect(res.items[0].toursCount).toBe(4);
+    expect((res.items[0] as unknown as { _count?: unknown })._count).toBeUndefined();
+  });
 });

@@ -32,4 +32,7 @@ export class DestinationDto {
 
   @ApiProperty({ type: [MediaItemDto] })
   media!: MediaItemDto[];
+
+  @ApiProperty({ example: 4, description: 'Number of tours using this destination' })
+  toursCount!: number;
 }

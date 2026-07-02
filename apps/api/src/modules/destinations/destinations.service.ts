@@ -30,7 +30,7 @@ export type AdminDestinationDetail = DestinationWithMedia & { tours: LinkedDesti
 
 /** Pagination envelope; `TransformInterceptor` hoists `meta` to the top level. */
 export interface PaginatedDestinations {
-  items: DestinationWithMedia[];
+  items: (DestinationWithMedia & { toursCount: number })[];
   meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
 
@@ -240,12 +240,17 @@ export class DestinationsService {
         orderBy: { [sortBy]: sortOrder },
         skip: (page - 1) * pageSize,
         take: pageSize,
+        include: { _count: { select: { tours: true } } },
       }),
       this.prisma.destination.count({ where }),
     ]);
 
+    const withMedia = await this.media.attachToOwners(MediaOwnerType.DESTINATION, items);
     return {
-      items: await this.media.attachToOwners(MediaOwnerType.DESTINATION, items),
+      items: withMedia.map(({ _count, ...row }) => ({
+        ...row,
+        toursCount: _count?.tours ?? 0,
+      })),
       meta: {
         page,
         pageSize,

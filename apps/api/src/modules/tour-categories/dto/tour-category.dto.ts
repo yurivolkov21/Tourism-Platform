@@ -25,4 +25,7 @@ export class TourCategoryDto {
 
   @ApiProperty({ format: 'date-time' })
   updatedAt!: string;
+
+  @ApiProperty({ example: 7, description: 'Number of tours in this category' })
+  toursCount!: number;
 }
