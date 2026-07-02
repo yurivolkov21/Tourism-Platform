@@ -1,4 +1,4 @@
-import { bookingStatusMeta, canRefund, formatGuests, formatMoney } from './format';
+import { bookingStatusMeta, canRefund, formatGuests, formatMoney, formatSeatsSummary } from './format';
 
 describe('bookingStatusMeta', () => {
   test('maps each status to a friendly label + badge variant', () => {
@@ -38,5 +38,20 @@ describe('formatGuests', () => {
   test('includes children with pluralization when present', () => {
     expect(formatGuests(2, 1)).toBe('2 adults, 1 child');
     expect(formatGuests(2, 3)).toBe('2 adults, 3 children');
+  });
+});
+
+describe('formatSeatsSummary', () => {
+  test('formats booked/total plus seats left', () => {
+    expect(formatSeatsSummary(12, 7)).toBe('7/12 booked · 5 left');
+  });
+
+  test('clamps negative leftover to 0 left', () => {
+    expect(formatSeatsSummary(10, 12)).toBe('12/10 booked · 0 left');
+  });
+
+  test('returns null when either field is missing (API not deployed yet)', () => {
+    expect(formatSeatsSummary(undefined, 7)).toBeNull();
+    expect(formatSeatsSummary(12, undefined)).toBeNull();
   });
 });

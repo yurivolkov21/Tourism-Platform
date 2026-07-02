@@ -48,3 +48,17 @@ export function formatGuests(numAdults: number, numChildren: number): string {
   const children = `${numChildren} ${numChildren === 1 ? 'child' : 'children'}`;
   return `${adults}, ${children}`;
 }
+
+/**
+ * Departure capacity line for the admin Trip card — "7/12 booked · 5 left".
+ * Returns null when either count is missing (deploy-lag guard: the API may not
+ * ship the seat fields yet), which hides the fact entirely.
+ */
+export function formatSeatsSummary(
+  seatsTotal: number | undefined,
+  seatsBooked: number | undefined,
+): string | null {
+  if (typeof seatsTotal !== 'number' || typeof seatsBooked !== 'number') return null;
+  const left = Math.max(seatsTotal - seatsBooked, 0);
+  return `${seatsBooked}/${seatsTotal} booked · ${left} left`;
+}

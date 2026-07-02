@@ -15,6 +15,7 @@ export interface BookingListParams {
   search?: string;
   tourId?: string;
   departureId?: string;
+  userId?: string;
 }
 
 export interface BookingList {
@@ -41,6 +42,7 @@ export async function listBookings(params: BookingListParams = {}): Promise<Book
         search: params.search,
         tourId: params.tourId,
         departureId: params.departureId,
+        userId: params.userId,
       },
     },
   });
