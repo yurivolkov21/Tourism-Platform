@@ -1,5 +1,11 @@
 # Admin Enquiries CRM upgrade (Wave 3) — implementation plan
 
+**STATUS: COMPLETE (2026-07-02)** — both slices executed via subagent-driven development and
+ff-merged to `main`: slice 1 `71127da` (EnquiryDto +7 fields, tour join + flat mapper, server-side
+`search` OR name/email/phone/message; `ecc:code-reviewer` APPROVE — PII admin-only, parameterized
+search, mapper strips the raw join) · slice 2 `063fb41` (URL-driven `?q=` search, drawer "Trip
+details" block, tour title link, lead age). Gate green per slice; api tests 248, admin tests 122.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Surface the five captured-but-hidden lead-qualification fields + the tour title/link in the Enquiries drawer, make search server-side (name/email/phone/message), and show lead age — per spec `docs/06-specs/2026-07-02-admin-enquiries-crm-design.md` (Wave 3).
