@@ -1,26 +1,12 @@
+import type { components } from '@tourism/core';
 import { ApiRequestError } from '@tourism/core';
 
 import { createClient } from '../supabase/server';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
 
-export interface AdminReview {
-  id: string;
-  tourId: string | null;
-  tourSlug: string | null;
-  userId: string | null;
-  authorName: string;
-  authorLocation: string | null;
-  bookingId: string | null;
-  source: 'VERIFIED' | 'CURATED';
-  isFeatured: boolean;
-  rating: number;
-  title: string | null;
-  body: string;
-  isApproved: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+/** Admin review row — the generated `AdminReviewDto` (incl. `tripLabel`/`tourTitle`). */
+export type AdminReview = components['schemas']['AdminReviewDto'];
 
 export interface PageMeta {
   page: number;
@@ -40,8 +26,8 @@ export interface AdminReviewParams {
   isApproved?: boolean;
 }
 
-// Plain authed GET — the generated client doesn't yet carry the post-Inc-1 AdminReviewDto shape, so we
-// fetch + type it here. (Reads are clone-safe, so no undici body gotcha; that only affects writes.)
+// Plain authed GET — generated types are the source of the row shape.
+// (Reads are clone-safe, so no undici body gotcha; that only affects writes.)
 async function authedGet<T>(path: string): Promise<T> {
   const supabase = await createClient();
   const { data } = await supabase.auth.getSession();

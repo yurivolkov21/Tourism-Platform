@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import { apiErrorMessage } from '../api/error';
-import { apiWrite } from '../api/client';
+import { apiWrite, getApiClient } from '../api/client';
 
 export interface ReviewActionState {
   error?: string;
@@ -72,4 +72,16 @@ export async function createCurated(
 
   revalidatePath('/reviews');
   redirect('/reviews');
+}
+
+/** Delete a curated testimonial (`DELETE /admin/reviews/:id`); verified reviews 409 server-side. */
+export async function deleteReview(id: string): Promise<ReviewActionState> {
+  try {
+    const api = await getApiClient();
+    await api.DELETE('/api/v1/admin/reviews/{id}', { params: { path: { id } } });
+  } catch (e) {
+    return { error: apiErrorMessage(e) };
+  }
+  revalidatePath('/reviews');
+  return {};
 }
