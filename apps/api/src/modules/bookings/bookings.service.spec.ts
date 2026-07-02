@@ -671,6 +671,20 @@ describe('BookingsService', () => {
       expect(where.tourId).toBe('tour-1');
     });
 
+    it('AND-composes the userId filter with status', async () => {
+      const findMany = jest.fn().mockResolvedValue([]);
+      const prisma = makePrisma({
+        booking: { findMany, count: jest.fn().mockResolvedValue(0) },
+      });
+      await svcWith(prisma).findAllForAdmin({
+        status: BookingStatus.PAID,
+        userId: 'user-1',
+      } as never);
+      const where = findMany.mock.calls[0][0].where;
+      expect(where.status).toBe(BookingStatus.PAID);
+      expect(where.userId).toBe('user-1');
+    });
+
     it('computes totalPages from total + pageSize', async () => {
       const prisma = makePrisma({
         booking: {

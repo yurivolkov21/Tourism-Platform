@@ -627,6 +627,7 @@ export class BookingsService {
       ...(query.status ? { status: query.status } : {}),
       ...(query.tourId ? { tourId: query.tourId } : {}),
       ...(query.departureId ? { departureId: query.departureId } : {}),
+      ...(query.userId ? { userId: query.userId } : {}),
       ...(search
         ? {
             OR: [

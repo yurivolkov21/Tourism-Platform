@@ -57,4 +57,10 @@ export class ListAdminBookingsQueryDto {
   @IsOptional()
   @IsUUID()
   departureId?: string;
+
+  /** Filter to one customer's bookings. */
+  @ApiPropertyOptional({ format: 'uuid' })
+  @IsOptional()
+  @IsUUID()
+  userId?: string;
 }
