@@ -1,13 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { AuthButton } from '../../src/components/ui/AuthButton';
 import { FormError } from '../../src/components/ui/FormError';
 import { KeyboardAvoid } from '../../src/components/ui/KeyboardAvoid';
 import { LogoMark } from '../../src/components/ui/LogoMark';
-import { OtpInput } from '../../src/components/ui/OtpInput';
 import { toAuthError } from '../../src/lib/auth/auth-helpers';
-import { syncUser } from '../../src/lib/api/sync-user';
 import { supabase } from '../../src/lib/supabase/client';
 import { strings } from '../../src/lib/strings';
 import { theme } from '../../src/lib/theme';
@@ -19,10 +16,9 @@ export default function VerifyScreen() {
   const { email } = useLocalSearchParams<{ email: string }>();
   const router = useRouter();
 
-  const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [resent, setResent] = useState(false);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -30,34 +26,18 @@ export default function VerifyScreen() {
     return () => clearInterval(id);
   }, [cooldown]);
 
-  async function handleVerify(otp: string) {
-    if (otp.length !== 6) return;
-    setError(null);
-    setLoading(true);
-    try {
-      const { data, error: verifyError } = await supabase.auth.verifyOtp({
-        email,
-        token: otp,
-        type: 'signup',
-      });
-      if (verifyError) throw verifyError;
-      if (data.session) {
-        await syncUser(data.session.access_token);
-      }
-      router.replace('/(tabs)');
-    } catch (err) {
-      setError(toAuthError(err));
-      setCode('');
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function handleResend() {
     if (cooldown > 0) return;
+    setError(null);
     try {
-      await supabase.auth.resend({ type: 'signup', email });
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: { emailRedirectTo: 'nexora://callback' },
+      });
+      if (resendError) throw resendError;
       setCooldown(RESEND_COOLDOWN);
+      setResent(true);
     } catch (err) {
       setError(toAuthError(err));
     }
@@ -73,15 +53,20 @@ export default function VerifyScreen() {
 
       <FormError message={error} />
 
-      <OtpInput onComplete={handleVerify} disabled={loading} />
+      {/* Email icon */}
+      <View style={styles.iconCard}>
+        <Text style={styles.iconEmoji}>📧</Text>
+        <Text style={styles.iconHint}>
+          Tap the confirmation link in the email to verify your account.
+          The link will open this app automatically.
+        </Text>
+      </View>
 
-      <AuthButton
-        label={t.submit}
-        onPress={() => handleVerify(code)}
-        loading={loading}
-        disabled={code.length !== 6}
-        style={styles.button}
-      />
+      {resent && (
+        <View style={styles.resentBadge}>
+          <Text style={styles.resentText}>New email sent!</Text>
+        </View>
+      )}
 
       <TouchableOpacity
         onPress={handleResend}
@@ -92,13 +77,20 @@ export default function VerifyScreen() {
           {cooldown > 0 ? t.resendCooldown(cooldown) : t.resend}
         </Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => router.replace('/(auth)/login')}
+        style={styles.backBtn}
+      >
+        <Text style={styles.backText}>Back to sign in</Text>
+      </TouchableOpacity>
     </KeyboardAvoid>
   );
 }
 
 const styles = StyleSheet.create({
   header: {
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.xl,
     gap: theme.spacing.sm,
   },
   title: {
@@ -112,13 +104,44 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     lineHeight: 22,
   },
-  button: {
-    marginTop: theme.spacing.sm,
+  iconCard: {
+    backgroundColor: theme.colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing.lg,
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
+  },
+  iconEmoji: {
+    fontSize: 48,
+  },
+  iconHint: {
+    fontSize: theme.font.sm,
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  resentBadge: {
+    backgroundColor: theme.colors.successBg,
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+    borderRadius: theme.radius.sm,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
+    alignSelf: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  resentText: {
+    fontSize: theme.font.sm,
+    color: theme.colors.primary,
+    fontWeight: '500',
   },
   resendBtn: {
     alignSelf: 'center',
-    marginTop: theme.spacing.lg,
     paddingVertical: theme.spacing.sm,
+    marginBottom: theme.spacing.sm,
   },
   resendText: {
     fontSize: theme.font.sm,
@@ -126,6 +149,14 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   resendDisabled: {
+    color: theme.colors.textMuted,
+  },
+  backBtn: {
+    alignSelf: 'center',
+    paddingVertical: theme.spacing.sm,
+  },
+  backText: {
+    fontSize: theme.font.sm,
     color: theme.colors.textMuted,
   },
 });

@@ -83,7 +83,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { full_name: fullName } },
+        options: {
+          data: { full_name: fullName },
+          // Magic link in confirmation email will open nexora://callback
+          emailRedirectTo: 'nexora://callback',
+        },
       });
       if (error) throw error;
       router.push({ pathname: '/(auth)/verify', params: { email } });

@@ -29,7 +29,7 @@ export default function ForgotPasswordScreen() {
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(
         email.trim(),
-        { redirectTo: 'nexora://auth/reset-password' },
+        { redirectTo: 'nexora://reset-password' },
       );
       if (resetError) throw resetError;
       setSent(true);
