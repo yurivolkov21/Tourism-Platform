@@ -18,13 +18,16 @@ import {
   TableRow,
 } from '@tourism/ui';
 
+import { ErrorAlert } from '../../../../../../components/crud/error-alert';
 import { RowActions } from '../../../../../../components/crud/row-actions';
+import { apiErrorMessage } from '../../../../../../lib/api/error';
 import { deleteDeparture } from '../../../../../../lib/departures/actions';
 import { findDeparture } from '../../../../../../lib/departures/data';
 import { isDeparturePast } from '../../../../../../lib/departures/format';
-import { listBookings } from '../../../../../../lib/bookings/data';
+import { listBookings, type Booking } from '../../../../../../lib/bookings/data';
 import { bookingStatusMeta, formatGuests, formatMoney } from '../../../../../../lib/bookings/format';
 import { formatRelativeTime } from '../../../../../../lib/relative-time';
+import { getTour } from '../../../../../../lib/tours/data';
 
 interface DepartureDetailPageProps {
   params: Promise<{ slug: string; id: string }>;
@@ -56,12 +59,21 @@ const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive'> = 
 export default async function DepartureDetailPage({ params }: DepartureDetailPageProps) {
   const { slug, id } = await params;
 
-  const departure = await findDeparture(slug, id).catch(() => undefined);
-  if (!departure) notFound();
+  const [departure, tour] = await Promise.all([
+    findDeparture(slug, id).catch(() => undefined),
+    getTour(slug).catch(() => undefined),
+  ]);
+  if (!departure || !tour) notFound();
 
   // Bookings on this departure (server-side filter; the set is small — one departure's seats).
-  const bookings = await listBookings({ departureId: id, pageSize: 100 }).catch(() => null);
-  const rows = bookings?.data ?? [];
+  let rows: Booking[] = [];
+  let bookingsError: string | null = null;
+  try {
+    const bookings = await listBookings({ departureId: id, pageSize: 100 });
+    rows = bookings.data;
+  } catch (e) {
+    bookingsError = apiErrorMessage(e);
+  }
 
   const past = isDeparturePast(departure.startDate);
   const pct =
@@ -91,7 +103,7 @@ export default async function DepartureDetailPage({ params }: DepartureDetailPag
             {past ? <Badge variant="outline">Departed</Badge> : null}
           </div>
           <p className="text-muted-foreground text-sm">
-            {formatDate(departure.startDate)} → {formatDate(departure.endDate)}
+            {formatDate(departure.startDate)} → {formatDate(departure.endDate)} · {tour.title}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -122,7 +134,9 @@ export default async function DepartureDetailPage({ params }: DepartureDetailPag
               <CardTitle className="text-base">Bookings</CardTitle>
             </CardHeader>
             <CardContent>
-              {rows.length === 0 ? (
+              {bookingsError ? (
+                <ErrorAlert>Couldn&apos;t load bookings: {bookingsError}.</ErrorAlert>
+              ) : rows.length === 0 ? (
                 <p className="text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm">
                   No bookings on this departure yet.
                 </p>
@@ -212,14 +226,16 @@ export default async function DepartureDetailPage({ params }: DepartureDetailPag
                   label="Price"
                   value={
                     departure.priceOverride
-                      ? formatMoney(departure.priceOverride, 'USD')
+                      ? formatMoney(departure.priceOverride, tour.currency)
                       : 'Tour base price'
                   }
                 />
                 <Row
                   label="Compare-at"
                   value={
-                    departure.compareAtPrice ? formatMoney(departure.compareAtPrice, 'USD') : '—'
+                    departure.compareAtPrice
+                      ? formatMoney(departure.compareAtPrice, tour.currency)
+                      : '—'
                   }
                 />
                 <Row
