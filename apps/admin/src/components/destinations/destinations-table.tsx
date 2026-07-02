@@ -35,6 +35,25 @@ type Tab = 'all' | 'active' | 'draft';
 
 const destinationColumns: ColumnDef<Destination>[] = [
   {
+    id: 'cover',
+    header: 'Cover',
+    meta: { label: 'Cover' },
+    cell: ({ row }) => {
+      const hero = (row.original.media ?? []).find((m) => m.role === 'hero');
+      return hero?.url ? (
+        <img
+          src={hero.url}
+          alt=""
+          className="bg-muted aspect-16/10 w-16 rounded-md border object-cover"
+        />
+      ) : (
+        <div className="bg-muted text-muted-foreground grid aspect-16/10 w-16 place-items-center rounded-md border">
+          <MapPin className="size-4" aria-hidden />
+        </div>
+      );
+    },
+  },
+  {
     id: 'name',
     header: 'Name',
     enableHiding: false,
@@ -59,6 +78,12 @@ const destinationColumns: ColumnDef<Destination>[] = [
     header: 'Country',
     meta: { label: 'Country' },
     cell: ({ row }) => <span className="text-muted-foreground">{row.original.country}</span>,
+  },
+  {
+    id: 'toursCount',
+    header: 'Tours',
+    meta: { label: 'Tours', align: 'right' },
+    cell: ({ row }) => <span className="tabular-nums">{row.original.toursCount ?? '—'}</span>,
   },
   {
     id: 'status',

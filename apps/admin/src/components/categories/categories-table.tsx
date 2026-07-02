@@ -58,6 +58,12 @@ const categoryColumns: ColumnDef<Category>[] = [
     cell: ({ row }) => <span className="text-muted-foreground tabular-nums">{row.original.order}</span>,
   },
   {
+    id: 'toursCount',
+    header: 'Tours',
+    meta: { label: 'Tours', align: 'right' },
+    cell: ({ row }) => <span className="tabular-nums">{row.original.toursCount ?? '—'}</span>,
+  },
+  {
     id: 'status',
     header: 'Status',
     meta: { label: 'Status' },

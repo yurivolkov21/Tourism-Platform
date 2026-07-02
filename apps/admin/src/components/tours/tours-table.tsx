@@ -8,6 +8,7 @@ import {
   Compass,
   ListFilter,
   Search,
+  Star,
 } from 'lucide-react';
 import {
   getCoreRowModel,
@@ -61,6 +62,25 @@ function primaryDestination(tour: TourSummary): string {
 
 const tourColumns: ColumnDef<TourSummary>[] = [
   {
+    id: 'cover',
+    header: 'Cover',
+    meta: { label: 'Cover' },
+    cell: ({ row }) => {
+      const hero = (row.original.media ?? []).find((m) => m.role === 'hero');
+      return hero?.url ? (
+        <img
+          src={hero.url}
+          alt=""
+          className="bg-muted aspect-16/10 w-16 rounded-md border object-cover"
+        />
+      ) : (
+        <div className="bg-muted text-muted-foreground grid aspect-16/10 w-16 place-items-center rounded-md border">
+          <Compass className="size-4" aria-hidden />
+        </div>
+      );
+    },
+  },
+  {
     id: 'title',
     header: 'Title',
     enableHiding: false,
@@ -113,6 +133,42 @@ const tourColumns: ColumnDef<TourSummary>[] = [
     header: 'Days',
     meta: { label: 'Days', align: 'right' },
     cell: ({ row }) => <span className="tabular-nums">{row.original.durationDays}</span>,
+  },
+  {
+    id: 'rating',
+    header: 'Rating',
+    meta: { label: 'Rating' },
+    cell: ({ row }) =>
+      row.original.reviewsCount === 0 ? (
+        <span className="text-muted-foreground">—</span>
+      ) : (
+        <span className="inline-flex items-center gap-1">
+          <Star className="size-3 fill-current text-amber-500" aria-hidden />
+          <span className="tabular-nums">{row.original.averageRating.toFixed(1)}</span>
+          <span className="text-muted-foreground text-xs tabular-nums">
+            ({row.original.reviewsCount})
+          </span>
+        </span>
+      ),
+  },
+  {
+    id: 'nextDeparture',
+    header: 'Next departure',
+    meta: { label: 'Next departure' },
+    cell: ({ row }) =>
+      row.original.nextDepartureDate ? (
+        <span className="text-sm">
+          {new Date(row.original.nextDepartureDate).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'short',
+          })}
+          <span className="text-muted-foreground ml-1 text-xs">
+            • {row.original.nextDepartureSeatsLeft} seats
+          </span>
+        </span>
+      ) : (
+        <span className="text-muted-foreground">—</span>
+      ),
   },
   {
     id: 'status',
