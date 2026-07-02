@@ -1,5 +1,13 @@
 # Admin Dashboard quick wins (Wave 4) — implementation plan
 
+**STATUS: COMPLETE (2026-07-02)** — both slices executed via subagent-driven development and
+ff-merged to `main`: slice 1 `6bf0b93` (BE `pendingCounts` on the stats aggregate,
+`ecc:code-reviewer` APPROVE 0 findings — Promise.all alignment + index-backed counts verified) ·
+slice 2 `8b0d98e` (chart Revenue|Bookings metric toggle · BookingsPipeline · TopToursCard tabs ·
+NeedsAttention tiles · full `DashboardStats` typing + deploy-lag guards). Gate green per slice;
+api tests 249, admin tests 124. Deferred follow-ups noted in the SDD ledger: TopToursCard USD
+hardcode (multi-currency later), tablist keyboard-nav ARIA.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Render every stat the dashboard endpoint already computes (top-tours ×3, bookings-by-status, dailyTrend.bookings) plus new pending-queue tiles — per spec `docs/06-specs/2026-07-02-admin-dashboard-wins-design.md` (Wave 4).
