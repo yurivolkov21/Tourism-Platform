@@ -74,6 +74,14 @@ describe('UploadsService.createSignedUploadParams', () => {
     expect(res.uploadUrl).toBe('https://api.cloudinary.com/v1_1/demo/image/upload');
   });
 
+  it('signs a POST_COVER upload into the posts/cover folder', async () => {
+    const res = makeService().createSignedUploadParams(
+      body({ purpose: UploadPurpose.POST_COVER, filename: 'cover.jpg' }),
+    );
+    expect(res.folder).toMatch(/posts\/cover$/);
+    expect(res.resourceType).toBe('image');
+  });
+
   it('sanitizes the public_id from the filename', () => {
     const res = makeService().createSignedUploadParams(
       body({ purpose: UploadPurpose.TOUR_GALLERY, filename: 'My Photo!!.png' }),
