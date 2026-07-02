@@ -22,7 +22,7 @@ const customConfig = {
   },
 };
 
-module.exports = withNxMetro(mergeConfig(defaultConfig, customConfig), {
+const config = withNxMetro(mergeConfig(defaultConfig, customConfig), {
   // Change this to true to see debugging info.
   // Useful if you have issues resolving modules
   debug: false,
@@ -31,3 +31,11 @@ module.exports = withNxMetro(mergeConfig(defaultConfig, customConfig), {
   // Specify folders to watch, in addition to Nx defaults (workspace libraries and node_modules)
   watchFolders: [],
 });
+
+// node_modules is covered by resolver.nodeModulesPaths for import resolution.
+// Watching it forces Metro to index pnpm's entire virtual store (~40s+ cold start).
+config.watchFolders = (config.watchFolders || []).filter(
+  (f) => !f.endsWith('node_modules'),
+);
+
+module.exports = config;
