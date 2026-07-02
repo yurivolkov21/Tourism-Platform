@@ -295,7 +295,7 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                       className="hover:bg-muted/60 block space-y-1.5 rounded-lg border p-2.5 transition-colors"
                     >
                       <span className="flex items-center justify-between text-sm">
-                        <span className="font-medium">{d.startDate}</span>
+                        <span className="font-medium">{formatDate(d.startDate)}</span>
                         <span className="text-muted-foreground tabular-nums">
                           {d.seatsBooked}/{d.seatsTotal} seats
                         </span>
