@@ -3,6 +3,7 @@ import type { components } from '@tourism/core';
 import { getApiClient } from '../api/client';
 
 export type Post = components['schemas']['PostDto'];
+export type PostDetail = components['schemas']['AdminPostDetailDto'];
 export type PageMeta = components['schemas']['PageMetaDto'];
 
 export interface PostListParams {
@@ -42,10 +43,10 @@ export async function listPosts(params: PostListParams = {}): Promise<PostList> 
  * Fetches one post by slug for the edit form. Single resources come back wrapped in the
  * `{ data, error }` envelope at runtime (the generated client types it bare), so we unwrap here.
  */
-export async function getPost(slug: string): Promise<Post> {
+export async function getPost(slug: string): Promise<PostDetail> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/posts/{slug}', {
     params: { path: { slug } },
   });
-  return (data as unknown as { data: Post }).data;
+  return (data as unknown as { data: PostDetail }).data;
 }
