@@ -54,6 +54,8 @@ const FRIENDLY_BY_CODE: Record<string, string> = {
   INVALID_DATE_RANGE: 'The end date must be on or after the start date.',
   SEATS_TOTAL_BELOW_BOOKED:
     'You can’t set total seats below the number already booked. Increase the total, or cancel some bookings first.',
+  REVIEW_NOT_CURATED:
+    'Only curated testimonials can be deleted. To hide a verified traveller review, unapprove it instead.',
 };
 
 /**

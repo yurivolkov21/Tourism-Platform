@@ -46,6 +46,7 @@ export interface AdminReviewItem {
   id: string;
   tourId: string | null;
   tourSlug: string | null;
+  tourTitle: string | null;
   userId: string | null;
   authorName: string;
   authorLocation: string | null;
@@ -54,6 +55,7 @@ export interface AdminReviewItem {
   isFeatured: boolean;
   rating: number;
   title: string | null;
+  tripLabel: string | null;
   body: string;
   isApproved: boolean;
   createdAt: Date;
@@ -280,7 +282,7 @@ export class ReviewsService {
         skip: (page - 1) * pageSize,
         take: pageSize,
         include: {
-          tour: { select: { slug: true } },
+          tour: { select: { slug: true, title: true } },
         },
       }),
       this.prisma.review.count({ where }),
@@ -290,6 +292,7 @@ export class ReviewsService {
       id: row.id,
       tourId: row.tourId,
       tourSlug: row.tour?.slug ?? null,
+      tourTitle: row.tour?.title ?? null,
       userId: row.userId,
       authorName: row.authorName,
       authorLocation: row.authorLocation,
@@ -298,6 +301,7 @@ export class ReviewsService {
       isFeatured: row.isFeatured,
       rating: row.rating,
       title: row.title,
+      tripLabel: row.tripLabel,
       body: row.body,
       isApproved: row.isApproved,
       createdAt: row.createdAt,
@@ -377,6 +381,32 @@ export class ReviewsService {
       where: { id: reviewId },
       data: { isFeatured },
     });
+  }
+
+  /**
+   * Hard-delete a curated testimonial (admin). VERIFIED reviews are protected — deleting one
+   * would erase a real customer's audit trail; unapprove it to hide it instead (409).
+   */
+  async deleteCuratedById(reviewId: string): Promise<Review> {
+    const existing = await this.prisma.review.findUnique({
+      where: { id: reviewId },
+      select: { id: true, source: true },
+    });
+    if (!existing) {
+      throw new NotFoundException({
+        code: 'REVIEW_NOT_FOUND',
+        message: `Review "${reviewId}" not found`,
+      });
+    }
+    if (existing.source !== ReviewSource.CURATED) {
+      throw new ConflictException({
+        code: 'REVIEW_NOT_CURATED',
+        message: 'Only curated testimonials can be deleted — unapprove a verified review to hide it.',
+      });
+    }
+    const deleted = await this.prisma.review.delete({ where: { id: reviewId } });
+    this.logger.log(`Deleted curated review ${reviewId}`);
+    return deleted;
   }
 
   /** Create an admin-authored testimonial (CURATED) — approved + featured immediately. */

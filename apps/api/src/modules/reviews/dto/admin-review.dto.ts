@@ -17,6 +17,9 @@ export class AdminReviewDto {
   @ApiProperty({ example: 'hoi-an-walking-tour', nullable: true, type: String })
   tourSlug!: string | null;
 
+  @ApiProperty({ nullable: true, type: String, example: 'Hoi An Ancient Town Walking Tour' })
+  tourTitle!: string | null;
+
   @ApiProperty({ format: 'uuid', nullable: true, type: String })
   userId!: string | null;
 
@@ -40,6 +43,14 @@ export class AdminReviewDto {
 
   @ApiProperty({ nullable: true, type: String })
   title!: string | null;
+
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    example: 'Hạ Long Bay Cruise',
+    description: 'Trip label shown on curated testimonials.',
+  })
+  tripLabel!: string | null;
 
   @ApiProperty()
   body!: string;

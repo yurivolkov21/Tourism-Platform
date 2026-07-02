@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { BookingStatus, Prisma } from '@prisma/client';
+import { BookingStatus, Prisma, ReviewSource } from '@prisma/client';
 import { ReviewsService } from './reviews.service';
 
 beforeAll(() => {
@@ -449,5 +449,71 @@ describe('ReviewsService.createCurated', () => {
     expect(calls[0][0].data.source).toBe('CURATED');
     expect(calls[0][0].data.isApproved).toBe(true);
     expect(calls[0][0].data.isFeatured).toBe(true);
+  });
+});
+
+describe('ReviewsService — admin surfacing + curated delete', () => {
+  it('findAllForAdmin maps tripLabel and the tour title', async () => {
+    const findMany = jest.fn().mockResolvedValue([
+      {
+        id: 'r1',
+        tourId: 't1',
+        userId: null,
+        bookingId: null,
+        authorName: 'Ana',
+        authorLocation: null,
+        source: ReviewSource.CURATED,
+        isFeatured: true,
+        rating: 5,
+        title: 'Great',
+        body: 'Lovely trip',
+        isApproved: true,
+        tripLabel: 'Hạ Long Bay Cruise',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        tour: { slug: 'ha-long', title: 'Hạ Long Bay Cruise 2D1N' },
+      },
+    ]);
+    const count = jest.fn().mockResolvedValue(1);
+    const svc = new ReviewsService({ review: { findMany, count } } as never);
+
+    const res = await svc.findAllForAdmin({});
+
+    expect(findMany.mock.calls[0][0].include).toEqual({
+      tour: { select: { slug: true, title: true } },
+    });
+    expect(res.items[0].tripLabel).toBe('Hạ Long Bay Cruise');
+    expect(res.items[0].tourTitle).toBe('Hạ Long Bay Cruise 2D1N');
+  });
+
+  it('deleteCuratedById deletes a curated review', async () => {
+    const findUnique = jest.fn().mockResolvedValue({ id: 'r1', source: ReviewSource.CURATED });
+    const del = jest.fn().mockResolvedValue({ id: 'r1' });
+    const svc = new ReviewsService({ review: { findUnique, delete: del } } as never);
+
+    await svc.deleteCuratedById('r1');
+
+    expect(del).toHaveBeenCalledWith({ where: { id: 'r1' } });
+  });
+
+  it('deleteCuratedById 404s when the review is missing', async () => {
+    const svc = new ReviewsService(
+      { review: { findUnique: jest.fn().mockResolvedValue(null) } } as never,
+    );
+    await expect(svc.deleteCuratedById('nope')).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('deleteCuratedById 409s for a verified review (audit trail protected)', async () => {
+    const del = jest.fn();
+    const svc = new ReviewsService(
+      {
+        review: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'r1', source: ReviewSource.VERIFIED }),
+          delete: del,
+        },
+      } as never,
+    );
+    await expect(svc.deleteCuratedById('r1')).rejects.toBeInstanceOf(ConflictException);
+    expect(del).not.toHaveBeenCalled();
   });
 });

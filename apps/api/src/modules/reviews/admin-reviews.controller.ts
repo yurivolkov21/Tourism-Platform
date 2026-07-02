@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -81,6 +82,17 @@ export class AdminReviewsController {
     @Body() body: FeatureReviewDto,
   ): Promise<Review> {
     return this.reviewsService.setFeatured(id, body.isFeatured);
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete a curated testimonial (verified reviews are protected)' })
+  @ApiOkResponse({ type: ReviewDto, description: 'Deleted (echo)' })
+  @ApiResponse({ status: 404, description: 'Review not found' })
+  @ApiResponse({ status: 409, description: 'Not a curated review' })
+  remove(@Param('id', new ParseUUIDPipe()) id: string): Promise<Review> {
+    return this.reviewsService.deleteCuratedById(id);
   }
 
   @Post('curated')
