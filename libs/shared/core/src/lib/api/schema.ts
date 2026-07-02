@@ -738,6 +738,23 @@ export interface paths {
         patch: operations["AdminReviewsController_feature"];
         trace?: never;
     };
+    "/api/v1/admin/reviews/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a curated testimonial (verified reviews are protected) */
+        delete: operations["AdminReviewsController_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/reviews/curated": {
         parameters: {
             query?: never;
@@ -2079,6 +2096,8 @@ export interface components {
             tourId: string | null;
             /** @example hoi-an-walking-tour */
             tourSlug: string | null;
+            /** @example Hoi An Ancient Town Walking Tour */
+            tourTitle: string | null;
             /** Format: uuid */
             userId: string | null;
             /**
@@ -2100,6 +2119,11 @@ export interface components {
             /** @example 5 */
             rating: number;
             title: string | null;
+            /**
+             * @description Trip label shown on curated testimonials.
+             * @example Hạ Long Bay Cruise
+             */
+            tripLabel: string | null;
             body: string;
             isApproved: boolean;
             /** Format: date-time */
@@ -4352,6 +4376,42 @@ export interface operations {
             };
             /** @description Review not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminReviewsController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted (echo) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewDto"];
+                };
+            };
+            /** @description Review not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not a curated review */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
