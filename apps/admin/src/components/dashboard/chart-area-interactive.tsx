@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 import {
   Card,
@@ -78,7 +78,7 @@ export function ChartAreaInteractive({ daily }: { daily: DashboardStats['dailyTr
         </CardAction>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-        <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
+        <ChartContainer config={chartConfig} className="aspect-auto h-62.5 w-full">
           <AreaChart data={data}>
             <defs>
               <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -95,11 +95,15 @@ export function ChartAreaInteractive({ daily }: { daily: DashboardStats['dailyTr
               minTickGap={32}
               tickFormatter={formatDay}
             />
+            {/* Clamp the scale at 0 so the fill can never render below the baseline. */}
+            <YAxis domain={[0, 'auto']} hide />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent labelFormatter={(value) => formatDay(String(value))} indicator="dot" />}
             />
-            <Area dataKey="revenue" type="natural" fill="url(#fillRevenue)" stroke="var(--color-revenue)" />
+            {/* `monotone` (shape-preserving cubic) stays smooth but never overshoots — so spiky daily
+                revenue doesn't dip below 0 or round off its peaks, unlike `natural`. */}
+            <Area dataKey="revenue" type="monotone" fill="url(#fillRevenue)" stroke="var(--color-revenue)" />
           </AreaChart>
         </ChartContainer>
       </CardContent>
