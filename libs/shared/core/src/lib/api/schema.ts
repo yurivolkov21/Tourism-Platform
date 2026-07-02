@@ -1090,6 +1090,11 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
             media: components["schemas"]["MediaItemDto"][];
+            /**
+             * @description Number of tours using this destination
+             * @example 4
+             */
+            toursCount: number;
         };
         PageMetaDto: {
             /** @example 1 */
@@ -1135,6 +1140,11 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
             media: components["schemas"]["MediaItemDto"][];
+            /**
+             * @description Number of tours using this destination
+             * @example 4
+             */
+            toursCount: number;
             tours: components["schemas"]["DestinationTourDto"][];
         };
         CreateDestinationDto: {
@@ -1231,6 +1241,11 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+            /**
+             * @description Number of tours in this category
+             * @example 7
+             */
+            toursCount: number;
         };
         PaginatedTourCategoriesDto: {
             data: components["schemas"]["TourCategoryDto"][];
@@ -1259,6 +1274,11 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+            /**
+             * @description Number of tours in this category
+             * @example 7
+             */
+            toursCount: number;
             tours: components["schemas"]["CategoryTourDto"][];
         };
         CreateTourCategoryDto: {
