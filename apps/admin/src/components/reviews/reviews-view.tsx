@@ -361,7 +361,7 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
           </EmptyMedia>
           <EmptyTitle>No reviews yet</EmptyTitle>
           <EmptyDescription>
-            Reviews from travellers will appear here once they're submitted.
+            Reviews from travellers will appear here once they’re submitted.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -583,11 +583,11 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Delete "{pendingDelete?.authorName}"'s testimonial?
+              Delete “{pendingDelete?.authorName}”’s testimonial?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This permanently removes the curated testimonial and can't be undone. Verified
-              traveller reviews can't be deleted — unapprove those to hide them.
+              This permanently removes the curated testimonial and can’t be undone. Verified
+              traveller reviews can’t be deleted — unapprove those to hide them.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
