@@ -128,11 +128,18 @@ export function MediaField({
   onChange,
   heroPurpose,
   galleryPurpose,
+  legend = 'Images',
+  description,
+  heroLabel = 'Hero image',
 }: {
   initial: MediaInput[];
   onChange: (items: MediaInput[]) => void;
   heroPurpose: UploadPurpose;
-  galleryPurpose: UploadPurpose;
+  /** Omit to render a hero-only field (no gallery section) — e.g. the post cover. */
+  galleryPurpose?: UploadPurpose;
+  legend?: string;
+  description?: string;
+  heroLabel?: string;
 }) {
   const [items, setItems] = useState<MediaInput[]>(initial);
   const [busy, setBusy] = useState(false);
@@ -168,6 +175,7 @@ export function MediaField({
   }
 
   async function onGalleryPick(e: ChangeEvent<HTMLInputElement>) {
+    if (!galleryPurpose) return;
     const files = Array.from(e.target.files ?? []);
     e.target.value = '';
     if (!files.length) return;
@@ -199,16 +207,16 @@ export function MediaField({
     <>
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
-          <FieldLegend className="mb-1.5 font-semibold">Images</FieldLegend>
+          <FieldLegend className="mb-1.5 font-semibold">{legend}</FieldLegend>
           <FieldDescription>
-            A hero photo and up to {MAX_GALLERY} gallery images. Drag gallery tiles to reorder.
+            {description ?? `A hero photo and up to ${MAX_GALLERY} gallery images. Drag gallery tiles to reorder.`}
           </FieldDescription>
         </div>
 
         <div className="space-y-6 md:col-span-2">
           {/* Hero */}
           <div className="space-y-2">
-            <span className="text-sm font-medium">Hero image</span>
+            <span className="text-sm font-medium">{heroLabel}</span>
             {hero ? (
               <div className="bg-muted relative aspect-video w-full max-w-md overflow-hidden rounded-lg border">
                 <button
@@ -246,57 +254,61 @@ export function MediaField({
             <input ref={heroInput} type="file" accept={ACCEPT} className="sr-only" onChange={onHeroPick} />
           </div>
 
-          {/* Gallery */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-sm font-medium">
-                Gallery <span className="text-muted-foreground">({gallery.length}/{MAX_GALLERY})</span>
-              </span>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => galleryInput.current?.click()}
-                disabled={busy || galleryFull}
-                className="cursor-pointer"
-              >
-                <ImagePlus className="size-4" />
-                Add images
-              </Button>
-              <input
-                ref={galleryInput}
-                type="file"
-                multiple
-                accept={ACCEPT}
-                className="sr-only"
-                onChange={onGalleryPick}
-              />
-            </div>
+          {galleryPurpose ? (
+            <>
+              {/* Gallery */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-medium">
+                    Gallery <span className="text-muted-foreground">({gallery.length}/{MAX_GALLERY})</span>
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => galleryInput.current?.click()}
+                    disabled={busy || galleryFull}
+                    className="cursor-pointer"
+                  >
+                    <ImagePlus className="size-4" />
+                    Add images
+                  </Button>
+                  <input
+                    ref={galleryInput}
+                    type="file"
+                    multiple
+                    accept={ACCEPT}
+                    className="sr-only"
+                    onChange={onGalleryPick}
+                  />
+                </div>
 
-            {gallery.length ? (
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-                <SortableContext items={gallery.map((g) => g.publicId)} strategy={rectSortingStrategy}>
-                  <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-                    {gallery.map((g, i) => (
-                      <GalleryTile
-                        key={g.publicId}
-                        item={g}
-                        onRemove={() => setItems((prev) => prev.filter((x) => x.publicId !== g.publicId))}
-                        onView={() => setViewIndex(galleryOffset + i)}
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-              </DndContext>
-            ) : (
-              <p className="text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm">
-                No gallery images yet.
-              </p>
-            )}
-            {galleryFull ? (
-              <p className="text-muted-foreground text-xs">Maximum {MAX_GALLERY} gallery images reached.</p>
-            ) : null}
-          </div>
+                {gallery.length ? (
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+                    <SortableContext items={gallery.map((g) => g.publicId)} strategy={rectSortingStrategy}>
+                      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+                        {gallery.map((g, i) => (
+                          <GalleryTile
+                            key={g.publicId}
+                            item={g}
+                            onRemove={() => setItems((prev) => prev.filter((x) => x.publicId !== g.publicId))}
+                            onView={() => setViewIndex(galleryOffset + i)}
+                          />
+                        ))}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
+                ) : (
+                  <p className="text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm">
+                    No gallery images yet.
+                  </p>
+                )}
+                {galleryFull ? (
+                  <p className="text-muted-foreground text-xs">Maximum {MAX_GALLERY} gallery images reached.</p>
+                ) : null}
+              </div>
+            </>
+          ) : null}
 
           {error ? <ErrorAlert>{error}</ErrorAlert> : null}
         </div>
