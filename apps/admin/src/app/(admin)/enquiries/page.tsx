@@ -18,7 +18,7 @@ function parsePage(raw?: string): number {
 }
 
 interface EnquiriesPageProps {
-  searchParams: Promise<{ status?: string; page?: string; pageSize?: string }>;
+  searchParams: Promise<{ status?: string; page?: string; pageSize?: string; q?: string }>;
 }
 
 export default async function EnquiriesPage({ searchParams }: EnquiriesPageProps) {
@@ -26,11 +26,12 @@ export default async function EnquiriesPage({ searchParams }: EnquiriesPageProps
   const status = parseStatus(sp.status);
   const page = parsePage(sp.page);
   const pageSize = parsePageSize(sp.pageSize);
+  const q = (sp.q ?? '').trim();
 
   let result: EnquiryList | undefined;
   let error: string | null = null;
   try {
-    result = await listEnquiries({ page, pageSize, status });
+    result = await listEnquiries({ page, pageSize, status, search: q || undefined });
   } catch (e) {
     error = apiErrorMessage(e);
   }
@@ -48,7 +49,7 @@ export default async function EnquiriesPage({ searchParams }: EnquiriesPageProps
           is valid.
         </ErrorAlert>
       ) : result ? (
-        <EnquiriesView rows={result.data} status={status ?? 'all'} meta={result.meta} />
+        <EnquiriesView rows={result.data} status={status ?? 'all'} meta={result.meta} query={q} />
       ) : null}
     </div>
   );

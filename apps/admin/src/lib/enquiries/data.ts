@@ -10,6 +10,7 @@ export interface EnquiryListParams {
   page?: number;
   pageSize?: number;
   status?: EnquiryStatus;
+  search?: string;
 }
 
 export interface EnquiryList {
@@ -20,9 +21,8 @@ export interface EnquiryList {
 export const DEFAULT_PAGE_SIZE = 20;
 
 /**
- * Lists enquiries for the admin CRM table (`GET /admin/enquiries`). Status filter + pagination are
- * **server-side** (the API supports them); there is no server `search`, so name/email search is done
- * client-side within the current page. The wire format is already the `{ data, meta }` envelope.
+ * Lists enquiries for the admin CRM table (`GET /admin/enquiries`). Status filter, pagination, and
+ * search are **server-side** (the API supports them all). The wire format is already the `{ data, meta }` envelope.
  */
 export async function listEnquiries(params: EnquiryListParams = {}): Promise<EnquiryList> {
   const api = await getApiClient();
@@ -32,6 +32,7 @@ export async function listEnquiries(params: EnquiryListParams = {}): Promise<Enq
         page: params.page,
         pageSize: params.pageSize ?? DEFAULT_PAGE_SIZE,
         status: params.status,
+        search: params.search,
       },
     },
   });

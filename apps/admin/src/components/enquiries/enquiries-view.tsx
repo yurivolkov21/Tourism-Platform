@@ -1,8 +1,10 @@
 'use client';
 
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { Compass, Inbox, Search } from 'lucide-react';
+import { formatRelativeTime } from '../../lib/relative-time';
 import {
   getCoreRowModel,
   useReactTable,
@@ -98,6 +100,7 @@ const enquiryColumns: ColumnDef<Enquiry>[] = [
     cell: ({ row }) => (
       <span className="text-muted-foreground tabular-nums whitespace-nowrap">
         {receivedAt(row.original.createdAt)}
+        <span className="block text-xs">{formatRelativeTime(row.original.createdAt)}</span>
       </span>
     ),
   },
@@ -110,8 +113,7 @@ const enquiryColumns: ColumnDef<Enquiry>[] = [
 ];
 
 /**
- * Enquiries CRM surface. Status tabs + pagination are URL-driven (server-side filtering); name/email
- * **search is client-side** within the current page (the API has no search param). Clicking a row
+ * Enquiries CRM surface. Status tabs, pagination, and search are URL-driven (server-side filtering). Clicking a row
  * opens a right-hand drawer with the full message, contact links, and a status control that PATCHes
  * the pipeline stage (optimistic, rolls back on error).
  */
@@ -119,26 +121,39 @@ export function EnquiriesView({
   rows,
   status,
   meta,
+  query,
 }: {
   rows: Enquiry[];
   status: TabValue;
   meta: PageMeta;
+  query: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
 
-  const [query, setQuery] = useState('');
+  const [draft, setDraft] = useState(query);
   const [selected, setSelected] = useState<Enquiry | null>(null);
   const [statusError, setStatusError] = useState<string | null>(null);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [saving, startSaving] = useTransition();
 
-  const pushParams = (changes: { status?: TabValue; page?: number }) => {
+  // Keep the box in step with back/forward navigation.
+  useEffect(() => {
+    setDraft(query);
+  }, [query]);
+
+  const pushParams = (changes: { status?: TabValue; page?: number; q?: string }) => {
     const next = new URLSearchParams(params.toString());
     if (changes.status !== undefined) {
       if (changes.status === 'all') next.delete('status');
       else next.set('status', changes.status);
+      next.delete('page');
+    }
+    if (changes.q !== undefined) {
+      const q = changes.q.trim();
+      if (q === '') next.delete('q');
+      else next.set('q', q);
       next.delete('page');
     }
     if (changes.page !== undefined) {
@@ -149,16 +164,8 @@ export function EnquiriesView({
     router.push(qs ? `${pathname}?${qs}` : pathname);
   };
 
-  const filtered = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    if (!needle) return rows;
-    return rows.filter(
-      (r) => r.name.toLowerCase().includes(needle) || r.email.toLowerCase().includes(needle),
-    );
-  }, [rows, query]);
-
   const table = useReactTable({
-    data: filtered,
+    data: rows,
     columns: enquiryColumns,
     state: { columnVisibility },
     manualPagination: true,
@@ -221,17 +228,23 @@ export function EnquiriesView({
         </div>
 
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-          <div className="relative w-full sm:max-w-xs">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              pushParams({ q: draft });
+            }}
+            className="relative w-full sm:max-w-xs"
+          >
             <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
             <Input
               type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search name or email…"
-              aria-label="Search enquiries on this page"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder="Search name, email, phone, message…"
+              aria-label="Search enquiries"
               className="bg-background pl-8"
             />
-          </div>
+          </form>
           <ColumnsMenu table={table} />
         </div>
       </div>
@@ -239,9 +252,23 @@ export function EnquiriesView({
       <p className="text-muted-foreground text-sm">
         {meta.total} {meta.total === 1 ? 'enquiry' : 'enquiries'}
         {status !== 'all' ? ` · ${enquiryStatusMeta(status).label.toLowerCase()}` : ''}
+        {query ? (
+          <>
+            {' · matching "'}
+            {query}
+            {'" — '}
+            <button
+              type="button"
+              onClick={() => pushParams({ q: '' })}
+              className="text-primary cursor-pointer hover:underline"
+            >
+              clear
+            </button>
+          </>
+        ) : null}
       </p>
 
-      {filtered.length === 0 ? (
+      {rows.length === 0 ? (
         <Empty className="border">
           <EmptyHeader>
             <EmptyMedia variant="icon">
@@ -250,7 +277,7 @@ export function EnquiriesView({
             <EmptyTitle>No enquiries found</EmptyTitle>
             <EmptyDescription>
               {query
-                ? 'No one on this page matches your search.'
+                ? 'Nothing matches your search.'
                 : 'Leads from the contact, plan-trip, and private-departure forms will appear here.'}
             </EmptyDescription>
           </EmptyHeader>
@@ -286,7 +313,10 @@ export function EnquiriesView({
                   <SheetTitle>{selected.name}</SheetTitle>
                   <EnquiryStatusBadge status={selected.status} />
                 </div>
-                <SheetDescription>Received {receivedAt(selected.createdAt)}</SheetDescription>
+                <SheetDescription>
+                  Received {receivedAt(selected.createdAt)} ·{' '}
+                  {formatRelativeTime(selected.createdAt)}
+                </SheetDescription>
               </SheetHeader>
 
               <div className="space-y-6 px-4 pb-6">
@@ -349,10 +379,82 @@ export function EnquiriesView({
                     </div>
                     <div className="flex justify-between gap-4">
                       <dt className="text-muted-foreground">About a tour</dt>
-                      <dd>{selected.tourId ? 'Yes' : 'General enquiry'}</dd>
+                      <dd className="text-right">
+                        {selected.tourSlug ? (
+                          <Link
+                            href={`/tours/${selected.tourSlug}`}
+                            className="hover:text-primary hover:underline"
+                          >
+                            {selected.tourTitle ?? selected.tourSlug}
+                          </Link>
+                        ) : selected.tourId ? (
+                          'Yes'
+                        ) : (
+                          'General enquiry'
+                        )}
+                      </dd>
                     </div>
                   </dl>
                 </div>
+
+                {selected.nationality ||
+                selected.travelDate ||
+                selected.groupSize ||
+                selected.budgetTier ||
+                (selected.interests?.length ?? 0) > 0 ? (
+                  <>
+                    <Separator />
+
+                    {/* Trip details (lead qualification — only rows that were sent) */}
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium">Trip details</p>
+                      <dl className="space-y-2 text-sm">
+                        {selected.nationality ? (
+                          <div className="flex justify-between gap-4">
+                            <dt className="text-muted-foreground">Nationality</dt>
+                            <dd>{selected.nationality}</dd>
+                          </div>
+                        ) : null}
+                        {selected.travelDate ? (
+                          <div className="flex justify-between gap-4">
+                            <dt className="text-muted-foreground">Travel date</dt>
+                            <dd>
+                              {new Date(selected.travelDate).toLocaleDateString('en-GB', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </dd>
+                          </div>
+                        ) : null}
+                        {selected.groupSize ? (
+                          <div className="flex justify-between gap-4">
+                            <dt className="text-muted-foreground">Group size</dt>
+                            <dd>
+                              {selected.groupSize}{' '}
+                              {selected.groupSize === 1 ? 'traveller' : 'travellers'}
+                            </dd>
+                          </div>
+                        ) : null}
+                        {selected.budgetTier ? (
+                          <div className="flex justify-between gap-4">
+                            <dt className="text-muted-foreground">Budget</dt>
+                            <dd>{selected.budgetTier}</dd>
+                          </div>
+                        ) : null}
+                      </dl>
+                      {(selected.interests?.length ?? 0) > 0 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {selected.interests.map((interest) => (
+                            <Badge key={interest} variant="outline">
+                              {interest}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  </>
+                ) : null}
 
                 <Separator />
 
