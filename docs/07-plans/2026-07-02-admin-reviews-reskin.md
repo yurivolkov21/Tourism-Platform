@@ -1,5 +1,11 @@
 # Admin Reviews reskin + surfacing (Wave 2) — implementation plan
 
+**STATUS: COMPLETE (2026-07-02)** — both slices executed via subagent-driven development and
+ff-merged to `main`: slice 1 `a6e9ee8` (BE tripLabel/tourTitle + curated-only DELETE,
+`ecc:code-reviewer` APPROVE — CURATED guard + public surface + FK safety verified) · slice 2
+`832b120` (ReviewsView template table + full-text drawer + ⋮ actions + Form Layout 2 curated
+form; deleted `review-actions.tsx`). Gate green per slice; api tests 246, admin tests 122.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Bring the last pre-template admin surface (Reviews) onto the shared template with a full-text drawer, surface the hidden data (`tripLabel`, `title`, tour title/link), and add curated-only delete — per spec `docs/06-specs/2026-07-02-admin-reviews-reskin-design.md` (Wave 2 of the enrichment roadmap).
