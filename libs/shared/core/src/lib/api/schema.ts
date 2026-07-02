@@ -2062,11 +2062,80 @@ export interface components {
             data: components["schemas"]["BookingDto"][];
             meta: components["schemas"]["PageMetaDto"];
         };
+        AdminBookingDepartureRefDto: {
+            /**
+             * Format: date
+             * @example 2026-08-15
+             */
+            startDate: string;
+            /**
+             * Format: date
+             * @example 2026-08-18
+             */
+            endDate: string;
+            /** @example 12 */
+            seatsTotal: number;
+            /** @example 7 */
+            seatsBooked: number;
+        };
         RefundedByDto: {
             /** @example Jane Admin */
             fullName: string | null;
             /** @example admin@example.com */
             email: string;
+        };
+        BookingCustomerDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example Jane Doe */
+            fullName: string | null;
+            /** @example jane@example.com */
+            email: string;
+            /**
+             * Format: date-time
+             * @description Account created — "customer since".
+             */
+            createdAt: string;
+        };
+        OtherBookingItemDto: {
+            /** @example BK-7Q2KX9AB */
+            code: string;
+            /** @enum {string} */
+            status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED";
+            /** Format: date-time */
+            createdAt: string;
+            /** @example Mekong Delta Day Trip */
+            tourTitle: string;
+            /** @example 150.00 */
+            totalAmount: string;
+            /** @example USD */
+            currency: string;
+        };
+        OtherBookingsDto: {
+            /**
+             * @description Total OTHER bookings (current one excluded).
+             * @example 7
+             */
+            total: number;
+            /** @description Newest first, at most 5. */
+            items: components["schemas"]["OtherBookingItemDto"][];
+        };
+        PaymentEventSummaryDto: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            provider: "STRIPE" | "PAYPAL";
+            /** @example checkout.session.completed */
+            type: string;
+            /**
+             * @description Provider-side event id.
+             * @example evt_1PabcXYZ
+             */
+            eventId: string;
+            /** Format: date-time */
+            receivedAt: string;
+            /** Format: date-time */
+            processedAt: string | null;
         };
         AdminBookingDetailDto: {
             /** Format: uuid */
@@ -2099,7 +2168,7 @@ export interface components {
             contactPhone: string | null;
             specialRequests: string | null;
             tour: components["schemas"]["BookingTourRefDto"];
-            departure: components["schemas"]["BookingDepartureRefDto"];
+            departure: components["schemas"]["AdminBookingDepartureRefDto"];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -2113,9 +2182,17 @@ export interface components {
              * @example pi_3QabcXYZ
              */
             providerPaymentId: string | null;
+            /**
+             * @description Checkout session / PayPal order id minted at checkout start (pre-capture reference).
+             * @example cs_test_a1B2c3
+             */
+            providerSessionId: string | null;
             /** @example Customer cancelled within the free window */
             refundReason: string | null;
             refundedBy: components["schemas"]["RefundedByDto"] | null;
+            customer: components["schemas"]["BookingCustomerDto"];
+            otherBookings: components["schemas"]["OtherBookingsDto"];
+            paymentEvents: components["schemas"]["PaymentEventSummaryDto"][];
         };
         RefundBookingDto: {
             /** @example Customer cancelled within the free window */
@@ -4155,6 +4232,7 @@ export interface operations {
                 search?: string;
                 tourId?: string;
                 departureId?: string;
+                userId?: string;
             };
             header?: never;
             path?: never;
