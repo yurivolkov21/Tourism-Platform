@@ -376,6 +376,7 @@ model Booking {
   @@index([userId, status])
   @@index([departureId])
   @@index([status, createdAt])
+  @@index([tourId])
   @@map("bookings")
 }
 
@@ -478,6 +479,7 @@ model Enquiry {
   tour Tour? @relation(fields: [tourId], references: [id], onDelete: SetNull)
 
   @@index([status, createdAt])
+  @@index([tourId])
   @@map("enquiries")
 }
 
