@@ -14,6 +14,16 @@
 import type { PrismaClient } from '@prisma/client';
 import * as f from './sample-data';
 
+/**
+ * Coerce a bare `YYYY-MM-DD` fixture value to a `Date`. The fixtures store `@db.Date` columns as
+ * date-only strings, but Prisma 7's `createMany` rejects those ("Expected ISO-8601 DateTime") — it
+ * wants a full datetime or a `Date`. `new Date('2026-07-31')` parses as UTC midnight, so the stored
+ * calendar date is unchanged (no timezone drift). Applies to the three `@db.Date` fields in the
+ * schema: `TourDeparture.startDate` / `endDate` and the nullable `Enquiry.travelDate`.
+ */
+const toDate = (value: string | null | undefined): Date | null | undefined =>
+  value == null ? value : new Date(value);
+
 export async function insertFixtures(prisma: PrismaClient): Promise<number> {
   const steps: Array<[string, () => Promise<{ count: number }>]> = [
     ['users', () => prisma.user.createMany({ data: f.users as any, skipDuplicates: true })],
@@ -41,7 +51,16 @@ export async function insertFixtures(prisma: PrismaClient): Promise<number> {
     ],
     [
       'tourDepartures',
-      () => prisma.tourDeparture.createMany({ data: f.tourDepartures as any, skipDuplicates: true }),
+      () =>
+        prisma.tourDeparture.createMany({
+          // @db.Date columns → coerce the date-only strings to Date (see toDate).
+          data: (f.tourDepartures as any[]).map((d) => ({
+            ...d,
+            startDate: toDate(d.startDate),
+            endDate: toDate(d.endDate),
+          })),
+          skipDuplicates: true,
+        }),
     ],
     ['bookings', () => prisma.booking.createMany({ data: f.bookings as any, skipDuplicates: true })],
     [
@@ -50,7 +69,15 @@ export async function insertFixtures(prisma: PrismaClient): Promise<number> {
     ],
     ['reviews', () => prisma.review.createMany({ data: f.reviews as any, skipDuplicates: true })],
     ['wishlist', () => prisma.wishlist.createMany({ data: f.wishlist as any, skipDuplicates: true })],
-    ['enquiries', () => prisma.enquiry.createMany({ data: f.enquiries as any, skipDuplicates: true })],
+    [
+      'enquiries',
+      () =>
+        prisma.enquiry.createMany({
+          // `travelDate` is a nullable @db.Date → coerce when present.
+          data: (f.enquiries as any[]).map((e) => ({ ...e, travelDate: toDate(e.travelDate) })),
+          skipDuplicates: true,
+        }),
+    ],
     ['posts', () => prisma.post.createMany({ data: f.posts as any, skipDuplicates: true })],
     ['outbox', () => prisma.outbox.createMany({ data: f.outbox as any, skipDuplicates: true })],
     [
