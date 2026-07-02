@@ -93,8 +93,8 @@ const postColumns: ColumnDef<Post>[] = [
         editHref={`/posts/${row.original.slug}/edit`}
         deleteAction={deletePost}
         deleteId={row.original.slug}
-        deleteTitle={`Delete "${row.original.title}"?`}
-        deleteDescription="This permanently deletes the post and can't be undone."
+        deleteTitle={`Delete “${row.original.title}”?`}
+        deleteDescription="This permanently deletes the post and can’t be undone."
       />
     ),
   },
