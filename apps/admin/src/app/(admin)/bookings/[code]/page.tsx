@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 
-import { Card, CardContent, CardHeader, CardTitle, Separator } from '@tourism/ui';
+import { Badge, Card, CardContent, CardHeader, CardTitle, Separator } from '@tourism/ui';
 
 import { BookingStatusBadge } from '../../../../components/bookings/booking-status-badge';
 import { CopyCodeButton } from '../../../../components/bookings/copy-code-button';
@@ -11,7 +11,7 @@ import { RefundBooking } from '../../../../components/bookings/refund-booking';
 import { getBooking } from '../../../../lib/bookings/data';
 import type { AdminBookingDetail } from '../../../../lib/bookings/detail';
 import { buildBookingTimeline, formatRelativeTime, stripePaymentUrl } from '../../../../lib/bookings/detail';
-import { formatGuests, formatMoney } from '../../../../lib/bookings/format';
+import { formatGuests, formatMoney, formatSeatsSummary } from '../../../../lib/bookings/format';
 
 interface BookingDetailPageProps {
   params: Promise<{ code: string }>;
@@ -122,6 +122,15 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
                   label="Departure"
                   value={`${formatDate(booking.departure.startDate)} → ${formatDate(booking.departure.endDate)}`}
                 />
+                {formatSeatsSummary(booking.departure.seatsTotal, booking.departure.seatsBooked) ? (
+                  <Fact
+                    label="Seats"
+                    value={formatSeatsSummary(
+                      booking.departure.seatsTotal,
+                      booking.departure.seatsBooked,
+                    )}
+                  />
+                ) : null}
               </dl>
             </CardContent>
           </Card>
@@ -166,6 +175,99 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
                   <p className="text-sm whitespace-pre-line">{booking.specialRequests}</p>
                 </div>
               ) : null}
+
+              {booking.customer ? (
+                <>
+                  <Separator />
+                  <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
+                    <Fact
+                      label="Account"
+                      value={booking.customer.fullName?.trim() || booking.customer.email}
+                    />
+                    <Fact
+                      label="Account email"
+                      value={<span className="break-all">{booking.customer.email}</span>}
+                    />
+                    <Fact label="Customer since" value={formatDate(booking.customer.createdAt)} />
+                  </dl>
+                </>
+              ) : null}
+
+              {booking.otherBookings ? (
+                <div className="space-y-2">
+                  <p className="text-muted-foreground text-xs">
+                    Other bookings ({booking.otherBookings.total})
+                  </p>
+                  {booking.otherBookings.items.length === 0 ? (
+                    <p className="text-muted-foreground text-sm">No other bookings.</p>
+                  ) : (
+                    <ul className="divide-border divide-y">
+                      {booking.otherBookings.items.map((b) => (
+                        <li key={b.code} className="flex items-center justify-between gap-3 py-2">
+                          <div className="min-w-0">
+                            <Link
+                              href={`/bookings/${b.code}`}
+                              className="hover:text-primary font-mono text-sm hover:underline"
+                            >
+                              {b.code}
+                            </Link>
+                            <p className="text-muted-foreground truncate text-xs">{b.tourTitle}</p>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-3">
+                            <span className="text-muted-foreground text-xs">
+                              {formatDate(b.createdAt)}
+                            </span>
+                            <BookingStatusBadge status={b.status} />
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {booking.customer && booking.otherBookings.total > booking.otherBookings.items.length ? (
+                    <Link
+                      href={`/bookings?userId=${booking.customer.id}`}
+                      className="text-primary text-sm hover:underline"
+                    >
+                      View all {booking.otherBookings.total} bookings
+                    </Link>
+                  ) : null}
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Payment events</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!booking.paymentEvents || booking.paymentEvents.length === 0 ? (
+                <p className="text-muted-foreground text-sm">No webhook events received yet.</p>
+              ) : (
+                <ul className="divide-border divide-y">
+                  {booking.paymentEvents.map((e) => (
+                    <li key={e.id} className="flex items-center justify-between gap-3 py-2">
+                      <div className="min-w-0">
+                        <p className="truncate font-mono text-sm">{e.type}</p>
+                        <p className="text-muted-foreground text-xs">
+                          {e.provider === 'STRIPE' ? 'Stripe' : 'PayPal'} ·{' '}
+                          {formatDate(e.receivedAt)}
+                          <span className="ml-1">{formatRelativeTime(e.receivedAt)}</span>
+                        </p>
+                      </div>
+                      {e.processedAt ? (
+                        <Badge variant="outline" className="shrink-0">
+                          Processed
+                        </Badge>
+                      ) : (
+                        <Badge variant="destructive" className="shrink-0">
+                          Unprocessed
+                        </Badge>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -230,6 +332,16 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
                         <ExternalLink className="size-3" />
                       </a>
                     ) : null}
+                  </div>
+                </>
+              ) : null}
+
+              {booking.providerSessionId ? (
+                <>
+                  <Separator />
+                  <div className="space-y-1">
+                    <p className="text-muted-foreground text-xs">Session reference</p>
+                    <p className="font-mono text-xs break-all">{booking.providerSessionId}</p>
                   </div>
                 </>
               ) : null}
