@@ -111,7 +111,7 @@ Server already computes and returns, UI discards:
 | **3. Enquiries CRM upgrade** — ✅ **DONE 2026-07-02** (`71127da` · `063fb41`) | 5 qualification fields → DTO + drawer "Trip details" block · join tour title/link · server-side `search` (name/email/phone/message) · lead age on Received + drawer | small | S–M |
 | **4. Dashboard quick wins** — ✅ **DONE 2026-07-02** (`6bf0b93` · `8b0d98e`) | chart Revenue\|Bookings toggle · bookings-pipeline card · Top tours card (Revenue/Rating/Wishlisted tabs) · Needs-attention tiles (via small BE `pendingCounts`) | tiny (`pendingCounts`) | S |
 | **5. Tours + Departures ops visibility** — ✅ **DONE 2026-07-02** (`5a8f13e` · `bdaf411` · `6b566a4`) | departure detail page (facts + bookings + utilization) · tour detail Performance/Departures-summary cards + Reviews link · list sweep (tours cover/rating/next-departure · destinations cover · tours-count) · bookings tourId/departureId filters | medium | L |
-| **6. Bookings polish** | join customer + other-bookings · PaymentEvent trail · providerSessionId · seats-remaining | small | S–M |
+| **6. Bookings polish** — ✅ **DONE 2026-07-02** (`829558a` · `763eb5b` · `cd39082`) | join customer + other-bookings mini-list + `?userId=` deep-link · PaymentEvent trail (metadata-only, JSONB-path link) · providerSessionId · seats-remaining · **+ the Wave-5 `@@index([tourId])` follow-up (applied to Supabase)** | small | S–M |
 | **7. Media library** | admin MediaAsset browse/search/delete/reuse + garbage visibility | **new BE feature** | L — own spec |
 
 Each wave = spec → plan → slices per the standing workflow; waves 2–7 order can be re-shuffled by

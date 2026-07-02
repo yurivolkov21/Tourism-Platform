@@ -1,5 +1,15 @@
 # Admin Bookings polish (Wave 6) — implementation plan
 
+**STATUS: COMPLETE (2026-07-02)** — all 3 slices executed via subagent-driven development and
+ff-merged to `main`: slice 0 `829558a` (tourId indexes applied to Supabase with user go/no-go) ·
+slice 1 `763eb5b` (detail enrichment + userId filter + regen; `ecc:code-reviewer`
+APPROVE-WITH-NOTES) · slice 2 `cd39082` (detail cards + list deep-link). Gate green per slice;
+api tests 257, admin tests 127. **FOLLOW-UP (from the slice-1 review, MEDIUM):** the
+payment-events JSONB path query seq-scans `payment_events` on every admin booking-detail view —
+fine at current volume; when webhook volume grows, add a generated `booking_id` column + btree
+index (or formalize an FK). LOW note: the envelope-shape coupling (webhook payload paths) has no
+DB-backed integration test — matches the existing raw-SQL test strategy.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Booking detail answers "who is this customer / did the webhook finish / which session was this / is the departure full?" — customer identity + other-bookings mini-list, metadata-only PaymentEvent trail, `providerSessionId`, departure seats — plus the Wave-5 follow-up `@@index([tourId])` migration and a `?userId=` list deep-link. Per spec `docs/06-specs/2026-07-02-admin-bookings-polish-design.md`.
