@@ -155,20 +155,19 @@ const tourColumns: ColumnDef<TourSummary>[] = [
     id: 'nextDeparture',
     header: 'Next departure',
     meta: { label: 'Next departure' },
-    cell: ({ row }) =>
-      row.original.nextDepartureDate ? (
-        <span className="text-sm">
-          {new Date(row.original.nextDepartureDate).toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'short',
-          })}
-          <span className="text-muted-foreground ml-1 text-xs">
-            • {row.original.nextDepartureSeatsLeft} seats
-          </span>
+    cell: ({ row }) => {
+      const d = row.original.nextDepartureDate;
+      if (!d) return <span className="text-muted-foreground">—</span>;
+      const seats = row.original.nextDepartureSeatsLeft;
+      return (
+        <span className="whitespace-nowrap tabular-nums">
+          {new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+          {seats !== null && seats !== undefined ? (
+            <span className="text-muted-foreground block text-xs">{seats} seats left</span>
+          ) : null}
         </span>
-      ) : (
-        <span className="text-muted-foreground">—</span>
-      ),
+      );
+    },
   },
   {
     id: 'status',
