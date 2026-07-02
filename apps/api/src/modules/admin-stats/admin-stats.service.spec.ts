@@ -36,6 +36,8 @@ function makePrisma(opts: {
     revenue: Prisma.Decimal | null;
   }>;
   tours?: Array<{ id: string; slug: string; title: string }>;
+  pendingReviews?: number;
+  newEnquiries?: number;
 }) {
   return {
     booking: {
@@ -48,8 +50,12 @@ function makePrisma(opts: {
         _count: { _all: opts.paidCount ?? 0 },
       }),
     },
-    review: { groupBy: jest.fn().mockResolvedValue(opts.topRating ?? []) },
+    review: {
+      groupBy: jest.fn().mockResolvedValue(opts.topRating ?? []),
+      count: jest.fn().mockResolvedValue(opts.pendingReviews ?? 0),
+    },
     wishlist: { groupBy: jest.fn().mockResolvedValue(opts.topWishlist ?? []) },
+    enquiry: { count: jest.fn().mockResolvedValue(opts.newEnquiries ?? 0) },
     tour: { findMany: jest.fn().mockResolvedValue(opts.tours ?? []) },
     // The service issues two raw queries in order: monthly trend, then daily trend.
     $queryRaw: jest
@@ -188,5 +194,13 @@ describe('AdminStatsService.getDashboard', () => {
     });
     const dates = result.dailyTrend.map((d) => d.date);
     expect([...dates].sort()).toEqual(dates);
+  });
+
+  it('returns pending queue counts (unapproved reviews + NEW enquiries)', async () => {
+    const svc = new AdminStatsService(
+      makePrisma({ pendingReviews: 3, newEnquiries: 5 }) as never,
+    );
+    const result = await svc.getDashboard();
+    expect(result.pendingCounts).toEqual({ reviews: 3, enquiries: 5 });
   });
 });

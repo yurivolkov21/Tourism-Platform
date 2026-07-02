@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BookingStatus, Prisma } from '@prisma/client';
+import { BookingStatus, EnquiryStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 
 export interface AdminStatsResponse {
@@ -34,6 +34,7 @@ export interface AdminStatsResponse {
   }>;
   monthlyTrend: Array<{ month: string; bookings: number; paidBookings: number; revenue: string }>;
   dailyTrend: Array<{ date: string; bookings: number; revenue: string }>;
+  pendingCounts: { reviews: number; enquiries: number };
 }
 
 interface MonthlyRow {
@@ -75,6 +76,8 @@ export class AdminStatsService {
       topWishlistGroups,
       monthlyRows,
       dailyRows,
+      pendingReviews,
+      newEnquiries,
     ] = await Promise.all([
       this.prisma.booking.groupBy({ by: ['status'], _count: { _all: true } }),
       this.prisma.booking.aggregate({
@@ -128,6 +131,8 @@ export class AdminStatsService {
         GROUP BY 1
         ORDER BY 1 ASC
       `,
+      this.prisma.review.count({ where: { isApproved: false } }),
+      this.prisma.enquiry.count({ where: { status: EnquiryStatus.NEW } }),
     ]);
 
     const bookingsByStatus: Record<BookingStatus, number> = {
@@ -238,6 +243,7 @@ export class AdminStatsService {
       topToursByWishlist,
       monthlyTrend,
       dailyTrend,
+      pendingCounts: { reviews: pendingReviews, enquiries: newEnquiries },
     };
   }
 }

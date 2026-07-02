@@ -94,6 +94,14 @@ class DailyTrendPointDto {
   revenue!: string;
 }
 
+class PendingCountsDto {
+  @ApiProperty({ example: 3, description: 'Reviews awaiting approval' })
+  reviews!: number;
+
+  @ApiProperty({ example: 5, description: 'Enquiries still in the NEW pipeline stage' })
+  enquiries!: number;
+}
+
 /** Wide dashboard payload — the admin FE renders the whole page from one fetch. */
 export class AdminStatsResponseDto {
   @ApiProperty({ type: StatsOverviewDto })
@@ -119,4 +127,7 @@ export class AdminStatsResponseDto {
 
   @ApiProperty({ type: [DailyTrendPointDto] })
   dailyTrend!: DailyTrendPointDto[];
+
+  @ApiProperty({ type: PendingCountsDto })
+  pendingCounts!: PendingCountsDto;
 }
