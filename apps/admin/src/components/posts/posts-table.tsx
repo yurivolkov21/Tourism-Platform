@@ -37,6 +37,25 @@ type Tab = 'all' | 'published' | 'draft';
 
 const postColumns: ColumnDef<Post>[] = [
   {
+    id: 'cover',
+    header: 'Cover',
+    meta: { label: 'Cover' },
+    cell: ({ row }) => {
+      const hero = (row.original.media ?? []).find((m) => m.role === 'hero');
+      return hero?.url ? (
+        <img
+          src={hero.url}
+          alt=""
+          className="bg-muted aspect-16/10 w-16 rounded-md border object-cover"
+        />
+      ) : (
+        <div className="bg-muted text-muted-foreground grid aspect-16/10 w-16 place-items-center rounded-md border">
+          <FileText className="size-4" aria-hidden />
+        </div>
+      );
+    },
+  },
+  {
     id: 'title',
     header: 'Title',
     enableHiding: false,

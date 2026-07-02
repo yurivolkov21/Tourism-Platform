@@ -5,6 +5,7 @@ import { ArrowLeft, Pencil } from 'lucide-react';
 
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@tourism/ui';
 
+import { DestinationMediaView } from '../../../../components/destinations/destination-media-view';
 import { RowActions } from '../../../../components/crud/row-actions';
 import { PostContent } from '../../../../components/posts/post-content';
 import { deletePost } from '../../../../lib/posts/actions';
@@ -99,6 +100,19 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Main */}
         <div className="space-y-6 lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Cover</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DestinationMediaView
+                media={(post.media ?? [])
+                  .filter((m) => m.url)
+                  .map((m) => ({ url: m.url, role: m.role }))}
+                emptyText="No cover yet — add one from Edit."
+              />
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Content</CardTitle>
