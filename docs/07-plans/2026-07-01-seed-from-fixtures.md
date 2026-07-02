@@ -45,7 +45,11 @@
 
 - [x] Slice 1 — Extract `insertFixtures` (merged `6426abb`)
 - [x] Slice 2 — Seed = fixtures + overlay (merged `992af11`) — ecc APPROVE 0 findings
-- [ ] User verification on their DB (reset + seed) — pending; runbook below
+- [x] User ran `reset` + `seed` on their DB — SUCCESS (2026-07-01). Fixtures loaded (needed a
+  follow-up fix `30df4e1`: coerce `@db.Date` fixture strings to `Date` for Prisma 7 createMany);
+  `BK-SEEDPAID` created on `hoi-an-walking-tour`. **Note:** `ADMIN_EMAILS`=`admin@example.com` in
+  `apps/api/.env` — admin login needs a Supabase account matching that (or change it). Site-flow
+  verification (login/my-bookings/review) left to the user.
 
 **Code DONE 2026-07-01.** `seed.ts` is now ~79 lines (was 1195): `insertFixtures` + upsert
 customer/admin + one self-signed `BK-SEEDPAID` on an OPEN fixture departure with free seats + `.env.e2e`
