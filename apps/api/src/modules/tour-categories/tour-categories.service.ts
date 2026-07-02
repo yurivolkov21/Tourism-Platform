@@ -26,7 +26,10 @@ export interface LinkedCategoryTour {
 }
 
 /** Admin category detail — the category row plus the tours that belong to it. */
-export type AdminTourCategoryDetail = TourCategory & { tours: LinkedCategoryTour[] };
+export type AdminTourCategoryDetail = TourCategory & {
+  tours: LinkedCategoryTour[];
+  toursCount: number;
+};
 
 /**
  * CRUD for the `TourCategory` lookup (D-P1.5; replaces the donor enum). Public
@@ -89,7 +92,7 @@ export class TourCategoriesService {
       },
     });
     if (!category) throw this.notFound(slug);
-    return category;
+    return { ...category, toursCount: category.tours.length };
   }
 
   /** Create. Slug normalized from input (or `name`); duplicate → 409. */

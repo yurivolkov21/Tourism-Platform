@@ -138,6 +138,7 @@ describe('DestinationsService', () => {
     ]);
     expect(res.media).toEqual([]);
     expect((res.tours[0] as unknown as Record<string, unknown>).tour).toBeUndefined();
+    expect(res.toursCount).toBe(2);
   });
 
   it('findDetailForAdmin throws 404 when missing', async () => {

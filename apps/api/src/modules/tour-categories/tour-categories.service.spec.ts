@@ -118,6 +118,7 @@ describe('TourCategoriesService', () => {
       isPublished: true,
     });
     expect(res.tours).toEqual([{ slug: 't1', title: 'T1', isPublished: true }]);
+    expect(res.toursCount).toBe(1);
   });
 
   it('findDetailForAdmin throws 404 when missing', async () => {

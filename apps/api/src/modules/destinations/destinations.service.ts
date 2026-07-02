@@ -26,7 +26,10 @@ export interface LinkedDestinationTour {
 }
 
 /** Admin destination detail — the media-enriched row plus the tours that use it. */
-export type AdminDestinationDetail = DestinationWithMedia & { tours: LinkedDestinationTour[] };
+export type AdminDestinationDetail = DestinationWithMedia & {
+  tours: LinkedDestinationTour[];
+  toursCount: number;
+};
 
 /** Pagination envelope; `TransformInterceptor` hoists `meta` to the top level. */
 export interface PaginatedDestinations {
@@ -128,7 +131,7 @@ export class DestinationsService {
       isPublished: row.tour.isPublished,
       isPrimary: row.isPrimary,
     }));
-    return { ...withMedia, tours };
+    return { ...withMedia, tours, toursCount: tours.length };
   }
 
   /** Create. Slug normalized from input (or `name`); duplicate → 409. */
