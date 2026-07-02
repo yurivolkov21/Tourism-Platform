@@ -26,6 +26,8 @@ import type { PostFormState } from '../../lib/posts/actions';
 import { POST_STATUSES } from '../../lib/posts/schema';
 import type { Post } from '../../lib/posts/data';
 import { slugify } from '../../lib/slugify';
+import { MediaField } from '../crud/media-field';
+import type { MediaInput } from '../../lib/media';
 import { ErrorAlert } from '../crud/error-alert';
 
 interface PostFormProps {
@@ -51,6 +53,19 @@ export function PostForm({ action, post, submitLabel }: PostFormProps) {
   // On edit the slug is pre-set → treat as user-owned so editing the title doesn't clobber the URL.
   const [slugEdited, setSlugEdited] = useState(Boolean(post?.slug));
   const [status, setStatus] = useState<string>(post?.status ?? 'DRAFT');
+
+  // Seed the cover from the existing post on edit (hero role only; guard: media may be absent
+  // for a beat mid-deploy while the API still serves the old shape).
+  const initialMedia: MediaInput[] = (post?.media ?? [])
+    .filter((m) => m.role === 'hero' && m.publicId)
+    .map((m) => ({
+      publicId: m.publicId,
+      role: 'hero' as const,
+      width: m.width ?? undefined,
+      height: m.height ?? undefined,
+      url: m.url,
+    }));
+  const [media, setMedia] = useState<MediaInput[]>(initialMedia);
 
   return (
     <form action={formAction}>
@@ -113,6 +128,19 @@ export function PostForm({ action, post, submitLabel }: PostFormProps) {
           </Field>
         </FieldGroup>
       </FieldSet>
+
+      <Separator className="my-8" />
+
+      {/* Cover */}
+      <MediaField
+        initial={media}
+        onChange={setMedia}
+        heroPurpose="POST_COVER"
+        legend="Cover"
+        description="One wide photo for the blog card and the post header."
+        heroLabel="Cover image"
+      />
+      <input type="hidden" name="media" value={JSON.stringify(media)} />
 
       <Separator className="my-8" />
 

@@ -121,7 +121,7 @@ function GalleryTile({
  * Hero slot + gallery grid for any media owner. Each image uploads to Cloudinary on pick (signed by
  * the generic `signUpload` with the given `heroPurpose`/`galleryPurpose`); the parent serialises the
  * list into a hidden form field. Reorder the gallery by drag. Gallery capped at {@link MAX_GALLERY}.
- * Shared by the destination + tour forms.
+ * Shared by the destination + tour + post forms; omit `galleryPurpose` for a hero-only field (post cover).
  */
 export function MediaField({
   initial,

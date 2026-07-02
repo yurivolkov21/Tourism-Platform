@@ -6,11 +6,25 @@ import { redirect } from 'next/navigation';
 import { apiErrorMessage } from '../api/error';
 import { apiWrite, getApiClient } from '../api/client';
 import { flashPath } from '../flash';
+import { assembleMediaSet, parseMediaField } from '../media';
 import { postSchema, toPostPayload } from './schema';
 
 export interface PostFormState {
   error?: string;
   fieldErrors?: Record<string, string>;
+}
+
+/**
+ * Best-effort attach of the form's cover set (`PUT /admin/posts/:slug/media`, replace-all). The
+ * post is already saved, so a failure here is swallowed — the cover can be re-attached from edit.
+ */
+async function putPostMedia(slug: string, mediaJson: string): Promise<void> {
+  try {
+    const media = assembleMediaSet(parseMediaField(mediaJson));
+    await apiWrite('PUT', `/api/v1/admin/posts/${encodeURIComponent(slug)}/media`, { media });
+  } catch {
+    // Saved without a cover; recoverable via edit.
+  }
 }
 
 /** Validates raw form fields against `postSchema`. The author is taken from the JWT by the API. */
@@ -44,12 +58,19 @@ export async function createPost(
   const parsed = parsePostForm(formData);
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
+  let createdSlug: string;
   try {
-    await apiWrite('POST', '/api/v1/admin/posts', toPostPayload(parsed.data));
+    const created = await apiWrite<{ slug: string }>(
+      'POST',
+      '/api/v1/admin/posts',
+      toPostPayload(parsed.data),
+    );
+    createdSlug = created.slug;
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }
 
+  await putPostMedia(createdSlug, String(formData.get('media') ?? '[]'));
   revalidatePath('/posts');
   redirect(flashPath('/posts', 'created'));
 }
@@ -63,18 +84,21 @@ export async function updatePost(
   const parsed = parsePostForm(formData);
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
+  let savedSlug = slug;
   try {
-    await apiWrite(
+    const updated = await apiWrite<{ slug: string }>(
       'PATCH',
       `/api/v1/admin/posts/${encodeURIComponent(slug)}`,
       toPostPayload(parsed.data),
     );
+    savedSlug = updated.slug ?? slug;
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }
 
+  await putPostMedia(savedSlug, String(formData.get('media') ?? '[]'));
   revalidatePath('/posts');
-  revalidatePath(`/posts/${slug}/edit`);
+  revalidatePath(`/posts/${savedSlug}/edit`);
   redirect(flashPath('/posts', 'updated'));
 }
 
