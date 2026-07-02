@@ -1,4 +1,4 @@
-import { sliceDailyTrend, computeCardModels, formatMoney, formatPct } from './transforms';
+import { sliceDailyTrend, computeCardModels, formatMoney, formatPct, bookingsPipeline } from './transforms';
 
 const daily = Array.from({ length: 90 }, (_, i) => ({
   date: `2026-${String(1 + Math.floor(i / 30)).padStart(2, '0')}-${String((i % 30) + 1).padStart(2, '0')}`,
@@ -57,4 +57,17 @@ test('computeCardModels: no deltas with <2 months', () => {
 test('formatPct / formatMoney', () => {
   expect(formatPct(0.8)).toBe('80%');
   expect(formatMoney('1000', 'USD')).toMatch(/\$1,000/);
+});
+
+describe('bookingsPipeline', () => {
+  it('returns the four statuses in fixed order with shares of the total', () => {
+    const rows = bookingsPipeline({ PENDING: 1, PAID: 3, CANCELLED: 0, REFUNDED: 0 });
+    expect(rows.map((r) => r.status)).toEqual(['PENDING', 'PAID', 'CANCELLED', 'REFUNDED']);
+    expect(rows[1]).toEqual({ status: 'PAID', label: 'Paid', count: 3, pct: 0.75 });
+  });
+
+  it('is zero-safe when there are no bookings', () => {
+    const rows = bookingsPipeline({ PENDING: 0, PAID: 0, CANCELLED: 0, REFUNDED: 0 });
+    expect(rows.every((r) => r.count === 0 && r.pct === 0)).toBe(true);
+  });
 });

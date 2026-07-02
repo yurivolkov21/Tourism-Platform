@@ -49,6 +49,38 @@ export function formatDay(iso: string): string {
     : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+export const PIPELINE_ORDER = ['PENDING', 'PAID', 'CANCELLED', 'REFUNDED'] as const;
+export type PipelineStatus = (typeof PIPELINE_ORDER)[number];
+
+export interface PipelineRow {
+  status: PipelineStatus;
+  label: string;
+  count: number;
+  /** Share of all bookings, 0..1 (0 when there are none). */
+  pct: number;
+}
+
+const PIPELINE_LABEL: Record<PipelineStatus, string> = {
+  PENDING: 'Pending',
+  PAID: 'Paid',
+  CANCELLED: 'Cancelled',
+  REFUNDED: 'Refunded',
+};
+
+/** Fixed-order status breakdown with each status's share of the total (zero-safe). */
+export function bookingsPipeline(byStatus: Record<PipelineStatus, number>): PipelineRow[] {
+  const total = PIPELINE_ORDER.reduce((sum, s) => sum + (byStatus[s] ?? 0), 0);
+  return PIPELINE_ORDER.map((status) => {
+    const count = byStatus[status] ?? 0;
+    return {
+      status,
+      label: PIPELINE_LABEL[status],
+      count,
+      pct: total === 0 ? 0 : count / total,
+    };
+  });
+}
+
 /** The four KPI cards. Deltas are real month-over-month (last vs prior month) when both exist. */
 export function computeCardModels(
   overview: Overview,

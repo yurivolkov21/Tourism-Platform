@@ -20,8 +20,17 @@ export interface DashboardStats {
     revenue: string;
     bookingsCount: number;
   }[];
+  topToursByRating: {
+    tourId: string;
+    slug: string;
+    title: string;
+    averageRating: number;
+    reviewsCount: number;
+  }[];
+  topToursByWishlist: { tourId: string; slug: string; title: string; wishlistCount: number }[];
   monthlyTrend: { month: string; bookings: number; paidBookings: number; revenue: string }[];
   dailyTrend: { date: string; bookings: number; revenue: string }[];
+  pendingCounts: { reviews: number; enquiries: number } | null;
 }
 
 /** Fetches the wide admin dashboard payload with the current admin token. Unwraps the envelope. */
@@ -29,7 +38,13 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/stats/dashboard', {});
   const payload = (data as unknown as { data: DashboardStats }).data;
-  // `dailyTrend` is a new BE field — default it so the chart never crashes against an
-  // API instance that hasn't shipped it yet (e.g. a branch preview hitting prod).
-  return { ...payload, dailyTrend: payload.dailyTrend ?? [] };
+  // New BE fields — default them so the dashboard never crashes against an API
+  // instance that hasn't shipped them yet (e.g. a fresh FE hitting a lagging Render).
+  return {
+    ...payload,
+    dailyTrend: payload.dailyTrend ?? [],
+    topToursByRating: payload.topToursByRating ?? [],
+    topToursByWishlist: payload.topToursByWishlist ?? [],
+    pendingCounts: payload.pendingCounts ?? null,
+  };
 }
