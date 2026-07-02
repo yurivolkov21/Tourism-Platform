@@ -28,6 +28,27 @@ export class EnquiryDto {
   @ApiProperty({ nullable: true, type: String, format: 'uuid' })
   tourId!: string | null;
 
+  @ApiProperty({ nullable: true, type: String, example: 'ha-long-bay-cruise' })
+  tourSlug!: string | null;
+
+  @ApiProperty({ nullable: true, type: String, example: 'Hạ Long Bay Cruise 2D1N' })
+  tourTitle!: string | null;
+
+  @ApiProperty({ nullable: true, type: String, example: 'United Kingdom' })
+  nationality!: string | null;
+
+  @ApiProperty({ nullable: true, type: String, format: 'date-time' })
+  travelDate!: string | null;
+
+  @ApiProperty({ nullable: true, type: Number, example: 4 })
+  groupSize!: number | null;
+
+  @ApiProperty({ nullable: true, type: String, example: '$1000–$2000' })
+  budgetTier!: string | null;
+
+  @ApiProperty({ type: [String], example: ['culture', 'food'] })
+  interests!: string[];
+
   @ApiProperty({ enum: EnquiryStatus })
   status!: EnquiryStatus;
 

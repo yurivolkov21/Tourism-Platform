@@ -170,6 +170,58 @@ describe('EnquiryService.findAllForAdmin', () => {
     const calls = findMany.mock.calls as unknown as WhereCall[][];
     expect(calls[0][0].where.status).toBe(EnquiryStatus.WON);
   });
+
+  it('findAllForAdmin joins the tour and maps qualification fields through', async () => {
+    const findMany = jest.fn().mockResolvedValue([
+      {
+        id: 'e-1',
+        name: 'Jane',
+        email: 'jane@example.com',
+        phone: null,
+        message: 'Sapa trek?',
+        tourId: 't-1',
+        nationality: 'United Kingdom',
+        travelDate: new Date('2026-08-01'),
+        groupSize: 4,
+        budgetTier: '$1000–$2000',
+        interests: ['culture'],
+        status: EnquiryStatus.NEW,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        tour: { slug: 'sapa-trek', title: 'Sapa Trek 3D2N' },
+      },
+    ]);
+    const count = jest.fn().mockResolvedValue(1);
+    const svc = new EnquiryService(makePrisma({ findMany, count }) as never);
+
+    const res = await svc.findAllForAdmin({});
+
+    expect(findMany.mock.calls[0][0].include).toEqual({
+      tour: { select: { slug: true, title: true } },
+    });
+    const item = res.items[0];
+    expect(item.tourSlug).toBe('sapa-trek');
+    expect(item.tourTitle).toBe('Sapa Trek 3D2N');
+    expect(item.nationality).toBe('United Kingdom');
+    expect((item as unknown as { tour?: unknown }).tour).toBeUndefined();
+  });
+
+  it('findAllForAdmin builds a case-insensitive OR search across name/email/phone/message', async () => {
+    const findMany = jest.fn().mockResolvedValue([]);
+    const count = jest.fn().mockResolvedValue(0);
+    const svc = new EnquiryService(makePrisma({ findMany, count }) as never);
+
+    await svc.findAllForAdmin({ status: EnquiryStatus.NEW, search: ' sapa ' });
+
+    const where = findMany.mock.calls[0][0].where;
+    expect(where.status).toBe(EnquiryStatus.NEW);
+    expect(where.OR).toEqual([
+      { name: { contains: 'sapa', mode: 'insensitive' } },
+      { email: { contains: 'sapa', mode: 'insensitive' } },
+      { phone: { contains: 'sapa', mode: 'insensitive' } },
+      { message: { contains: 'sapa', mode: 'insensitive' } },
+    ]);
+  });
 });
 
 describe('EnquiryService.updateStatus', () => {

@@ -4,8 +4,14 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreateEnquiryDto } from './dto/create-enquiry.dto';
 import { ListEnquiriesQueryDto } from './dto/list-enquiries-query.dto';
 
+/** Admin CRM row — the enquiry plus its (optional) tour's display fields, flattened. */
+export type AdminEnquiryItem = Enquiry & {
+  tourSlug: string | null;
+  tourTitle: string | null;
+};
+
 export interface PaginatedEnquiries {
-  items: Enquiry[];
+  items: AdminEnquiryItem[];
   meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
 
@@ -68,26 +74,46 @@ export class EnquiryService {
   }
 
   /**
-   * Admin CRM list — paginated, newest-first, optional `status` filter.
-   * `Promise.all` list+count (pooler-safe; no `$transaction`).
+   * Admin CRM list — paginated, newest-first, optional `status` filter + tour join.
+   * `Promise.all` list+count (pooler-safe; no `$transaction`). Case-insensitive
+   * free-text search across name/email/phone/message.
    */
   async findAllForAdmin(
     query: ListEnquiriesQueryDto,
   ): Promise<PaginatedEnquiries> {
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? 20;
-    const where: Prisma.EnquiryWhereInput =
-      query.status !== undefined ? { status: query.status } : {};
+    const search = query.search?.trim();
+    const where: Prisma.EnquiryWhereInput = {
+      ...(query.status !== undefined ? { status: query.status } : {}),
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search, mode: 'insensitive' } },
+              { email: { contains: search, mode: 'insensitive' } },
+              { phone: { contains: search, mode: 'insensitive' } },
+              { message: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
 
-    const [items, total] = await Promise.all([
+    const [rows, total] = await Promise.all([
       this.prisma.enquiry.findMany({
         where,
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * pageSize,
         take: pageSize,
+        include: { tour: { select: { slug: true, title: true } } },
       }),
       this.prisma.enquiry.count({ where }),
     ]);
+
+    const items: AdminEnquiryItem[] = rows.map(({ tour, ...row }) => ({
+      ...row,
+      tourSlug: tour?.slug ?? null,
+      tourTitle: tour?.title ?? null,
+    }));
 
     return {
       items,

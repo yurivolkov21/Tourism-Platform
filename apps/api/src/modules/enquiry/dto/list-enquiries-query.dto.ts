@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { EnquiryStatus } from '@prisma/client';
-import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, Max, Min, IsString, MaxLength } from 'class-validator';
 
 /**
  * Query string for `GET /admin/enquiries`. Pagination + optional CRM `status`
@@ -27,4 +27,11 @@ export class ListEnquiriesQueryDto {
   @IsOptional()
   @IsEnum(EnquiryStatus)
   status?: EnquiryStatus;
+
+  /** Free-text search across name, email, phone, and message (case-insensitive). */
+  @ApiPropertyOptional({ example: 'sapa', maxLength: 160 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(160)
+  search?: string;
 }
