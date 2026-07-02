@@ -66,7 +66,11 @@ const tourColumns: ColumnDef<TourSummary>[] = [
     enableHiding: false,
     meta: { label: 'Title' },
     cell: ({ row }) => (
-      <Link href={`/tours/${row.original.slug}`} className="hover:text-primary font-medium hover:underline">
+      <Link
+        href={`/tours/${row.original.slug}`}
+        title={row.original.title}
+        className="hover:text-primary block max-w-104 truncate font-medium hover:underline"
+      >
         {row.original.title}
       </Link>
     ),

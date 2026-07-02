@@ -28,7 +28,8 @@ export function TourAvailability({
     return (
       <span
         className={cn(
-          'bg-warning text-warning-foreground inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold',
+          // `w-fit` so a flex-column card parent (align-items: stretch) can't pull the pill full-width.
+          'bg-warning text-warning-foreground inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold',
           className,
         )}
       >
@@ -42,7 +43,7 @@ export function TourAvailability({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 text-xs font-medium',
+        'inline-flex w-fit items-center gap-1.5 text-xs font-medium',
         onMedia ? 'text-on-media/80' : 'text-muted-foreground',
         className,
       )}
