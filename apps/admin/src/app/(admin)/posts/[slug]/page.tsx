@@ -123,8 +123,12 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                   label="Author"
                   value={
                     <span className="font-normal">
-                      {post.author.fullName ?? '—'}
-                      <span className="text-muted-foreground block text-xs">{post.author.email}</span>
+                      {/* Optional chain: mid-deploy the API may briefly still serve the
+                          author-less PostDto (Render lags Vercel) — show dashes, don't crash. */}
+                      {post.author?.fullName ?? '—'}
+                      <span className="text-muted-foreground block text-xs">
+                        {post.author?.email ?? ''}
+                      </span>
                     </span>
                   }
                 />
