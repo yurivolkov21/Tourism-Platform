@@ -1,8 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
   "files": [],
-  "include": [],
+  "include": [".expo/types/**/*.ts", "expo-env.d.ts"],
   "references": [
+    {
+      "path": "../../libs/shared/core"
+    },
     {
       "path": "./tsconfig.app.json"
     },

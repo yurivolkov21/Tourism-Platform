@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { validateEmail, validatePassword, toAuthError } from './auth-helpers';
 
 describe('validateEmail', () => {

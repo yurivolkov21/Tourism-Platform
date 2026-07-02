@@ -1,22 +1,29 @@
 /// <reference types="jest" />
 /// <reference types="node" />
+
+// SDK 57 added `import 'react-native/Libraries/Core/InitializeCore'` to the
+// expo winter runtime. This top-level native import cannot be resolved in a
+// pnpm workspace's virtual-store layout, causing jest to throw "outside scope".
+//
+// Our only tests (auth-helpers) are pure TS utility functions with no RN/expo
+// dependencies. We skip the full jest-expo preset here and use a plain
+// babel-jest + node environment instead.  When component/hook tests are added
+// they should live in a separate jest "project" with the expo preset.
 module.exports = {
   displayName: '@tourism/mobile',
-  preset: 'jest-expo',
-  moduleFileExtensions: ['ts', 'js', 'html', 'tsx', 'jsx'],
+  testEnvironment: 'node',
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   moduleNameMapper: {
     '[.]svg$': '@nx/expo/plugins/jest/svg-mock',
   },
   transform: {
-    '[.][jt]sx?$': [
+    '^.+\\.[jt]sx?$': [
       'babel-jest',
       {
         configFile: __dirname + '/.babelrc.js',
       },
     ],
-    '^.+[.](bmp|gif|jpg|jpeg|mp4|png|psd|svg|webp|ttf|otf|m4v|mov|mp4|mpeg|mpg|webm|aac|aiff|caf|m4a|mp3|wav|html|pdf|obj)$':
-      require.resolve('jest-expo/src/preset/assetFileTransformer.js'),
   },
   coverageDirectory: '../../coverage/apps/mobile',
 };
