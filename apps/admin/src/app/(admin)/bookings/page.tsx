@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Receipt } from 'lucide-react';
 
 import {
@@ -31,8 +32,21 @@ function parsePage(raw?: string): number {
   return Number.isInteger(n) && n >= 1 ? n : 1;
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Narrows a raw `?userId=` to a uuid (anything else = ignore the filter, avoid API 400s). */
+function parseUserId(raw?: string): string | undefined {
+  return raw && UUID_RE.test(raw) ? raw : undefined;
+}
+
 interface BookingsPageProps {
-  searchParams: Promise<{ status?: string; page?: string; q?: string; pageSize?: string }>;
+  searchParams: Promise<{
+    status?: string;
+    page?: string;
+    q?: string;
+    pageSize?: string;
+    userId?: string;
+  }>;
 }
 
 export default async function BookingsPage({ searchParams }: BookingsPageProps) {
@@ -41,11 +55,12 @@ export default async function BookingsPage({ searchParams }: BookingsPageProps) 
   const page = parsePage(sp.page);
   const pageSize = parsePageSize(sp.pageSize);
   const search = sp.q?.trim() ?? '';
+  const userId = parseUserId(sp.userId);
 
   let result: BookingList | undefined;
   let error: string | null = null;
   try {
-    result = await listBookings({ page, pageSize, status, search: search || undefined });
+    result = await listBookings({ page, pageSize, status, search: search || undefined, userId });
   } catch (e) {
     error = apiErrorMessage(e);
   }
@@ -63,6 +78,15 @@ export default async function BookingsPage({ searchParams }: BookingsPageProps) 
       <div className="flex flex-col gap-4">
         <BookingsFilters status={status ?? 'all'} search={search} />
 
+        {userId ? (
+          <p className="text-muted-foreground text-sm">
+            Showing bookings for one customer —{' '}
+            <Link href="/bookings" className="text-primary hover:underline">
+              Clear filter
+            </Link>
+          </p>
+        ) : null}
+
         {error ? (
           <ErrorAlert>
             Couldn&apos;t load bookings: {error}. Check that the API is running and your admin session
@@ -76,7 +100,7 @@ export default async function BookingsPage({ searchParams }: BookingsPageProps) 
               </EmptyMedia>
               <EmptyTitle>No bookings found</EmptyTitle>
               <EmptyDescription>
-                {status || search
+                {status || search || userId
                   ? 'Try a different status or clear the search to see them all.'
                   : 'Bookings will appear here as travellers reserve tours.'}
               </EmptyDescription>
