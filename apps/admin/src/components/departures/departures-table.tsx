@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { CalendarRange } from 'lucide-react';
 import {
@@ -87,14 +88,15 @@ export function DeparturesTable({
         enableHiding: false,
         meta: { label: 'Start' },
         cell: ({ row }) => (
-          <span
+          <Link
+            href={`/tours/${slug}/departures/${row.original.id}`}
             className={cn(
-              'font-medium tabular-nums',
+              'hover:text-primary font-medium tabular-nums hover:underline',
               isDeparturePast(row.original.startDate) && 'text-muted-foreground',
             )}
           >
             {toDateOnly(row.original.startDate)}
-          </span>
+          </Link>
         ),
       },
       {

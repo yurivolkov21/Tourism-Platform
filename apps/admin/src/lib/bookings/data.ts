@@ -13,6 +13,8 @@ export interface BookingListParams {
   pageSize?: number;
   status?: BookingStatus;
   search?: string;
+  tourId?: string;
+  departureId?: string;
 }
 
 export interface BookingList {
@@ -37,6 +39,8 @@ export async function listBookings(params: BookingListParams = {}): Promise<Book
         pageSize: params.pageSize ?? DEFAULT_PAGE_SIZE,
         status: params.status,
         search: params.search,
+        tourId: params.tourId,
+        departureId: params.departureId,
       },
     },
   });
