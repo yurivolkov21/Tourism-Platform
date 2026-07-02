@@ -43,8 +43,29 @@
 
 ## Progress
 
-- [ ] Slice 1 — Extract `insertFixtures`
-- [ ] Slice 2 — Seed = fixtures + overlay (+ user DB verification)
+- [x] Slice 1 — Extract `insertFixtures` (merged `6426abb`)
+- [x] Slice 2 — Seed = fixtures + overlay (merged `992af11`) — ecc APPROVE 0 findings
+- [ ] User verification on their DB (reset + seed) — pending; runbook below
+
+**Code DONE 2026-07-01.** `seed.ts` is now ~79 lines (was 1195): `insertFixtures` + upsert
+customer/admin + one self-signed `BK-SEEDPAID` on an OPEN fixture departure with free seats + `.env.e2e`
+artifact. `seed-itineraries.ts` removed. Reviewer confirmed DB CHECK `seats_booked <= seats_total`
+backstops seat safety; `.env.e2e` keys match what `test/app.e2e.ts` reads.
+
+## Runbook — user verifies on their DB (⚠️ destructive)
+
+```bash
+cd apps/api
+# 1. (optional but recommended) back up anything you care about — reset WIPES all app tables.
+# 2. Reset the DB that DIRECT_URL points at (the live Supabase):
+pnpm exec ts-node --transpile-only prisma/reset.ts
+# 3. Seed from fixtures + overlay:
+pnpm nx run @tourism/api:seed
+```
+
+Then verify: public site catalog is rich (regions/featured populate); admin login works (your email in
+`ADMIN_EMAILS`); customer login as `customer@tourism.test` (register that email in Supabase if not
+already); "my bookings" shows `BK-SEEDPAID`; leaving a review works. Report back if anything's off.
 
 ## Out of scope (deferred)
 
