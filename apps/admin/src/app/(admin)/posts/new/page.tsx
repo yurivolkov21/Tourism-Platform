@@ -8,7 +8,7 @@ import { createPost } from '../../../../lib/posts/actions';
 
 export default function NewPostPage() {
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-6">
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 lg:px-6">
       <div className="space-y-3">
         <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/posts" />}>
           <ArrowLeft data-icon="inline-start" />
