@@ -917,7 +917,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Admin: get one post by slug */
+        /** Admin: get one post by slug (with its author) */
         get: operations["AdminPostsController_detail"];
         put?: never;
         post?: never;
@@ -2343,6 +2343,34 @@ export interface components {
         PaginatedPostsDto: {
             data: components["schemas"]["PostDto"][];
             meta: components["schemas"]["PageMetaDto"];
+        };
+        PostAuthorDto: {
+            /** @example Ana Admin */
+            fullName: string | null;
+            /** @example ana@nexora.travel */
+            email: string;
+        };
+        AdminPostDetailDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example three-perfect-days-in-hoi-an */
+            slug: string;
+            /** @example Three perfect days in Hội An */
+            title: string;
+            excerpt: string | null;
+            /** @description Markdown body */
+            content: string;
+            /** @enum {string} */
+            status: "DRAFT" | "PUBLISHED";
+            /** Format: date-time */
+            publishedAt: string | null;
+            /** Format: uuid */
+            authorId: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            author: components["schemas"]["PostAuthorDto"];
         };
         CreatePostDto: {
             /** @example Three perfect days in Hội An */
@@ -4712,7 +4740,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PostDto"];
+                    "application/json": components["schemas"]["AdminPostDetailDto"];
                 };
             };
             /** @description Not found */
