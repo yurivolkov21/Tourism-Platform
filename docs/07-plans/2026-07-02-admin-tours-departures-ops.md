@@ -1,5 +1,15 @@
 # Admin Tours + Departures ops visibility (Wave 5) — implementation plan
 
+**STATUS: COMPLETE (2026-07-02)** — all 3 slices executed via subagent-driven development and
+ff-merged to `main`: slice A `5a8f13e` (toursCount BE + list columns sweep; incl. detail-DTO
+inheritance drift fix `08648fe`) · slice B `bdaf411` (bookings tourId/departureId filters + the
+departure detail page; `ecc:code-reviewer` APPROVE — 2 MEDIUMs fixed pre-merge: real tour currency
++ bookings load-error state) · slice C `6b566a4` (AdminTourDetailDto.ops aggregates + Performance/
+Departures-summary/Reviews cards; APPROVE-WITH-NOTES). Gate green per slice; api tests 254, admin
+tests 124. **FOLLOW-UP (from the slice-C review):** `Booking` + `Enquiry` lack `@@index([tourId])`
+— the ops aggregates + the new `?tourId=` bookings filter seq-scan as data grows; add a small
+index migration in a later slice (Wishlist already has one; departureId is indexed).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** List columns sweep (tours thumbnail/rating/next-departure · destinations thumbnail · tours-count on destinations/categories) + a departure detail page with its bookings and utilization + commercial ops cards on the tour detail — per spec `docs/06-specs/2026-07-02-admin-tours-departures-ops-design.md` (Wave 5).
