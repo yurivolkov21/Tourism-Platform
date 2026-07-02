@@ -1,5 +1,12 @@
 # Admin Posts enrichment (Wave 1) — implementation plan
 
+**STATUS: COMPLETE (2026-07-02)** — all 3 slices executed via subagent-driven development and
+ff-merged to `main`: slice 1 `fcd6b95` (BE POST_COVER + media on Post reads + author avatar; agent
+review replaced by controller-inline verification due to a transient API-529 wave — per-task
+reviews were full) · slice 2 `893044c` (MediaField hero-only + form Cover + detail card + list
+thumbnail) · slice 3 `f2ae4b4` (derive lib TDD + rail length/outline/avatar). Gate green per
+slice; admin tests 122, api tests 242.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Post cover image end-to-end (BE `POST_COVER` + media on all Post reads + admin upload/display) plus derived content facts (reading time, outline) and the author's avatar — per spec `docs/06-specs/2026-07-02-admin-posts-enrichment-design.md` (Wave 1 of the enrichment roadmap).

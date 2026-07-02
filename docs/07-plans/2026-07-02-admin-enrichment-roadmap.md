@@ -106,7 +106,7 @@ Server already computes and returns, UI discards:
 
 | Wave | Scope | BE? | Size |
 | --- | --- | --- | --- |
-| **1. Posts enrichment** (committed) | cover image (POST_COVER + media endpoint + DTO + form MediaField + detail hero + list thumbnail) · reading time + outline (FE) · author avatar (`PostAuthorDto.avatarUrl`) | small | M |
+| **1. Posts enrichment** — ✅ **DONE 2026-07-02** (`fcd6b95` · `893044c` · `f2ae4b4`) | cover image (POST_COVER + media endpoint + DTO + form MediaField + detail hero + list thumbnail) · reading time + outline (FE) · author avatar (`PostAuthorDto.avatarUrl`) | small | M |
 | **2. Reviews reskin + surfacing** | template migration (AdminListHeader/TanStack/RowActions/tabs+counts) · render `title`/`tripLabel`/tour title+link · full-text drawer · source/rating filters · (decide: delete/edit curated) | small (DTO + maybe delete endpoint) | M |
 | **3. Enquiries CRM upgrade** | 5 qualification fields → DTO + drawer "Trip details" block · join tour title/link · server-side `search` · lead-age chip | small | S–M |
 | **4. Dashboard quick wins** | Top-rated + Most-wishlisted widgets · bookings-by-status breakdown · bookings-volume series · pending reviews/enquiries tiles | none | S |
