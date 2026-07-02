@@ -654,6 +654,22 @@ describe('BookingsService', () => {
       );
     });
 
+    it('AND-composes departure/tour filters with status', async () => {
+      const findMany = jest.fn().mockResolvedValue([]);
+      const prisma = makePrisma({
+        booking: { findMany, count: jest.fn().mockResolvedValue(0) },
+      });
+      await svcWith(prisma).findAllForAdmin({
+        status: BookingStatus.PAID,
+        departureId: 'dep-1',
+        tourId: 'tour-1',
+      } as never);
+      const where = findMany.mock.calls[0][0].where;
+      expect(where.status).toBe(BookingStatus.PAID);
+      expect(where.departureId).toBe('dep-1');
+      expect(where.tourId).toBe('tour-1');
+    });
+
     it('computes totalPages from total + pageSize', async () => {
       const prisma = makePrisma({
         booking: {

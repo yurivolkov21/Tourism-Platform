@@ -573,6 +573,8 @@ export class BookingsService {
     const search = query.search?.trim();
     const where: Prisma.BookingWhereInput = {
       ...(query.status ? { status: query.status } : {}),
+      ...(query.tourId ? { tourId: query.tourId } : {}),
+      ...(query.departureId ? { departureId: query.departureId } : {}),
       ...(search
         ? {
             OR: [

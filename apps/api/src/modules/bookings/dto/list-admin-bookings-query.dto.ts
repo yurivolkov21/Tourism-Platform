@@ -1,7 +1,16 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { BookingStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 /**
  * Query string for `GET /admin/bookings` (admin management list). Pagination plus
@@ -36,4 +45,16 @@ export class ListAdminBookingsQueryDto {
   @IsString()
   @MaxLength(120)
   search?: string;
+
+  /** Filter to one tour's bookings. */
+  @ApiPropertyOptional({ format: 'uuid' })
+  @IsOptional()
+  @IsUUID()
+  tourId?: string;
+
+  /** Filter to one departure's bookings. */
+  @ApiPropertyOptional({ format: 'uuid' })
+  @IsOptional()
+  @IsUUID()
+  departureId?: string;
 }
