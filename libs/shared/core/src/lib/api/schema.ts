@@ -2361,6 +2361,18 @@ export interface components {
             /** @example 450.00 */
             revenue: string;
         };
+        PendingCountsDto: {
+            /**
+             * @description Reviews awaiting approval
+             * @example 3
+             */
+            reviews: number;
+            /**
+             * @description Enquiries still in the NEW pipeline stage
+             * @example 5
+             */
+            enquiries: number;
+        };
         AdminStatsResponseDto: {
             overview: components["schemas"]["StatsOverviewDto"];
             /**
@@ -2378,6 +2390,7 @@ export interface components {
             topToursByWishlist: components["schemas"]["TopTourByWishlistDto"][];
             monthlyTrend: components["schemas"]["MonthlyTrendPointDto"][];
             dailyTrend: components["schemas"]["DailyTrendPointDto"][];
+            pendingCounts: components["schemas"]["PendingCountsDto"];
         };
         PostDto: {
             /** Format: uuid */
