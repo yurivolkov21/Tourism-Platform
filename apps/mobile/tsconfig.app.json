@@ -3,7 +3,6 @@
   "compilerOptions": {
     "outDir": "dist",
     "types": ["node"],
-    "rootDir": "src",
     "jsx": "react-jsx",
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -35,5 +34,10 @@
     "**/*.jsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
+  ],
+  "references": [
+    {
+      "path": "../../libs/shared/core/tsconfig.lib.json"
+    }
   ]
 }
