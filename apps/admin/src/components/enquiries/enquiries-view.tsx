@@ -254,9 +254,9 @@ export function EnquiriesView({
         {status !== 'all' ? ` · ${enquiryStatusMeta(status).label.toLowerCase()}` : ''}
         {query ? (
           <>
-            {' · matching "'}
+            {' · matching “'}
             {query}
-            {'" — '}
+            {'” — '}
             <button
               type="button"
               onClick={() => pushParams({ q: '' })}
