@@ -1,5 +1,10 @@
 # Admin Posts reskin + detail — implementation plan
 
+**STATUS: COMPLETE (2026-07-02)** — all 3 slices executed via subagent-driven development and
+ff-merged to `main`: slice 1 `c6485b4` (BE author + detail page, `ecc:code-reviewer` APPROVE) ·
+slice 2 `b91bce0` (list reskin) · slice 3 `644d50e` (form reskin). Gate green per slice; no
+native `<select>` remains in admin (sweep verified).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Bring the admin Posts module onto the established admin template — reskinned list, a new detail page (Markdown-rendered, with the author's name), and a Form Layout 2 form — per the approved spec `docs/06-specs/2026-07-02-admin-posts-reskin-design.md`.
