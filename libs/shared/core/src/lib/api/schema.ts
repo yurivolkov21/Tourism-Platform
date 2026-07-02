@@ -367,7 +367,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Admin: get one tour by slug (enriched) */
+        /** Admin: get one tour by slug (enriched + ops) */
         get: operations["AdminToursController_detail"];
         put?: never;
         post?: never;
@@ -1524,6 +1524,112 @@ export interface components {
             itinerary: components["schemas"]["TourItineraryDayDto"][];
             faqs: components["schemas"]["TourFaqDto"][];
             policies: components["schemas"]["TourPolicyDto"][];
+        };
+        TourOpsDto: {
+            /**
+             * @description All bookings ever, any status
+             * @example 30
+             */
+            bookingsTotal: number;
+            /** @example 24 */
+            bookingsPaid: number;
+            /**
+             * @description Sum of PAID totals (string Decimal)
+             * @example 4500.00
+             */
+            revenue: string;
+            /** @example 42 */
+            wishlistCount: number;
+            /** @example 7 */
+            enquiriesCount: number;
+        };
+        AdminTourDetailDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example hoi-an-walking-tour */
+            slug: string;
+            /** @example Hoi An Ancient Town Walking Tour */
+            title: string;
+            summary: string | null;
+            /** @example 1 */
+            durationDays: number;
+            /** @example 20 */
+            maxGroupSize: number;
+            /** @example 49.50 */
+            basePrice: string;
+            /** @example 69.00 */
+            compareAtPrice: string | null;
+            /** @example USD */
+            currency: string;
+            /** @example easy */
+            difficulty: string | null;
+            isPublished: boolean;
+            isFeatured: boolean;
+            /**
+             * @example [
+             *       "Lantern-lit old town"
+             *     ]
+             */
+            highlights: string[];
+            /**
+             * @example [
+             *       "FAMILY"
+             *     ]
+             */
+            suitableFor: ("FAMILY" | "COUPLE" | "FRIENDS" | "SOLO" | "BUSINESS")[];
+            /**
+             * @example [
+             *       "BEST_VALUE"
+             *     ]
+             */
+            badges: ("BEST_VALUE" | "LIMITED_OFFER" | "EXCLUSIVE" | "NEW" | "POPULAR")[];
+            /**
+             * @description Average of approved reviews (1-dp); 0 if none
+             * @example 4.8
+             */
+            averageRating: number;
+            /**
+             * @description Count of approved reviews
+             * @example 214
+             */
+            reviewsCount: number;
+            /**
+             * Format: date
+             * @description Soonest open upcoming departure date; null if none scheduled
+             * @example 2026-08-15
+             */
+            nextDepartureDate: string | null;
+            /**
+             * @description Seats left on the soonest open upcoming departure; null if none
+             * @example 6
+             */
+            nextDepartureSeatsLeft: number | null;
+            category: components["schemas"]["TourCategoryRefDto"];
+            destinations: components["schemas"]["TourDestinationLinkDto"][];
+            media: components["schemas"]["MediaItemDto"][];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /**
+             * @example [
+             *       "Local guide",
+             *       "Lunch"
+             *     ]
+             */
+            included: string[];
+            /**
+             * @example [
+             *       "Tips"
+             *     ]
+             */
+            excluded: string[];
+            /** @example Meet at 78 Le Loi street */
+            meetingPoint: string | null;
+            itinerary: components["schemas"]["TourItineraryDayDto"][];
+            faqs: components["schemas"]["TourFaqDto"][];
+            policies: components["schemas"]["TourPolicyDto"][];
+            ops: components["schemas"]["TourOpsDto"];
         };
         TourItineraryDayInput: {
             /** @example 1 */
@@ -3460,7 +3566,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TourDetailDto"];
+                    "application/json": components["schemas"]["AdminTourDetailDto"];
                 };
             };
             /** @description Not found */
