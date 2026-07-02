@@ -4047,6 +4047,8 @@ export interface operations {
                 pageSize?: number;
                 status?: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED";
                 search?: string;
+                tourId?: string;
+                departureId?: string;
             };
             header?: never;
             path?: never;
