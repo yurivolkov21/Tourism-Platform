@@ -44,14 +44,51 @@ const BOOKING_INCLUDE: Prisma.BookingInclude = {
   departure: { select: { startDate: true, endDate: true } },
 };
 
-/** Detail read adds the admin refunder (name/email) for the audit panel. */
+/** Detail read adds the admin refunder + the customer account + departure capacity. */
 const BOOKING_DETAIL_INCLUDE = {
   tour: { select: { slug: true, title: true } },
-  departure: { select: { startDate: true, endDate: true } },
+  departure: {
+    select: { startDate: true, endDate: true, seatsTotal: true, seatsBooked: true },
+  },
   refundedBy: { select: { fullName: true, email: true } },
+  user: { select: { id: true, fullName: true, email: true, createdAt: true } },
 } satisfies Prisma.BookingInclude;
 
 type BookingWithDetail = Prisma.BookingGetPayload<{ include: typeof BOOKING_DETAIL_INCLUDE }>;
+
+/** Another booking by the same customer — detail mini-list row. */
+export interface OtherBookingItem {
+  code: string;
+  status: BookingStatus;
+  createdAt: string;
+  tourTitle: string;
+  totalAmount: string;
+  currency: string;
+}
+
+/**
+ * Webhook event linked to a booking — METADATA ONLY (the JSONB payload holds
+ * provider payment data / PII and is deliberately never selected).
+ * `processedAt` null = the handler never finished — the prime debug signal.
+ */
+export interface PaymentEventSummary {
+  id: string;
+  provider: PaymentProvider;
+  type: string;
+  eventId: string;
+  receivedAt: string;
+  processedAt: string | null;
+}
+
+/** Raw `$queryRaw` row for the payment-event trail (dates still `Date`). */
+interface PaymentEventRow {
+  id: string;
+  provider: PaymentProvider;
+  type: string;
+  eventId: string;
+  receivedAt: Date;
+  processedAt: Date | null;
+}
 
 /**
  * Admin booking detail — the full customer-facing shape plus admin-only audit
@@ -72,7 +109,11 @@ export interface AdminBookingDetail {
   contactPhone: string | null;
   specialRequests: string | null;
   tour: { slug: string; title: string };
-  departure: { startDate: string; endDate: string };
+  departure: { startDate: string; endDate: string; seatsTotal: number; seatsBooked: number };
+  providerSessionId: string | null;
+  customer: { id: string; fullName: string | null; email: string; createdAt: string };
+  otherBookings: { total: number; items: OtherBookingItem[] };
+  paymentEvents: PaymentEventSummary[];
   paidAt: string | null;
   cancelledAt: string | null;
   providerPaymentId: string | null;
@@ -83,7 +124,9 @@ export interface AdminBookingDetail {
 }
 
 /** Explicit allow-list mapper — no accidental passthrough of internal columns. */
-function toAdminBookingDetail(b: BookingWithDetail): AdminBookingDetail {
+function toAdminBookingDetail(
+  b: BookingWithDetail,
+): Omit<AdminBookingDetail, 'otherBookings' | 'paymentEvents'> {
   return {
     id: b.id,
     code: b.code,
@@ -101,6 +144,15 @@ function toAdminBookingDetail(b: BookingWithDetail): AdminBookingDetail {
     departure: {
       startDate: b.departure.startDate.toISOString(),
       endDate: b.departure.endDate.toISOString(),
+      seatsTotal: b.departure.seatsTotal,
+      seatsBooked: b.departure.seatsBooked,
+    },
+    providerSessionId: b.providerSessionId,
+    customer: {
+      id: b.user.id,
+      fullName: b.user.fullName,
+      email: b.user.email,
+      createdAt: b.user.createdAt.toISOString(),
     },
     paidAt: b.paidAt ? b.paidAt.toISOString() : null,
     cancelledAt: b.cancelledAt ? b.cancelledAt.toISOString() : null,
@@ -620,7 +672,60 @@ export class BookingsService {
         message: `Booking "${code}" not found`,
       });
     }
-    return toAdminBookingDetail(booking);
+
+    // Side reads in parallel (Promise.all — pooler-safe, no batch $transaction).
+    // PaymentEvent has no FK to Booking: link through the SAME payload paths the
+    // webhook handlers route by (Stripe metadata.bookingId / PayPal custom_id).
+    const othersWhere = { userId: booking.userId, id: { not: booking.id } };
+    const [otherRows, otherTotal, eventRows] = await Promise.all([
+      this.prisma.booking.findMany({
+        where: othersWhere,
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        select: {
+          code: true,
+          status: true,
+          createdAt: true,
+          totalAmount: true,
+          currency: true,
+          tour: { select: { title: true } },
+        },
+      }),
+      this.prisma.booking.count({ where: othersWhere }),
+      this.prisma.$queryRaw<PaymentEventRow[]>(Prisma.sql`
+        SELECT id, provider, type, event_id AS "eventId",
+               received_at AS "receivedAt", processed_at AS "processedAt"
+        FROM payment_events
+        WHERE (provider = 'STRIPE'
+               AND payload->'data'->'object'->'metadata'->>'bookingId' = ${booking.id})
+           OR (provider = 'PAYPAL'
+               AND payload->'resource'->>'custom_id' = ${booking.id})
+        ORDER BY received_at DESC
+      `),
+    ]);
+
+    return {
+      ...toAdminBookingDetail(booking),
+      otherBookings: {
+        total: otherTotal,
+        items: otherRows.map((r) => ({
+          code: r.code,
+          status: r.status,
+          createdAt: r.createdAt.toISOString(),
+          tourTitle: r.tour.title,
+          totalAmount: r.totalAmount.toString(),
+          currency: r.currency,
+        })),
+      },
+      paymentEvents: eventRows.map((e) => ({
+        id: e.id,
+        provider: e.provider,
+        type: e.type,
+        eventId: e.eventId,
+        receivedAt: e.receivedAt.toISOString(),
+        processedAt: e.processedAt ? e.processedAt.toISOString() : null,
+      })),
+    };
   }
 
   // ── Internals ───────────────────────────────────────────────────────────────

@@ -50,6 +50,7 @@ function makePrisma(m: Mocks = {}): PrismaService {
     booking: {
       findUnique: jest.fn().mockResolvedValue(null),
       findMany: jest.fn().mockResolvedValue([]),
+      count: jest.fn().mockResolvedValue(0),
       create: jest
         .fn()
         .mockImplementation(({ data }) => Promise.resolve({ id: 'bk-1', ...data })),
@@ -699,10 +700,20 @@ describe('BookingsService', () => {
             contactEmail: 'jane@example.com',
             contactPhone: null,
             specialRequests: null,
+            userId: 'user-1',
+            providerSessionId: 'cs_abc123',
+            user: {
+              id: 'user-1',
+              fullName: 'Jane Doe',
+              email: 'jane@example.com',
+              createdAt: new Date('2026-01-05T00:00:00Z'),
+            },
             tour: { slug: 'hoi-an', title: 'Hoi An Walking Tour' },
             departure: {
               startDate: new Date('2026-08-15T00:00:00Z'),
               endDate: new Date('2026-08-18T00:00:00Z'),
+              seatsTotal: 12,
+              seatsBooked: 7,
             },
             paidAt: new Date('2026-07-01T10:00:00Z'),
             cancelledAt: new Date('2026-07-02T09:00:00Z'),
@@ -713,6 +724,7 @@ describe('BookingsService', () => {
             updatedAt: new Date('2026-07-02T09:00:00Z'),
           }),
         },
+        $queryRaw: jest.fn().mockResolvedValue([]),
       });
       const result = await svcWith(prisma).findByCodeForAdmin('BK-1');
       expect(result.code).toBe('BK-1');
@@ -739,10 +751,20 @@ describe('BookingsService', () => {
             contactEmail: 'bob@example.com',
             contactPhone: null,
             specialRequests: null,
+            userId: 'user-1',
+            providerSessionId: 'cs_abc123',
+            user: {
+              id: 'user-1',
+              fullName: 'Jane Doe',
+              email: 'jane@example.com',
+              createdAt: new Date('2026-01-05T00:00:00Z'),
+            },
             tour: { slug: 'hoi-an', title: 'Hoi An Walking Tour' },
             departure: {
               startDate: new Date('2026-08-15T00:00:00Z'),
               endDate: new Date('2026-08-18T00:00:00Z'),
+              seatsTotal: 12,
+              seatsBooked: 7,
             },
             paidAt: new Date('2026-07-01T10:00:00Z'),
             cancelledAt: null,
@@ -753,6 +775,7 @@ describe('BookingsService', () => {
             updatedAt: new Date('2026-07-01T10:00:00Z'),
           }),
         },
+        $queryRaw: jest.fn().mockResolvedValue([]),
       });
       const result = await svcWith(prisma).findByCodeForAdmin('BK-2');
       expect(result.refundedBy).toBeNull();
@@ -766,6 +789,162 @@ describe('BookingsService', () => {
       await expect(svcWith(prisma).findByCodeForAdmin('BK-NOPE')).rejects.toBeInstanceOf(
         NotFoundException,
       );
+    });
+
+    it('maps customer, seats, session id, other bookings and payment events', async () => {
+      const findMany = jest.fn().mockResolvedValue([
+        {
+          code: 'BK-OTHER',
+          status: 'PAID',
+          createdAt: new Date('2026-05-01T00:00:00Z'),
+          totalAmount: { toString: () => '150.00' },
+          currency: 'USD',
+          tour: { title: 'Mekong Delta Day Trip' },
+        },
+      ]);
+      const count = jest.fn().mockResolvedValue(7);
+      const $queryRaw = jest.fn().mockResolvedValue([
+        {
+          id: 'evt-row-1',
+          provider: 'STRIPE',
+          type: 'checkout.session.completed',
+          eventId: 'evt_1',
+          receivedAt: new Date('2026-07-01T10:00:00Z'),
+          processedAt: null,
+        },
+      ]);
+      const prisma = makePrisma({
+        booking: {
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'bk-1',
+            code: 'BK-1',
+            status: 'PAID',
+            numAdults: 2,
+            numChildren: 0,
+            totalAmount: { toString: () => '99.00' },
+            currency: 'USD',
+            paymentProvider: 'STRIPE',
+            contactName: 'Jane',
+            contactEmail: 'jane@example.com',
+            contactPhone: null,
+            specialRequests: null,
+            userId: 'user-1',
+            providerSessionId: 'cs_abc123',
+            user: {
+              id: 'user-1',
+              fullName: 'Jane Doe',
+              email: 'jane@example.com',
+              createdAt: new Date('2026-01-05T00:00:00Z'),
+            },
+            tour: { slug: 'hoi-an', title: 'Hoi An Walking Tour' },
+            departure: {
+              startDate: new Date('2026-08-15T00:00:00Z'),
+              endDate: new Date('2026-08-18T00:00:00Z'),
+              seatsTotal: 12,
+              seatsBooked: 7,
+            },
+            paidAt: new Date('2026-07-01T10:00:00Z'),
+            cancelledAt: null,
+            providerPaymentId: 'pi_123',
+            refundReason: null,
+            refundedBy: null,
+            createdAt: new Date('2026-06-30T08:00:00Z'),
+            updatedAt: new Date('2026-07-01T10:00:00Z'),
+          }),
+          findMany,
+          count,
+        },
+        $queryRaw,
+      });
+
+      const result = await svcWith(prisma).findByCodeForAdmin('BK-1');
+
+      expect(result.providerSessionId).toBe('cs_abc123');
+      expect(result.departure.seatsTotal).toBe(12);
+      expect(result.departure.seatsBooked).toBe(7);
+      expect(result.customer).toEqual({
+        id: 'user-1',
+        fullName: 'Jane Doe',
+        email: 'jane@example.com',
+        createdAt: '2026-01-05T00:00:00.000Z',
+      });
+      expect(result.otherBookings.total).toBe(7);
+      expect(result.otherBookings.items).toEqual([
+        {
+          code: 'BK-OTHER',
+          status: 'PAID',
+          createdAt: '2026-05-01T00:00:00.000Z',
+          tourTitle: 'Mekong Delta Day Trip',
+          totalAmount: '150.00',
+          currency: 'USD',
+        },
+      ]);
+      expect(result.paymentEvents).toEqual([
+        {
+          id: 'evt-row-1',
+          provider: 'STRIPE',
+          type: 'checkout.session.completed',
+          eventId: 'evt_1',
+          receivedAt: '2026-07-01T10:00:00.000Z',
+          processedAt: null,
+        },
+      ]);
+      // Other-bookings query excludes the current booking + caps at 5, newest first.
+      const otherArgs = findMany.mock.calls[0][0];
+      expect(otherArgs.where).toEqual({ userId: 'user-1', id: { not: 'bk-1' } });
+      expect(otherArgs.take).toBe(5);
+      expect(otherArgs.orderBy).toEqual({ createdAt: 'desc' });
+    });
+
+    it('returns empty otherBookings/paymentEvents when the customer has no history', async () => {
+      const prisma = makePrisma({
+        booking: {
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'bk-2',
+            code: 'BK-2',
+            status: 'PENDING',
+            numAdults: 1,
+            numChildren: 0,
+            totalAmount: { toString: () => '39.00' },
+            currency: 'USD',
+            paymentProvider: 'PAYPAL',
+            contactName: 'Bob',
+            contactEmail: 'bob@example.com',
+            contactPhone: null,
+            specialRequests: null,
+            userId: 'user-2',
+            providerSessionId: null,
+            user: {
+              id: 'user-2',
+              fullName: null,
+              email: 'bob@example.com',
+              createdAt: new Date('2026-06-01T00:00:00Z'),
+            },
+            tour: { slug: 'hoi-an', title: 'Hoi An Walking Tour' },
+            departure: {
+              startDate: new Date('2026-08-15T00:00:00Z'),
+              endDate: new Date('2026-08-18T00:00:00Z'),
+              seatsTotal: 10,
+              seatsBooked: 0,
+            },
+            paidAt: null,
+            cancelledAt: null,
+            providerPaymentId: null,
+            refundReason: null,
+            refundedBy: null,
+            createdAt: new Date('2026-06-30T08:00:00Z'),
+            updatedAt: new Date('2026-06-30T08:00:00Z'),
+          }),
+        },
+        $queryRaw: jest.fn().mockResolvedValue([]),
+      });
+
+      const result = await svcWith(prisma).findByCodeForAdmin('BK-2');
+
+      expect(result.providerSessionId).toBeNull();
+      expect(result.customer.fullName).toBeNull();
+      expect(result.otherBookings).toEqual({ total: 0, items: [] });
+      expect(result.paymentEvents).toEqual([]);
     });
   });
 });
