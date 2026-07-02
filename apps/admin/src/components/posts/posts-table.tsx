@@ -24,7 +24,15 @@ const postColumns: ColumnDef<PostRow>[] = [
     header: 'Title',
     enableHiding: false,
     meta: { label: 'Title' },
-    cell: ({ row }) => <span className="font-medium">{row.original.title}</span>,
+    cell: ({ row }) => (
+      <Link
+        href={`/posts/${row.original.slug}`}
+        title={row.original.title}
+        className="hover:text-primary block max-w-104 truncate font-medium hover:underline"
+      >
+        {row.original.title}
+      </Link>
+    ),
   },
   {
     id: 'status',
