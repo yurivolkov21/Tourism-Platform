@@ -3,12 +3,13 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { ArrowLeft, Pencil } from 'lucide-react';
 
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@tourism/ui';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@tourism/ui';
 
 import { DestinationMediaView } from '../../../../components/destinations/destination-media-view';
 import { RowActions } from '../../../../components/crud/row-actions';
 import { PostContent } from '../../../../components/posts/post-content';
 import { deletePost } from '../../../../lib/posts/actions';
+import { extractOutline, readingStats } from '../../../../lib/posts/derive';
 import { getPost, type PostDetail } from '../../../../lib/posts/data';
 import { formatRelativeTime } from '../../../../lib/relative-time';
 
@@ -54,6 +55,11 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   }
 
   const isPublished = post.status === 'PUBLISHED';
+  const stats = readingStats(post.content);
+  const outline = extractOutline(post.content);
+  const authorInitials = (post.author?.fullName ?? post.author?.email ?? 'AD')
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 lg:px-6">
@@ -133,15 +139,36 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
               <dl className="space-y-3">
                 <Row label="Status" value={isPublished ? 'Published' : 'Draft'} />
                 <Row label="Slug" value={<code className="text-xs">{post.slug}</code>} />
+                {stats.words > 0 ? (
+                  <Row
+                    label="Length"
+                    value={
+                      <span className="font-normal">
+                        {stats.words.toLocaleString('en-US')} words
+                        <span className="text-muted-foreground ml-1.5 text-xs">
+                          ~{stats.minutes} min read
+                        </span>
+                      </span>
+                    }
+                  />
+                ) : null}
                 <Row
                   label="Author"
                   value={
-                    <span className="font-normal">
-                      {/* Optional chain: mid-deploy the API may briefly still serve the
-                          author-less PostDto (Render lags Vercel) — show dashes, don't crash. */}
-                      {post.author?.fullName ?? '—'}
-                      <span className="text-muted-foreground block text-xs">
-                        {post.author?.email ?? ''}
+                    <span className="flex items-center justify-end gap-2 font-normal">
+                      <Avatar className="size-7 rounded-lg">
+                        {post.author?.avatarUrl ? (
+                          <AvatarImage src={post.author.avatarUrl} alt="" />
+                        ) : null}
+                        <AvatarFallback className="rounded-lg text-[10px]">
+                          {authorInitials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span>
+                        {post.author?.fullName ?? '—'}
+                        <span className="text-muted-foreground block text-xs">
+                          {post.author?.email ?? ''}
+                        </span>
                       </span>
                     </span>
                   }
@@ -155,6 +182,25 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
               </dl>
             </CardContent>
           </Card>
+          {outline.length >= 2 ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">In this post</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-1.5 text-sm">
+                  {outline.map((h, i) => (
+                    <li
+                      key={`${h.text}-${i}`}
+                      className={h.depth === 3 ? 'text-muted-foreground pl-4' : 'font-medium'}
+                    >
+                      {h.text}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          ) : null}
         </div>
       </div>
     </div>
