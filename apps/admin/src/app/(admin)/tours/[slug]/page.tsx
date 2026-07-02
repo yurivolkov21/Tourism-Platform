@@ -9,6 +9,8 @@ import { RowActions } from '../../../../components/crud/row-actions';
 import { DestinationMediaView } from '../../../../components/destinations/destination-media-view';
 import { deleteTour } from '../../../../lib/tours/actions';
 import { getTour, type TourDetail } from '../../../../lib/tours/data';
+import { listDepartures, type Departure } from '../../../../lib/departures/data';
+import { isDeparturePast } from '../../../../lib/departures/format';
 import { formatRelativeTime } from '../../../../lib/relative-time';
 
 interface TourDetailPageProps {
@@ -46,13 +48,15 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
   const { slug } = await params;
 
   let tour: TourDetail;
+  let departures: Departure[];
   try {
-    tour = await getTour(slug);
+    [tour, departures] = await Promise.all([getTour(slug), listDepartures(slug).catch(() => [])]);
   } catch {
     notFound();
   }
 
   const primary = tour.destinations.find((d) => d.isPrimary) ?? tour.destinations[0];
+  const upcoming = departures.filter((d) => d.status === 'OPEN' && !isDeparturePast(d.startDate));
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 lg:px-6">
@@ -247,6 +251,74 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
 
         {/* Rail */}
         <div className="space-y-6">
+          {tour.ops ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Performance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <dl className="space-y-3">
+                  <Row
+                    label="Bookings"
+                    value={
+                      <span className="tabular-nums">
+                        {tour.ops.bookingsPaid}
+                        <span className="text-muted-foreground"> paid / {tour.ops.bookingsTotal}</span>
+                      </span>
+                    }
+                  />
+                  <Row label="Revenue" value={money(tour.ops.revenue, tour.currency)} />
+                  <Row label="Wishlist saves" value={tour.ops.wishlistCount} />
+                  <Row label="Enquiries" value={tour.ops.enquiriesCount} />
+                </dl>
+              </CardContent>
+            </Card>
+          ) : null}
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Departures</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {upcoming.length === 0 ? (
+                <p className="text-muted-foreground text-sm">
+                  No upcoming departures — travellers see Private request only.
+                </p>
+              ) : (
+                upcoming.slice(0, 3).map((d) => {
+                  const pct =
+                    d.seatsTotal > 0 ? Math.round((d.seatsBooked / d.seatsTotal) * 100) : 0;
+                  return (
+                    <Link
+                      key={d.id}
+                      href={`/tours/${tour.slug}/departures/${d.id}`}
+                      className="hover:bg-muted/60 block space-y-1.5 rounded-lg border p-2.5 transition-colors"
+                    >
+                      <span className="flex items-center justify-between text-sm">
+                        <span className="font-medium">{d.startDate}</span>
+                        <span className="text-muted-foreground tabular-nums">
+                          {d.seatsBooked}/{d.seatsTotal} seats
+                        </span>
+                      </span>
+                      <span className="bg-muted block h-1 overflow-hidden rounded-full">
+                        <span className="bg-primary block h-full rounded-full" style={{ width: `${pct}%` }} />
+                      </span>
+                    </Link>
+                  );
+                })
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                nativeButton={false}
+                render={<Link href={`/tours/${tour.slug}/departures`} />}
+              >
+                View all departures
+              </Button>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Details</CardTitle>
@@ -276,11 +348,14 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                   label="Rating"
                   value={
                     tour.reviewsCount > 0 ? (
-                      <span className="inline-flex items-center gap-1">
+                      <Link
+                        href="/reviews"
+                        className="hover:text-primary inline-flex items-center gap-1 hover:underline"
+                      >
                         <Star className="size-3.5 fill-amber-400 text-amber-400" aria-hidden />
                         {tour.averageRating.toFixed(1)}
                         <span className="text-muted-foreground text-xs">({tour.reviewsCount})</span>
-                      </span>
+                      </Link>
                     ) : (
                       <span className="text-muted-foreground">No reviews</span>
                     )

@@ -3,7 +3,14 @@ import type { components } from '@tourism/core';
 import { getApiClient } from '../api/client';
 
 export type TourSummary = components['schemas']['TourSummaryDto'];
-export type TourDetail = components['schemas']['TourDetailDto'];
+/**
+ * `ops` is typed optional here even though the generated `AdminTourDetailDto` marks it required —
+ * the API and FE can deploy out of order (Render lag), so the FE must tolerate a response from an
+ * older API build that doesn't carry `ops` yet.
+ */
+export type TourDetail = Omit<components['schemas']['AdminTourDetailDto'], 'ops'> & {
+  ops?: components['schemas']['TourOpsDto'];
+};
 export type PageMeta = components['schemas']['PageMetaDto'];
 
 export interface TourListParams {
