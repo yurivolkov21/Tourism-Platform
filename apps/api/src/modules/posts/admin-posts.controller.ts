@@ -22,12 +22,13 @@ import {
 import { Post, User, UserRole } from '@prisma/client';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { AdminPostDetailDto } from './dto/admin-post-detail.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { ListPostsQueryDto } from './dto/list-posts-query.dto';
 import { PaginatedPostsDto } from './dto/paginated-posts.dto';
 import { PostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { PaginatedPosts, PostsService } from './posts.service';
+import { AdminPostDetail, PaginatedPosts, PostsService } from './posts.service';
 
 /**
  * Admin CRUD at `/admin/posts` — every route gated by `@Roles(ADMIN)` (the global
@@ -50,11 +51,11 @@ export class AdminPostsController {
   }
 
   @Get(':slug')
-  @ApiOperation({ summary: 'Admin: get one post by slug' })
-  @ApiOkResponse({ type: PostDto })
+  @ApiOperation({ summary: 'Admin: get one post by slug (with its author)' })
+  @ApiOkResponse({ type: AdminPostDetailDto })
   @ApiResponse({ status: 404, description: 'Not found' })
-  detail(@Param('slug') slug: string): Promise<Post> {
-    return this.postsService.findBySlug(slug);
+  detail(@Param('slug') slug: string): Promise<AdminPostDetail> {
+    return this.postsService.findDetailForAdmin(slug);
   }
 
   @HttpPost()

@@ -18,6 +18,11 @@ export interface PaginatedPosts {
   meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
 
+/** `Post` + the author's display fields — the admin detail read (`AdminPostDetailDto`). */
+export type AdminPostDetail = Post & {
+  author: { fullName: string | null; email: string };
+};
+
 /**
  * CRUD for the editorial `Post` (P-Content). Public reads return only PUBLISHED
  * posts whose `publishedAt <= now`; admin reads see drafts. `publishedAt` is
@@ -56,6 +61,16 @@ export class PostsService {
 
   async findBySlug(slug: string): Promise<Post> {
     const post = await this.prisma.post.findUnique({ where: { slug } });
+    if (!post) throw this.notFound(slug);
+    return post;
+  }
+
+  /** Admin detail: the post plus its author's name/email. Public reads stay author-free. */
+  async findDetailForAdmin(slug: string): Promise<AdminPostDetail> {
+    const post = await this.prisma.post.findUnique({
+      where: { slug },
+      include: { author: { select: { fullName: true, email: true } } },
+    });
     if (!post) throw this.notFound(slug);
     return post;
   }

@@ -111,4 +111,27 @@ describe('PostsService', () => {
     const svc = new PostsService(makePrisma({ findUnique }));
     await expect(svc.remove('nope')).rejects.toThrow(NotFoundException);
   });
+
+  it('findDetailForAdmin returns the post with its author', async () => {
+    const findUnique = jest.fn().mockResolvedValue({
+      id: '1',
+      slug: 'x',
+      author: { fullName: 'Ana Admin', email: 'ana@nexora.travel' },
+    });
+    const svc = new PostsService(makePrisma({ findUnique }));
+
+    const res = await svc.findDetailForAdmin('x');
+
+    expect(findUnique).toHaveBeenCalledWith({
+      where: { slug: 'x' },
+      include: { author: { select: { fullName: true, email: true } } },
+    });
+    expect(res.author).toEqual({ fullName: 'Ana Admin', email: 'ana@nexora.travel' });
+  });
+
+  it('findDetailForAdmin throws 404 when the post is missing', async () => {
+    const findUnique = jest.fn().mockResolvedValue(null);
+    const svc = new PostsService(makePrisma({ findUnique }));
+    await expect(svc.findDetailForAdmin('nope')).rejects.toThrow(NotFoundException);
+  });
 });
