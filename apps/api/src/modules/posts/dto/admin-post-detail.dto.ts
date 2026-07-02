@@ -8,6 +8,9 @@ export class PostAuthorDto {
 
   @ApiProperty({ example: 'ana@nexora.travel' })
   email!: string;
+
+  @ApiProperty({ nullable: true, type: String, description: 'Avatar delivery URL, when set.' })
+  avatarUrl!: string | null;
 }
 
 /**

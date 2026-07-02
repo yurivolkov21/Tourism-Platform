@@ -5,22 +5,27 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Post, PostStatus, Prisma } from '@prisma/client';
+import { MediaOwnerType, Post, PostStatus, Prisma } from '@prisma/client';
 import { slugify } from '../../common/slugify';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MediaService } from '../media/media.service';
+import { MediaInputDto, MediaItemDto } from '../media/dto/media.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { ListPostsQueryDto } from './dto/list-posts-query.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 
+/** `Post` + its attached media set (cover lives at role `hero`). */
+export type PostWithMedia = Post & { media: MediaItemDto[] };
+
 /** Pagination envelope; `TransformInterceptor` hoists `meta` to the top level. */
 export interface PaginatedPosts {
-  items: Post[];
+  items: PostWithMedia[];
   meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
 
-/** `Post` + the author's display fields — the admin detail read (`AdminPostDetailDto`). */
-export type AdminPostDetail = Post & {
-  author: { fullName: string | null; email: string };
+/** `PostWithMedia` + the author's display fields — the admin detail read. */
+export type AdminPostDetail = PostWithMedia & {
+  author: { fullName: string | null; email: string; avatarUrl: string | null };
 };
 
 /**
@@ -37,7 +42,10 @@ export class PostsService {
   /** DB column cap for `Post.slug` (`@db.VarChar(80)`). */
   private static readonly SLUG_MAX = 80;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly media: MediaService,
+  ) {}
 
   // ── Public reads ──────────────────────────────────────────────────────────
 
@@ -45,12 +53,12 @@ export class PostsService {
     return this.list({ ...query, status: PostStatus.PUBLISHED, publishedOnly: true });
   }
 
-  async findPublicBySlug(slug: string): Promise<Post> {
+  async findPublicBySlug(slug: string): Promise<PostWithMedia> {
     const post = await this.prisma.post.findFirst({
       where: { slug, status: PostStatus.PUBLISHED, publishedAt: { lte: new Date() } },
     });
     if (!post) throw this.notFound(slug);
-    return post;
+    return this.media.attachToOwner(MediaOwnerType.POST, post);
   }
 
   // ── Admin reads + mutations ───────────────────────────────────────────────
@@ -65,18 +73,29 @@ export class PostsService {
     return post;
   }
 
-  /** Admin detail: the post plus its author's name/email. Public reads stay author-free. */
+  /** Admin detail: post + media + the author's name/email/avatar. Public reads stay author-free. */
   async findDetailForAdmin(slug: string): Promise<AdminPostDetail> {
     const post = await this.prisma.post.findUnique({
       where: { slug },
-      include: { author: { select: { fullName: true, email: true } } },
+      include: { author: { select: { id: true, fullName: true, email: true } } },
     });
     if (!post) throw this.notFound(slug);
-    return post;
+    const { author, ...row } = post;
+    const withMedia = await this.media.attachToOwner(MediaOwnerType.POST, row);
+    // A USER owner has at most one media asset (the avatar) → first url, or null.
+    const authorWithAvatar = await this.media.attachToOwner(MediaOwnerType.USER, { id: author.id });
+    return {
+      ...withMedia,
+      author: {
+        fullName: author.fullName,
+        email: author.email,
+        avatarUrl: authorWithAvatar.media[0]?.url ?? null,
+      },
+    };
   }
 
   /** Create. Slug from input (or `title`); duplicate → 409. `publishedAt` set when created PUBLISHED. */
-  async create(body: CreatePostDto, authorId: string): Promise<Post> {
+  async create(body: CreatePostDto, authorId: string): Promise<PostWithMedia> {
     const slug = this.normalizeSlug(body.slug, body.title);
     const status = body.status ?? PostStatus.DRAFT;
     try {
@@ -92,7 +111,7 @@ export class PostsService {
         },
       });
       this.logger.log(`Created post ${post.slug}`);
-      return post;
+      return this.media.attachToOwner(MediaOwnerType.POST, post);
     } catch (err) {
       if (this.isUniqueConstraintError(err)) throw this.slugConflict(slug);
       throw err;
@@ -104,7 +123,7 @@ export class PostsService {
    * is stamped the first time status flips to PUBLISHED, and preserved on later edits
    * (including a flip back to DRAFT — the original publish date is kept).
    */
-  async update(slug: string, body: UpdatePostDto): Promise<Post> {
+  async update(slug: string, body: UpdatePostDto): Promise<PostWithMedia> {
     const existing = await this.findBySlug(slug);
 
     const data: Prisma.PostUpdateInput = {
@@ -125,7 +144,8 @@ export class PostsService {
     }
 
     try {
-      return await this.prisma.post.update({ where: { slug }, data });
+      const updated = await this.prisma.post.update({ where: { slug }, data });
+      return this.media.attachToOwner(MediaOwnerType.POST, updated);
     } catch (err) {
       if (this.isUniqueConstraintError(err)) {
         throw this.slugConflict(String(data.slug ?? slug));
@@ -134,10 +154,28 @@ export class PostsService {
     }
   }
 
-  /** Hard delete (404 if missing). Posts have no dependents. */
+  /**
+   * Replace-all the post's media set (admin). Resolves slug→id, syncs in a transaction,
+   * returns the new set with built delivery URLs. Mirrors destinations/tours.
+   */
+  async setMedia(slug: string, media: MediaInputDto[]): Promise<MediaItemDto[]> {
+    const post = await this.prisma.post.findUnique({ where: { slug }, select: { id: true } });
+    if (!post) throw this.notFound(slug);
+    await this.prisma.$transaction((tx) =>
+      this.media.syncAssets(tx, MediaOwnerType.POST, post.id, media),
+    );
+    const withMedia = await this.media.attachToOwner(MediaOwnerType.POST, { id: post.id });
+    this.logger.log(`Set ${media.length} media on post ${slug}`);
+    return withMedia.media;
+  }
+
+  /** Hard delete (404 if missing). Media has no FK cascade — delete it in the same tx. */
   async remove(slug: string): Promise<Post> {
-    await this.findBySlug(slug);
-    const deleted = await this.prisma.post.delete({ where: { slug } });
+    const existing = await this.findBySlug(slug);
+    const deleted = await this.prisma.$transaction(async (tx) => {
+      await this.media.deleteForOwner(tx, MediaOwnerType.POST, existing.id);
+      return tx.post.delete({ where: { slug } });
+    });
     this.logger.log(`Deleted post ${deleted.slug}`);
     return deleted;
   }
@@ -173,14 +211,11 @@ export class PostsService {
       this.prisma.post.count({ where }),
     ]);
 
+    const withMedia = await this.media.attachToOwners(MediaOwnerType.POST, items);
+
     return {
-      items,
-      meta: {
-        page,
-        pageSize,
-        total,
-        totalPages: Math.max(1, Math.ceil(total / pageSize)),
-      },
+      items: withMedia,
+      meta: { page, pageSize, total, totalPages: Math.max(1, Math.ceil(total / pageSize)) },
     };
   }
 

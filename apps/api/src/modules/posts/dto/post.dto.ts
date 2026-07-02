@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PostStatus } from '@prisma/client';
+import { MediaItemDto } from '../../media/dto/media.dto';
 
 /** Response shape for an editorial post (mirrors the Prisma `Post`). */
 export class PostDto {
@@ -32,4 +33,7 @@ export class PostDto {
 
   @ApiProperty({ format: 'date-time' })
   updatedAt!: string;
+
+  @ApiProperty({ type: [MediaItemDto], description: 'Attached media; the cover is role `hero`.' })
+  media!: MediaItemDto[];
 }
