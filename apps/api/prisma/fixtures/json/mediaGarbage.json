@@ -1,0 +1,34 @@
+[
+  {
+    "id": "a6000001-0000-4000-8000-000000000001",
+    "publicId": "nexora/users/emma-thompson/avatar-old",
+    "resourceType": "image",
+    "attempts": 0,
+    "lastError": null,
+    "createdAt": "2026-06-26T08:00:00.000Z"
+  },
+  {
+    "id": "a6000001-0000-4000-8000-000000000002",
+    "publicId": "nexora/tours/hoi-an-walking-tour/gallery-removed",
+    "resourceType": "image",
+    "attempts": 1,
+    "lastError": "Cloudinary destroy returned \"not found\"; will retry once more before giving up.",
+    "createdAt": "2026-06-27T08:00:00.000Z"
+  },
+  {
+    "id": "a6000001-0000-4000-8000-000000000003",
+    "publicId": "nexora/tours/halong-bay-2d1n/promo-old",
+    "resourceType": "video",
+    "attempts": 2,
+    "lastError": "Rate limited by Cloudinary (420); backing off before the next attempt.",
+    "createdAt": "2026-06-28T08:00:00.000Z"
+  },
+  {
+    "id": "a6000001-0000-4000-8000-000000000004",
+    "publicId": "nexora/destinations/con-dao/hero-deleted",
+    "resourceType": "image",
+    "attempts": 0,
+    "lastError": null,
+    "createdAt": "2026-06-29T08:00:00.000Z"
+  }
+]

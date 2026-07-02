@@ -1,0 +1,178 @@
+[
+  {
+    "id": "c0000001-0000-4000-8000-000000000001",
+    "slug": "hanoi",
+    "name": "Hà Nội",
+    "country": "Vietnam",
+    "region": "Northern Vietnam",
+    "description": "A thousand-year-old capital where French boulevards meet the motorbike-filled Old Quarter, lakeside temples, and legendary street food.",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000002",
+    "slug": "ha-long-bay",
+    "name": "Hạ Long Bay",
+    "country": "Vietnam",
+    "region": "Northern Vietnam",
+    "description": "A UNESCO seascape of thousands of limestone karsts rising from emerald water, best explored by overnight cruise, kayak, and hidden lagoon.",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000003",
+    "slug": "ninh-binh",
+    "name": "Ninh Bình",
+    "country": "Vietnam",
+    "region": "Northern Vietnam",
+    "description": "The \"Ha Long Bay on land\": bamboo boats threading cave-pierced karst at Tam Cốc and Tràng An, the ancient capital of Hoa Lư, and the Mua Cave viewpoint.",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000004",
+    "slug": "sa-pa",
+    "name": "Sa Pa",
+    "country": "Vietnam",
+    "region": "Northern Vietnam",
+    "description": "A misty mountain town overlooking emerald rice terraces, home to Hmong, Dao and Tày villages and Fansipan, Indochina’s highest peak.",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000005",
+    "slug": "ha-giang",
+    "name": "Hà Giang",
+    "country": "Vietnam",
+    "region": "Northern Vietnam",
+    "description": "Vietnam’s wild northern frontier, where the legendary loop winds past the Mã Pí Lèng pass, limestone plateaus, and remote hamlets.",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000006",
+    "slug": "cat-ba",
+    "name": "Cát Bà",
+    "country": "Vietnam",
+    "region": "Northern Vietnam",
+    "description": "The largest island off Hải Phòng, gateway to quiet Lan Hạ Bay, a national park of langurs, and a working fishing harbour.",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000007",
+    "slug": "da-nang",
+    "name": "Đà Nẵng",
+    "country": "Vietnam",
+    "region": "Central Vietnam",
+    "description": "A breezy coastal city of long beaches and river bridges, gateway to the Marble Mountains and the Golden Bridge at Bà Nà Hills.",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000008",
+    "slug": "hoi-an",
+    "name": "Hội An",
+    "country": "Vietnam",
+    "region": "Central Vietnam",
+    "description": "A UNESCO-listed ancient town glowing with silk lanterns, riverside cafes, centuries-old merchant houses, tailors, and a famous cooking scene.",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000009",
+    "slug": "hue",
+    "name": "Huế",
+    "country": "Vietnam",
+    "region": "Central Vietnam",
+    "description": "The imperial capital of the Nguyễn dynasty: a walled citadel, royal tombs along the Perfume River, and the Thiên Mụ Pagoda.",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000010",
+    "slug": "phong-nha",
+    "name": "Phong Nha",
+    "country": "Vietnam",
+    "region": "Central Vietnam",
+    "description": "A UNESCO karst national park hiding some of the world’s grandest caves, river-boat grottoes, and jungle kayaking.",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000011",
+    "slug": "ho-chi-minh-city",
+    "name": "Hồ Chí Minh City",
+    "country": "Vietnam",
+    "region": "Southern Vietnam",
+    "description": "The energetic south’s commercial heart (Saigon): colonial landmarks, war history, rooftop bars, and the Củ Chi tunnels on its doorstep.",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000012",
+    "slug": "mekong-delta",
+    "name": "Mekong Delta",
+    "country": "Vietnam",
+    "region": "Southern Vietnam",
+    "description": "A watery maze of rivers, orchards and floating markets where life moves by sampan, best seen at dawn on the Cái Răng market.",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000013",
+    "slug": "phu-quoc",
+    "name": "Phú Quốc",
+    "country": "Vietnam",
+    "region": "Southern Vietnam",
+    "description": "Vietnam’s largest island: white-sand beaches, pepper farms, an island cable car, and the clear snorkelling of the An Thới archipelago.",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000014",
+    "slug": "mui-ne",
+    "name": "Mũi Né",
+    "country": "Vietnam",
+    "region": "Southern Vietnam",
+    "description": "A laid-back fishing-village resort famous for its red and white sand dunes, kite-surfing, and the Fairy Stream.",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000015",
+    "slug": "da-lat",
+    "name": "Đà Lạt",
+    "country": "Vietnam",
+    "region": "Central Vietnam",
+    "description": "The valley opens at dawn to a patchwork of flooded rice terraces that mirror the sky. Limestone karsts rise straight from jade water, their caves hiding lagoons reachable only by kayak. Narrow lanes wind past ochre merchant houses, tailors, and lantern-makers who have worked here for generations. Fishing boats return at first light while vendors ferry pyramids of fruit between sampans on the current. Mist settles over the pass each morning, lifting to reveal terraced slopes and remote hamlets below. Imperial tombs and pagodas line the river, their courtyards quiet beneath old frangipani trees. Street kitchens fire up before sunrise, filling the alleys with the smell of star anise and charcoal. A cable car climbs into cool highland forest where French villas cling to the ridgeline. White dunes roll toward the sea, shifting colour from cream to rose as the sun crosses them. Coral gardens fringe the archipelago, the water so clear the reef seems to float just below the hull. The valley opens at dawn to a patchwork of flooded rice terraces that mirror the sky. Limestone karsts rise straight from jade water, their caves hiding lagoons reachable only by kayak. Narrow lanes wind past ochre merchant houses, tailors, and lantern-makers who have worked here for generations. Fishing boats return at first light while vendors ferry pyramids of fruit between sampans on the current. Mist settles over the pass each morning, lifting to reveal terraced slopes and remote hamlets below. Imperial tombs and pagodas line the river, their courtyards quiet beneath old frangipani trees. Street kitchens fire up before sunrise, filling the alleys with the smell of star anise and charcoal. A cable car climbs into cool highland forest where French villas cling to the ridgeline. White dunes roll toward the sea, shifting colour from cream to rose as the sun crosses them. Coral gardens fringe the archipelago, the water so clear the reef seems to float just below the hull. The valley opens at dawn t",
+    "isActive": true,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  },
+  {
+    "id": "c0000001-0000-4000-8000-000000000016",
+    "slug": "con-dao",
+    "name": "Côn Đảo",
+    "country": "Vietnam",
+    "region": "Southern Vietnam",
+    "description": "A remote former-prison archipelago now prized for turtle-nesting beaches and diving; departures currently suspended.",
+    "isActive": false,
+    "createdAt": "2025-12-28T08:00:00.000Z",
+    "updatedAt": "2026-06-06T08:00:00.000Z"
+  }
+]

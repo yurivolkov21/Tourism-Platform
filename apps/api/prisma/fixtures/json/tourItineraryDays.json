@@ -1,0 +1,107 @@
+[
+  {
+    "id": "d1000001-0000-4000-8000-000000000001",
+    "tourId": "d0000001-0000-4000-8000-000000000001",
+    "dayNumber": 1,
+    "title": "Hội An old town & lantern dusk",
+    "description": "15:30 — Meet your guide at the tourist information centre on Lê Lợi street.\n15:45 — Walk the old town: the Japanese Covered Bridge and a 200-year-old merchant house.\n17:30 — A cao lầu tasting as the lanterns are lit.\n18:45 — Float your own paper lantern on the Thu Bồn river to close the tour."
+  },
+  {
+    "id": "d1000001-0000-4000-8000-000000000002",
+    "tourId": "d0000001-0000-4000-8000-000000000011",
+    "dayNumber": 1,
+    "title": "Hà Nội to Hạ Long, board & explore",
+    "description": "08:00 — Hotel pickup in the Old Quarter and the drive to the harbour.\n12:30 — Board the junk, welcome lunch as you sail into the bay.\n15:00 — Kayak and swim from Titop Island.\n19:00 — Dinner on deck followed by squid fishing."
+  },
+  {
+    "id": "d1000001-0000-4000-8000-000000000003",
+    "tourId": "d0000001-0000-4000-8000-000000000011",
+    "dayNumber": 2,
+    "title": "Sửng Sốt cave & return",
+    "description": "06:30 — Optional Tai Chi on the sun deck at sunrise.\n08:00 — Visit the vast Sửng Sốt \"Surprise\" cave.\n10:30 — Brunch aboard as the junk returns to port.\n15:30 — Arrive back in Hà Nội."
+  },
+  {
+    "id": "d1000001-0000-4000-8000-000000000004",
+    "tourId": "d0000001-0000-4000-8000-000000000013",
+    "dayNumber": 1,
+    "title": "Sa Pa to Lao Chải valley",
+    "description": "09:00 — Meet in Sa Pa and trek down into the Muong Hoa valley.\n12:30 — Picnic lunch among the rice terraces.\n16:00 — Arrive at the first homestay in Tả Van; help cook dinner."
+  },
+  {
+    "id": "d1000001-0000-4000-8000-000000000005",
+    "tourId": "d0000001-0000-4000-8000-000000000013",
+    "dayNumber": 2,
+    "title": "Tả Van to Giàng Tả Chải",
+    "description": "08:00 — Breakfast with the family, then trek through bamboo forest.\n13:00 — Riverside lunch and a swim beneath a waterfall.\n17:00 — Second homestay night with a Red Dao family."
+  },
+  {
+    "id": "d1000001-0000-4000-8000-000000000006",
+    "tourId": "d0000001-0000-4000-8000-000000000013",
+    "dayNumber": 3,
+    "title": "Return trek & transfer",
+    "description": "08:30 — A gentler morning trek back toward the road.\n12:00 — Farewell lunch in Sa Pa.\n14:00 — Transfer to the bus or overnight train."
+  },
+  {
+    "id": "d1000001-0000-4000-8000-000000000007",
+    "tourId": "d0000001-0000-4000-8000-000000000016",
+    "dayNumber": 1,
+    "title": "Arrive Hà Nội, Vespa food tour",
+    "description": "On arrival — Airport transfer and hotel check-in.\n17:00 — A 4.5-hour Vespa tour of the Old Quarter and colonial quarter with street-food stops."
+  },
+  {
+    "id": "d1000001-0000-4000-8000-000000000008",
+    "tourId": "d0000001-0000-4000-8000-000000000016",
+    "dayNumber": 2,
+    "title": "Hà Nội to Hạ Long cruise",
+    "description": "08:00 — Drive to Hạ Long and board the overnight cruise.\n15:00 — Kayaking and a cave visit.\n19:00 — Dinner and a sunset party on deck."
+  },
+  {
+    "id": "d1000001-0000-4000-8000-000000000009",
+    "tourId": "d0000001-0000-4000-8000-000000000016",
+    "dayNumber": 3,
+    "title": "Cruise to Ninh Bình",
+    "description": "08:00 — Cave visit and brunch as the junk returns.\n13:00 — Transfer to Ninh Bình and check in."
+  },
+  {
+    "id": "d1000001-0000-4000-8000-000000000010",
+    "tourId": "d0000001-0000-4000-8000-000000000016",
+    "dayNumber": 4,
+    "title": "Ninh Bình karst day",
+    "description": "08:30 — Bamboo boat ride through the Tam Cốc caves.\n11:00 — The 500-step climb to the Mua Cave viewpoint.\n14:00 — Cycle through the rice-field villages."
+  },
+  {
+    "id": "d1000001-0000-4000-8000-000000000011",
+    "tourId": "d0000001-0000-4000-8000-000000000016",
+    "dayNumber": 5,
+    "title": "Depart Hà Nội",
+    "description": "09:00 — Transfer back to Hà Nội.\nFlexible — Airport drop-off for your onward flight."
+  },
+  {
+    "id": "d1000001-0000-4000-8000-000000000012",
+    "tourId": "d0000001-0000-4000-8000-000000000002",
+    "dayNumber": 1,
+    "title": "Bà Nà Hills & the Golden Bridge",
+    "description": "07:30 — Hotel pickup in Đà Nẵng and the drive to the cable-car station.\n08:30 — Ride the record-breaking cable car into the hills.\n12:00 — Buffet lunch, then Fantasy Park and the French Village.\n15:30 — Descend and return to Đà Nẵng."
+  },
+  {
+    "id": "d1000001-0000-4000-8000-000000000013",
+    "tourId": "d0000001-0000-4000-8000-000000000014",
+    "dayNumber": 1,
+    "title": "Hà Giang to Đồng Văn",
+    "description": "08:00 — Safety briefing and set off on the loop.\n12:00 — Lunch at Tam Sơn in the Quản Bạ valley.\n17:00 — Reach Đồng Văn old town for the night."
+  },
+  {
+    "id": "d1000001-0000-4000-8000-000000000014",
+    "tourId": "d0000001-0000-4000-8000-000000000014",
+    "dayNumber": 2,
+    "title": "The Mã Pí Lèng pass",
+    "description": "08:00 — Ride the Mã Pí Lèng pass above the Nho Quế river.\n11:00 — Optional boat on the Nho Quế gorge.\n16:00 — Homestay in a Tày village."
+  },
+  {
+    "id": "d1000001-0000-4000-8000-000000000015",
+    "tourId": "d0000001-0000-4000-8000-000000000014",
+    "dayNumber": 3,
+    "title": "Return to Hà Giang",
+    "description": "08:30 — The final leg back through the karst plateau.\n13:00 — Farewell lunch and return to Hà Giang city."
+  }
+]

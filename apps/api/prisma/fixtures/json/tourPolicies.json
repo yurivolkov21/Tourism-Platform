@@ -1,0 +1,130 @@
+[
+  {
+    "id": "d3000001-0000-4000-8000-000000000001",
+    "tourId": "d0000001-0000-4000-8000-000000000011",
+    "kind": "BOOKING",
+    "title": "Deposit & payment",
+    "body": "Secure your seats with a 30% deposit by card (Stripe) or PayPal. You will receive a confirmation email with your booking code and a full day-by-day plan. The remaining balance can be settled before the tour begins.",
+    "order": 0
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000002",
+    "tourId": "d0000001-0000-4000-8000-000000000011",
+    "kind": "CANCELLATION",
+    "title": "Cancellation policy",
+    "body": "A 30% deposit confirms your booking; the balance is due on the tour start date. Cancellations 15+ days before departure forfeit 50% of the deposit; 7–15 days before forfeit 75%; within 7 days forfeit 100%. Date changes are subject to availability.",
+    "order": 1
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000003",
+    "tourId": "d0000001-0000-4000-8000-000000000011",
+    "kind": "GENERAL",
+    "title": "What to bring",
+    "body": "Bring comfortable shoes, sun protection, a light rain layer, and any personal medication. Modest dress is required to enter temples and pagodas. A small daypack is useful for water and a camera.",
+    "order": 2
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000004",
+    "tourId": "d0000001-0000-4000-8000-000000000012",
+    "kind": "BOOKING",
+    "title": "Deposit & payment",
+    "body": "Secure your seats with a 30% deposit by card (Stripe) or PayPal. You will receive a confirmation email with your booking code and a full day-by-day plan. The remaining balance can be settled before the tour begins.",
+    "order": 0
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000005",
+    "tourId": "d0000001-0000-4000-8000-000000000012",
+    "kind": "CANCELLATION",
+    "title": "Cancellation policy",
+    "body": "A 30% deposit confirms your booking; the balance is due on the tour start date. Cancellations 15+ days before departure forfeit 50% of the deposit; 7–15 days before forfeit 75%; within 7 days forfeit 100%. Date changes are subject to availability.",
+    "order": 1
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000006",
+    "tourId": "d0000001-0000-4000-8000-000000000013",
+    "kind": "BOOKING",
+    "title": "Deposit & payment",
+    "body": "Secure your seats with a 30% deposit by card (Stripe) or PayPal. You will receive a confirmation email with your booking code and a full day-by-day plan. The remaining balance can be settled before the tour begins.",
+    "order": 0
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000007",
+    "tourId": "d0000001-0000-4000-8000-000000000013",
+    "kind": "CANCELLATION",
+    "title": "Cancellation policy",
+    "body": "A 30% deposit confirms your booking; the balance is due on the tour start date. Cancellations 15+ days before departure forfeit 50% of the deposit; 7–15 days before forfeit 75%; within 7 days forfeit 100%. Date changes are subject to availability.",
+    "order": 1
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000008",
+    "tourId": "d0000001-0000-4000-8000-000000000013",
+    "kind": "GENERAL",
+    "title": "What to bring",
+    "body": "Bring comfortable shoes, sun protection, a light rain layer, and any personal medication. Modest dress is required to enter temples and pagodas. A small daypack is useful for water and a camera.",
+    "order": 2
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000009",
+    "tourId": "d0000001-0000-4000-8000-000000000014",
+    "kind": "BOOKING",
+    "title": "Deposit & payment",
+    "body": "Secure your seats with a 30% deposit by card (Stripe) or PayPal. You will receive a confirmation email with your booking code and a full day-by-day plan. The remaining balance can be settled before the tour begins.",
+    "order": 0
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000010",
+    "tourId": "d0000001-0000-4000-8000-000000000014",
+    "kind": "CANCELLATION",
+    "title": "Cancellation policy",
+    "body": "A 30% deposit confirms your booking; the balance is due on the tour start date. Cancellations 15+ days before departure forfeit 50% of the deposit; 7–15 days before forfeit 75%; within 7 days forfeit 100%. Date changes are subject to availability.",
+    "order": 1
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000011",
+    "tourId": "d0000001-0000-4000-8000-000000000016",
+    "kind": "BOOKING",
+    "title": "Deposit & payment",
+    "body": "Secure your seats with a 30% deposit by card (Stripe) or PayPal. You will receive a confirmation email with your booking code and a full day-by-day plan. The remaining balance can be settled before the tour begins.",
+    "order": 0
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000012",
+    "tourId": "d0000001-0000-4000-8000-000000000016",
+    "kind": "CANCELLATION",
+    "title": "Cancellation policy",
+    "body": "A 30% deposit confirms your booking; the balance is due on the tour start date. Cancellations 15+ days before departure forfeit 50% of the deposit; 7–15 days before forfeit 75%; within 7 days forfeit 100%. Date changes are subject to availability.",
+    "order": 1
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000013",
+    "tourId": "d0000001-0000-4000-8000-000000000019",
+    "kind": "BOOKING",
+    "title": "Deposit & payment",
+    "body": "Secure your seats with a 30% deposit by card (Stripe) or PayPal. You will receive a confirmation email with your booking code and a full day-by-day plan. The remaining balance can be settled before the tour begins.",
+    "order": 0
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000014",
+    "tourId": "d0000001-0000-4000-8000-000000000019",
+    "kind": "CANCELLATION",
+    "title": "Cancellation policy",
+    "body": "A 30% deposit confirms your booking; the balance is due on the tour start date. Cancellations 15+ days before departure forfeit 50% of the deposit; 7–15 days before forfeit 75%; within 7 days forfeit 100%. Date changes are subject to availability.",
+    "order": 1
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000015",
+    "tourId": "d0000001-0000-4000-8000-000000000018",
+    "kind": "GENERAL",
+    "title": "Full booking terms & conditions",
+    "body": "A non-refundable deposit of thirty percent of the total tour price is required to confirm every booking, and the outstanding balance falls due no later than the first day of the tour. Cancellations received fifteen or more days before the scheduled departure date forfeit fifty percent of the paid deposit; the remainder is returned to the original method of payment within ten business days. Cancellations received between seven and fifteen days before departure forfeit seventy-five percent of the deposit, and no portion of any balance already paid toward the tour is recoverable. Cancellations received within seven days of departure, and all no-shows, forfeit one hundred percent of monies paid, without exception, as supplier costs have by then been irrevocably committed. Requests to change a departure date are treated as a cancellation and rebooking, are always subject to availability, and may attract a difference in price where the new date sits in a higher season. Where the operator cancels a departure for reasons of force majeure, including but not limited to severe weather, flooding, or government restriction, guests are offered an alternative date or a credit valid for eighteen months. Travel insurance covering cancellation, medical treatment, and evacuation is strongly recommended for every guest and is the sole responsibility of the traveller to arrange before arrival. Prices are quoted per person in United States dollars, are based on twin-share occupancy, and exclude international airfare, visa fees, personal expenses, and gratuities unless expressly stated in the inclusions. The operator reserves the right to substitute hotels, guides, or vehicles of an equivalent or superior standard, and to adjust the running order of the itinerary where local conditions require it. By confirming a booking the lead traveller warrants that every member of the party is in adequate health to undertake the activities described and accepts the physical grading assigned to this tour. A non-refundable deposit of thirty percent of the total tour price is required to confirm every booking, and the outstanding balance falls due no later than the first day of the tour. Cancellations received fifteen or more days before the scheduled departure date forfeit fifty percent of the paid deposit; the remainder is returned to the original method of payment within ten business days. Cancellations received between seven and fifteen days before departure forfeit seventy-five percent of the deposit, and no portion of any balance already paid toward the tour is recoverable. Cancellations received within seven days of departure, and all no-shows, forfeit one hundred percent of monies paid, without exception, as supplier costs have by then been irrevocably committed. Requests to change a departure date are treated as a cancellation and rebooking, are always subject to availability, and may attract a difference in price where the new date sits in a higher season. Where the operator cancels a departure for reasons of force majeure, including but not limited to severe weather, flooding, or government restriction, guests are offered an alternative date or a credit valid for eighteen months. Travel insurance covering cancellation, medical treatment, and evacuation is strongly recommended for every guest and is the sole responsibility of the traveller to arrange before arrival. Prices are quoted per person in United States dollars, are based on twin-share occupancy, and exclude international airfare, visa fees, personal expenses, and gratuities unless expressly stated in the inclusions. The operator reserves the right to substitute hotels, guides, or vehicles of an equivalent or superior standard, and to adjust the running order of the itinerary where local conditions require it. By confirming a booking the lead traveller warrants that every member of the party is in adequate health to undertake the activities described and accepts the physical grading assigned to t",
+    "order": 0
+  },
+  {
+    "id": "d3000001-0000-4000-8000-000000000016",
+    "tourId": "d0000001-0000-4000-8000-000000000018",
+    "kind": "CANCELLATION",
+    "title": "Cancellation policy",
+    "body": "A 30% deposit confirms your booking; the balance is due on the tour start date. Cancellations 15+ days before departure forfeit 50% of the deposit; 7–15 days before forfeit 75%; within 7 days forfeit 100%. Date changes are subject to availability.",
+    "order": 1
+  }
+]

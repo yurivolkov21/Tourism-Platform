@@ -1,0 +1,93 @@
+[
+  {
+    "id": "d2000001-0000-4000-8000-000000000001",
+    "tourId": "d0000001-0000-4000-8000-000000000001",
+    "question": "What should I wear?",
+    "answer": "Comfortable walking shoes and light clothing. The old town is pedestrian-only, so expect gentle walking on flat streets.",
+    "order": 0
+  },
+  {
+    "id": "d2000001-0000-4000-8000-000000000002",
+    "tourId": "d0000001-0000-4000-8000-000000000001",
+    "question": "Is this tour suitable for children?",
+    "answer": "Yes — the pace is relaxed and the lantern release is a favourite with kids. Strollers are manageable on most streets.",
+    "order": 1
+  },
+  {
+    "id": "d2000001-0000-4000-8000-000000000003",
+    "tourId": "d0000001-0000-4000-8000-000000000002",
+    "question": "How cold is it at the top?",
+    "answer": "Bà Nà Hills sits at about 1,487 m and is markedly cooler than the coast — bring a light jacket even in summer.",
+    "order": 0
+  },
+  {
+    "id": "d2000001-0000-4000-8000-000000000004",
+    "tourId": "d0000001-0000-4000-8000-000000000011",
+    "question": "Do I need to be a strong swimmer to kayak?",
+    "answer": "No — kayaking is optional and done in calm, sheltered water with life jackets provided. You can also swim straight from the boat.",
+    "order": 0
+  },
+  {
+    "id": "d2000001-0000-4000-8000-000000000005",
+    "tourId": "d0000001-0000-4000-8000-000000000011",
+    "question": "Is the cruise suitable for a wheelchair user?",
+    "answer": "The junk has steep stairs between decks and is not step-free, so it is difficult for wheelchair users; contact us to discuss alternatives.",
+    "order": 1
+  },
+  {
+    "id": "d2000001-0000-4000-8000-000000000006",
+    "tourId": "d0000001-0000-4000-8000-000000000013",
+    "question": "How fit do I need to be?",
+    "answer": "A reasonable level of fitness helps — you cover 13–16 km a day on uneven hill paths. The pace is steady rather than fast, with regular stops.",
+    "order": 0
+  },
+  {
+    "id": "d2000001-0000-4000-8000-000000000007",
+    "tourId": "d0000001-0000-4000-8000-000000000013",
+    "question": "What are the homestays like?",
+    "answer": "Simple, clean and warm-hearted: shared mattresses with mosquito nets, a family dinner and basic bathrooms. They are a highlight for most travellers.",
+    "order": 1
+  },
+  {
+    "id": "d2000001-0000-4000-8000-000000000008",
+    "tourId": "d0000001-0000-4000-8000-000000000016",
+    "question": "Is airfare included?",
+    "answer": "No — international and domestic flights are excluded, but we can book them for you. Airport transfers within Vietnam are included.",
+    "order": 0
+  },
+  {
+    "id": "d2000001-0000-4000-8000-000000000009",
+    "tourId": "d0000001-0000-4000-8000-000000000016",
+    "question": "Can the itinerary be customised?",
+    "answer": "Yes. This is a popular template; we routinely adjust hotels, pace and extra nights to suit couples, families or small groups.",
+    "order": 1
+  },
+  {
+    "id": "d2000001-0000-4000-8000-000000000010",
+    "tourId": "d0000001-0000-4000-8000-000000000018",
+    "question": "Are the internal flights included?",
+    "answer": "Yes — all internal flights and transfers between regions are included in the price; only your international airfare is extra.",
+    "order": 0
+  },
+  {
+    "id": "d2000001-0000-4000-8000-000000000011",
+    "tourId": "d0000001-0000-4000-8000-000000000014",
+    "question": "I cannot ride a motorbike — can I still join?",
+    "answer": "Absolutely. Most guests ride pillion with an experienced \"easy-rider\" driver, so no licence or riding experience is needed.",
+    "order": 0
+  },
+  {
+    "id": "d2000001-0000-4000-8000-000000000012",
+    "tourId": "d0000001-0000-4000-8000-000000000020",
+    "question": "Can you arrange a private candlelit dinner?",
+    "answer": "Yes — a private beach or garden dinner can be added on any evening; let us know at booking and we will arrange it with the resort.",
+    "order": 0
+  },
+  {
+    "id": "d2000001-0000-4000-8000-000000000013",
+    "tourId": "d0000001-0000-4000-8000-000000000023",
+    "question": "Can the schedule flex around my meetings?",
+    "answer": "Yes — the car and guide are yours for the day and the itinerary is built entirely around your availability.",
+    "order": 0
+  }
+]

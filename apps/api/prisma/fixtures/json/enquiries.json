@@ -1,0 +1,472 @@
+[
+  {
+    "id": "a2000001-0000-4000-8000-000000000001",
+    "name": "Grace Miller",
+    "email": "grace.miller@example.com",
+    "phone": "+1 212 555 0198",
+    "message": "We are a family of four hoping to travel through central Vietnam in October and would like a private guide throughout. Could you send a tailored quote?",
+    "tourId": "d0000001-0000-4000-8000-000000000017",
+    "nationality": "United States",
+    "travelDate": "2026-10-29",
+    "groupSize": 4,
+    "budgetTier": "Comfort",
+    "interests": [
+      "Culture",
+      "Food",
+      "Beaches"
+    ],
+    "status": "NEW",
+    "createdAt": "2026-06-30T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000002",
+    "name": "Tomáš Novák",
+    "email": "tomas.novak@example.com",
+    "phone": "+420 601 234 567",
+    "message": "Interested in the Hà Giang loop for two experienced riders. Do you offer 4-day versions, and can we rent 250cc bikes?",
+    "tourId": "d0000001-0000-4000-8000-000000000014",
+    "nationality": "Czech Republic",
+    "travelDate": "2026-09-29",
+    "groupSize": 2,
+    "budgetTier": "Budget",
+    "interests": [
+      "Adventure",
+      "Motorbiking"
+    ],
+    "status": "CONTACTED",
+    "createdAt": "2026-06-29T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000003",
+    "name": "Amara Okafor",
+    "email": "amara.okafor@example.com",
+    "phone": "+44 7911 123456",
+    "message": "Planning a honeymoon and torn between Phú Quốc and a Hạ Long cruise. Could you advise which suits early December best?",
+    "tourId": "d0000001-0000-4000-8000-000000000020",
+    "nationality": "United Kingdom",
+    "travelDate": "2026-12-08",
+    "groupSize": 2,
+    "budgetTier": "Luxury",
+    "interests": [
+      "Honeymoon",
+      "Beaches",
+      "Spa"
+    ],
+    "status": "QUOTED",
+    "createdAt": "2026-06-28T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000004",
+    "name": "Kenji Yamamoto",
+    "email": "kenji.yamamoto@example.com",
+    "phone": "+81 80 9876 5432",
+    "message": "A group of eight friends, quite active — we would prefer the strenuous trekking options over sightseeing days. What can you put together?",
+    "tourId": "d0000001-0000-4000-8000-000000000013",
+    "nationality": "Japan",
+    "travelDate": "2026-09-14",
+    "groupSize": 8,
+    "budgetTier": "Comfort",
+    "interests": [
+      "Trekking",
+      "Homestay"
+    ],
+    "status": "WON",
+    "createdAt": "2026-06-27T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000005",
+    "name": "Beatriz Santos",
+    "email": "beatriz.santos@example.com",
+    "phone": "+351 912 345 678",
+    "message": "We enquired about the 14-day grand tour but have decided to travel independently this year. Thank you for the detailed quote.",
+    "tourId": "d0000001-0000-4000-8000-000000000018",
+    "nationality": "Portugal",
+    "travelDate": "2027-01-17",
+    "groupSize": 2,
+    "budgetTier": "Comfort",
+    "interests": [
+      "Culture"
+    ],
+    "status": "LOST",
+    "createdAt": "2026-06-26T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000006",
+    "name": "Fatima Al-Sayed",
+    "email": "fatima.alsayed@example.com",
+    "phone": "+20 100 123 4567",
+    "message": "Do you arrange fully custom private tours? We are three generations travelling together and need connecting rooms and a slow pace.",
+    "tourId": null,
+    "nationality": "Egypt",
+    "travelDate": null,
+    "groupSize": 7,
+    "budgetTier": "Luxury",
+    "interests": [
+      "Culture",
+      "Family"
+    ],
+    "status": "NEW",
+    "createdAt": "2026-06-25T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000007",
+    "name": "Oliver Schmidt",
+    "email": "oliver.schmidt@example.com",
+    "phone": null,
+    "message": "What is the best month to see the rice terraces in the north at their greenest? Flexible on dates.",
+    "tourId": null,
+    "nationality": "Germany",
+    "travelDate": null,
+    "groupSize": null,
+    "budgetTier": "Budget",
+    "interests": [
+      "Photography",
+      "Trekking"
+    ],
+    "status": "CONTACTED",
+    "createdAt": "2026-06-24T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000008",
+    "name": "Mia Andersson",
+    "email": "mia.andersson@example.com",
+    "phone": "+46 70 987 65 43",
+    "message": "We would like a vegetarian-friendly food tour of Hà Nội and Hội An. Two adults, no fixed dates yet.",
+    "tourId": null,
+    "nationality": "Sweden",
+    "travelDate": null,
+    "groupSize": 2,
+    "budgetTier": "Comfort",
+    "interests": [
+      "Food"
+    ],
+    "status": "QUOTED",
+    "createdAt": "2026-06-23T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000009",
+    "name": "Ravi Menon",
+    "email": "ravi.menon@example.com",
+    "phone": "+91 99887 76655",
+    "message": "Corporate incentive trip for twelve; need a half-day city tour plus a gala dinner venue recommendation in Saigon.",
+    "tourId": "d0000001-0000-4000-8000-000000000022",
+    "nationality": "India",
+    "travelDate": "2026-08-15",
+    "groupSize": 12,
+    "budgetTier": "Luxury",
+    "interests": [
+      "Business",
+      "Culture"
+    ],
+    "status": "WON",
+    "createdAt": "2026-06-22T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000010",
+    "name": "Chloé Petit",
+    "email": "chloe.petit@example.com",
+    "phone": "+33 6 11 22 33 44",
+    "message": "We are a family of four hoping to travel through central Vietnam in the shoulder season and would like a private guide throughout. Could you advise whether the cruise cabins can be configured for a couple travelling with two teenagers, and what the single supplement would be? We are celebrating a fortieth wedding anniversary and would like to add a private dinner and a photographer for one evening. Our group of eight friends is fairly active and would prefer the more strenuous trekking options over the sightseeing days. We have dietary requirements, two vegetarians and one coeliac, and want to be sure every included meal can accommodate them. Flights are not yet booked, so we are flexible on dates within October and would value your advice on the best week for weather. Please could you send a detailed day-by-day itinerary with hotel names so we can compare it against another quote we have received. We would like to extend the trip with three nights on the coast at the end and need help arranging the internal transfer. We are a family of four hoping to travel through central Vietnam in the shoulder season and would like a private guide throughout. Could you advise whether the cruise cabins can be configured for a couple travelling with two teenagers, and what the single supplement would be? We are celebrating a fortieth wedding anniversary and would like to add a private dinner and a photographer for one evening. Our group of eight friends is fairly active and would prefer the more strenuous trekking options over the sightseeing days. We have dietary requirements, two vegetarians and one coeliac, and want to be sure every included meal can accommodate them. Flights are not yet booked, so we are flexible on dates within October and would value your advice on the best week for weather. Please could you send a detailed day-by-day itinerary with hotel names so we can compare it against another quote we have received. We would like to extend the trip with three nights on ",
+    "tourId": "d0000001-0000-4000-8000-000000000019",
+    "nationality": "France",
+    "travelDate": "2026-11-08",
+    "groupSize": 2,
+    "budgetTier": "Luxury",
+    "interests": [
+      "Honeymoon",
+      "Culture",
+      "Food"
+    ],
+    "status": "NEW",
+    "createdAt": "2026-06-21T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000011",
+    "name": "Lucas Bernard",
+    "email": "lucas.bernard@example.com",
+    "phone": "+33 6 55 44 33 22",
+    "message": "Interested in a Mekong Delta overnight rather than a day trip — do you run those?",
+    "tourId": "d0000001-0000-4000-8000-000000000006",
+    "nationality": "France",
+    "travelDate": "2026-08-10",
+    "groupSize": 2,
+    "budgetTier": "Budget",
+    "interests": [
+      "Culture",
+      "Food"
+    ],
+    "status": "NEW",
+    "createdAt": "2026-06-11T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000012",
+    "name": "Sofia Rossi",
+    "email": "sofia.rossi@example.com",
+    "phone": null,
+    "message": "Could a wheelchair user manage the Hội An walking tour? My father uses one part-time.",
+    "tourId": "d0000001-0000-4000-8000-000000000001",
+    "nationality": "Italy",
+    "travelDate": "2026-08-15",
+    "groupSize": 3,
+    "budgetTier": "Comfort",
+    "interests": [
+      "Accessibility",
+      "Culture"
+    ],
+    "status": "CONTACTED",
+    "createdAt": "2026-06-12T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000013",
+    "name": "Emma Wilson",
+    "email": "emma.wilson@example.com",
+    "phone": "+61 400 111 222",
+    "message": "We want to add two nights in Đà Lạt to a central Vietnam trip. Possible?",
+    "tourId": "d0000001-0000-4000-8000-000000000021",
+    "nationality": "Australia",
+    "travelDate": "2026-08-20",
+    "groupSize": 4,
+    "budgetTier": "Luxury",
+    "interests": [
+      "Nature"
+    ],
+    "status": "QUOTED",
+    "createdAt": "2026-06-13T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000014",
+    "name": "Hans Bakker",
+    "email": "hans.bakker@example.com",
+    "phone": "+31 6 12345678",
+    "message": "Do the Bà Nà Hills tickets include the wax museum, or is that extra?",
+    "tourId": "d0000001-0000-4000-8000-000000000002",
+    "nationality": "Netherlands",
+    "travelDate": "2026-08-25",
+    "groupSize": 5,
+    "budgetTier": "Budget",
+    "interests": [
+      "Family"
+    ],
+    "status": "WON",
+    "createdAt": "2026-06-14T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000015",
+    "name": "Yuki Watanabe",
+    "email": "yuki.watanabe@example.com",
+    "phone": "+81 90 1122 3344",
+    "message": "Is the Phong Nha cave tour suitable for a nervous swimmer? The boat part worries me.",
+    "tourId": "d0000001-0000-4000-8000-000000000008",
+    "nationality": "Japan",
+    "travelDate": "2026-08-30",
+    "groupSize": 2,
+    "budgetTier": "Comfort",
+    "interests": [
+      "Nature",
+      "Adventure"
+    ],
+    "status": "LOST",
+    "createdAt": "2026-06-15T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000016",
+    "name": "Carlos Mendez",
+    "email": "carlos.mendez@example.com",
+    "phone": "+52 55 1234 5678",
+    "message": "Looking for a private car and guide for a flexible business day in Hà Nội next month.",
+    "tourId": "d0000001-0000-4000-8000-000000000023",
+    "nationality": "Mexico",
+    "travelDate": "2026-09-04",
+    "groupSize": 3,
+    "budgetTier": "Luxury",
+    "interests": [
+      "Business"
+    ],
+    "status": "NEW",
+    "createdAt": "2026-06-16T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000017",
+    "name": "Ingrid Larsen",
+    "email": "ingrid.larsen@example.com",
+    "phone": "+47 400 12 345",
+    "message": "Any availability for the 5-day north tour over the New Year period for a family of five?",
+    "tourId": "d0000001-0000-4000-8000-000000000016",
+    "nationality": "Norway",
+    "travelDate": "2026-09-09",
+    "groupSize": 4,
+    "budgetTier": "Budget",
+    "interests": [
+      "Family",
+      "Culture"
+    ],
+    "status": "CONTACTED",
+    "createdAt": "2026-06-17T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000018",
+    "name": "Priya Sharma",
+    "email": "priya.sharma@example.com",
+    "phone": "+91 90000 11111",
+    "message": "We are vegetarians — can the cruise kitchen cater fully? Two adults on the 2D1N.",
+    "tourId": "d0000001-0000-4000-8000-000000000011",
+    "nationality": "India",
+    "travelDate": "2026-09-14",
+    "groupSize": 5,
+    "budgetTier": "Comfort",
+    "interests": [
+      "Food",
+      "Nature"
+    ],
+    "status": "QUOTED",
+    "createdAt": "2026-06-18T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000019",
+    "name": "Thomas Fischer",
+    "email": "thomas.fischer@example.com",
+    "phone": null,
+    "message": "General question: how far in advance should we book for peak season in March?",
+    "tourId": null,
+    "nationality": "Germany",
+    "travelDate": "2026-09-19",
+    "groupSize": 2,
+    "budgetTier": "Luxury",
+    "interests": [
+      "Planning"
+    ],
+    "status": "WON",
+    "createdAt": "2026-06-19T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000020",
+    "name": "Léa Moreau",
+    "email": "lea.moreau@example.com",
+    "phone": "+33 6 99 88 77 66",
+    "message": "Do you offer a photography-focused itinerary in the north for a solo traveller?",
+    "tourId": "d0000001-0000-4000-8000-000000000013",
+    "nationality": "France",
+    "travelDate": "2026-09-24",
+    "groupSize": 3,
+    "budgetTier": "Budget",
+    "interests": [
+      "Photography",
+      "Solo"
+    ],
+    "status": "LOST",
+    "createdAt": "2026-06-20T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000021",
+    "name": "Daniel Kim",
+    "email": "daniel.kim@example.com",
+    "phone": "+82 10 1234 5678",
+    "message": "Snorkelling trip for two in Phú Quốc — is the coral healthy at this time of year?",
+    "tourId": "d0000001-0000-4000-8000-000000000007",
+    "nationality": "South Korea",
+    "travelDate": "2026-09-29",
+    "groupSize": 4,
+    "budgetTier": "Comfort",
+    "interests": [
+      "Beaches"
+    ],
+    "status": "NEW",
+    "createdAt": "2026-06-21T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000022",
+    "name": "Aisha Rahman",
+    "email": "aisha.rahman@example.com",
+    "phone": "+60 12 345 6789",
+    "message": "Halal food options on the central heritage tour — are they easy to arrange?",
+    "tourId": "d0000001-0000-4000-8000-000000000017",
+    "nationality": "Malaysia",
+    "travelDate": "2026-10-04",
+    "groupSize": 5,
+    "budgetTier": "Luxury",
+    "interests": [
+      "Food",
+      "Culture"
+    ],
+    "status": "CONTACTED",
+    "createdAt": "2026-06-22T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000023",
+    "name": "Marek Zieliński",
+    "email": "marek.zielinski@example.com",
+    "phone": "+48 600 700 800",
+    "message": "Is the Củ Chi tunnels tour appropriate for a claustrophobic person if we skip the crawling?",
+    "tourId": "d0000001-0000-4000-8000-000000000005",
+    "nationality": "Poland",
+    "travelDate": "2026-10-09",
+    "groupSize": 2,
+    "budgetTier": "Budget",
+    "interests": [
+      "History"
+    ],
+    "status": "QUOTED",
+    "createdAt": "2026-06-23T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000024",
+    "name": "Nadia Haddad",
+    "email": "nadia.haddad@example.com",
+    "phone": "+961 3 123 456",
+    "message": "We would love a private Mũi Né sunrise tour just for our family of three.",
+    "tourId": "d0000001-0000-4000-8000-000000000010",
+    "nationality": "Lebanon",
+    "travelDate": "2026-10-14",
+    "groupSize": 3,
+    "budgetTier": "Comfort",
+    "interests": [
+      "Family",
+      "Nature"
+    ],
+    "status": "WON",
+    "createdAt": "2026-06-24T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  },
+  {
+    "id": "a2000001-0000-4000-8000-000000000025",
+    "name": "Erik Johansson",
+    "email": "erik.johansson@example.com",
+    "phone": "+46 73 456 78 90",
+    "message": "Could you quote the Lan Hạ 3-day cruise for two in a suite with a private balcony?",
+    "tourId": "d0000001-0000-4000-8000-000000000012",
+    "nationality": "Sweden",
+    "travelDate": "2026-10-19",
+    "groupSize": 4,
+    "budgetTier": "Luxury",
+    "interests": [
+      "Luxury",
+      "Nature"
+    ],
+    "status": "LOST",
+    "createdAt": "2026-06-25T09:00:00.000Z",
+    "updatedAt": "2026-06-30T09:00:00.000Z"
+  }
+]

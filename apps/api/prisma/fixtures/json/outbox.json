@@ -1,0 +1,192 @@
+[
+  {
+    "id": "a4000001-0000-4000-8000-000000000001",
+    "type": "BOOKING_CONFIRMATION",
+    "payload": {
+      "bookingCode": "BK-0001",
+      "to": "emma.thompson@example.com",
+      "name": "Emma Thompson",
+      "tourTitle": "Hội An Ancient Town Walking Tour"
+    },
+    "status": "SENT",
+    "attempts": 1,
+    "dedupeKey": "booking-confirmation:f0000001-0000-4000-8000-000000000001",
+    "lastError": null,
+    "createdAt": "2026-06-22T10:00:00.000Z",
+    "processedAt": "2026-05-22T10:00:00.000Z"
+  },
+  {
+    "id": "a4000001-0000-4000-8000-000000000002",
+    "type": "BOOKING_CONFIRMATION",
+    "payload": {
+      "bookingCode": "BK-0004",
+      "to": "lukas.mueller@example.com",
+      "name": "Lukas Müller",
+      "tourTitle": "Hạ Long Bay Luxury Cruise 2D1N"
+    },
+    "status": "SENT",
+    "attempts": 1,
+    "dedupeKey": "booking-confirmation:f0000001-0000-4000-8000-000000000004",
+    "lastError": null,
+    "createdAt": "2026-06-23T10:00:00.000Z",
+    "processedAt": "2026-05-29T10:00:00.000Z"
+  },
+  {
+    "id": "a4000001-0000-4000-8000-000000000003",
+    "type": "BOOKING_CONFIRMATION",
+    "payload": {
+      "bookingCode": "BK-0029",
+      "to": "piotr.kowalski@example.com",
+      "name": "Piotr Kowalski",
+      "tourTitle": "6-Day Central Vietnam Heritage Road"
+    },
+    "status": "PENDING",
+    "attempts": 0,
+    "dedupeKey": "booking-confirmation:f0000001-0000-4000-8000-000000000029",
+    "lastError": null,
+    "createdAt": "2026-06-24T10:00:00.000Z",
+    "processedAt": null
+  },
+  {
+    "id": "a4000001-0000-4000-8000-000000000004",
+    "type": "BOOKING_REFUNDED",
+    "payload": {
+      "bookingCode": "BK-0026",
+      "to": "renee.levesque@example.com",
+      "name": "Renée Lévesque",
+      "amount": "158.00",
+      "currency": "USD"
+    },
+    "status": "SENT",
+    "attempts": 1,
+    "dedupeKey": "booking-refunded:f0000001-0000-4000-8000-000000000026",
+    "lastError": null,
+    "createdAt": "2026-06-25T10:00:00.000Z",
+    "processedAt": "2026-05-19T10:00:00.000Z"
+  },
+  {
+    "id": "a4000001-0000-4000-8000-000000000005",
+    "type": "BOOKING_REFUNDED",
+    "payload": {
+      "bookingCode": "BK-0027",
+      "to": "zoe.oneill@example.com",
+      "name": "Zoë O'Neill",
+      "amount": "350.00",
+      "currency": "USD"
+    },
+    "status": "FAILED",
+    "attempts": 3,
+    "dedupeKey": "booking-refunded:f0000001-0000-4000-8000-000000000027",
+    "lastError": "Resend API returned 422: recipient address rejected by the receiving mail server.",
+    "createdAt": "2026-06-26T10:00:00.000Z",
+    "processedAt": null
+  },
+  {
+    "id": "a4000001-0000-4000-8000-000000000006",
+    "type": "REVIEW_APPROVED",
+    "payload": {
+      "to": "emma.thompson@example.com",
+      "name": "Emma Thompson",
+      "tourTitle": "Hội An Ancient Town Walking Tour",
+      "rating": 5
+    },
+    "status": "SENT",
+    "attempts": 1,
+    "dedupeKey": "review-approved:a1000001-0000-4000-8000-000000000001",
+    "lastError": null,
+    "createdAt": "2026-06-27T10:00:00.000Z",
+    "processedAt": "2026-06-27T10:00:00.000Z"
+  },
+  {
+    "id": "a4000001-0000-4000-8000-000000000007",
+    "type": "REVIEW_APPROVED",
+    "payload": {
+      "to": "olivia.nguyen@example.com",
+      "name": "Olivia Nguyễn",
+      "tourTitle": "Phú Quốc 4-Islands Snorkelling Cruise",
+      "rating": 4
+    },
+    "status": "PENDING",
+    "attempts": 0,
+    "dedupeKey": "review-approved:a1000001-0000-4000-8000-000000000003",
+    "lastError": null,
+    "createdAt": "2026-06-28T10:00:00.000Z",
+    "processedAt": null
+  },
+  {
+    "id": "a4000001-0000-4000-8000-000000000008",
+    "type": "REVIEW_APPROVED",
+    "payload": {
+      "to": "james.miller@example.com",
+      "name": "James Miller",
+      "tourTitle": "5-Day North Vietnam",
+      "rating": 5
+    },
+    "status": "FAILED",
+    "attempts": 2,
+    "dedupeKey": "review-approved:a1000001-0000-4000-8000-000000000006",
+    "lastError": "Timeout contacting Resend after 2 attempts; will retry on the next drain.",
+    "createdAt": "2026-06-29T10:00:00.000Z",
+    "processedAt": null
+  },
+  {
+    "id": "a4000001-0000-4000-8000-000000000009",
+    "type": "ENQUIRY_RECEIVED",
+    "payload": {
+      "to": "grace.miller@example.com",
+      "name": "Grace Miller",
+      "tourTitle": "6-Day Central Vietnam Heritage Road"
+    },
+    "status": "SENT",
+    "attempts": 1,
+    "dedupeKey": "enquiry-received:a2000001-0000-4000-8000-000000000001",
+    "lastError": null,
+    "createdAt": "2026-06-30T10:00:00.000Z",
+    "processedAt": "2026-06-12T10:00:00.000Z"
+  },
+  {
+    "id": "a4000001-0000-4000-8000-000000000010",
+    "type": "ENQUIRY_RECEIVED",
+    "payload": {
+      "to": "kenji.yamamoto@example.com",
+      "name": "Kenji Yamamoto",
+      "tourTitle": "Sa Pa 3-Day Trek with Local Families"
+    },
+    "status": "SENT",
+    "attempts": 1,
+    "dedupeKey": "enquiry-received:a2000001-0000-4000-8000-000000000004",
+    "lastError": null,
+    "createdAt": "2026-07-01T10:00:00.000Z",
+    "processedAt": "2026-06-14T10:00:00.000Z"
+  },
+  {
+    "id": "a4000001-0000-4000-8000-000000000011",
+    "type": "ENQUIRY_RECEIVED",
+    "payload": {
+      "to": "chloe.petit@example.com",
+      "name": "Chloé Petit",
+      "tourTitle": "10-Day Vietnam Romantic Getaway"
+    },
+    "status": "PENDING",
+    "attempts": 0,
+    "dedupeKey": "enquiry-received:a2000001-0000-4000-8000-000000000010",
+    "lastError": null,
+    "createdAt": "2026-07-02T10:00:00.000Z",
+    "processedAt": null
+  },
+  {
+    "id": "a4000001-0000-4000-8000-000000000012",
+    "type": "ENQUIRY_RECEIVED",
+    "payload": {
+      "to": "fatima.alsayed@example.com",
+      "name": "Fatima Al-Sayed",
+      "tourTitle": null
+    },
+    "status": "FAILED",
+    "attempts": 5,
+    "dedupeKey": "enquiry-received:a2000001-0000-4000-8000-000000000006",
+    "lastError": "Permanent failure: mailbox does not exist (SMTP 550). Marked failed after 5 attempts.",
+    "createdAt": "2026-07-03T10:00:00.000Z",
+    "processedAt": null
+  }
+]

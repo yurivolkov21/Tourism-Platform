@@ -1,0 +1,996 @@
+[
+  {
+    "id": "d0000001-0000-4000-8000-000000000001",
+    "slug": "hoi-an-walking-tour",
+    "title": "Hội An Ancient Town Walking Tour",
+    "summary": "A guided half-day stroll through the lantern-lit UNESCO old town, ending with a paper lantern floated down the Thu Bồn river at dusk.",
+    "categoryId": "b0000001-0000-4000-8000-000000000001",
+    "durationDays": 1,
+    "maxGroupSize": 12,
+    "basePrice": "39.00",
+    "compareAtPrice": "49.00",
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": true,
+    "isFeatured": true,
+    "suitableFor": [
+      "COUPLE",
+      "FAMILY",
+      "SOLO"
+    ],
+    "badges": [
+      "POPULAR"
+    ],
+    "included": [
+      "Local English-speaking guide",
+      "Heritage-site entrance tickets",
+      "Paper lantern",
+      "Bottled water"
+    ],
+    "excluded": [
+      "Lunch",
+      "Personal expenses",
+      "Tips"
+    ],
+    "highlights": [
+      "Wander 200-year-old merchant houses and the Japanese Covered Bridge",
+      "Watch silk lanterns light the old town at dusk",
+      "Float your own paper lantern on the Thu Bồn river",
+      "Taste cao lầu and white-rose dumplings"
+    ],
+    "meetingPoint": "Hội An tourist information centre, 78 Lê Lợi street",
+    "createdAt": "2026-01-02T08:00:00.000Z",
+    "updatedAt": "2026-06-11T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000002",
+    "slug": "ba-na-hills-day",
+    "title": "Bà Nà Hills & Golden Bridge Day Trip",
+    "summary": "Ride the record-breaking cable car to the Golden Bridge, the French Village and Fantasy Park, high in the cool hills above Đà Nẵng.",
+    "categoryId": "b0000001-0000-4000-8000-000000000001",
+    "durationDays": 1,
+    "maxGroupSize": 18,
+    "basePrice": "79.00",
+    "compareAtPrice": "95.00",
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": true,
+    "isFeatured": true,
+    "suitableFor": [
+      "FAMILY",
+      "COUPLE",
+      "FRIENDS"
+    ],
+    "badges": [
+      "POPULAR",
+      "BEST_VALUE"
+    ],
+    "included": [
+      "Hotel pickup & drop-off in Đà Nẵng",
+      "Cable car tickets",
+      "Fantasy Park entrance",
+      "Buffet lunch",
+      "English-speaking guide",
+      "Insurance"
+    ],
+    "excluded": [
+      "Drinks during meals",
+      "Wax museum & wine tasting",
+      "Personal expenses"
+    ],
+    "highlights": [
+      "The iconic Golden Bridge held by two giant stone hands",
+      "A record-breaking cable car into the highland forest",
+      "Le Jardin gardens and the Linh Ứng pagoda",
+      "Indoor Fantasy Park games and a buffet lunch"
+    ],
+    "meetingPoint": "Hotel pickup in Đà Nẵng (7:00–8:00 AM)",
+    "createdAt": "2026-01-03T08:00:00.000Z",
+    "updatedAt": "2026-06-12T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000003",
+    "slug": "hue-imperial-day",
+    "title": "Huế Imperial City Full-Day Tour",
+    "summary": "Explore the walled citadel, the royal tombs of the Nguyễn emperors and the Thiên Mụ Pagoda, with a relaxed dragon-boat ride on the Perfume River.",
+    "categoryId": "b0000001-0000-4000-8000-000000000001",
+    "durationDays": 1,
+    "maxGroupSize": 16,
+    "basePrice": "55.00",
+    "compareAtPrice": null,
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": true,
+    "isFeatured": false,
+    "suitableFor": [
+      "COUPLE",
+      "SOLO",
+      "FAMILY"
+    ],
+    "badges": [],
+    "included": [
+      "English-speaking guide",
+      "Monument entrance fees",
+      "Dragon-boat ride",
+      "Lunch",
+      "Bottled water"
+    ],
+    "excluded": [
+      "Drinks",
+      "Personal expenses",
+      "Tips"
+    ],
+    "highlights": [
+      "The Imperial Citadel and the Forbidden Purple City",
+      "Royal tombs of Tự Đức and Khải Định",
+      "A dragon-boat ride to the Thiên Mụ Pagoda"
+    ],
+    "meetingPoint": "Hotel pickup in central Huế",
+    "createdAt": "2026-01-04T08:00:00.000Z",
+    "updatedAt": "2026-06-13T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000004",
+    "slug": "ninh-binh-day",
+    "title": "Ninh Bình: Hoa Lư, Tam Cốc & Mua Cave",
+    "summary": "A full day in the \"Ha Long Bay on land\": the ancient capital of Hoa Lư, a bamboo-boat ride through the Tam Cốc caves, and the climb to Mua Cave.",
+    "categoryId": "b0000001-0000-4000-8000-000000000001",
+    "durationDays": 1,
+    "maxGroupSize": 20,
+    "basePrice": "49.00",
+    "compareAtPrice": "59.00",
+    "currency": "USD",
+    "difficulty": "moderate",
+    "isPublished": true,
+    "isFeatured": false,
+    "suitableFor": [
+      "FRIENDS",
+      "COUPLE",
+      "SOLO"
+    ],
+    "badges": [
+      "BEST_VALUE"
+    ],
+    "included": [
+      "Round-trip transfer from Hà Nội",
+      "English-speaking guide",
+      "Bamboo boat ride",
+      "Buffet lunch",
+      "Bicycle hire",
+      "Entrance fees"
+    ],
+    "excluded": [
+      "Drinks",
+      "Boat-rower tips",
+      "Personal expenses"
+    ],
+    "highlights": [
+      "The 10th-century temples of Hoa Lư",
+      "A bamboo boat ride through the Tam Cốc caves",
+      "The 500-step climb to the Mua Cave panorama",
+      "Cycling through quiet rice-field villages"
+    ],
+    "meetingPoint": "Hà Nội Old Quarter hotel pickup",
+    "createdAt": "2026-01-05T08:00:00.000Z",
+    "updatedAt": "2026-06-14T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000005",
+    "slug": "cu-chi-tunnels-half-day",
+    "title": "Củ Chi Tunnels Half-Day Tour",
+    "summary": "Crawl a section of the legendary Củ Chi tunnel network and learn how an underground city sustained life during the war, just outside Saigon.",
+    "categoryId": "b0000001-0000-4000-8000-000000000001",
+    "durationDays": 1,
+    "maxGroupSize": 20,
+    "basePrice": "29.00",
+    "compareAtPrice": null,
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": true,
+    "isFeatured": false,
+    "suitableFor": [
+      "SOLO",
+      "FRIENDS",
+      "FAMILY"
+    ],
+    "badges": [],
+    "included": [
+      "Round-trip transfer from Hồ Chí Minh City",
+      "English-speaking guide",
+      "Tunnel entrance fee",
+      "Bottled water"
+    ],
+    "excluded": [
+      "Lunch",
+      "Shooting range",
+      "Tips"
+    ],
+    "highlights": [
+      "Crawl through a widened section of the tunnels",
+      "See the trap, kitchen and ventilation systems",
+      "A guide who brings the history vividly to life"
+    ],
+    "meetingPoint": "District 1 hotel pickup, Hồ Chí Minh City",
+    "createdAt": "2026-01-06T08:00:00.000Z",
+    "updatedAt": "2026-06-15T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000006",
+    "slug": "mekong-delta-day",
+    "title": "Mekong Delta & Cái Răng Floating Market",
+    "summary": "Drift through the Cái Răng floating market at dawn, then slip into the narrow orchard channels by sampan for a taste of life on the river.",
+    "categoryId": "b0000001-0000-4000-8000-000000000001",
+    "durationDays": 1,
+    "maxGroupSize": 16,
+    "basePrice": "45.00",
+    "compareAtPrice": null,
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": true,
+    "isFeatured": false,
+    "suitableFor": [
+      "FAMILY",
+      "COUPLE",
+      "SOLO"
+    ],
+    "badges": [],
+    "included": [
+      "Transfer from Hồ Chí Minh City",
+      "English-speaking guide",
+      "Boat trips",
+      "Lunch",
+      "Seasonal fruit tasting"
+    ],
+    "excluded": [
+      "Drinks",
+      "Personal expenses",
+      "Tips"
+    ],
+    "highlights": [
+      "The Cái Răng floating market at first light",
+      "A sampan ride into quiet orchard channels",
+      "Tropical fruit, a rice-noodle workshop and a riverside lunch"
+    ],
+    "meetingPoint": "District 1 hotel pickup, Hồ Chí Minh City (early start)",
+    "createdAt": "2026-01-07T08:00:00.000Z",
+    "updatedAt": "2026-06-16T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000007",
+    "slug": "phu-quoc-4-islands",
+    "title": "Phú Quốc 4-Islands Snorkelling Cruise",
+    "summary": "A full-day speedboat hop around the An Thới archipelago with two snorkel stops over coral reefs and a fresh seafood lunch on board.",
+    "categoryId": "b0000001-0000-4000-8000-000000000001",
+    "durationDays": 1,
+    "maxGroupSize": 18,
+    "basePrice": "52.00",
+    "compareAtPrice": "65.00",
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": true,
+    "isFeatured": true,
+    "suitableFor": [
+      "FRIENDS",
+      "COUPLE",
+      "FAMILY"
+    ],
+    "badges": [
+      "POPULAR"
+    ],
+    "included": [
+      "Speedboat cruise",
+      "Snorkel gear",
+      "Seafood lunch",
+      "English-speaking guide",
+      "Insurance"
+    ],
+    "excluded": [
+      "Cable car ticket",
+      "Drinks",
+      "Fishing gear hire"
+    ],
+    "highlights": [
+      "Snorkel two coral reefs in the clearest water in Vietnam",
+      "Island-hop the An Thới archipelago by speedboat",
+      "A fresh seafood BBQ lunch on the water",
+      "Optional ride on the sea-crossing cable car"
+    ],
+    "meetingPoint": "An Thới harbour, Phú Quốc",
+    "createdAt": "2026-01-08T08:00:00.000Z",
+    "updatedAt": "2026-06-17T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000008",
+    "slug": "phong-nha-paradise-cave-day",
+    "title": "Phong Nha & Paradise Cave Full-Day",
+    "summary": "Boat into the river-cut Phong Nha grotto, then walk the vast illuminated chambers of Paradise Cave, one of the longest dry caves in Asia.",
+    "categoryId": "b0000001-0000-4000-8000-000000000001",
+    "durationDays": 1,
+    "maxGroupSize": 16,
+    "basePrice": "62.00",
+    "compareAtPrice": null,
+    "currency": "USD",
+    "difficulty": "moderate",
+    "isPublished": true,
+    "isFeatured": false,
+    "suitableFor": [
+      "FRIENDS",
+      "SOLO",
+      "COUPLE"
+    ],
+    "badges": [],
+    "included": [
+      "Transfer from Đồng Hới / Phong Nha town",
+      "English-speaking guide",
+      "Boat ride",
+      "Cave entrance fees",
+      "Lunch"
+    ],
+    "excluded": [
+      "Drinks",
+      "Personal expenses",
+      "Tips"
+    ],
+    "highlights": [
+      "A river-boat ride into the Phong Nha cave system",
+      "The cathedral-scale chambers of Paradise Cave",
+      "Lush limestone-karst scenery of a UNESCO park"
+    ],
+    "meetingPoint": "Phong Nha town centre / Đồng Hới hotel pickup",
+    "createdAt": "2026-01-09T08:00:00.000Z",
+    "updatedAt": "2026-06-11T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000009",
+    "slug": "hanoi-street-food-walk",
+    "title": "Hà Nội Old Quarter Street Food Walk",
+    "summary": "Graze the Old Quarter with a local foodie guide — phở, bún chả, bánh mì and egg coffee across eight hand-picked stops.",
+    "categoryId": "b0000001-0000-4000-8000-000000000001",
+    "durationDays": 1,
+    "maxGroupSize": 10,
+    "basePrice": "35.00",
+    "compareAtPrice": null,
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": false,
+    "isFeatured": false,
+    "suitableFor": [
+      "SOLO",
+      "FRIENDS",
+      "COUPLE"
+    ],
+    "badges": [
+      "NEW"
+    ],
+    "included": [
+      "All food tastings",
+      "Egg coffee",
+      "Local foodie guide",
+      "Bottled water"
+    ],
+    "excluded": [
+      "Alcoholic drinks",
+      "Tips"
+    ],
+    "highlights": [
+      "Eight tastings across the maze of the Old Quarter",
+      "Hà Nội classics: phở, bún chả, nem and bánh mì",
+      "Finish with the city’s famous egg coffee"
+    ],
+    "meetingPoint": "Hàng Bè market entrance, Hà Nội Old Quarter",
+    "createdAt": "2026-01-10T08:00:00.000Z",
+    "updatedAt": "2026-06-12T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000010",
+    "slug": "mui-ne-dunes-day",
+    "title": "Mũi Né Sand Dunes & Fairy Stream",
+    "summary": "A half-day jeep tour of Mũi Né’s red and white sand dunes, the Fairy Stream canyon and the basket-boat fishing village — best at sunrise.",
+    "categoryId": "b0000001-0000-4000-8000-000000000001",
+    "durationDays": 1,
+    "maxGroupSize": 14,
+    "basePrice": "42.00",
+    "compareAtPrice": "52.00",
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": true,
+    "isFeatured": false,
+    "suitableFor": [
+      "FAMILY",
+      "COUPLE",
+      "FRIENDS"
+    ],
+    "badges": [],
+    "included": [
+      "Hotel pickup & drop-off in Mũi Né",
+      "Jeep transport",
+      "English-speaking guide",
+      "Bottled water"
+    ],
+    "excluded": [
+      "Quad-bike / sand-sled hire",
+      "Breakfast",
+      "Tips"
+    ],
+    "highlights": [
+      "Sunrise over the sweeping White Sand Dunes",
+      "The glowing Red Sand Dunes and optional sand-sledding",
+      "Wade up the Fairy Stream between red-rock canyons",
+      "The Mũi Né fishing village and its round basket boats"
+    ],
+    "meetingPoint": "Hotel pickup in Mũi Né",
+    "createdAt": "2026-01-11T08:00:00.000Z",
+    "updatedAt": "2026-06-13T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000011",
+    "slug": "halong-bay-2d1n",
+    "title": "Hạ Long Bay Luxury Cruise 2D1N",
+    "summary": "An overnight cruise among the karsts of Hạ Long Bay — kayaking, a cave visit, a sunset party and a night aboard a boutique junk.",
+    "categoryId": "b0000001-0000-4000-8000-000000000003",
+    "durationDays": 2,
+    "maxGroupSize": 24,
+    "basePrice": "175.00",
+    "compareAtPrice": "210.00",
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": true,
+    "isFeatured": true,
+    "suitableFor": [
+      "COUPLE",
+      "FAMILY",
+      "FRIENDS"
+    ],
+    "badges": [
+      "POPULAR"
+    ],
+    "included": [
+      "Round-trip transfer from Hà Nội",
+      "One night aboard the cruise",
+      "All meals on board (1B, 2L, 1D)",
+      "Kayak & cave entrance",
+      "English-speaking guide"
+    ],
+    "excluded": [
+      "Drinks",
+      "Tips",
+      "Travel insurance"
+    ],
+    "highlights": [
+      "A night aboard a boutique junk among the karsts",
+      "Kayaking and swimming from Titop Island",
+      "The vast Sửng Sốt \"Surprise\" cave",
+      "A sunset party, cooking demo and squid fishing"
+    ],
+    "meetingPoint": "Hà Nội Old Quarter hotel pickup",
+    "createdAt": "2026-01-12T08:00:00.000Z",
+    "updatedAt": "2026-06-14T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000012",
+    "slug": "halong-lan-ha-3d2n",
+    "title": "Hạ Long & Lan Hạ Bay Cruise 3D2N",
+    "summary": "A slower, more exclusive three-day cruise into the quieter Lan Hạ Bay — hidden lagoons, kayaks and caves away from the crowds.",
+    "categoryId": "b0000001-0000-4000-8000-000000000003",
+    "durationDays": 3,
+    "maxGroupSize": 20,
+    "basePrice": "320.00",
+    "compareAtPrice": "380.00",
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": true,
+    "isFeatured": false,
+    "suitableFor": [
+      "COUPLE",
+      "FRIENDS"
+    ],
+    "badges": [
+      "EXCLUSIVE"
+    ],
+    "included": [
+      "Round-trip transfer from Hà Nội",
+      "Two nights aboard the cruise",
+      "All meals on board",
+      "Kayaks & activities",
+      "English-speaking guide"
+    ],
+    "excluded": [
+      "Drinks",
+      "Tips",
+      "Travel insurance"
+    ],
+    "highlights": [
+      "Two nights aboard a boutique junk in Lan Hạ Bay",
+      "Kayaking into hidden lagoons and karst archways",
+      "Cát Bà island, beaches and a floating village",
+      "A relaxed, uncrowded pace away from the main bay"
+    ],
+    "meetingPoint": "Hà Nội Old Quarter hotel pickup",
+    "createdAt": "2026-01-13T08:00:00.000Z",
+    "updatedAt": "2026-06-15T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000013",
+    "slug": "sa-pa-trek-3d2n",
+    "title": "Sa Pa 3-Day Trek with Local Families",
+    "summary": "A moderate three-day trek between rice terraces and ethnic-minority villages, with two homestay nights cooking and living alongside local families.",
+    "categoryId": "b0000001-0000-4000-8000-000000000004",
+    "durationDays": 3,
+    "maxGroupSize": 12,
+    "basePrice": "149.00",
+    "compareAtPrice": "179.00",
+    "currency": "USD",
+    "difficulty": "moderate",
+    "isPublished": true,
+    "isFeatured": true,
+    "suitableFor": [
+      "FRIENDS",
+      "SOLO",
+      "COUPLE"
+    ],
+    "badges": [
+      "BEST_VALUE"
+    ],
+    "included": [
+      "Transfers to/from Sa Pa",
+      "Local trekking guide",
+      "All meals during the trek",
+      "Two homestay nights",
+      "Water & local rice wine"
+    ],
+    "excluded": [
+      "Additional drinks",
+      "Personal trekking gear",
+      "Tips"
+    ],
+    "highlights": [
+      "Trek 13–16 km a day through terraced valleys",
+      "Meet Hmong, Red Dao and Tày communities",
+      "Two nights in family homestays, cooking with your hosts",
+      "Waterfalls, rattan bridges and untouched rice fields"
+    ],
+    "meetingPoint": "Sa Pa town centre (bus arrival point)",
+    "createdAt": "2026-01-14T08:00:00.000Z",
+    "updatedAt": "2026-06-16T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000014",
+    "slug": "ha-giang-loop-3d2n",
+    "title": "Hà Giang Loop Motorbike Adventure 3D2N",
+    "summary": "Ride (or be ridden) around Vietnam’s most spectacular frontier road — the Mã Pí Lèng pass, limestone plateaus and remote villages over three days.",
+    "categoryId": "b0000001-0000-4000-8000-000000000004",
+    "durationDays": 3,
+    "maxGroupSize": 10,
+    "basePrice": "165.00",
+    "compareAtPrice": null,
+    "currency": "USD",
+    "difficulty": "challenging",
+    "isPublished": true,
+    "isFeatured": false,
+    "suitableFor": [
+      "FRIENDS",
+      "SOLO"
+    ],
+    "badges": [
+      "NEW"
+    ],
+    "included": [
+      "Motorbike or easy-rider driver",
+      "Fuel",
+      "Local guide",
+      "Two nights in homestays",
+      "All meals on the loop"
+    ],
+    "excluded": [
+      "Personal travel insurance",
+      "Drinks",
+      "Tips"
+    ],
+    "highlights": [
+      "The legendary Mã Pí Lèng pass above the Nho Quế river",
+      "The Đồng Văn karst plateau geopark",
+      "Frontier markets and ethnic-minority villages",
+      "Ride your own bike or relax with an easy-rider"
+    ],
+    "meetingPoint": "Hà Giang city tour office",
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-06-17T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000015",
+    "slug": "cat-ba-national-park-trek",
+    "title": "Cát Bà National Park Jungle Trek",
+    "summary": "A full-day trek across the forested spine of Cát Bà island in search of the rare golden-headed langur, ending at a quiet beach.",
+    "categoryId": "b0000001-0000-4000-8000-000000000004",
+    "durationDays": 1,
+    "maxGroupSize": 12,
+    "basePrice": "58.00",
+    "compareAtPrice": null,
+    "currency": "USD",
+    "difficulty": "moderate",
+    "isPublished": true,
+    "isFeatured": false,
+    "suitableFor": [
+      "FRIENDS",
+      "SOLO"
+    ],
+    "badges": [],
+    "included": [
+      "National park entrance",
+      "Local guide",
+      "Packed lunch",
+      "Bottled water"
+    ],
+    "excluded": [
+      "Transfers to the island",
+      "Drinks",
+      "Tips"
+    ],
+    "highlights": [
+      "Trek the forested ridge of Cát Bà National Park",
+      "Look out for the endangered golden-headed langur",
+      "A summit viewpoint over Lan Hạ Bay",
+      "Finish at a quiet cove for a swim"
+    ],
+    "meetingPoint": "Cát Bà town pier",
+    "createdAt": "2026-01-16T08:00:00.000Z",
+    "updatedAt": "2026-06-11T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000016",
+    "slug": "north-vietnam-5d4n",
+    "title": "5-Day North Vietnam: Hà Nội, Hạ Long & Ninh Bình",
+    "summary": "The classic northern loop in five days — a Hà Nội Vespa tour, an overnight Hạ Long Bay cruise, and the karst scenery of Ninh Bình.",
+    "categoryId": "b0000001-0000-4000-8000-000000000002",
+    "durationDays": 5,
+    "maxGroupSize": 16,
+    "basePrice": "487.00",
+    "compareAtPrice": "550.00",
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": true,
+    "isFeatured": true,
+    "suitableFor": [
+      "COUPLE",
+      "FAMILY",
+      "FRIENDS"
+    ],
+    "badges": [
+      "BEST_VALUE",
+      "POPULAR"
+    ],
+    "included": [
+      "4 breakfasts, 3 lunches, 2 dinners",
+      "Private car & cruise transfers",
+      "3 hotel nights + 1 cruise night",
+      "All activities & entrance fees",
+      "English-speaking guides",
+      "Airport transfers",
+      "24/7 hotline support"
+    ],
+    "excluded": [
+      "International & domestic airfare",
+      "Travel insurance",
+      "Drinks beyond water",
+      "Personal expenses & tips"
+    ],
+    "highlights": [
+      "A 4.5-hour Vespa tour of Hà Nội’s Old Quarter",
+      "An overnight luxury cruise in Hạ Long Bay",
+      "A bamboo boat ride through the Tam Cốc caves",
+      "The 500-step climb to the Mua Cave panorama"
+    ],
+    "meetingPoint": "Nội Bài International Airport / Hà Nội hotel",
+    "createdAt": "2026-01-17T08:00:00.000Z",
+    "updatedAt": "2026-06-12T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000017",
+    "slug": "central-heritage-6d5n",
+    "title": "6-Day Central Vietnam Heritage Road",
+    "summary": "From imperial Huế through the caves of Phong Nha to lantern-lit Hội An and the beaches of Đà Nẵng, the UNESCO heart of Vietnam in six days.",
+    "categoryId": "b0000001-0000-4000-8000-000000000002",
+    "durationDays": 6,
+    "maxGroupSize": 16,
+    "basePrice": "612.50",
+    "compareAtPrice": "699.00",
+    "currency": "USD",
+    "difficulty": "moderate",
+    "isPublished": true,
+    "isFeatured": true,
+    "suitableFor": [
+      "COUPLE",
+      "FAMILY",
+      "FRIENDS"
+    ],
+    "badges": [
+      "NEW"
+    ],
+    "included": [
+      "5 breakfasts, 4 lunches, 2 dinners",
+      "Private car & internal transfers",
+      "5 hotel nights",
+      "All entrance fees & guided tours",
+      "English-speaking guides",
+      "Airport transfers"
+    ],
+    "excluded": [
+      "International airfare",
+      "Travel insurance",
+      "Drinks beyond water",
+      "Personal expenses & tips"
+    ],
+    "highlights": [
+      "The imperial citadel and royal tombs of Huế",
+      "Paradise Cave in Phong Nha national park",
+      "A Hội An cooking class and basket-boat ride",
+      "Free beach time on the Đà Nẵng coast"
+    ],
+    "meetingPoint": "Đà Nẵng or Huế airport / hotel",
+    "createdAt": "2026-01-18T08:00:00.000Z",
+    "updatedAt": "2026-06-13T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000018",
+    "slug": "vietnam-grand-tour-14d",
+    "title": "14-Day Grand Tour of Vietnam from the Northern Highlands and Hạ Long Bay through the Imperial Centre and Lantern Towns down to the Mekong Delta and the Bustling Streets of Historic Saigon City 14-Day ",
+    "summary": "This is the complete north-to-south journey across Vietnam in a fortnight, weaving together the misty rice terraces of the north, an overnight cruise among the karsts of Hạ Long Bay, the imperial monuments of Huế, the tailors and lanterns of Hội An, the war history of Saigon, and a dawn sampan through the floating markets of the Mekong Delta, all at an unhurried pace with private guides. This is the complete north-to-south journey across Vietnam in a fortnight, weaving together the misty rice te",
+    "categoryId": "b0000001-0000-4000-8000-000000000002",
+    "durationDays": 14,
+    "maxGroupSize": 12,
+    "basePrice": "1299.99",
+    "compareAtPrice": "1499.00",
+    "currency": "USD",
+    "difficulty": "moderate",
+    "isPublished": true,
+    "isFeatured": true,
+    "suitableFor": [
+      "COUPLE",
+      "FRIENDS",
+      "SOLO"
+    ],
+    "badges": [
+      "EXCLUSIVE",
+      "BEST_VALUE"
+    ],
+    "included": [
+      "13 breakfasts, 9 lunches, 5 dinners",
+      "All internal flights & transfers",
+      "12 hotel nights + 1 cruise night",
+      "All entrance fees & guided tours",
+      "English-speaking guides",
+      "Airport transfers",
+      "24/7 support"
+    ],
+    "excluded": [
+      "International airfare",
+      "Travel insurance",
+      "Drinks beyond water",
+      "Personal expenses & tips"
+    ],
+    "highlights": [
+      "The full length of the country in one journey",
+      "An overnight Hạ Long Bay cruise",
+      "UNESCO sites north to south",
+      "A dawn visit to the Cái Răng floating market"
+    ],
+    "meetingPoint": "Nội Bài International Airport / Hà Nội hotel",
+    "createdAt": "2026-01-19T08:00:00.000Z",
+    "updatedAt": "2026-06-14T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000019",
+    "slug": "vietnam-romantic-10d",
+    "title": "10-Day Vietnam Romantic Getaway",
+    "summary": "A ten-day north-to-centre honeymoon: Hà Nội food, a Hạ Long Bay cruise, Ninh Bình karsts, Bà Nà Hills, imperial Huế and lantern-lit Hội An.",
+    "categoryId": "b0000001-0000-4000-8000-000000000005",
+    "durationDays": 10,
+    "maxGroupSize": 12,
+    "basePrice": "724.00",
+    "compareAtPrice": "818.00",
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": true,
+    "isFeatured": true,
+    "suitableFor": [
+      "COUPLE"
+    ],
+    "badges": [
+      "EXCLUSIVE"
+    ],
+    "included": [
+      "9 breakfasts, 6 lunches, 2 dinners",
+      "Private car, cruise & internal transfers",
+      "9 nights (hotel + cruise)",
+      "All entrance fees & a cooking class",
+      "English-speaking guides",
+      "Airport transfers",
+      "24/7 support"
+    ],
+    "excluded": [
+      "International airfare",
+      "Travel insurance",
+      "Drinks beyond water",
+      "Personal expenses & tips"
+    ],
+    "highlights": [
+      "A Hà Nội Old Quarter street-food walk",
+      "An overnight Hạ Long Bay cruise with kayaking",
+      "UNESCO sites: Tràng An, Hội An and My Sơn",
+      "A Hội An cooking class and basket-boat ride"
+    ],
+    "meetingPoint": "Nội Bài International Airport / Hà Nội hotel",
+    "createdAt": "2026-01-20T08:00:00.000Z",
+    "updatedAt": "2026-06-15T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000020",
+    "slug": "phu-quoc-honeymoon-5d",
+    "title": "5-Day Phú Quốc Island Honeymoon",
+    "summary": "Five slow days on Vietnam’s largest island: a private sunset cruise, a couples’ spa afternoon, snorkelling, and long empty stretches of white sand.",
+    "categoryId": "b0000001-0000-4000-8000-000000000005",
+    "durationDays": 5,
+    "maxGroupSize": 8,
+    "basePrice": "540.00",
+    "compareAtPrice": "620.00",
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": true,
+    "isFeatured": false,
+    "suitableFor": [
+      "COUPLE"
+    ],
+    "badges": [
+      "LIMITED_OFFER"
+    ],
+    "included": [
+      "4 breakfasts, 1 dinner",
+      "Airport transfers",
+      "4 resort nights",
+      "Private cruise & spa session",
+      "Snorkelling day trip"
+    ],
+    "excluded": [
+      "International & domestic airfare",
+      "Travel insurance",
+      "Lunches",
+      "Personal expenses"
+    ],
+    "highlights": [
+      "A private sunset cruise for two",
+      "A couples’ spa afternoon",
+      "Snorkelling in the An Thới archipelago",
+      "Beachfront resort nights with breakfast"
+    ],
+    "meetingPoint": "Phú Quốc International Airport",
+    "createdAt": "2026-01-21T08:00:00.000Z",
+    "updatedAt": "2026-06-16T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000021",
+    "slug": "dalat-highlands-3d",
+    "title": "3-Day Đà Lạt Highlands Escape",
+    "summary": "A cool-climate break in the pine-clad highlands: flower gardens, a coffee farm, the Datanla falls by alpine coaster, and a canyoning morning.",
+    "categoryId": "b0000001-0000-4000-8000-000000000002",
+    "durationDays": 3,
+    "maxGroupSize": 14,
+    "basePrice": "268.00",
+    "compareAtPrice": null,
+    "currency": "USD",
+    "difficulty": "moderate",
+    "isPublished": true,
+    "isFeatured": false,
+    "suitableFor": [
+      "COUPLE",
+      "FRIENDS",
+      "FAMILY"
+    ],
+    "badges": [],
+    "included": [
+      "2 breakfasts, 1 lunch",
+      "Private transfers",
+      "2 hotel nights",
+      "Coffee-farm visit & entrance fees",
+      "English-speaking guide"
+    ],
+    "excluded": [
+      "Canyoning add-on",
+      "Drinks",
+      "Tips"
+    ],
+    "highlights": [
+      "French-era villas and the old railway station",
+      "A working highland coffee farm",
+      "The Datanla falls by alpine coaster",
+      "An optional canyoning morning"
+    ],
+    "meetingPoint": "Đà Lạt hotel or Liên Khương airport",
+    "createdAt": "2026-01-22T08:00:00.000Z",
+    "updatedAt": "2026-06-17T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000022",
+    "slug": "saigon-city-half-day",
+    "title": "Saigon City Highlights Half-Day",
+    "summary": "A compact morning tour of Saigon’s landmarks — the Notre-Dame Basilica, the Central Post Office, Reunification Palace and the War Remnants Museum.",
+    "categoryId": "b0000001-0000-4000-8000-000000000001",
+    "durationDays": 1,
+    "maxGroupSize": 20,
+    "basePrice": "25.00",
+    "compareAtPrice": null,
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": true,
+    "isFeatured": false,
+    "suitableFor": [
+      "SOLO",
+      "FRIENDS",
+      "FAMILY",
+      "BUSINESS"
+    ],
+    "badges": [],
+    "included": [
+      "Hotel pickup in District 1",
+      "English-speaking guide",
+      "Entrance fees",
+      "Bottled water"
+    ],
+    "excluded": [
+      "Lunch",
+      "Personal expenses",
+      "Tips"
+    ],
+    "highlights": [
+      "The colonial Notre-Dame Basilica and Post Office",
+      "Reunification Palace",
+      "The War Remnants Museum",
+      "The bustling Bến Thành market"
+    ],
+    "meetingPoint": "District 1 hotel pickup, Hồ Chí Minh City",
+    "createdAt": "2026-01-23T08:00:00.000Z",
+    "updatedAt": "2026-06-11T08:00:00.000Z"
+  },
+  {
+    "id": "d0000001-0000-4000-8000-000000000023",
+    "slug": "business-hanoi-city-day",
+    "title": "Hà Nội Executive City Day",
+    "summary": "A flexible, chauffeured day around Hà Nội for business travellers — key sights between meetings, at your own pace, with a private guide and car.",
+    "categoryId": "b0000001-0000-4000-8000-000000000001",
+    "durationDays": 1,
+    "maxGroupSize": 4,
+    "basePrice": "145.00",
+    "compareAtPrice": null,
+    "currency": "USD",
+    "difficulty": "easy",
+    "isPublished": true,
+    "isFeatured": false,
+    "suitableFor": [
+      "BUSINESS",
+      "SOLO",
+      "COUPLE"
+    ],
+    "badges": [
+      "LIMITED_OFFER"
+    ],
+    "included": [
+      "Private car & driver",
+      "English-speaking guide",
+      "Entrance fees",
+      "Bottled water"
+    ],
+    "excluded": [
+      "Lunch",
+      "Evening use",
+      "Tips"
+    ],
+    "highlights": [
+      "A private car and guide for the full day",
+      "The Old Quarter, the Temple of Literature and Hoàn Kiếm Lake",
+      "A flexible schedule that works around meetings",
+      "A curated lunch reservation"
+    ],
+    "meetingPoint": "Your Hà Nội hotel or office",
+    "createdAt": "2026-01-24T08:00:00.000Z",
+    "updatedAt": "2026-06-12T08:00:00.000Z"
+  }
+]
