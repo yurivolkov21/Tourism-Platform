@@ -1,6 +1,7 @@
 'use client';
 
-import { Bell, ChevronsUpDown, CircleUser, LogOut } from 'lucide-react';
+import Link from 'next/link';
+import { ChevronsUpDown, CircleUser, LogOut } from 'lucide-react';
 
 import {
   Avatar,
@@ -19,7 +20,7 @@ import { signOut } from '../../lib/auth/actions';
 
 /**
  * Sidebar-footer account block (shadcn dashboard-01 pattern): a full-width row
- * with avatar + email and a dropdown (account/notifications + sign-out).
+ * with avatar + email and a dropdown (account + sign-out).
  *
  * Base UI gotchas this avoids (both crash the page — Base UI error #31 / missing
  * MenuGroupContext): a `Menu.Item` may NOT `render` a native `<button>` while its
@@ -66,14 +67,11 @@ export function NavUser({ email }: { email: string }) {
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              {/* Not wired yet — shown for parity with dashboard-01, disabled so they never 404. */}
-              <DropdownMenuItem disabled>
+              {/* Account → the caller's own user detail page (`/users/me`). Notifications dropped —
+                  dashboard-01 parity isn't worth a permanently-disabled dead item. */}
+              <DropdownMenuItem render={<Link href="/users/me" />} nativeButton={false}>
                 <CircleUser className="size-4" />
                 Account
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled>
-                <Bell className="size-4" />
-                Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
