@@ -1546,33 +1546,33 @@ export const messages = {
     },
   },
   enquiryCta: {
-    heading: "Plan your trip",
-    // Contextual heading variants so the same CTA doesn’t read identically on every page.
+    heading: 'Plan your trip',
+    // Contextual heading variants so the same CTA doesn't read identically on every page.
     headings: {
-      home: "Ready to explore Vietnam?",
-      faq: "Still have a question in mind?",
-      destinations: "Not sure where to begin?",
-      about: "Let’s craft your journey together",
+      home: 'Ready to explore Vietnam?',
+      faq: 'Still have a question in mind?',
+      destinations: 'Not sure where to begin?',
+      about: 'Let’s craft your journey together',
       blog: (title: string) => `Turn "${title}" into your own journey`,
     },
     regionHeading: (region: string) => `Plan your trip to ${region}`,
     subtitle:
-      "Tell us how you like to travel and our local experts will craft an itinerary that fits you.",
-    cta: "Start planning",
+      'Tell us how you like to travel and our local experts will craft an itinerary that fits you.',
+    cta: 'Start planning',
     benefits: [
-      "Tailored to your pace & interests",
-      "Local experts — no middlemen",
-      "A no-obligation itinerary & quote",
+      'Tailored to your pace & interests',
+      'Local experts — no middlemen',
+      'A no-obligation itinerary & quote',
     ],
     form: {
-      name: "Your name",
-      namePlaceholder: "e.g. Alex Carter",
-      email: "Email address",
-      emailPlaceholder: "you@example.com",
-      destination: "Where would you like to go?",
-      destinationPlaceholder: "e.g. Hạ Long Bay, Hội An",
+      name: 'Your name',
+      namePlaceholder: 'e.g. Alex Carter',
+      email: 'Email address',
+      emailPlaceholder: 'you@example.com',
+      destination: 'Where would you like to go?',
+      destinationPlaceholder: 'e.g. Hạ Long Bay, Hội An',
     },
-    note: "Free and no-obligation — we usually reply within 24 hours.",
+    note: 'Free and no-obligation — we usually reply within 24 hours.',
   },
   // Rich multi-field enquiry form ("Plan your trip") — maps the Enquiry model.
   planTrip: {
