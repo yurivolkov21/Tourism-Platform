@@ -42,11 +42,14 @@ function StatusBadge({ status }: { status: AdminOutboxRow['status'] }) {
 
 export function OutboxView({ rows, meta }: { rows: AdminOutboxRow[]; meta?: PageMeta }) {
   const router = useRouter();
-  const [retrying, startRetry] = useTransition();
-  const [retryingId, setRetryingId] = useState<string | null>(null);
+  const [, startRetry] = useTransition();
+  // A Set, not a single id: overlapping retries on DIFFERENT rows must each keep
+  // their own in-flight state — a lone id would clear row A's spinner when row B
+  // is clicked, re-enabling A mid-request (duplicate-retry window).
+  const [retryingIds, setRetryingIds] = useState<ReadonlySet<string>>(new Set());
 
   const onRetry = (id: string) => {
-    setRetryingId(id);
+    setRetryingIds((prev) => new Set(prev).add(id));
     startRetry(async () => {
       const res = await retryOutbox(id);
       if (res.ok) {
@@ -55,7 +58,11 @@ export function OutboxView({ rows, meta }: { rows: AdminOutboxRow[]; meta?: Page
       } else {
         toast.error(res.error ?? 'Retry failed.');
       }
-      setRetryingId(null);
+      setRetryingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     });
   };
 
@@ -93,7 +100,7 @@ export function OutboxView({ rows, meta }: { rows: AdminOutboxRow[]; meta?: Page
               </TableHeader>
               <TableBody>
                 {rows.map((row) => {
-                  const isRetrying = retrying && retryingId === row.id;
+                  const isRetrying = retryingIds.has(row.id);
                   return (
                     <TableRow key={row.id}>
                       <TableCell>
