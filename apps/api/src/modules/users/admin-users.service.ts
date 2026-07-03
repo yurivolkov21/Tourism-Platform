@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MediaOwnerType, Prisma, UserRole } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -45,10 +45,7 @@ export class AdminUsersService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly media: MediaService,
-    // Accepted but not stored yet — Task 3's mutations (role change /
-    // delete) reuse UsersService's Supabase-auth deletion helper and will
-    // promote this to a `private readonly` field.
-    users: UsersService,
+    private readonly users: UsersService,
   ) {}
 
   async list(query: ListAdminUsersQueryDto): Promise<PaginatedAdminUsers> {
@@ -143,5 +140,108 @@ export class AdminUsersService {
       createdAt: u.createdAt.toISOString(),
       bookingsCount,
     };
+  }
+
+  /**
+   * Change a user's role. Guards (409 each): self-change · demoting an
+   * env-bootstrap admin (only an env edit can) · demoting the LAST admin.
+   * Promote has no extra guard. Last-admin check is read-then-write — fine at
+   * this scale (single-admin reality).
+   */
+  async changeRole(
+    id: string,
+    callerId: string,
+    role: UserRole,
+  ): Promise<AdminUserListItem> {
+    if (id === callerId) {
+      throw new ConflictException({
+        code: 'ROLE_SELF_CHANGE',
+        message: 'You cannot change your own role',
+      });
+    }
+    const user = await this.findOrThrow(id);
+
+    const demoting = user.role === UserRole.ADMIN && role === UserRole.CUSTOMER;
+    if (demoting && this.isEnvAdmin(user.email)) {
+      throw new ConflictException({
+        code: 'ROLE_ENV_ADMIN',
+        message: 'This admin is on the ADMIN_EMAILS bootstrap list — remove them from the env to demote',
+      });
+    }
+    if (demoting) {
+      const admins = await this.prisma.user.count({ where: { role: UserRole.ADMIN } });
+      if (admins <= 1) {
+        throw new ConflictException({
+          code: 'ROLE_LAST_ADMIN',
+          message: 'Cannot demote the last remaining admin',
+        });
+      }
+    }
+
+    const updated = await this.prisma.user.update({ where: { id }, data: { role } });
+    const bookings = await this.prisma.booking.count({ where: { userId: id } });
+    return this.toListItem(updated, bookings);
+  }
+
+  /**
+   * Delete a customer account on their behalf. Guards (409): self-delete ·
+   * target is an ADMIN (demote first) · has bookings (financial records,
+   * unchanged policy) · authored posts (`Post.author` is onDelete: Restrict —
+   * the guard turns the raw FK error into a friendly 409). Avatar media is
+   * garbage-queued in the same tx as the row delete (the polymorphic relation
+   * has no FK cascade); the Supabase auth identity is removed best-effort.
+   */
+  async deleteUser(
+    id: string,
+    callerId: string,
+  ): Promise<{ id: string; email: string }> {
+    if (id === callerId) {
+      throw new ConflictException({
+        code: 'USER_SELF_DELETE',
+        message: 'You cannot delete your own account from the admin console',
+      });
+    }
+    const user = await this.findOrThrow(id);
+    if (user.role === UserRole.ADMIN) {
+      throw new ConflictException({
+        code: 'USER_IS_ADMIN',
+        message: 'Demote this admin to customer before deleting the account',
+      });
+    }
+
+    const [bookings, posts] = await Promise.all([
+      this.prisma.booking.count({ where: { userId: id } }),
+      this.prisma.post.count({ where: { authorId: id } }),
+    ]);
+    if (bookings > 0) {
+      throw new ConflictException({
+        code: 'ACCOUNT_HAS_BOOKINGS',
+        message: 'This account has bookings on record and cannot be deleted',
+      });
+    }
+    if (posts > 0) {
+      throw new ConflictException({
+        code: 'USER_HAS_POSTS',
+        message: 'This user authored blog posts — reassign or delete those posts first',
+      });
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await this.media.deleteForOwner(tx, MediaOwnerType.USER, id);
+      await tx.user.delete({ where: { id } });
+    });
+    await this.users.deleteSupabaseUser(user.supabaseId);
+    return { id: user.id, email: user.email };
+  }
+
+  private async findOrThrow(id: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new NotFoundException({
+        code: 'USER_NOT_FOUND',
+        message: `User "${id}" not found`,
+      });
+    }
+    return user;
   }
 }

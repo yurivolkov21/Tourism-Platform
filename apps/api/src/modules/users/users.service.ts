@@ -51,12 +51,20 @@ export class UsersService {
       });
     }
 
-    await this.prisma.user.delete({ where: { id: user.id } });
+    // Avatar media has no FK to users (polymorphic) — clean + garbage-queue it
+    // in the same tx as the row delete, exactly like every other owner delete.
+    await this.prisma.$transaction(async (tx) => {
+      await this.media.deleteForOwner(tx, MediaOwnerType.USER, user.id);
+      await tx.user.delete({ where: { id: user.id } });
+    });
     await this.deleteSupabaseUser(user.supabaseId);
   }
 
-  /** Best-effort removal of the Supabase auth identity (so the email can no longer sign in). */
-  private async deleteSupabaseUser(supabaseId: string): Promise<void> {
+  /**
+   * Best-effort removal of the Supabase auth identity (so the email can no
+   * longer sign in). Shared with `AdminUsersService` (admin-initiated deletion).
+   */
+  async deleteSupabaseUser(supabaseId: string): Promise<void> {
     const url = this.config.getOrThrow<string>('supabase.url');
     const key = this.config.getOrThrow<string>('supabase.serviceRoleKey');
     try {

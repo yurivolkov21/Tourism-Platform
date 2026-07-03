@@ -31,6 +31,7 @@ function makePrisma(opts: {
 function makeMedia(avatarUrl: string | null) {
   return {
     syncAssets: jest.fn().mockResolvedValue(undefined),
+    deleteForOwner: jest.fn().mockResolvedValue(undefined),
     attachToOwner: jest.fn((_t: unknown, owner: Record<string, unknown>) =>
       Promise.resolve({
         ...owner,
@@ -128,18 +129,28 @@ describe('UsersService.deleteMe', () => {
   });
 
   it('deletes the local row + the Supabase auth user when there are no bookings', async () => {
+    const del = jest.fn().mockResolvedValue({});
     const prisma = {
       booking: { count: jest.fn().mockResolvedValue(0) },
-      user: { delete: jest.fn().mockResolvedValue({}) },
+      user: { delete: del },
+      $transaction: jest.fn((cb: (tx: unknown) => unknown) =>
+        cb({ user: { delete: del } }),
+      ),
     };
+    const media = makeMedia(null);
     const fetchSpy = jest
       .spyOn(global, 'fetch')
       .mockResolvedValue({ ok: true } as Response);
-    const svc = new UsersService(prisma as never, makeMedia(null) as never, makeConfig() as never);
+    const svc = new UsersService(prisma as never, media as never, makeConfig() as never);
 
     await svc.deleteMe(caller);
 
-    expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: 'u-1' } });
+    expect(del).toHaveBeenCalledWith({ where: { id: 'u-1' } });
+    expect(media.deleteForOwner).toHaveBeenCalledWith(
+      expect.anything(),
+      MediaOwnerType.USER,
+      'u-1',
+    );
     expect(fetchSpy).toHaveBeenCalledWith(
       'https://ref.supabase.co/auth/v1/admin/users/sub-1',
       expect.objectContaining({ method: 'DELETE' }),
