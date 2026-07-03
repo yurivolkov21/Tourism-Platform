@@ -7,6 +7,7 @@ import {
   ImageIcon,
   Inbox,
   LayoutDashboard,
+  MailWarning,
   MapPin,
   MessageSquareQuote,
   Receipt,
@@ -49,6 +50,7 @@ const NAV: NavSection[] = [
       { title: 'Bookings', href: '/bookings', icon: Receipt },
       { title: 'Enquiries', href: '/enquiries', icon: Inbox },
       { title: 'Users', href: '/users', icon: UsersRound },
+      { title: 'Email queue', href: '/outbox', icon: MailWarning },
     ],
   },
 ];
