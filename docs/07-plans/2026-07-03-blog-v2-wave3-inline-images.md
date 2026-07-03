@@ -719,5 +719,9 @@ git commit -m "feat(admin): insert body images from the post editor + write/prev
 
 ## STATUS
 
-- [ ] Slice 1 (Tasks 1-5): BE — pending (migration gate: user go/no-go)
-- [ ] Slice 2 (Tasks 6-8): admin editor UI — pending
+- [x] Slice 1 (Tasks 1-5): BE — **DONE**, merged `96e9ff1` (2026-07-03). Migration
+  `20260703144308_add_media_role_body` APPLIED to live Supabase (user GO, before merge).
+  api 309 tests. ecc APPROVE-WITH-NOTES (LOW fast-follow: `registerAsset`
+  findFirst-then-create benign dup race — unique index/upsert later).
+- [ ] Slice 2 (Tasks 6-8): admin editor UI — **pending, NEXT ACTION** (branch
+  `feat/blog-v2-body-images-ui`)

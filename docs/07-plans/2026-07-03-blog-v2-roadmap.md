@@ -112,26 +112,23 @@ Comments (moderation cost > value for an agency blog) · auto related-tours matc
 1. **Waves 1 + 2 = DONE and on `main`** (merged `2f2193e`, `b263e32` + docs commits).
    Wave-1 migration `20260703120425_add_post_tags_and_post_tours` IS applied to the live
    Supabase DB. Test baselines: api **309** · admin **139** · web **155**.
-2. **Wave 3 Slice 1 (BE) = CODE COMPLETE, NOT MERGED** — branch
-   **`feat/blog-v2-body-images`** (pushed to origin, 4 commits ending `306d296`).
-   Gate green, all task reviews approved, `ecc:code-reviewer` APPROVE-WITH-NOTES
-   (LOW fast-follow: `registerAsset` findFirst-then-create benign duplicate race — add a
-   unique index or upsert later).
-3. **⛔ NEXT ACTION — the pending gate:** user go/no-go for migration
-   `20260703144308_add_media_role_body` (`ALTER TYPE "MediaRole" ADD VALUE 'body';`).
-   On GO: `cd apps/api && pnpm exec prisma migrate deploy`, THEN merge the branch to main
-   (order is load-bearing — the merged code writes `body` at request time; Render deploys
-   main automatically).
-4. **Wave 3 Slice 2 (admin editor UI) = NOT STARTED** — Tasks 6-8 of
+2. **Wave 3 Slice 1 (BE) = DONE and on `main`** — merged `96e9ff1` (2026-07-03); the branch
+   is deleted local + remote. Migration `20260703144308_add_media_role_body` **IS applied**
+   to the live Supabase DB (user GO, applied BEFORE the merge). Gate green, all task
+   reviews approved, `ecc:code-reviewer` APPROVE-WITH-NOTES (LOW fast-follow:
+   `registerAsset` findFirst-then-create benign duplicate race — add a unique index or
+   upsert later).
+3. **⛔ NEXT ACTION: Wave 3 Slice 2 (admin editor UI) = NOT STARTED** — Tasks 6-8 of
    `docs/07-plans/2026-07-03-blog-v2-wave3-inline-images.md` (insertSnippet TDD → insert-
    image button + controlled textarea + Write|Preview toggle + `/media` role facet `body`
    → gate/merge/docs). Branch name: `feat/blog-v2-body-images-ui`.
-5. **Waves 4 + 5 = NOT STARTED** — scoped in this file above; specs not yet written (each
+4. **Waves 4 + 5 = NOT STARTED** — scoped in this file above; specs not yet written (each
    wave gets spec → plan → SDD per the process header).
-6. **Process:** SDD with haiku transcription / sonnet reasoning + all reviewers;
+5. **Process:** SDD with haiku transcription / sonnet reasoning + all reviewers;
    `ecc:code-reviewer` only on BE slices; merges pre-authorized on green gates; migrations
    ALWAYS user-gated. Known SDD gotchas: haiku may reformat untouched lines (forbid it in
    every dispatch) and cannot type `\uXXXX` escapes (fix via scripted byte-replace).
-7. **Carried fast-follows** live in each wave plan's STATUS block (W1: tag-race 409
-   message + stale controller return types + prisma format; W2: none blocking; P6:
-   outline-anchor md-link mismatch + `stripMarkdownSyntax` DRY — folded into Wave 4).
+6. **Carried fast-follows** live in each wave plan's STATUS block (W1: tag-race 409
+   message + stale controller return types + prisma format; W2: none blocking; W3 slice 1:
+   registerAsset dup-race unique-index; P6: outline-anchor md-link mismatch +
+   `stripMarkdownSyntax` DRY — folded into Wave 4).
