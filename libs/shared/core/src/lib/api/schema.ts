@@ -961,6 +961,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/posts/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List tags in use by published posts */
+        get: operations["PostsController_tags"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/posts/{slug}": {
         parameters: {
             query?: never;
@@ -968,7 +985,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get one published post by slug */
+        /** Get one published post by slug (with related tours) */
         get: operations["PostsController_detail"];
         put?: never;
         post?: never;
@@ -990,6 +1007,23 @@ export interface paths {
         put?: never;
         /** Admin: create a post */
         post: operations["AdminPostsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/posts/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin: list all tags with post counts (form suggestions) */
+        get: operations["AdminPostsController_tags"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2831,6 +2865,18 @@ export interface components {
             dailyTrend: components["schemas"]["DailyTrendPointDto"][];
             pendingCounts: components["schemas"]["PendingCountsDto"];
         };
+        PostTagDto: {
+            /** @example ha-long */
+            slug: string;
+            /** @example Hạ Long */
+            name: string;
+        };
+        PublicPostAuthorDto: {
+            /** @example Ana Admin */
+            fullName: string | null;
+            /** @description Avatar delivery URL, when set. */
+            avatarUrl: string | null;
+        };
         PostDto: {
             /** Format: uuid */
             id: string;
@@ -2853,10 +2899,49 @@ export interface components {
             updatedAt: string;
             /** @description Attached media; the cover is role `hero`. */
             media: components["schemas"]["MediaItemDto"][];
+            /** @description Free-form topics (empty when untagged). */
+            tags: components["schemas"]["PostTagDto"][];
+            author: components["schemas"]["PublicPostAuthorDto"];
         };
         PaginatedPostsDto: {
             data: components["schemas"]["PostDto"][];
             meta: components["schemas"]["PageMetaDto"];
+        };
+        PostTagWithCountDto: {
+            /** @example ha-long */
+            slug: string;
+            /** @example Hạ Long */
+            name: string;
+            /** @example 4 */
+            count: number;
+        };
+        PostDetailDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example three-perfect-days-in-hoi-an */
+            slug: string;
+            /** @example Three perfect days in Hội An */
+            title: string;
+            excerpt: string | null;
+            /** @description Markdown body */
+            content: string;
+            /** @enum {string} */
+            status: "DRAFT" | "PUBLISHED";
+            /** Format: date-time */
+            publishedAt: string | null;
+            /** Format: uuid */
+            authorId: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** @description Attached media; the cover is role `hero`. */
+            media: components["schemas"]["MediaItemDto"][];
+            /** @description Free-form topics (empty when untagged). */
+            tags: components["schemas"]["PostTagDto"][];
+            author: components["schemas"]["PublicPostAuthorDto"];
+            /** @description Published related tours, pick order. */
+            relatedTours: components["schemas"]["TourSummaryDto"][];
         };
         PostAuthorDto: {
             /** @example Ana Admin */
@@ -2865,6 +2950,13 @@ export interface components {
             email: string;
             /** @description Avatar delivery URL, when set. */
             avatarUrl: string | null;
+        };
+        AdminRelatedTourDto: {
+            /** @example halong-heritage-cruise */
+            slug: string;
+            /** @example Hạ Long heritage cruise */
+            title: string;
+            isPublished: boolean;
         };
         AdminPostDetailDto: {
             /** Format: uuid */
@@ -2888,7 +2980,11 @@ export interface components {
             updatedAt: string;
             /** @description Attached media; the cover is role `hero`. */
             media: components["schemas"]["MediaItemDto"][];
+            /** @description Free-form topics (empty when untagged). */
+            tags: components["schemas"]["PostTagDto"][];
             author: components["schemas"]["PostAuthorDto"];
+            /** @description Admin-picked tours, pick order. */
+            relatedTours: components["schemas"]["AdminRelatedTourDto"][];
         };
         CreatePostDto: {
             /** @example Three perfect days in Hội An */
@@ -2909,6 +3005,21 @@ export interface components {
              * @enum {string}
              */
             status: "DRAFT" | "PUBLISHED";
+            /**
+             * @description Tag display names (upserted by slug); replace-all when provided.
+             * @example [
+             *       "Hạ Long",
+             *       "Cruises"
+             *     ]
+             */
+            tags?: string[];
+            /**
+             * @description Related tour slugs (max 3, order = array order); replace-all when provided.
+             * @example [
+             *       "halong-heritage-cruise"
+             *     ]
+             */
+            relatedTourSlugs?: string[];
         };
         UpdatePostDto: {
             /** @example Three perfect days in Hội An */
@@ -2929,6 +3040,21 @@ export interface components {
              * @enum {string}
              */
             status: "DRAFT" | "PUBLISHED";
+            /**
+             * @description Tag display names (upserted by slug); replace-all when provided.
+             * @example [
+             *       "Hạ Long",
+             *       "Cruises"
+             *     ]
+             */
+            tags?: string[];
+            /**
+             * @description Related tour slugs (max 3, order = array order); replace-all when provided.
+             * @example [
+             *       "halong-heritage-cruise"
+             *     ]
+             */
+            relatedTourSlugs?: string[];
         };
         AdminOutboxRowDto: {
             /** Format: uuid */
@@ -5453,6 +5579,7 @@ export interface operations {
                 status?: "DRAFT" | "PUBLISHED";
                 sortBy?: "publishedAt" | "createdAt" | "updatedAt" | "title";
                 sortOrder?: "asc" | "desc";
+                tag?: string;
             };
             header?: never;
             path?: never;
@@ -5466,6 +5593,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PaginatedPostsDto"];
+                };
+            };
+        };
+    };
+    PostsController_tags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostTagWithCountDto"][];
                 };
             };
         };
@@ -5486,7 +5632,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PostDto"];
+                    "application/json": components["schemas"]["PostDetailDto"];
                 };
             };
             /** @description Not found or not published */
@@ -5507,6 +5653,7 @@ export interface operations {
                 status?: "DRAFT" | "PUBLISHED";
                 sortBy?: "publishedAt" | "createdAt" | "updatedAt" | "title";
                 sortOrder?: "asc" | "desc";
+                tag?: string;
             };
             header?: never;
             path?: never;
@@ -5558,6 +5705,25 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    AdminPostsController_tags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostTagWithCountDto"][];
+                };
             };
         };
     };
