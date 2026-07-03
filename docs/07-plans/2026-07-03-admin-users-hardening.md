@@ -1,5 +1,18 @@
 # Admin Users module + hardening (completeness wave) — implementation plan
 
+**STATUS: COMPLETE (2026-07-03) — ADMIN DECLARED DONE.** Both slices executed via
+subagent-driven development and ff-merged to `main`: slice 1 `6d9374f` (Users module: syncAdmin
+env-OR-DB grant [+TOCTOU fix: DB-role path never writes role; delete-mid-race fails closed] ·
+AdminUsersService list/detail/changeRole/deleteUser with all guards · deleteMe avatar-leak fix ·
+controller/DTOs · FE list + detail + danger zone + `/users/me` + NavUser cleanup;
+`ecc:code-reviewer` APPROVE-WITH-NOTES) · slice 2 `3f6d589` (Outbox email-queue list+retry +
+`/outbox` page [+per-row retry Set fix] · dashboard DataTable de-fake (−218 lines of demo
+affordances) · TopTours currency + tablist keyboard nav; ecc APPROVE). Gate green per slice;
+**api 291, admin 134 tests**. **FOLLOW-UPS (non-blocking, from reviews):** last-admin demote
+read-then-write race (serializable tx/`FOR UPDATE` if the admin team ever grows) · retry
+check-then-update benign TOCTOU (`updateMany` conditional if it matters) · syncAdmin DB-path
+doubled findUnique reads · tab ids literal not useId (single-instance OK).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Users management (`/admin/users` list/detail/role/delete + DB-role-driven admin grant + `/users` FE) and admin hardening (Outbox email-queue visibility + retry · dashboard DataTable de-fake · TopTours currency + tablist a11y · NavUser stub cleanup) — per spec `docs/06-specs/2026-07-03-admin-users-hardening-design.md`. After this wave the admin is declared DONE.
@@ -27,10 +40,12 @@ Branch off `main`: `git checkout -b feat/admin-users`
 ### Task 1: `syncAdmin` — env OR DB-role grant (TDD, security-critical)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/auth/auth.service.ts:38-55` (`syncAdmin`)
 - Test: `apps/api/src/modules/auth/auth.service.spec.ts` (harness `make(adminEmails, {bySub, byEmail})` already exists at lines 21-52 — reuse it)
 
 **Interfaces:**
+
 - Produces: unchanged signature `syncAdmin(identity, body): Promise<User>`; new behavior — grants when email ∈ allowlist OR the mirrored row is `role=ADMIN`.
 
 - [ ] **Step 1: Write the failing tests.** Append to `auth.service.spec.ts` (the `make` helper seeds what `findUnique` returns per unique key; `Row` type is at line 15):
@@ -124,11 +139,13 @@ git commit -m "feat(api): syncAdmin grants env allowlist OR DB-promoted admins"
 ### Task 2: `AdminUsersService` — list + detail (TDD)
 
 **Files:**
+
 - Create: `apps/api/src/modules/users/admin-users.service.ts`
 - Create: `apps/api/src/modules/users/dto/list-admin-users-query.dto.ts`
 - Test: `apps/api/src/modules/users/admin-users.service.spec.ts` (new)
 
 **Interfaces:**
+
 - Consumes: global `PrismaService` · `ConfigService` (`supabase.adminEmails`) · `MediaService.attachToOwner` (avatar) — all injectable inside the existing `UsersModule`.
 - Produces (Tasks 3-4 rely on these exact names):
   - `export interface AdminUserListItem { id: string; email: string; fullName: string | null; phone: string | null; role: UserRole; createdAt: string; bookingsCount: number }`
@@ -523,11 +540,13 @@ git commit -m "feat(api): admin users list + detail (counts, avatar, isEnvAdmin/
 ### Task 3: role change + delete + `deleteMe` avatar-leak fix (TDD)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/users/admin-users.service.ts` (append mutations)
 - Modify: `apps/api/src/modules/users/users.service.ts:42-75` (`deleteMe` avatar cleanup + `deleteSupabaseUser` visibility)
 - Test: `apps/api/src/modules/users/admin-users.service.spec.ts` (append) · `apps/api/src/modules/users/users.service.spec.ts` (extend deleteMe test)
 
 **Interfaces:**
+
 - Produces: `changeRole(id: string, callerId: string, role: UserRole): Promise<AdminUserListItem>` · `deleteUser(id: string, callerId: string): Promise<{ id: string; email: string }>` · `UsersService.deleteSupabaseUser` becomes `public` (JSDoc notes it is shared with `AdminUsersService`).
 
 - [ ] **Step 1: Write the failing tests.** In `admin-users.service.spec.ts`: add `import { ConflictException } from '@nestjs/common';` to the existing import, add the `post` mock block + `makeUsers` helper + the 4th `users` param on `svcWith` (per the Task-2 spec listing — that listing is the FINAL shape), then append:
@@ -798,11 +817,13 @@ git commit -m "feat(api): admin user role change + delete with guards; fix delet
 ### Task 4: DTOs + `AdminUsersController` + module wiring
 
 **Files:**
+
 - Create: `apps/api/src/modules/users/dto/admin-user.dto.ts`
 - Create: `apps/api/src/modules/users/admin-users.controller.ts`
 - Modify: `apps/api/src/modules/users/users.module.ts` (register controller + service)
 
 **Interfaces:**
+
 - Consumes: `AdminUsersService` (Tasks 2-3) · `Roles`/`CurrentUser` decorators (mirror `admin-bookings.controller.ts`) · `PageMetaDto`.
 - Produces Swagger routes `GET /admin/users` · `GET /admin/users/me` (BEFORE `:id`) · `GET /admin/users/:id` · `PATCH /admin/users/:id/role` · `DELETE /admin/users/:id`; DTO names for the FE: `AdminUserListItemDto` · `PaginatedAdminUsersDto` · `AdminUserDetailDto` · `AdminUserCountsDto` · `ChangeUserRoleDto` · `DeletedUserDto`.
 
@@ -1040,9 +1061,11 @@ git commit -m "feat(api): admin users endpoints (list/me/detail/role/delete)"
 ### Task 6: FE lib — users data/actions (TDD where pure)
 
 **Files:**
+
 - Create: `apps/admin/src/lib/users/data.ts` · `apps/admin/src/lib/users/actions.ts` · `apps/admin/src/lib/users/format.ts` + `format.spec.ts`
 
 **Interfaces:**
+
 - Consumes: regenerated `components['schemas']['AdminUserListItemDto' | 'AdminUserDetailDto' | 'PageMetaDto']` · `getApiClient`/`apiWrite` · `apiErrorMessage`.
 - Produces: `listUsers(params: { page?: number; pageSize?: number; role?: 'CUSTOMER' | 'ADMIN'; search?: string })` · `getUser(id: string)` · `getOwnUser()` (GET me) · `changeUserRole(id, role): Promise<{ok, error?}>` · `deleteUser(id): Promise<{ok, error?}>` · `roleActionDisabledReason(detail): string | null` (pure, TDD — returns the explanatory copy when `isSelf`/`isEnvAdmin` blocks the role control, else null).
 
@@ -1081,7 +1104,7 @@ export function roleActionDisabledReason(detail: {
 
 - [ ] **Step 2: `data.ts`** — typed fetchers mirroring `lib/bookings/data.ts` (list maps 1:1 envelope; single resources unwrap `.data` — copy the `getBooking`/`getDestination` unwrap pattern EXACTLY, per the admin-api-envelope rule): `listUsers` → `GET /api/v1/admin/users`; `getUser(id)` → `GET /api/v1/admin/users/{id}` (unwrap); `getOwnUser()` → `GET /api/v1/admin/users/me` (unwrap). Param types use the generated literal unions (Wave-7 lesson — no `as` casts).
 
-- [ ] **Step 3: `actions.ts`** (`'use server'`): `changeUserRole(id, role)` via `apiWrite('PATCH', \`/api/v1/admin/users/${encodeURIComponent(id)}/role\`, { role })`; `deleteUser(id)` via typed `api.DELETE('/api/v1/admin/users/{id}', …)`; both return `{ ok, error? }` with `apiErrorMessage`, `revalidatePath('/users')`. Add the new 409 codes to `FRIENDLY_BY_CODE` in `apps/admin/src/lib/api/error.ts`: `ROLE_SELF_CHANGE`, `ROLE_ENV_ADMIN`, `ROLE_LAST_ADMIN`, `USER_SELF_DELETE`, `USER_IS_ADMIN`, `USER_HAS_POSTS`, `ACCOUNT_HAS_BOOKINGS` (reuse the API's message tone; check which codes already exist — `ACCOUNT_HAS_BOOKINGS` may).
+- [ ] **Step 3: `actions.ts`** (`'use server'`): `changeUserRole(id, role)` via `apiWrite('PATCH', \`/api/v1/admin/users/${encodeURIComponent(id)}/role\`, { role })`;`deleteUser(id)` via typed `api.DELETE('/api/v1/admin/users/{id}', …)`; both return`{ ok, error? }` with `apiErrorMessage`,`revalidatePath('/users')`. Add the new 409 codes to`FRIENDLY_BY_CODE` in `apps/admin/src/lib/api/error.ts`:`ROLE_SELF_CHANGE`,`ROLE_ENV_ADMIN`,`ROLE_LAST_ADMIN`,`USER_SELF_DELETE`,`USER_IS_ADMIN`,`USER_HAS_POSTS`,`ACCOUNT_HAS_BOOKINGS` (reuse the API's message tone; check which codes already exist — `ACCOUNT_HAS_BOOKINGS` may).
 
 - [ ] **Step 4: Verify + commit.** `pnpm nx test @tourism/admin` (131 + 3 = 134) · `pnpm nx build @tourism/admin` green.
 
@@ -1093,10 +1116,12 @@ git commit -m "feat(admin): users lib — fetchers, role/delete actions, friendl
 ### Task 7: users list page (10th TanStack table)
 
 **Files:**
+
 - Create: `apps/admin/src/app/(admin)/users/page.tsx` · `apps/admin/src/components/users/users-table.tsx`
 - Modify: `apps/admin/src/components/shell/app-shell.tsx` (Operations group += `{ title: 'Users', href: '/users', icon: <pick a lucide icon used nowhere else in NAV, e.g. UsersRound> }`)
 
 **Interfaces:**
+
 - Consumes: `listUsers` (Task 6) · the server-driven list pattern of `apps/admin/src/app/(admin)/bookings/page.tsx` (URL params `?role=&q=&page=&pageSize=`, `AdminListHeader`, `ErrorAlert`, `Empty`, `ServerTablePagination`) · the TanStack shell pieces (`ColumnsMenu`, `AdminTableShell`) as used by `components/bookings/bookings-table.tsx`.
 
 - [ ] **Step 1: Page.** Mirror `bookings/page.tsx` structure exactly: parse `role` (narrow to `'CUSTOMER' | 'ADMIN'`), `q`, `page`, `pageSize`; fetch `listUsers`; header title "Users", description "Customer and admin accounts. Search by name or email; open one to see their footprint, change their role, or delete the account."; role tabs (All/Admins/Customers) as URL links (the `BookingsFilters` status-tab treatment — copy that component's pattern into `components/users/users-filters.tsx` if it is not generic); table + `ServerTablePagination`; `Empty` state.
@@ -1112,10 +1137,12 @@ git commit -m "feat(admin): users list — role tabs, search, tanstack table; si
 ### Task 8: user detail page + `/users/me` + NavUser cleanup
 
 **Files:**
+
 - Create: `apps/admin/src/app/(admin)/users/[id]/page.tsx` · `apps/admin/src/app/(admin)/users/me/page.tsx` · `apps/admin/src/components/users/user-detail.tsx` · `apps/admin/src/components/users/danger-zone.tsx`
 - Modify: `apps/admin/src/components/shell/nav-user.tsx:68-78`
 
 **Interfaces:**
+
 - Consumes: `getUser`/`getOwnUser` (unwrapped detail) · `changeUserRole`/`deleteUser` actions · `roleActionDisabledReason` · detail-page template (`bookings/[code]/page.tsx` layout: back link · header · cards grid) · `Avatar`/`Badge`/`Card`/`Select`/`AlertDialog`/`toast` from `@tourism/ui`.
 
 - [ ] **Step 1: Shared detail component** `user-detail.tsx` (server-renderable presentation + client danger zone as a child): header (Avatar w/ `avatarUrl` + fallback initials · name/email · Role badge · "Env admin" outline chip when `isEnvAdmin` · "You" chip when `isSelf`) · Profile card (`Fact` rows: Phone / Locale / Joined / Updated — copy the local `Fact` helper pattern from the bookings detail page) · Footprint card: 3 rows — Bookings (link `/bookings?userId=${id}` when >0) · Reviews (link `/reviews`) · Wishlist (plain count).
@@ -1150,11 +1177,13 @@ Branch off `main`: `git checkout -b feat/admin-hardening`
 ### Task 10: Outbox admin endpoints (TDD)
 
 **Files:**
+
 - Create: `apps/api/src/modules/jobs/admin-outbox.service.ts` · `apps/api/src/modules/jobs/admin-outbox.controller.ts` · `apps/api/src/modules/jobs/dto/admin-outbox.dto.ts`
 - Modify: `apps/api/src/modules/jobs/jobs.module.ts` (+controller/provider)
 - Test: `apps/api/src/modules/jobs/admin-outbox.service.spec.ts` (new)
 
 **Interfaces:**
+
 - Produces: `GET /admin/outbox?page&pageSize&status?` (newest first; `payload` NEVER selected/exposed) rows `{ id, type, status, attempts, lastError, createdAt, processedAt }` · `POST /admin/outbox/:id/retry` — FAILED only (else 409 `OUTBOX_NOT_FAILED`; 404 `OUTBOX_NOT_FOUND`): sets `status=PENDING` (attempts PRESERVED — the drain's `attempts >= 5 → FAILED` rule then grants exactly ONE more attempt per retry click), returns the updated row. Service names: `AdminOutboxService.list(query)` / `retry(id)`.
 
 - [ ] **Step 1: Failing tests.** `admin-outbox.service.spec.ts` — mirror the `AdminMediaService` spec harness style (makePrisma with `outbox: { findMany, count, findUnique, update }`); tests: (1) list maps rows (ISO dates, no payload key on items — assert `expect(res.items[0]).not.toHaveProperty('payload')`), `orderBy { createdAt: 'desc' }`, status filter AND-composed; (2) retry happy: FAILED row → `update({ where: { id }, data: { status: OutboxStatus.PENDING } })`, attempts untouched; (3) retry on a PENDING/SENT row → ConflictException; (4) retry unknown id → NotFoundException. Write the actual test code following the exact conventions of `apps/api/src/modules/media/admin-media.service.spec.ts` (same file layout: Mocks interface, makePrisma, svcWith).
@@ -1287,10 +1316,12 @@ git commit -m "feat(api): admin outbox — email queue list + retry-failed"
 - Controller first runs the regen routine (`chore(core): regen API types (admin outbox)`).
 
 **Files:**
+
 - Create: `apps/admin/src/lib/outbox/data.ts` · `apps/admin/src/lib/outbox/actions.ts` · `apps/admin/src/app/(admin)/outbox/page.tsx` · `apps/admin/src/components/outbox/outbox-view.tsx`
 - Modify: `apps/admin/src/components/shell/app-shell.tsx` (Operations += `{ title: 'Email queue', href: '/outbox', icon: MailWarning }` or a fitting lucide icon)
 
 **Interfaces:**
+
 - Consumes: generated `AdminOutboxRowDto` · the Garbage-tab twin (`components/media/garbage-view.tsx` — copy its table/count/empty/Spinner-button layout) · `ServerTablePagination` · status-tab URL pattern.
 - Produces: `/outbox` — status tabs All/Pending/Sent/Failed (`?status=`) · compact table (Type · Status badge [FAILED destructive · PENDING outline · SENT muted] · Attempts · Last error truncate · Queued · Processed) · per-FAILED-row **Retry** button → `retryOutbox(id)` server action (`apiWrite('POST', …/retry)`) → toast "Queued for the next send pass." + refresh · empty state "No emails in the queue.". Server-driven pagination.
 - Verify build/tests; commit `feat(admin): email queue page — outbox visibility + retry`.
@@ -1298,9 +1329,11 @@ git commit -m "feat(api): admin outbox — email queue list + retry-failed"
 ### Task 12: dashboard DataTable de-fake
 
 **Files:**
+
 - Modify: `apps/admin/src/components/dashboard/data-table.tsx`
 
 **Interfaces:**
+
 - Consumes: audit findings — drag-reorder (DndContext/DragHandle ~L89-103, L292), inline-edit cells (~L163-202 `editCell`), row checkboxes + "N selected" footer (~L136-149, L326-328), row-detail Drawer (~L365-404). Booking rows carry a `code` (verify the row type in the file).
 
 - [ ] **Step 1:** Strip the fake affordances: remove the `DndContext`/`SortableContext`/`DragHandle` wrapper + the drag column · replace editable Tour/Amount cells with plain text renders · remove the checkbox column, selection state and the "N of M selected" footer line · remove the Drawer and its trigger — the row's code cell becomes a `<Link href={/bookings/${code}}>` (mono, hover underline, matching the bookings-table code cell). Remove now-unused imports (`@dnd-kit/*`, Drawer parts, Checkbox, Input where only edit cells used it). KEEP: status tabs + counts, ColumnsMenu, pagination, column defs otherwise.
@@ -1310,6 +1343,7 @@ git commit -m "feat(api): admin outbox — email queue list + retry-failed"
 ### Task 13: TopTours currency + tablist keyboard nav
 
 **Files:**
+
 - Modify: `apps/admin/src/components/dashboard/top-tours-card.tsx` (+ its parent that owns `stats` — pass `currency`)
 
 - [ ] **Step 1:** Currency: give `TopToursCard` a `currency: string` prop, pass `stats.overview.currency` from the dashboard page/section that renders it (find the call site; SectionCards already consumes `overview.currency` — same source), replace the hardcoded `'USD'` at ~L88 with the prop.
