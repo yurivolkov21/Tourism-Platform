@@ -96,6 +96,42 @@ Comments (moderation cost > value for an agency blog) · auto related-tours matc
   api 301 / admin 139 tests; fast-follows in the wave plan's STATUS)
 - [x] Wave 2 — reader funnel + taxonomy UX — **DONE 2026-07-03** (merged `b263e32`; web 155
   tests; final review 1 must-fix applied pre-merge; notes in the wave plan's STATUS)
-- [ ] Wave 3 — admin inline images
+- [ ] Wave 3 — admin inline images — **IN PROGRESS, see RESUME STATE below**
 - [ ] Wave 4 — reader polish + P6 fast-follows
 - [ ] Wave 5 — newsletter + RSS
+
+## RESUME STATE (written 2026-07-03 — authoritative handoff, survives machine loss)
+
+> If local Claude memory / `.superpowers/` scratch is gone (new machine, factory reset),
+> THIS section + git log + the wave plans' STATUS blocks are the full picture. Local env
+> files are NOT in git — restore per `docs/05-runbooks/env-and-secrets.md` before running
+> anything.
+
+**Where things stand:**
+
+1. **Waves 1 + 2 = DONE and on `main`** (merged `2f2193e`, `b263e32` + docs commits).
+   Wave-1 migration `20260703120425_add_post_tags_and_post_tours` IS applied to the live
+   Supabase DB. Test baselines: api **309** · admin **139** · web **155**.
+2. **Wave 3 Slice 1 (BE) = CODE COMPLETE, NOT MERGED** — branch
+   **`feat/blog-v2-body-images`** (pushed to origin, 4 commits ending `306d296`).
+   Gate green, all task reviews approved, `ecc:code-reviewer` APPROVE-WITH-NOTES
+   (LOW fast-follow: `registerAsset` findFirst-then-create benign duplicate race — add a
+   unique index or upsert later).
+3. **⛔ NEXT ACTION — the pending gate:** user go/no-go for migration
+   `20260703144308_add_media_role_body` (`ALTER TYPE "MediaRole" ADD VALUE 'body';`).
+   On GO: `cd apps/api && pnpm exec prisma migrate deploy`, THEN merge the branch to main
+   (order is load-bearing — the merged code writes `body` at request time; Render deploys
+   main automatically).
+4. **Wave 3 Slice 2 (admin editor UI) = NOT STARTED** — Tasks 6-8 of
+   `docs/07-plans/2026-07-03-blog-v2-wave3-inline-images.md` (insertSnippet TDD → insert-
+   image button + controlled textarea + Write|Preview toggle + `/media` role facet `body`
+   → gate/merge/docs). Branch name: `feat/blog-v2-body-images-ui`.
+5. **Waves 4 + 5 = NOT STARTED** — scoped in this file above; specs not yet written (each
+   wave gets spec → plan → SDD per the process header).
+6. **Process:** SDD with haiku transcription / sonnet reasoning + all reviewers;
+   `ecc:code-reviewer` only on BE slices; merges pre-authorized on green gates; migrations
+   ALWAYS user-gated. Known SDD gotchas: haiku may reformat untouched lines (forbid it in
+   every dispatch) and cannot type `\uXXXX` escapes (fix via scripted byte-replace).
+7. **Carried fast-follows** live in each wave plan's STATUS block (W1: tag-race 409
+   message + stale controller return types + prisma format; W2: none blocking; P6:
+   outline-anchor md-link mismatch + `stripMarkdownSyntax` DRY — folded into Wave 4).
