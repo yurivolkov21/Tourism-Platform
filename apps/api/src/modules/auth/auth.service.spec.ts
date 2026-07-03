@@ -96,10 +96,11 @@ describe('AuthService', () => {
     expect(arg.data.email).toBe('customer@tourism.test');
   });
 
-  it('syncAdmin rejects a non-allowlisted email (no DB write)', async () => {
-    const { svc, findUnique, create, update } = make(['admin@x.com']);
+  it('syncAdmin rejects a non-allowlisted email with no matching DB-admin row (no DB write)', async () => {
+    // Not on the env allowlist and no mirrored row (bySub/byEmail both null) → falls through the
+    // DB-role check (which reads, but never writes) and still 403s.
+    const { svc, create, update } = make(['admin@x.com']);
     await expect(svc.syncAdmin(identity('nope@x.com'), {})).rejects.toThrow(ForbiddenException);
-    expect(findUnique).not.toHaveBeenCalled();
     expect(create).not.toHaveBeenCalled();
     expect(update).not.toHaveBeenCalled();
   });
@@ -119,5 +120,39 @@ describe('AuthService', () => {
     const arg = update.mock.calls[0][0];
     expect(arg.data.supabaseId).toBe('new-sub');
     expect(arg.data.role).toBe(UserRole.ADMIN);
+  });
+
+  it('syncAdmin grants a DB-promoted admin whose email is NOT on the env allowlist', async () => {
+    const { svc, update } = make([], {
+      bySub: { id: 'u9', role: UserRole.ADMIN, supabaseId: 'sub-1', email: 'dbadmin@x.com' },
+    });
+    const user = await svc.syncAdmin(identity('dbadmin@x.com'), {});
+    expect(update).toHaveBeenCalled();
+    expect(user.role).toBe(UserRole.ADMIN);
+  });
+
+  it('syncAdmin grants via the email-relink row when no supabaseId row exists', async () => {
+    const { svc } = make([], {
+      byEmail: { id: 'u10', role: UserRole.ADMIN, supabaseId: 'old-sub', email: 'dbadmin@x.com' },
+    });
+    await expect(svc.syncAdmin(identity('dbadmin@x.com'), {})).resolves.toMatchObject({
+      role: UserRole.ADMIN,
+    });
+  });
+
+  it('syncAdmin still 403s a plain customer (row exists, role CUSTOMER)', async () => {
+    const { svc } = make([], {
+      bySub: { id: 'u11', role: UserRole.CUSTOMER, supabaseId: 'sub-1', email: 'c@x.com' },
+    });
+    await expect(svc.syncAdmin(identity('c@x.com'), {})).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+  });
+
+  it('syncAdmin 403s an unknown user not on the allowlist', async () => {
+    const { svc } = make([]);
+    await expect(svc.syncAdmin(identity('nobody@x.com'), {})).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
   });
 });

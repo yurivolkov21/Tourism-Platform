@@ -36,16 +36,30 @@ export class AuthService {
   }
 
   /**
-   * Upserts the JWT-bearing user as ADMIN — gated by the `ADMIN_EMAILS`
-   * allowlist. Not on the list → `ForbiddenException('NOT_ADMIN')` (we do NOT
-   * silently fall back to CUSTOMER). On the list → forces `role = ADMIN`.
+   * Upserts the JWT-bearing user as ADMIN. Two grant paths:
+   * (1) BOOTSTRAP — email on the `ADMIN_EMAILS` env allowlist (always wins,
+   *     survives any DB state);
+   * (2) DB ROLE — the MIRRORED user row is already `role=ADMIN` (promoted via
+   *     the admin Users module). Never derived from client input.
+   * Neither → `ForbiddenException('NOT_ADMIN')` (no silent CUSTOMER fallback).
    */
   async syncAdmin(
     identity: SupabaseAuthIdentity,
     body: SyncUserDto,
   ): Promise<User> {
     const allowlist = this.config.get<string[]>('supabase.adminEmails') ?? [];
-    if (!allowlist.includes(identity.email.toLowerCase())) {
+    if (allowlist.includes(identity.email.toLowerCase())) {
+      return this.upsert(identity, body, UserRole.ADMIN);
+    }
+
+    // Same two-unique-key resolution the upsert itself uses (pooler-safe parallel reads).
+    const emailLower = identity.email.toLowerCase();
+    const [bySub, byEmail] = await Promise.all([
+      this.prisma.user.findUnique({ where: { supabaseId: identity.sub } }),
+      this.prisma.user.findUnique({ where: { email: emailLower } }),
+    ]);
+    const existing = bySub ?? byEmail;
+    if (existing?.role !== UserRole.ADMIN) {
       throw new ForbiddenException({
         code: 'NOT_ADMIN',
         message: 'This email is not on the admin allowlist',
