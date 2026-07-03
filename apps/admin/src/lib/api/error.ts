@@ -56,6 +56,14 @@ const FRIENDLY_BY_CODE: Record<string, string> = {
     'You can’t set total seats below the number already booked. Increase the total, or cancel some bookings first.',
   REVIEW_NOT_CURATED:
     'Only curated testimonials can be deleted. To hide a verified traveller review, unapprove it instead.',
+  ROLE_SELF_CHANGE: 'You cannot change your own role.',
+  ROLE_ENV_ADMIN:
+    'This admin is on the ADMIN_EMAILS bootstrap list — edit the env to change it.',
+  ROLE_LAST_ADMIN: 'Cannot demote the last remaining admin.',
+  USER_SELF_DELETE: 'You cannot delete your own account from the admin console.',
+  USER_IS_ADMIN: 'Demote this admin to customer before deleting the account.',
+  USER_HAS_POSTS: 'This user authored blog posts — reassign or delete those posts first.',
+  ACCOUNT_HAS_BOOKINGS: 'This account has bookings on record and cannot be deleted.',
 };
 
 /**
