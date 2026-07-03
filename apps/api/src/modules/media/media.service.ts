@@ -179,4 +179,42 @@ export class MediaService {
     const [withMedia] = await this.attachToOwners(ownerType, [owner]);
     return withMedia;
   }
+
+  /**
+   * Registers ONE already-uploaded image for an owner (no replace-all — the body-image
+   * insert path). Idempotent: an existing owner+publicId row just returns its URL.
+   */
+  async registerAsset(
+    ownerType: MediaOwnerType,
+    ownerId: string,
+    role: MediaRole,
+    input: { publicId: string; width?: number; height?: number; format?: string },
+  ): Promise<{ url: string }> {
+    const existing = await this.prisma.mediaAsset.findFirst({
+      where: { ownerType, ownerId, publicId: input.publicId },
+      select: { id: true },
+    });
+    if (!existing) {
+      await this.prisma.mediaAsset.create({
+        data: {
+          publicId: input.publicId,
+          type: MediaType.IMAGE,
+          ownerType,
+          ownerId,
+          role,
+          format: input.format ?? null,
+          width: input.width ?? null,
+          height: input.height ?? null,
+          sortOrder: 0,
+        },
+      });
+    }
+    const cloudName = this.config.getOrThrow<string>('cloudinary.cloudName');
+    return {
+      url: buildCloudinaryUrl(cloudName, {
+        type: MediaType.IMAGE,
+        publicId: input.publicId,
+      }).url,
+    };
+  }
 }

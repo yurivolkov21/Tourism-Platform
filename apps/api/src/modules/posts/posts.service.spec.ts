@@ -303,6 +303,29 @@ describe('PostsService', () => {
     expect(media.deleteForOwner).toHaveBeenCalledWith(expect.anything(), MediaOwnerType.POST, 'p1');
     expect(del).toHaveBeenCalledWith({ where: { slug: 'x' } });
   });
+
+  it('addBodyImage resolves the slug and registers a body asset', async () => {
+    const findUnique = jest.fn().mockResolvedValue({ id: 'p1' });
+    const registerAsset = jest.fn().mockResolvedValue({ url: 'https://cdn/x.jpg' });
+    const svc = makeSvc(makePrisma({ findUnique }), makeMedia({ registerAsset }), makeTours());
+
+    await expect(svc.addBodyImage('p', { publicId: 'pid' })).resolves.toEqual({
+      url: 'https://cdn/x.jpg',
+    });
+    expect(registerAsset).toHaveBeenCalledWith(
+      MediaOwnerType.POST,
+      'p1',
+      MediaRole.body,
+      { publicId: 'pid' },
+    );
+  });
+
+  it('addBodyImage 404s an unknown slug', async () => {
+    const svc = makeSvc(makePrisma({ findUnique: jest.fn().mockResolvedValue(null) }), makeMedia(), makeTours());
+    await expect(svc.addBodyImage('ghost', { publicId: 'x' })).rejects.toMatchObject({
+      response: { code: 'POST_NOT_FOUND' },
+    });
+  });
 });
 
 describe('tags + related tours (writes)', () => {

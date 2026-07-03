@@ -170,4 +170,51 @@ describe('MediaService', () => {
       { publicId: 'clip-poster', resourceType: 'image' },
     ]);
   });
+
+  it('registerAsset creates a body row and returns its delivery url', async () => {
+    const findFirst = jest.fn().mockResolvedValue(null);
+    const create = jest.fn().mockResolvedValue({});
+    const svc = makeService({ mediaAsset: { findFirst, create } });
+
+    const res = await svc.registerAsset(MediaOwnerType.POST, 'p1', MediaRole.body, {
+      publicId: 'tourism/posts/body/1717000000000-boat',
+    });
+
+    expect(findFirst).toHaveBeenCalledWith({
+      where: {
+        ownerType: MediaOwnerType.POST,
+        ownerId: 'p1',
+        publicId: 'tourism/posts/body/1717000000000-boat',
+      },
+      select: { id: true },
+    });
+    expect(create).toHaveBeenCalledWith({
+      data: {
+        publicId: 'tourism/posts/body/1717000000000-boat',
+        type: MediaType.IMAGE,
+        ownerType: MediaOwnerType.POST,
+        ownerId: 'p1',
+        role: MediaRole.body,
+        format: null,
+        width: null,
+        height: null,
+        sortOrder: 0,
+      },
+    });
+    expect(res.url).toContain('/image/upload/');
+    expect(res.url).toContain('tourism/posts/body/1717000000000-boat');
+  });
+
+  it('registerAsset is idempotent: an existing owner+publicId row short-circuits', async () => {
+    const findFirst = jest.fn().mockResolvedValue({ id: 'existing-row' });
+    const create = jest.fn();
+    const svc = makeService({ mediaAsset: { findFirst, create } });
+
+    const res = await svc.registerAsset(MediaOwnerType.POST, 'p1', MediaRole.body, {
+      publicId: 'already-there',
+    });
+
+    expect(create).not.toHaveBeenCalled();
+    expect(res.url).toContain('already-there');
+  });
 });

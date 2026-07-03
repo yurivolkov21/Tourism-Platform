@@ -13,6 +13,7 @@ import { MediaInputDto, MediaItemDto } from '../media/dto/media.dto';
 import { ToursService, TourWithStats } from '../tours/tours.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { ListPostsQueryDto } from './dto/list-posts-query.dto';
+import { RegisterBodyImageDto } from './dto/register-body-image.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 
 /** `Post` + its attached media set (cover lives at role `hero`). */
@@ -273,6 +274,13 @@ export class PostsService {
     const withMedia = await this.media.attachToOwner(MediaOwnerType.POST, { id: post.id });
     this.logger.log(`Set ${media.length} media on post ${slug}`);
     return withMedia.media;
+  }
+
+  /** Registers an uploaded body image on the post (insert-image flow). 404 before write. */
+  async addBodyImage(slug: string, input: RegisterBodyImageDto): Promise<{ url: string }> {
+    const post = await this.prisma.post.findUnique({ where: { slug }, select: { id: true } });
+    if (!post) throw this.notFound(slug);
+    return this.media.registerAsset(MediaOwnerType.POST, post.id, MediaRole.body, input);
   }
 
   /** Hard delete (404 if missing). Media has no FK cascade — delete it in the same tx. */
