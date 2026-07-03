@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { MediaOwnerType, Post, PostStatus, PostTag, Prisma } from '@prisma/client';
+import { MediaOwnerType, MediaRole, Post, PostStatus, PostTag, Prisma } from '@prisma/client';
 import { slugify } from '../../common/slugify';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MediaService } from '../media/media.service';
@@ -266,7 +266,9 @@ export class PostsService {
     const post = await this.prisma.post.findUnique({ where: { slug }, select: { id: true } });
     if (!post) throw this.notFound(slug);
     await this.prisma.$transaction((tx) =>
-      this.media.syncAssets(tx, MediaOwnerType.POST, post.id, media),
+      this.media.syncAssets(tx, MediaOwnerType.POST, post.id, media, {
+        preserveRoles: [MediaRole.body],
+      }),
     );
     const withMedia = await this.media.attachToOwner(MediaOwnerType.POST, { id: post.id });
     this.logger.log(`Set ${media.length} media on post ${slug}`);

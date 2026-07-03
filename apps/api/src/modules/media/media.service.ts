@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MediaOwnerType, MediaType, Prisma } from '@prisma/client';
+import { MediaOwnerType, MediaRole, MediaType, Prisma } from '@prisma/client';
 import { buildCloudinaryUrl } from '../../lib/cloudinary-url';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MediaInputDto, MediaItemDto } from './dto/media.dto';
@@ -32,18 +32,29 @@ export class MediaService {
    * existing rows are deleted and recreated, so dropping an item from the payload
    * removes it from the DB. Runs on the supplied `tx` so it commits/rolls back
    * with the owner mutation.
+   *
+   * `opts.preserveRoles` carves those roles out of both the existing-read and the
+   * delete, so e.g. a cover replace-all doesn't touch body-role rows managed by a
+   * separate flow (blog inline images).
    */
   async syncAssets(
     tx: Prisma.TransactionClient,
     ownerType: MediaOwnerType,
     ownerId: string,
     assets: MediaInputDto[],
+    opts?: { preserveRoles?: MediaRole[] },
   ): Promise<void> {
+    const where: Prisma.MediaAssetWhereInput = {
+      ownerType,
+      ownerId,
+      ...(opts?.preserveRoles?.length ? { role: { notIn: opts.preserveRoles } } : {}),
+    };
+
     // Garbage-collect Cloudinary assets that are dropped and NOT recreated. Read
     // the current set first, then record any whose publicId isn't in the new
     // payload (a kept publicId is re-created, so it must not be destroyed).
     const existing = await tx.mediaAsset.findMany({
-      where: { ownerType, ownerId },
+      where,
       select: { publicId: true, posterId: true, type: true },
     });
     const keptIds = new Set(assets.map((a) => a.publicId));
@@ -52,7 +63,7 @@ export class MediaService {
       existing.filter((e) => !keptIds.has(e.publicId)),
     );
 
-    await tx.mediaAsset.deleteMany({ where: { ownerType, ownerId } });
+    await tx.mediaAsset.deleteMany({ where });
     if (assets.length === 0) return;
 
     await tx.mediaAsset.createMany({

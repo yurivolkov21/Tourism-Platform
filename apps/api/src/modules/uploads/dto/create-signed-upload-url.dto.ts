@@ -18,6 +18,7 @@ export enum UploadPurpose {
   DESTINATION_VIDEO = 'DESTINATION_VIDEO',
   USER_AVATAR = 'USER_AVATAR',
   POST_COVER = 'POST_COVER',
+  POST_BODY = 'POST_BODY',
 }
 
 /**

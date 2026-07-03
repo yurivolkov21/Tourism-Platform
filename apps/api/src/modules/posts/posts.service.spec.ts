@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
-import { Prisma, PostStatus, MediaOwnerType } from '@prisma/client';
+import { Prisma, PostStatus, MediaOwnerType, MediaRole } from '@prisma/client';
 import type { PrismaService } from '../../prisma/prisma.service';
 import type { MediaService } from '../media/media.service';
 import type { ToursService } from '../tours/tours.service';
@@ -265,8 +265,25 @@ describe('PostsService', () => {
 
     const res = await svc.setMedia('x', []);
 
-    expect(media.syncAssets).toHaveBeenCalledWith(expect.anything(), MediaOwnerType.POST, 'p1', []);
+    expect(media.syncAssets).toHaveBeenCalledWith(
+      expect.anything(),
+      MediaOwnerType.POST,
+      'p1',
+      [],
+      { preserveRoles: [MediaRole.body] },
+    );
     expect(res).toEqual([]);
+  });
+
+  it('setMedia preserves body-role assets through the replace-all', async () => {
+    const findUnique = jest.fn().mockResolvedValue({ id: 'p1' });
+    const syncAssets = jest.fn().mockResolvedValue(undefined);
+    const media = makeMedia({ syncAssets });
+    const svc = makeSvc(makePrisma({ findUnique }), media, makeTours());
+
+    await svc.setMedia('p', []);
+
+    expect(syncAssets.mock.calls[0][4]).toEqual({ preserveRoles: [MediaRole.body] });
   });
 
   it('setMedia throws 404 when the post is missing', async () => {
