@@ -1,33 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  Columns3,
-  GripVertical,
-} from 'lucide-react';
-import {
-  DndContext,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import {
-  SortableContext,
-  arrayMove,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import Link from 'next/link';
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Columns3 } from 'lucide-react';
 import {
   flexRender,
   getCoreRowModel,
@@ -36,26 +11,16 @@ import {
   useReactTable,
   type ColumnDef,
   type ColumnFiltersState,
-  type Row,
   type VisibilityState,
 } from '@tanstack/react-table';
 
 import {
   Badge,
   Button,
-  Checkbox,
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -83,95 +48,23 @@ const STATUS_VARIANT: Record<BookingRowStatus, 'default' | 'outline' | 'secondar
 };
 const STATUSES: BookingRowStatus[] = ['PAID', 'PENDING', 'CANCELLED', 'REFUNDED'];
 
-const EDIT_INPUT_CLASS =
-  'h-8 w-full border-transparent bg-transparent shadow-none hover:border-input focus-visible:border-input';
-
-/** Drag handle — uses the row's sortable listeners (view-only reorder, not persisted). */
-function DragHandle({ id }: { id: string }) {
-  const { attributes, listeners } = useSortable({ id });
-  return (
-    <button
-      type="button"
-      {...attributes}
-      {...listeners}
-      className="text-muted-foreground hover:text-foreground flex size-7 cursor-grab items-center justify-center rounded-md active:cursor-grabbing"
-      aria-label="Drag to reorder"
-    >
-      <GripVertical className="size-4" />
-    </button>
-  );
-}
-
-function DraggableRow({ row }: { row: Row<AdminBookingRow> }) {
-  const { transform, transition, setNodeRef, isDragging } = useSortable({ id: row.original.code });
-  return (
-    <TableRow
-      ref={setNodeRef}
-      data-state={row.getIsSelected() ? 'selected' : undefined}
-      data-dragging={isDragging || undefined}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
-      className="data-dragging:bg-muted/60 relative"
-    >
-      {row.getVisibleCells().map((cell) => (
-        <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-      ))}
-    </TableRow>
-  );
-}
-
 export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
-  // Local copy so drag-reorder + inline edits are reflected in the view (view-only; not persisted).
-  const [data, setData] = useState<AdminBookingRow[]>(rows);
-  const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [statusTab, setStatusTab] = useState<'all' | BookingRowStatus>('all');
-  const [detail, setDetail] = useState<AdminBookingRow | null>(null);
 
-  const columns = useMemo<ColumnDef<AdminBookingRow>[]>(() => {
-    const editCell = (code: string, key: 'tourTitle' | 'totalAmount', value: string) =>
-      setData((prev) => prev.map((r) => (r.code === code ? { ...r, [key]: value } : r)));
-    return [
-      { id: 'drag', header: () => null, cell: ({ row }) => <DragHandle id={row.original.code} />, enableHiding: false },
-      {
-        id: 'select',
-        header: ({ table }) => (
-          <Checkbox
-            checked={table.getIsAllPageRowsSelected()}
-            onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-            aria-label="Select all"
-          />
-        ),
-        cell: ({ row }) => (
-          <Checkbox checked={row.getIsSelected()} onCheckedChange={(v) => row.toggleSelected(!!v)} aria-label="Select row" />
-        ),
-        enableHiding: false,
-      },
+  const columns = useMemo<ColumnDef<AdminBookingRow>[]>(
+    () => [
       {
         accessorKey: 'code',
         header: 'Code',
         cell: ({ row }) => (
-          <button
-            type="button"
-            onClick={() => setDetail(row.original)}
-            className="cursor-pointer font-medium hover:underline"
-          >
+          <Link href={`/bookings/${row.original.code}`} className="hover:text-primary font-medium hover:underline">
             {row.original.code}
-          </button>
+          </Link>
         ),
       },
-      {
-        accessorKey: 'tourTitle',
-        header: 'Tour',
-        cell: ({ row }) => (
-          <Input
-            value={row.original.tourTitle}
-            onChange={(e) => editCell(row.original.code, 'tourTitle', e.target.value)}
-            className={EDIT_INPUT_CLASS}
-            aria-label="Tour"
-          />
-        ),
-      },
+      { accessorKey: 'tourTitle', header: 'Tour' },
       {
         accessorKey: 'status',
         header: 'Status',
@@ -190,31 +83,23 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
       {
         accessorKey: 'totalAmount',
         header: 'Amount',
-        cell: ({ row }) => (
-          <Input
-            value={row.original.totalAmount}
-            onChange={(e) => editCell(row.original.code, 'totalAmount', e.target.value)}
-            className={`${EDIT_INPUT_CLASS} tabular-nums`}
-            aria-label="Amount"
-            inputMode="decimal"
-          />
-        ),
+        cell: ({ row }) => <span className="tabular-nums">{row.original.totalAmount}</span>,
       },
       {
         accessorKey: 'createdAt',
         header: 'Created',
         cell: ({ row }) => <span className="text-muted-foreground">{formatDay(row.original.createdAt)}</span>,
       },
-    ];
-  }, []);
+    ],
+    [],
+  );
 
   const table = useReactTable({
-    data,
+    data: rows,
     columns,
     getRowId: (row) => row.code,
-    state: { rowSelection, columnVisibility, columnFilters },
+    state: { columnVisibility, columnFilters },
     initialState: { pagination: { pageSize: 10 } },
-    onRowSelectionChange: setRowSelection,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -222,19 +107,8 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor), useSensor(KeyboardSensor));
-  const onDragEnd = (e: DragEndEvent) => {
-    const { active, over } = e;
-    if (!over || active.id === over.id) return;
-    setData((prev) => {
-      const from = prev.findIndex((r) => r.code === active.id);
-      const to = prev.findIndex((r) => r.code === over.id);
-      return from < 0 || to < 0 ? prev : arrayMove(prev, from, to);
-    });
-  };
-
   const counts = STATUSES.reduce(
-    (acc, s) => ({ ...acc, [s]: data.filter((r) => r.status === s).length }),
+    (acc, s) => ({ ...acc, [s]: rows.filter((r) => r.status === s).length }),
     {} as Record<BookingRowStatus, number>,
   );
   const onTab = (value: string) => {
@@ -243,10 +117,7 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
     table.getColumn('status')?.setFilterValue(v === 'all' ? undefined : v);
   };
 
-  const selectedCount = table.getFilteredSelectedRowModel().rows.length;
-  const totalFiltered = table.getFilteredRowModel().rows.length;
   const pageRows = table.getRowModel().rows;
-  const pageIds = pageRows.map((r) => r.original.code);
 
   return (
     <div className="flex flex-col gap-4">
@@ -255,7 +126,7 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
         <Tabs value={statusTab} onValueChange={onTab}>
           <TabsList>
             <TabsTrigger value="all">
-              All <Badge variant="secondary" className="ml-1.5">{data.length}</Badge>
+              All <Badge variant="secondary" className="ml-1.5">{rows.length}</Badge>
             </TabsTrigger>
             {STATUSES.map((s) => (
               <TabsTrigger key={s} value={s} className="capitalize">
@@ -287,45 +158,42 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
         </DropdownMenu>
       </div>
 
-      {/* Table (drag-reorderable rows) */}
+      {/* Table */}
       <div className="overflow-hidden rounded-lg border">
-        <DndContext sensors={sensors} collisionDetection={closestCenter} modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
-          <Table>
-            <TableHeader className="bg-muted/50">
-              {table.getHeaderGroups().map((hg) => (
-                <TableRow key={hg.id}>
-                  {hg.headers.map((h) => (
-                    <TableHead key={h.id}>
-                      {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
-                    </TableHead>
+        <Table>
+          <TableHeader className="bg-muted/50">
+            {table.getHeaderGroups().map((hg) => (
+              <TableRow key={hg.id}>
+                {hg.headers.map((h) => (
+                  <TableHead key={h.id}>
+                    {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {pageRows.length ? (
+              pageRows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}
                 </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {pageRows.length ? (
-                <SortableContext items={pageIds} strategy={verticalListSortingStrategy}>
-                  {pageRows.map((row) => (
-                    <DraggableRow key={row.id} row={row} />
-                  ))}
-                </SortableContext>
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="text-muted-foreground h-24 text-center">
-                    No bookings yet.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </DndContext>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="text-muted-foreground h-24 text-center">
+                  No bookings yet.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       {/* Pagination footer */}
-      <div className="flex flex-col gap-3 px-1 sm:flex-row sm:items-center sm:justify-between">
-        <span className="text-muted-foreground text-sm">
-          {selectedCount} of {totalFiltered} row(s) selected.
-        </span>
+      <div className="flex flex-col gap-3 px-1 sm:flex-row sm:items-center sm:justify-end">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Rows per page</span>
@@ -361,47 +229,6 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
           </div>
         </div>
       </div>
-
-      {/* Row-detail drawer (read-only summary) */}
-      <Drawer
-        direction="right"
-        open={detail !== null}
-        onOpenChange={(open) => {
-          if (!open) setDetail(null);
-        }}
-      >
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>{detail?.code}</DrawerTitle>
-            <DrawerDescription>{detail?.tourTitle}</DrawerDescription>
-          </DrawerHeader>
-          {detail ? (
-            <dl className="grid grid-cols-3 gap-x-4 gap-y-3 px-4 text-sm">
-              <dt className="text-muted-foreground">Status</dt>
-              <dd className="col-span-2">
-                <Badge variant={STATUS_VARIANT[detail.status]} className="capitalize">
-                  {detail.status.toLowerCase()}
-                </Badge>
-              </dd>
-              <dt className="text-muted-foreground">Customer</dt>
-              <dd className="col-span-2">{detail.contactName || '—'}</dd>
-              <dt className="text-muted-foreground">Travellers</dt>
-              <dd className="col-span-2 tabular-nums">{detail.travellers}</dd>
-              <dt className="text-muted-foreground">Amount</dt>
-              <dd className="col-span-2 tabular-nums">{detail.totalAmount} {detail.currency}</dd>
-              <dt className="text-muted-foreground">Created</dt>
-              <dd className="col-span-2">{formatDay(detail.createdAt)}</dd>
-            </dl>
-          ) : null}
-          <DrawerFooter>
-            <DrawerClose asChild>
-              <Button variant="outline" className="cursor-pointer">
-                Close
-              </Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
     </div>
   );
 }
