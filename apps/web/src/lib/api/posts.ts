@@ -11,7 +11,8 @@ import {
 import { getApiClient } from './client';
 
 type PaginatedPostsDto = components['schemas']['PaginatedPostsDto'];
-type PostDto = components['schemas']['PostDto'];
+type PostDetailDto = components['schemas']['PostDetailDto'];
+type PostTagWithCountDto = components['schemas']['PostTagWithCountDto'];
 type PageMetaDto = components['schemas']['PageMetaDto'];
 
 export interface PostsPage {
@@ -25,11 +26,18 @@ export interface PostsPage {
  * callers pick their own degradation (home falls back to fixtures; `/blog` shows a notice).
  */
 export async function fetchPosts(
-  opts: { page?: number; pageSize?: number } = {},
+  opts: { page?: number; pageSize?: number; tag?: string; search?: string } = {},
 ): Promise<PostsPage> {
   const api = getApiClient();
   const { data, error } = await api.GET('/api/v1/posts', {
-    params: { query: { page: opts.page ?? 1, pageSize: opts.pageSize ?? 12 } },
+    params: {
+      query: {
+        page: opts.page ?? 1,
+        pageSize: opts.pageSize ?? 12,
+        ...(opts.tag ? { tag: opts.tag } : {}),
+        ...(opts.search ? { search: opts.search } : {}),
+      },
+    },
   });
   const body = data as unknown as PaginatedPostsDto | undefined;
   if (error || !body) throw new Error('Failed to load posts');
@@ -52,7 +60,16 @@ export const fetchPost = cache(async (slug: string): Promise<PostDetailVM | null
   const { data, error } = await api.GET('/api/v1/posts/{slug}', {
     params: { path: { slug } },
   });
-  const dto = (data as unknown as { data?: PostDto } | undefined)?.data;
+  const dto = (data as unknown as { data?: PostDetailDto } | undefined)?.data;
   if (error || !dto) return null;
   return toPostDetail(dto);
 });
+
+/** Public tags in use (bare-array endpoint → enveloped at runtime). [] on error. */
+export async function fetchPostTags(): Promise<PostTagWithCountDto[]> {
+  const api = getApiClient();
+  const { data, error } = await api.GET('/api/v1/posts/tags');
+  const list = (data as unknown as { data?: PostTagWithCountDto[] } | undefined)?.data;
+  if (error || !list) return [];
+  return list;
+}

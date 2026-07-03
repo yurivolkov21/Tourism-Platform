@@ -1,6 +1,20 @@
 import type { components } from '@tourism/core';
 
+import type { TourCardData } from '../../components/tours/tour-card';
+import { toTourCard } from '../api/tours';
+
 type PostDto = components['schemas']['PostDto'];
+type PostDetailDto = components['schemas']['PostDetailDto'];
+
+export interface PostTagVM {
+  slug: string;
+  name: string;
+}
+
+export interface PostAuthorVM {
+  fullName: string | null;
+  avatarUrl: string | null;
+}
 
 /** Card/list projection of a post (no body). */
 export interface PostSummaryVM {
@@ -12,11 +26,17 @@ export interface PostSummaryVM {
   publishedAt: string | null;
   /** Hero-role cover url, else the first attachment, else null (covers are optional). */
   coverUrl: string | null;
+  /** Topic chips (empty when untagged / older API). */
+  tags: PostTagVM[];
+  /** Public author (name + avatar only); nulls fall back to the brand byline. */
+  author: PostAuthorVM;
 }
 
 /** Full article projection (summary + markdown body). */
 export interface PostDetailVM extends PostSummaryVM {
   content: string;
+  /** Admin-picked tours as card view-models (published only, pick order). */
+  relatedTours: TourCardData[];
 }
 
 const EXCERPT_MAX = 160;
@@ -48,9 +68,18 @@ export function toPostSummary(dto: PostDto): PostSummaryVM {
     excerpt: dto.excerpt?.trim() || fallbackExcerpt(dto.content),
     publishedAt: dto.publishedAt,
     coverUrl: pickCoverUrl(dto),
+    tags: (dto.tags ?? []).map((t) => ({ slug: t.slug, name: t.name })),
+    author: {
+      fullName: dto.author?.fullName ?? null,
+      avatarUrl: dto.author?.avatarUrl ?? null,
+    },
   };
 }
 
-export function toPostDetail(dto: PostDto): PostDetailVM {
-  return { ...toPostSummary(dto), content: dto.content };
+export function toPostDetail(dto: PostDetailDto): PostDetailVM {
+  return {
+    ...toPostSummary(dto),
+    content: dto.content,
+    relatedTours: (dto.relatedTours ?? []).map(toTourCard),
+  };
 }

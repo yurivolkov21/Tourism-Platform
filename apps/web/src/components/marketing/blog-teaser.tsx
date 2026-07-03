@@ -20,6 +20,8 @@ const fixturePosts: PostSummaryVM[] = [
       'When the north is misty and the south is golden — how to time your trip for the weather you want.',
     publishedAt: '2026-05-18',
     coverUrl: cover('photo-1555921015-5532091f6026'),
+    tags: [],
+    author: { fullName: null, avatarUrl: null },
   },
   {
     slug: 'two-unhurried-days-in-hoi-an',
@@ -27,6 +29,8 @@ const fixturePosts: PostSummaryVM[] = [
     excerpt: 'Lanterns, tailors, and riverside mornings — a slow itinerary for the old town.',
     publishedAt: '2026-04-30',
     coverUrl: cover('photo-1583417319070-4a69db38a482'),
+    tags: [],
+    author: { fullName: null, avatarUrl: null },
   },
   {
     slug: 'morning-at-the-mekong-floating-markets',
@@ -34,6 +38,8 @@ const fixturePosts: PostSummaryVM[] = [
     excerpt: 'Dawn on the delta: what to expect, what to eat, and how to find the quieter channels.',
     publishedAt: '2026-04-12',
     coverUrl: cover('photo-1528181304800-259b08848526'),
+    tags: [],
+    author: { fullName: null, avatarUrl: null },
   },
 ];
 
