@@ -1467,5 +1467,23 @@ git checkout main && git pull && git merge --no-ff feat/web-blog-index && git pu
 
 ## STATUS
 
-- [ ] Slice 1 (Tasks 1-6): foundation + `/blog/[slug]` — pending
-- [ ] Slice 2 (Tasks 7-9): `/blog` index + wiring — pending
+- [x] Slice 1 (Tasks 1-6): foundation + `/blog/[slug]` — **DONE**, merged `2631471` (2026-07-03).
+  All task reviews approved; build prerendered 7 real articles from the live API.
+- [x] Slice 2 (Tasks 7-9): `/blog` index + wiring — **DONE**, merged `295ecfa` (2026-07-03).
+  Final whole-feature review: Ready to merge, 0 Critical/Important.
+
+**P6 COMPLETE.** Web suite 148 tests (129 pre-existing + 10 derive + 9 post-vm).
+
+### Fast-follows (accepted non-blocking, from reviews)
+
+1. **Outline-slug mismatch on markdown-in-headings** — `extractOutline` slugifies RAW heading
+   markdown while the rendered heading id comes from flattened text; a heading containing a
+   markdown link/inline code produces a dead outline anchor (silent). Plain-text headings —
+   all current content — are unaffected. Fix: strip markdown from heading text in
+   `extractOutline` (reuse the `readingStats` stripping) before `slugifyHeading`.
+2. **DRY: markdown-stripping regex duplicated** in `lib/blog/derive.ts` (`readingStats`) and
+   `lib/blog/post-vm.ts` (`fallbackExcerpt`) — extract a shared `stripMarkdownSyntax` in
+   `derive.ts` when next touching either.
+3. `/blog` renders dynamically per request (reads `?page=`) — accepted by design (spec);
+   revisit only if the sleepy Render API makes the page feel slow (route-segment
+   `/blog/page/[n]` would restore full static).
