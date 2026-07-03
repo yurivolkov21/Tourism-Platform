@@ -50,6 +50,18 @@ export function PostCard({ post, featured = false }: { post: PostSummaryVM; feat
         )}
       </div>
       <div className={cn('flex flex-1 flex-col gap-2 p-5 lg:p-6', featured && 'lg:flex-none')}>
+        {post.tags.length > 0 ? (
+          <span className="flex flex-wrap gap-1">
+            {post.tags.slice(0, 2).map((t) => (
+              <span
+                key={t.slug}
+                className="border-border/60 text-muted-foreground rounded-full border px-2 py-0.5 text-[11px] font-medium"
+              >
+                {t.name}
+              </span>
+            ))}
+          </span>
+        ) : null}
         {post.publishedAt ? (
           <span className="text-muted-foreground inline-flex items-center gap-1.5 text-xs">
             <CalendarDaysIcon className="size-3.5" />
