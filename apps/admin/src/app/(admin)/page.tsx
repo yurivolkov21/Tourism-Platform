@@ -29,6 +29,7 @@ export default async function DashboardPage() {
               byRevenue={stats.topToursByRevenue}
               byRating={stats.topToursByRating}
               byWishlist={stats.topToursByWishlist}
+              currency={stats.overview.currency}
             />
             {stats.pendingCounts ? <NeedsAttention counts={stats.pendingCounts} /> : null}
           </div>
