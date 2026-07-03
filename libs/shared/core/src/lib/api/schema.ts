@@ -132,6 +132,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin: list users (paginated, filter by role, search name/email) */
+        get: operations["AdminUsersController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin: the caller's own user detail */
+        get: operations["AdminUsersController_me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin: one user with footprint counts + action flags */
+        get: operations["AdminUsersController_detail"];
+        put?: never;
+        post?: never;
+        /** Admin: delete a customer account (bookings/posts-free only) */
+        delete: operations["AdminUsersController_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Admin: change a user's role (guards: self / env-admin / last admin) */
+        patch: operations["AdminUsersController_changeRole"];
+        trace?: never;
+    };
     "/api/v1/admin/uploads/signed-url": {
         parameters: {
             query?: never;
@@ -1101,6 +1170,81 @@ export interface components {
             /** @example 512 */
             height?: number;
         };
+        AdminUserListItemDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example jane@example.com */
+            email: string;
+            /** @example Jane Doe */
+            fullName: string | null;
+            /** @example +84901234567 */
+            phone: string | null;
+            /** @enum {string} */
+            role: "CUSTOMER" | "ADMIN";
+            /** Format: date-time */
+            createdAt: string;
+            /** @example 3 */
+            bookingsCount: number;
+        };
+        PageMetaDto: {
+            /** @example 1 */
+            page: number;
+            /** @example 20 */
+            pageSize: number;
+            /** @example 42 */
+            total: number;
+            /** @example 3 */
+            totalPages: number;
+        };
+        PaginatedAdminUsersDto: {
+            data: components["schemas"]["AdminUserListItemDto"][];
+            meta: components["schemas"]["PageMetaDto"];
+        };
+        AdminUserCountsDto: {
+            /** @example 4 */
+            bookings: number;
+            /** @example 2 */
+            reviews: number;
+            /** @example 5 */
+            wishlist: number;
+        };
+        AdminUserDetailDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example jane@example.com */
+            email: string;
+            /** @example Jane Doe */
+            fullName: string | null;
+            /** @example +84901234567 */
+            phone: string | null;
+            /** @enum {string} */
+            role: "CUSTOMER" | "ADMIN";
+            /** Format: date-time */
+            createdAt: string;
+            /** @example 3 */
+            bookingsCount: number;
+            /** @example en */
+            locale: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: uri */
+            avatarUrl: string | null;
+            counts: components["schemas"]["AdminUserCountsDto"];
+            /** @description Email is on the ADMIN_EMAILS bootstrap allowlist — demote is blocked in the UI. */
+            isEnvAdmin: boolean;
+            /** @description Target is the caller — self-directed actions are blocked. */
+            isSelf: boolean;
+        };
+        ChangeUserRoleDto: {
+            /** @enum {string} */
+            role: "CUSTOMER" | "ADMIN";
+        };
+        DeletedUserDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example jane@example.com */
+            email: string;
+        };
         CreateSignedUploadUrlDto: {
             /**
              * @description Upload classification — determines the storage folder.
@@ -1163,16 +1307,6 @@ export interface components {
              * @example 4
              */
             toursCount: number;
-        };
-        PageMetaDto: {
-            /** @example 1 */
-            page: number;
-            /** @example 20 */
-            pageSize: number;
-            /** @example 42 */
-            total: number;
-            /** @example 3 */
-            totalPages: number;
         };
         PaginatedDestinationsDto: {
             data: components["schemas"]["DestinationDto"][];
@@ -3125,6 +3259,186 @@ export interface operations {
             };
             /** @description Missing/invalid JWT or not synced */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminUsersController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                role?: "CUSTOMER" | "ADMIN";
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAdminUsersDto"];
+                };
+            };
+            /** @description Not an ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminUsersController_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserDetailDto"];
+                };
+            };
+            /** @description Not an ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminUsersController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserDetailDto"];
+                };
+            };
+            /** @description Not an ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description User not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminUsersController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeletedUserDto"];
+                };
+            };
+            /** @description Not an ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description User not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Self, admin target, has bookings, or authored posts */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminUsersController_changeRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeUserRoleDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserListItemDto"];
+                };
+            };
+            /** @description Not an ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description User not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Self-change, env-admin demote, or last-admin demote */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
