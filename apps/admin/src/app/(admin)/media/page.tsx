@@ -3,8 +3,9 @@ import Link from 'next/link';
 import { AdminListHeader } from '../../../components/crud/list-header';
 import { ErrorAlert } from '../../../components/crud/error-alert';
 import { MediaLibraryView } from '../../../components/media/media-library-view';
+import { GarbageView } from '../../../components/media/garbage-view';
 import { apiErrorMessage } from '../../../lib/api/error';
-import { listMedia, type MediaList } from '../../../lib/media-library/data';
+import { listMedia, listGarbage, type MediaList, type GarbageList } from '../../../lib/media-library/data';
 import { parsePageSize } from '../../../lib/pagination';
 import { cn } from '@tourism/ui';
 
@@ -44,6 +45,7 @@ export default async function MediaPage({ searchParams }: MediaPageProps) {
   const search = sp.q?.trim() ?? '';
 
   let result: MediaList | undefined;
+  let garbage: GarbageList | undefined;
   let error: string | null = null;
   if (tab === 'library') {
     try {
@@ -55,6 +57,12 @@ export default async function MediaPage({ searchParams }: MediaPageProps) {
         type,
         search: search || undefined,
       });
+    } catch (e) {
+      error = apiErrorMessage(e);
+    }
+  } else if (tab === 'garbage') {
+    try {
+      garbage = await listGarbage({ page, pageSize });
     } catch (e) {
       error = apiErrorMessage(e);
     }
@@ -87,7 +95,7 @@ export default async function MediaPage({ searchParams }: MediaPageProps) {
         ))}
       </div>
 
-      {tab === 'library' && error ? (
+      {error ? (
         <ErrorAlert>
           Couldn&apos;t load media: {error}. Check that the API is running and your admin session is
           valid.
@@ -102,7 +110,7 @@ export default async function MediaPage({ searchParams }: MediaPageProps) {
           search={search}
         />
       ) : (
-        <div /> /* Garbage tab content lands in the next task. */
+        <GarbageView rows={garbage?.data ?? []} meta={garbage?.meta} />
       )}
     </div>
   );
