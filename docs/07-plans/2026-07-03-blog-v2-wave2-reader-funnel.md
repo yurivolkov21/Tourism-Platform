@@ -759,4 +759,14 @@ git checkout main && git pull && git merge --no-ff feat/blog-v2-reader-funnel -m
 
 ## STATUS
 
-- [ ] Tasks 1-6 (single slice, web-only) — pending
+- [x] Tasks 1-6 — **DONE**, merged `b263e32` (2026-07-03). Web 155 tests (+7). Final
+  whole-branch review: 1 must-fix applied before merge (`de918f9` — search box no longer
+  hides on a tag-less blog); all other checks clean.
+
+### Notes / fast-follows
+
+- Haiku collateral-reformat incident on messages.ts (quote style) caught in review and
+  restored (`5115f99`) — diff vs main verified purely additive.
+- Coverage note: `blogHref`/filter parsing on `/blog` have no dedicated unit tests
+  (accepted — small pure logic, covered by build + review).
+- Admin test task flaked once on the final gate (Nx flagged flaky; re-run green).
