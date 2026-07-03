@@ -93,37 +93,36 @@ export default async function BlogIndexPage({
             <p className="text-muted-foreground text-lg text-pretty">{t.subtitle}</p>
           </div>
 
-          {tagOptions.length > 0 || filtered ? (
-            <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              {tagOptions.length > 0 ? (
-                <div className="flex flex-wrap items-center gap-2" aria-label={t.topicsLabel}>
-                  <TagChip href={blogHref(undefined, q)} active={!tag}>
-                    {t.allTag}
+          {/* Search stays available even on a tag-less blog; only the chip row is conditional. */}
+          <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            {tagOptions.length > 0 ? (
+              <div className="flex flex-wrap items-center gap-2" aria-label={t.topicsLabel}>
+                <TagChip href={blogHref(undefined, q)} active={!tag}>
+                  {t.allTag}
+                </TagChip>
+                {tagOptions.map((tg) => (
+                  <TagChip key={tg.slug} href={blogHref(tg.slug, q)} active={tag === tg.slug}>
+                    {tg.name}
                   </TagChip>
-                  {tagOptions.map((tg) => (
-                    <TagChip key={tg.slug} href={blogHref(tg.slug, q)} active={tag === tg.slug}>
-                      {tg.name}
-                    </TagChip>
-                  ))}
-                </div>
-              ) : (
-                <span />
-              )}
-              <form action="/blog" className="flex w-full items-center gap-2 lg:max-w-xs">
-                {tag ? <input type="hidden" name="tag" value={tag} /> : null}
-                <Input
-                  type="search"
-                  name="q"
-                  defaultValue={q}
-                  placeholder={t.searchPlaceholder}
-                  aria-label={t.searchLabel}
-                />
-                <Button type="submit" variant="outline" size="icon" aria-label={t.searchLabel}>
-                  <SearchIcon className="size-4" />
-                </Button>
-              </form>
-            </div>
-          ) : null}
+                ))}
+              </div>
+            ) : (
+              <span />
+            )}
+            <form action="/blog" className="flex w-full items-center gap-2 lg:max-w-xs">
+              {tag ? <input type="hidden" name="tag" value={tag} /> : null}
+              <Input
+                type="search"
+                name="q"
+                defaultValue={q}
+                placeholder={t.searchPlaceholder}
+                aria-label={t.searchLabel}
+              />
+              <Button type="submit" variant="outline" size="icon" aria-label={t.searchLabel}>
+                <SearchIcon className="size-4" />
+              </Button>
+            </form>
+          </div>
 
           <div className="mt-10 sm:mt-14">
             {failed ? (
