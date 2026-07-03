@@ -1,8 +1,12 @@
+import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { AlertCircleIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import { AlertCircleIcon, ChevronLeftIcon, ChevronRightIcon, SearchIcon } from 'lucide-react';
 
 import {
+  Button,
+  Input,
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -14,7 +18,7 @@ import { messages } from '@tourism/i18n';
 
 import { PostCard } from '../../components/blog/post-card';
 import { BreadcrumbJsonLd } from '../../components/seo/json-ld';
-import { fetchPosts, type PostsPage } from '../../lib/api/posts';
+import { fetchPosts, fetchPostTags } from '../../lib/api/posts';
 import { pageNumbers } from '../../lib/paginate';
 
 export const metadata: Metadata = {
@@ -31,34 +35,44 @@ function parsePage(raw?: string): number {
   return Number.isInteger(n) && n >= 1 ? n : 1;
 }
 
-function pageHref(page: number): string {
-  return page <= 1 ? '/blog' : `/blog?page=${page}`;
+/** `/blog` URL preserving the active tag + search (BE ANDs them) and an optional page. */
+function blogHref(tag?: string, q?: string, page?: number): string {
+  const params = new URLSearchParams();
+  if (tag) params.set('tag', tag);
+  if (q) params.set('q', q);
+  if (page && page > 1) params.set('page', String(page));
+  const qs = params.toString();
+  return qs ? `/blog?${qs}` : '/blog';
 }
 
 export default async function BlogIndexPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; tag?: string; q?: string }>;
 }) {
   const sp = await searchParams;
   const page = parsePage(sp.page);
+  // Clamp to the BE caps (tag slug 60, search 160) so a hand-mangled URL can't 400 the page.
+  const tag = sp.tag?.trim().slice(0, 60) || undefined;
+  const q = sp.q?.trim().slice(0, 160) || undefined;
+  const filtered = Boolean(tag || q);
   const t = messages.blog;
 
-  let result: PostsPage | null = null;
-  let failed = false;
-  try {
-    result = await fetchPosts({ page, pageSize: PAGE_SIZE });
-  } catch {
-    // Real reader page: NO fixture fallback — show an honest notice below instead.
-    failed = true;
-  }
+  const [tagOptions, listResult] = await Promise.all([
+    fetchPostTags().catch(() => []),
+    fetchPosts({ page, pageSize: PAGE_SIZE, tag, search: q })
+      .then((r) => ({ ok: true as const, r }))
+      .catch(() => ({ ok: false as const })),
+  ]);
+  const result = listResult.ok ? listResult.r : null;
+  const failed = !listResult.ok;
 
   // Past-the-end page (stale link) → clamp back to page 1.
-  if (result && page > 1 && result.posts.length === 0 && result.meta.total > 0) redirect('/blog');
+  if (result && page > 1 && result.posts.length === 0 && result.meta.total > 0) redirect(blogHref(tag, q));
 
   const posts = result?.posts ?? [];
   const meta = result?.meta;
-  const showHero = page === 1 && posts.length > 0;
+  const showHero = page === 1 && !filtered && posts.length > 0;
   const [lead, ...rest] = posts;
 
   return (
@@ -79,6 +93,38 @@ export default async function BlogIndexPage({
             <p className="text-muted-foreground text-lg text-pretty">{t.subtitle}</p>
           </div>
 
+          {tagOptions.length > 0 || filtered ? (
+            <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              {tagOptions.length > 0 ? (
+                <div className="flex flex-wrap items-center gap-2" aria-label={t.topicsLabel}>
+                  <TagChip href={blogHref(undefined, q)} active={!tag}>
+                    {t.allTag}
+                  </TagChip>
+                  {tagOptions.map((tg) => (
+                    <TagChip key={tg.slug} href={blogHref(tg.slug, q)} active={tag === tg.slug}>
+                      {tg.name}
+                    </TagChip>
+                  ))}
+                </div>
+              ) : (
+                <span />
+              )}
+              <form action="/blog" className="flex w-full items-center gap-2 lg:max-w-xs">
+                {tag ? <input type="hidden" name="tag" value={tag} /> : null}
+                <Input
+                  type="search"
+                  name="q"
+                  defaultValue={q}
+                  placeholder={t.searchPlaceholder}
+                  aria-label={t.searchLabel}
+                />
+                <Button type="submit" variant="outline" size="icon" aria-label={t.searchLabel}>
+                  <SearchIcon className="size-4" />
+                </Button>
+              </form>
+            </div>
+          ) : null}
+
           <div className="mt-10 sm:mt-14">
             {failed ? (
               <div className="border-border/60 bg-muted/40 text-muted-foreground flex items-start gap-3 rounded-xl border p-6 text-sm">
@@ -88,7 +134,17 @@ export default async function BlogIndexPage({
             ) : posts.length === 0 ? (
               <div className="border-border/60 bg-muted/40 rounded-xl border p-10 text-center">
                 <h2 className="font-heading text-xl font-semibold">{t.emptyTitle}</h2>
-                <p className="text-muted-foreground mt-2 text-pretty">{t.emptyBody}</p>
+                <p className="text-muted-foreground mt-2 text-pretty">
+                  {filtered ? t.emptyFilteredBody : t.emptyBody}
+                </p>
+                {filtered ? (
+                  <Link
+                    href="/blog"
+                    className="text-primary mt-4 inline-block text-sm font-medium hover:underline"
+                  >
+                    {t.clearFilters}
+                  </Link>
+                ) : null}
               </div>
             ) : (
               <>
@@ -107,7 +163,7 @@ export default async function BlogIndexPage({
                   )}
                 </div>
                 {meta && meta.totalPages > 1 ? (
-                  <BlogPagination page={meta.page} totalPages={meta.totalPages} />
+                  <BlogPagination page={meta.page} totalPages={meta.totalPages} tag={tag} q={q} />
                 ) : null}
               </>
             )}
@@ -118,8 +174,44 @@ export default async function BlogIndexPage({
   );
 }
 
+/** Filter chip link (matches the region-page chip look). */
+function TagChip({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active || undefined}
+      className={cn(
+        'rounded-full border px-4 py-1.5 text-sm font-medium transition-colors',
+        active
+          ? 'border-primary bg-primary text-primary-foreground'
+          : 'border-border bg-background text-muted-foreground hover:text-foreground hover:border-foreground/30',
+      )}
+    >
+      {children}
+    </Link>
+  );
+}
+
 /** URL-driven pagination — real `?page=` hrefs (server-rendered, crawlable), region-page look. */
-function BlogPagination({ page, totalPages }: { page: number; totalPages: number }) {
+function BlogPagination({
+  page,
+  totalPages,
+  tag,
+  q,
+}: {
+  page: number;
+  totalPages: number;
+  tag?: string;
+  q?: string;
+}) {
   const isFirst = page <= 1;
   const isLast = page >= totalPages;
   const disabled = 'pointer-events-none opacity-40';
@@ -128,7 +220,7 @@ function BlogPagination({ page, totalPages }: { page: number; totalPages: number
       <PaginationContent>
         <PaginationItem>
           <PaginationLink
-            href={pageHref(page - 1)}
+            href={blogHref(tag, q, page - 1)}
             aria-label="Go to previous page"
             aria-disabled={isFirst || undefined}
             tabIndex={isFirst ? -1 : undefined}
@@ -146,7 +238,7 @@ function BlogPagination({ page, totalPages }: { page: number; totalPages: number
             </PaginationItem>
           ) : (
             <PaginationItem key={p}>
-              <PaginationLink href={pageHref(p)} isActive={p === page} className="rounded-full">
+              <PaginationLink href={blogHref(tag, q, p)} isActive={p === page} className="rounded-full">
                 {p}
               </PaginationLink>
             </PaginationItem>
@@ -155,7 +247,7 @@ function BlogPagination({ page, totalPages }: { page: number; totalPages: number
 
         <PaginationItem>
           <PaginationLink
-            href={pageHref(page + 1)}
+            href={blogHref(tag, q, page + 1)}
             aria-label="Go to next page"
             aria-disabled={isLast || undefined}
             tabIndex={isLast ? -1 : undefined}
