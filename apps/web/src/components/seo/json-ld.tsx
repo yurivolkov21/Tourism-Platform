@@ -111,10 +111,12 @@ export type ArticleJsonLdProps = {
   image?: string;
   slug: string;
   datePublished?: string;
+  /** Real author name → Person; absent → Organization (brand) byline. */
+  authorName?: string;
 };
 
 /** Article schema for a journal post. Public posts carry no personal author → brand byline. */
-export function ArticleJsonLd({ title, description, image, slug, datePublished }: ArticleJsonLdProps) {
+export function ArticleJsonLd({ title, description, image, slug, datePublished, authorName }: ArticleJsonLdProps) {
   return (
     <JsonLd
       data={{
@@ -125,7 +127,9 @@ export function ArticleJsonLd({ title, description, image, slug, datePublished }
         ...(description ? { description } : {}),
         ...(image ? { image } : {}),
         ...(datePublished ? { datePublished } : {}),
-        author: { '@type': 'Organization', name: messages.brand.name, url: SITE_URL },
+        author: authorName
+          ? { '@type': 'Person', name: authorName }
+          : { '@type': 'Organization', name: messages.brand.name, url: SITE_URL },
         publisher: {
           '@type': 'Organization',
           name: messages.brand.name,
