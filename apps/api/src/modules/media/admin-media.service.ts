@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   MediaOwnerType,
@@ -8,8 +8,9 @@ import {
 } from '@prisma/client';
 import { buildCloudinaryUrl } from '../../lib/cloudinary-url';
 import { PrismaService } from '../../prisma/prisma.service';
-import { MaintenanceService } from '../jobs/maintenance.service';
+import { MaintenanceService, ReconcileResult } from '../jobs/maintenance.service';
 import { ListAdminMediaQueryDto } from './dto/list-admin-media-query.dto';
+import { ListMediaGarbageQueryDto } from './dto/list-media-garbage-query.dto';
 
 /** One library row — an owned asset with built URLs + its resolved owner. */
 export interface AdminMediaAsset {
@@ -36,6 +37,27 @@ export interface AdminMediaAsset {
 
 export interface PaginatedAdminMedia {
   items: AdminMediaAsset[];
+  meta: { page: number; pageSize: number; total: number; totalPages: number };
+}
+
+/** Result of {@link AdminMediaService.deleteAsset} — the detached asset's identity. */
+export interface DeletedMediaAsset {
+  id: string;
+  publicId: string;
+}
+
+/** One row of the deferred-destroy queue (`media_garbage`), as surfaced to the admin UI. */
+export interface MediaGarbageRow {
+  id: string;
+  publicId: string;
+  resourceType: string;
+  attempts: number;
+  lastError: string | null;
+  createdAt: string;
+}
+
+export interface PaginatedMediaGarbage {
+  items: MediaGarbageRow[];
   meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
 
@@ -224,5 +246,85 @@ export class AdminMediaService {
 
     await Promise.all(tasks);
     return map;
+  }
+
+  /**
+   * Detach ONE asset from its owner and queue its Cloudinary destruction —
+   * atomic batch transaction (array form; pooler-safe). Mirrors
+   * `MediaService.recordGarbage` semantics: the publicId with its resource
+   * type, plus a video's dedicated poster image. USER-owned assets (customer
+   * avatars) are not library content — 409.
+   */
+  async deleteAsset(id: string): Promise<DeletedMediaAsset> {
+    const asset = await this.prisma.mediaAsset.findUnique({ where: { id } });
+    if (!asset) {
+      throw new NotFoundException({
+        code: 'MEDIA_NOT_FOUND',
+        message: `Media asset "${id}" not found`,
+      });
+    }
+    if (asset.ownerType === MediaOwnerType.USER) {
+      throw new ConflictException({
+        code: 'MEDIA_USER_OWNED',
+        message:
+          'User avatars are managed from the user account and cannot be deleted from the media library',
+      });
+    }
+
+    const garbage: Array<{ publicId: string; resourceType: string }> = [
+      {
+        publicId: asset.publicId,
+        resourceType: asset.type === MediaType.VIDEO ? 'video' : 'image',
+      },
+    ];
+    if (asset.posterId) {
+      garbage.push({ publicId: asset.posterId, resourceType: 'image' });
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.mediaGarbage.createMany({ data: garbage, skipDuplicates: true }),
+      this.prisma.mediaAsset.delete({ where: { id } }),
+    ]);
+
+    return { id: asset.id, publicId: asset.publicId };
+  }
+
+  /** The deferred-destroy queue, oldest first (the cron's processing order). */
+  async listGarbage(
+    query: ListMediaGarbageQueryDto,
+  ): Promise<PaginatedMediaGarbage> {
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 20;
+
+    const [rows, total] = await Promise.all([
+      this.prisma.mediaGarbage.findMany({
+        orderBy: { createdAt: 'asc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      this.prisma.mediaGarbage.count(),
+    ]);
+
+    return {
+      items: rows.map((g) => ({
+        id: g.id,
+        publicId: g.publicId,
+        resourceType: g.resourceType,
+        attempts: g.attempts,
+        lastError: g.lastError,
+        createdAt: g.createdAt.toISOString(),
+      })),
+      meta: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / pageSize)),
+      },
+    };
+  }
+
+  /** Runs ONE reconcile batch immediately (same code path as the daily cron). */
+  runReconcile(): Promise<ReconcileResult> {
+    return this.maintenance.reconcileMedia();
   }
 }
