@@ -178,7 +178,8 @@ from the user post-wave).
 ## Risks
 
 - **Route order** on both controllers (`/posts/tags` vs `/posts/:slug`) — a swapped order
-  404s as a missing post named "tags"; covered by an e2e-ish controller test.
+  404s as a missing post named "tags"; controllers here are thin and untested by convention,
+  so this is guarded by declaration order + explicit review attention (the plan calls it out).
 - **Tag upsert race** (two admins create the same new tag): `slug @unique` + upsert makes it
   converge; P2002 on the rare race retries as connect. Single-admin reality makes this
   theoretical.
