@@ -38,9 +38,15 @@ export class AuthService {
   /**
    * Upserts the JWT-bearing user as ADMIN. Two grant paths:
    * (1) BOOTSTRAP — email on the `ADMIN_EMAILS` env allowlist (always wins,
-   *     survives any DB state);
+   *     survives any DB state) — forces `role = ADMIN` on write;
    * (2) DB ROLE — the MIRRORED user row is already `role=ADMIN` (promoted via
-   *     the admin Users module). Never derived from client input.
+   *     the admin Users module). Never derived from client input. This path
+   *     never WRITES role — it refreshes the profile only, so a concurrent
+   *     demotion cannot be raced back to ADMIN (the check-read passing and
+   *     then re-forcing `role: ADMIN` would silently undo a revocation that
+   *     committed in between; instead the row keeps whatever role it has at
+   *     write time, and a demoted user's later admin API calls 403 via
+   *     RolesGuard).
    * Neither → `ForbiddenException('NOT_ADMIN')` (no silent CUSTOMER fallback).
    */
   async syncAdmin(
@@ -65,7 +71,10 @@ export class AuthService {
         message: 'This email is not on the admin allowlist',
       });
     }
-    return this.upsert(identity, body, UserRole.ADMIN);
+    // CUSTOMER here means "refresh profile, never touch role" (see `updateRole` in upsert) —
+    // deliberate: the row is already ADMIN unless a concurrent demotion landed, and we must not
+    // write ADMIN back over that demotion.
+    return this.upsert(identity, body, UserRole.CUSTOMER);
   }
 
   /**

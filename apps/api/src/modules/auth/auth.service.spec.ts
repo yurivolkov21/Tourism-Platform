@@ -35,14 +35,16 @@ function make(
   const update = jest
     .fn()
     .mockImplementation(
-      ({ where, data }: { where: { id: string }; data: Record<string, unknown> }) =>
-        Promise.resolve({
-          id: where.id,
+      ({ where, data }: { where: { id: string }; data: Record<string, unknown> }) => {
+        // Like real Prisma, return the current row merged with the patch — fields NOT in `data`
+        // (e.g. `role` on a profile-only refresh) keep their stored value, not a mock default.
+        const base = [bySub, byEmail].find((row) => row?.id === where.id) ?? {
           role: UserRole.CUSTOMER,
           supabaseId: 'x',
           email: 'x',
-          ...data,
-        }),
+        };
+        return Promise.resolve({ ...base, id: where.id, ...data });
+      },
     );
   const prisma = { user: { findUnique, create, update } } as unknown as PrismaService;
   const config = {
@@ -129,6 +131,19 @@ describe('AuthService', () => {
     const user = await svc.syncAdmin(identity('dbadmin@x.com'), {});
     expect(update).toHaveBeenCalled();
     expect(user.role).toBe(UserRole.ADMIN);
+  });
+
+  it('syncAdmin DB-role path refreshes the profile WITHOUT writing role (revocation race)', async () => {
+    // TOCTOU guard: if an admin is demoted between the role check-read and the upsert-write, a
+    // forced `role: ADMIN` write would silently restore the revoked privilege. The DB-role path
+    // must therefore never write `role` — the row keeps whatever role it has at write time.
+    const { svc, update } = make([], {
+      bySub: { id: 'u12', role: UserRole.ADMIN, supabaseId: 'sub-1', email: 'dbadmin@x.com' },
+    });
+    await svc.syncAdmin(identity('dbadmin@x.com'), { fullName: 'DB Admin' });
+    const arg = update.mock.calls[0][0];
+    expect(arg.data.role).toBeUndefined(); // profile refreshed, role untouched
+    expect(arg.data.fullName).toBe('DB Admin');
   });
 
   it('syncAdmin grants via the email-relink row when no supabaseId row exists', async () => {
