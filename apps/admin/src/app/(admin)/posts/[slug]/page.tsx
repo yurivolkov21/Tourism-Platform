@@ -5,6 +5,7 @@ import { ArrowLeft, Pencil } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage, Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@tourism/ui';
 
+import { LinkedToursCard } from '../../../../components/crud/linked-tours-card';
 import { DestinationMediaView } from '../../../../components/destinations/destination-media-view';
 import { RowActions } from '../../../../components/crud/row-actions';
 import { PostContent } from '../../../../components/posts/post-content';
@@ -139,6 +140,20 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
               <dl className="space-y-3">
                 <Row label="Status" value={isPublished ? 'Published' : 'Draft'} />
                 <Row label="Slug" value={<code className="text-xs">{post.slug}</code>} />
+                {(post.tags ?? []).length > 0 ? (
+                  <Row
+                    label="Tags"
+                    value={
+                      <span className="flex flex-wrap justify-end gap-1">
+                        {(post.tags ?? []).map((t) => (
+                          <Badge key={t.slug} variant="outline" className="text-xs">
+                            {t.name}
+                          </Badge>
+                        ))}
+                      </span>
+                    }
+                  />
+                ) : null}
                 {stats.words > 0 ? (
                   <Row
                     label="Length"
@@ -182,6 +197,11 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
               </dl>
             </CardContent>
           </Card>
+          <LinkedToursCard
+            tours={post.relatedTours ?? []}
+            title="Related tours"
+            emptyText="No tours linked — pick up to 3 from Edit."
+          />
           {outline.length >= 2 ? (
             <Card>
               <CardHeader>
