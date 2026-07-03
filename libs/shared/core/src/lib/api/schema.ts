@@ -1066,6 +1066,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/posts/{slug}/body-images": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Admin: register an uploaded body image (markdown insert) */
+        post: operations["AdminPostsController_addBodyImage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/outbox": {
         parameters: {
             query?: never;
@@ -1318,7 +1335,7 @@ export interface components {
              * @description Upload classification — determines the storage folder.
              * @enum {string}
              */
-            purpose: "TOUR_HERO" | "TOUR_GALLERY" | "TOUR_VIDEO" | "DESTINATION_HERO" | "DESTINATION_GALLERY" | "DESTINATION_VIDEO" | "USER_AVATAR" | "POST_COVER";
+            purpose: "TOUR_HERO" | "TOUR_GALLERY" | "TOUR_VIDEO" | "DESTINATION_HERO" | "DESTINATION_GALLERY" | "DESTINATION_VIDEO" | "USER_AVATAR" | "POST_COVER" | "POST_BODY";
             /**
              * @description Original filename (single extension). The backend sanitizes + timestamps it.
              * @example hero-shot.jpg
@@ -1341,7 +1358,7 @@ export interface components {
              * @example gallery
              * @enum {string}
              */
-            role: "hero" | "gallery" | "avatar";
+            role: "hero" | "gallery" | "avatar" | "body";
             /**
              * Format: uri
              * @description Video poster URL.
@@ -1470,7 +1487,7 @@ export interface components {
              * @example gallery
              * @enum {string}
              */
-            role: "hero" | "gallery" | "avatar";
+            role: "hero" | "gallery" | "avatar" | "body";
             /** @example jpg */
             format?: string;
             /** @example 1920 */
@@ -3056,6 +3073,20 @@ export interface components {
              */
             relatedTourSlugs?: string[];
         };
+        RegisterBodyImageDto: {
+            /** @example tourism/posts/body/1717000000000-boat */
+            publicId: string;
+            /** @example 1600 */
+            width?: number;
+            /** @example 900 */
+            height?: number;
+            /** @example jpg */
+            format?: string;
+        };
+        BodyImageUrlDto: {
+            /** Format: uri */
+            url: string;
+        };
         AdminOutboxRowDto: {
             /** Format: uuid */
             id: string;
@@ -3090,7 +3121,7 @@ export interface components {
             /** @enum {string} */
             type: "IMAGE" | "VIDEO";
             /** @enum {string} */
-            role: "hero" | "gallery" | "avatar";
+            role: "hero" | "gallery" | "avatar" | "body";
             /** @example jpg */
             format: string | null;
             /** @example 1920 */
@@ -5856,6 +5887,38 @@ export interface operations {
             };
         };
     };
+    AdminPostsController_addBodyImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterBodyImageDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BodyImageUrlDto"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     AdminOutboxController_list: {
         parameters: {
             query?: {
@@ -5934,7 +5997,7 @@ export interface operations {
                 page?: number;
                 pageSize?: number;
                 ownerType?: "TOUR" | "DESTINATION" | "USER" | "POST";
-                role?: "hero" | "gallery" | "avatar";
+                role?: "hero" | "gallery" | "avatar" | "body";
                 type?: "IMAGE" | "VIDEO";
                 search?: string;
             };
