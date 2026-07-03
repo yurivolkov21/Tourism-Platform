@@ -6,11 +6,14 @@ import { ArrowLeftIcon, ArrowRightIcon, CalendarDaysIcon, ClockIcon } from 'luci
 
 import { messages } from '@tourism/i18n';
 
+import { TourCard } from '../../../components/tours/tour-card';
+import { EnquiryCta } from '../../../components/marketing/enquiry-cta';
 import { PostCard } from '../../../components/blog/post-card';
 import { PostContent } from '../../../components/blog/post-content';
 import { ArticleJsonLd, BreadcrumbJsonLd } from '../../../components/seo/json-ld';
 import { fetchPost, fetchPosts, fetchPostSlugs } from '../../../lib/api/posts';
 import { extractOutline, readingStats } from '../../../lib/blog/derive';
+import { pickMorePosts } from '../../../lib/blog/pick-more-posts';
 
 // ISR: render articles statically; revalidate so the free API tier isn't hit per request.
 export const revalidate = 300;
@@ -52,10 +55,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const t = messages.blog;
   const outline = extractOutline(post.content);
   const { minutes } = readingStats(post.content);
-  // 3 newest OTHER posts (fetch 4 → drop self if present). Degrades to none on API error.
-  const more = await fetchPosts({ pageSize: 4 })
-    .then((page) => page.posts.filter((p) => p.slug !== slug).slice(0, 3))
-    .catch(() => []);
+  // Same-topic posts first (primary tag), recency top-up; both error-tolerant.
+  const [taggedPage, recentPage] = await Promise.all([
+    post.tags.length > 0
+      ? fetchPosts({ tag: post.tags[0].slug, pageSize: 4 }).catch(() => null)
+      : Promise.resolve(null),
+    fetchPosts({ pageSize: 6 }).catch(() => null),
+  ]);
+  const more = pickMorePosts(taggedPage?.posts ?? [], recentPage?.posts ?? [], slug);
 
   return (
     <main>
@@ -65,6 +72,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         image={post.coverUrl ?? undefined}
         slug={slug}
         datePublished={post.publishedAt ?? undefined}
+        authorName={post.author.fullName ?? undefined}
       />
       <BreadcrumbJsonLd
         items={[
@@ -102,7 +110,22 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             {post.title}
           </h1>
           <div className="text-muted-foreground mt-4 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm">
-            <span className="text-foreground font-medium">{t.byline(messages.brand.name)}</span>
+            <span className="inline-flex items-center gap-2">
+              {post.author.avatarUrl ? (
+                <Image
+                  src={post.author.avatarUrl}
+                  alt=""
+                  width={24}
+                  height={24}
+                  className="size-6 rounded-full object-cover"
+                />
+              ) : null}
+              <span className="text-foreground font-medium">
+                {post.author.fullName
+                  ? t.bylineNamed(post.author.fullName)
+                  : t.byline(messages.brand.name)}
+              </span>
+            </span>
             {post.publishedAt ? (
               <span className="inline-flex items-center gap-1.5">
                 <CalendarDaysIcon className="size-4" aria-hidden="true" />
@@ -114,6 +137,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               {t.minRead(minutes)}
             </span>
           </div>
+          {post.tags.length > 0 ? (
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {post.tags.map((tg) => (
+                <Link
+                  key={tg.slug}
+                  href={`/blog?tag=${encodeURIComponent(tg.slug)}`}
+                  className="border-border/60 text-muted-foreground hover:border-primary/40 hover:text-primary rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors"
+                >
+                  {tg.name}
+                </Link>
+              ))}
+            </div>
+          ) : null}
         </header>
 
         {/* Body + outline rail: rail is sticky on desktop, a plain list ABOVE the body on mobile. */}
@@ -144,6 +180,21 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
       </article>
 
+      {post.relatedTours.length > 0 ? (
+        <section className="py-14 sm:py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="font-heading mb-8 text-2xl font-semibold text-balance md:text-3xl">
+              {t.toursHeading}
+            </h2>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {post.relatedTours.map((tour) => (
+                <TourCard key={tour.slug} tour={tour} />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       {more.length > 0 ? (
         <section className="bg-muted/40 py-14 sm:py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -167,6 +218,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </div>
         </section>
       ) : null}
+
+      <EnquiryCta
+        heading={messages.enquiryCta.headings.blog(post.title)}
+        prefillDestination={post.relatedTours[0]?.title ?? post.title}
+      />
     </main>
   );
 }

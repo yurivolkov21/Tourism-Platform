@@ -3,6 +3,8 @@ import type { components } from '@tourism/core';
 import { fallbackExcerpt, toPostDetail, toPostSummary } from './post-vm';
 
 type PostDto = components['schemas']['PostDto'];
+type PostDetailDto = components['schemas']['PostDetailDto'];
+type TourSummaryDto = components['schemas']['TourSummaryDto'];
 type MediaItemDto = components['schemas']['MediaItemDto'];
 
 const media = (role: MediaItemDto['role'], url: string): MediaItemDto => ({
@@ -11,6 +13,28 @@ const media = (role: MediaItemDto['role'], url: string): MediaItemDto => ({
   type: 'IMAGE',
   role,
 });
+
+const tourSummary = (slug: string): TourSummaryDto =>
+  ({
+    id: `id-${slug}`,
+    slug,
+    title: `Tour ${slug}`,
+    summary: null,
+    durationDays: 3,
+    basePrice: '499',
+    compareAtPrice: null,
+    currency: 'USD',
+    isFeatured: false,
+    badges: [],
+    suitableFor: [],
+    category: { slug: 'cruises', name: 'Cruises' },
+    destinations: [],
+    media: [{ publicId: 'p', url: 'https://cdn/hero.jpg', type: 'IMAGE', role: 'hero' }],
+    averageRating: 4.5,
+    reviewsCount: 10,
+    nextDepartureDate: null,
+    nextDepartureSeatsLeft: null,
+  }) as TourSummaryDto;
 
 const base: PostDto = {
   id: 'p1',
@@ -78,5 +102,44 @@ describe('fallbackExcerpt', () => {
 
   it('returns short content unchanged', () => {
     expect(fallbackExcerpt('Just a short line.')).toBe('Just a short line.');
+  });
+});
+
+describe('tags + author on summaries', () => {
+  it('passes tags and author through', () => {
+    const vm = toPostSummary({
+      ...base,
+      tags: [{ slug: 'ha-long', name: 'Hạ Long' }],
+      author: { fullName: 'Ana', avatarUrl: 'https://cdn/a.jpg' },
+    });
+    expect(vm.tags).toEqual([{ slug: 'ha-long', name: 'Hạ Long' }]);
+    expect(vm.author).toEqual({ fullName: 'Ana', avatarUrl: 'https://cdn/a.jpg' });
+  });
+
+  it('defaults tags/author when an older API omits them (deploy-lag)', () => {
+    const legacy = { ...base } as Record<string, unknown>;
+    delete legacy.tags;
+    delete legacy.author;
+    const vm = toPostSummary(legacy as unknown as typeof base);
+    expect(vm.tags).toEqual([]);
+    expect(vm.author).toEqual({ fullName: null, avatarUrl: null });
+  });
+});
+
+describe('toPostDetail related tours', () => {
+  it('maps relatedTours through toTourCard (pick order kept)', () => {
+    const dto: PostDetailDto = {
+      ...base,
+      relatedTours: [tourSummary('first'), tourSummary('second')],
+    };
+    const vm = toPostDetail(dto);
+    expect(vm.relatedTours.map((t) => t.slug)).toEqual(['first', 'second']);
+    expect(vm.relatedTours[0].image).toBe('https://cdn/hero.jpg');
+    expect(vm.relatedTours[0].rating).toBe(4.5);
+  });
+
+  it('defaults relatedTours to [] when absent (deploy-lag)', () => {
+    const vm = toPostDetail({ ...base } as unknown as PostDetailDto);
+    expect(vm.relatedTours).toEqual([]);
   });
 });

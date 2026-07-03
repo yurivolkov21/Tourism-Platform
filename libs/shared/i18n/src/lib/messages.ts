@@ -1553,6 +1553,7 @@ export const messages = {
       faq: 'Still have a question in mind?',
       destinations: 'Not sure where to begin?',
       about: 'Let’s craft your journey together',
+      blog: (title: string) => `Turn "${title}" into your own journey`,
     },
     regionHeading: (region: string) => `Plan your trip to ${region}`,
     subtitle:
@@ -1644,6 +1645,14 @@ export const messages = {
     emptyTitle: 'No stories yet',
     emptyBody: 'We are writing our first guides now - check back soon.',
     loadError: 'The journal could not be loaded right now. Please try again in a moment.',
+    bylineNamed: (name: string) => `By ${name}`,
+    toursHeading: 'Tours in this story',
+    topicsLabel: 'Topics',
+    allTag: 'All',
+    searchPlaceholder: 'Search the journal…',
+    searchLabel: 'Search articles',
+    emptyFilteredBody: 'Nothing matches that filter yet - clear it to see every story.',
+    clearFilters: 'Clear filters',
   },
   footer: {
     tagline: 'Boutique heritage journeys across Vietnam, crafted with care.',
