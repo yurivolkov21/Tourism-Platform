@@ -104,3 +104,34 @@ export function TourJsonLd({
   }
   return <JsonLd data={data} />;
 }
+
+export type ArticleJsonLdProps = {
+  title: string;
+  description?: string;
+  image?: string;
+  slug: string;
+  datePublished?: string;
+};
+
+/** Article schema for a journal post. Public posts carry no personal author → brand byline. */
+export function ArticleJsonLd({ title, description, image, slug, datePublished }: ArticleJsonLdProps) {
+  return (
+    <JsonLd
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: title,
+        url: absoluteUrl(`/blog/${slug}`),
+        ...(description ? { description } : {}),
+        ...(image ? { image } : {}),
+        ...(datePublished ? { datePublished } : {}),
+        author: { '@type': 'Organization', name: messages.brand.name, url: SITE_URL },
+        publisher: {
+          '@type': 'Organization',
+          name: messages.brand.name,
+          logo: { '@type': 'ImageObject', url: absoluteUrl('/icon.svg') },
+        },
+      }}
+    />
+  );
+}
