@@ -114,6 +114,7 @@ export class UploadsService implements OnModuleInit {
       case UploadPurpose.DESTINATION_GALLERY:
       case UploadPurpose.USER_AVATAR:
       case UploadPurpose.POST_COVER:
+      case UploadPurpose.POST_BODY:
         return 'image';
     }
   }
@@ -136,6 +137,8 @@ export class UploadsService implements OnModuleInit {
         return `${this.rootFolder}/users/avatars`;
       case UploadPurpose.POST_COVER:
         return `${this.rootFolder}/posts/cover`;
+      case UploadPurpose.POST_BODY:
+        return `${this.rootFolder}/posts/body`;
     }
   }
 

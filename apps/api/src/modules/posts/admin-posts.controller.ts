@@ -31,6 +31,7 @@ import { ListPostsQueryDto } from './dto/list-posts-query.dto';
 import { PaginatedPostsDto } from './dto/paginated-posts.dto';
 import { PostDto } from './dto/post.dto';
 import { PostTagWithCountDto } from './dto/post-tag.dto';
+import { BodyImageUrlDto, RegisterBodyImageDto } from './dto/register-body-image.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { AdminPostDetail, PaginatedPosts, PostsService, PostWithMedia } from './posts.service';
 
@@ -101,6 +102,17 @@ export class AdminPostsController {
   @ApiResponse({ status: 404, description: 'Not found' })
   setMedia(@Param('slug') slug: string, @Body() body: SetMediaDto): Promise<MediaItemDto[]> {
     return this.postsService.setMedia(slug, body.media);
+  }
+
+  @HttpPost(':slug/body-images')
+  @ApiOperation({ summary: 'Admin: register an uploaded body image (markdown insert)' })
+  @ApiCreatedResponse({ type: BodyImageUrlDto })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  addBodyImage(
+    @Param('slug') slug: string,
+    @Body() body: RegisterBodyImageDto,
+  ): Promise<{ url: string }> {
+    return this.postsService.addBodyImage(slug, body);
   }
 
   @Delete(':slug')

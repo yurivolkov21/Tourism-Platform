@@ -19,18 +19,19 @@ interface ExistingAsset {
 
 /** tx mock: `mediaAsset.findMany` returns `existing`; captures garbage inserts. */
 function makeTx(existing: ExistingAsset[] = []) {
+  const findMany = jest.fn().mockResolvedValue(existing);
   const deleteMany = jest.fn().mockResolvedValue({});
   const createMany = jest.fn().mockResolvedValue({});
   const garbageCreateMany = jest.fn().mockResolvedValue({});
   const tx = {
     mediaAsset: {
-      findMany: jest.fn().mockResolvedValue(existing),
+      findMany,
       deleteMany,
       createMany,
     },
     mediaGarbage: { createMany: garbageCreateMany },
   } as never;
-  return { tx, deleteMany, createMany, garbageCreateMany };
+  return { tx, findMany, deleteMany, createMany, garbageCreateMany };
 }
 
 describe('MediaService', () => {
@@ -83,6 +84,32 @@ describe('MediaService', () => {
       { publicId: 'keep', type: MediaType.IMAGE, role: MediaRole.hero },
     ]);
     expect(garbageCreateMany).not.toHaveBeenCalled();
+  });
+
+  it('syncAssets with preserveRoles excludes those roles from read and delete', async () => {
+    const { tx, findMany, deleteMany } = makeTx();
+    await makeService({}).syncAssets(tx, MediaOwnerType.POST, 'p1', [], {
+      preserveRoles: [MediaRole.body],
+    });
+    expect(findMany.mock.calls[0][0].where).toEqual({
+      ownerType: MediaOwnerType.POST,
+      ownerId: 'p1',
+      role: { notIn: [MediaRole.body] },
+    });
+    expect(deleteMany.mock.calls[0][0].where).toEqual({
+      ownerType: MediaOwnerType.POST,
+      ownerId: 'p1',
+      role: { notIn: [MediaRole.body] },
+    });
+  });
+
+  it('syncAssets without opts keeps the legacy whole-owner where-clause', async () => {
+    const { tx, findMany } = makeTx();
+    await makeService({}).syncAssets(tx, MediaOwnerType.TOUR, 't1', []);
+    expect(findMany.mock.calls[0][0].where).toEqual({
+      ownerType: MediaOwnerType.TOUR,
+      ownerId: 't1',
+    });
   });
 
   it('attachToOwners builds URLs and groups media by owner (no N+1)', async () => {
@@ -142,5 +169,52 @@ describe('MediaService', () => {
       { publicId: 'clip', resourceType: 'video' },
       { publicId: 'clip-poster', resourceType: 'image' },
     ]);
+  });
+
+  it('registerAsset creates a body row and returns its delivery url', async () => {
+    const findFirst = jest.fn().mockResolvedValue(null);
+    const create = jest.fn().mockResolvedValue({});
+    const svc = makeService({ mediaAsset: { findFirst, create } });
+
+    const res = await svc.registerAsset(MediaOwnerType.POST, 'p1', MediaRole.body, {
+      publicId: 'tourism/posts/body/1717000000000-boat',
+    });
+
+    expect(findFirst).toHaveBeenCalledWith({
+      where: {
+        ownerType: MediaOwnerType.POST,
+        ownerId: 'p1',
+        publicId: 'tourism/posts/body/1717000000000-boat',
+      },
+      select: { id: true },
+    });
+    expect(create).toHaveBeenCalledWith({
+      data: {
+        publicId: 'tourism/posts/body/1717000000000-boat',
+        type: MediaType.IMAGE,
+        ownerType: MediaOwnerType.POST,
+        ownerId: 'p1',
+        role: MediaRole.body,
+        format: null,
+        width: null,
+        height: null,
+        sortOrder: 0,
+      },
+    });
+    expect(res.url).toContain('/image/upload/');
+    expect(res.url).toContain('tourism/posts/body/1717000000000-boat');
+  });
+
+  it('registerAsset is idempotent: an existing owner+publicId row short-circuits', async () => {
+    const findFirst = jest.fn().mockResolvedValue({ id: 'existing-row' });
+    const create = jest.fn();
+    const svc = makeService({ mediaAsset: { findFirst, create } });
+
+    const res = await svc.registerAsset(MediaOwnerType.POST, 'p1', MediaRole.body, {
+      publicId: 'already-there',
+    });
+
+    expect(create).not.toHaveBeenCalled();
+    expect(res.url).toContain('already-there');
   });
 });

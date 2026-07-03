@@ -82,6 +82,14 @@ describe('UploadsService.createSignedUploadParams', () => {
     expect(res.resourceType).toBe('image');
   });
 
+  it('signs a POST_BODY upload into the posts/body folder', async () => {
+    const res = makeService().createSignedUploadParams(
+      body({ purpose: UploadPurpose.POST_BODY, filename: 'shot.jpg' }),
+    );
+    expect(res.folder).toBe('tourism/posts/body');
+    expect(res.resourceType).toBe('image');
+  });
+
   it('sanitizes the public_id from the filename', () => {
     const res = makeService().createSignedUploadParams(
       body({ purpose: UploadPurpose.TOUR_GALLERY, filename: 'My Photo!!.png' }),

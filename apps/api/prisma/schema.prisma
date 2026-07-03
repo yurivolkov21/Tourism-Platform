@@ -69,6 +69,7 @@ enum MediaRole {
   hero
   gallery
   avatar
+  body
 }
 
 /// Kind of a tour policy (D-P1.1 — TourPolicy is its own model).
