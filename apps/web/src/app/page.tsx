@@ -10,6 +10,7 @@ import { EnquiryCta } from '../components/marketing/enquiry-cta';
 import { Reveal } from '../components/marketing/reveal';
 import { fetchTourCards } from '../lib/api/tours';
 import { fetchDestinationTiles, fetchTourDestinationCounts } from '../lib/api/destinations';
+import { fetchPosts } from '../lib/api/posts';
 import { pickHomeBento } from '../lib/home-bento';
 import { applyTourCounts } from '../lib/destination-counts';
 import { messages } from '@tourism/i18n';
@@ -19,10 +20,13 @@ import { messages } from '@tourism/i18n';
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [featured, tiles, counts] = await Promise.all([
+  const [featured, tiles, counts, posts] = await Promise.all([
     fetchTourCards({ featured: true }).catch(() => []),
     fetchDestinationTiles().catch(() => []),
     fetchTourDestinationCounts().catch(() => ({})),
+    fetchPosts({ pageSize: 3 })
+      .then((page) => page.posts)
+      .catch(() => []),
   ]);
   const bento = applyTourCounts(pickHomeBento(tiles), counts);
 
@@ -51,7 +55,7 @@ export default async function HomePage() {
         <Trust />
       </Reveal>
       <Reveal>
-        <BlogTeaser />
+        <BlogTeaser posts={posts} />
       </Reveal>
       <Reveal>
         <EnquiryCta heading={messages.enquiryCta.headings.home} />

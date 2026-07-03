@@ -37,9 +37,15 @@ const fixturePosts: PostSummaryVM[] = [
   },
 ];
 
-export function BlogTeaser() {
+/**
+ * Home journal teaser. Server page passes real posts (`fetchPosts({ pageSize: 3 })`); on API
+ * error/empty the FIXTURES above keep the section alive (home must never look broken — the
+ * established home-section pattern). The real `/blog` page does NOT fall back like this.
+ */
+export function BlogTeaser({ posts }: { posts: PostSummaryVM[] }) {
   const t = messages.blog;
-  const [lead, ...rest] = fixturePosts;
+  const items = posts.length > 0 ? posts.slice(0, 3) : fixturePosts;
+  const [lead, ...rest] = items;
 
   return (
     <section id="journal" className="py-16 sm:py-20 lg:py-24">
@@ -50,7 +56,7 @@ export function BlogTeaser() {
             <p className="text-muted-foreground text-lg text-pretty">{t.subtitle}</p>
           </div>
           <a
-            href="#journal"
+            href="/blog"
             className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'shrink-0 max-sm:hidden')}
           >
             {t.viewAll}
