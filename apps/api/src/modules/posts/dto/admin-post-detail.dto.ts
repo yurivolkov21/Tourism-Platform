@@ -13,6 +13,18 @@ export class PostAuthorDto {
   avatarUrl!: string | null;
 }
 
+/** Light related-tour row for the admin rail (identity, not merchandising). */
+export class AdminRelatedTourDto {
+  @ApiProperty({ example: 'halong-heritage-cruise' })
+  slug!: string;
+
+  @ApiProperty({ example: 'Hạ Long heritage cruise' })
+  title!: string;
+
+  @ApiProperty()
+  isPublished!: boolean;
+}
+
 /**
  * Admin-only post detail (`GET /admin/posts/:slug`). Extends the shared `PostDto` with the author
  * — surfaced only on the admin read (public reads use `findPublicBySlug`, untouched). Mirrors
@@ -20,5 +32,8 @@ export class PostAuthorDto {
  */
 export class AdminPostDetailDto extends PostDto {
   @ApiProperty({ type: PostAuthorDto })
-  author!: PostAuthorDto;
+  override author!: PostAuthorDto;
+
+  @ApiProperty({ type: [AdminRelatedTourDto], description: 'Admin-picked tours, pick order.' })
+  relatedTours!: AdminRelatedTourDto[];
 }

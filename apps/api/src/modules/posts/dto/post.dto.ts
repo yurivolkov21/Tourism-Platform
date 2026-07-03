@@ -1,6 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PostStatus } from '@prisma/client';
 import { MediaItemDto } from '../../media/dto/media.dto';
+import { PostTagDto } from './post-tag.dto';
+
+/** Public-safe author (NO email — that stays admin-only on `PostAuthorDto`). */
+export class PublicPostAuthorDto {
+  @ApiProperty({ nullable: true, type: String, example: 'Ana Admin' })
+  fullName!: string | null;
+
+  @ApiProperty({ nullable: true, type: String, description: 'Avatar delivery URL, when set.' })
+  avatarUrl!: string | null;
+}
 
 /** Response shape for an editorial post (mirrors the Prisma `Post`). */
 export class PostDto {
@@ -36,4 +46,10 @@ export class PostDto {
 
   @ApiProperty({ type: [MediaItemDto], description: 'Attached media; the cover is role `hero`.' })
   media!: MediaItemDto[];
+
+  @ApiProperty({ type: [PostTagDto], description: 'Free-form topics (empty when untagged).' })
+  tags!: PostTagDto[];
+
+  @ApiProperty({ type: PublicPostAuthorDto })
+  author!: PublicPostAuthorDto;
 }

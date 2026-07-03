@@ -49,4 +49,11 @@ export class ListPostsQueryDto {
   @IsOptional()
   @IsIn(['asc', 'desc'])
   sortOrder?: 'asc' | 'desc' = 'desc';
+
+  /** Filter to posts carrying this tag slug. */
+  @ApiPropertyOptional({ example: 'ha-long', maxLength: 60 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  tag?: string;
 }
