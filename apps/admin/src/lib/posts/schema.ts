@@ -18,6 +18,11 @@ export const postSchema = z.object({
     .min(1, 'Content is required')
     .max(50000, 'Content must be 50000 characters or fewer'),
   status: z.enum(POST_STATUSES).optional(),
+  tags: z
+    .array(z.string().trim().min(1, 'Tags need at least one character').max(60, 'Tags max 60 characters'))
+    .max(10, 'At most 10 tags')
+    .optional(),
+  relatedTourSlugs: z.array(z.string().trim().min(1).max(120)).max(3, 'At most 3 related tours').optional(),
 });
 
 export type PostInput = z.infer<typeof postSchema>;
@@ -30,5 +35,20 @@ export function toPostPayload(input: PostInput): Record<string, unknown> {
     if (value && value.length > 0) out[key] = value;
   }
   if (input.status) out.status = input.status;
+  if (input.tags !== undefined) out.tags = input.tags;
+  if (input.relatedTourSlugs !== undefined) out.relatedTourSlugs = input.relatedTourSlugs;
   return out;
+}
+
+/** JSON `string[]` from a hidden form input; absent/blank/malformed → undefined (unsent). */
+export function parseJsonStringArray(raw: FormDataEntryValue | null): string[] | undefined {
+  if (typeof raw !== 'string' || raw.trim() === '') return undefined;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.every((x) => typeof x === 'string')
+      ? (parsed as string[])
+      : undefined;
+  } catch {
+    return undefined;
+  }
 }

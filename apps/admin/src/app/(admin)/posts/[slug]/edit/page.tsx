@@ -6,7 +6,8 @@ import { Button } from '@tourism/ui';
 
 import { PostForm } from '../../../../../components/posts/post-form';
 import { updatePost } from '../../../../../lib/posts/actions';
-import { getPost, type Post } from '../../../../../lib/posts/data';
+import { getPost, type Post, listPostTags } from '../../../../../lib/posts/data';
+import { listTours } from '../../../../../lib/tours/data';
 
 interface EditPostPageProps {
   params: Promise<{ slug: string }>;
@@ -16,8 +17,16 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
   const { slug } = await params;
 
   let post: Post;
+  let tagSuggestions;
+  let tourOptions;
   try {
-    post = await getPost(slug);
+    [post, tagSuggestions, tourOptions] = await Promise.all([
+      getPost(slug),
+      listPostTags().catch(() => []),
+      listTours({ isPublished: true, pageSize: 100 })
+        .then((r) => r.data.map((t) => ({ slug: t.slug, title: t.title })))
+        .catch(() => []),
+    ]);
   } catch {
     notFound();
   }
@@ -37,7 +46,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
         </div>
       </div>
 
-      <PostForm action={action} post={post} submitLabel="Save changes" />
+      <PostForm action={action} post={post} submitLabel="Save changes" tagSuggestions={tagSuggestions} tourOptions={tourOptions} />
     </div>
   );
 }

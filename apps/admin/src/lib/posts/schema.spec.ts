@@ -1,4 +1,4 @@
-import { postSchema, toPostPayload, type PostInput } from './schema';
+import { parseJsonStringArray, postSchema, toPostPayload, type PostInput } from './schema';
 
 const base = { title: 'Three perfect days in Hoi An', content: '## Day 1\nWalk the old town.' };
 
@@ -52,5 +52,60 @@ describe('toPostPayload', () => {
       excerpt: 'A short stroll',
       status: 'PUBLISHED',
     });
+  });
+});
+
+describe('tags + related tours fields', () => {
+  it('accepts arrays within caps and forwards them in the payload', () => {
+    const parsed = postSchema.safeParse({
+      title: 'T',
+      content: 'c',
+      tags: ['Hạ Long', 'Cruises'],
+      relatedTourSlugs: ['halong-heritage-cruise'],
+    });
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) return;
+    const payload = toPostPayload(parsed.data);
+    expect(payload.tags).toEqual(['Hạ Long', 'Cruises']);
+    expect(payload.relatedTourSlugs).toEqual(['halong-heritage-cruise']);
+  });
+
+  it('forwards empty arrays (replace-all clear) but omits undefined', () => {
+    const parsed = postSchema.safeParse({ title: 'T', content: 'c', tags: [] });
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) return;
+    const payload = toPostPayload(parsed.data);
+    expect(payload.tags).toEqual([]);
+    expect('relatedTourSlugs' in payload).toBe(false);
+  });
+
+  it('rejects over-cap arrays', () => {
+    expect(
+      postSchema.safeParse({
+        title: 'T',
+        content: 'c',
+        tags: Array.from({ length: 11 }, (_, i) => `t${i}`),
+      }).success,
+    ).toBe(false);
+    expect(
+      postSchema.safeParse({
+        title: 'T',
+        content: 'c',
+        relatedTourSlugs: ['a', 'b', 'c', 'd'],
+      }).success,
+    ).toBe(false);
+  });
+});
+
+describe('parseJsonStringArray', () => {
+  it('parses a JSON string array', () => {
+    expect(parseJsonStringArray('["a","b"]')).toEqual(['a', 'b']);
+  });
+
+  it('returns undefined for null, empty, malformed, or non-string-array JSON', () => {
+    expect(parseJsonStringArray(null)).toBeUndefined();
+    expect(parseJsonStringArray('')).toBeUndefined();
+    expect(parseJsonStringArray('{oops')).toBeUndefined();
+    expect(parseJsonStringArray('[1,2]')).toBeUndefined();
   });
 });

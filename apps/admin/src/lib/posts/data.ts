@@ -50,3 +50,15 @@ export async function getPost(slug: string): Promise<PostDetail> {
   });
   return (data as unknown as { data: PostDetail }).data;
 }
+
+export type PostTagOption = components['schemas']['PostTagWithCountDto'];
+
+/**
+ * All tags with post counts (`GET /admin/posts/tags`) — form suggestions. Bare-array
+ * endpoints come back wrapped in the `{ data }` envelope at runtime → unwrap.
+ */
+export async function listPostTags(): Promise<PostTagOption[]> {
+  const api = await getApiClient();
+  const { data } = await api.GET('/api/v1/admin/posts/tags');
+  return (data as unknown as { data: PostTagOption[] }).data ?? [];
+}

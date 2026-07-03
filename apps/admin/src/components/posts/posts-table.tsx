@@ -85,6 +85,27 @@ const postColumns: ColumnDef<Post>[] = [
     ),
   },
   {
+    id: 'tags',
+    header: 'Tags',
+    meta: { label: 'Tags' },
+    cell: ({ row }) => {
+      const tags = row.original.tags ?? [];
+      if (tags.length === 0) return <span className="text-muted-foreground">—</span>;
+      return (
+        <span className="flex flex-wrap items-center gap-1">
+          {tags.slice(0, 2).map((t) => (
+            <Badge key={t.slug} variant="outline" className="text-xs">
+              {t.name}
+            </Badge>
+          ))}
+          {tags.length > 2 ? (
+            <span className="text-muted-foreground text-xs">+{tags.length - 2}</span>
+          ) : null}
+        </span>
+      );
+    },
+  },
+  {
     id: 'published',
     header: 'Published',
     meta: { label: 'Published' },

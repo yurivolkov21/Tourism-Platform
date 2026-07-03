@@ -7,7 +7,7 @@ import { apiErrorMessage } from '../api/error';
 import { apiWrite, getApiClient } from '../api/client';
 import { flashPath } from '../flash';
 import { assembleMediaSet, parseMediaField } from '../media';
-import { postSchema, toPostPayload } from './schema';
+import { parseJsonStringArray, postSchema, toPostPayload } from './schema';
 
 export interface PostFormState {
   error?: string;
@@ -38,6 +38,8 @@ function parsePostForm(formData: FormData) {
       const v = String(formData.get('status') ?? '').trim();
       return v === '' ? undefined : v;
     })(),
+    tags: parseJsonStringArray(formData.get('tags')),
+    relatedTourSlugs: parseJsonStringArray(formData.get('relatedTourSlugs')),
   });
 }
 
