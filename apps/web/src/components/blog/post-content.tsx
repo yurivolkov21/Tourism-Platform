@@ -66,7 +66,6 @@ const MD_COMPONENTS: Components = {
   // Article images are author-managed Cloudinary/remote URLs of unknown dimensions — a plain
   // <img> (like the admin preview) beats next/image's required width/height here.
   img: (props) => (
-    // eslint-disable-next-line
     <img loading="lazy" className="my-6 w-full rounded-xl" {...props} alt={props.alt ?? ''} />
   ),
   pre: (props) => (
