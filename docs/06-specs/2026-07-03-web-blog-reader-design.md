@@ -15,7 +15,10 @@
 - **BE is ready:** `GET /posts` (public, PUBLISHED-only + `publishedAt <= now`, paginated
   `page/pageSize` default 12, `search` title filter available but unused this phase, newest
   first) and `GET /posts/:slug`. `PostDto` ships `media[]` (cover — `MediaOwnerType.POST`, Wave
-  1) and `author { fullName, avatarUrl }`. `Post.content` is **markdown**.
+  1). **Public reads are author-free** — `author { fullName, avatarUrl }` exists only on the
+  admin-only `AdminPostDetailDto` (`posts.service.ts`: "Public reads stay author-free"), so the
+  article byline is the **brand team** ("By the Nexora team"), not a personal author.
+  `Post.content` is **markdown**.
 - **Visual language exists:** `components/marketing/blog-teaser.tsx` — featured-first magazine
   grid (lead card spans 2 cols/rows), card shell classes, `messages.blog` copy
   (heading/subtitle/viewAll/readMore/featuredLabel). The index extends this language.
@@ -44,9 +47,9 @@
 - **`apps/web/src/lib/api/posts.ts`** — typed fetchers via `@tourism/core`:
   `fetchPosts({ page, pageSize }): Promise<{ posts: PostSummary[]; meta: PageMeta }>` (list
   envelope) and `fetchPost(slug)` (single-resource `.data` unwrap) wrapped in React `cache()`.
-  Both `next: { revalidate: 300 }`. A view-model mapper picks: slug, title, excerpt,
-  publishedAt, coverUrl (first `media[]` url, null-safe), author (fullName, avatarUrl),
-  content (detail only).
+  Both rely on page-level ISR (`revalidate = 300`). A view-model mapper picks: slug, title,
+  excerpt (stored, else derived from content), publishedAt, coverUrl (hero-role `media[]` url
+  first, null-safe), content (detail only). No author fields — public posts don't carry them.
 - **`apps/web/src/lib/blog/derive.ts` + spec** — `readingStats` + `extractOutline` ported
   verbatim from `apps/admin/src/lib/posts/derive.ts` (tests come along; TDD-by-port).
 - **Shared card (extracted HERE so slice 1's footer can use it):** the teaser's `PostCard` moves
@@ -56,7 +59,7 @@
 - **Route `/blog/[slug]`** (`app/blog/[slug]/page.tsx`, SSG via `generateStaticParams` from
   `fetchPosts` slugs + ISR 300; unknown slug → `notFound()`):
   - Cover hero (when present) → article header: title (display serif per site headings) ·
-    author line (avatar w/ initials fallback · fullName · publish date · "X min read") →
+    byline "By the Nexora team" (brand, via i18n) · publish date · "X min read" →
     **markdown body** (`react-markdown` + `remark-gfm`, scoped components map styled with
     tokens; headings get stable `id`s — same slugify as `extractOutline` — so outline anchors
     land; no rehype-raw).
@@ -67,14 +70,15 @@
     `/blog`.
   - SEO: `generateMetadata` (title → `%s — Nexora` template, description = excerpt fallback
     trimmed content, canonical, OG/twitter image = cover) · JSON-LD **`Article`** (headline,
-    datePublished, author name, image) + `BreadcrumbList` (Home → Blog → post) via the existing
-    `json-ld.tsx`.
+    datePublished, author = Organization/brand, image) + `BreadcrumbList` (Home → Blog → post)
+    via the existing `json-ld.tsx`.
 - New copy → `messages.blog` (reading-time label, outline heading, more-posts heading, back-to-
   blog CTA, empty states).
 
 ## Slice 2 — index + wiring
 
-- **Route `/blog`** (`app/blog/page.tsx`, server, ISR 300, reads `?page=`):
+- **Route `/blog`** (`app/blog/page.tsx`, server; reading `?page=` makes it dynamically
+  rendered per request — accepted, like `/contact`; detail + home stay ISR-static):
   - Page 1: hero = newest post (featured card treatment, full-width emphasis) + 3-col grid of
     the rest of the page.
   - Page 2+: plain grid (no hero — the hero is "the latest", not "first of every page").
