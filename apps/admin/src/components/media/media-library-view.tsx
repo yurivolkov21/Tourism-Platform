@@ -355,7 +355,7 @@ export function MediaLibraryView({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={onDelete} disabled={deleting}>
+            <AlertDialogAction variant="destructive" onClick={onDelete} disabled={deleting}>
               {deleting ? 'Deleting…' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
