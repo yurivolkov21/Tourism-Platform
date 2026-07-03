@@ -430,6 +430,7 @@ export const messages = {
     destinations: 'Destinations',
     about: 'About Us',
     contact: 'Contact',
+    blog: 'Journal',
     login: 'Log in',
     menu: 'Menu',
     planTrip: 'Plan your trip',
@@ -1671,6 +1672,7 @@ export const messages = {
     support: [
       { label: 'About us', href: '/about' },
       { label: 'FAQs', href: '/faq' },
+      { label: 'Travel journal', href: '/blog' },
       { label: 'Cancellation & Refunds', href: '/cancellation-policy' },
       { label: 'Privacy Statement', href: '/privacy' },
       { label: 'Terms & Conditions', href: '/terms' },

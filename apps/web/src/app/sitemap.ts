@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 
 import { absoluteUrl } from '../lib/site';
 import { fetchTourDetailSlugs } from '../lib/api/tour-detail';
+import { fetchPostSlugs } from '../lib/api/posts';
 import { regionSlugs } from '../lib/regions';
 
 // Revalidate the sitemap on the same cadence as the catalogue pages.
@@ -12,6 +13,7 @@ const STATIC_PATHS: { path: string; priority: number; changeFrequency: MetadataR
   { path: '/', priority: 1, changeFrequency: 'daily' },
   { path: '/tours', priority: 0.9, changeFrequency: 'daily' },
   { path: '/destinations', priority: 0.8, changeFrequency: 'weekly' },
+  { path: '/blog', priority: 0.6, changeFrequency: 'daily' },
   { path: '/about', priority: 0.5, changeFrequency: 'monthly' },
   { path: '/contact', priority: 0.6, changeFrequency: 'monthly' },
   { path: '/faq', priority: 0.4, changeFrequency: 'monthly' },
@@ -21,8 +23,11 @@ const STATIC_PATHS: { path: string; priority: number; changeFrequency: MetadataR
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Tours can be cold-started/unavailable on the free tier — degrade to the static set.
-  const tourSlugs = await fetchTourDetailSlugs().catch(() => [] as string[]);
+  // Tours and posts can be cold-started/unavailable on the free tier — degrade to the static set.
+  const [tourSlugs, postSlugs] = await Promise.all([
+    fetchTourDetailSlugs().catch(() => [] as string[]),
+    fetchPostSlugs().catch(() => [] as string[]),
+  ]);
 
   const staticEntries: MetadataRoute.Sitemap = STATIC_PATHS.map((r) => ({
     url: absoluteUrl(r.path),
@@ -42,5 +47,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  return [...staticEntries, ...regionEntries, ...tourEntries];
+  const postEntries: MetadataRoute.Sitemap = postSlugs.map((slug) => ({
+    url: absoluteUrl(`/blog/${slug}`),
+    changeFrequency: 'monthly',
+    priority: 0.6,
+  }));
+
+  return [...staticEntries, ...regionEntries, ...tourEntries, ...postEntries];
 }

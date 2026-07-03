@@ -41,6 +41,7 @@ const toggleClass =
 const mobileNav = [
   { label: messages.nav.tours, href: '/tours' },
   ...messages.nav.destinationsMenu.items.map((i) => ({ label: i.label, href: i.href })),
+  { label: messages.nav.blog, href: '/blog' },
   { label: messages.nav.about, href: '/about' },
   { label: messages.nav.contact, href: '/contact' },
 ];
@@ -134,6 +135,9 @@ export function SiteHeader() {
               </NavigationMenuList>
             </NavigationMenu>
 
+            <a href="/blog" className={linkClass} aria-current={current('/blog')}>
+              {t.blog}
+            </a>
             <a href="/about" className={linkClass} aria-current={current('/about')}>
               {t.about}
             </a>
