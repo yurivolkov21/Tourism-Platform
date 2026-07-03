@@ -124,6 +124,25 @@ export class ToursService {
     return (await this.attachNextDeparture(await this.attachRatings([withMedia])))[0];
   }
 
+  /**
+   * Published tour summaries for an explicit id set (blog "related tours"). Preserves the
+   * input order (= the admin's pick order); silently drops unpublished/missing ids. Reuses
+   * the exact list pipeline (media → ratings → next departure) — no second summary shape.
+   */
+  async findSummariesByIds(ids: string[]): Promise<TourWithStats[]> {
+    if (ids.length === 0) return [];
+    const items = await this.prisma.tour.findMany({
+      where: { id: { in: ids }, isPublished: true },
+      include: LIST_INCLUDE,
+    });
+    const withMedia = await this.media.attachToOwners(MediaOwnerType.TOUR, items);
+    const enriched = await this.attachNextDeparture(await this.attachRatings(withMedia));
+    const byId = new Map(enriched.map((t) => [t.id, t]));
+    return ids
+      .map((id) => byId.get(id))
+      .filter((t): t is (typeof enriched)[number] => Boolean(t));
+  }
+
   // ── Admin reads + mutations ───────────────────────────────────────────────
 
   findAll(query: ListToursQueryDto): Promise<PaginatedTours> {

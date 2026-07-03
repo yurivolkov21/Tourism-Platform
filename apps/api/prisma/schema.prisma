@@ -233,6 +233,7 @@ model Tour {
   reviews      Review[]
   wishlist     Wishlist[]
   enquiries    Enquiry[]
+  posts        PostTour[]
 
   @@index([isPublished, categoryId])
   @@index([isFeatured, isPublished])
@@ -531,10 +532,58 @@ model Post {
   updatedAt   DateTime   @updatedAt @map("updated_at")
 
   author User @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  tags         PostTagLink[]
+  relatedTours PostTour[]
 
   @@index([status, publishedAt])
   @@index([authorId])
   @@map("posts")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PostTag — free-form blog taxonomy (created inline from the admin post form).
+// Slug is the identity (upsert target); display name = first writer's casing.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model PostTag {
+  id        String   @id @default(uuid()) @db.Uuid
+  slug      String   @unique @db.VarChar(60)
+  name      String   @db.VarChar(60)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  posts PostTagLink[]
+
+  @@map("post_tags")
+}
+
+model PostTagLink {
+  postId String @map("post_id") @db.Uuid
+  tagId  String @map("tag_id") @db.Uuid
+
+  post Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag  PostTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@index([tagId])
+  @@map("post_tag_links")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PostTour — admin-curated "tours in this story" (max 3 enforced at the DTO).
+// `order` = pick order. Tour deletion silently drops the link (post survives).
+// ─────────────────────────────────────────────────────────────────────────────
+
+model PostTour {
+  postId String @map("post_id") @db.Uuid
+  tourId String @map("tour_id") @db.Uuid
+  order  Int    @default(0)
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tour Tour @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tourId])
+  @@index([tourId])
+  @@map("post_tours")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

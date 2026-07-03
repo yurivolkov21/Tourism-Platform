@@ -421,4 +421,28 @@ describe('ToursService', () => {
       expect(r.reviewsCount).toBe(0);
     });
   });
+
+  describe('findSummariesByIds', () => {
+    it('returns summaries in input order, dropping unpublished/missing ids', async () => {
+      const findMany = jest.fn().mockResolvedValue([
+        { id: 'b', slug: 'tour-b', title: 'B' },
+        { id: 'a', slug: 'tour-a', title: 'A' },
+      ]);
+      const svc = makeService(makePrisma({ tour: { findMany } }));
+
+      const out = await svc.findSummariesByIds(['a', 'x', 'b']);
+
+      expect(out.map((t) => t.id)).toEqual(['a', 'b']); // input order, 'x' dropped
+      expect(out[0]).toHaveProperty('averageRating');
+      expect(out[0]).toHaveProperty('nextDepartureDate');
+    });
+
+    it('short-circuits on an empty id list without querying', async () => {
+      const findMany = jest.fn();
+      const svc = makeService(makePrisma({ tour: { findMany } }));
+
+      await expect(svc.findSummariesByIds([])).resolves.toEqual([]);
+      expect(findMany).not.toHaveBeenCalled();
+    });
+  });
 });

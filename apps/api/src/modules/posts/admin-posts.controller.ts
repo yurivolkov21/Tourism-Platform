@@ -30,6 +30,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { ListPostsQueryDto } from './dto/list-posts-query.dto';
 import { PaginatedPostsDto } from './dto/paginated-posts.dto';
 import { PostDto } from './dto/post.dto';
+import { PostTagWithCountDto } from './dto/post-tag.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { AdminPostDetail, PaginatedPosts, PostsService, PostWithMedia } from './posts.service';
 
@@ -51,6 +52,13 @@ export class AdminPostsController {
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   list(@Query() query: ListPostsQueryDto): Promise<PaginatedPosts> {
     return this.postsService.findAll(query);
+  }
+
+  @Get('tags')
+  @ApiOperation({ summary: 'Admin: list all tags with post counts (form suggestions)' })
+  @ApiOkResponse({ type: [PostTagWithCountDto] })
+  tags(): Promise<{ slug: string; name: string; count: number }[]> {
+    return this.postsService.findAdminTags();
   }
 
   @Get(':slug')
