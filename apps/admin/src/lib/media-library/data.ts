@@ -9,9 +9,9 @@ export type PageMeta = components['schemas']['PageMetaDto'];
 export interface MediaListParams {
   page?: number;
   pageSize?: number;
-  ownerType?: string;
-  role?: string;
-  type?: string;
+  ownerType?: 'TOUR' | 'DESTINATION' | 'USER' | 'POST';
+  role?: 'hero' | 'gallery' | 'avatar';
+  type?: 'IMAGE' | 'VIDEO';
   search?: string;
 }
 
@@ -38,9 +38,9 @@ export async function listMedia(params: MediaListParams = {}): Promise<MediaList
       query: {
         page: params.page,
         pageSize: params.pageSize,
-        ownerType: params.ownerType as "TOUR" | "DESTINATION" | "USER" | "POST" | undefined,
-        role: params.role as "hero" | "gallery" | "avatar" | undefined,
-        type: params.type as "IMAGE" | "VIDEO" | undefined,
+        ownerType: params.ownerType,
+        role: params.role,
+        type: params.type,
         search: params.search,
       },
     },

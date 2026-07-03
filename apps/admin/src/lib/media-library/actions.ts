@@ -30,12 +30,11 @@ export async function runMediaCleanup(): Promise<{
   error?: string;
 }> {
   try {
-    const res = await apiWrite<{ data?: { destroyed: number; failed: number } }>(
+    const result = await apiWrite<{ destroyed: number; failed: number }>(
       'POST',
       '/api/v1/admin/media/garbage/reconcile',
     );
     revalidatePath('/media');
-    const result = res?.data ?? (res as unknown as { destroyed: number; failed: number });
     return { ok: true, destroyed: result.destroyed, failed: result.failed };
   } catch (e) {
     return { ok: false, error: apiErrorMessage(e) };
