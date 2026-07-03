@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MediaModule } from '../media/media.module';
 import { UploadsModule } from '../uploads/uploads.module';
+import { AdminUsersController } from './admin-users.controller';
+import { AdminUsersService } from './admin-users.service';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
@@ -11,8 +13,8 @@ import { UsersService } from './users.service';
  */
 @Module({
   imports: [MediaModule, UploadsModule],
-  controllers: [UsersController],
-  providers: [UsersService],
+  controllers: [UsersController, AdminUsersController],
+  providers: [UsersService, AdminUsersService],
   exports: [UsersService],
 })
 export class UsersModule {}
