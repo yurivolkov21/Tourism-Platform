@@ -91,7 +91,9 @@ Comments (moderation cost > value for an agency blog) · auto related-tours matc
 
 ## STATUS
 
-- [ ] Wave 1 — content model (tags + tour links + author)
+- [x] Wave 1 — content model (tags + tour links + author) — **DONE 2026-07-03** (slice 1 BE
+  merged `83d0151`, migration applied live w/ user GO; slice 2 admin UI merged `2f2193e`;
+  api 301 / admin 139 tests; fast-follows in the wave plan's STATUS)
 - [ ] Wave 2 — reader funnel + taxonomy UX
 - [ ] Wave 3 — admin inline images
 - [ ] Wave 4 — reader polish + P6 fast-follows

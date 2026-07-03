@@ -1710,5 +1710,20 @@ git checkout main && git pull && git merge --no-ff feat/blog-v2-admin-taxonomy -
 
 ## STATUS
 
-- [ ] Slice 1 (Tasks 1-6): BE content model — pending (migration gate: user go/no-go)
-- [ ] Slice 2 (Tasks 7-10): admin authoring UI — pending
+- [x] Slice 1 (Tasks 1-6): BE content model — **DONE**, merged `83d0151` (2026-07-03).
+  Migration `20260703120425_add_post_tags_and_post_tours` **APPLIED to live Supabase**
+  (user GO). api 301 tests. ecc APPROVE-WITH-NOTES.
+- [x] Slice 2 (Tasks 7-10): admin authoring UI — **DONE**, merged `2f2193e` (2026-07-03).
+  admin 139 tests. All task reviews approved.
+
+**WAVE 1 COMPLETE.**
+
+### Fast-follows (non-blocking, from ecc review)
+
+1. **Tag-race 409 message** — two concurrent saves creating the same new tag: the loser's
+   P2002 (from `post_tags_slug_key`) maps to the post-slug conflict message. Self-healing on
+   retry; fix by branching on `err.meta?.target` when convenient.
+2. **Stale controller return types** — admin posts `create`/`update` still typed
+   `Promise<PostWithMedia>` (runtime returns the superset `PostListItem`); tighten when next
+   touching the controller.
+3. `prisma format` pass on schema.prisma (alignment nit from Task 1 review).
