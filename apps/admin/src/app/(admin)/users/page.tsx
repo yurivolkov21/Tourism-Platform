@@ -1,13 +1,3 @@
-import { UsersRound } from 'lucide-react';
-
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@tourism/ui';
-
 import { apiErrorMessage } from '../../../lib/api/error';
 import { AdminListHeader } from '../../../components/crud/list-header';
 import { UsersFilters } from '../../../components/users/users-filters';
@@ -65,31 +55,18 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
       />
 
       <div className="flex flex-col gap-4">
-        <UsersFilters role={role ?? 'all'} search={search} />
-
         {error ? (
-          <ErrorAlert>
-            Couldn&apos;t load users: {error}. Check that the API is running and your admin session is
-            valid.
-          </ErrorAlert>
-        ) : rows.length === 0 ? (
-          <Empty className="border">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <UsersRound />
-              </EmptyMedia>
-              <EmptyTitle>No users found</EmptyTitle>
-              <EmptyDescription>
-                {role || search
-                  ? 'Try a different role or clear the search to see them all.'
-                  : 'Accounts will appear here as people register.'}
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
+          <>
+            <UsersFilters role={role ?? 'all'} search={search} />
+            <ErrorAlert>
+              Couldn&apos;t load users: {error}. Check that the API is running and your admin session
+              is valid.
+            </ErrorAlert>
+          </>
         ) : (
           <>
-            <UsersTable rows={rows} />
-            {meta ? (
+            <UsersTable rows={rows} role={role ?? 'all'} search={search} />
+            {rows.length > 0 && meta ? (
               <ServerTablePagination
                 page={meta.page}
                 pageCount={meta.totalPages}

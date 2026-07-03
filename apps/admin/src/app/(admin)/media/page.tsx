@@ -75,24 +75,31 @@ export default async function MediaPage({ searchParams }: MediaPageProps) {
         description="Every image and video across tours, destinations and posts. Search, inspect, and remove media; the Garbage tab shows the deferred Cloudinary cleanup queue."
       />
 
-      <div className="flex items-center gap-1">
+      {/* View tabs styled as the shared segmented tablist (matches every other admin list). */}
+      <div
+        role="tablist"
+        className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
+      >
         {[
           { key: 'library', label: 'Library', href: '/media' },
           { key: 'garbage', label: 'Garbage', href: '/media?tab=garbage' },
-        ].map((t) => (
-          <Link
-            key={t.key}
-            href={t.href}
-            className={cn(
-              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-              tab === t.key
-                ? 'bg-secondary text-secondary-foreground'
-                : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            {t.label}
-          </Link>
-        ))}
+        ].map((t) => {
+          const active = tab === t.key;
+          return (
+            <Link
+              key={t.key}
+              href={t.href}
+              role="tab"
+              aria-selected={active}
+              className={cn(
+                'inline-flex h-7 items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
+                active ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+              )}
+            >
+              {t.label}
+            </Link>
+          );
+        })}
       </div>
 
       {error ? (

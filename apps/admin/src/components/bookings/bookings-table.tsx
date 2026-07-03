@@ -9,9 +9,20 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table';
 
-import { formatMoney } from '../../lib/bookings/format';
+import { Receipt } from 'lucide-react';
+
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@tourism/ui';
+
+import { formatMoney, type BookingStatus } from '../../lib/bookings/format';
 import type { Booking } from '../../lib/bookings/data';
 import { BookingStatusBadge } from './booking-status-badge';
+import { BookingsFilters } from './bookings-filters';
 import { ColumnsMenu } from '../crud/columns-menu';
 import { AdminTableShell } from '../crud/admin-table-shell';
 
@@ -92,10 +103,22 @@ const bookingColumns: ColumnDef<Booking>[] = [
 
 /**
  * Read-only bookings table on TanStack. Rows link to the detail page by code; filtering/paging stay
- * URL-driven (the page owns `BookingsFilters` + `ServerTablePagination`), so the table runs in manual
- * mode and owns only the column model + the "Columns" show/hide button.
+ * URL-driven (`BookingsFilters` writes the params, the page fetches server-side), so the table runs
+ * in manual mode and owns only the column model. The toolbar (tabs · search · Columns) is ONE row —
+ * the catalog-table template — so the empty state also lives here, under a toolbar that never hides.
  */
-export function BookingsTable({ rows }: { rows: Booking[] }) {
+export function BookingsTable({
+  rows,
+  status,
+  search,
+  filtered,
+}: {
+  rows: Booking[];
+  status: 'all' | BookingStatus;
+  search: string;
+  /** Any server-side filter active (status/search/userId) — switches the empty-state hint. */
+  filtered: boolean;
+}) {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const table = useReactTable({
@@ -109,11 +132,26 @@ export function BookingsTable({ rows }: { rows: Booking[] }) {
   });
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex justify-end">
-        <ColumnsMenu table={table} />
-      </div>
-      <AdminTableShell table={table} />
+    <div className="flex flex-col gap-4">
+      <BookingsFilters status={status} search={search} trailing={<ColumnsMenu table={table} />} />
+
+      {rows.length === 0 ? (
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Receipt />
+            </EmptyMedia>
+            <EmptyTitle>No bookings found</EmptyTitle>
+            <EmptyDescription>
+              {filtered
+                ? 'Try a different status or clear the search to see them all.'
+                : 'Bookings will appear here as travellers reserve tours.'}
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      ) : (
+        <AdminTableShell table={table} />
+      )}
     </div>
   );
 }

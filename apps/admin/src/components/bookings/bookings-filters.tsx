@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Search } from 'lucide-react';
 
 import { Input, cn } from '@tourism/ui';
@@ -29,9 +29,12 @@ const SEARCH_DEBOUNCE_MS = 350;
 export function BookingsFilters({
   status,
   search,
+  trailing,
 }: {
   status: TabValue;
   search: string;
+  /** Toolbar extras rendered after the search box (e.g. the Columns menu) — one row, catalog-style. */
+  trailing?: ReactNode;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -68,7 +71,7 @@ export function BookingsFilters({
   }, [query]);
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <div
         role="tablist"
         className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
@@ -93,16 +96,19 @@ export function BookingsFilters({
         })}
       </div>
 
-      <div className="relative w-full sm:max-w-xs">
-        <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
-        <Input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search code, name, or email…"
-          aria-label="Search bookings"
-          className="bg-background pl-8"
-        />
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+          <Input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search code, name, or email…"
+            aria-label="Search bookings"
+            className="bg-background pl-8"
+          />
+        </div>
+        {trailing}
       </div>
     </div>
   );

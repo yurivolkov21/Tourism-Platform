@@ -1,13 +1,4 @@
 import Link from 'next/link';
-import { Receipt } from 'lucide-react';
-
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@tourism/ui';
 
 import { apiErrorMessage } from '../../../lib/api/error';
 import { AdminListHeader } from '../../../components/crud/list-header';
@@ -76,8 +67,6 @@ export default async function BookingsPage({ searchParams }: BookingsPageProps) 
       />
 
       <div className="flex flex-col gap-4">
-        <BookingsFilters status={status ?? 'all'} search={search} />
-
         {userId ? (
           <p className="text-muted-foreground text-sm">
             Showing bookings for one customer —{' '}
@@ -88,28 +77,22 @@ export default async function BookingsPage({ searchParams }: BookingsPageProps) 
         ) : null}
 
         {error ? (
-          <ErrorAlert>
-            Couldn&apos;t load bookings: {error}. Check that the API is running and your admin session
-            is valid.
-          </ErrorAlert>
-        ) : rows.length === 0 ? (
-          <Empty className="border">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <Receipt />
-              </EmptyMedia>
-              <EmptyTitle>No bookings found</EmptyTitle>
-              <EmptyDescription>
-                {status || search || userId
-                  ? 'Try a different status or clear the search to see them all.'
-                  : 'Bookings will appear here as travellers reserve tours.'}
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
+          <>
+            <BookingsFilters status={status ?? 'all'} search={search} />
+            <ErrorAlert>
+              Couldn&apos;t load bookings: {error}. Check that the API is running and your admin
+              session is valid.
+            </ErrorAlert>
+          </>
         ) : (
           <>
-            <BookingsTable rows={rows} />
-            {meta ? (
+            <BookingsTable
+              rows={rows}
+              status={status ?? 'all'}
+              search={search}
+              filtered={Boolean(status || search || userId)}
+            />
+            {rows.length > 0 && meta ? (
               <ServerTablePagination
                 page={meta.page}
                 pageCount={meta.totalPages}

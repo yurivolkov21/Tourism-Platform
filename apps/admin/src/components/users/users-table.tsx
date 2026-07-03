@@ -9,9 +9,19 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table';
 
-import { Badge } from '@tourism/ui';
+import { UsersRound } from 'lucide-react';
 
-import type { AdminUser } from '../../lib/users/data';
+import {
+  Badge,
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@tourism/ui';
+
+import type { AdminUser, UserRole } from '../../lib/users/data';
+import { UsersFilters } from './users-filters';
 import { ColumnsMenu } from '../crud/columns-menu';
 import { AdminTableShell } from '../crud/admin-table-shell';
 
@@ -76,7 +86,15 @@ const userColumns: ColumnDef<AdminUser>[] = [
  * URL-driven (the page owns `UsersFilters` + `ServerTablePagination`), so the table runs in manual
  * mode and owns only the column model + the "Columns" show/hide button.
  */
-export function UsersTable({ rows }: { rows: AdminUser[] }) {
+export function UsersTable({
+  rows,
+  role,
+  search,
+}: {
+  rows: AdminUser[];
+  role: 'all' | UserRole;
+  search: string;
+}) {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const table = useReactTable({
@@ -90,11 +108,28 @@ export function UsersTable({ rows }: { rows: AdminUser[] }) {
   });
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex justify-end">
-        <ColumnsMenu table={table} />
-      </div>
-      <AdminTableShell table={table} />
+    <div className="flex flex-col gap-4">
+      {/* One toolbar row (tabs · search · Columns) — the catalog-table template; the empty state
+          lives below it so the toolbar never disappears on a filtered-empty result. */}
+      <UsersFilters role={role} search={search} trailing={<ColumnsMenu table={table} />} />
+
+      {rows.length === 0 ? (
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <UsersRound />
+            </EmptyMedia>
+            <EmptyTitle>No users found</EmptyTitle>
+            <EmptyDescription>
+              {role !== 'all' || search
+                ? 'Try a different role or clear the search to see them all.'
+                : 'Accounts will appear here as people register.'}
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      ) : (
+        <AdminTableShell table={table} />
+      )}
     </div>
   );
 }
