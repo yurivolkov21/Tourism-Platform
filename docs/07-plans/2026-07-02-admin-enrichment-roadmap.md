@@ -112,11 +112,17 @@ Server already computes and returns, UI discards:
 | **4. Dashboard quick wins** — ✅ **DONE 2026-07-02** (`6bf0b93` · `8b0d98e`) | chart Revenue\|Bookings toggle · bookings-pipeline card · Top tours card (Revenue/Rating/Wishlisted tabs) · Needs-attention tiles (via small BE `pendingCounts`) | tiny (`pendingCounts`) | S |
 | **5. Tours + Departures ops visibility** — ✅ **DONE 2026-07-02** (`5a8f13e` · `bdaf411` · `6b566a4`) | departure detail page (facts + bookings + utilization) · tour detail Performance/Departures-summary cards + Reviews link · list sweep (tours cover/rating/next-departure · destinations cover · tours-count) · bookings tourId/departureId filters | medium | L |
 | **6. Bookings polish** — ✅ **DONE 2026-07-02** (`829558a` · `763eb5b` · `cd39082`) | join customer + other-bookings mini-list + `?userId=` deep-link · PaymentEvent trail (metadata-only, JSONB-path link) · providerSessionId · seats-remaining · **+ the Wave-5 `@@index([tourId])` follow-up (applied to Supabase)** | small | S–M |
-| **7. Media library** | admin MediaAsset browse/search/delete/reuse + garbage visibility | **new BE feature** | L — own spec |
+| **7. Media library** — ✅ **DONE 2026-07-02** (`2fc8a61` · `909ca08`) | admin `/media`: MediaAsset browse/search/delete (grid + drawer, owner resolved/linked) + Garbage tab (deferred-Cloudinary-destroy queue) + Run-cleanup-now · reuse EXCLUDED by decision (GC reference-check trap — future wave with copy-on-reuse) | **new BE feature** | L — own spec |
 
 Each wave = spec → plan → slices per the standing workflow; waves 2–7 order can be re-shuffled by
 the user without dependency issues (only wave 5's thumbnail sweep loosely benefits from wave 1's
 thumbnail treatment landing first as the reference).
+
+**ROADMAP COMPLETE (2026-07-02): all 7 waves shipped.** Open follow-ups carried out of the waves:
+payment_events JSONB-trail index (generated `booking_id` column + btree when webhook volume grows,
+Wave 6) · reconcile concurrent-run P2025 noise (self-healing; lock only if it ever annoys, Wave 7)
+· media search owner-lookup fan-out unbounded (`take` cap when catalogs grow, Wave 7) · media
+reuse/picker (needs copy-on-reuse or ref-checking GC first).
 
 ## Explicitly deferred (YAGNI for now)
 

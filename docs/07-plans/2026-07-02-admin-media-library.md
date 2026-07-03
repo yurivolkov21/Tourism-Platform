@@ -1,5 +1,17 @@
 # Admin Media library (Wave 7) — implementation plan
 
+**STATUS: COMPLETE (2026-07-02)** — both slices executed via subagent-driven development and
+ff-merged to `main`: slice 1 `2fc8a61` (AdminMediaModule: list w/ owner resolution + owner-aware
+search · delete w/ USER-block + atomic garbage queue · garbage list · reconcile-now + regen;
+`ecc:code-reviewer` APPROVE-WITH-NOTES) · slice 2 `909ca08` (`/media` page: grid + facets +
+search + drawer + delete · Garbage tab + Run-cleanup-now · sidebar unlocked). Gate green per
+slice; api tests 266, admin tests 131. **FOLLOW-UPS (from reviews, all non-blocking):**
+reconcile double-run → cosmetic P2025 `failed`/`attempts` noise (self-healing; FE disables the
+button while running) · search owner-lookups have no `take` cap (perf cliff only at large
+catalogs) · no HTTP-layer 403 test for the new routes (class-level RolesGuard verified by
+inspection). Deviation on record: plain `<img>` instead of `next/image` (no Cloudinary
+remotePatterns in admin next.config; matches `DestinationMediaView`).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** New admin surface `/media` — browse/search/delete every `MediaAsset` (grid + detail drawer, owner resolved to a real title/link) plus a Garbage tab exposing the deferred-Cloudinary-destroy queue with an on-demand "Run cleanup now". Per spec `docs/06-specs/2026-07-02-admin-media-library-design.md` (Wave 7, final wave of the enrichment roadmap).
@@ -29,11 +41,13 @@ Branch off `main`: `git checkout -b feat/admin-media-library-be`
 ### Task 1: `AdminMediaService.list` — filters, search, owner resolution (TDD)
 
 **Files:**
+
 - Create: `apps/api/src/modules/media/admin-media.service.ts`
 - Create: `apps/api/src/modules/media/dto/list-admin-media-query.dto.ts`
 - Test: `apps/api/src/modules/media/admin-media.service.spec.ts` (new file)
 
 **Interfaces:**
+
 - Consumes: `buildCloudinaryUrl(cloudName, { type, publicId, posterId })` from `../../lib/cloudinary-url` · global `PrismaService` · `ConfigService` (`cloudinary.cloudName`) · `MaintenanceService` from `../jobs/maintenance.service` (constructor-injected now, used in Task 2).
 - Produces (Tasks 2–3 build on these exact names):
   - `export interface AdminMediaAsset { id: string; publicId: string; url: string; posterUrl: string | null; type: MediaType; role: MediaRole; format: string | null; width: number | null; height: number | null; bytes: number | null; durationSec: number | null; sortOrder: number; createdAt: string; ownerType: MediaOwnerType; ownerId: string; ownerTitle: string | null; ownerSlug: string | null }`
@@ -572,11 +586,13 @@ git commit -m "feat(api): admin media list — filters, owner-aware search, owne
 ### Task 2: `AdminMediaService` — delete, garbage list, reconcile passthrough (TDD)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/media/admin-media.service.ts` (from Task 1)
 - Create: `apps/api/src/modules/media/dto/list-media-garbage-query.dto.ts`
 - Test: `apps/api/src/modules/media/admin-media.service.spec.ts` (append)
 
 **Interfaces:**
+
 - Consumes: Task 1's service + spec harness (`makePrisma`/`svcWith`/`IMAGE_ROW`).
 - Produces: `deleteAsset(id: string): Promise<DeletedMediaAsset>` · `listGarbage(query: ListMediaGarbageQueryDto): Promise<PaginatedMediaGarbage>` · `runReconcile(): Promise<ReconcileResult>` (types already declared in Task 1).
 
@@ -804,12 +820,14 @@ git commit -m "feat(api): admin media delete + garbage queue + reconcile-now"
 ### Task 3: DTOs + `AdminMediaController` + `AdminMediaModule`
 
 **Files:**
+
 - Create: `apps/api/src/modules/media/dto/admin-media.dto.ts`
 - Create: `apps/api/src/modules/media/admin-media.controller.ts`
 - Create: `apps/api/src/modules/media/admin-media.module.ts`
 - Modify: `apps/api/src/app/app.module.ts` (register `AdminMediaModule` in `imports` right after `JobsModule`)
 
 **Interfaces:**
+
 - Consumes: `AdminMediaService` methods from Tasks 1–2 (exact names/types above). `Roles` decorator from `../../common/decorators/roles.decorator`; `PageMetaDto` from `../../common/dto/page-meta.dto` (mirror `admin-bookings.controller.ts` + `paginated-bookings.dto.ts`).
 - Produces: Swagger-visible routes `GET /admin/media` · `GET /admin/media/garbage` · `POST /admin/media/garbage/reconcile` · `DELETE /admin/media/:id`, and the DTO names the FE reads after regen: `AdminMediaAssetDto` · `PaginatedAdminMediaDto` · `MediaGarbageRowDto` · `PaginatedMediaGarbageDto` · `MediaReconcileResultDto` · `DeletedMediaAssetDto`.
 
@@ -1088,12 +1106,14 @@ Branch off `main`: `git checkout -b feat/admin-media-library-ui`
 ### Task 5: FE lib — helpers (TDD) + data fetchers + server actions
 
 **Files:**
+
 - Create: `apps/admin/src/lib/media-library/format.ts`
 - Create: `apps/admin/src/lib/media-library/format.spec.ts`
 - Create: `apps/admin/src/lib/media-library/data.ts`
 - Create: `apps/admin/src/lib/media-library/actions.ts`
 
 **Interfaces:**
+
 - Consumes: regenerated `components['schemas']['AdminMediaAssetDto' | 'MediaGarbageRowDto' | 'PageMetaDto']` from `@tourism/core` · `getApiClient`/`apiWrite` from `../api/client` · `apiErrorMessage` from `../api/error`.
 - Produces (Tasks 6–7 import these): `formatBytes(bytes: number | null | undefined): string | null` · `ownerHref(ownerType: string, ownerSlug: string | null): string | null` · `listMedia(params: MediaListParams): Promise<MediaList>` · `listGarbage(params: GarbageListParams): Promise<GarbageList>` · `deleteMediaAsset(id: string): Promise<{ ok: boolean; error?: string }>` · `runMediaCleanup(): Promise<{ ok: boolean; destroyed?: number; failed?: number; error?: string }>`.
 
@@ -1291,10 +1311,12 @@ git commit -m "feat(admin): media-library lib — formatters, fetchers, delete/c
 ### Task 6: Library tab — page, grid, facets, drawer, delete
 
 **Files:**
+
 - Create: `apps/admin/src/app/(admin)/media/page.tsx`
 - Create: `apps/admin/src/components/media/media-library-view.tsx`
 
 **Interfaces:**
+
 - Consumes: Task 5's `listMedia`/`AdminMediaAsset`/`formatBytes`/`ownerHref`/`deleteMediaAsset` · `AdminListHeader` (`components/crud/list-header`) · `ErrorAlert` (`components/crud/error-alert`) · `ServerTablePagination` (`components/crud/server-table-pagination`) · `parsePageSize` (`lib/pagination`) · `@tourism/ui` (Sheet/DropdownMenu/AlertDialog/Badge/Button/Input/Empty/Separator/cn) · `toast` from `@tourism/ui` sonner re-export (grep how `refund-booking.tsx` imports it and match).
 - Produces: the `/media` route with `?tab=library|garbage` — Task 7 adds the garbage half; this task renders a "Garbage" tab link whose content is filled by Task 7 (render a placeholder `<div />` for the garbage branch until Task 7 replaces it).
 
@@ -1804,11 +1826,13 @@ git commit -m "feat(admin): media library — grid, facets, search, detail drawe
 ### Task 7: Garbage tab + sidebar unlock
 
 **Files:**
+
 - Create: `apps/admin/src/components/media/garbage-view.tsx`
 - Modify: `apps/admin/src/app/(admin)/media/page.tsx` (fill the garbage branch)
 - Modify: `apps/admin/src/components/shell/app-shell.tsx:40` (drop `soon: true` from the Media nav item)
 
 **Interfaces:**
+
 - Consumes: Task 5's `listGarbage`/`MediaGarbageRow`/`runMediaCleanup` · `ServerTablePagination` · `@tourism/ui` Table primitives + `Badge`/`Button`/`Empty*`/`toast`.
 - Produces: the completed `/media?tab=garbage` view.
 
