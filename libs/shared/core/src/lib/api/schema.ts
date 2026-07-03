@@ -1032,6 +1032,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/outbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin: list outbox rows (paginated, filter by status, newest first) */
+        get: operations["AdminOutboxController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/outbox/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Admin: retry a FAILED outbox row (resets to PENDING for the next drain tick) */
+        post: operations["AdminOutboxController_retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/media": {
         parameters: {
             query?: never;
@@ -2895,6 +2929,25 @@ export interface components {
              * @enum {string}
              */
             status: "DRAFT" | "PUBLISHED";
+        };
+        AdminOutboxRowDto: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            type: "BOOKING_CONFIRMATION" | "BOOKING_REFUNDED" | "REVIEW_APPROVED" | "ENQUIRY_RECEIVED";
+            /** @enum {string} */
+            status: "PENDING" | "SENT" | "FAILED";
+            /** @example 0 */
+            attempts: number;
+            lastError: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            processedAt: string | null;
+        };
+        PaginatedAdminOutboxDto: {
+            data: components["schemas"]["AdminOutboxRowDto"][];
+            meta: components["schemas"]["PageMetaDto"];
         };
         AdminMediaAssetDto: {
             /** Format: uuid */
@@ -5630,6 +5683,78 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminOutboxController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                status?: "PENDING" | "SENT" | "FAILED";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAdminOutboxDto"];
+                };
+            };
+            /** @description Not an ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminOutboxController_retry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminOutboxRowDto"];
+                };
+            };
+            /** @description Not an ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Outbox row not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Row is not FAILED */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
