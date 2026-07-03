@@ -12,6 +12,7 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -56,7 +57,14 @@ export function GarbageView({ rows, meta }: { rows: MediaGarbageRow[]; meta?: Pa
           clears this automatically; run it now to purge immediately.
         </p>
         <Button onClick={onRunNow} disabled={running || rows.length === 0}>
-          {running ? 'Running…' : 'Run cleanup now'}
+          {running ? (
+            <>
+              <Spinner />
+              Running…
+            </>
+          ) : (
+            'Run cleanup now'
+          )}
         </Button>
       </div>
 
