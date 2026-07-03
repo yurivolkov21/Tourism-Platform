@@ -5,8 +5,17 @@ import { Button } from '@tourism/ui';
 
 import { PostForm } from '../../../../components/posts/post-form';
 import { createPost } from '../../../../lib/posts/actions';
+import { listPostTags } from '../../../../lib/posts/data';
+import { listTours } from '../../../../lib/tours/data';
 
-export default function NewPostPage() {
+export default async function NewPostPage() {
+  const [tagSuggestions, tourOptions] = await Promise.all([
+    listPostTags().catch(() => []),
+    listTours({ isPublished: true, pageSize: 100 })
+      .then((r) => r.data.map((t) => ({ slug: t.slug, title: t.title })))
+      .catch(() => []),
+  ]);
+
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 lg:px-6">
       <div className="space-y-3">
@@ -22,7 +31,7 @@ export default function NewPostPage() {
         </div>
       </div>
 
-      <PostForm action={createPost} submitLabel="Create post" />
+      <PostForm action={createPost} submitLabel="Create post" tagSuggestions={tagSuggestions} tourOptions={tourOptions} />
     </div>
   );
 }

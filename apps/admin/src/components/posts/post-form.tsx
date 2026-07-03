@@ -24,16 +24,22 @@ import {
 
 import type { PostFormState } from '../../lib/posts/actions';
 import { POST_STATUSES } from '../../lib/posts/schema';
-import type { Post } from '../../lib/posts/data';
+import type { Post, PostTagOption } from '../../lib/posts/data';
 import { slugify } from '../../lib/slugify';
 import { MediaField } from '../crud/media-field';
 import type { MediaInput } from '../../lib/media';
 import { ErrorAlert } from '../crud/error-alert';
+import { TagsInput } from './tags-input';
+import { RelatedToursPicker } from './related-tours-picker';
 
 interface PostFormProps {
   action: (prev: PostFormState, formData: FormData) => Promise<PostFormState>;
-  post?: Post;
+  post?: Post & { relatedTours?: { slug: string; title: string; isPublished: boolean }[] };
   submitLabel: string;
+  /** Existing tags for suggestions (admin tag list). */
+  tagSuggestions?: PostTagOption[];
+  /** Published tours offered by the related-tours picker. */
+  tourOptions?: { slug: string; title: string }[];
 }
 
 /** `PUBLISHED` → `Published`. */
@@ -44,7 +50,7 @@ const labelize = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
  * beside the fields), matching the other admin forms. Field names are unchanged, so the zod schema
  * + server actions stay as-is.
  */
-export function PostForm({ action, post, submitLabel }: PostFormProps) {
+export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourOptions = [] }: PostFormProps) {
   const [state, formAction, pending] = useActionState<PostFormState, FormData>(action, {});
   const errors = state.fieldErrors ?? {};
 
@@ -66,6 +72,11 @@ export function PostForm({ action, post, submitLabel }: PostFormProps) {
       url: m.url,
     }));
   const [media, setMedia] = useState<MediaInput[]>(initialMedia);
+
+  const [tags, setTags] = useState<string[]>((post?.tags ?? []).map((t) => t.name));
+  const [relatedSlugs, setRelatedSlugs] = useState<string[]>(
+    (post?.relatedTours ?? []).map((t) => t.slug),
+  );
 
   return (
     <form action={formAction}>
@@ -142,6 +153,9 @@ export function PostForm({ action, post, submitLabel }: PostFormProps) {
       />
       <input type="hidden" name="media" value={JSON.stringify(media)} />
 
+      <input type="hidden" name="tags" value={JSON.stringify(tags)} />
+      <input type="hidden" name="relatedTourSlugs" value={JSON.stringify(relatedSlugs)} />
+
       <Separator className="my-8" />
 
       {/* Content */}
@@ -166,6 +180,34 @@ export function PostForm({ action, post, submitLabel }: PostFormProps) {
             />
             <FieldDescription>Markdown — rendered (sanitized) on the public site.</FieldDescription>
             {errors.content ? <FieldError>{errors.content}</FieldError> : null}
+          </Field>
+        </FieldGroup>
+      </FieldSet>
+
+      <Separator className="my-8" />
+
+      {/* Topics & related tours */}
+      <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div>
+          <FieldLegend className="mb-1.5 font-semibold">Topics &amp; tours</FieldLegend>
+          <FieldDescription>
+            Tags group stories on the journal; related tours appear under the article.
+          </FieldDescription>
+        </div>
+        <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
+          <Field data-invalid={Boolean(errors.tags)}>
+            <FieldLabel>Tags</FieldLabel>
+            <TagsInput value={tags} onChange={setTags} suggestions={tagSuggestions} />
+            <FieldDescription>
+              Up to 10 — pick existing topics or type a new one and press Enter.
+            </FieldDescription>
+            {errors.tags ? <FieldError>{errors.tags}</FieldError> : null}
+          </Field>
+          <Field data-invalid={Boolean(errors.relatedTourSlugs)}>
+            <FieldLabel>Related tours</FieldLabel>
+            <RelatedToursPicker value={relatedSlugs} onChange={setRelatedSlugs} options={tourOptions} />
+            <FieldDescription>Up to 3 tours to feature under this story.</FieldDescription>
+            {errors.relatedTourSlugs ? <FieldError>{errors.relatedTourSlugs}</FieldError> : null}
           </Field>
         </FieldGroup>
       </FieldSet>
