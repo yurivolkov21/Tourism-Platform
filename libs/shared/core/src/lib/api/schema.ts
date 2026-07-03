@@ -963,6 +963,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin: list media assets (paginated, filter/search, owner resolved) */
+        get: operations["AdminMediaController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/media/garbage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin: list the deferred Cloudinary-destroy queue (oldest first) */
+        get: operations["AdminMediaController_listGarbage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/media/garbage/reconcile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Admin: run one Cloudinary cleanup batch now (same as the daily cron) */
+        post: operations["AdminMediaController_reconcile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/media/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Admin: detach one asset from its owner + queue Cloudinary destroy */
+        delete: operations["AdminMediaController_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2693,6 +2761,86 @@ export interface components {
              * @enum {string}
              */
             status: "DRAFT" | "PUBLISHED";
+        };
+        AdminMediaAssetDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example tourism/tours/hero/1717000000000-hoi-an */
+            publicId: string;
+            /** Format: uri */
+            url: string;
+            /**
+             * Format: uri
+             * @description Video poster URL.
+             */
+            posterUrl: string | null;
+            /** @enum {string} */
+            type: "IMAGE" | "VIDEO";
+            /** @enum {string} */
+            role: "hero" | "gallery" | "avatar";
+            /** @example jpg */
+            format: string | null;
+            /** @example 1920 */
+            width: number | null;
+            /** @example 1080 */
+            height: number | null;
+            /** @example 245000 */
+            bytes: number | null;
+            durationSec: number | null;
+            /** @example 0 */
+            sortOrder: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** @enum {string} */
+            ownerType: "TOUR" | "DESTINATION" | "USER" | "POST";
+            /** Format: uuid */
+            ownerId: string;
+            /**
+             * @description Owning record title/name — null when the owner row no longer exists.
+             * @example Hoi An Walking Tour
+             */
+            ownerTitle: string | null;
+            /**
+             * @description Owner page slug (tour/destination/post); null for USER owners.
+             * @example hoi-an-walking-tour
+             */
+            ownerSlug: string | null;
+        };
+        PaginatedAdminMediaDto: {
+            data: components["schemas"]["AdminMediaAssetDto"][];
+            meta: components["schemas"]["PageMetaDto"];
+        };
+        MediaGarbageRowDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example tourism/destinations/gallery/1717000000000-old */
+            publicId: string;
+            /**
+             * @description Cloudinary resource_type ('image' | 'video').
+             * @example image
+             */
+            resourceType: string;
+            /** @example 0 */
+            attempts: number;
+            lastError: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        PaginatedMediaGarbageDto: {
+            data: components["schemas"]["MediaGarbageRowDto"][];
+            meta: components["schemas"]["PageMetaDto"];
+        };
+        MediaReconcileResultDto: {
+            /** @example 9 */
+            destroyed: number;
+            /** @example 0 */
+            failed: number;
+        };
+        DeletedMediaAssetDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example tourism/tours/hero/1717000000000-hoi-an */
+            publicId: string;
         };
     };
     responses: never;
@@ -5168,6 +5316,136 @@ export interface operations {
             };
             /** @description Not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminMediaController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                ownerType?: "TOUR" | "DESTINATION" | "USER" | "POST";
+                role?: "hero" | "gallery" | "avatar";
+                type?: "IMAGE" | "VIDEO";
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAdminMediaDto"];
+                };
+            };
+            /** @description Not an ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminMediaController_listGarbage: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedMediaGarbageDto"];
+                };
+            };
+            /** @description Not an ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminMediaController_reconcile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaReconcileResultDto"];
+                };
+            };
+            /** @description Not an ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminMediaController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeletedMediaAssetDto"];
+                };
+            };
+            /** @description Not an ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Asset not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description USER-owned asset (customer avatar) */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
