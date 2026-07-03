@@ -54,7 +54,9 @@
    `RegisterBodyImageDto { publicId (≤300), width?, height?, format? }`) →
    `PostsService.addBodyImage(slug, dto)`: 404 unknown slug; `mediaAsset.create` with
    ownerType POST / role body / sortOrder 0; returns `{ url }` built via
-   `buildCloudinaryUrl`. Duplicate publicId (unique) → 409 `MEDIA_ALREADY_REGISTERED`.
+   `buildCloudinaryUrl`. **Idempotent:** `MediaAsset.publicId` has NO unique constraint
+   (verified — only `MediaGarbage.publicId` is unique), so re-registering the same publicId
+   for the same owner short-circuits to the existing row's URL instead of duplicating.
    No delete endpoint — mid-life removal is the `/media` library's job (decision above).
 5. Regen types; api tests for carve-out + endpoint paths (404/409/create shape).
 
