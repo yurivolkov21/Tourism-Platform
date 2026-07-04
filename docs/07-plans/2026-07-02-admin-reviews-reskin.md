@@ -32,6 +32,7 @@ Branch off `main`: `git checkout -b feat/admin-reviews-surface-be`
 ### Task 1: DTO fields + mapper + `deleteCuratedById` (TDD)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/reviews/dto/admin-review.dto.ts` (add 2 fields)
 - Modify: `apps/api/src/modules/reviews/reviews.service.ts` (`AdminReviewItem` type, `findAllForAdmin` include+mapper ~lines 268-316, new `deleteCuratedById`)
 - Modify: `apps/api/src/modules/reviews/admin-reviews.controller.ts` (new DELETE route)
@@ -39,6 +40,7 @@ Branch off `main`: `git checkout -b feat/admin-reviews-surface-be`
 - Test: `apps/api/src/modules/reviews/reviews.service.spec.ts`
 
 **Interfaces:**
+
 - Produces: `AdminReviewDto.tripLabel: string | null` + `AdminReviewDto.tourTitle: string | null`; `ReviewsService.deleteCuratedById(id: string): Promise<Review>` (404 `REVIEW_NOT_FOUND` / 409 `REVIEW_NOT_CURATED`); route `DELETE /admin/reviews/:id` (echo `ReviewDto`). Task 2 regenerates FE types; Task 3 consumes the route.
 
 - [ ] **Step 1: Write the failing tests** — append a new `describe` at the end of `reviews.service.spec.ts` (self-contained mocks, `as never` casts like the file's existing tests; extend the file's imports with `ConflictException` from `@nestjs/common` and `ReviewSource` from `@prisma/client` if not already there):
@@ -236,10 +238,12 @@ Branch off `main`: `git checkout -b feat/admin-reviews-reskin-fe`
 ### Task 3: Typed data + `deleteReview` action
 
 **Files:**
+
 - Modify: `apps/admin/src/lib/reviews/data.ts`
 - Modify: `apps/admin/src/lib/reviews/actions.ts`
 
 **Interfaces:**
+
 - Consumes: regenerated `components['schemas']['AdminReviewDto']` (now incl. `tripLabel`/`tourTitle`), `DELETE /api/v1/admin/reviews/{id}` in the typed client.
 - Produces: `AdminReview` = the generated DTO type (kills the hand-rolled drift-prone interface); `deleteReview(id: string): Promise<ReviewActionState>` for Task 4. Existing `setApproved`/`setFeatured`/`createCurated` unchanged.
 
@@ -282,11 +286,13 @@ git commit -m "feat(admin): typed review rows + deleteReview action"
 ### Task 4: `ReviewsView` (table + facet + drawer + ⋮ actions) + page rewrite
 
 **Files:**
+
 - Create: `apps/admin/src/components/reviews/reviews-view.tsx`
 - Rewrite: `apps/admin/src/app/(admin)/reviews/page.tsx`
 - Delete: `apps/admin/src/components/reviews/review-actions.tsx` (verify no other importer first: `grep -rn "review-actions\|ReviewActions" apps/admin/src` must only hit the old page + the component itself)
 
 **Interfaces:**
+
 - Consumes: `AdminReview`/`listAdminReviews` (Task 3), `setApproved`/`setFeatured`/`deleteReview` actions, shared `crud/{admin-table-shell,columns-menu,client-table-pagination,list-header,error-alert,data-table-pagination}` (`DEFAULT_PAGE_SIZE`), `formatRelativeTime` from `../../lib/relative-time`.
 - Produces: `ReviewsView({ rows, total }: { rows: AdminReview[]; total: number })`.
 
@@ -969,10 +975,12 @@ git commit -m "feat(admin): reskin Reviews to the shared template + full-text dr
 ### Task 5: Curated form → Form Layout 2
 
 **Files:**
+
 - Rewrite: `apps/admin/src/components/reviews/curated-form.tsx`
 - Modify: `apps/admin/src/app/(admin)/reviews/new/page.tsx` (container class only)
 
 **Interfaces:**
+
 - Consumes: `createCurated` action (unchanged — field names `authorName/authorLocation/tripLabel/rating/body` must stay).
 
 - [ ] **Step 1: Rewrite `curated-form.tsx`:**

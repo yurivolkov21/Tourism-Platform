@@ -32,12 +32,14 @@ signal**, and errors are styled inconsistently.
 ## 3. Goals / Non-goals
 
 **Goals (admin)**
+
 - One global toast, fired on every meaningful mutation (success + failure).
 - Inline errors use the `Alert` component; loading uses the `Spinner` component.
 - A documented, reusable pattern for firing toasts from **Server Actions** (both the
   inline and the redirect-after-success cases).
 
 **Non-goals**
+
 - Web app (separate phase). No visual redesign of toasts beyond the themed wrapper.
 - Field-level validation errors stay as `FieldError` (already consistent).
 
@@ -46,20 +48,25 @@ signal**, and errors are styled inconsistently.
 `toast()` is client-side; our mutations run in Server Actions. Two cases:
 
 ### 4a. Inline mutations (no redirect) — client fires the toast from the result
+
 Actions that return `{ error?: string }` and stay on the page:
 `deleteX` (via `RowActions`), `refundBooking`, `updateEnquiryStatus`.
 The client component already awaits the result → add:
+
 ```ts
 const res = await action(...)
 if (res.error) toast.error(res.error)
 else toast.success('…')      // e.g. 'Refund issued', 'Status updated', 'Deleted'
 ```
+
 Errors: keep the existing inline message inside dialogs (context) **and** fire
 `toast.error` (transient). Success: toast only.
 
 ### 4b. Redirect mutations (create/update) — flash via query param
+
 `create*`/`update*` actions `redirect('/x')` on success, so we can't toast before
 the redirect (it throws). Standard pattern:
+
 - The action redirects to the list **with a flash key**: `redirect('/tours?flash=created')`.
   A tiny helper `flashPath(path, key)` builds the URL (keeps existing redirects one-line).
 - A **`FlashToaster`** client component (mounted once in the admin layout, next to
@@ -74,6 +81,7 @@ to the form components.
 ## 5. Workstreams & files (admin)
 
 ### A. Toast infra
+
 - `apps/admin/src/app/(admin)/layout.tsx` (or root layout): mount
   `<Toaster position="bottom-right" richColors />` + `<FlashToaster />`.
 - New `apps/admin/src/components/feedback/flash-toaster.tsx` (client).
@@ -81,6 +89,7 @@ to the form components.
   `flash.spec.ts` (TDD).
 
 ### B. Wire toasts into mutations
+
 - Redirect actions → append flash: `lib/{destinations,categories,tours,posts}/actions.ts`
   (`create*`/`update*`), `lib/departures/actions.ts`.
 - Inline actions → client `toast` calls:
@@ -90,6 +99,7 @@ to the form components.
     optimistic; add toast, keep rollback).
 
 ### C. Inline errors → `Alert`
+
 - List-page load errors: replace the bespoke `<div className="border-destructive…">`
   with `<Alert variant="destructive">` in `bookings/page.tsx`, `enquiries/page.tsx`,
   `tours/page.tsx`, `destinations/page.tsx`, `categories/page.tsx`, `posts/page.tsx`.
@@ -98,21 +108,25 @@ to the form components.
   category/post/departure forms). Field errors stay `FieldError`.
 
 ### D. Loading → `Spinner`
+
 - Replace `Loader2 + animate-spin` with `<Spinner>` in
   `components/auth/login-form.tsx` and `components/{destinations,tours}/…media-field`.
 
 ## 6. Pure logic to unit-test (TDD)
+
 - `FLASH_MESSAGES` / `resolveFlash(key)` → `{type, text} | null` (created/updated/
   unknown). `flashPath(path, key)` → appends `?flash=` correctly (respecting an
   existing query string).
 
 ## 7. Testing / gate / review
+
 - Jest for the flash helpers.
 - `/gate`: admin lint · typecheck · test · build green.
 - `ecc:code-reviewer` pass (touches many mutation paths).
 - Manual review on the Vercel admin deploy.
 
 ## 8. Rollout (slices, each its own branch)
+
 1. **Toast infra + redirect flashes** — Toaster/FlashToaster mount + `flashPath` +
    create/update toasts across all entities.
 2. **Inline-action toasts** — delete (RowActions) · refund · enquiry status.
@@ -122,6 +136,7 @@ to the form components.
 (Each slice: review → user merge → deploy, per the standing workflow.)
 
 ## 9. Later phase — web (not in this spec)
+
 Mount `<Toaster>` in the web root layout; toasts on booking/auth/enquiry flows;
 migrate the two web confirm `Dialog`s (booking-actions, danger-zone) → `AlertDialog`;
 Alert/Spinner standardization. Written up separately when we reach it.

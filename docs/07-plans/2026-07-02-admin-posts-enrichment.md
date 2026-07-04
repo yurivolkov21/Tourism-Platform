@@ -32,11 +32,13 @@ Branch off `main`: `git checkout -b feat/admin-posts-cover-be`
 ### Task 1: Uploads — `POST_COVER` purpose (TDD)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/uploads/dto/create-signed-upload-url.dto.ts` (the `UploadPurpose` enum, ~line 12)
 - Modify: `apps/api/src/modules/uploads/uploads.service.ts` (`resourceTypeForPurpose` ~line 106, `folderForPurpose` ~line 120)
 - Test: `apps/api/src/modules/uploads/uploads.service.spec.ts`
 
 **Interfaces:**
+
 - Produces: `UploadPurpose.POST_COVER` — image resource, folder `<root>/posts/cover`. Consumed by the admin FE in Task 4 as the string `'POST_COVER'`.
 
 - [ ] **Step 1: Write the failing test** — append inside the existing `describe` in `uploads.service.spec.ts`, using the file's existing helpers (`body(...)` builder and however the service instance is constructed in sibling tests — mirror the `DESTINATION_GALLERY` case around line 69):
@@ -87,6 +89,7 @@ git commit -m "feat(api): POST_COVER upload purpose"
 ### Task 2: Posts service/DTO/controller — media + author avatar (TDD)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/posts/posts.module.ts` (import `MediaModule`)
 - Modify: `apps/api/src/modules/posts/posts.service.ts`
 - Modify: `apps/api/src/modules/posts/dto/post.dto.ts` (+`media`)
@@ -95,6 +98,7 @@ git commit -m "feat(api): POST_COVER upload purpose"
 - Test: `apps/api/src/modules/posts/posts.service.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `MediaService` (`syncAssets(tx, ownerType, ownerId, assets)`, `deleteForOwner(tx, ownerType, ownerId)`, `attachToOwner(ownerType, owner)`, `attachToOwners(ownerType, owners)`), `SetMediaDto`/`MediaInputDto`/`MediaItemDto` from `../media/dto/…`, `MediaOwnerType` from `@prisma/client`.
 - Produces: `PostWithMedia = Post & { media: MediaItemDto[] }`; `AdminPostDetail = PostWithMedia & { author: { fullName: string | null; email: string; avatarUrl: string | null } }`; `PostsService.setMedia(slug, media): Promise<MediaItemDto[]>`; route `PUT /admin/posts/:slug/media`. Task 3 regenerates FE types from these.
 
@@ -427,10 +431,12 @@ Branch off `main`: `git checkout -b feat/admin-posts-cover-fe`
 ### Task 4: `MediaField` hero-only mode + `POST_COVER` in the FE purpose union
 
 **Files:**
+
 - Modify: `apps/admin/src/lib/uploads.ts` (the `UploadPurpose` union, ~line 18)
 - Modify: `apps/admin/src/components/crud/media-field.tsx`
 
 **Interfaces:**
+
 - Produces: `MediaField` accepts `galleryPurpose?: UploadPurpose` (omit ⇒ hero-only), plus optional `legend` (default `'Images'`), `description` (default the current sentence), `heroLabel` (default `'Hero image'`). Existing tour/destination callers compile and render unchanged. `'POST_COVER'` joins the FE `UploadPurpose` union. Task 5 consumes all of this.
 
 - [ ] **Step 1:** `lib/uploads.ts` — extend the union:
@@ -482,10 +488,12 @@ git commit -m "feat(admin): MediaField hero-only mode + POST_COVER purpose"
 ### Task 5: Post form Cover section + media server-action wiring
 
 **Files:**
+
 - Modify: `apps/admin/src/lib/posts/actions.ts`
 - Modify: `apps/admin/src/components/posts/post-form.tsx`
 
 **Interfaces:**
+
 - Consumes: `MediaField` (Task 4), `assembleMediaSet`/`parseMediaField`/`MediaInput` from `../../lib/media` (or `../media` from lib), `PUT /api/v1/admin/posts/{slug}/media` (Task 2), `Post.media` (regen, Task 3).
 - Produces: form posts a hidden `media` JSON field; `createPost`/`updatePost` attach it best-effort after the save.
 
@@ -604,10 +612,12 @@ git commit -m "feat(admin): post cover upload in the form"
 ### Task 6: Detail Cover card + list thumbnail
 
 **Files:**
+
 - Modify: `apps/admin/src/app/(admin)/posts/[slug]/page.tsx` (main column)
 - Modify: `apps/admin/src/components/posts/posts-table.tsx` (new leading column)
 
 **Interfaces:**
+
 - Consumes: `DestinationMediaView` (`{ media: { url: string; role: string }[]; emptyText?: string }` — generic viewer + lightbox), `Post.media` from the regen'd types.
 
 - [ ] **Step 1:** Detail page — import the viewer:
@@ -685,10 +695,12 @@ Branch off `main`: `git checkout -b feat/admin-posts-derive`
 ### Task 8: Pure lib `lib/posts/derive.ts` (TDD)
 
 **Files:**
+
 - Create: `apps/admin/src/lib/posts/derive.ts`
 - Test: `apps/admin/src/lib/posts/derive.spec.ts`
 
 **Interfaces:**
+
 - Produces: `readingStats(content: string): { words: number; minutes: number }` (0/0 for empty; else `minutes = max(1, round(words/200))`) and `extractOutline(content: string): { depth: 2 | 3; text: string }[]` (`#`→2, `##`→2, `###`→3, fences skipped, cap 12). Task 9 consumes both.
 
 - [ ] **Step 1: Write the failing spec** — `derive.spec.ts`:
@@ -806,9 +818,11 @@ git commit -m "feat(admin): post reading-stats + outline derivation (TDD)"
 ### Task 9: Detail rail — Length row, outline card, author avatar
 
 **Files:**
+
 - Modify: `apps/admin/src/app/(admin)/posts/[slug]/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `readingStats`/`extractOutline` (Task 8), `Avatar`/`AvatarImage`/`AvatarFallback` from `@tourism/ui` (the NavUser pattern, `components/shell/nav-user.tsx:46-48`), `post.author.avatarUrl` (Task 3 regen).
 
 - [ ] **Step 1:** Add imports:

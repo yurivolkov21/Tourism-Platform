@@ -44,10 +44,12 @@ facts verified 2026-07-03: public `PostDto` has **no author** (byline = brand te
 ### Task 1: Port blog derive logic (reading stats · outline · heading slugify) — TDD
 
 **Files:**
+
 - Create: `apps/web/src/lib/blog/derive.ts`
 - Test: `apps/web/src/lib/blog/derive.spec.ts`
 
 **Interfaces:**
+
 - Consumes: nothing (pure module; ported from `apps/admin/src/lib/posts/derive.ts`).
 - Produces: `readingStats(content: string): { words: number; minutes: number }` ·
   `slugifyHeading(text: string): string` ·
@@ -214,10 +216,12 @@ git commit -m "feat(web): blog derive helpers - reading stats, outline, heading 
 ### Task 2: Post view-model mapper — TDD
 
 **Files:**
+
 - Create: `apps/web/src/lib/blog/post-vm.ts`
 - Test: `apps/web/src/lib/blog/post-vm.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `components['schemas']['PostDto']` from `@tourism/core`.
 - Produces: `PostSummaryVM { slug: string; title: string; excerpt: string; publishedAt: string | null; coverUrl: string | null }` ·
   `PostDetailVM extends PostSummaryVM { content: string }` ·
@@ -394,11 +398,13 @@ git commit -m "feat(web): post view-model mapper with cover/excerpt null-safety"
 ### Task 3: Typed post fetchers + shared PostCard extraction
 
 **Files:**
+
 - Create: `apps/web/src/lib/api/posts.ts`
 - Create: `apps/web/src/components/blog/post-card.tsx`
 - Modify: `apps/web/src/components/marketing/blog-teaser.tsx` (drop local `PostCard`, re-import)
 
 **Interfaces:**
+
 - Consumes: `getApiClient()` from `../api/client` (Task-independent, exists) ·
   `toPostSummary`/`toPostDetail`/`PostSummaryVM`/`PostDetailVM` from Task 2 ·
   `messages.blog.readMore`/`featuredLabel` (existing i18n keys).
@@ -665,9 +671,11 @@ git commit -m "feat(web): typed post fetchers + shared PostCard (teaser re-point
 ### Task 4: Article markdown renderer with anchored headings
 
 **Files:**
+
 - Create: `apps/web/src/components/blog/post-content.tsx`
 
 **Interfaces:**
+
 - Consumes: `slugifyHeading` from Task 1; `react-markdown` + `remark-gfm` (already deps).
 - Produces: `<PostContent content={string} />` — server component; h1/h2 render as `<h2>` and
   h3 as `<h3>`, each with `id={slugifyHeading(headingText)}` and `scroll-mt-28` (sticky-header
@@ -794,11 +802,13 @@ git commit -m "feat(web): article markdown renderer with anchored headings"
 ### Task 5: `/blog/[slug]` article page + i18n + Article JSON-LD
 
 **Files:**
+
 - Modify: `libs/shared/i18n/src/lib/messages.ts` (extend `blog` block, after `featuredLabel`)
 - Modify: `apps/web/src/components/seo/json-ld.tsx` (append `ArticleJsonLd`)
 - Create: `apps/web/src/app/blog/[slug]/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `fetchPost`/`fetchPosts`/`fetchPostSlugs` (Task 3) · `extractOutline`/`readingStats`
   (Task 1) · `PostCard` (Task 3) · `PostContent` (Task 4) · `BreadcrumbJsonLd` (existing).
 - Produces: the route; `ArticleJsonLd({ title, description?, image?, slug, datePublished? })`;
@@ -1083,9 +1093,11 @@ git checkout main && git pull && git merge --no-ff feat/web-blog-reader && git p
 ### Task 7: `/blog` index — magazine grid + URL pagination + empty/error states
 
 **Files:**
+
 - Create: `apps/web/src/app/blog/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `fetchPosts` (Task 3) · `PostCard` (Task 3) · `pageNumbers` from
   `../../lib/paginate` (existing) · `Pagination*` primitives from `@tourism/ui` ·
   `messages.blog.*` (Task 5 keys) · `BreadcrumbJsonLd`.
@@ -1291,6 +1303,7 @@ git commit -m "feat(web): /blog index - magazine hero, URL pagination, honest em
 ### Task 8: Home wiring + nav/footer links + sitemap
 
 **Files:**
+
 - Modify: `apps/web/src/components/marketing/blog-teaser.tsx` (accept `posts` prop; fixtures →
   fallback only; viewAll → `/blog`)
 - Modify: `apps/web/src/app/page.tsx` (fetch 3 posts, pass into teaser)
@@ -1299,6 +1312,7 @@ git commit -m "feat(web): /blog index - magazine hero, URL pagination, honest em
 - Modify: `apps/web/src/app/sitemap.ts` (`/blog` + post slugs)
 
 **Interfaces:**
+
 - Consumes: `fetchPosts`/`fetchPostSlugs` (Task 3) · `PostSummaryVM` (Task 2).
 - Produces: `BlogTeaser({ posts }: { posts: PostSummaryVM[] })` · `messages.nav.blog: 'Journal'`.
 

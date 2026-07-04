@@ -33,11 +33,13 @@ Branch off `main`: `git checkout -b feat/admin-dashboard-wins-be`
 ### Task 1: `pendingCounts` on the stats aggregate (TDD)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/admin-stats/dto/admin-stats-response.dto.ts`
 - Modify: `apps/api/src/modules/admin-stats/admin-stats.service.ts` (interface ~line 5, `Promise.all` ~line 78, return mapping ~line 220+)
 - Test: `apps/api/src/modules/admin-stats/admin-stats.service.spec.ts`
 
 **Interfaces:**
+
 - Produces: `AdminStatsResponse.pendingCounts: { reviews: number; enquiries: number }` (Swagger `PendingCountsDto`). Task 2 regenerates FE types; Task 3/4 consume via `DashboardStats.pendingCounts`.
 
 - [ ] **Step 1: Write the failing test** — append inside the existing `describe` in `admin-stats.service.spec.ts`:
@@ -127,11 +129,13 @@ Branch off `main`: `git checkout -b feat/admin-dashboard-wins-fe`
 ### Task 3: `bookingsPipeline` transform (TDD) + `DashboardStats` typing
 
 **Files:**
+
 - Modify: `apps/admin/src/lib/dashboard/transforms.ts`
 - Modify: `apps/admin/src/lib/dashboard/stats.ts`
 - Test: `apps/admin/src/lib/dashboard/transforms.spec.ts` (exists — append)
 
 **Interfaces:**
+
 - Produces: `bookingsPipeline(byStatus: Record<PipelineStatus, number>): PipelineRow[]` where `PipelineRow = { status: PipelineStatus; label: string; count: number; pct: number }` and `PIPELINE_ORDER = ['PENDING','PAID','CANCELLED','REFUNDED']`; `DashboardStats` gains `topToursByRating[]`, `topToursByWishlist[]`, `pendingCounts | null`. Task 4 consumes all of it.
 
 - [ ] **Step 1: Write the failing tests** — append to `transforms.spec.ts`:
@@ -237,6 +241,7 @@ git commit -m "feat(admin): bookings pipeline transform + full dashboard stats t
 ### Task 4: Chart metric toggle + widget cards + page composition
 
 **Files:**
+
 - Modify: `apps/admin/src/components/dashboard/chart-area-interactive.tsx`
 - Create: `apps/admin/src/components/dashboard/bookings-pipeline.tsx`
 - Create: `apps/admin/src/components/dashboard/top-tours-card.tsx`
@@ -244,6 +249,7 @@ git commit -m "feat(admin): bookings pipeline transform + full dashboard stats t
 - Modify: `apps/admin/src/app/(admin)/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `bookingsPipeline`/`PipelineStatus`, `formatMoney` (existing transform), `DashboardStats` fields from Task 3.
 - Produces: `BookingsPipeline({ byStatus })` · `TopToursCard({ byRevenue, byRating, byWishlist })` · `NeedsAttention({ counts })`.
 

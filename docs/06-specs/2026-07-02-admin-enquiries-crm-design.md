@@ -25,7 +25,7 @@
   `groupSize: number | null` · `budgetTier: string | null` · `interests: string[]` ·
   `tourSlug: string | null` · `tourTitle: string | null`.
 - **`EnquiryService.findAllForAdmin`**: `include: { tour: { select: { slug: true, title: true } } }`
-  + a flat mapper (new `AdminEnquiryItem` shape in the service — currently returns raw rows; the
+  - a flat mapper (new `AdminEnquiryItem` shape in the service — currently returns raw rows; the
   mapper spreads the scalars and adds `tourSlug`/`tourTitle` from the join, `null` for general
   enquiries). `PaginatedEnquiries.items` types update in lockstep.
 - **`ListEnquiriesQueryDto`** += optional `search` (`@IsString() @MaxLength(160)`, trimmed); when

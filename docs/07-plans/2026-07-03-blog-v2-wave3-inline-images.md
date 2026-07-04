@@ -43,6 +43,7 @@ track + GC-on-delete).
 ### Task 1: `MediaRole.body` enum + migration (create-only)
 
 **Files:**
+
 - Modify: `apps/api/prisma/schema.prisma` (enum `MediaRole`, ~line 68)
 - Create: `apps/api/prisma/migrations/<ts>_add_media_role_body/migration.sql` (generated)
 
@@ -86,6 +87,7 @@ git commit -m "feat(api): MediaRole.body enum (migration create-only, not applie
 ### Task 2: `syncAssets` preserveRoles carve-out + `POST_BODY` purpose (TDD)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/media/media.service.ts`
 - Modify: `apps/api/src/modules/media/media.service.spec.ts`
 - Modify: `apps/api/src/modules/posts/posts.service.ts` (`setMedia` passes the carve-out)
@@ -95,6 +97,7 @@ git commit -m "feat(api): MediaRole.body enum (migration create-only, not applie
 - Modify: `apps/api/src/modules/uploads/uploads.service.spec.ts`
 
 **Interfaces:**
+
 - Produces: `syncAssets(tx, ownerType, ownerId, assets, opts?: { preserveRoles?: MediaRole[] })`
   — when provided, the existing-read AND the `deleteMany` add `role: { notIn: opts.preserveRoles }`;
   `UploadPurpose.POST_BODY` (image, folder `posts/body`).
@@ -224,6 +227,7 @@ git commit -m "feat(api): syncAssets preserveRoles carve-out + POST_BODY upload 
 ### Task 3: register endpoint (TDD)
 
 **Files:**
+
 - Create: `apps/api/src/modules/posts/dto/register-body-image.dto.ts`
 - Modify: `apps/api/src/modules/media/media.service.ts` (`registerAsset`)
 - Modify: `apps/api/src/modules/media/media.service.spec.ts`
@@ -232,6 +236,7 @@ git commit -m "feat(api): syncAssets preserveRoles carve-out + POST_BODY upload 
 - Modify: `apps/api/src/modules/posts/admin-posts.controller.ts`
 
 **Interfaces:**
+
 - Produces: `MediaService.registerAsset(ownerType, ownerId, role, input): Promise<{ url: string }>`
   (idempotent per owner+publicId) · `PostsService.addBodyImage(slug, dto)` ·
   `POST /admin/posts/:slug/body-images` → `{ url }` (201; 404 unknown slug).
@@ -434,6 +439,7 @@ git checkout main && git pull && git merge --no-ff feat/blog-v2-body-images -m "
 ### Task 6: `insertSnippet` helper (TDD)
 
 **Files:**
+
 - Create: `apps/admin/src/lib/posts/markdown.ts`
 - Test: `apps/admin/src/lib/posts/markdown.spec.ts`
 
@@ -502,6 +508,7 @@ git commit -m "feat(admin): insertSnippet markdown helper"
 ### Task 7: Insert-image button + controlled editor + preview toggle + media facet
 
 **Files:**
+
 - Modify: `apps/admin/src/components/crud/media-field.tsx` (export the existing local
   `uploadFile` helper — add `export` only, zero behavior change)
 - Create: `apps/admin/src/components/posts/insert-image-button.tsx`
@@ -511,6 +518,7 @@ git commit -m "feat(admin): insertSnippet markdown helper"
   `apps/admin/src/lib/media-library/` and add `body`)
 
 **Interfaces:**
+
 - Consumes: `uploadFile(file, purpose, role)` from media-field · `signUpload` purpose union
   in `apps/admin/src/lib/uploads.ts` gains `'POST_BODY'` · `apiWrite` →
   `POST /api/v1/admin/posts/{slug}/body-images` · `insertSnippet` (Task 6) ·
@@ -625,7 +633,7 @@ argument is only used for the returned item's role and is irrelevant here.)
 - [ ] **Step 4:** post-form.tsx Content section:
 
 1. `content` becomes controlled: `const [content, setContent] = useState(post?.content ?? '');`
-   + `const contentRef = useRef<HTMLTextAreaElement>(null);` + Textarea gets
+   - `const contentRef = useRef<HTMLTextAreaElement>(null);` + Textarea gets
    `ref={contentRef}`, `value={content}`, `onChange={(e) => setContent(e.target.value)}`
    (drop `defaultValue`).
 2. Editor mode toggle state: `const [editorTab, setEditorTab] = useState<'write' | 'preview'>('write');`

@@ -39,6 +39,7 @@ Branch off `main`: `git checkout -b perf/tour-id-indexes`
 ### Task 1: index Booking.tourId + Enquiry.tourId
 
 **Files:**
+
 - Modify: `apps/api/prisma/schema.prisma` (Booking block ~line 376-378; Enquiry block ~line 480)
 - Create (generated): `apps/api/prisma/migrations/<timestamp>_add_tour_id_indexes/migration.sql`
 
@@ -82,10 +83,12 @@ Branch off `main`: `git checkout -b feat/admin-bookings-polish-be`
 ### Task 2: service — enriched `AdminBookingDetail` (TDD)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/bookings/bookings.service.ts` (`BOOKING_DETAIL_INCLUDE` ~line 48 · `AdminBookingDetail` interface ~line 61 · `toAdminBookingDetail` ~line 86 · `findByCodeForAdmin` ~line 612)
 - Test: `apps/api/src/modules/bookings/bookings.service.spec.ts` (`makePrisma` ~line 26; `findByCodeForAdmin` describe ~line 685)
 
 **Interfaces:**
+
 - Produces (service layer — Task 3 mirrors these onto Swagger DTOs; Task 5 regen makes them FE-visible):
   - `AdminBookingDetail` gains `providerSessionId: string | null` · `departure: { startDate: string; endDate: string; seatsTotal: number; seatsBooked: number }` · `customer: { id: string; fullName: string | null; email: string; createdAt: string }` · `otherBookings: { total: number; items: OtherBookingItem[] }` · `paymentEvents: PaymentEventSummary[]`
   - `export interface OtherBookingItem { code: string; status: BookingStatus; createdAt: string; tourTitle: string; totalAmount: string; currency: string }`
@@ -480,9 +483,11 @@ git commit -m "feat(api): admin booking detail — customer, other bookings, pay
 ### Task 3: Swagger DTOs for the new detail fields
 
 **Files:**
+
 - Modify: `apps/api/src/modules/bookings/dto/admin-booking-detail.dto.ts`
 
 **Interfaces:**
+
 - Consumes: the Task-2 service shapes (names/types must match EXACTLY — the generated FE types come from these decorators).
 - Produces: `AdminBookingDetailDto` with `providerSessionId` · `departure: AdminBookingDepartureRefDto` (adds `seatsTotal`/`seatsBooked`) · `customer: BookingCustomerDto` · `otherBookings: OtherBookingsDto` · `paymentEvents: PaymentEventSummaryDto[]`.
 
@@ -648,11 +653,13 @@ git commit -m "feat(api): AdminBookingDetailDto — customer/otherBookings/payme
 ### Task 4: `userId` filter on the admin bookings list (TDD)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/bookings/dto/list-admin-bookings-query.dto.ts`
 - Modify: `apps/api/src/modules/bookings/bookings.service.ts` (`findAllForAdmin` where-clause ~line 574)
 - Test: `apps/api/src/modules/bookings/bookings.service.spec.ts` (the `findAllForAdmin` describe, near the existing AND-composition test ~line 655)
 
 **Interfaces:**
+
 - Produces: `GET /admin/bookings?userId=<uuid>` — AND-composes with status/search/tourId/departureId. Slice 2's list page passes it through.
 
 - [ ] **Step 1: Write the failing test** (mirror the existing tourId/departureId composition test):
@@ -721,11 +728,13 @@ Branch off `main`: `git checkout -b feat/admin-bookings-polish-ui`
 ### Task 6: lib — seats helper (TDD) + data plumbing
 
 **Files:**
+
 - Modify: `apps/admin/src/lib/bookings/format.ts` (+ `formatSeatsSummary`)
 - Test: `apps/admin/src/lib/bookings/format.spec.ts`
 - Modify: `apps/admin/src/lib/bookings/data.ts` (`BookingListParams` + `listBookings` query)
 
 **Interfaces:**
+
 - Consumes: `components['schemas']['AdminBookingDetailDto']` (regenerated in Task 5) — via the existing `AdminBookingDetail` re-export in `lib/bookings/detail.ts` (no change needed there).
 - Produces: `formatSeatsSummary(seatsTotal: number | undefined, seatsBooked: number | undefined): string | null` — null hides the fact (deploy-lag guard). `BookingListParams.userId?: string` forwarded to the API.
 
@@ -784,9 +793,11 @@ git commit -m "feat(admin): seats summary helper + userId list param"
 ### Task 7: booking detail page — seats, customer account, other bookings, payment events, session ref
 
 **Files:**
+
 - Modify: `apps/admin/src/app/(admin)/bookings/[code]/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `AdminBookingDetail` new fields (`customer` · `otherBookings` · `paymentEvents` · `providerSessionId` · `departure.seatsTotal/seatsBooked`) — ALL may be `undefined` at runtime until Render deploys (deploy-lag): guard each block. `formatSeatsSummary` from `../../../../lib/bookings/format` (Task 6). Existing `Fact`/`SummaryRow`/`formatDate`/`formatRelativeTime`/`formatMoney`/`BookingStatusBadge` stay as-is.
 
 - [ ] **Step 1: Imports.** Add `Badge` to the `@tourism/ui` import list; add `formatSeatsSummary` to the `./format` import; keep everything else.
@@ -934,9 +945,11 @@ git commit -m "feat(admin): booking detail — customer account, other bookings,
 ### Task 8: bookings list — `?userId=` deep-link + indicator
 
 **Files:**
+
 - Modify: `apps/admin/src/app/(admin)/bookings/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `listBookings({ userId })` (Task 6). The link arriving here is minted by Task 7 (`/bookings?userId=<uuid>`).
 
 - [ ] **Step 1: Parse + forward.** In `page.tsx`:

@@ -8,7 +8,7 @@
   (all 7 waves ✅ 2026-07-02); after this wave the next phase is P6 web blog reader.
 - **Status:** approved direction, spec for execution
 - **Trigger:** user request ("admin chưa có chỗ quản lí người dùng — còn thiếu gì nữa không?")
-  + a 2-agent BE/FE completeness audit (2026-07-03).
+  - a 2-agent BE/FE completeness audit (2026-07-03).
 
 ## Key facts (verified by audit)
 

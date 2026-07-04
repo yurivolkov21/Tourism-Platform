@@ -40,12 +40,14 @@ Jest.
 ### Task 1: VM + fetcher extensions (TDD)
 
 **Files:**
+
 - Modify: `apps/web/src/lib/blog/post-vm.ts`
 - Modify: `apps/web/src/lib/blog/post-vm.spec.ts`
 - Modify: `apps/web/src/lib/api/posts.ts`
 - Modify: `apps/web/src/components/marketing/blog-teaser.tsx` (fixture reshape — VM type forces it)
 
 **Interfaces:**
+
 - Consumes: `toTourCard(dto: TourSummaryDto): TourCardData` from `../api/tours` ·
   generated `PostDetailDto`/`PostTagWithCountDto` from `@tourism/core`.
 - Produces: `PostTagVM { slug; name }` · `PostAuthorVM { fullName: string|null; avatarUrl: string|null }` ·
@@ -278,10 +280,12 @@ git commit -m "feat(web): post VM carries tags/author/related tours + tag & sear
 ### Task 2: `pickMorePosts` helper (TDD)
 
 **Files:**
+
 - Create: `apps/web/src/lib/blog/pick-more-posts.ts`
 - Test: `apps/web/src/lib/blog/pick-more-posts.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `PostSummaryVM` (Task 1 shape).
 - Produces: `pickMorePosts(tagged: PostSummaryVM[], recent: PostSummaryVM[], selfSlug: string, count = 3): PostSummaryVM[]`.
 
@@ -365,10 +369,12 @@ git commit -m "feat(web): pickMorePosts - same-topic first, recency top-up"
 ### Task 3: i18n keys + PostCard tag chips + fixture reshape
 
 **Files:**
+
 - Modify: `libs/shared/i18n/src/lib/messages.ts`
 - Modify: `apps/web/src/components/blog/post-card.tsx`
 
 **Interfaces:**
+
 - Produces: `messages.blog.{bylineNamed,toursHeading,topicsLabel,allTag,searchPlaceholder,searchLabel,emptyFilteredBody,clearFilters}` ·
   `messages.enquiryCta.headings.blog(title)` · PostCard renders up to 2 tag labels.
 
@@ -427,10 +433,12 @@ git commit -m "feat(web): blog i18n keys + post-card topic labels"
 ### Task 4: Article page — byline, tag links, tours, CTA, related-by-tag, JSON-LD Person
 
 **Files:**
+
 - Modify: `apps/web/src/components/seo/json-ld.tsx` (ArticleJsonLd `authorName?`)
 - Modify: `apps/web/src/app/blog/[slug]/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `post.relatedTours: TourCardData[]` + `post.tags`/`post.author` (Task 1) ·
   `pickMorePosts` (Task 2) · i18n keys (Task 3) · existing `TourCard`
   (`components/tours/tour-card`, prop `tour`) · `EnquiryCta`
@@ -568,9 +576,11 @@ git commit -m "feat(web): article funnel - real byline, topic links, tour cards,
 ### Task 5: Index page — topic chips + search toolbar
 
 **Files:**
+
 - Modify: `apps/web/src/app/blog/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `fetchPosts({ page, tag, search })` + `fetchPostTags()` (Task 1) · i18n keys
   (Task 3) · existing `Input`/`Button` from `@tourism/ui` · `SearchIcon` from lucide.
 

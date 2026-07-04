@@ -32,12 +32,14 @@ Branch off `main`: `git checkout -b feat/admin-enquiries-crm-be`
 ### Task 1: `EnquiryDto` fields + service mapper/search (TDD)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/enquiry/dto/enquiry.dto.ts` (after `tourId`, ~line 29)
 - Modify: `apps/api/src/modules/enquiry/dto/list-enquiries-query.dto.ts`
 - Modify: `apps/api/src/modules/enquiry/enquiry.service.ts` (`PaginatedEnquiries` type ~line 7, `findAllForAdmin` ~lines 74-101)
 - Test: `apps/api/src/modules/enquiry/enquiry.service.spec.ts`
 
 **Interfaces:**
+
 - Produces: `EnquiryDto` += `nationality/travelDate/groupSize/budgetTier/interests/tourSlug/tourTitle`; `ListEnquiriesQueryDto.search?: string`; service `AdminEnquiryItem = Enquiry & { tourSlug: string | null; tourTitle: string | null }` with `PaginatedEnquiries.items: AdminEnquiryItem[]`. Task 2 regenerates FE types.
 
 - [ ] **Step 1: Write the failing tests** — append inside the existing `describe` in `enquiry.service.spec.ts` (the file's `makePrisma({ findMany, count })` helper + `as never` cast is already there; add `EnquiryStatus` to the `@prisma/client` import if missing):
@@ -232,11 +234,13 @@ Branch off `main`: `git checkout -b feat/admin-enquiries-crm-fe`
 ### Task 3: Wire `?q=` + upgrade the drawer + lead age
 
 **Files:**
+
 - Modify: `apps/admin/src/lib/enquiries/data.ts`
 - Modify: `apps/admin/src/app/(admin)/enquiries/page.tsx`
 - Modify: `apps/admin/src/components/enquiries/enquiries-view.tsx`
 
 **Interfaces:**
+
 - Consumes: regenerated `EnquiryDto` (7 new fields), `listEnquiries` gains `search?: string`.
 - Produces: `EnquiriesView({ rows, status, meta, query })` — new `query: string` prop (the active server-side search).
 

@@ -4,6 +4,7 @@
 ff-merged to `main`: slice A `5a8f13e` (toursCount BE + list columns sweep; incl. detail-DTO
 inheritance drift fix `08648fe`) · slice B `bdaf411` (bookings tourId/departureId filters + the
 departure detail page; `ecc:code-reviewer` APPROVE — 2 MEDIUMs fixed pre-merge: real tour currency
+
 + bookings load-error state) · slice C `6b566a4` (AdminTourDetailDto.ops aggregates + Performance/
 Departures-summary/Reviews cards; APPROVE-WITH-NOTES). Gate green per slice; api tests 254, admin
 tests 124. **FOLLOW-UP (from the slice-C review):** `Booking` + `Enquiry` lack `@@index([tourId])`
@@ -20,13 +21,13 @@ index migration in a later slice (Wishlist already has one; departureId is index
 
 ## Global Constraints
 
-- **Deploy-lag guards** on every new FE consumer: `toursCount ?? null` → "—"; `ops` optional (cards hidden when absent); bookings-filter page tolerates empty results.
-- **Public surface:** public tours/destinations/categories/bookings behavior unchanged; the `toursCount` field is harmless-additive on shared list DTOs; `ops` exists ONLY on the admin tour detail route.
-- **AND-composition:** the new bookings `tourId`/`departureId` filters compose with the existing status/search filters (assert in a test).
-- Follow the established templates verbatim: detail pages mirror `apps/admin/src/app/(admin)/categories/[slug]/page.tsx`; thumbnail columns mirror the Posts cover column (`apps/admin/src/components/posts/posts-table.tsx:39-57`); utilization bars mirror `components/dashboard/bookings-pipeline.tsx`.
-- No hex colors; relative imports; Base UI conventions; Conventional Commits, no AI attribution; do NOT stage unrelated dirty files (docs/*.md, playground.md).
-- Gate per slice = `pnpm nx affected -t lint test build --exclude=@tourism/mobile`. Slices B + C → `ecc:code-reviewer`; slice A self-certified if its task reviews are clean. Merging after a green slice is pre-authorized; pause only on CRITICAL/HIGH findings.
-- Regen routine (controller runs it inline): boot `pnpm nx serve @tourism/api` in the background → poll `http://localhost:3000/api/docs-json` to 200 → `pnpm nx run @tourism/core:api-types` → verify the diff → kill the server tree via the port-3000 PID → `pnpm nx run-many -t build -p @tourism/core @tourism/admin @tourism/web` → commit the schema file alone.
++ **Deploy-lag guards** on every new FE consumer: `toursCount ?? null` → "—"; `ops` optional (cards hidden when absent); bookings-filter page tolerates empty results.
++ **Public surface:** public tours/destinations/categories/bookings behavior unchanged; the `toursCount` field is harmless-additive on shared list DTOs; `ops` exists ONLY on the admin tour detail route.
++ **AND-composition:** the new bookings `tourId`/`departureId` filters compose with the existing status/search filters (assert in a test).
++ Follow the established templates verbatim: detail pages mirror `apps/admin/src/app/(admin)/categories/[slug]/page.tsx`; thumbnail columns mirror the Posts cover column (`apps/admin/src/components/posts/posts-table.tsx:39-57`); utilization bars mirror `components/dashboard/bookings-pipeline.tsx`.
++ No hex colors; relative imports; Base UI conventions; Conventional Commits, no AI attribution; do NOT stage unrelated dirty files (docs/*.md, playground.md).
++ Gate per slice = `pnpm nx affected -t lint test build --exclude=@tourism/mobile`. Slices B + C → `ecc:code-reviewer`; slice A self-certified if its task reviews are clean. Merging after a green slice is pre-authorized; pause only on CRITICAL/HIGH findings.
++ Regen routine (controller runs it inline): boot `pnpm nx serve @tourism/api` in the background → poll `http://localhost:3000/api/docs-json` to 200 → `pnpm nx run @tourism/core:api-types` → verify the diff → kill the server tree via the port-3000 PID → `pnpm nx run-many -t build -p @tourism/core @tourism/admin @tourism/web` → commit the schema file alone.
 
 ---
 
@@ -37,16 +38,18 @@ Branch off `main`: `git checkout -b feat/admin-ops-columns`
 ### Task 1: `toursCount` on destinations + categories lists (TDD)
 
 **Files:**
-- Modify: `apps/api/src/modules/destinations/destinations.service.ts` (`private list` ~lines 223-256; the `PaginatedDestinations`/items type)
-- Modify: `apps/api/src/modules/destinations/dto/destination.dto.ts` (+1 field)
-- Modify: `apps/api/src/modules/tour-categories/tour-categories.service.ts` (`private list` ~lines 173-195; items type)
-- Modify: `apps/api/src/modules/tour-categories/dto/*.ts` (the category response DTO, +1 field)
-- Tests: `apps/api/src/modules/destinations/destinations.service.spec.ts`, `apps/api/src/modules/tour-categories/tour-categories.service.spec.ts`
+
++ Modify: `apps/api/src/modules/destinations/destinations.service.ts` (`private list` ~lines 223-256; the `PaginatedDestinations`/items type)
++ Modify: `apps/api/src/modules/destinations/dto/destination.dto.ts` (+1 field)
++ Modify: `apps/api/src/modules/tour-categories/tour-categories.service.ts` (`private list` ~lines 173-195; items type)
++ Modify: `apps/api/src/modules/tour-categories/dto/*.ts` (the category response DTO, +1 field)
++ Tests: `apps/api/src/modules/destinations/destinations.service.spec.ts`, `apps/api/src/modules/tour-categories/tour-categories.service.spec.ts`
 
 **Interfaces:**
-- Produces: `DestinationDto.toursCount: number` + the category DTO `toursCount: number` — mapped from Prisma `_count` in BOTH shared `list()` internals (public + admin lists both gain it; harmless). Task 2 regenerates and renders.
 
-- [ ] **Step 1: Write the failing tests.** In `destinations.service.spec.ts` append (adapt the service construction to the file's existing `makePrisma`/`makeMedia` helpers — the file already has both):
++ Produces: `DestinationDto.toursCount: number` + the category DTO `toursCount: number` — mapped from Prisma `_count` in BOTH shared `list()` internals (public + admin lists both gain it; harmless). Task 2 regenerates and renders.
+
++ [ ] **Step 1: Write the failing tests.** In `destinations.service.spec.ts` append (adapt the service construction to the file's existing `makePrisma`/`makeMedia` helpers — the file already has both):
 
 ```ts
   it('list maps the tours count onto each row', async () => {
@@ -90,9 +93,9 @@ In `tour-categories.service.spec.ts` append the analogous test (no media service
 
 (If either spec's `makePrisma` doesn't accept `findMany`/`count` overrides for the right model, extend the helper the way the file already extends it for other tests — zero-default so old tests stay green.)
 
-- [ ] **Step 2:** `pnpm nx test @tourism/api` — the 2 new tests FAIL (include undefined / `toursCount` undefined); everything else passes.
++ [ ] **Step 2:** `pnpm nx test @tourism/api` — the 2 new tests FAIL (include undefined / `toursCount` undefined); everything else passes.
 
-- [ ] **Step 3: Destinations service.** In `list()` add the include to `findMany`:
++ [ ] **Step 3: Destinations service.** In `list()` add the include to `findMany`:
 
 ```ts
         include: { _count: { select: { tours: true } } },
@@ -108,9 +111,9 @@ and map + strip after the media attach (replace the current `items:` line):
 
 Extend the items/`PaginatedDestinations` typing the way the file already types media-attached rows (add `& { toursCount: number }` at the type alias for list items — search `PaginatedDestinations`).
 
-- [ ] **Step 4: Categories service.** Same treatment in its `list()`: add the include, map `({ _count, ...row }) => ({ ...row, toursCount: _count.tours })` over the rows, extend the items type with `toursCount: number`.
++ [ ] **Step 4: Categories service.** Same treatment in its `list()`: add the include, map `({ _count, ...row }) => ({ ...row, toursCount: _count.tours })` over the rows, extend the items type with `toursCount: number`.
 
-- [ ] **Step 5: DTOs.** `destination.dto.ts` — add to `DestinationDto`:
++ [ ] **Step 5: DTOs.** `destination.dto.ts` — add to `DestinationDto`:
 
 ```ts
   @ApiProperty({ example: 4, description: 'Number of tours using this destination' })
@@ -124,9 +127,9 @@ Category response DTO (find the class the list `@ApiOkResponse` references, e.g.
   toursCount!: number;
 ```
 
-- [ ] **Step 6:** `pnpm nx test @tourism/api` — PASS (251 = 249 prior + 2 new).
++ [ ] **Step 6:** `pnpm nx test @tourism/api` — PASS (251 = 249 prior + 2 new).
 
-- [ ] **Step 7: Commit**
++ [ ] **Step 7: Commit**
 
 ```bash
 git add apps/api/src/modules/destinations apps/api/src/modules/tour-categories
@@ -136,17 +139,19 @@ git commit -m "feat(api): toursCount on destination + category lists"
 ### Task 2: Regen + FE columns (tours/destinations/categories)
 
 **Files:**
-- Modify (generated): `libs/shared/core/src/lib/api/schema.ts` (regen — controller inline routine)
-- Modify: `apps/admin/src/components/tours/tours-table.tsx`
-- Modify: `apps/admin/src/components/destinations/destinations-table.tsx`
-- Modify: the categories client table (`apps/admin/src/components/categories/categories-table.tsx` — confirm the exact filename with a Glob before editing)
+
++ Modify (generated): `libs/shared/core/src/lib/api/schema.ts` (regen — controller inline routine)
++ Modify: `apps/admin/src/components/tours/tours-table.tsx`
++ Modify: `apps/admin/src/components/destinations/destinations-table.tsx`
++ Modify: the categories client table (`apps/admin/src/components/categories/categories-table.tsx` — confirm the exact filename with a Glob before editing)
 
 **Interfaces:**
-- Consumes: `TourSummaryDto.media/averageRating/reviewsCount/nextDepartureDate/nextDepartureSeatsLeft` (already generated), `toursCount` from Task 1's regen.
 
-- [ ] **Step 1 (controller):** run the regen routine (Global Constraints); verify the diff = `toursCount` on the two DTOs only; commit `chore(core): regen API types (toursCount)`.
++ Consumes: `TourSummaryDto.media/averageRating/reviewsCount/nextDepartureDate/nextDepartureSeatsLeft` (already generated), `toursCount` from Task 1's regen.
 
-- [ ] **Step 2: Tours table** — in `tours-table.tsx` add three hideable columns:
++ [ ] **Step 1 (controller):** run the regen routine (Global Constraints); verify the diff = `toursCount` on the two DTOs only; commit `chore(core): regen API types (toursCount)`.
+
++ [ ] **Step 2: Tours table** — in `tours-table.tsx` add three hideable columns:
 
 (a) A leading `cover` column BEFORE `title` (mirror `posts-table.tsx:39-57` exactly, with `Compass` as the placeholder icon — already imported):
 
@@ -215,7 +220,7 @@ git commit -m "feat(api): toursCount on destination + category lists"
   },
 ```
 
-- [ ] **Step 3: Destinations table** — add a leading `cover` column (same pattern; use the file's existing empty-state icon import, e.g. `MapPin`/`Globe` — whatever lucide icon the file already imports for its Empty state) + a `tours` column near `status`:
++ [ ] **Step 3: Destinations table** — add a leading `cover` column (same pattern; use the file's existing empty-state icon import, e.g. `MapPin`/`Globe` — whatever lucide icon the file already imports for its Empty state) + a `tours` column near `status`:
 
 ```tsx
   {
@@ -232,11 +237,11 @@ git commit -m "feat(api): toursCount on destination + category lists"
 
 (The cast covers the pre-regen type on a stale checkout; after regen the field is typed — drop the cast if TS accepts the direct access.)
 
-- [ ] **Step 4: Categories table** — add the same `tours` count column (no thumbnail — categories have no media).
++ [ ] **Step 4: Categories table** — add the same `tours` count column (no thumbnail — categories have no media).
 
-- [ ] **Step 5:** `pnpm nx test @tourism/admin && pnpm nx build @tourism/admin && pnpm nx lint @tourism/admin` — PASS / 0 lint errors.
++ [ ] **Step 5:** `pnpm nx test @tourism/admin && pnpm nx build @tourism/admin && pnpm nx lint @tourism/admin` — PASS / 0 lint errors.
 
-- [ ] **Step 6: Commit**
++ [ ] **Step 6: Commit**
 
 ```bash
 git add apps/admin/src/components/tours/tours-table.tsx apps/admin/src/components/destinations/destinations-table.tsx apps/admin/src/components/categories
@@ -245,7 +250,7 @@ git commit -m "feat(admin): list columns sweep — thumbnails, rating, next depa
 
 ### Task 3: Slice-A gate + merge
 
-- [ ] `pnpm nx affected -t lint test build --exclude=@tourism/mobile` → green; self-certify; merge (pre-authorized): `git checkout main && git merge --ff-only feat/admin-ops-columns && git push origin main && git branch -d feat/admin-ops-columns`.
++ [ ] `pnpm nx affected -t lint test build --exclude=@tourism/mobile` → green; self-certify; merge (pre-authorized): `git checkout main && git merge --ff-only feat/admin-ops-columns && git push origin main && git branch -d feat/admin-ops-columns`.
 
 ---
 
@@ -256,14 +261,16 @@ Branch off `main`: `git checkout -b feat/admin-departure-detail`
 ### Task 4: Bookings `tourId`/`departureId` filters (TDD)
 
 **Files:**
-- Modify: `apps/api/src/modules/bookings/dto/list-admin-bookings-query.dto.ts`
-- Modify: `apps/api/src/modules/bookings/bookings.service.ts` (`findAllForAdmin` where-building, lines ~570-585)
-- Test: `apps/api/src/modules/bookings/bookings.service.spec.ts`
+
++ Modify: `apps/api/src/modules/bookings/dto/list-admin-bookings-query.dto.ts`
++ Modify: `apps/api/src/modules/bookings/bookings.service.ts` (`findAllForAdmin` where-building, lines ~570-585)
++ Test: `apps/api/src/modules/bookings/bookings.service.spec.ts`
 
 **Interfaces:**
-- Produces: optional `tourId` + `departureId` uuid query params on `GET /admin/bookings`, AND-composed with status/search. Task 5 consumes `departureId` from the FE.
 
-- [ ] **Step 1: Failing test** — append in `bookings.service.spec.ts` (match the file's existing service-construction helpers):
++ Produces: optional `tourId` + `departureId` uuid query params on `GET /admin/bookings`, AND-composed with status/search. Task 5 consumes `departureId` from the FE.
+
++ [ ] **Step 1: Failing test** — append in `bookings.service.spec.ts` (match the file's existing service-construction helpers):
 
 ```ts
   it('findAllForAdmin AND-composes departure/tour filters with status', async () => {
@@ -286,9 +293,9 @@ Branch off `main`: `git checkout -b feat/admin-departure-detail`
 
 (If no reusable helper exists in that spec for list mocks, construct the service the way its other `findAllForAdmin` tests do — mirror them.)
 
-- [ ] **Step 2:** red run (`pnpm nx test @tourism/api`).
++ [ ] **Step 2:** red run (`pnpm nx test @tourism/api`).
 
-- [ ] **Step 3: Query DTO** — add `IsUUID` to the class-validator import and append:
++ [ ] **Step 3: Query DTO** — add `IsUUID` to the class-validator import and append:
 
 ```ts
   /** Filter to one tour's bookings. */
@@ -304,7 +311,7 @@ Branch off `main`: `git checkout -b feat/admin-departure-detail`
   departureId?: string;
 ```
 
-- [ ] **Step 4: Service** — extend the where in `findAllForAdmin`:
++ [ ] **Step 4: Service** — extend the where in `findAllForAdmin`:
 
 ```ts
     const where: Prisma.BookingWhereInput = {
@@ -314,22 +321,24 @@ Branch off `main`: `git checkout -b feat/admin-departure-detail`
       ...(search
 ```
 
-- [ ] **Step 5:** green run; commit `feat(api): tourId/departureId filters on admin bookings list`.
++ [ ] **Step 5:** green run; commit `feat(api): tourId/departureId filters on admin bookings list`.
 
 ### Task 5: Regen + departure detail page + list link
 
 **Files:**
-- Modify (generated): `libs/shared/core/src/lib/api/schema.ts` (regen — controller routine; commit `chore(core): regen API types (bookings tour/departure filters)`)
-- Modify: `apps/admin/src/lib/bookings/data.ts` (`BookingListParams` += `tourId?: string; departureId?: string;`, passed through in `listBookings`'s query object)
-- Create: `apps/admin/src/app/(admin)/tours/[slug]/departures/[id]/page.tsx`
-- Modify: `apps/admin/src/components/departures/departures-table.tsx` (Start cell → link)
+
++ Modify (generated): `libs/shared/core/src/lib/api/schema.ts` (regen — controller routine; commit `chore(core): regen API types (bookings tour/departure filters)`)
++ Modify: `apps/admin/src/lib/bookings/data.ts` (`BookingListParams` += `tourId?: string; departureId?: string;`, passed through in `listBookings`'s query object)
++ Create: `apps/admin/src/app/(admin)/tours/[slug]/departures/[id]/page.tsx`
++ Modify: `apps/admin/src/components/departures/departures-table.tsx` (Start cell → link)
 
 **Interfaces:**
-- Consumes: `findDeparture(slug, id)` (`lib/departures/data.ts:30`), `listBookings({ departureId, pageSize: 100 })`, `bookingStatusMeta`/`formatMoney`/`formatGuests` (`lib/bookings/format.ts`), `isDeparturePast` (`lib/departures/format.ts`), `deleteDeparture` (`lib/departures/actions.ts` — single-arg-bound like the list does), `formatRelativeTime`.
 
-- [ ] **Step 1:** regen routine + `data.ts` params (two added lines in the interface + two in the query object).
++ Consumes: `findDeparture(slug, id)` (`lib/departures/data.ts:30`), `listBookings({ departureId, pageSize: 100 })`, `bookingStatusMeta`/`formatMoney`/`formatGuests` (`lib/bookings/format.ts`), `isDeparturePast` (`lib/departures/format.ts`), `deleteDeparture` (`lib/departures/actions.ts` — single-arg-bound like the list does), `formatRelativeTime`.
 
-- [ ] **Step 2: Create the page** — read-only detail mirroring the Categories detail structure (`categories/[slug]/page.tsx`) with the per-tour nested context the departures pages keep:
++ [ ] **Step 1:** regen routine + `data.ts` params (two added lines in the interface + two in the query object).
+
++ [ ] **Step 2: Create the page** — read-only detail mirroring the Categories detail structure (`categories/[slug]/page.tsx`) with the per-tour nested context the departures pages keep:
 
 ```tsx
 import Link from 'next/link';
@@ -567,11 +576,11 @@ export default async function DepartureDetailPage({ params }: DepartureDetailPag
 
 (Verify `bookingStatusMeta`'s return shape in `lib/bookings/format.ts` before use — adapt the badge render to its actual `{ label, variant }` fields; if the departure DTO carries `createdAt/updatedAt`, add Created/Updated `Row`s with `formatRelativeTime` — check the generated type and include them when present.)
 
-- [ ] **Step 3: List link** — in `departures-table.tsx`, wrap the Start-date cell content in a `Link` to `/tours/${slug}/departures/${row.original.id}` (`hover:text-primary font-medium hover:underline`, keep the dimmed-past styling; the component already receives `slug`).
++ [ ] **Step 3: List link** — in `departures-table.tsx`, wrap the Start-date cell content in a `Link` to `/tours/${slug}/departures/${row.original.id}` (`hover:text-primary font-medium hover:underline`, keep the dimmed-past styling; the component already receives `slug`).
 
-- [ ] **Step 4:** `pnpm nx test @tourism/admin && pnpm nx build @tourism/admin` — PASS; route list includes `/tours/[slug]/departures/[id]`.
++ [ ] **Step 4:** `pnpm nx test @tourism/admin && pnpm nx build @tourism/admin` — PASS; route list includes `/tours/[slug]/departures/[id]`.
 
-- [ ] **Step 5: Commit**
++ [ ] **Step 5: Commit**
 
 ```bash
 git add apps/admin/src/lib/bookings/data.ts "apps/admin/src/app/(admin)/tours/[slug]/departures/[id]/page.tsx" apps/admin/src/components/departures/departures-table.tsx
@@ -580,7 +589,7 @@ git commit -m "feat(admin): departure detail page — bookings, utilization, fac
 
 ### Task 6: Slice-B gate + review + merge
 
-- [ ] Gate → green; `ecc:code-reviewer` on the branch diff (filters AND-compose; admin gating; page fetch fan-out acceptable). Fix CRITICAL/HIGH. Merge (pre-authorized).
++ [ ] Gate → green; `ecc:code-reviewer` on the branch diff (filters AND-compose; admin gating; page fetch fan-out acceptable). Fix CRITICAL/HIGH. Merge (pre-authorized).
 
 ---
 
@@ -591,15 +600,17 @@ Branch off `main`: `git checkout -b feat/admin-tour-ops`
 ### Task 7: `AdminTourDetailDto.ops` aggregates (TDD)
 
 **Files:**
-- Create: `apps/api/src/modules/tours/dto/admin-tour-detail.dto.ts`
-- Modify: `apps/api/src/modules/tours/tours.service.ts` (new `findDetailForAdmin` beside `findBySlug`)
-- Modify: `apps/api/src/modules/tours/admin-tours.controller.ts` (`detail` route, lines 54-60)
-- Test: `apps/api/src/modules/tours/tours.service.spec.ts`
+
++ Create: `apps/api/src/modules/tours/dto/admin-tour-detail.dto.ts`
++ Modify: `apps/api/src/modules/tours/tours.service.ts` (new `findDetailForAdmin` beside `findBySlug`)
++ Modify: `apps/api/src/modules/tours/admin-tours.controller.ts` (`detail` route, lines 54-60)
++ Test: `apps/api/src/modules/tours/tours.service.spec.ts`
 
 **Interfaces:**
-- Produces: `AdminTourDetail = <findBySlug's return type> & { ops: TourOps }` where `TourOps = { bookingsTotal: number; bookingsPaid: number; revenue: string; wishlistCount: number; enquiriesCount: number }`; Swagger `AdminTourDetailDto extends TourDetailDto` with `ops!: TourOpsDto`. Task 8 renders it.
 
-- [ ] **Step 1: DTO** — `admin-tour-detail.dto.ts`:
++ Produces: `AdminTourDetail = <findBySlug's return type> & { ops: TourOps }` where `TourOps = { bookingsTotal: number; bookingsPaid: number; revenue: string; wishlistCount: number; enquiriesCount: number }`; Swagger `AdminTourDetailDto extends TourDetailDto` with `ops!: TourOpsDto`. Task 8 renders it.
+
++ [ ] **Step 1: DTO** — `admin-tour-detail.dto.ts`:
 
 ```ts
 import { ApiProperty } from '@nestjs/swagger';
@@ -635,7 +646,7 @@ export class AdminTourDetailDto extends TourDetailDto {
 
 (Confirm the base DTO's import path — the tours dto folder holds `TourDetailDto`; adapt the import if the filename differs.)
 
-- [ ] **Step 2: Failing tests** — append in `tours.service.spec.ts` (match its construction helpers; the service takes prisma + media and possibly more — mirror an existing admin-read test):
++ [ ] **Step 2: Failing tests** — append in `tours.service.spec.ts` (match its construction helpers; the service takes prisma + media and possibly more — mirror an existing admin-read test):
 
 ```ts
   it('findDetailForAdmin attaches ops aggregates', async () => {
@@ -655,9 +666,9 @@ export class AdminTourDetailDto extends TourDetailDto {
 
 Write these as REAL tests against the file's actual helpers (the comments above are the contract; the implementer fills the arrange/act with the spec file's existing mock idioms — every existing test in that file shows the pattern). The assertions must be exactly the two `expect`s described.
 
-- [ ] **Step 3:** red run.
++ [ ] **Step 3:** red run.
 
-- [ ] **Step 4: Service** — add beside `findBySlug`:
++ [ ] **Step 4: Service** — add beside `findBySlug`:
 
 ```ts
   /** Admin detail: the enriched tour + commercial ops aggregates. Public reads stay ops-free. */
@@ -689,23 +700,25 @@ Write these as REAL tests against the file's actual helpers (the comments above 
 
 with the matching exported type (`AdminTourDetail = Awaited<ReturnType<ToursService['findBySlug']>> & { ops: {...} }` or the file's explicit-type idiom) and imports (`BookingStatus`, `Prisma` likely already imported).
 
-- [ ] **Step 5: Controller** — `detail()` → `findDetailForAdmin`, `@ApiOkResponse({ type: AdminTourDetailDto })`, summary "Admin: get one tour by slug (enriched + ops)". Public `tours.controller.ts` untouched.
++ [ ] **Step 5: Controller** — `detail()` → `findDetailForAdmin`, `@ApiOkResponse({ type: AdminTourDetailDto })`, summary "Admin: get one tour by slug (enriched + ops)". Public `tours.controller.ts` untouched.
 
-- [ ] **Step 6:** green run; commit `feat(api): admin tour detail ops aggregates`.
++ [ ] **Step 6:** green run; commit `feat(api): admin tour detail ops aggregates`.
 
 ### Task 8: Regen + tour detail cards
 
 **Files:**
-- Modify (generated): `libs/shared/core/src/lib/api/schema.ts` (regen — controller routine; commit `chore(core): regen API types (tour ops)`)
-- Modify: `apps/admin/src/lib/tours/data.ts` (detail fetch type → `AdminTourDetailDto`-shaped; envelope-unwrap stays; loose-guard `ops` optional)
-- Modify: `apps/admin/src/app/(admin)/tours/[slug]/page.tsx` (add the cards)
+
++ Modify (generated): `libs/shared/core/src/lib/api/schema.ts` (regen — controller routine; commit `chore(core): regen API types (tour ops)`)
++ Modify: `apps/admin/src/lib/tours/data.ts` (detail fetch type → `AdminTourDetailDto`-shaped; envelope-unwrap stays; loose-guard `ops` optional)
++ Modify: `apps/admin/src/app/(admin)/tours/[slug]/page.tsx` (add the cards)
 
 **Interfaces:**
-- Consumes: `tour.ops` (optional — deploy-lag), `listDepartures(slug)` (existing), `formatMoney` from `../../lib/bookings/format` (verify signature) or `lib/dashboard/transforms` — use whichever the file already imports for money; `isDeparturePast`.
 
-- [ ] **Step 1:** regen routine; update `lib/tours/data.ts`'s detail type (`export type TourDetail = components['schemas']['AdminTourDetailDto'];` if the file uses the generated type — if it declares a local interface, add `ops?: TourOps` optional).
++ Consumes: `tour.ops` (optional — deploy-lag), `listDepartures(slug)` (existing), `formatMoney` from `../../lib/bookings/format` (verify signature) or `lib/dashboard/transforms` — use whichever the file already imports for money; `isDeparturePast`.
 
-- [ ] **Step 2: Cards on `/tours/[slug]`** — targeted edits:
++ [ ] **Step 1:** regen routine; update `lib/tours/data.ts`'s detail type (`export type TourDetail = components['schemas']['AdminTourDetailDto'];` if the file uses the generated type — if it declares a local interface, add `ops?: TourOps` optional).
+
++ [ ] **Step 2: Cards on `/tours/[slug]`** — targeted edits:
 
 (a) Page fetch: alongside the existing detail fetch, fetch `listDepartures(slug).catch(() => [])` server-side (Promise.all).
 
@@ -804,9 +817,9 @@ where `upcoming` is computed above the return: `const upcoming = departures.filt
 
 (Adapt to the page's actual rating-field names — the enriched detail carries the same `averageRating`/`reviewsCount` as the summary; if the page already renders a rating card, add ONLY the link affordance rather than duplicating.)
 
-- [ ] **Step 3:** `pnpm nx test @tourism/admin && pnpm nx build @tourism/admin` — PASS.
++ [ ] **Step 3:** `pnpm nx test @tourism/admin && pnpm nx build @tourism/admin` — PASS.
 
-- [ ] **Step 4: Commit**
++ [ ] **Step 4: Commit**
 
 ```bash
 git add apps/admin/src/lib/tours/data.ts "apps/admin/src/app/(admin)/tours/[slug]/page.tsx"
@@ -815,5 +828,5 @@ git commit -m "feat(admin): tour detail ops cards — performance, departures su
 
 ### Task 9: Slice-C gate + review + merge + wrap-up
 
-- [ ] Gate → green; `ecc:code-reviewer` on the branch diff (aggregate correctness/zero-safety; public tours untouched; fan-out cost acceptable on a detail page). Fix CRITICAL/HIGH. Merge (pre-authorized).
-- [ ] Wrap-up: STATUS line on this plan, tick Wave 5 in the roadmap, update memory, tell the user what to check on the deploy (list columns · departure detail via the Start-date link · tour detail Performance/Departures cards).
++ [ ] Gate → green; `ecc:code-reviewer` on the branch diff (aggregate correctness/zero-safety; public tours untouched; fan-out cost acceptable on a detail page). Fix CRITICAL/HIGH. Merge (pre-authorized).
++ [ ] Wrap-up: STATUS line on this plan, tick Wave 5 in the roadmap, update memory, tell the user what to check on the deploy (list columns · departure detail via the Start-date link · tour detail Performance/Departures cards).

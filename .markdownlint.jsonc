@@ -1,0 +1,43 @@
+{
+  // markdownlint config, tuned to this repo's established docs conventions.
+  // Read by both markdownlint-cli2 and the VS Code markdownlint extension.
+  // Rule reference: https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+  "default": true,
+
+  // MD013 line-length — OFF. Docs are long-form prose; wrapping to a fixed
+  // column would flag ~4.6k lines with zero reader benefit.
+  "MD013": false,
+
+  // MD025 single-title — OFF. Plan docs (docs/07-plans/*) deliberately use
+  // multiple top-level "# Slice N — ..." headings as their authoring template.
+  "MD025": false,
+
+  // MD001 heading-increment — OFF. The same slice template intentionally jumps
+  // "#" -> "###" (slice title, then detail sub-headings).
+  "MD001": false,
+
+  // MD036 no-emphasis-as-heading — OFF. ADRs/specs use bold lead-ins
+  // (**Goals**, **Non-goals**, **Access control**) as lightweight sub-labels.
+  "MD036": false,
+
+  // MD033 no-inline-html — OFF. Specs/examples intentionally embed small HTML
+  // snippets and <region>/<start> placeholders.
+  "MD033": false,
+
+  // MD037/MD038 no-space-in-emphasis / -code — OFF. False-positives on prose
+  // that embeds JSX/CSS: markdownlint mis-reads `/* Gallery */` as emphasis
+  // (`* Gallery *`) and mis-flags word-boundary spaces around dense inline-code
+  // sentences; its auto-fix corrupts the authored code content.
+  "MD037": false,
+  "MD038": false,
+
+  // MD029 ol-prefix — OFF. Plan docs interleave numbered steps with fenced code
+  // blocks, which markdownlint sees as separate single-item lists; auto-fixing
+  // would collapse authored "1. 2. 3." step numbers to "1. 1. 1." and break the
+  // rendered sequence the docs reference by number. Keep authored numbering.
+  "MD029": false,
+
+  // MD024 no-duplicate-heading — only flag duplicates under the SAME parent;
+  // repeated "Deps"/"Notes" sub-sections across different sections are fine.
+  "MD024": { "siblings_only": true }
+}

@@ -43,11 +43,13 @@ Next.js 16 admin (Server Actions + zod) · `@tourism/ui` (Base UI) · Jest.
 ### Task 1: Schema + migration (create-only) + client generate
 
 **Files:**
+
 - Modify: `apps/api/prisma/schema.prisma` (Post block ends ~line 538)
 - Create: `apps/api/prisma/migrations/<timestamp>_add_post_tags_and_post_tours/migration.sql`
   (generated)
 
 **Interfaces:**
+
 - Consumes: existing `Post` (line 521) and `Tour` (line 200) models.
 - Produces: Prisma client models `postTag`, `postTagLink`, `postTour`; relations
   `Post.tags: PostTagLink[]`, `Post.relatedTours: PostTour[]`, `Tour.posts: PostTour[]`.
@@ -158,6 +160,7 @@ git commit -m "feat(api): post tags + post tours schema (migration create-only, 
 ### Task 2: DTOs — tag shapes, public author, detail-with-tours, write fields
 
 **Files:**
+
 - Create: `apps/api/src/modules/posts/dto/post-tag.dto.ts`
 - Create: `apps/api/src/modules/posts/dto/post-detail.dto.ts`
 - Modify: `apps/api/src/modules/posts/dto/post.dto.ts`
@@ -166,6 +169,7 @@ git commit -m "feat(api): post tags + post tours schema (migration create-only, 
 - Modify: `apps/api/src/modules/posts/dto/list-posts-query.dto.ts`
 
 **Interfaces:**
+
 - Consumes: `TourSummaryDto` from `../../tours/dto/tour-summary.dto` (exists).
 - Produces: `PostTagDto { slug, name }` · `PostTagWithCountDto extends PostTagDto { count }` ·
   `PublicPostAuthorDto { fullName: string|null, avatarUrl: string|null }` ·
@@ -326,6 +330,7 @@ git commit -m "feat(api): post tag/author/related-tour DTOs + tag query + write 
 ### Task 3: Service — tag upsert, tour links, hydrated reads, tag lists (TDD)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/posts/posts.service.ts`
 - Modify: `apps/api/src/modules/posts/posts.service.spec.ts`
 - Modify: `apps/api/src/modules/tours/tours.service.ts` (one new public method)
@@ -333,6 +338,7 @@ git commit -m "feat(api): post tag/author/related-tour DTOs + tag query + write 
 - Modify: `apps/api/src/modules/posts/posts.module.ts` (import `ToursModule`)
 
 **Interfaces:**
+
 - Consumes: Prisma models from Task 1; `ToursService`/`TourWithStats` from
   `../tours/tours.service`; existing `slugify` from `../../common/slugify`.
 - Produces (service types other tasks rely on):
@@ -975,10 +981,12 @@ git commit -m "feat(api): post tags + related tours + public author in service r
 ### Task 4: Controllers — tag endpoints + detail DTO
 
 **Files:**
+
 - Modify: `apps/api/src/modules/posts/posts.controller.ts`
 - Modify: `apps/api/src/modules/posts/admin-posts.controller.ts`
 
 **Interfaces:**
+
 - Consumes: `findPublicTags`/`findAdminTags`/`PublicPostDetail` from Task 3;
   `PostTagWithCountDto` (Task 2), `PostDetailDto` (Task 2).
 - Produces: `GET /posts/tags` (public) · `GET /admin/posts/tags` (admin) — both BEFORE their
@@ -1043,6 +1051,7 @@ git commit -m "feat(api): public + admin post-tag endpoints, detail returns rela
 ### Task 5: Regen `@tourism/core` types + consumer builds
 
 **Files:**
+
 - Modify: `libs/shared/core/src/lib/api/schema.ts` (generated)
 
 - [ ] **Step 1: Regen** (the `/regen-types` routine)
@@ -1119,11 +1128,13 @@ git checkout main && git pull && git merge --no-ff feat/blog-v2-content-model -m
 ### Task 7: Form schema + actions accept tags/relatedTourSlugs (TDD)
 
 **Files:**
+
 - Modify: `apps/admin/src/lib/posts/schema.ts`
 - Modify: `apps/admin/src/lib/posts/actions.ts`
 - Test: `apps/admin/src/lib/posts/schema.spec.ts`
 
 **Interfaces:**
+
 - Consumes: hidden inputs `name="tags"` / `name="relatedTourSlugs"` (JSON `string[]`,
   Task 8 renders them).
 - Produces: `postSchema += tags?: string[] (≤10, each 1–60) · relatedTourSlugs?: string[]
@@ -1256,6 +1267,7 @@ git commit -m "feat(admin): post form schema/actions accept tags + related tour 
 ### Task 8: TagsInput + RelatedToursPicker + form section + data fetchers
 
 **Files:**
+
 - Create: `apps/admin/src/components/posts/tags-input.tsx`
 - Create: `apps/admin/src/components/posts/related-tours-picker.tsx`
 - Modify: `apps/admin/src/components/posts/post-form.tsx`
@@ -1264,6 +1276,7 @@ git commit -m "feat(admin): post form schema/actions accept tags + related tour 
 - Modify: `apps/admin/src/app/(admin)/posts/[slug]/edit/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `parseJsonStringArray`-compatible hidden inputs (Task 7 reads them);
   `GET /api/v1/admin/posts/tags` + `listTours` (existing, `lib/tours/data.ts`).
 - Produces: `<TagsInput value onChange suggestions max=10 />` ·
@@ -1608,10 +1621,12 @@ git commit -m "feat(admin): tags editor + related-tours picker on the post form"
 ### Task 9: Detail rail + list column surfacing
 
 **Files:**
+
 - Modify: `apps/admin/src/app/(admin)/posts/[slug]/page.tsx`
 - Modify: `apps/admin/src/components/posts/posts-table.tsx`
 
 **Interfaces:**
+
 - Consumes: `post.tags` / `post.relatedTours` on `AdminPostDetailDto` + `PostDto.tags`
   (regen'd schema); `LinkedToursCard` (`components/crud/linked-tours-card.tsx`,
   props `{ tours: { slug; title; isPublished; isPrimary? }[]; title; emptyText }`).

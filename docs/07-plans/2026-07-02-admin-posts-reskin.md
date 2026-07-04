@@ -33,12 +33,14 @@ Branch off `main`: `git checkout -b feat/admin-posts-detail`
 ### Task 1: BE — `findDetailForAdmin` + `AdminPostDetailDto` (TDD)
 
 **Files:**
+
 - Create: `apps/api/src/modules/posts/dto/admin-post-detail.dto.ts`
 - Modify: `apps/api/src/modules/posts/posts.service.ts` (add type + method after `findBySlug`, ~line 61)
 - Modify: `apps/api/src/modules/posts/admin-posts.controller.ts` (the `detail` route, lines 52–58)
 - Test: `apps/api/src/modules/posts/posts.service.spec.ts`
 
 **Interfaces:**
+
 - Consumes: existing `PostsService` internals (`notFound`), `PostDto`.
 - Produces: `PostsService.findDetailForAdmin(slug: string): Promise<AdminPostDetail>` where `AdminPostDetail = Post & { author: { fullName: string | null; email: string } }`; Swagger type `AdminPostDetailDto extends PostDto` with `author: PostAuthorDto`. Task 2 regenerates the FE types from this.
 
@@ -150,9 +152,11 @@ git commit -m "feat(api): admin post detail returns the author (AdminPostDetailD
 ### Task 2: Regenerate `@tourism/core` types
 
 **Files:**
+
 - Modify (generated): `libs/shared/core/src/lib/api/schema.ts`
 
 **Interfaces:**
+
 - Produces: `components['schemas']['AdminPostDetailDto']` for the admin FE (Task 3).
 
 - [ ] **Step 1: Boot the API locally** (needs `apps/api/.env`, which is present):
@@ -184,11 +188,13 @@ git commit -m "chore(core): regen API types (AdminPostDetailDto)"
 ### Task 3: Admin deps + `PostContent` Markdown renderer + `PostDetail` type
 
 **Files:**
+
 - Modify: `apps/admin/package.json` (dependencies)
 - Create: `apps/admin/src/components/posts/post-content.tsx`
 - Modify: `apps/admin/src/lib/posts/data.ts` (`getPost` typing)
 
 **Interfaces:**
+
 - Consumes: `components['schemas']['AdminPostDetailDto']` from Task 2.
 - Produces: `PostContent({ markdown }: { markdown: string })` (server component) and `export type PostDetail` + `getPost(slug): Promise<PostDetail>` for Task 4.
 
@@ -278,10 +284,12 @@ git commit -m "feat(admin): post Markdown renderer + typed admin post detail"
 ### Task 4: Detail page `/posts/[slug]` + list title link
 
 **Files:**
+
 - Create: `apps/admin/src/app/(admin)/posts/[slug]/page.tsx`
 - Modify: `apps/admin/src/components/posts/posts-table.tsx` (title cell only, lines 21–28)
 
 **Interfaces:**
+
 - Consumes: `getPost`/`PostDetail`, `PostContent`, `deletePost(slug): Promise<{ error?: string }>`, `RowActions` (props: `editHref, deleteAction, deleteId, deleteTitle, deleteDescription, redirectTo`), `formatRelativeTime(iso)`.
 
 - [ ] **Step 1: Create the page** — `apps/admin/src/app/(admin)/posts/[slug]/page.tsx` (mirrors the Categories detail):
@@ -477,10 +485,12 @@ Branch off `main` (after slice 1 merges): `git checkout -b feat/admin-posts-list
 ### Task 6: Rebuild `PostsTable` on the shared foundation
 
 **Files:**
+
 - Rewrite: `apps/admin/src/components/posts/posts-table.tsx`
 - Delete: `apps/admin/src/components/posts/delete-post.tsx` (only importer is this table — verified)
 
 **Interfaces:**
+
 - Consumes: `Post` from `../../lib/posts/data`, `deletePost` from `../../lib/posts/actions`, shared `crud/{row-actions,columns-menu,admin-table-shell,client-table-pagination,data-table-pagination}` (`DEFAULT_PAGE_SIZE`), `formatRelativeTime`.
 - Produces: `PostsTable({ rows }: { rows: Post[] })` for Task 7 (no `meta`/pagination props any more).
 
@@ -735,9 +745,11 @@ git rm apps/admin/src/components/posts/delete-post.tsx
 ### Task 7: Rewrite the list page
 
 **Files:**
+
 - Rewrite: `apps/admin/src/app/(admin)/posts/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `PostsTable({ rows })` from Task 6, `listPosts` (`pageSize: 100` — the API cap; the blog catalog is far smaller), `AdminListHeader`, `ErrorAlert`.
 
 - [ ] **Step 1: Full replacement** of `page.tsx`:
@@ -820,9 +832,11 @@ Branch off `main` (after slice 2 merges): `git checkout -b feat/admin-posts-form
 ### Task 9: Rebuild `PostForm` (Form Layout 2 + auto-slug + Select)
 
 **Files:**
+
 - Rewrite: `apps/admin/src/components/posts/post-form.tsx`
 
 **Interfaces:**
+
 - Consumes: `PostFormState`, `POST_STATUSES`, `Post`, `slugify` from `../../lib/slugify`, `ErrorAlert`.
 - Produces: same component signature `PostForm({ action, post, submitLabel })` — the new/edit pages don't change their invocation. Field names posted are unchanged: `title, slug, excerpt, content, status`.
 
@@ -1033,6 +1047,7 @@ Expected: PASS (all admin tests, incl. `lib/posts/schema.spec.ts`).
 ### Task 10: Widen the form page containers
 
 **Files:**
+
 - Modify: `apps/admin/src/app/(admin)/posts/new/page.tsx` (container div)
 - Modify: `apps/admin/src/app/(admin)/posts/[slug]/edit/page.tsx` (container div, line 28)
 
