@@ -49,6 +49,7 @@ Vitest/Jest-style specs.
 ## File Structure
 
 **BE (Slice 1):**
+
 - Modify: `apps/api/prisma/schema.prisma` — enum values + `CancellationRequest` model + Booking columns.
 - Create: `apps/api/prisma/migrations/<ts>_refund_cancellation_queue/migration.sql` (generated).
 - Create: `apps/api/src/modules/bookings/refund-amount.ts` — pure `classifyRefund` helper.
@@ -68,6 +69,7 @@ Vitest/Jest-style specs.
 **Shared (Slice 2):** regen `@tourism/core` (`/regen-types`).
 
 **Admin FE (Slice 3):**
+
 - Create: `apps/admin/src/app/(dashboard)/cancellation-requests/page.tsx` (+ path per repo routing).
 - Create: `apps/admin/src/lib/cancellation-requests/data.ts` + `columns` + `*.spec.ts`.
 - Modify: admin app-shell nav (Operations group) — add the queue item.
@@ -75,6 +77,7 @@ Vitest/Jest-style specs.
 - Create: `apps/admin/src/lib/bookings/refund.ts` (amount validation + error map) + `*.spec.ts`.
 
 **Web FE (Slice 4):**
+
 - Modify: `apps/web/src/components/booking/booking-actions.tsx` — status-aware.
 - Create: `apps/web/src/lib/booking/cancellation-request.ts` (server action) + `*.spec.ts`.
 - Delete: `apps/web/src/lib/booking/cancel-request.ts` + `cancel-request.spec.ts`.
@@ -91,10 +94,12 @@ Vitest/Jest-style specs.
 ### Task B1: Schema + migration (USER GO GATE)
 
 **Files:**
+
 - Modify: `apps/api/prisma/schema.prisma`
 - Create: `apps/api/prisma/migrations/<ts>_refund_cancellation_queue/migration.sql` (generated)
 
 **Interfaces:**
+
 - Produces: `BookingStatus.PARTIALLY_REFUNDED`; `CancellationRequestStatus`
   enum (`REQUESTED|REFUNDED|DENIED`); `EmailType.CANCELLATION_REQUESTED` +
   `CANCELLATION_DENIED`; `Booking.refundedAmount: Decimal?` +
@@ -104,6 +109,7 @@ Vitest/Jest-style specs.
 - [ ] **Step 1: Edit the enums** in `schema.prisma`.
 
 Add to `BookingStatus` (after `REFUNDED`):
+
 ```prisma
 enum BookingStatus {
   PENDING
@@ -113,7 +119,9 @@ enum BookingStatus {
   PARTIALLY_REFUNDED
 }
 ```
+
 Add to `EmailType` (after `ENQUIRY_RECEIVED`):
+
 ```prisma
 enum EmailType {
   BOOKING_CONFIRMATION
@@ -124,7 +132,9 @@ enum EmailType {
   CANCELLATION_DENIED
 }
 ```
+
 Add a new enum (next to the others, ~line 53):
+
 ```prisma
 /// Support lifecycle for a PAID-booking cancellation request (2026-07-04).
 enum CancellationRequestStatus {
@@ -136,19 +146,23 @@ enum CancellationRequestStatus {
 
 - [ ] **Step 2: Add the two Booking columns.** In `model Booking`, after
   `refundedById` (keep the existing refund-audit grouping):
+
 ```prisma
   refundReason       String?         @map("refund_reason") @db.VarChar(500)
   refundedById       String?         @map("refunded_by") @db.Uuid
   refundedAmount     Decimal?        @map("refunded_amount") @db.Decimal(12, 2)
   refundedAt         DateTime?       @map("refunded_at")
 ```
+
 And add the back-relation inside `model Booking` (with the other relations):
+
 ```prisma
   reviews             Review[]
   cancellationRequest CancellationRequest?
 ```
 
 - [ ] **Step 3: Add the `CancellationRequest` model** (place it after `model Booking`, before `model Review`):
+
 ```prisma
 // ─────────────────────────────────────────────────────────────────────────────
 // CancellationRequest — a PAID customer's request to cancel/refund a booking
@@ -179,6 +193,7 @@ model CancellationRequest {
 ```
 
 - [ ] **Step 4: Add the User back-relations.** In `model User`, with the other relations:
+
 ```prisma
   posts               Post[]
   cancellationRequests CancellationRequest[] @relation("CancellationRequester")
@@ -221,6 +236,7 @@ Run: `pnpm nx typecheck @tourism/api`
 Expected: PASS (new Prisma types resolve).
 
 - [ ] **Step 9: Commit.**
+
 ```bash
 git add apps/api/prisma/schema.prisma apps/api/prisma/migrations
 git commit -m "feat(api): schema for partial refunds + cancellation requests"
@@ -231,15 +247,18 @@ git commit -m "feat(api): schema for partial refunds + cancellation requests"
 ### Task B2: `classifyRefund` pure helper (TDD)
 
 **Files:**
+
 - Create: `apps/api/src/modules/bookings/refund-amount.ts`
 - Test: `apps/api/src/modules/bookings/refund-amount.spec.ts`
 
 **Interfaces:**
+
 - Produces: `classifyRefund(total: Prisma.Decimal, amount?: number): { partial: boolean; amount: Prisma.Decimal }`
   — throws `BadRequestException({ code: 'INVALID_REFUND_AMOUNT' })` when
   `amount <= 0` or `amount > total`. `amount` omitted or `=== total` → `{ partial: false, amount: total }`.
 
 - [ ] **Step 1: Write the failing test.**
+
 ```ts
 import { BadRequestException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
@@ -279,6 +298,7 @@ Run: `pnpm nx test @tourism/api -- refund-amount`
 Expected: FAIL.
 
 - [ ] **Step 3: Implement.**
+
 ```ts
 import { BadRequestException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
@@ -310,6 +330,7 @@ Run: `pnpm nx test @tourism/api -- refund-amount`
 Expected: PASS.
 
 - [ ] **Step 5: Commit.**
+
 ```bash
 git add apps/api/src/modules/bookings/refund-amount.ts apps/api/src/modules/bookings/refund-amount.spec.ts
 git commit -m "feat(api): classifyRefund helper for partial/full refunds"
@@ -320,15 +341,18 @@ git commit -m "feat(api): classifyRefund helper for partial/full refunds"
 ### Task B3: Provider refund methods accept a partial amount
 
 **Files:**
+
 - Modify: `apps/api/src/modules/payments/stripe.service.ts:134-151`
 - Modify: `apps/api/src/modules/payments/paypal.service.ts:148-153`
 
 **Interfaces:**
+
 - Produces: `stripe.createRefund({ paymentIntentId, reason?, amountMinorUnits? })`
   — passes `amount` to `refunds.create` only when set. `paypal.refundCapture(captureId, amount?: { value: string; currencyCode: string })`
   — passes an `amount` body only when set.
 
 - [ ] **Step 1: Extend `createRefund`** (Stripe). Change the signature + body:
+
 ```ts
   async createRefund(args: {
     paymentIntentId: string;
@@ -351,9 +375,11 @@ git commit -m "feat(api): classifyRefund helper for partial/full refunds"
     return { id: refund.id, status: refund.status };
   }
 ```
+
 Also update the doc-comment first line to "Issues a full or partial refund against a Payment Intent…".
 
 - [ ] **Step 2: Extend `refundCapture`** (PayPal):
+
 ```ts
   /** Refunds a captured payment — full, or a partial `amount` when provided. */
   async refundCapture(
@@ -370,6 +396,7 @@ Also update the doc-comment first line to "Issues a full or partial refund again
     return { id: result.id ?? '', status: result.status ?? null };
   }
 ```
+
 > If the PayPal SDK's `refundCapturedPayment` arg shape differs (verify against
 > the installed `@paypal/paypal-server-sdk` types via LSP/hover), adapt the
 > `body` key name — the intent is "pass `amount` only when partial".
@@ -379,6 +406,7 @@ Run: `pnpm nx typecheck @tourism/api`
 Expected: PASS. (These wrappers are covered indirectly by the `bookings.service.spec.ts` mocks in Task B4/B5.)
 
 - [ ] **Step 4: Commit.**
+
 ```bash
 git add apps/api/src/modules/payments/stripe.service.ts apps/api/src/modules/payments/paypal.service.ts
 git commit -m "feat(api): provider refund methods accept a partial amount"
@@ -389,10 +417,12 @@ git commit -m "feat(api): provider refund methods accept a partial amount"
 ### Task B4: `refundByAdmin` — amount plumbing, FULL path, INVALID guard, request resolution (TDD)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/bookings/bookings.service.ts:493-599`
 - Modify: `apps/api/src/modules/bookings/bookings.service.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `classifyRefund` (B2); `toStripeMinorUnits`/`toPayPalAmount` (money.ts); provider methods (B3).
 - Produces: `refundByAdmin({ code, reason?, amount?, adminUserId }): Promise<Booking>`.
   FULL path: gateway full refund → release seats → `REFUNDED` → resolve any open
@@ -401,6 +431,7 @@ git commit -m "feat(api): provider refund methods accept a partial amount"
 - [ ] **Step 1: Add failing tests** to the `refundByAdmin` describe block in
   `bookings.service.spec.ts`. (Mirror the existing mock setup in that file —
   it already mocks `prisma`, `stripe`, `paypal`. Match its style.)
+
 ```ts
 it('rejects an amount above the booking total with INVALID_REFUND_AMOUNT', async () => {
   // arrange a PAID Stripe booking with totalAmount '99.00' and providerPaymentId
@@ -428,6 +459,7 @@ it('treats amount === total as a full refund (no amountMinorUnits)', async () =>
   );
 });
 ```
+
 > The existing suite already asserts the seat-release + `REFUNDED` flip via the
 > mocked `$queryRaw`; keep those passing. If the mock returns a fixed booking,
 > extend the fixture so `totalAmount`/`currency` are present (needed below).
@@ -442,6 +474,7 @@ Expected: FAIL.
   in the FULL CTE.
 
 Signature + load:
+
 ```ts
   async refundByAdmin(args: {
     code: string;
@@ -476,7 +509,9 @@ Signature + load:
 
     const { partial, amount } = classifyRefund(booking.totalAmount, args.amount);
 ```
+
 Provider call (add amount only when partial):
+
 ```ts
     try {
       if (booking.paymentProvider === PaymentProvider.STRIPE) {
@@ -500,9 +535,11 @@ Provider call (add amount only when partial):
       this.logger.warn(`Provider reports booking ${booking.code} already refunded — converging DB state`);
     }
 ```
+
 Then branch to the FULL CTE (this task) — extend the existing CTE with a
 `request_resolved` step (idempotent; only rows that flipped). Keep the partial
 branch for B5:
+
 ```ts
     if (!partial) {
       const seats = booking.numAdults + booking.numChildren;
@@ -556,7 +593,9 @@ branch for B5:
     return updated;
   }
 ```
+
 Add the imports at the top of the file:
+
 ```ts
 import { classifyRefund } from './refund-amount';
 // toStripeMinorUnits, toPayPalAmount already imported from '../payments/money'
@@ -567,6 +606,7 @@ Run: `pnpm nx test @tourism/api -- bookings.service`
 Expected: PASS.
 
 - [ ] **Step 5: Commit.**
+
 ```bash
 git add apps/api/src/modules/bookings/bookings.service.ts apps/api/src/modules/bookings/bookings.service.spec.ts
 git commit -m "feat(api): refundByAdmin accepts amount (full path + guard + request resolve)"
@@ -577,15 +617,18 @@ git commit -m "feat(api): refundByAdmin accepts amount (full path + guard + requ
 ### Task B5: `refundByAdmin` — PARTIAL branch (TDD)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/bookings/bookings.service.ts` (the `else` branch from B4)
 - Modify: `apps/api/src/modules/bookings/bookings.service.spec.ts`
 
 **Interfaces:**
+
 - Produces: partial refund → gateway refund WITH amount → **no seat release** →
   `status = PARTIALLY_REFUNDED`, `refundedAmount = amount`, `refundedAt = now()` →
   resolve open request to `REFUNDED`. Idempotent (gated `status='PAID'`).
 
 - [ ] **Step 1: Add failing tests.**
+
 ```ts
 it('partial refund sets PARTIALLY_REFUNDED + refundedAmount and does NOT release seats', async () => {
   await service.refundByAdmin({ code: 'BK-1', amount: 30, adminUserId: 'admin-1' });
@@ -608,6 +651,7 @@ it('partial refund on a PayPal booking passes a partial amount to PayPal', async
   );
 });
 ```
+
 > Adjust the `String(sql)` assertion to however the suite already inspects
 > `Prisma.sql` (check the existing full-refund test — reuse its technique).
 
@@ -616,6 +660,7 @@ Run: `pnpm nx test @tourism/api -- bookings.service`
 Expected: FAIL.
 
 - [ ] **Step 3: Implement the `else` branch.** Replace the `throw new Error(...)`:
+
 ```ts
     } else {
       await this.prisma.$queryRaw(Prisma.sql`
@@ -650,6 +695,7 @@ Expected: FAIL.
       this.logger.log(`Admin partial-refunded booking ${booking.code} (${amount.toString()} ${booking.currency}, seats kept, by ${args.adminUserId})`);
     }
 ```
+
 > Note: partial keeps `paidAt`/`cancelledAt` untouched (booking is still active).
 > Seats are intentionally NOT released (spec decision 4).
 
@@ -658,6 +704,7 @@ Run: `pnpm nx test @tourism/api -- bookings.service`
 Expected: PASS.
 
 - [ ] **Step 5: Commit.**
+
 ```bash
 git add apps/api/src/modules/bookings/bookings.service.ts apps/api/src/modules/bookings/bookings.service.spec.ts
 git commit -m "feat(api): partial refund keeps seats, sets PARTIALLY_REFUNDED"
@@ -668,14 +715,17 @@ git commit -m "feat(api): partial refund keeps seats, sets PARTIALLY_REFUNDED"
 ### Task B6: Refund DTO gains `amount`; admin controller forwards it
 
 **Files:**
+
 - Modify: `apps/api/src/modules/bookings/dto/refund-booking.dto.ts`
 - Modify: `apps/api/src/modules/bookings/admin-bookings.controller.ts:64-80`
 
 **Interfaces:**
+
 - Produces: `RefundBookingDto { reason?: string; amount?: number }`; the controller
   passes `body.amount` into `refundByAdmin`.
 
 - [ ] **Step 1: Extend the DTO.**
+
 ```ts
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsPositive, IsString, MaxLength } from 'class-validator';
@@ -697,6 +747,7 @@ export class RefundBookingDto {
 ```
 
 - [ ] **Step 2: Forward it** in `admin-bookings.controller.ts` `refund(...)`:
+
 ```ts
     return this.bookingsService.refundByAdmin({
       code,
@@ -705,6 +756,7 @@ export class RefundBookingDto {
       adminUserId: user.id,
     });
 ```
+
 Update the `@ApiOperation` summary to "Admin: refund a PAID booking (full or partial) + release seats on full".
 
 - [ ] **Step 3: Typecheck + test.**
@@ -712,6 +764,7 @@ Run: `pnpm nx typecheck @tourism/api && pnpm nx test @tourism/api -- bookings`
 Expected: PASS.
 
 - [ ] **Step 4: Commit.**
+
 ```bash
 git add apps/api/src/modules/bookings/dto/refund-booking.dto.ts apps/api/src/modules/bookings/admin-bookings.controller.ts
 git commit -m "feat(api): refund endpoint accepts optional partial amount"
@@ -722,12 +775,14 @@ git commit -m "feat(api): refund endpoint accepts optional partial amount"
 ### Task B7: Cancellations module — DTOs
 
 **Files:**
+
 - Create: `apps/api/src/modules/cancellations/dto/create-cancellation-request.dto.ts`
 - Create: `apps/api/src/modules/cancellations/dto/cancellation-request.dto.ts`
 - Create: `apps/api/src/modules/cancellations/dto/deny-cancellation-request.dto.ts`
 - Create: `apps/api/src/modules/cancellations/dto/list-cancellation-requests-query.dto.ts`
 
 **Interfaces:**
+
 - Produces: `CreateCancellationRequestDto { reason?: string }`;
   `CancellationRequestSummaryDto { status; reason; createdAt; decisionNote; decidedAt }`
   (embedded on booking reads + returned by create);
@@ -737,6 +792,7 @@ git commit -m "feat(api): refund endpoint accepts optional partial amount"
   `ListCancellationRequestsQueryDto { page?; pageSize?; status? }`.
 
 - [ ] **Step 1: Create `create-cancellation-request.dto.ts`.**
+
 ```ts
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
@@ -752,6 +808,7 @@ export class CreateCancellationRequestDto {
 ```
 
 - [ ] **Step 2: Create `cancellation-request.dto.ts`** (the customer-facing summary + admin list item).
+
 ```ts
 import { ApiProperty } from '@nestjs/swagger';
 import { CancellationRequestStatus } from '@prisma/client';
@@ -800,12 +857,14 @@ export class PaginatedCancellationRequestsDto {
   @ApiProperty({ type: PageMetaDto }) meta!: PageMetaDto;
 }
 ```
+
 > **Verify** `PageMetaDto` path — the subscribers work referenced
 > `components['schemas']['PageMetaDto']`, so a shared `PageMetaDto` exists. Find
 > it (grep `class PageMetaDto`) and import from there; if the paginated DTOs
 > inline their meta instead, mirror `PaginatedBookingsDto`'s meta shape.
 
 - [ ] **Step 3: Create `deny-cancellation-request.dto.ts`.**
+
 ```ts
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
@@ -821,6 +880,7 @@ export class DenyCancellationRequestDto {
 ```
 
 - [ ] **Step 4: Create `list-cancellation-requests-query.dto.ts`** (mirror `ListAdminBookingsQueryDto` for `page`/`pageSize` transforms — copy its `@Type`/`@IsInt`/`@Min`/`@Max` decorators exactly).
+
 ```ts
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { CancellationRequestStatus } from '@prisma/client';
@@ -845,6 +905,7 @@ export class ListCancellationRequestsQueryDto {
 - [ ] **Step 5: Typecheck + commit.**
 Run: `pnpm nx typecheck @tourism/api`
 Expected: PASS.
+
 ```bash
 git add apps/api/src/modules/cancellations/dto
 git commit -m "feat(api): cancellation-request DTOs"
@@ -855,10 +916,12 @@ git commit -m "feat(api): cancellation-request DTOs"
 ### Task B8: `CancellationsService.createRequest` (TDD)
 
 **Files:**
+
 - Create: `apps/api/src/modules/cancellations/cancellations.service.ts`
 - Test: `apps/api/src/modules/cancellations/cancellations.service.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `PrismaService`. `Caller { id: string; role: UserRole }`.
 - Produces: `createRequest(code: string, caller: Caller, dto: CreateCancellationRequestDto): Promise<CancellationRequestSummaryDto>`.
   Guards: 404 `BOOKING_NOT_FOUND` (missing / not owned); 409 `CANCELLATION_NOT_ALLOWED`
@@ -867,6 +930,7 @@ git commit -m "feat(api): cancellation-request DTOs"
   REQUESTED) + enqueues a `CANCELLATION_REQUESTED` outbox row (dedupe per booking).
 
 - [ ] **Step 1: Write failing tests** (mirror `enquiry.service.spec.ts` mock style — a mocked `PrismaService` with `booking.findUnique`, `cancellationRequest.upsert`, `$transaction`). Cover:
+
 ```ts
 // 404 when the booking is missing or not owned by the caller
 // 409 CANCELLATION_NOT_ALLOWED when status !== 'PAID'
@@ -875,6 +939,7 @@ git commit -m "feat(api): cancellation-request DTOs"
 // happy path: PAID + future departure + no open request → upsert REQUESTED + outbox enqueue, returns summary with status REQUESTED
 // re-request: an existing DENIED row → upsert resets it to REQUESTED (update branch called)
 ```
+
 Use a fixed "now" by injecting it, OR compare against a departure date far in the past/future so the test is time-stable (prefer future/past constants like `'2999-01-01'` / `'2000-01-01'`).
 
 - [ ] **Step 2: Run — expect FAIL.**
@@ -882,6 +947,7 @@ Run: `pnpm nx test @tourism/api -- cancellations.service`
 Expected: FAIL.
 
 - [ ] **Step 3: Implement.**
+
 ```ts
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CancellationRequestStatus, Prisma, UserRole } from '@prisma/client';
@@ -971,6 +1037,7 @@ export class CancellationsService {
   }
 }
 ```
+
 > `$transaction([...])` (batch) is the established pattern here (see
 > `enquiry.service.ts`). `createMany + skipDuplicates` makes the outbox enqueue
 > idempotent. Dedupe is per-booking, so a re-request after DENY won't re-email —
@@ -981,6 +1048,7 @@ Run: `pnpm nx test @tourism/api -- cancellations.service`
 Expected: PASS.
 
 - [ ] **Step 5: Commit.**
+
 ```bash
 git add apps/api/src/modules/cancellations/cancellations.service.ts apps/api/src/modules/cancellations/cancellations.service.spec.ts
 git commit -m "feat(api): CancellationsService.createRequest with guards + outbox"
@@ -991,10 +1059,12 @@ git commit -m "feat(api): CancellationsService.createRequest with guards + outbo
 ### Task B9: `CancellationsService` admin methods — list + deny (TDD)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/cancellations/cancellations.service.ts`
 - Modify: `apps/api/src/modules/cancellations/cancellations.service.spec.ts`
 
 **Interfaces:**
+
 - Produces: `findAllForAdmin(query): Promise<PaginatedCancellationRequestsDto>`
   (default status `REQUESTED`, newest first, `Promise.all` list+count);
   `denyRequest(id, adminUserId, dto): Promise<AdminCancellationRequestDto>`
@@ -1011,6 +1081,7 @@ Run: `pnpm nx test @tourism/api -- cancellations.service`
 Expected: FAIL.
 
 - [ ] **Step 3: Implement.** Add these methods + imports (`ListCancellationRequestsQueryDto`, `DenyCancellationRequestDto`, the DTO types):
+
 ```ts
   async findAllForAdmin(
     query: ListCancellationRequestsQueryDto,
@@ -1124,6 +1195,7 @@ Expected: FAIL.
 
 - [ ] **Step 4: Run — expect PASS.** Run: `pnpm nx test @tourism/api -- cancellations.service`. Expected: PASS.
 - [ ] **Step 5: Commit.**
+
 ```bash
 git add apps/api/src/modules/cancellations
 git commit -m "feat(api): admin cancellation-request list + deny"
@@ -1134,16 +1206,19 @@ git commit -m "feat(api): admin cancellation-request list + deny"
 ### Task B10: Controllers + module wiring
 
 **Files:**
+
 - Create: `apps/api/src/modules/cancellations/cancellations.controller.ts` (customer)
 - Create: `apps/api/src/modules/cancellations/admin-cancellations.controller.ts`
 - Create: `apps/api/src/modules/cancellations/cancellations.module.ts`
 - Modify: `apps/api/src/app.module.ts` — register `CancellationsModule`
 
 **Interfaces:**
+
 - Produces routes: `POST /bookings/:code/cancellation-request`;
   `GET /admin/cancellation-requests`; `POST /admin/cancellation-requests/:id/deny`.
 
 - [ ] **Step 1: Customer controller.** (Mirror `BookingsController`'s `requireUser` guard + `@CurrentUser`.)
+
 ```ts
 import { Body, Controller, Param, Post, UnauthorizedException } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -1179,6 +1254,7 @@ export class CancellationsController {
 ```
 
 - [ ] **Step 2: Admin controller.** (Mirror `AdminBookingsController` guards + `@CurrentUser` for deny audit.)
+
 ```ts
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, UnauthorizedException } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -1223,23 +1299,21 @@ export class AdminCancellationsController {
 }
 ```
 
-- [ ] **Step 3: Module.** (Mirror `enquiry.module.ts` — how it provides `PrismaService`/imports the Prisma module.)
+- [ ] **Step 3: Module.** `PrismaModule` is `@Global()` (verified 2026-07-04,
+  `prisma.module.ts:8`) — so NO `imports` line, matching the sibling feature modules.
+
 ```ts
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../prisma/prisma.module';
 import { CancellationsService } from './cancellations.service';
 import { CancellationsController } from './cancellations.controller';
 import { AdminCancellationsController } from './admin-cancellations.controller';
 
 @Module({
-  imports: [PrismaModule],
   controllers: [CancellationsController, AdminCancellationsController],
   providers: [CancellationsService],
 })
 export class CancellationsModule {}
 ```
-> If `PrismaModule` is `@Global()` (check `enquiry.module.ts` — it may omit the
-> import), drop the `imports` line to match the sibling modules exactly.
 
 - [ ] **Step 4: Register** in `app.module.ts` — add `CancellationsModule` to the `imports` array next to `BookingsModule`/`EnquiryModule`.
 
@@ -1248,6 +1322,7 @@ Run: `pnpm nx typecheck @tourism/api && pnpm nx test @tourism/api`
 Expected: PASS. Then `pnpm nx serve @tourism/api` and confirm the 3 new routes appear in Swagger at `/api/docs` (kill after).
 
 - [ ] **Step 6: Commit.**
+
 ```bash
 git add apps/api/src/modules/cancellations apps/api/src/app.module.ts
 git commit -m "feat(api): cancellation request + admin queue/deny endpoints"
@@ -1258,17 +1333,20 @@ git commit -m "feat(api): cancellation request + admin queue/deny endpoints"
 ### Task B11: Enrich booking reads with the request summary + refundedAmount (TDD/DTO)
 
 **Files:**
+
 - Modify: `apps/api/src/modules/bookings/bookings.service.ts` (`BOOKING_INCLUDE`, `BOOKING_DETAIL_INCLUDE`, `AdminBookingDetail`, `toAdminBookingDetail`)
 - Modify: `apps/api/src/modules/bookings/dto/booking.dto.ts`
 - Modify: `apps/api/src/modules/bookings/dto/admin-booking-detail.dto.ts`
 
 **Interfaces:**
+
 - Produces: customer `BookingDto` gains `refundedAmount: string | null` +
   `cancellationRequest: CancellationRequestSummaryDto | null`. Admin
   `AdminBookingDetailDto` gains `cancellationRequest` (with `id`) +
   `refundedAmount`/`refundedAt`. Reads populate them via `include`.
 
 - [ ] **Step 1: Add the relation to `BOOKING_INCLUDE`** (customer reads):
+
 ```ts
 const BOOKING_INCLUDE: Prisma.BookingInclude = {
   tour: { select: { slug: true, title: true } },
@@ -1278,11 +1356,13 @@ const BOOKING_INCLUDE: Prisma.BookingInclude = {
   },
 };
 ```
+
 > `refundedAmount`/`refundedAt` are scalar Booking columns — already returned by
 > default (Prisma `Decimal` serializes to a string via the envelope). No mapping
 > needed; just document them on the DTO.
 
 - [ ] **Step 2: Extend `BookingDto`.** Add (import `CancellationRequestSummaryDto` from the cancellations module dto):
+
 ```ts
   @ApiProperty({ nullable: true, type: String, example: '30.00' })
   refundedAmount!: string | null;
@@ -1290,6 +1370,7 @@ const BOOKING_INCLUDE: Prisma.BookingInclude = {
   @ApiProperty({ nullable: true, type: () => CancellationRequestSummaryDto })
   cancellationRequest!: CancellationRequestSummaryDto | null;
 ```
+
 > The Prisma `cancellationRequest` relation returns `Date` objects for
 > `createdAt`/`decidedAt`; the envelope's JSON serialization stringifies them, so
 > the wire shape matches `CancellationRequestSummaryDto` (ISO strings). Confirm
@@ -1312,6 +1393,7 @@ Run: `pnpm nx typecheck @tourism/api && pnpm nx test @tourism/api -- bookings`
 Expected: PASS.
 
 - [ ] **Step 6: Commit.**
+
 ```bash
 git add apps/api/src/modules/bookings
 git commit -m "feat(api): expose cancellation request + refundedAmount on booking reads"
@@ -1351,6 +1433,7 @@ Expected: all green.
 - [ ] **Step 3:** `git diff --stat` — confirm `schema.ts` now has `BookingDto.cancellationRequest` + `refundedAmount`, `CancellationRequestSummaryDto`, `AdminCancellationRequestDto`, `PaginatedCancellationRequestsDto`, `RefundBookingDto.amount`, and the new `BookingStatus` enum value `PARTIALLY_REFUNDED`.
 - [ ] **Step 4:** `pnpm nx run-many -t typecheck --projects=@tourism/web,@tourism/admin` — surface any consumer breaks from the enum widening (e.g. exhaustive `switch`/`Record` on `BookingStatus`). Fix in the respective slice.
 - [ ] **Step 5:** Commit.
+
 ```bash
 git add libs/shared/core/src/lib/api/schema.ts
 git commit -m "chore(core): regen client for partial refunds + cancellation requests"
@@ -1367,12 +1450,14 @@ git commit -m "chore(core): regen client for partial refunds + cancellation requ
 ### Task A1: Format/gating helpers for the new states (TDD)
 
 **Files:**
+
 - Modify: `apps/admin/src/lib/bookings/format.ts`
 - Modify: `apps/admin/src/lib/bookings/format.spec.ts`
 - Create: `apps/admin/src/lib/bookings/refund.ts`
 - Test: `apps/admin/src/lib/bookings/refund.spec.ts`
 
 **Interfaces:**
+
 - Produces: `bookingStatusMeta('PARTIALLY_REFUNDED')` → a label + variant;
   `canRefund` stays PAID-only; `validateRefundAmount(input: string, total: string): { amount?: number; error?: string }`
   (pure: parses, enforces `0 < amount ≤ total`, ≤2dp).
@@ -1380,6 +1465,7 @@ git commit -m "chore(core): regen client for partial refunds + cancellation requ
 - [ ] **Step 1: Extend `format.spec.ts`** — add a `bookingStatusMeta('PARTIALLY_REFUNDED')` case (choose label `'Partially refunded'`, variant e.g. `'destructive'` or a distinct one) and confirm `canRefund('PARTIALLY_REFUNDED') === false`.
 
 - [ ] **Step 2: Write `refund.spec.ts`.**
+
 ```ts
 import { validateRefundAmount } from './refund';
 
@@ -1403,6 +1489,7 @@ describe('validateRefundAmount', () => {
 - [ ] **Step 3: Run — expect FAIL.** `pnpm nx test @tourism/admin -- refund`. Expected: FAIL.
 
 - [ ] **Step 4: Implement `refund.ts` + `format.ts` changes.**
+
 ```ts
 // refund.ts
 export function validateRefundAmount(
@@ -1420,12 +1507,14 @@ export function validateRefundAmount(
   return { amount };
 }
 ```
+
 In `format.ts`, add `PARTIALLY_REFUNDED` to `bookingStatusMeta` (keep `canRefund`
 returning `status === 'PAID'`). Update the `BookingStatus` type usage if it is a
 hand-written union (it derives from the regen'd schema, so the new value flows in).
 
 - [ ] **Step 5: Run — expect PASS.** `pnpm nx test @tourism/admin -- "refund|format"`. Expected: PASS.
 - [ ] **Step 6: Commit.**
+
 ```bash
 git add apps/admin/src/lib/bookings/format.ts apps/admin/src/lib/bookings/format.spec.ts apps/admin/src/lib/bookings/refund.ts apps/admin/src/lib/bookings/refund.spec.ts
 git commit -m "feat(admin): partial-refund amount validation + partially-refunded status meta"
@@ -1438,12 +1527,15 @@ git commit -m "feat(admin): partial-refund amount validation + partially-refunde
 **Files:** Modify `apps/admin/src/lib/api/error.ts` (`FRIENDLY_BY_CODE`)
 
 - [ ] **Step 1:** Add friendly strings for the new codes (append to the existing map alongside `BOOKING_NOT_REFUNDABLE`/`REFUND_FAILED`):
+
 ```ts
   INVALID_REFUND_AMOUNT: 'That refund amount is not valid for this booking.',
   CANCELLATION_REQUEST_NOT_FOUND: 'That cancellation request no longer exists.',
   CANCELLATION_NOT_PENDING: 'This request has already been resolved.',
 ```
+
 - [ ] **Step 2:** Typecheck + commit.
+
 ```bash
 git add apps/admin/src/lib/api/error.ts
 git commit -m "feat(admin): friendly copy for refund/cancellation error codes"
@@ -1454,15 +1546,18 @@ git commit -m "feat(admin): friendly copy for refund/cancellation error codes"
 ### Task A3: Refund dialog — partial amount + mis-click safeguard
 
 **Files:**
+
 - Modify: `apps/admin/src/components/bookings/refund-booking.tsx`
 - Modify: `apps/admin/src/lib/bookings/actions.ts` (`refundBooking` passes `amount`)
 
 **Interfaces:**
+
 - Consumes: `validateRefundAmount` (A1). Adds an optional `hasOpenRequest?: boolean` prop.
 - Produces: `refundBooking(code, { reason?, amount? })` server action; the dialog
   sends `amount` only for a partial.
 
 - [ ] **Step 1: Extend the server action** `refundBooking`:
+
 ```ts
 export interface RefundBookingInput { reason?: string; amount?: number; }
 
@@ -1482,6 +1577,7 @@ export async function refundBooking(code: string, input: RefundBookingInput = {}
   return {};
 }
 ```
+
 > Update the single existing caller in `refund-booking.tsx` from
 > `refundBooking(code, reason)` to `refundBooking(code, { reason, amount })`.
 
@@ -1502,6 +1598,7 @@ Run: `pnpm nx typecheck @tourism/admin`
 Expected: PASS.
 
 - [ ] **Step 4: Commit.**
+
 ```bash
 git add apps/admin/src/components/bookings/refund-booking.tsx apps/admin/src/lib/bookings/actions.ts
 git commit -m "feat(admin): partial refund amount + proactive-refund safeguard"
@@ -1512,12 +1609,14 @@ git commit -m "feat(admin): partial refund amount + proactive-refund safeguard"
 ### Task A4: Deny action + booking-detail request panel
 
 **Files:**
+
 - Modify: `apps/admin/src/lib/bookings/actions.ts` (add `denyCancellation`)
 - Create: `apps/admin/src/components/bookings/deny-cancellation.tsx`
 - Modify: `apps/admin/src/app/(admin)/bookings/[code]/page.tsx` (render request panel + partial-refund details)
 - Modify: `apps/admin/src/lib/bookings/data.ts` (`getBooking` already returns the enriched `AdminBookingDetail` — no change if the type regen'd; verify)
 
 - [ ] **Step 1: Add `denyCancellation` action** (sibling of `refundBooking`):
+
 ```ts
 export async function denyCancellation(requestId: string, code: string, decisionNote?: string): Promise<RefundBookingState> {
   const note = decisionNote?.trim();
@@ -1544,6 +1643,7 @@ export async function denyCancellation(requestId: string, code: string, decision
 
 - [ ] **Step 4: Typecheck + commit.**
 Run: `pnpm nx typecheck @tourism/admin`
+
 ```bash
 git add apps/admin/src/components/bookings/deny-cancellation.tsx apps/admin/src/lib/bookings/actions.ts "apps/admin/src/app/(admin)/bookings/[code]/page.tsx"
 git commit -m "feat(admin): deny action + cancellation panel on booking detail"
@@ -1554,17 +1654,20 @@ git commit -m "feat(admin): deny action + cancellation panel on booking detail"
 ### Task A5: Cancellation-request queue page + nav
 
 **Files:**
+
 - Create: `apps/admin/src/lib/cancellation-requests/data.ts`
 - Create: `apps/admin/src/app/(admin)/cancellation-requests/page.tsx`
 - Create: `apps/admin/src/components/cancellation-requests/cancellation-requests-view.tsx`
 - Modify: `apps/admin/src/components/shell/app-shell.tsx` (Operations nav)
 
 **Interfaces:**
+
 - Consumes: `getApiClient` typed `GET /api/v1/admin/cancellation-requests`.
 - Produces: `listCancellationRequests(params): Promise<{ data; meta }>`; a
   paginated queue page under Operations linking each row to `/bookings/{code}`.
 
 - [ ] **Step 1: `data.ts`** (mirror `subscribers/data.ts`):
+
 ```ts
 import type { components } from '@tourism/core';
 import { getApiClient } from '../api/client';
@@ -1595,6 +1698,7 @@ export async function listCancellationRequests(
 
 - [ ] **Step 4: Nav.** In `app-shell.tsx`, import a `lucide-react` icon (e.g.
   `TicketX`/`FileClock`) and add to the Operations `items` array:
+
 ```tsx
 { title: 'Cancellations', href: '/cancellation-requests', icon: FileClock },
 ```
@@ -1604,6 +1708,7 @@ Run: `pnpm nx run-many -t typecheck build --projects=@tourism/admin`
 Expected: PASS.
 
 - [ ] **Step 6: Commit.**
+
 ```bash
 git add apps/admin/src/lib/cancellation-requests apps/admin/src/app apps/admin/src/components
 git commit -m "feat(admin): cancellation-request queue page under Operations"
@@ -1624,6 +1729,7 @@ git commit -m "feat(admin): cancellation-request queue page under Operations"
 ### Task W1: API fn + server action for the real request (TDD on the pure builder)
 
 **Files:**
+
 - Modify: `apps/web/src/lib/api/booking.ts` (add `requestBookingCancellation`)
 - Modify: `apps/web/src/lib/booking/actions.ts` (add `requestCancellationAction`)
 - Create: `apps/web/src/lib/booking/cancellation-request.ts` (pure body builder)
@@ -1631,12 +1737,14 @@ git commit -m "feat(admin): cancellation-request queue page under Operations"
 - Delete: `apps/web/src/lib/booking/cancel-request.ts` + `cancel-request.spec.ts`
 
 **Interfaces:**
+
 - Produces: `buildCancellationRequestBody(reason: string): { reason?: string }`
   (pure — trims; omits `reason` when blank);
   `requestBookingCancellation(code, body): Promise<void>` (authed POST);
   `requestCancellationAction(code, reason): Promise<{ ok: boolean; error?: string }>`.
 
 - [ ] **Step 1: Write `cancellation-request.spec.ts`** (replaces the deleted enquiry-string spec):
+
 ```ts
 import { buildCancellationRequestBody } from './cancellation-request';
 
@@ -1652,6 +1760,7 @@ describe('buildCancellationRequestBody', () => {
 ```
 
 - [ ] **Step 2: Delete the old files.**
+
 ```bash
 git rm apps/web/src/lib/booking/cancel-request.ts apps/web/src/lib/booking/cancel-request.spec.ts
 ```
@@ -1659,6 +1768,7 @@ git rm apps/web/src/lib/booking/cancel-request.ts apps/web/src/lib/booking/cance
 - [ ] **Step 3: Run — expect FAIL** (new module missing). `pnpm nx test @tourism/web -- cancellation-request`. Expected: FAIL.
 
 - [ ] **Step 4: Implement `cancellation-request.ts`.**
+
 ```ts
 /** Shapes the cancellation-request body; omits an empty reason. */
 export function buildCancellationRequestBody(reason: string): { reason?: string } {
@@ -1668,6 +1778,7 @@ export function buildCancellationRequestBody(reason: string): { reason?: string 
 ```
 
 - [ ] **Step 5: Add the api fn** in `booking.ts` (mirror `cancelBooking`):
+
 ```ts
 /** Request cancellation/refund of a PAID booking (`POST /bookings/{code}/cancellation-request`). */
 export async function requestBookingCancellation(code: string, body: { reason?: string }): Promise<void> {
@@ -1679,6 +1790,7 @@ export async function requestBookingCancellation(code: string, body: { reason?: 
 ```
 
 - [ ] **Step 6: Add the server action** in `actions.ts` (mirror `cancelBookingAction`):
+
 ```ts
 export async function requestCancellationAction(code: string, reason: string): Promise<{ ok: boolean; error?: string }> {
   try {
@@ -1696,10 +1808,12 @@ export async function requestCancellationAction(code: string, reason: string): P
   }
 }
 ```
+
 Add the imports (`requestBookingCancellation` from `../api/booking`, `buildCancellationRequestBody` from `./cancellation-request`).
 
 - [ ] **Step 7: Run — expect PASS.** `pnpm nx test @tourism/web -- cancellation-request`. Expected: PASS.
 - [ ] **Step 8: Commit.**
+
 ```bash
 git add apps/web/src/lib/booking/cancellation-request.ts apps/web/src/lib/booking/cancellation-request.spec.ts apps/web/src/lib/api/booking.ts apps/web/src/lib/booking/actions.ts
 git commit -m "feat(web): booking-tied cancellation request action (replaces enquiry hack)"
@@ -1713,6 +1827,7 @@ git commit -m "feat(web): booking-tied cancellation request action (replaces enq
 
 - [ ] **Step 1:** In `messages.booking.detail` (~line 391), add keys for the
   status-aware states (keep straight-apostrophe house style used around them):
+
 ```ts
   requestPending: 'Cancellation requested — we’ll email you about a refund.',
   requestDenied: 'Your cancellation request was declined.',
@@ -1720,25 +1835,34 @@ git commit -m "feat(web): booking-tied cancellation request action (replaces enq
   refundedNote: (amount: string) => `Refunded ${amount}.`,
   partiallyRefundedNote: (amount: string) => `Partially refunded ${amount}.`,
 ```
+
 - [ ] **Step 2:** In `messages.booking.list.status` (~line 383), add:
+
 ```ts
   PARTIALLY_REFUNDED: 'Partially refunded',
 ```
+
 - [ ] **Step 3:** In `messages.booking.errors` (~line 325), add friendly copy for
   the new API codes so `errorMessage()` resolves them:
+
 ```ts
   CANCELLATION_NOT_ALLOWED: 'This booking can’t be cancelled online. Contact us for help.',
   DEPARTURE_ALREADY_STARTED: 'This trip has already started — please contact us directly.',
   CANCELLATION_ALREADY_REQUESTED: 'You’ve already sent a cancellation request for this booking.',
 ```
+
 - [ ] **Step 4:** Add the `PARTIALLY_REFUNDED` tone in
   `apps/web/src/lib/booking/my-bookings.ts` `STATUS_TONES` (reuse the destructive
   tone or a distinct token-based one — no hex):
+
 ```ts
   PARTIALLY_REFUNDED: 'border-transparent bg-destructive/15 text-destructive',
 ```
+
   Add a `bookingStatusTone('PARTIALLY_REFUNDED')` case to `my-bookings.spec.ts`.
+
 - [ ] **Step 5:** Typecheck + test + commit.
+
 ```bash
 git add libs/shared/i18n/src/lib/messages.ts apps/web/src/lib/booking/my-bookings.ts apps/web/src/lib/booking/my-bookings.spec.ts
 git commit -m "feat(web): copy + status tone for cancellation-request states"
@@ -1775,6 +1899,7 @@ git commit -m "feat(web): copy + status tone for cancellation-request states"
 Run: `pnpm nx run-many -t typecheck build --projects=@tourism/web`
 Expected: PASS.
 - [ ] **Step 5: Commit.**
+
 ```bash
 git add apps/web/src/components/booking/booking-actions.tsx
 git commit -m "feat(web): status-aware cancellation UI from real request data"
@@ -1816,6 +1941,7 @@ git commit -m "feat(web): status-aware cancellation UI from real request data"
 ## Self-Review (against the spec)
 
 **Spec coverage** — every spec section maps to a task:
+
 - Schema (enum, model, columns, EmailTypes) → **B1**.
 - Partial-refund service + provider amount + INVALID guard + no-seat-release +
   PARTIALLY_REFUNDED + request resolution → **B2–B6** (+ **B4/B5** CTEs).
