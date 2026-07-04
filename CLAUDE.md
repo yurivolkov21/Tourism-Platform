@@ -157,3 +157,17 @@ Situation → skill to invoke BEFORE acting (plugin skills installed in Claude C
 
 Merge flow stays as "How we work" #1–2: user reviews source → rebase + `--ff-only`.
 These are defaults, not ceremony — skip only when the user explicitly says so.
+
+### Model routing for subagents (standing, agreed 2026-07-05)
+
+Match the subagent's model to the task — don't spend a frontier model on mechanical work:
+
+| Task type | Model |
+| --- | --- |
+| Transcribing code from a plan's ready snippets · mechanical docs sweeps · bulk renames | `haiku` — ALWAYS instruct "do not reformat lines the task doesn't name" (known haiku gotcha; it also can't type `\uXXXX` escapes — script those) |
+| Ordinary implementation tasks from a written plan · tests from a written spec · medium Explore sweeps | `sonnet` |
+| Writing specs/plans · adversarial review (ALWAYS for money-path/payments/migrations) · hard debugging | `opus`/`fable` (strong tier) |
+| Main-loop orchestration, decisions, merge gates | the session model |
+
+Every dispatch carries the repo constraints (straight quotes · no unrelated-line
+reformatting · Conventional Commits · TDD on pure logic).
