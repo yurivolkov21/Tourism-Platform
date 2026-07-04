@@ -16,5 +16,6 @@
   ],
   // Run on request (click ▶ / use the Test Explorer) instead of auto-watching on
   // open — avoids the surprise session start. Switch to "watch" if you prefer.
-  "jest.runMode": "on-demand"
+  "jest.runMode": "on-demand",
+  "js/ts.experimental.useTsgo": false
 }

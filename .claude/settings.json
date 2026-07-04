@@ -1,4 +1,8 @@
 {
+  "enabledPlugins": {
+    "nx@nx-claude-plugins": true,
+    "remember@claude-plugins-official": true
+  },
   "extraKnownMarketplaces": {
     "nx-claude-plugins": {
       "source": {
@@ -7,11 +11,11 @@
       }
     }
   },
-  "enabledPlugins": {
-    "nx@nx-claude-plugins": true
-  },
-  "env": {
-    "ECC_GATEGUARD": "off",
-    "ECC_DISABLED_HOOKS": "post:ecc-context-monitor"
+  "sandbox": {
+    "network": {
+      "allowedDomains": [
+        "www.google-analytics.com"
+      ]
+    }
   }
 }
