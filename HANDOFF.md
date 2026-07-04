@@ -31,7 +31,9 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web ~99% (polish pass on branch) · P4 admin CRUD DONE · **DEPLOYED** (`main` @ `47fa4d5`)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 blog reader + blog-v2 (Waves 1–2 + Wave 3 Slice 1) DONE · **DEPLOYED** (`main`)
+
+> **⛔ Next action:** blog-v2 **Wave 3 Slice 2** — admin inline-image editor UI (NOT STARTED). Authoritative handoff: [docs/07-plans/2026-07-03-blog-v2-roadmap.md](docs/07-plans/2026-07-03-blog-v2-roadmap.md) §RESUME STATE.
 
 ```text
 apps/   api (NestJS 11) · web + admin (Next 16) · mobile (Expo SDK 54)
@@ -43,7 +45,7 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
 - **API (P1) — complete + DEPLOYED on Render.** P1.1–P1.8 + P1.x (jobs). Schema+RLS,
   envelope, auth, CRUD, bookings, **Stripe + PayPal (+ admin refund)**, media, reviews/
   wishlist/enquiry/stats, seed + typed `@tourism/core` client, pg-boss outbox+cron.
-  **+ blog Posts CRUD + admin bookings list/detail + next-departure availability.** ~223 api tests.
+  **+ blog Posts CRUD + admin bookings list/detail + next-departure availability + blog-v2 (post tags/related-tours/author + body-image endpoint).** 309 api tests.
 - **Design (P2) — done.** `@tourism/tokens` ("Emerald Heritage", no-hex) + `@tourism/ui`
   (shadcn/Base UI, 54 comps). Brand **"Nexora"** (NEX origami logo).
 - **Web (P3) — ~90%, customer-facing live on Vercel.** Home · destinations overview · 3
@@ -114,7 +116,7 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
      `next/image`. *(Fonts already variable → all weights; hero stays static for LCP.)*
    - *(Legal pages `/privacy` `/terms` `/cancellation-policy` = complete real-looking content,
      not lawyer-reviewed — fine for the demo.)*
-2. **Then:** P4 admin UI polish · P5 mobile · P6 content/SEO (BLUEPRINT §7).
+2. **Then:** blog-v2 **Wave 3 Slice 2** (admin inline-image editor UI — the current ⛔ next action) · P4 admin UI polish · P5 mobile. *(P6 blog reader + blog-v2 Waves 1–2 + Wave 3 Slice 1 already DONE.)*
    - **Fold into the admin-UI phase:** refund **execution** UI — partial/amount refund (`refundByAdmin` is full-only today; Stripe/PayPal accept an `amount`) + a first-class **cancellation-request queue** (today the PAID "Request cancellation" posts an Enquiry; promoting it to a booking-tied request only pays off once admin has a screen to act on it). Customer-facing policy is already live at `/cancellation-policy`.
 
 *Done since last handoff: region-detail real data · tour-card availability badge (B-1) · tours pagination · wishlist save-UI (heart on detail + `/account/saved`) · booking detail + cancel (PENDING) / refund-request (PAID→Enquiry) · **final polish pass (a11y + SEO + perf/motion), branch `feat/web-final-polish`**.*
