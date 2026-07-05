@@ -24,7 +24,10 @@ import { pageNumbers } from '../../lib/paginate';
 export const metadata: Metadata = {
   title: messages.blog.indexTitle,
   description: messages.blog.subtitle,
-  alternates: { canonical: '/blog' },
+  alternates: {
+    canonical: '/blog',
+    types: { 'application/rss+xml': '/blog/rss.xml' },
+  },
 };
 
 const PAGE_SIZE = 12;

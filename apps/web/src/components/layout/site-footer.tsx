@@ -11,6 +11,7 @@ import { messages } from '@tourism/i18n';
 
 import { Logo } from '../brand/logo';
 import { FacebookIcon, InstagramIcon, TwitterIcon } from '../icons/social';
+import { NewsletterForm } from './newsletter-form';
 import { fetchActiveCategories } from '../../lib/api/categories';
 
 const infoIcons = [ClockIcon, MapPinIcon, PhoneIcon, MailIcon] as const;
@@ -53,21 +54,7 @@ export async function SiteFooter() {
               {f.newsletterHeading}
             </h3>
             <p className="text-background/80 text-sm text-pretty">{f.newsletterText}</p>
-            <form action="#" className="flex gap-2">
-              <input
-                type="email"
-                name="email"
-                aria-label={f.newsletterPlaceholder}
-                placeholder={f.newsletterPlaceholder}
-                className="border-background/25 bg-background/10 text-background placeholder:text-background/60 focus-visible:ring-background/40 h-11 w-full rounded-full border px-4 text-sm outline-none focus-visible:ring-2"
-              />
-              <button
-                type="submit"
-                className="bg-background text-foreground hover:bg-background/90 h-11 shrink-0 rounded-full px-5 text-sm font-medium transition-colors"
-              >
-                {f.newsletterCta}
-              </button>
-            </form>
+            <NewsletterForm />
           </div>
         </div>
 
