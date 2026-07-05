@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   Booking,
   BookingStatus,
+  CancellationRequestStatus,
   DepartureStatus,
   PaymentProvider,
   Prisma,
@@ -43,6 +44,9 @@ export interface PaginatedBookings {
 const BOOKING_INCLUDE: Prisma.BookingInclude = {
   tour: { select: { slug: true, title: true } },
   departure: { select: { startDate: true, endDate: true } },
+  cancellationRequest: {
+    select: { status: true, reason: true, createdAt: true, decisionNote: true, decidedAt: true },
+  },
 };
 
 /** Detail read adds the admin refunder + the customer account + departure capacity. */
@@ -53,6 +57,16 @@ const BOOKING_DETAIL_INCLUDE = {
   },
   refundedBy: { select: { fullName: true, email: true } },
   user: { select: { id: true, fullName: true, email: true, createdAt: true } },
+  cancellationRequest: {
+    select: {
+      id: true,
+      status: true,
+      reason: true,
+      createdAt: true,
+      decisionNote: true,
+      decidedAt: true,
+    },
+  },
 } satisfies Prisma.BookingInclude;
 
 type BookingWithDetail = Prisma.BookingGetPayload<{ include: typeof BOOKING_DETAIL_INCLUDE }>;
@@ -120,6 +134,16 @@ export interface AdminBookingDetail {
   providerPaymentId: string | null;
   refundReason: string | null;
   refundedBy: { fullName: string | null; email: string } | null;
+  refundedAmount: string | null;
+  refundedAt: string | null;
+  cancellationRequest: {
+    id: string;
+    status: CancellationRequestStatus;
+    reason: string;
+    createdAt: string;
+    decisionNote: string | null;
+    decidedAt: string | null;
+  } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -161,6 +185,20 @@ function toAdminBookingDetail(
     refundReason: b.refundReason,
     refundedBy: b.refundedBy
       ? { fullName: b.refundedBy.fullName, email: b.refundedBy.email }
+      : null,
+    refundedAmount: b.refundedAmount ? b.refundedAmount.toString() : null,
+    refundedAt: b.refundedAt ? b.refundedAt.toISOString() : null,
+    cancellationRequest: b.cancellationRequest
+      ? {
+          id: b.cancellationRequest.id,
+          status: b.cancellationRequest.status,
+          reason: b.cancellationRequest.reason,
+          createdAt: b.cancellationRequest.createdAt.toISOString(),
+          decisionNote: b.cancellationRequest.decisionNote,
+          decidedAt: b.cancellationRequest.decidedAt
+            ? b.cancellationRequest.decidedAt.toISOString()
+            : null,
+        }
       : null,
     createdAt: b.createdAt.toISOString(),
     updatedAt: b.updatedAt.toISOString(),

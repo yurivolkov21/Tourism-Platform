@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BookingStatus, PaymentProvider } from '@prisma/client';
+import { CancellationRequestSummaryDto } from '../../cancellations/dto/cancellation-request.dto';
 import { BookingDepartureRefDto, BookingDto } from './booking.dto';
 
 /** The admin user who issued a refund — shown in the detail refund-audit panel. */
@@ -9,6 +10,12 @@ export class RefundedByDto {
 
   @ApiProperty({ example: 'admin@example.com' })
   email!: string;
+}
+
+/** Cancellation-request summary + id — admin detail can deep-link to the queue row. */
+export class AdminCancellationRequestSummaryDto extends CancellationRequestSummaryDto {
+  @ApiProperty({ format: 'uuid' })
+  id!: string;
 }
 
 /** Departure ref + capacity (admin detail only — the public ref has no seat data). */
@@ -128,6 +135,12 @@ export class AdminBookingDetailDto extends BookingDto {
 
   @ApiProperty({ nullable: true, type: RefundedByDto })
   refundedBy!: RefundedByDto | null;
+
+  @ApiProperty({ nullable: true, type: String, format: 'date-time' })
+  refundedAt!: string | null;
+
+  @ApiProperty({ nullable: true, type: AdminCancellationRequestSummaryDto })
+  declare cancellationRequest: AdminCancellationRequestSummaryDto | null;
 
   @ApiProperty({ type: BookingCustomerDto })
   customer!: BookingCustomerDto;

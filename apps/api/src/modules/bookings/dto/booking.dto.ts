@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BookingStatus, PaymentProvider } from '@prisma/client';
+import { CancellationRequestSummaryDto } from '../../cancellations/dto/cancellation-request.dto';
 
 /** Lightweight tour reference embedded on a booking payload (EN-only). */
 export class BookingTourRefDto {
@@ -72,4 +73,10 @@ export class BookingDto {
 
   @ApiProperty({ format: 'date-time' })
   updatedAt!: string;
+
+  @ApiProperty({ nullable: true, type: String, example: '30.00' })
+  refundedAmount!: string | null;
+
+  @ApiProperty({ nullable: true, type: () => CancellationRequestSummaryDto })
+  cancellationRequest!: CancellationRequestSummaryDto | null;
 }
