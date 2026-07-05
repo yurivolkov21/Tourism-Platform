@@ -56,7 +56,7 @@ export class AdminBookingsController {
 
   @Post(':code/refund')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Admin: refund a PAID booking (Stripe) + release seats' })
+  @ApiOperation({ summary: 'Admin: refund a PAID booking (full or partial) + release seats on full' })
   @ApiOkResponse({ type: BookingDto, description: 'Refunded booking' })
   @ApiResponse({ status: 400, description: 'Not refundable, or Stripe refund failed' })
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
@@ -75,6 +75,7 @@ export class AdminBookingsController {
     return this.bookingsService.refundByAdmin({
       code,
       reason: body.reason,
+      amount: body.amount,
       adminUserId: user.id,
     });
   }
