@@ -663,7 +663,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Admin: refund a PAID booking (Stripe) + release seats */
+        /** Admin: refund a PAID booking (full or partial) + release seats on full */
         post: operations["AdminBookingsController_refund"];
         delete?: never;
         options?: never;
@@ -699,6 +699,57 @@ export interface paths {
         put?: never;
         /** PayPal webhook receiver (signature-verified) */
         post: operations["PaymentsController_handlePayPal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bookings/{code}/cancellation-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request cancellation/refund of your own PAID booking */
+        post: operations["CancellationsController_request"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/cancellation-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin: list cancellation requests (default REQUESTED) */
+        get: operations["AdminCancellationsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/cancellation-requests/{id}/deny": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Admin: deny a cancellation request (booking stays PAID) */
+        post: operations["AdminCancellationsController_deny"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2331,6 +2382,20 @@ export interface components {
              */
             endDate: string;
         };
+        CancellationRequestSummaryDto: {
+            /**
+             * @example REQUESTED
+             * @enum {string}
+             */
+            status: "REQUESTED" | "REFUNDED" | "DENIED";
+            /** @example Change of travel plans */
+            reason: string;
+            /** Format: date-time */
+            createdAt: string;
+            decisionNote: string | null;
+            /** Format: date-time */
+            decidedAt: string | null;
+        };
         BookingDto: {
             /** Format: uuid */
             id: string;
@@ -2340,7 +2405,7 @@ export interface components {
              * @example PENDING
              * @enum {string}
              */
-            status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED";
+            status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
             /** @example 2 */
             numAdults: number;
             /** @example 1 */
@@ -2367,6 +2432,9 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+            /** @example 30.00 */
+            refundedAmount: string | null;
+            cancellationRequest: components["schemas"]["CancellationRequestSummaryDto"] | null;
         };
         CheckoutSessionDto: {
             /** @example https://checkout.stripe.com/c/pay/cs_test_... */
@@ -2377,7 +2445,7 @@ export interface components {
              * @example PENDING
              * @enum {string}
              */
-            status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED";
+            status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
         };
         PaginatedBookingsDto: {
             data: components["schemas"]["BookingDto"][];
@@ -2398,6 +2466,22 @@ export interface components {
             seatsTotal: number;
             /** @example 7 */
             seatsBooked: number;
+        };
+        AdminCancellationRequestSummaryDto: {
+            /**
+             * @example REQUESTED
+             * @enum {string}
+             */
+            status: "REQUESTED" | "REFUNDED" | "DENIED";
+            /** @example Change of travel plans */
+            reason: string;
+            /** Format: date-time */
+            createdAt: string;
+            decisionNote: string | null;
+            /** Format: date-time */
+            decidedAt: string | null;
+            /** Format: uuid */
+            id: string;
         };
         RefundedByDto: {
             /** @example Jane Admin */
@@ -2422,7 +2506,7 @@ export interface components {
             /** @example BK-7Q2KX9AB */
             code: string;
             /** @enum {string} */
-            status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED";
+            status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
             /** Format: date-time */
             createdAt: string;
             /** @example Mekong Delta Day Trip */
@@ -2467,7 +2551,7 @@ export interface components {
              * @example PENDING
              * @enum {string}
              */
-            status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED";
+            status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
             /** @example 2 */
             numAdults: number;
             /** @example 1 */
@@ -2494,6 +2578,9 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+            /** @example 30.00 */
+            refundedAmount: string | null;
+            cancellationRequest: components["schemas"]["AdminCancellationRequestSummaryDto"] | null;
             /** Format: date-time */
             paidAt: string | null;
             /** Format: date-time */
@@ -2511,6 +2598,8 @@ export interface components {
             /** @example Customer cancelled within the free window */
             refundReason: string | null;
             refundedBy: components["schemas"]["RefundedByDto"] | null;
+            /** Format: date-time */
+            refundedAt: string | null;
             customer: components["schemas"]["BookingCustomerDto"];
             otherBookings: components["schemas"]["OtherBookingsDto"];
             paymentEvents: components["schemas"]["PaymentEventSummaryDto"][];
@@ -2518,6 +2607,52 @@ export interface components {
         RefundBookingDto: {
             /** @example Customer cancelled within the free window */
             reason?: string;
+            /**
+             * @description Partial refund amount in the booking currency; omit for a full refund
+             * @example 30
+             */
+            amount?: number;
+        };
+        CreateCancellationRequestDto: {
+            /** @example Change of travel plans */
+            reason?: string;
+        };
+        AdminCancellationBookingRefDto: {
+            /** @example BK-7Q2KX9AB */
+            code: string;
+            /** @example Hoi An Walking Tour */
+            tourTitle: string;
+            /**
+             * Format: date
+             * @example 2026-08-15
+             */
+            departureStartDate: string;
+            /** @example Nguyen Van A */
+            customerName: string;
+            /** @example guest@example.com */
+            customerEmail: string;
+        };
+        AdminCancellationRequestDto: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            status: "REQUESTED" | "REFUNDED" | "DENIED";
+            /** @example Change of travel plans */
+            reason: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            decidedAt: string | null;
+            decisionNote: string | null;
+            booking: components["schemas"]["AdminCancellationBookingRefDto"];
+        };
+        PaginatedCancellationRequestsDto: {
+            data: components["schemas"]["AdminCancellationRequestDto"][];
+            meta: components["schemas"]["PageMetaDto"];
+        };
+        DenyCancellationRequestDto: {
+            /** @example Outside the free-cancellation window */
+            decisionNote?: string;
         };
         FeaturedReviewDto: {
             /** Format: uuid */
@@ -3154,7 +3289,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             /** @enum {string} */
-            type: "BOOKING_CONFIRMATION" | "BOOKING_REFUNDED" | "REVIEW_APPROVED" | "ENQUIRY_RECEIVED";
+            type: "BOOKING_CONFIRMATION" | "BOOKING_REFUNDED" | "REVIEW_APPROVED" | "ENQUIRY_RECEIVED" | "CANCELLATION_REQUESTED" | "CANCELLATION_DENIED";
             /** @enum {string} */
             status: "PENDING" | "SENT" | "FAILED";
             /** @example 0 */
@@ -4963,7 +5098,7 @@ export interface operations {
             query?: {
                 page?: number;
                 pageSize?: number;
-                status?: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED";
+                status?: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
                 search?: string;
                 tourId?: string;
                 departureId?: string;
@@ -5119,6 +5254,115 @@ export interface operations {
             };
             /** @description Signature verification failed */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CancellationsController_request: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCancellationRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CancellationRequestSummaryDto"];
+                };
+            };
+            /** @description User not synced */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Booking not found or not owned */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not PAID / departure started / already requested */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminCancellationsController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                /** @description Defaults to REQUESTED */
+                status?: "REQUESTED" | "REFUNDED" | "DENIED";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedCancellationRequestsDto"];
+                };
+            };
+        };
+    };
+    AdminCancellationsController_deny: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DenyCancellationRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminCancellationRequestDto"];
+                };
+            };
+            /** @description Request not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request is not open */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
