@@ -34,6 +34,7 @@ enum BookingStatus {
   PAID
   CANCELLED
   REFUNDED
+  PARTIALLY_REFUNDED
 }
 
 /// Payment rail for a booking (ADR-0006, amended). Stripe = cards/wallets,
@@ -50,6 +51,13 @@ enum EnquiryStatus {
   QUOTED
   WON
   LOST
+}
+
+/// Support lifecycle for a PAID-booking cancellation request (2026-07-04).
+enum CancellationRequestStatus {
+  REQUESTED
+  REFUNDED
+  DENIED
 }
 
 enum MediaType {
@@ -109,6 +117,8 @@ enum EmailType {
   BOOKING_REFUNDED
   REVIEW_APPROVED
   ENQUIRY_RECEIVED
+  CANCELLATION_REQUESTED
+  CANCELLATION_DENIED
 }
 
 /// Outbox row lifecycle (ADR-0007). PENDING → SENT, or → FAILED after retries.
@@ -148,6 +158,8 @@ model User {
   reviews          Review[]
   wishlist         Wishlist[]
   posts            Post[]
+  cancellationRequests  CancellationRequest[] @relation("CancellationRequester")
+  cancellationDecisions CancellationRequest[] @relation("CancellationDecider")
 
   @@index([role])
   @@map("users")
@@ -364,6 +376,8 @@ model Booking {
   // Admin refund audit. `refundedById` is now a real FK (SetNull) — ADR-0008.
   refundReason       String?         @map("refund_reason") @db.VarChar(500)
   refundedById       String?         @map("refunded_by") @db.Uuid
+  refundedAmount     Decimal?        @map("refunded_amount") @db.Decimal(12, 2)
+  refundedAt         DateTime?       @map("refunded_at")
   paidAt             DateTime?       @map("paid_at")
   cancelledAt        DateTime?       @map("cancelled_at")
   createdAt          DateTime        @default(now()) @map("created_at")
@@ -374,12 +388,40 @@ model Booking {
   tour       Tour          @relation(fields: [tourId], references: [id], onDelete: Restrict)
   departure  TourDeparture @relation(fields: [departureId], references: [id], onDelete: Restrict)
   reviews    Review[]
+  cancellationRequest CancellationRequest?
 
   @@index([userId, status])
   @@index([departureId])
   @@index([status, createdAt])
   @@index([tourId])
   @@map("bookings")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CancellationRequest — a PAID customer's request to cancel/refund a booking
+// (2026-07-04). One live row per booking (unique bookingId); a DENIED row is
+// reused on re-request. Admin acts from the queue: refund resolves it to
+// REFUNDED (see BookingsService.refundByAdmin), deny → DENIED.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model CancellationRequest {
+  id           String                    @id @default(uuid()) @db.Uuid
+  bookingId    String                    @unique @map("booking_id") @db.Uuid
+  userId       String                    @map("user_id") @db.Uuid
+  reason       String                    @db.VarChar(1000)
+  status       CancellationRequestStatus @default(REQUESTED)
+  decisionNote String?                   @map("decision_note") @db.VarChar(500)
+  decidedById  String?                   @map("decided_by") @db.Uuid
+  decidedAt    DateTime?                 @map("decided_at")
+  createdAt    DateTime                  @default(now()) @map("created_at")
+  updatedAt    DateTime                  @updatedAt @map("updated_at")
+
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  user      User    @relation("CancellationRequester", fields: [userId], references: [id], onDelete: Restrict)
+  decidedBy User?   @relation("CancellationDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@map("cancellation_requests")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

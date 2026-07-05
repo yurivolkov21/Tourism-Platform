@@ -78,6 +78,7 @@ describe('AdminStatsService.getDashboard', () => {
       PAID: 0,
       CANCELLED: 0,
       REFUNDED: 0,
+      PARTIALLY_REFUNDED: 0,
     });
   });
 

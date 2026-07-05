@@ -140,6 +140,7 @@ export class AdminStatsService {
       PAID: 0,
       CANCELLED: 0,
       REFUNDED: 0,
+      PARTIALLY_REFUNDED: 0,
     };
     for (const g of statusGroups) {
       bookingsByStatus[g.status] = g._count._all;
