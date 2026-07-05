@@ -33,11 +33,12 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 
 ## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **DEPLOYED** (`main`)
 
-> **Next action:** no active roadmap — blog-v2 finished 2026-07-05 (see
-> [docs/07-plans/2026-07-03-blog-v2-roadmap.md](docs/07-plans/2026-07-03-blog-v2-roadmap.md)
-> §RESUME STATE). Remaining candidates, user picks: P4 admin UI polish · refund-execution
-> UI / cancellation-request queue (see "Fold into the admin-UI phase" below) · P5 mobile
-> (teammate's lane — do not touch `origin/nghia*` branches).
+> **Next action:** no active roadmap — blog-v2 finished 2026-07-05; the admin UI-parity
+> pass (outbox + dashboard table, `fea387c`) closed P4 the same day. Remaining
+> candidates, user picks: **refund-execution UI / cancellation-request queue** (see
+> "Fold into the admin-UI phase" below — the strongest candidate) · web feedback layer
+> (toast/AlertDialog on web) · real content authoring · P5 mobile (teammate's lane — do
+> not touch `origin/nghia*` branches).
 
 ```text
 apps/   api (NestJS 11) · web + admin (Next 16) · mobile (Expo SDK 54)

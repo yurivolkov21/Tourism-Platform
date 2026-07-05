@@ -68,4 +68,8 @@ commits clean).
 
 ## STATUS
 
-- [ ] Tasks 1–4 — pending (branch cut 2026-07-05).
+- [x] Tasks 1–4 — **DONE**, merged `fea387c` fast-forward (2026-07-05, user-reviewed).
+  admin **149** tests (146 + 3 format-date). Dashboard widget 236 → 141 lines. One
+  deliberate micro-change: the dashboard table's rows-per-page options standardized to
+  the shared `PAGE_SIZE_OPTIONS` (was a bespoke 10/20/30; default stays 10). **P4 admin
+  = fully complete** (no remaining items).
