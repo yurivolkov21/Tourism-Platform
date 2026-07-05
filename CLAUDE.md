@@ -82,6 +82,14 @@ Non-negotiable unless the user says otherwise in the moment.
 7. **Run `/gate` before declaring green** (lint + typecheck + test + build).
 8. **Commits:** Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`,
    `test:`, `chore:`). No AI attribution (disabled globally).
+9. **Docs sweep after EVERY feature merge** (user rule 2026-07-05 — never skip): the
+   feature plan's STATUS · `docs/roadmap.md` phase row · this file's project table ·
+   `HANDOFF.md` current-state/next-action, **plus** any reference doc the feature
+   invalidated: `docs/03-reference/functions-*.md` when endpoints changed ·
+   `docs/01-architecture/data-model.md` when the schema changed · `backend.md`/
+   `frontend.md` when modules/routes changed. Test-count baselines everywhere they
+   appear. (The 2026-07-05 audit found catalogs/architecture docs silently stale —
+   that class of drift is what this rule prevents.)
 
 ## Commands (from repo root)
 
