@@ -2,6 +2,7 @@ import type { components } from '@tourism/core';
 
 import type { TourCardData } from '../../components/tours/tour-card';
 import { toTourCard } from '../api/tours';
+import { stripMarkdownSyntax } from './strip-markdown';
 
 type PostDto = components['schemas']['PostDto'];
 type PostDetailDto = components['schemas']['PostDetailDto'];
@@ -43,13 +44,7 @@ const EXCERPT_MAX = 160;
 
 /** Plain-text excerpt from markdown (same stripping as `readingStats`), clamped on a word. */
 export function fallbackExcerpt(content: string): string {
-  const plain = content
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/[#>*_~`|-]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  const plain = stripMarkdownSyntax(content).replace(/\s+/g, ' ').trim();
   if (plain.length <= EXCERPT_MAX) return plain;
   const cut = plain.slice(0, EXCERPT_MAX);
   const lastSpace = cut.lastIndexOf(' ');

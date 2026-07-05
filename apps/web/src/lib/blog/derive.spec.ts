@@ -54,4 +54,16 @@ describe('extractOutline', () => {
   it('returns empty for heading-less content', () => {
     expect(extractOutline('plain paragraph')).toEqual([]);
   });
+
+  it('strips inline markdown so text and id match the rendered heading', () => {
+    expect(extractOutline('## See [Hạ Long](https://example.com/ha-long)')).toEqual([
+      { depth: 2, text: 'See Hạ Long', id: 'see-ha-long' },
+    ]);
+  });
+
+  it('unwraps inline code in headings', () => {
+    expect(extractOutline('### Run `npm i` first')).toEqual([
+      { depth: 3, text: 'Run npm i first', id: 'run-npm-i-first' },
+    ]);
+  });
 });
