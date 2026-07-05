@@ -182,7 +182,8 @@ export class MediaService {
 
   /**
    * Registers ONE already-uploaded image for an owner (no replace-all — the body-image
-   * insert path). Idempotent: an existing owner+publicId row just returns its URL.
+   * insert path). Idempotent + race-free: upserts on the (ownerType, ownerId, publicId)
+   * compound unique with a no-op update, so a re-register just returns the URL.
    */
   async registerAsset(
     ownerType: MediaOwnerType,
@@ -190,25 +191,23 @@ export class MediaService {
     role: MediaRole,
     input: { publicId: string; width?: number; height?: number; format?: string },
   ): Promise<{ url: string }> {
-    const existing = await this.prisma.mediaAsset.findFirst({
-      where: { ownerType, ownerId, publicId: input.publicId },
-      select: { id: true },
+    await this.prisma.mediaAsset.upsert({
+      where: {
+        ownerType_ownerId_publicId: { ownerType, ownerId, publicId: input.publicId },
+      },
+      update: {},
+      create: {
+        publicId: input.publicId,
+        type: MediaType.IMAGE,
+        ownerType,
+        ownerId,
+        role,
+        format: input.format ?? null,
+        width: input.width ?? null,
+        height: input.height ?? null,
+        sortOrder: 0,
+      },
     });
-    if (!existing) {
-      await this.prisma.mediaAsset.create({
-        data: {
-          publicId: input.publicId,
-          type: MediaType.IMAGE,
-          ownerType,
-          ownerId,
-          role,
-          format: input.format ?? null,
-          width: input.width ?? null,
-          height: input.height ?? null,
-          sortOrder: 0,
-        },
-      });
-    }
     const cloudName = this.config.getOrThrow<string>('cloudinary.cloudName');
     return {
       url: buildCloudinaryUrl(cloudName, {

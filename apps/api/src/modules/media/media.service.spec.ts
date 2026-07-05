@@ -171,25 +171,24 @@ describe('MediaService', () => {
     ]);
   });
 
-  it('registerAsset creates a body row and returns its delivery url', async () => {
-    const findFirst = jest.fn().mockResolvedValue(null);
-    const create = jest.fn().mockResolvedValue({});
-    const svc = makeService({ mediaAsset: { findFirst, create } });
+  it('registerAsset upserts a body row on the compound unique and returns its delivery url', async () => {
+    const upsert = jest.fn().mockResolvedValue({});
+    const svc = makeService({ mediaAsset: { upsert } });
 
     const res = await svc.registerAsset(MediaOwnerType.POST, 'p1', MediaRole.body, {
       publicId: 'tourism/posts/body/1717000000000-boat',
     });
 
-    expect(findFirst).toHaveBeenCalledWith({
+    expect(upsert).toHaveBeenCalledWith({
       where: {
-        ownerType: MediaOwnerType.POST,
-        ownerId: 'p1',
-        publicId: 'tourism/posts/body/1717000000000-boat',
+        ownerType_ownerId_publicId: {
+          ownerType: MediaOwnerType.POST,
+          ownerId: 'p1',
+          publicId: 'tourism/posts/body/1717000000000-boat',
+        },
       },
-      select: { id: true },
-    });
-    expect(create).toHaveBeenCalledWith({
-      data: {
+      update: {},
+      create: {
         publicId: 'tourism/posts/body/1717000000000-boat',
         type: MediaType.IMAGE,
         ownerType: MediaOwnerType.POST,
@@ -205,16 +204,16 @@ describe('MediaService', () => {
     expect(res.url).toContain('tourism/posts/body/1717000000000-boat');
   });
 
-  it('registerAsset is idempotent: an existing owner+publicId row short-circuits', async () => {
-    const findFirst = jest.fn().mockResolvedValue({ id: 'existing-row' });
-    const create = jest.fn();
-    const svc = makeService({ mediaAsset: { findFirst, create } });
+  it('registerAsset is idempotent: re-registering no-op-updates the existing row', async () => {
+    const upsert = jest.fn().mockResolvedValue({ id: 'existing-row' });
+    const svc = makeService({ mediaAsset: { upsert } });
 
     const res = await svc.registerAsset(MediaOwnerType.POST, 'p1', MediaRole.body, {
       publicId: 'already-there',
     });
 
-    expect(create).not.toHaveBeenCalled();
+    expect(upsert).toHaveBeenCalledTimes(1);
+    expect(upsert.mock.calls[0][0].update).toEqual({});
     expect(res.url).toContain('already-there');
   });
 });
