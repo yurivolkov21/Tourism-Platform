@@ -102,7 +102,12 @@ Comments (moderation cost > value for an agency blog) · auto related-tours matc
 - [x] Wave 4 — reader polish + P6 fast-follows — **DONE 2026-07-05** (merged `b9b5158`
   fast-forward; web 175 tests; outline-anchor + stripMarkdownSyntax fast-follows landed;
   notes in `docs/07-plans/2026-07-05-blog-v2-wave4-reader-polish.md` STATUS)
-- [ ] Wave 5 — newsletter + RSS
+- [x] Wave 5 — newsletter + RSS — **DONE 2026-07-05** (slice 1 BE merged `15c5cb4`,
+  migration applied live w/ user GO + registerAsset unique-index fast-follow; slice 2 FE
+  merged `a91909d`; api 314 / web 182 / admin 146 tests; notes in
+  `docs/07-plans/2026-07-05-blog-v2-wave5-newsletter-rss.md` STATUS)
+
+**→ blog-v2 roadmap COMPLETE (2026-07-05): all 5 waves merged to `main`.**
 
 ## RESUME STATE (written 2026-07-03 — authoritative handoff, survives machine loss)
 
@@ -115,7 +120,7 @@ Comments (moderation cost > value for an agency blog) · auto related-tours matc
 
 1. **Waves 1 + 2 = DONE and on `main`** (merged `2f2193e`, `b263e32` + docs commits).
    Wave-1 migration `20260703120425_add_post_tags_and_post_tours` IS applied to the live
-   Supabase DB. Test baselines: api **309** · admin **142** · web **175**.
+   Supabase DB. Test baselines: api **314** · admin **146** · web **182**.
 2. **Wave 3 = DONE and on `main`** — slice 1 (BE) merged `96e9ff1` (2026-07-03), migration
    `20260703144308_add_media_role_body` applied live (user GO, before merge),
    `ecc:code-reviewer` APPROVE-WITH-NOTES (LOW fast-follow: `registerAsset`
@@ -129,15 +134,22 @@ Comments (moderation cost > value for an agency blog) · auto related-tours matc
    `docs/06-specs/2026-07-05-blog-v2-wave4-reader-polish-design.md` +
    `docs/07-plans/2026-07-05-blog-v2-wave4-reader-polish.md`. The P6 fast-follows
    (outline-anchor markdown mismatch, `stripMarkdownSyntax` DRY) landed with it.
-4. **⛔ NEXT ACTION: Wave 5 (newsletter + RSS) = NOT STARTED** — spec not yet written
-   (spec → plan → execute). Scope in this file above. Reminder: fold in the deferred W3
-   BE fast-follow (`registerAsset` unique index/upsert) with Wave 5's `Subscriber`
-   migration go/no-go (user decision 2026-07-05).
+4. **Wave 5 = DONE and on `main` → blog-v2 roadmap COMPLETE.** Slice 1 (BE) merged
+   `15c5cb4`: `Subscriber` model, migration
+   `20260705012606_add_subscribers_and_media_asset_unique` applied live (user GO before
+   merge; also carried the W3 `registerAsset` unique-index/upsert fast-follow),
+   `POST /newsletter/subscribe` (throttled, honeypot, silent dedupe) +
+   `GET /admin/newsletter/subscribers`. Slice 2 (FE) merged `a91909d`: live footer form
+   (browser-side POST, per-IP throttle) · `/blog/rss.xml` · admin `/subscribers` list +
+   CSV export (formula-injection-guarded). **NO next blog-v2 action — the roadmap is
+   done.** Next work = a new roadmap/phase (user decides; P5 mobile is the teammate's
+   lane).
 5. **Process:** spec → plan → execute per wave; TDD on pure logic;
    `ecc:code-reviewer` only on BE slices; **merges = user source review, then rebase +
    `--ff-only`** (user preference 2026-07-05 — supersedes the old "pre-authorized
    `--no-ff`" line); migrations ALWAYS user-gated.
 6. **Carried fast-follows** live in each wave plan's STATUS block (W1: tag-race 409
-   message + stale controller return types + prisma format; W2: none blocking; W3 slice 1:
-   registerAsset dup-race unique-index → **scheduled into Wave 5**; P6: outline-anchor
-   md-link mismatch + `stripMarkdownSyntax` DRY — ✅ landed in Wave 4).
+   message + stale controller return types + prisma format — still open, LOW; W2: none
+   blocking; W3 slice 1: registerAsset dup-race unique-index — ✅ landed in Wave 5;
+   P6: outline-anchor md-link mismatch + `stripMarkdownSyntax` DRY — ✅ landed in
+   Wave 4).

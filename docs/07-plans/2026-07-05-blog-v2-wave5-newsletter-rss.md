@@ -128,4 +128,11 @@ harness (upsert adaptation).
   --create-only` refuses non-interactive envs — migration generated via
   `prisma migrate diff --from-config-datasource --to-schema … --script` + hand-made
   folder (SQL identical to Prisma's).
-- [ ] Slice 2 (Tasks 6–9) — **IN PROGRESS** (branch `feat/blog-v2-newsletter-fe`)
+- [x] Slice 2 (Tasks 6–9): FE — **DONE**, merged `a91909d` fast-forward (2026-07-05,
+  user-reviewed). web **182** tests (175 + 7: email validate + RSS builder) · admin
+  **146** (142 + 4: toCsv incl. formula-injection guard). Footer form submits from the
+  browser (per-IP throttle budget, mirroring `submitEnquiry`); status is inline (web has
+  no toaster — the enquiry-CTA pattern, deviation from the roadmap's "toast" wording).
+  One Nx-flagged flaky `@tourism/web:test` run during the gate — re-ran fresh twice,
+  182/182 both times (parallel-run hiccup, not a test bug). **Wave 5 complete →
+  blog-v2 roadmap COMPLETE (all 5 waves).**
