@@ -610,8 +610,43 @@ export class BookingsService {
         `Admin full-refunded booking ${booking.code} (${seats} seat(s) released, by ${args.adminUserId})`,
       );
     } else {
-      // B5 fills this in.
-      throw new Error('partial refund not implemented yet');
+      // Atomic, idempotent (gated on status='PAID'): flip PARTIALLY_REFUNDED
+      // + resolve any open cancellation request. Seats are intentionally NOT
+      // released — the booking stays active (spec decision 4).
+      await this.prisma.$queryRaw(Prisma.sql`
+        WITH refunded AS (
+          UPDATE bookings
+          SET status = 'PARTIALLY_REFUNDED'::"BookingStatus",
+              refund_reason = ${args.reason ?? null},
+              refunded_by = ${args.adminUserId}::uuid,
+              refunded_amount = ${amount},
+              refunded_at = now()
+          WHERE id = ${booking.id}::uuid AND status = 'PAID'::"BookingStatus"
+          RETURNING id
+        ),
+        request_resolved AS (
+          UPDATE cancellation_requests
+          SET status = 'REFUNDED'::"CancellationRequestStatus",
+              decided_by = ${args.adminUserId}::uuid,
+              decided_at = now(),
+              updated_at = now()
+          WHERE booking_id = (SELECT id FROM refunded) AND status = 'REQUESTED'::"CancellationRequestStatus"
+          RETURNING id
+        ),
+        outbox_insert AS (
+          INSERT INTO outbox (type, payload, dedupe_key)
+          SELECT 'BOOKING_REFUNDED'::"EmailType",
+                 jsonb_build_object('bookingId', id),
+                 'booking-refunded:' || id::text
+          FROM refunded
+          ON CONFLICT (dedupe_key) DO NOTHING
+          RETURNING id
+        )
+        SELECT id FROM refunded
+      `);
+      this.logger.log(
+        `Admin partial-refunded booking ${booking.code} (${amount.toString()} ${booking.currency}, seats kept, by ${args.adminUserId})`,
+      );
     }
 
     const updated = await this.prisma.booking.findUnique({

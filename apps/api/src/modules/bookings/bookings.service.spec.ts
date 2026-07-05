@@ -568,6 +568,62 @@ describe('BookingsService', () => {
     );
   });
 
+  it('partial refund sets PARTIALLY_REFUNDED + refundedAmount and does NOT release seats', async () => {
+    const queryRaw = jest.fn().mockResolvedValue([{ id: 'bk-1' }]);
+    const stripe = makeStripe();
+    const svc = svcWith(
+      makePrisma({
+        booking: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValueOnce(paidBooking)
+            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.PARTIALLY_REFUNDED }),
+        },
+        $queryRaw: queryRaw,
+      }),
+      stripe,
+    );
+
+    await svc.refundByAdmin({ code: 'BK-1', amount: 30, adminUserId: 'admin-1' });
+
+    expect(stripe.createRefund).toHaveBeenCalledWith(
+      expect.objectContaining({ amountMinorUnits: 3000 }), // 30.00 USD → cents
+    );
+    // Assert the partial CTE ran (status arg PARTIALLY_REFUNDED, no seats decrement).
+    const sql = (queryRaw.mock.calls[0][0] as { strings: string[] }).strings.join('');
+    expect(sql).toContain('PARTIALLY_REFUNDED');
+    expect(sql).not.toContain('seats_booked = GREATEST');
+  });
+
+  it('partial refund on a PayPal booking passes a partial amount to PayPal', async () => {
+    const paypal = makePayPal();
+    const svc = svcWith(
+      makePrisma({
+        booking: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValueOnce({
+              ...paidBooking,
+              code: 'BK-PP',
+              paymentProvider: PaymentProvider.PAYPAL,
+              providerPaymentId: 'cap_1',
+              totalAmount: new Prisma.Decimal('99.00'),
+            })
+            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.PARTIALLY_REFUNDED }),
+        },
+        $queryRaw: jest.fn().mockResolvedValue([{ id: 'bk-1' }]),
+      }),
+      makeStripe(),
+      paypal,
+    );
+
+    await svc.refundByAdmin({ code: 'BK-PP', amount: 40, adminUserId: 'admin-1' });
+    expect(paypal.refundCapture).toHaveBeenCalledWith(
+      'cap_1',
+      expect.objectContaining({ value: '40.00', currencyCode: 'USD' }),
+    );
+  });
+
   // ── startCheckout (PayPal) + capturePayPal ─────────────────────────────────────
 
   const paypalPending = {
