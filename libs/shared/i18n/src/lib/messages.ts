@@ -338,6 +338,12 @@ export const messages = {
         'Your session has expired — please sign in again, then retry.',
       USER_NOT_SYNCED:
         'We couldn’t verify your account. Sign out and back in, then try again.',
+      CANCELLATION_NOT_ALLOWED:
+        'This booking can’t be cancelled online. Contact us for help.',
+      DEPARTURE_ALREADY_STARTED:
+        'This trip has already started — please contact us directly.',
+      CANCELLATION_ALREADY_REQUESTED:
+        'You’ve already sent a cancellation request for this booking.',
       generic: 'Something went wrong. Please try again.',
     },
     // /checkout/success.
@@ -385,6 +391,7 @@ export const messages = {
         PAID: 'Paid',
         CANCELLED: 'Cancelled',
         REFUNDED: 'Refunded',
+        PARTIALLY_REFUNDED: 'Partially refunded',
       } as Record<string, string>,
       viewDetails: 'View details',
     },
@@ -416,6 +423,11 @@ export const messages = {
       requestSent: 'Request sent — our team will follow up shortly.',
       requestError: 'Couldn’t send your request. Please try again.',
       policyLink: 'Read our cancellation & refund policy',
+      requestPending: 'Cancellation requested — we’ll email you about a refund.',
+      requestDenied: 'Your cancellation request was declined.',
+      requestResubmit: 'Request cancellation again',
+      refundedNote: (amount: string) => `Refunded ${amount}.`,
+      partiallyRefundedNote: (amount: string) => `Partially refunded ${amount}.`,
     },
   },
   common: {

@@ -22,6 +22,7 @@ const STATUS_TONES: Record<string, string> = {
   PENDING: 'border-transparent bg-warning/15 text-warning',
   CANCELLED: 'border-transparent bg-muted text-muted-foreground',
   REFUNDED: 'border-transparent bg-destructive/15 text-destructive',
+  PARTIALLY_REFUNDED: 'border-transparent bg-destructive/15 text-destructive',
 };
 
 /** Badge className for a booking status; unknown statuses fall back to the muted (cancelled) tone. */
