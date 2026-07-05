@@ -486,6 +486,21 @@ model Enquiry {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Subscriber — newsletter lead capture (blog v2 wave 5). DB-backed only (no
+// ESP); the public subscribe endpoint upserts by normalized email (silent
+// dedupe), admin lists/exports. RLS-enabled like every table (API enforces).
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Subscriber {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique @db.VarChar(200)
+  source       String?  @db.VarChar(40)
+  subscribedAt DateTime @default(now()) @map("subscribed_at")
+
+  @@map("subscribers")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // MediaAsset — Cloudinary-backed, polymorphic by (ownerType, ownerId).
 // No hard FK (ADR-0008 pragmatic) — integrity via a reconcile job + same-tx
 // cleanup. Stores Cloudinary public_id; delivery URLs derived at read time.
@@ -508,6 +523,10 @@ model MediaAsset {
   createdAt   DateTime       @default(now()) @map("created_at")
   updatedAt   DateTime       @updatedAt @map("updated_at")
 
+  // One row per owner+publicId — lets registerAsset upsert instead of racing
+  // findFirst-then-create (W3 fast-follow). Replace-all paths delete before
+  // insert inside one tx, so they never collide with this.
+  @@unique([ownerType, ownerId, publicId])
   @@index([ownerType, ownerId, role])
   @@map("media_assets")
 }
