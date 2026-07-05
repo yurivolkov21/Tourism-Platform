@@ -6,8 +6,9 @@ when this doc disagrees with the schema, the schema wins. Founding rationale:
 [../02-decisions/](../02-decisions/README.md). Risks: [risks.md](risks.md).
 
 > **Status: live** — schema migrated to Supabase across P1.1 → P1.x → P-Content → blog-v2
-> (W1 tags/tours joins · W3 `MediaRole.body` · W5 `Subscriber` + media compound unique).
-> **22 models, 15 enums.**
+> (W1 tags/tours joins · W3 `MediaRole.body` · W5 `Subscriber` + media compound unique) →
+> refund + cancellation-request queue (2026-07-05).
+> **23 models, 16 enums.**
 
 ## Conventions (kept from donor)
 
@@ -16,7 +17,7 @@ UUID PKs (`@db.Uuid`, client-generated; `Outbox`/`MediaGarbage` use DB-default
 `@db.VarChar(n)` · `Decimal(12,2)` for money · closed enums · `created_at`/`updated_at` ·
 indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 
-## Models (22)
+## Models (23)
 
 | Model | Purpose | Notable fields / relations |
 | --- | --- | --- |
@@ -29,7 +30,8 @@ indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 | `TourDeparture` | dated departure | `startDate`/`endDate` `@db.Date`, `priceOverride?`/`compareAtPrice?`, `seatsTotal`/`seatsBooked`, `status` |
 | `TourFaq` | tour FAQ | `tourId`, `question`, `answer`, `order` |
 | `TourPolicy` | structured policy (D-P1.1 — own model) | `tourId`, `kind PolicyKind`, `title`, `body`, `order` |
-| `Booking` | order | `code @unique` (`BK-…`), `userId`/`tourId`/`departureId` FKs, `totalAmount`, `status`, `paymentProvider`, `providerSessionId?`/`providerPaymentId?`, `refundReason?`/`refundedById?`, contact fields |
+| `Booking` | order | `code @unique` (`BK-…`), `userId`/`tourId`/`departureId` FKs, `totalAmount`, `status` (incl. `PARTIALLY_REFUNDED`), `paymentProvider`, `providerSessionId?`/`providerPaymentId?`, `refundReason?`/`refundedById?`, **`refundedAmount?`/`refundedAt?`** (partial-refund audit, 2026-07-05); 1:1 → `cancellationRequest?` |
+| `CancellationRequest` | a PAID customer's request to cancel/refund a booking (2026-07-05) | `bookingId @unique` FK (Restrict), `userId` FK (Restrict) — requester, `reason`, `status CancellationRequestStatus` (default `REQUESTED`), `decisionNote?`, `decidedById?` FK → User (SetNull), `decidedAt?`; one live row per booking — a `DENIED` row is reset to `REQUESTED` on re-request |
 | `Review` | unified verified + curated | `rating`, `title?`, `body`, `isApproved`, `isFeatured`, `source ReviewSource` (VERIFIED/CURATED); VERIFIED → `bookingId? @unique`/`tourId?`/`userId?` set; CURATED testimonials have those FKs **nullable** + `authorName`, `authorLocation?`, `tripLabel?` (unified-reviews migration) |
 | `Wishlist` | saved tour | composite PK `(userId, tourId)` |
 | `PaymentEvent` | webhook idempotency log | `@@unique(provider, eventId)`, `processedAt?` (nullable → re-run on mid-flight crash) |
@@ -43,15 +45,19 @@ indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 | `PostTour` | Post ↔ Tour **M:N** join (related tours, max 3, ordered) | PK `(postId, tourId)`, `order` |
 | `Subscriber` | newsletter lead capture (blog-v2 W5) | `email @unique` (normalized lowercase), `source?`, `subscribedAt`; silent-dedupe upsert from the public subscribe endpoint |
 
-## Enums (15)
+## Enums (16)
 
 `UserRole` (CUSTOMER/ADMIN) · `DepartureStatus` (OPEN/CLOSED/CANCELLED) ·
-`BookingStatus` (PENDING/PAID/CANCELLED/REFUNDED) · **`PaymentProvider` (STRIPE/PAYPAL** —
+`BookingStatus` (PENDING/PAID/CANCELLED/REFUNDED/**PARTIALLY_REFUNDED** — 2026-07-05) ·
+**`PaymentProvider` (STRIPE/PAYPAL** —
 MoMo→PayPal, [ADR-0006](../02-decisions/0006-multi-gateway-momo.md) amended) ·
-`EnquiryStatus` (NEW/CONTACTED/QUOTED/WON/LOST) · `MediaType` (IMAGE/VIDEO) ·
+`EnquiryStatus` (NEW/CONTACTED/QUOTED/WON/LOST) · **`CancellationRequestStatus`**
+(REQUESTED/REFUNDED/DENIED — support lifecycle for a PAID-booking cancellation
+request, 2026-07-05) · `MediaType` (IMAGE/VIDEO) ·
 `MediaOwnerType` (TOUR/DESTINATION/USER/POST) · `MediaRole` (hero/gallery/avatar/**body** — blog-v2 W3 inline images) ·
 `PolicyKind` (CANCELLATION/BOOKING/GENERAL) · **`EmailType`** (BOOKING_CONFIRMATION/
-BOOKING_REFUNDED/REVIEW_APPROVED/ENQUIRY_RECEIVED) · **`OutboxStatus`** (PENDING/SENT/FAILED) ·
+BOOKING_REFUNDED/REVIEW_APPROVED/ENQUIRY_RECEIVED/**CANCELLATION_REQUESTED**/
+**CANCELLATION_DENIED**) · **`OutboxStatus`** (PENDING/SENT/FAILED) ·
 **`TravellerType`** (FAMILY/COUPLE/FRIENDS/SOLO/BUSINESS) · **`TourBadge`** (BEST_VALUE/
 LIMITED_OFFER/EXCLUSIVE/NEW/POPULAR) (P1.7e merchandising) · **`ReviewSource`** (VERIFIED/CURATED —
 unified reviews, lets admins author testimonials with no booking) · **`PostStatus`** (DRAFT/PUBLISHED,
@@ -71,6 +77,7 @@ P-Content blog).
 | **Merchandising** | `Tour.suitableFor` + `Tour.badges` (Lily's theme/badges) | P1.7e |
 | **Reliability tables** | `Outbox` (emails) + `MediaGarbage` (Cloudinary orphans) | [ADR-0007](../02-decisions/0007-pgboss-outbox-jobs.md), P1.x |
 | **Blog v2** | `PostTag` + `PostTagLink`/`PostTour` M:N joins · `MediaRole.body` (tracked inline images, excluded from cover replace-all, GC on post delete) · `Subscriber` + `MediaAsset` compound unique | [blog-v2 roadmap](../07-plans/2026-07-03-blog-v2-roadmap.md), W1/W3/W5 |
+| **Refund + cancellation-request queue** | admin refund accepts optional partial `amount` (`BookingStatus.PARTIALLY_REFUNDED` + `refundedAmount`/`refundedAt`); new `CancellationRequest` model (booking-tied, replaces the old Enquiry-based request hack) + `CancellationRequestStatus` + 2 `EmailType`s | [spec](../06-specs/2026-07-04-refund-cancellation-queue-design.md), 2026-07-05 |
 
 ## Integrity & security hardening ([ADR-0008](../02-decisions/0008-security-integrity-hardening.md))
 
@@ -88,7 +95,12 @@ P-Content blog).
 - **Seat reservation** happens only at PAID, via a single-statement `$queryRaw` **CTE**
   (`claimSeatsForPaid`) — *not* an interactive `$transaction`/`FOR UPDATE` (pooler-safe). The
   confirmation `Outbox` row is inserted **inside that same CTE** (`ON CONFLICT (dedupe_key) DO
-  NOTHING`). Admin refund releases seats + writes a `BOOKING_REFUNDED` outbox row in its CTE.
+  NOTHING`). Admin refund releases seats + writes a `BOOKING_REFUNDED` outbox row in its CTE —
+  **full** refund releases seats + flips `REFUNDED`; **partial** (`0 < amount < total`) keeps
+  seats and flips `PARTIALLY_REFUNDED`, both gated on `status='PAID'` (idempotent retries) and
+  both resolving an open `CancellationRequest` to `REFUNDED` in the same CTE. The provider call
+  (Stripe/PayPal) uses a deterministic idempotency key (`booking-refund:<bookingId>`) and always
+  runs **before** the DB write (2026-07-05).
 - Low-concurrency writes (review-approved, enquiry-received) use a short interactive
   `$transaction` to commit the state change + outbox row together.
 

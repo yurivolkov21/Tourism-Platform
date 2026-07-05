@@ -21,8 +21,8 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
   Thêm function mới chỉ nối dài chuỗi của model đó — không phải đánh số lại toàn bộ.
 - **Mã model** (dùng chung cả 3 catalog): `USR` User · `CAT` TourCategory ·
   `DST` Destination · `TUR` Tour · `DEP` TourDeparture · `MED` MediaAsset/Upload ·
-  `REV` Review · `ENQ` Enquiry · `BKG` Booking · `STA` Stats (tổng hợp) · `PST` Post ·
-  `SUB` Subscriber (newsletter).
+  `REV` Review · `ENQ` Enquiry · `BKG` Booking · `CXR` CancellationRequest ·
+  `STA` Stats (tổng hợp) · `PST` Post · `SUB` Subscriber (newsletter).
 - **Functions / Description / Entity / Models / Database / Diagram** — như catalog customer.
 - **Trạng thái** — ✅ **Ổn** · 🕒 **Lưu ý/Tương lai**.
 
@@ -119,7 +119,14 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
 | A-BKG-1 | List Bookings<br>`GET /admin/bookings` | 1. Admin mở quản lý đơn hàng<br>2. Gửi `GET /admin/bookings` với `page`/`pageSize`; lọc `status` tùy chọn + `search` (khớp **case-insensitive** trên `code`/`contactEmail`/`contactName`)<br>3. `Promise.all` list (kèm tour + departure) + count (pooler-safe), mới nhất trước<br>4. Trả danh sách + `meta` (`page`/`pageSize`/`total`/`totalPages`) | Admin | **Booking**, Tour, TourDeparture | bookings, tours, tour_departures | Activity | ✅ |
 | A-BKG-2 | Booking Detail<br>`GET /admin/bookings/:code` | 1. Admin chọn đơn theo mã<br>2. Gửi `GET /admin/bookings/:code`<br>3. **Admin xem mọi đơn** (không owner-check như U-BKG-3); thiếu → 404 `BOOKING_NOT_FOUND`<br>4. Trả chi tiết + tour + departure | Admin | **Booking**, Tour, TourDeparture | bookings, tours, tour_departures | Activity | ✅ |
-| A-BKG-3 | Refund Booking<br>`POST /admin/bookings/:code/refund` | 1. Admin chọn booking `PAID` + nhập `reason`<br>2. Phải `PAID` + có `providerPaymentId` (else 400 `BOOKING_NOT_REFUNDABLE`)<br>3. **Gọi refund cổng TRƯỚC** (Stripe/PayPal); lỗi → 400 `REFUND_FAILED` (giữ PAID); riêng "đã hoàn out-of-band" → hội tụ tiếp<br>4. **CTE nguyên tử** (gated `status='PAID'`): release ghế + flip `REFUNDED` + audit `refund_reason`/`refunded_by` + ghi `outbox` BOOKING_REFUNDED (email — S-JOB-1)<br>5. Trả booking | Admin | **Booking**, TourDeparture, Outbox | bookings, tour_departures, outbox | Sequence | 🕒 Partial refund khi nghiệp vụ cần |
+| A-BKG-3 | Refund Booking<br>`POST /admin/bookings/:code/refund` | 1. Admin chọn booking `PAID` + nhập `reason`; **`amount` tùy chọn** (theo tiền tệ của booking)<br>2. Phải `PAID` + có `providerPaymentId` (else 400 `BOOKING_NOT_REFUNDABLE`); `amount` ≤0 hoặc > tổng đơn → 400 `INVALID_REFUND_AMOUNT`<br>3. Bỏ trống `amount` (hoặc `amount = tổng`) → **hoàn toàn phần** (release ghế, `REFUNDED`); `0 < amount < tổng` → **hoàn một phần** (giữ nguyên ghế, `PARTIALLY_REFUNDED`, ghi `refunded_amount`)<br>4. **Gọi refund cổng TRƯỚC** (Stripe/PayPal, key idempotency `booking-refund:<id>` chống double-charge khi retry); lỗi → 400 `REFUND_FAILED` (giữ PAID); riêng "đã hoàn out-of-band" → hội tụ tiếp<br>5. **CTE nguyên tử** (gated `status='PAID'`): release ghế (chỉ nhánh full) + flip status + audit `refund_reason`/`refunded_by`/`refunded_amount`; **có cancellation request đang mở thì resolve luôn về `REFUNDED`** + ghi `outbox` BOOKING_REFUNDED (email — S-JOB-1)<br>6. Trả booking | Admin | **Booking**, CancellationRequest, TourDeparture, Outbox | bookings, cancellation_requests, tour_departures, outbox | Sequence | ✅ |
+
+## `CancellationRequest`
+
+| Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
+| ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
+| A-CXR-1 | List Cancellation Requests<br>`GET /admin/cancellation-requests` | 1. Admin mở hàng đợi yêu cầu hủy/hoàn tiền<br>2. Gửi `GET /admin/cancellation-requests` — mặc định lọc `status=REQUESTED` (hàng đợi mở), đổi được qua query<br>3. `Promise.all` list (kèm booking + tour + departure + khách) + count (pooler-safe), mới nhất trước<br>4. Trả danh sách + `meta` | Admin | **CancellationRequest**, Booking, Tour, TourDeparture | cancellation_requests, bookings, tours, tour_departures | Activity | ✅ |
+| A-CXR-2 | Deny Cancellation Request<br>`POST /admin/cancellation-requests/:id/deny` | 1. Admin từ chối 1 yêu cầu đang mở + nhập `decisionNote` tùy chọn<br>2. **Chuyển trạng thái nguyên tử** (gated `status='REQUESTED'`) — chỉ request đang mở mới đổi được<br>3. Không tồn tại → 404 `CANCELLATION_REQUEST_NOT_FOUND`; đã xử lý rồi → 409 `CANCELLATION_NOT_PENDING`<br>4. Set `DENIED` + audit `decision_note`/`decided_by`/`decided_at`; **booking giữ nguyên `PAID`** (deny không hủy đơn) + ghi `outbox` CANCELLATION_DENIED (email — S-JOB-1)<br>5. Trả request đã cập nhật | Admin | **CancellationRequest**, Booking, Outbox | cancellation_requests, bookings, outbox | Sequence | ✅ |
 
 ## Stats
 
@@ -150,6 +157,14 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 
 ## Lịch sử
 
+- **2026-07-05** — **Refund execution + cancellation-request queue:** A-BKG-3 nhận
+  `amount` tùy chọn (400 `INVALID_REFUND_AMOUNT`), tách nhánh full (release ghế,
+  `REFUNDED`) / partial (giữ ghế, `PARTIALLY_REFUNDED`, `refunded_amount`), gắn
+  idempotency key `booking-refund:<id>`, resolve request đang mở về `REFUNDED`; xóa
+  note 🕒 partial cũ. **Bổ sung** nhóm `CancellationRequest`: A-CXR-1 (hàng đợi admin,
+  mặc định `REQUESTED`) · A-CXR-2 (deny, chuyển trạng thái nguyên tử, booking giữ
+  `PAID`). Model mới `CancellationRequest` thay cho hack "Request cancellation" qua
+  Enquiry. Xem [spec](../06-specs/2026-07-04-refund-cancellation-queue-design.md).
 - **2026-07-05** — **blog-v2 (W1/W3/W5):** A-PST-3/4 nhận `tags[]` (upsert theo slug) +
   `relatedTourSlugs[]` (≤3, replace-all); A-PST-5 mô tả đúng GC media trong `$transaction`;
   **bổ sung** A-PST-6 (tag suggestions) · A-PST-7 (set cover, carve-out `preserveRoles:

@@ -22,9 +22,9 @@ Sequence diagram**.
   Thêm function mới chỉ nối dài chuỗi của model đó — không phải đánh số lại toàn bộ.
 - **Mã model** (dùng chung cả 3 catalog): `USR` User · `CAT` TourCategory ·
   `DST` Destination · `TUR` Tour · `DEP` TourDeparture · `MED` MediaAsset/Upload ·
-  `REV` Review · `ENQ` Enquiry · `BKG` Booking · `WSH` Wishlist · `PST` Post ·
-  `SUB` Subscriber (newsletter) · `STA` Stats (tổng hợp) · `PAY` PaymentEvent ·
-  `JOB` job nền · `SYS` health/liveness.
+  `REV` Review · `ENQ` Enquiry · `BKG` Booking · `CXR` CancellationRequest ·
+  `WSH` Wishlist · `PST` Post · `SUB` Subscriber (newsletter) · `STA` Stats (tổng hợp) ·
+  `PAY` PaymentEvent · `JOB` job nền · `SYS` health/liveness.
 - **Functions** — tên nghiệp vụ + endpoint REST (prefix `/api/v1`).
 - **Description** — luồng xử lý server-side từng bước.
 - **Entity** — tác nhân chính (Customer / System).
@@ -99,6 +99,7 @@ Sequence diagram**.
 | U-BKG-4 | Start Checkout<br>`POST /bookings/:code/checkout` | 1. User bấm thanh toán cho đơn PENDING<br>2. Gửi `POST /bookings/:code/checkout`<br>3. Owner-or-admin (else 404); phải `PENDING` (else 409 `BOOKING_NOT_PENDING`)<br>4. Theo `paymentProvider`: tạo Stripe Checkout session **hoặc** PayPal order (gọi ngoài DB-write — không giữ kết nối pooler)<br>5. Lỗi cổng → 502 `CHECKOUT_FAILED` (đơn vẫn PENDING, retry được)<br>6. Lưu `providerSessionId`; trả `{ checkoutUrl, bookingCode, status }`<br>7. FE redirect tới `checkoutUrl` | Customer | **Booking** | bookings | Sequence | ✅ |
 | U-BKG-5 | Capture PayPal<br>`POST /bookings/:code/capture` | 1. Sau khi buyer duyệt order, PayPal redirect về FE → FE gọi capture<br>2. Owner-or-admin (else 404); phải là booking PAYPAL (else 400) đang PENDING (PAID → trả luôn, idempotent)<br>3. Capture order qua PayPal API<br>4. **Giữ ghế + flip PAID qua CTE nguyên tử** (`claimSeatsForPaid`)<br>5. Nếu hết ghế (race) → refund capture + `REFUNDED` + 409 `SEATS_NOT_AVAILABLE`<br>6. Trả booking | Customer | **Booking**, TourDeparture, Outbox | bookings, tour_departures, outbox | Sequence | ✅ Webhook PayPal (S-PAY-2) là backstop |
 | U-BKG-6 | Cancel Booking<br>`POST /bookings/:code/cancel` | 1. User huỷ đơn **PENDING** của mình<br>2. Gửi `POST /bookings/:code/cancel`<br>3. Owner-or-admin (else 404); không PENDING → 409 (đơn PAID đi qua refund admin A-BKG-3)<br>4. Flip `CANCELLED` + `cancelledAt` (không đổi ghế — chưa giữ)<br>5. Trả booking | Customer | **Booking** | bookings | Activity | ✅ |
+| U-BKG-7 | Request Cancellation<br>`POST /bookings/:code/cancellation-request` | 1. User xin hủy/hoàn tiền đơn **PAID** của mình + nhập `reason`<br>2. Owner-only (else 404 `BOOKING_NOT_FOUND` — không lộ đơn của người khác); không `PAID` → 409 `CANCELLATION_NOT_ALLOWED`; departure đã khởi hành → 409 `DEPARTURE_ALREADY_STARTED`; đã có request đang mở → 409 `CANCELLATION_ALREADY_REQUESTED`<br>3. **Upsert** theo `bookingId` (1 request/booking) — request `DENIED` trước đó được **reset về `REQUESTED`** khi gửi lại<br>4. Ghi `outbox` CANCELLATION_REQUESTED (email — S-JOB-1); admin xử lý từ hàng đợi A-CXR-1 (refund → A-BKG-3 resolve về `REFUNDED`, hoặc deny → A-CXR-2)<br>5. Trả request (status/reason/createdAt) | Customer | **Booking**, CancellationRequest, Outbox | bookings, cancellation_requests, outbox | Sequence | ✅ Thay cho hack cũ gửi qua Enquiry |
 
 ## `Wishlist`
 
@@ -132,6 +133,11 @@ Sequence diagram**.
 
 ## Lịch sử
 
+- **2026-07-05** — **Refund execution + cancellation-request queue:** **bổ sung**
+  U-BKG-7 (`POST /bookings/:code/cancellation-request` — owner-only, upsert 1
+  request/booking, reset request `DENIED` cũ khi gửi lại) — **thay cho hack cũ**
+  gửi yêu cầu hủy qua Enquiry. Xem
+  [spec](../06-specs/2026-07-04-refund-cancellation-queue-design.md).
 - **2026-07-05** — **blog-v2 (W1/W2/W5):** U-PST-1 thêm filter `tag` + DTO kèm
   `tags[]`/`author`/`media[]`; U-PST-2 kèm `relatedTours[]`; **bổ sung** U-PST-3
   (`GET /posts/tags`) + nhóm `Subscriber` với U-SUB-1 (`POST /newsletter/subscribe` —

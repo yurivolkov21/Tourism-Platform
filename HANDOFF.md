@@ -31,14 +31,13 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **DEPLOYED** (`main`)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **DEPLOYED** (`main`)
 
-> **Next action:** no active roadmap — blog-v2 finished 2026-07-05; the admin UI-parity
-> pass (outbox + dashboard table, `fea387c`) closed P4 the same day. Remaining
-> candidates, user picks: **refund-execution UI / cancellation-request queue** (see
-> "Fold into the admin-UI phase" below — the strongest candidate) · web feedback layer
-> (toast/AlertDialog on web) · real content authoring · P5 mobile (teammate's lane — do
-> not touch `origin/nghia*` branches).
+> **Next action:** no active roadmap — candidate A (**refund-execution UI /
+> cancellation-request queue**) shipped 2026-07-05, closing the last strong P4 fold-in.
+> Remaining candidates, user picks: web feedback layer (toast/AlertDialog on web) ·
+> real content authoring · P5 mobile (teammate's lane — do not touch `origin/nghia*`
+> branches).
 
 ```text
 apps/   api (NestJS 11) · web + admin (Next 16) · mobile (Expo SDK 54)
@@ -48,9 +47,9 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
 **Now (frontier):**
 
 - **API (P1) — complete + DEPLOYED on Render.** P1.1–P1.8 + P1.x (jobs). Schema+RLS,
-  envelope, auth, CRUD, bookings, **Stripe + PayPal (+ admin refund)**, media, reviews/
+  envelope, auth, CRUD, bookings, **Stripe + PayPal (+ admin refund, partial or full)**, media, reviews/
   wishlist/enquiry/stats, seed + typed `@tourism/core` client, pg-boss outbox+cron.
-  **+ blog Posts CRUD + admin bookings list/detail + next-departure availability + blog-v2 BE complete (post tags/related-tours/author · body-image register upsert · newsletter subscribe + admin subscribers list).** 314 api tests.
+  **+ blog Posts CRUD + admin bookings list/detail + next-departure availability + blog-v2 BE complete (post tags/related-tours/author · body-image register upsert · newsletter subscribe + admin subscribers list) + refund execution + cancellation-request queue (2026-07-05: admin refund accepts optional partial `amount` → `PARTIALLY_REFUNDED`/`refundedAmount`, idempotency-keyed provider call; new `CancellationRequest` model + customer `POST /bookings/:code/cancellation-request` + admin list/deny).** 338 api tests.
 - **Design (P2) — done.** `@tourism/tokens` ("Emerald Heritage", no-hex) + `@tourism/ui`
   (shadcn/Base UI, 54 comps). Brand **"Nexora"** (NEX origami logo).
 - **Web (P3 + P6) — complete, customer-facing live on Vercel.** Home · destinations overview · 3
@@ -64,13 +63,18 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
   date-picker) · reviews (real DB) · **wishlist save-UI** (heart on tour-detail BookingBox,
   signed-in only; manage/un-save in account) · redesigned footer · **blog** (`/blog` index +
   article reader · tag/search filter chips · share row · prev/next · outline scrollspy +
-  scroll-progress · "Updated on" stamp · `/blog/rss.xml` · **live footer newsletter signup**).
+  scroll-progress · "Updated on" stamp · `/blog/rss.xml` · **live footer newsletter signup**) ·
+  **real booking-tied cancellation request** (2026-07-05, replaces the Enquiry hack;
+  status-aware `BookingActions` — requested/denied/refunded/partially-refunded copy).
   **Component reform done** (Tier 1/2/3a: native forms → `@tourism/ui`; shared lead-form
-  field baseline; dead-code swept). **Final polish pass MERGED** (`ca1cfd0`). 182 web tests.
+  field baseline; dead-code swept). **Final polish pass MERGED** (`ca1cfd0`). 181 web tests.
 - **Admin (P4) — CRUD breadth done + DEPLOYED on Vercel.** Auth + shell + dashboard +
   CRUD (Destinations · Categories · Tours · Departures · Posts) + **blog-v2 authoring**
   (tag combobox · related-tours picker · inline body-image editor w/ Write|Preview) +
-  **Subscribers list + CSV export** under Operations. UI polish deferred. 146 admin tests.
+  **Subscribers list + CSV export** under Operations + **refund execution + cancellation-request
+  queue** (2026-07-05: refund dialog partial-amount + proactive-refund safeguard, deny action +
+  cancellation panel on booking detail, new `/cancellation-requests` queue page). UI polish
+  deferred. 152 admin tests.
 - **Real data wired:** home · destinations overview · **region-detail** · tours listing+detail ·
   enquiry · reviews · contact · **tour-card availability**. Only curated editorial imagery stays
   static (real `MediaAsset` pending admin upload).
@@ -129,11 +133,16 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
 2. **Then:** P4 admin UI polish · P5 mobile (teammate's lane). *(P6 blog reader + the whole
    blog-v2 roadmap — Waves 1–5, incl. inline body images, reader polish, newsletter + RSS —
    COMPLETE 2026-07-05.)*
-   - **Fold into the admin-UI phase:** refund **execution** UI — partial/amount refund (`refundByAdmin` is full-only today; Stripe/PayPal accept an `amount`) + a first-class **cancellation-request queue** (today the PAID "Request cancellation" posts an Enquiry; promoting it to a booking-tied request only pays off once admin has a screen to act on it). Customer-facing policy is already live at `/cancellation-policy`.
+   - **Fold into the admin-UI phase — DONE (2026-07-05):** refund **execution** UI — partial/amount refund (`refundByAdmin` accepts an `amount`; omitted/=total → full `REFUNDED`, `0 < amount < total` → `PARTIALLY_REFUNDED`) + a first-class **cancellation-request queue** (the PAID "Request cancellation" is now a real booking-tied `CancellationRequest`, not an Enquiry; admin resolves from `/cancellation-requests` via refund or deny). Customer-facing policy is already live at `/cancellation-policy`. See
+     [spec](docs/06-specs/2026-07-04-refund-cancellation-queue-design.md) +
+     [plan](docs/07-plans/2026-07-04-refund-cancellation-queue-plan.md).
 
 *Done since last handoff (2026-07-05): **blog-v2 roadmap complete** — Wave 3 Slice 2 admin
 inline-image editor (`335a60f`) · Wave 4 reader polish (`b9b5158`) · Wave 5 newsletter + RSS
-(`15c5cb4` BE w/ live migration + `a91909d` FE). Baselines: api 314 · web 182 · admin 146.*
+(`15c5cb4` BE w/ live migration + `a91909d` FE). **Refund execution + cancellation-request
+queue complete** (2026-07-05, `b327dde`..`65acf64`): partial-refund CTE + idempotency key ·
+customer cancellation-request endpoint (replaces Enquiry hack) · admin queue + deny + refund-dialog
+partial amount. Baselines: api 338 · web 181 · admin 152.*
 
 > **Domain-gated (deferred until a real domain is bought):** Resend email delivery
 > (enquiry ack / booking confirm / refund) + Supabase custom-domain email confirmation.
