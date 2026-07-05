@@ -10,11 +10,13 @@ import {
   cancelBooking,
   captureBookingOrder,
   createBooking,
+  requestBookingCancellation,
   startCheckout,
   type BookingDto,
 } from '../api/booking';
 import { buildCreateBookingPayload, type BookingFormError } from './booking-form';
 import type { CreateBookingPayload } from './booking-form';
+import { buildCancellationRequestBody } from './cancellation-request';
 
 const errors = messages.booking.errors;
 
@@ -121,6 +123,26 @@ export async function cancelBookingAction(
       return { ok: false, error: errorMessage(e.code) };
     }
     console.error('[booking] cancel unexpected error', e);
+    return { ok: false, error: errors.generic };
+  }
+}
+
+/** Request cancellation/refund of the caller's own PAID booking, then revalidate the detail + list. */
+export async function requestCancellationAction(
+  code: string,
+  reason: string,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    await requestBookingCancellation(code, buildCancellationRequestBody(reason));
+    revalidatePath(`/account/bookings/${code}`);
+    revalidatePath('/account/bookings');
+    return { ok: true };
+  } catch (e) {
+    if (e instanceof ApiRequestError) {
+      console.error('[booking] cancellation request failed', { code, apiCode: e.code, status: e.status });
+      return { ok: false, error: errorMessage(e.code) };
+    }
+    console.error('[booking] cancellation request unexpected error', e);
     return { ok: false, error: errors.generic };
   }
 }
