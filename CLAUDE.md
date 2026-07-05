@@ -128,4 +128,24 @@ docs/   README.md (index + reading path) · BLUEPRINT.md · roadmap.md
 - `.claude/commands/` — project slash commands: `/gate` (quality gate),
   `/seed` (test data — P1), `/regen-types` (FE OpenAPI client after a BE DTO
   change — P1), `/new-feature <desc>` (kick off spec→plan→execute).
-- `.remember/` — rolling session handoff notes (not the contract; code + docs are).
+- Session handoff lives in the roadmap plans' **STATUS / RESUME STATE** blocks under
+  `docs/07-plans/` (the old `.remember/` dir is gone).
+
+### Skill conventions (standing, agreed with the user 2026-07-05)
+
+Situation → skill to invoke BEFORE acting (plugin skills installed in Claude Code):
+
+| Situation | Skill |
+| --- | --- |
+| New feature/phase with **no spec yet** | `superpowers:brainstorming` → then `/new-feature` (spec → plan) |
+| A written plan exists in `docs/07-plans/` | `superpowers:executing-plans` (follow it task-by-task, raise concerns first) |
+| Implementing any pure logic | `superpowers:test-driven-development` — failing spec first, red → green per task |
+| A real bug / failing test / unexpected behavior | `superpowers:systematic-debugging` before proposing fixes |
+| Touching post-training APIs (Next.js 16 · Expo SDK 54 · Prisma 7) or any unfamiliar library | `context7` live-docs lookup first — never write from memory |
+| Declaring a slice green | `/gate` (lint + typecheck + test + build) |
+| After any BE response-DTO change | `/regen-types` |
+| Broad multi-file searching/auditing | fan out `Explore` subagents (don't grind through files inline) |
+| Repo overview / onboarding a teammate (on request) | `understand-anything` (`/understand`, `/understand-onboard`) |
+
+Merge flow stays as "How we work" #1–2: user reviews source → rebase + `--ff-only`.
+These are defaults, not ceremony — skip only when the user explicitly says so.
