@@ -2,18 +2,24 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeftIcon, ArrowRightIcon, CalendarDaysIcon, ClockIcon } from 'lucide-react';
+import { ArrowLeftIcon, ArrowRightIcon, CalendarDaysIcon, ClockIcon, RefreshCwIcon } from 'lucide-react';
 
 import { messages } from '@tourism/i18n';
+import { ScrollProgress } from '@tourism/ui';
 
 import { TourCard } from '../../../components/tours/tour-card';
 import { EnquiryCta } from '../../../components/marketing/enquiry-cta';
 import { PostCard } from '../../../components/blog/post-card';
 import { PostContent } from '../../../components/blog/post-content';
+import { OutlineRail } from '../../../components/blog/outline-rail';
+import { PostNav } from '../../../components/blog/post-nav';
+import { ShareRow } from '../../../components/blog/share-row';
 import { ArticleJsonLd, BreadcrumbJsonLd } from '../../../components/seo/json-ld';
 import { fetchPost, fetchPosts, fetchPostSlugs } from '../../../lib/api/posts';
-import { extractOutline, readingStats } from '../../../lib/blog/derive';
+import { pickAdjacentPosts } from '../../../lib/blog/adjacent';
+import { extractOutline, isMeaningfullyUpdated, readingStats } from '../../../lib/blog/derive';
 import { pickMorePosts } from '../../../lib/blog/pick-more-posts';
+import { absoluteUrl } from '../../../lib/site';
 
 // ISR: render articles statically; revalidate so the free API tier isn't hit per request.
 export const revalidate = 300;
@@ -55,17 +61,22 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const t = messages.blog;
   const outline = extractOutline(post.content);
   const { minutes } = readingStats(post.content);
-  // Same-topic posts first (primary tag), recency top-up; both error-tolerant.
-  const [taggedPage, recentPage] = await Promise.all([
+  // Same-topic posts first (primary tag), recency top-up; all error-tolerant. The wide
+  // page feeds prev/next (same 100-post window generateStaticParams uses).
+  const [taggedPage, recentPage, widePage] = await Promise.all([
     post.tags.length > 0
       ? fetchPosts({ tag: post.tags[0].slug, pageSize: 4 }).catch(() => null)
       : Promise.resolve(null),
     fetchPosts({ pageSize: 6 }).catch(() => null),
+    fetchPosts({ pageSize: 100 }).catch(() => null),
   ]);
   const more = pickMorePosts(taggedPage?.posts ?? [], recentPage?.posts ?? [], slug);
+  const { newer, older } = pickAdjacentPosts(widePage?.posts ?? [], slug);
+  const showUpdated = isMeaningfullyUpdated(post.publishedAt, post.updatedAt);
 
   return (
     <main>
+      <ScrollProgress />
       <ArticleJsonLd
         title={post.title}
         description={post.excerpt}
@@ -136,6 +147,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               <ClockIcon className="size-4" aria-hidden="true" />
               {t.minRead(minutes)}
             </span>
+            {showUpdated && post.updatedAt ? (
+              <span className="inline-flex items-center gap-1.5">
+                <RefreshCwIcon className="size-4" aria-hidden="true" />
+                {t.updatedOn(dateFmt.format(new Date(post.updatedAt)))}
+              </span>
+            ) : null}
           </div>
           {post.tags.length > 0 ? (
             <div className="mt-4 flex flex-wrap gap-1.5">
@@ -154,30 +171,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
         {/* Body + outline rail: rail is sticky on desktop, a plain list ABOVE the body on mobile. */}
         <div className="mx-auto mt-10 grid max-w-3xl gap-10 lg:max-w-5xl lg:grid-cols-[minmax(0,1fr)_14rem]">
-          <PostContent content={post.content} />
+          <div className="min-w-0">
+            <PostContent content={post.content} />
+            <ShareRow url={absoluteUrl(`/blog/${slug}`)} title={post.title} />
+          </div>
 
-          {outline.length >= 2 ? (
-            <aside className="max-lg:order-first">
-              <nav aria-label={t.outlineHeading} className="lg:sticky lg:top-28">
-                <h2 className="font-sans text-sm font-semibold tracking-wide uppercase">
-                  {t.outlineHeading}
-                </h2>
-                <ul className="border-border/60 mt-3 space-y-2 border-l pl-4 text-sm">
-                  {outline.map((item, i) => (
-                    <li key={`${item.id}-${i}`} className={item.depth === 3 ? 'pl-3' : undefined}>
-                      <a
-                        href={`#${item.id}`}
-                        className="text-muted-foreground hover:text-primary transition-colors"
-                      >
-                        {item.text}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            </aside>
-          ) : null}
+          {outline.length >= 2 ? <OutlineRail items={outline} heading={t.outlineHeading} /> : null}
         </div>
+
+        <PostNav newer={newer} older={older} />
       </article>
 
       {post.relatedTours.length > 0 ? (
