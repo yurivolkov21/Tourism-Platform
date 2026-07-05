@@ -5,7 +5,9 @@ when this doc disagrees with the schema, the schema wins. Founding rationale:
 [BLUEPRINT §6](../BLUEPRINT.md#6-new-data-model-clean-lily-informed). Decisions:
 [../02-decisions/](../02-decisions/README.md). Risks: [risks.md](risks.md).
 
-> **Status: live** — schema migrated to Supabase across P1.1 → P1.x → P-Content. 18 models, 13 enums.
+> **Status: live** — schema migrated to Supabase across P1.1 → P1.x → P-Content → blog-v2
+> (W1 tags/tours joins · W3 `MediaRole.body` · W5 `Subscriber` + media compound unique).
+> **22 models, 15 enums.**
 
 ## Conventions (kept from donor)
 
@@ -14,7 +16,7 @@ UUID PKs (`@db.Uuid`, client-generated; `Outbox`/`MediaGarbage` use DB-default
 `@db.VarChar(n)` · `Decimal(12,2)` for money · closed enums · `created_at`/`updated_at` ·
 indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 
-## Models (18)
+## Models (22)
 
 | Model | Purpose | Notable fields / relations |
 | --- | --- | --- |
@@ -32,10 +34,14 @@ indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 | `Wishlist` | saved tour | composite PK `(userId, tourId)` |
 | `PaymentEvent` | webhook idempotency log | `@@unique(provider, eventId)`, `processedAt?` (nullable → re-run on mid-flight crash) |
 | `Enquiry` | "Inquire Now" lead (ADR-0003) | `name`/`email`/`phone?`/`message`, `tourId?`, `status EnquiryStatus`, **lead fields P1.7d: `nationality?`/`travelDate?`/`groupSize?`/`budgetTier?`/`interests[]`** |
-| `MediaAsset` | Cloudinary asset, polymorphic | `(ownerType, ownerId, role)`, `publicId`, `type`, `posterId?` — no hard FK (ADR-0008 pragmatic) |
+| `MediaAsset` | Cloudinary asset, polymorphic | `(ownerType, ownerId, role)`, `publicId`, `type`, `posterId?` — no hard FK (ADR-0008 pragmatic); **`@@unique(ownerType, ownerId, publicId)`** (blog-v2 W5 — race-free body-image upsert) |
 | `Outbox` | transactional email outbox (ADR-0007, P1.x-a) | `type EmailType`, `payload Json`, `status OutboxStatus`, `attempts`, `dedupeKey @unique` |
 | `MediaGarbage` | orphaned Cloudinary ids awaiting destroy (P1.x-b) | `publicId @unique`, `resourceType`, `attempts` |
-| `Post` | editorial blog article (P-Content) | `slug @unique`, `title`, `excerpt?`, `content` (markdown), `status PostStatus`, `publishedAt?`, `authorId` FK → User (Restrict); cover via `MediaAsset(ownerType=POST)` |
+| `Post` | editorial blog article (P-Content + blog-v2) | `slug @unique`, `title`, `excerpt?`, `content` (markdown), `status PostStatus`, `publishedAt?`, `authorId` FK → User (Restrict); cover = `MediaAsset(ownerType=POST, role=hero)`, inline body images = `role=body` (GC on post delete); tags via `PostTagLink`, hand-picked tours via `PostTour` |
+| `PostTag` | free-form blog topic (blog-v2 W1) | `slug @unique`, `name`; upserted by slug from admin tag combobox |
+| `PostTagLink` | Post ↔ PostTag **M:N** join | PK `(postId, tagId)` |
+| `PostTour` | Post ↔ Tour **M:N** join (related tours, max 3, ordered) | PK `(postId, tourId)`, `order` |
+| `Subscriber` | newsletter lead capture (blog-v2 W5) | `email @unique` (normalized lowercase), `source?`, `subscribedAt`; silent-dedupe upsert from the public subscribe endpoint |
 
 ## Enums (15)
 
@@ -43,7 +49,7 @@ indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 `BookingStatus` (PENDING/PAID/CANCELLED/REFUNDED) · **`PaymentProvider` (STRIPE/PAYPAL** —
 MoMo→PayPal, [ADR-0006](../02-decisions/0006-multi-gateway-momo.md) amended) ·
 `EnquiryStatus` (NEW/CONTACTED/QUOTED/WON/LOST) · `MediaType` (IMAGE/VIDEO) ·
-`MediaOwnerType` (TOUR/DESTINATION/USER/POST) · `MediaRole` (hero/gallery/avatar) ·
+`MediaOwnerType` (TOUR/DESTINATION/USER/POST) · `MediaRole` (hero/gallery/avatar/**body** — blog-v2 W3 inline images) ·
 `PolicyKind` (CANCELLATION/BOOKING/GENERAL) · **`EmailType`** (BOOKING_CONFIRMATION/
 BOOKING_REFUNDED/REVIEW_APPROVED/ENQUIRY_RECEIVED) · **`OutboxStatus`** (PENDING/SENT/FAILED) ·
 **`TravellerType`** (FAMILY/COUPLE/FRIENDS/SOLO/BUSINESS) · **`TourBadge`** (BEST_VALUE/
@@ -64,6 +70,7 @@ P-Content blog).
 | **`Enquiry`** | lead capture + CRM status + structured lead fields | [ADR-0003](../02-decisions/0003-enquiry.md), D-P1.4, P1.7d |
 | **Merchandising** | `Tour.suitableFor` + `Tour.badges` (Lily's theme/badges) | P1.7e |
 | **Reliability tables** | `Outbox` (emails) + `MediaGarbage` (Cloudinary orphans) | [ADR-0007](../02-decisions/0007-pgboss-outbox-jobs.md), P1.x |
+| **Blog v2** | `PostTag` + `PostTagLink`/`PostTour` M:N joins · `MediaRole.body` (tracked inline images, excluded from cover replace-all, GC on post delete) · `Subscriber` + `MediaAsset` compound unique | [blog-v2 roadmap](../07-plans/2026-07-03-blog-v2-roadmap.md), W1/W3/W5 |
 
 ## Integrity & security hardening ([ADR-0008](../02-decisions/0008-security-integrity-hardening.md))
 

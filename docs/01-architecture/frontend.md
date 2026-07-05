@@ -21,9 +21,9 @@
 
 ## Web (`@tourism/web`)
 
-Next.js 16 App Router (RSC). **Layout-first**: build with placeholder fixtures shaped like the eventual
-`@tourism/core` DTOs, then wire the live client later (deferred to end of P3). Temporary **Unsplash**
-imagery via `next/image` `remotePatterns` — review only, swap for `MediaAsset`.
+Next.js 16 App Router (RSC). Built **layout-first** with fixtures shaped like the `@tourism/core`
+DTOs; **real data is now wired** across home/destinations/tours/blog/account via the typed client
+(ISR). Only curated editorial imagery remains static (Unsplash via `next/image` `remotePatterns`).
 
 ### Routes
 
@@ -37,7 +37,10 @@ imagery via `next/image` `remotePatterns` — review only, swap for `MediaAsset`
 | `/about` | static | AboutHero · "Our story" **alternating image timeline** (centre spine + haloed year nodes) · by-the-numbers · team · enquiry. |
 | `/contact` | static | ContentHero · **channels** (call/email/WhatsApp action cards) · **two offices + map** · Plan-your-trip form · closing CtaBand. |
 | `/faq` | static | Searchable grouped accordion (category icons) · sticky TOC · **FAQPage JSON-LD**. |
-| `/privacy`, `/terms` | static | Legal documents — **drafts pending legal review** (placeholders + review callout). |
+| `/privacy`, `/terms`, `/cancellation-policy` | static | Legal documents — complete real content, **not lawyer-reviewed** (fine for the demo). |
+| `/blog` · `/blog/[slug]` · `/blog/rss.xml` | ISR (300s) | Journal index (pagination + `?tag=`/`?q=` chips) · markdown article (outline scrollspy + scroll-progress · share row · prev/next · "Updated on") · RSS 2.0 feed. Footer carries a **live newsletter signup** (browser-side `POST /newsletter/subscribe`). |
+| `/login` `/register` `/forgot-password` `/reset-password` · `/account/*` | dynamic | Supabase auth + account hub (dashboard · settings · bookings + detail/cancel · saved). |
+| `/tours/[slug]/book` · `/checkout/{success,cancel}` | dynamic | Booking flow (Stripe/PayPal + private-departure request). |
 | `/ui-check` | static | Dev sandbox for `@tourism/ui`. |
 
 **Header/footer** live in `app/layout.tsx`. Primary nav: **Tours** (experiences dropdown) · **Destinations**
@@ -96,8 +99,11 @@ content/       privacy.ts · terms.ts · legal-page.ts       (long-form legal do
 🟢 **CRUD breadth done + DEPLOYED** (Vercel, dev port :3002). Supabase SSR auth + `proxy.ts` gate +
 `/auth/admin/sync` allowlist · app shell (sidebar / topbar / theme / user-menu) · dashboard (live
 `/admin/stats/dashboard`) · **CRUD: Destinations · Categories · Tours · Departures · Posts** (Server
-Components fetch + Server Actions mutate, `@tourism/ui`, tokens-only). Remaining (optional): Tours
-increment-2 sub-forms (itinerary/FAQs/policies) · media upload · UI polish pass.
+Components fetch + Server Actions mutate, `@tourism/ui`, tokens-only) · Tours increment-2 sub-forms
+(itinerary/FAQs/policies) + shared `MediaField` upload — **done** · **blog-v2 authoring** (tag
+combobox · related-tours picker · inline body-image editor w/ Write|Preview) · **Subscribers list +
+CSV export** under Operations · media library (`/media` + garbage queue). Remaining (optional):
+UI polish pass. 146 tests (2026-07-05).
 
 ## Mobile (`@tourism/mobile`) — P5
 

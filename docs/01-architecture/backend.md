@@ -3,8 +3,10 @@
 NestJS service. Ports the donor's proven structure; hardened per
 [ADR-0008](../02-decisions/0008-security-integrity-hardening.md).
 
-> **Status: P1 complete** (P1.1 → P1.x + P1.7d/e). 187 unit + 8 e2e tests.
-> Canonical surface: the running Swagger spec (`/api/docs`) + `schema.prisma`.
+> **Status: P1 complete + blog-v2 BE complete** (P1.1 → P1.x + P1.7d/e → posts CRUD →
+> blog-v2 W1/W3/W5: tags/related-tours/author · body-image register · newsletter).
+> **314 unit + 8 e2e tests** (2026-07-05). Canonical surface: the running Swagger spec
+> (`/api/docs`) + `schema.prisma`.
 
 ## Module map
 
@@ -16,7 +18,7 @@ prisma/   PrismaService (PrismaPg adapter) + prisma.config.ts (DIRECT_URL migrat
 modules/
   auth · users · destinations · tour-categories · tours · departures ·
   bookings · payments (stripe + paypal) · uploads · media ·
-  reviews · wishlist · enquiry · admin-stats ·
+  reviews · wishlist · enquiry · newsletter · admin-stats · posts ·
   email (Resend templates) · jobs (pg-boss outbox + cron)
 app/      AppModule (global guards/interceptor/filter) + root controller (GET /)
 ```

@@ -21,7 +21,8 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
   Thêm function mới chỉ nối dài chuỗi của model đó — không phải đánh số lại toàn bộ.
 - **Mã model** (dùng chung cả 3 catalog): `USR` User · `CAT` TourCategory ·
   `DST` Destination · `TUR` Tour · `DEP` TourDeparture · `MED` MediaAsset/Upload ·
-  `REV` Review · `ENQ` Enquiry · `BKG` Booking · `STA` Stats (tổng hợp) · `PST` Post.
+  `REV` Review · `ENQ` Enquiry · `BKG` Booking · `STA` Stats (tổng hợp) · `PST` Post ·
+  `SUB` Subscriber (newsletter).
 - **Functions / Description / Entity / Models / Database / Diagram** — như catalog customer.
 - **Trạng thái** — ✅ **Ổn** · 🕒 **Lưu ý/Tương lai**.
 
@@ -92,7 +93,11 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 
 | Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
-| A-MED-1 | Sign Upload<br>`POST /admin/uploads/signed-url` | 1. Admin chọn ảnh/clip + `purpose` (`TOUR_HERO`/`TOUR_GALLERY`/`TOUR_VIDEO`/`DESTINATION_HERO`/`DESTINATION_VIDEO`/`USER_AVATAR`)<br>2. Gửi kèm `filename`, `contentType`<br>3. Server validate định dạng theo purpose (400 `MEDIA_FORMAT_REJECTED`) rồi ký chữ ký Cloudinary trên `folder` + `publicId` **do server tự quyết** (sanitize chống path-traversal)<br>4. Trả payload ký (`signature`, `timestamp`, `apiKey`, `cloudName`, `folder`, `publicId`, …)<br>5. FE `POST` thẳng file lên Cloudinary; rồi lưu `publicId` qua A-DST-5/A-TUR-5/U-USR-4 (server không chạm bytes) | Admin | — (Cloudinary) → **MediaAsset** | media_assets | Sequence | ✅ |
+| A-MED-1 | Sign Upload<br>`POST /admin/uploads/signed-url` | 1. Admin chọn ảnh/clip + `purpose` (`TOUR_HERO`/`TOUR_GALLERY`/`TOUR_VIDEO`/`DESTINATION_HERO`/`DESTINATION_GALLERY`/`DESTINATION_VIDEO`/`USER_AVATAR`/**`POST_COVER`**/**`POST_BODY`**)<br>2. Gửi kèm `filename`, `contentType`<br>3. Server validate định dạng theo purpose (400 `MEDIA_FORMAT_REJECTED`) rồi ký chữ ký Cloudinary trên `folder` + `publicId` **do server tự quyết** (sanitize chống path-traversal)<br>4. Trả payload ký (`signature`, `timestamp`, `apiKey`, `cloudName`, `folder`, `publicId`, …)<br>5. FE `POST` thẳng file lên Cloudinary; rồi lưu `publicId` qua A-DST-5/A-TUR-5/A-PST-7/A-PST-8/U-USR-4 (server không chạm bytes) | Admin | — (Cloudinary) → **MediaAsset** | media_assets | Sequence | ✅ |
+| A-MED-2 | List Media Library<br>`GET /admin/media` | 1. Admin mở thư viện `/media` toàn hệ thống<br>2. Lọc `ownerType`/`role`/`type` + search publicId, phân trang<br>3. Server resolve **owner** cho từng asset (tour/destination/post/user) để hiện link<br>4. Trả danh sách + meta | Admin | **MediaAsset**, Tour, Destination, Post, User | media_assets, … | Activity | ✅ |
+| A-MED-3 | Delete Media Asset<br>`DELETE /admin/media/:id` | 1. Admin gỡ 1 asset khỏi owner (VD ảnh body đã bỏ khỏi markdown)<br>2. 404 nếu id lạ; **asset USER (avatar) → 409** (không đụng avatar khách)<br>3. `$transaction`: ghi `media_garbage` + xoá row — Cloudinary destroy chạy deferred<br>4. Trả bản ghi đã xoá | Admin | **MediaAsset**, MediaGarbage | media_assets, media_garbage | Sequence | ✅ |
+| A-MED-4 | List Garbage Queue<br>`GET /admin/media/garbage` | 1. Admin mở tab Garbage<br>2. Trả hàng đợi Cloudinary-destroy (cũ nhất trước, kèm attempts/lastError) + meta | Admin | **MediaGarbage** | media_garbage | Activity | ✅ |
+| A-MED-5 | Run Media Cleanup<br>`POST /admin/media/garbage/reconcile` | 1. Admin bấm "Run cleanup now"<br>2. Chạy ngay 1 batch destroy Cloudinary (same as daily cron S-JOB)<br>3. Trả `{ destroyed, failed }` | Admin | **MediaGarbage** | media_garbage | Sequence | ✅ |
 
 ## `Review`
 
@@ -128,14 +133,30 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
 | A-PST-1 | List Posts<br>`GET /admin/posts` | 1. Admin mở quản lý blog<br>2. Gửi `GET /admin/posts` (thấy cả `DRAFT`); lọc `status`/`search` tùy chọn, mới nhất trước<br>3. Phân trang; trả danh sách | Admin | **Post** | posts | Activity | ✅ |
 | A-PST-2 | View Post<br>`GET /admin/posts/:slug` | 1. Gửi `GET /admin/posts/:slug` (không lọc status)<br>2. Trả chi tiết hoặc 404 `POST_NOT_FOUND` | Admin | **Post** | posts | Activity | ✅ |
-| A-PST-3 | Create Post<br>`POST /admin/posts` | 1. Admin nhập `title`, `excerpt`, `content` (markdown), `status`; `slug` tùy chọn<br>2. **`authorId` lấy từ JWT** (không nhận từ body)<br>3. Chuẩn hóa/sinh slug (`slugify`, cắt 80); trùng → 409 `POST_SLUG_EXISTS`<br>4. Tạo bản ghi; **`PUBLISHED` → stamp `publishedAt`** (DRAFT để null)<br>5. Trả post | Admin | **Post**, User | posts, users | Activity | ✅ |
-| A-PST-4 | Update Post<br>`PATCH /admin/posts/:slug` | 1. Admin sửa trường bất kỳ (publish/ẩn, nội dung)<br>2. slug gửi kèm qua `slugify()`; trùng → 409<br>3. **Lần đầu chuyển sang `PUBLISHED` → stamp `publishedAt`** (giữ nguyên về sau, kể cả khi quay lại DRAFT)<br>4. Cập nhật; trả post | Admin | **Post** | posts | Activity | ✅ |
-| A-PST-5 | Delete Post<br>`DELETE /admin/posts/:slug` | 1. Admin xoá bài<br>2. 404 `POST_NOT_FOUND` nếu thiếu<br>3. Xoá cứng trực tiếp (không có bản ghi phụ thuộc); trả xác nhận | Admin | **Post** | posts | Activity | ✅ |
+| A-PST-3 | Create Post<br>`POST /admin/posts` | 1. Admin nhập `title`, `excerpt`, `content` (markdown), `status`; `slug` tùy chọn; **`tags[]`** (tên hiển thị) + **`relatedTourSlugs[]`** (≤3) tùy chọn (blog-v2 W1)<br>2. **`authorId` lấy từ JWT** (không nhận từ body)<br>3. Chuẩn hóa/sinh slug (`slugify`, cắt 80); trùng → 409 `POST_SLUG_EXISTS`<br>4. Tags **upsert theo slug** (tạo inline nếu chưa có) + link M:N; tour slugs resolve sang tour **đã publish** (sai → 400)<br>5. Tạo bản ghi; **`PUBLISHED` → stamp `publishedAt`** (DRAFT để null)<br>6. Trả post (kèm tags/author) | Admin | **Post**, PostTag, PostTagLink, PostTour, User | posts, post_tags, post_tag_links, post_tours, users | Activity | ✅ |
+| A-PST-4 | Update Post<br>`PATCH /admin/posts/:slug` | 1. Admin sửa trường bất kỳ (publish/ẩn, nội dung); `tags[]`/`relatedTourSlugs[]` gửi kèm = **replace-all** (bỏ trống = không đổi)<br>2. slug gửi kèm qua `slugify()`; trùng → 409<br>3. **Lần đầu chuyển sang `PUBLISHED` → stamp `publishedAt`** (giữ nguyên về sau, kể cả khi quay lại DRAFT)<br>4. Cập nhật; trả post | Admin | **Post**, PostTag, PostTagLink, PostTour | posts, post_tags, post_tag_links, post_tours | Activity | ✅ |
+| A-PST-5 | Delete Post<br>`DELETE /admin/posts/:slug` | 1. Admin xoá bài<br>2. 404 `POST_NOT_FOUND` nếu thiếu<br>3. `$transaction`: **media của post (cover + ảnh body) → `media_garbage`** (GC Cloudinary qua cron) rồi xoá post (tag/tour links cascade)<br>4. Trả xác nhận | Admin | **Post**, MediaAsset, MediaGarbage | posts, media_assets, media_garbage, post_tag_links, post_tours | Sequence | ✅ |
+| A-PST-6 | List Post Tags<br>`GET /admin/posts/tags` | 1. Form bài viết mở combobox tag<br>2. Trả toàn bộ tag kèm **số bài dùng** (gợi ý + tạo inline ở FE) | Admin | **PostTag** | post_tags, post_tag_links | Activity | ✅ |
+| A-PST-7 | Set Post Media<br>`PUT /admin/posts/:slug/media` | 1. Admin gửi `{ media: [...] }` (publicId từ A-MED-1, purpose `POST_COVER`) — replace-all cho **cover**<br>2. `$transaction` `syncAssets` với **carve-out `preserveRoles: [body]`** — ảnh body chèn trong bài KHÔNG bị GC khi đổi cover (blog-v2 W3)<br>3. Media bỏ → `media_garbage`; trả media set kèm URL | Admin | **Post**, MediaAsset, MediaGarbage | posts, media_assets, media_garbage | Sequence | ✅ |
+| A-PST-8 | Register Body Image<br>`POST /admin/posts/:slug/body-images` | 1. Editor upload ảnh (A-MED-1, purpose `POST_BODY`) rồi đăng ký publicId vào bài<br>2. 404 nếu slug lạ<br>3. **Upsert** trên unique `(ownerType, ownerId, publicId)` (idempotent, không race) — role `body`, sortOrder 0<br>4. Trả `{ url }` Cloudinary để chèn `![](url)` vào markdown; ảnh body được GC khi **xoá bài** (A-PST-5), gỡ giữa chừng thì xử lý ở thư viện `/media` (A-MED-3) | Admin | **Post**, MediaAsset | posts, media_assets | Sequence | ✅ |
+
+## `Subscriber` (newsletter — blog-v2 W5)
+
+| Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
+| ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
+| A-SUB-1 | List Subscribers<br>`GET /admin/newsletter/subscribers` | 1. Admin mở Operations → Subscribers<br>2. Lọc `search` (email contains, không phân biệt hoa thường), phân trang, mới nhất trước<br>3. Trả danh sách + meta; **CSV export** là việc của FE admin (route `/subscribers/export` page-through rồi dựng CSV có guard formula-injection) | Admin | **Subscriber** | subscribers | Activity | ✅ |
 
 ---
 
 ## Lịch sử
 
+- **2026-07-05** — **blog-v2 (W1/W3/W5):** A-PST-3/4 nhận `tags[]` (upsert theo slug) +
+  `relatedTourSlugs[]` (≤3, replace-all); A-PST-5 mô tả đúng GC media trong `$transaction`;
+  **bổ sung** A-PST-6 (tag suggestions) · A-PST-7 (set cover, carve-out `preserveRoles:
+  body`) · A-PST-8 (register body image, upsert idempotent) · **A-SUB-1** (list newsletter
+  subscribers) · **A-MED-2…5** (thư viện media `/admin/media`: list/delete/garbage/reconcile
+  — thiếu từ đợt admin enrichment) · A-MED-1 thêm purpose `DESTINATION_GALLERY`/`POST_COVER`/
+  `POST_BODY`.
 - **2026-06-24** — (1) Đổi quy ước **Code** sang `A-<MODEL>-<n>` (nhúng mã model 3 ký
   tự, số reset theo từng model) thay cho `A-xx` tuần tự; cập nhật toàn bộ cross-reference.
   Map cũ→mới: A-01 → A-USR-1 · A-02…06 → A-CAT-1…5 · A-07…12 → A-DST-1…6 · A-13…18 →

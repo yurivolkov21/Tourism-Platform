@@ -23,7 +23,8 @@ Sequence diagram**.
 - **Mã model** (dùng chung cả 3 catalog): `USR` User · `CAT` TourCategory ·
   `DST` Destination · `TUR` Tour · `DEP` TourDeparture · `MED` MediaAsset/Upload ·
   `REV` Review · `ENQ` Enquiry · `BKG` Booking · `WSH` Wishlist · `PST` Post ·
-  `STA` Stats (tổng hợp) · `PAY` PaymentEvent · `JOB` job nền · `SYS` health/liveness.
+  `SUB` Subscriber (newsletter) · `STA` Stats (tổng hợp) · `PAY` PaymentEvent ·
+  `JOB` job nền · `SYS` health/liveness.
 - **Functions** — tên nghiệp vụ + endpoint REST (prefix `/api/v1`).
 - **Description** — luồng xử lý server-side từng bước.
 - **Entity** — tác nhân chính (Customer / System).
@@ -117,13 +118,25 @@ Sequence diagram**.
 
 | Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
-| U-PST-1 | List Posts<br>`GET /posts` | 1. User mở blog/journal<br>2. Gửi `GET /posts` với `page`/`pageSize`/`search`/`sortBy`/`sortOrder` (mặc định mới publish trước)<br>3. Server **chỉ trả `status = PUBLISHED` + `publishedAt <= now()`** (ẩn nháp + bài hẹn giờ)<br>4. Search theo `title` (không phân biệt hoa thường); `Promise.all` list+count<br>5. Trả danh sách + `meta` | Customer | **Post** | posts | Activity | ✅ |
-| U-PST-2 | Post Detail<br>`GET /posts/:slug` | 1. User chọn bài viết<br>2. Gửi `GET /posts/:slug`<br>3. Tìm post `PUBLISHED` + `publishedAt <= now()` theo slug<br>4. Không có/nháp/hẹn giờ → 404 `POST_NOT_FOUND` (không lộ nháp)<br>5. Trả chi tiết (content markdown — render sanitize ở FE) | Customer | **Post** | posts | Activity | ✅ |
+| U-PST-1 | List Posts<br>`GET /posts` | 1. User mở blog/journal<br>2. Gửi `GET /posts` với `page`/`pageSize`/`search`/**`tag`** (slug — filter chip, blog-v2 W2)/`sortBy`/`sortOrder` (mặc định mới publish trước)<br>3. Server **chỉ trả `status = PUBLISHED` + `publishedAt <= now()`** (ẩn nháp + bài hẹn giờ)<br>4. Search theo `title` (không phân biệt hoa thường); `Promise.all` list+count<br>5. Trả danh sách + `meta` — mỗi post kèm **`tags[]` + `author { fullName, avatarUrl }`** (không lộ email) + `media[]` (blog-v2 W1) | Customer | **Post**, PostTag, User | posts, post_tags, post_tag_links, users, media_assets | Activity | ✅ |
+| U-PST-2 | Post Detail<br>`GET /posts/:slug` | 1. User chọn bài viết<br>2. Gửi `GET /posts/:slug`<br>3. Tìm post `PUBLISHED` + `publishedAt <= now()` theo slug<br>4. Không có/nháp/hẹn giờ → 404 `POST_NOT_FOUND` (không lộ nháp)<br>5. Trả chi tiết (content markdown — render sanitize ở FE) kèm **`tags[]` · `author` · `relatedTours[]`** (tour đã publish, thứ tự admin chọn — blog-v2 W1) · `media[]` (cover + ảnh body) | Customer | **Post**, PostTag, Tour, User | posts, post_tags, post_tours, tours, users, media_assets | Activity | ✅ |
+| U-PST-3 | List Post Tags<br>`GET /posts/tags` | 1. `/blog` dựng dải filter chip (`?tag=`)<br>2. Trả các tag **đang được bài PUBLISHED dùng** kèm số bài (`{ slug, name, count }[]`) | Customer | **PostTag** | post_tags, post_tag_links, posts | Activity | ✅ |
+
+## `Subscriber` (newsletter — blog-v2 W5)
+
+| Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
+| ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
+| U-SUB-1 | Subscribe Newsletter<br>`POST /newsletter/subscribe` | 1. Khách nhập email ở form footer web (+ `source` VD `footer`)<br>2. Gửi `POST /newsletter/subscribe` (công khai — FE gọi **từ browser** để mỗi visitor ăn budget throttle theo IP riêng)<br>3. **Rate-limit 5/phút/IP** (ThrottlerGuard cục bộ) + **honeypot `website`**: điền → trả 201 giả (không ghi DB)<br>4. Email `trim().toLowerCase()` rồi **upsert theo `email @unique`** với update rỗng — **silent dedupe**: đăng ký trùng trả ack y hệt lần đầu (không lộ "email đã tồn tại")<br>5. Trả `{ received: true }` | Customer | **Subscriber** | subscribers | Sequence | ✅ Không double-opt-in (lead capture nội bộ, không ESP — theo roadmap blog-v2) |
 
 ---
 
 ## Lịch sử
 
+- **2026-07-05** — **blog-v2 (W1/W2/W5):** U-PST-1 thêm filter `tag` + DTO kèm
+  `tags[]`/`author`/`media[]`; U-PST-2 kèm `relatedTours[]`; **bổ sung** U-PST-3
+  (`GET /posts/tags`) + nhóm `Subscriber` với U-SUB-1 (`POST /newsletter/subscribe` —
+  throttle + honeypot + silent dedupe). Xem
+  [blog-v2 roadmap](../07-plans/2026-07-03-blog-v2-roadmap.md).
 - **2026-06-24** — Đổi quy ước **Code** sang `U-<MODEL>-<n>` (nhúng mã model 3 ký tự,
   số reset theo từng model) để đọc code là biết model — thay cho `U-xx` tuần tự cũ.
   Cập nhật toàn bộ cross-reference. Bảng map cũ→mới: U-01…05 → U-USR-1…5 · U-06/07 →
