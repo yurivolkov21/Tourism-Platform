@@ -927,6 +927,40 @@ export interface paths {
         patch: operations["AdminEnquiryController_updateStatus"];
         trace?: never;
     };
+    "/api/v1/newsletter/subscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Subscribe to the newsletter (public, rate-limited) */
+        post: operations["NewsletterController_subscribe"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/newsletter/subscribers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List newsletter subscribers (paginated, email search) */
+        get: operations["AdminNewsletterController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/stats/dashboard": {
         parameters: {
             query?: never;
@@ -2775,6 +2809,35 @@ export interface components {
              * @enum {string}
              */
             status: "NEW" | "CONTACTED" | "QUOTED" | "WON" | "LOST";
+        };
+        SubscribeDto: {
+            /** @example jane@example.com */
+            email: string;
+            /**
+             * @description Where the signup came from.
+             * @example footer
+             */
+            source?: string;
+            /** @description Anti-spam honeypot — must stay empty. */
+            website?: string;
+        };
+        SubscribeAckDto: {
+            /** @example true */
+            received: boolean;
+        };
+        SubscriberDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example jane@example.com */
+            email: string;
+            /** @example footer */
+            source: string | null;
+            /** Format: date-time */
+            subscribedAt: string;
+        };
+        PaginatedSubscribersDto: {
+            data: components["schemas"]["SubscriberDto"][];
+            meta: components["schemas"]["PageMetaDto"];
         };
         StatsOverviewDto: {
             /**
@@ -5560,6 +5623,75 @@ export interface operations {
             };
             /** @description Enquiry not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    NewsletterController_subscribe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscribeDto"];
+            };
+        };
+        responses: {
+            /** @description Received */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscribeAckDto"];
+                };
+            };
+            /** @description Too many submissions */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminNewsletterController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated subscribers */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedSubscribersDto"];
+                };
+            };
+            /** @description Missing/invalid token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is not an admin */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
