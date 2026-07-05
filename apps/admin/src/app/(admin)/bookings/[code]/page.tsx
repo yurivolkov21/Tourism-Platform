@@ -7,6 +7,7 @@ import { Badge, Card, CardContent, CardHeader, CardTitle, Separator } from '@tou
 
 import { BookingStatusBadge } from '../../../../components/bookings/booking-status-badge';
 import { CopyCodeButton } from '../../../../components/bookings/copy-code-button';
+import { DenyCancellation } from '../../../../components/bookings/deny-cancellation';
 import { RefundBooking } from '../../../../components/bookings/refund-booking';
 import { getBooking } from '../../../../lib/bookings/data';
 import type { AdminBookingDetail } from '../../../../lib/bookings/detail';
@@ -66,6 +67,8 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
   const stripeUrl = stripePaymentUrl(booking.providerPaymentId, booking.paymentProvider);
   // Lifecycle events that actually happened (have a timestamp) — rendered as compact date rows.
   const lifecycle = buildBookingTimeline(booking).filter((s) => s.at);
+  const openCancellationRequest =
+    booking.cancellationRequest?.status === 'REQUESTED' ? booking.cancellationRequest : null;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 lg:px-6">
@@ -95,12 +98,37 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
           status={booking.status}
           totalAmount={booking.totalAmount}
           currency={booking.currency}
+          hasOpenRequest={Boolean(openCancellationRequest)}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Main content */}
         <div className="space-y-6 lg:col-span-2">
+          {openCancellationRequest ? (
+            <Card className="border-destructive/50">
+              <CardHeader>
+                <CardTitle className="text-base">Cancellation requested</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                  <Fact label="Reason" value={openCancellationRequest.reason?.trim() || '—'} />
+                  <Fact label="Requested" value={formatDate(openCancellationRequest.createdAt)} />
+                </dl>
+                <div className="flex flex-wrap gap-2">
+                  <RefundBooking
+                    code={booking.code}
+                    status={booking.status}
+                    totalAmount={booking.totalAmount}
+                    currency={booking.currency}
+                    hasOpenRequest
+                  />
+                  <DenyCancellation requestId={openCancellationRequest.id} code={booking.code} />
+                </div>
+              </CardContent>
+            </Card>
+          ) : null}
+
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Trip</CardTitle>
@@ -346,12 +374,18 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
                 </>
               ) : null}
 
-              {booking.status === 'REFUNDED' ? (
+              {booking.status === 'REFUNDED' || booking.status === 'PARTIALLY_REFUNDED' ? (
                 <>
                   <Separator />
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Refund</p>
                     <dl className="space-y-2">
+                      {booking.refundedAmount ? (
+                        <Fact
+                          label="Amount"
+                          value={formatMoney(booking.refundedAmount, booking.currency)}
+                        />
+                      ) : null}
                       <Fact
                         label="Reason"
                         value={booking.refundReason?.trim() || 'No reason recorded'}

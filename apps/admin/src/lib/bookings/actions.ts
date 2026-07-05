@@ -40,3 +40,31 @@ export async function refundBooking(
   revalidatePath('/cancellation-requests');
   return {};
 }
+
+/**
+ * Denies an open cancellation request (`POST /admin/cancellation-requests/:id/deny`) — the booking
+ * itself is untouched (still PAID), only the request's status flips to DENIED. `decisionNote` is an
+ * optional audit note shown back to the traveller. Returns a friendly message on failure so the
+ * dialog can surface it without leaving the page.
+ */
+export async function denyCancellation(
+  requestId: string,
+  code: string,
+  decisionNote?: string,
+): Promise<RefundBookingState> {
+  const note = decisionNote?.trim();
+
+  try {
+    await apiWrite(
+      'POST',
+      `/api/v1/admin/cancellation-requests/${encodeURIComponent(requestId)}/deny`,
+      note ? { decisionNote: note } : {},
+    );
+  } catch (e) {
+    return { error: apiErrorMessage(e) };
+  }
+
+  revalidatePath('/cancellation-requests');
+  revalidatePath(`/bookings/${code}`);
+  return {};
+}
