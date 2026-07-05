@@ -99,7 +99,9 @@ Comments (moderation cost > value for an agency blog) · auto related-tours matc
 - [x] Wave 3 — admin inline images — **DONE 2026-07-05** (slice 1 BE merged `96e9ff1`,
   migration applied live w/ user GO; slice 2 admin UI merged `335a60f` fast-forward;
   api 309 / admin 142 tests; notes in the wave plan's STATUS)
-- [ ] Wave 4 — reader polish + P6 fast-follows
+- [x] Wave 4 — reader polish + P6 fast-follows — **DONE 2026-07-05** (merged `b9b5158`
+  fast-forward; web 175 tests; outline-anchor + stripMarkdownSyntax fast-follows landed;
+  notes in `docs/07-plans/2026-07-05-blog-v2-wave4-reader-polish.md` STATUS)
 - [ ] Wave 5 — newsletter + RSS
 
 ## RESUME STATE (written 2026-07-03 — authoritative handoff, survives machine loss)
@@ -113,7 +115,7 @@ Comments (moderation cost > value for an agency blog) · auto related-tours matc
 
 1. **Waves 1 + 2 = DONE and on `main`** (merged `2f2193e`, `b263e32` + docs commits).
    Wave-1 migration `20260703120425_add_post_tags_and_post_tours` IS applied to the live
-   Supabase DB. Test baselines: api **309** · admin **142** · web **155**.
+   Supabase DB. Test baselines: api **309** · admin **142** · web **175**.
 2. **Wave 3 = DONE and on `main`** — slice 1 (BE) merged `96e9ff1` (2026-07-03), migration
    `20260703144308_add_media_role_body` applied live (user GO, before merge),
    `ecc:code-reviewer` APPROVE-WITH-NOTES (LOW fast-follow: `registerAsset`
@@ -122,16 +124,20 @@ Comments (moderation cost > value for an agency blog) · auto related-tours matc
    tests, deviations noted in the wave plan's STATUS (notably: body-image registration is
    a `registerBodyImage` server action in `apps/admin/src/lib/uploads.ts` — `apiWrite` is
    server-only and cannot be imported by client components).
-3. **⛔ NEXT ACTION: Wave 4 (reader polish + P6 fast-follows) = NOT STARTED** — spec not
-   yet written (spec → plan → execute per the process header). Scope in this file above +
-   carried fast-follows in item 6.
-4. **Waves 4 + 5 = NOT STARTED** — scoped in this file above; specs not yet written (each
-   wave gets spec → plan → SDD per the process header).
-5. **Process:** SDD with haiku transcription / sonnet reasoning + all reviewers;
-   `ecc:code-reviewer` only on BE slices; merges pre-authorized on green gates; migrations
-   ALWAYS user-gated. Known SDD gotchas: haiku may reformat untouched lines (forbid it in
-   every dispatch) and cannot type `\uXXXX` escapes (fix via scripted byte-replace).
+3. **Wave 4 = DONE and on `main`** — merged `b9b5158` fast-forward (2026-07-05,
+   user-reviewed). web **175** tests. Spec/plan:
+   `docs/06-specs/2026-07-05-blog-v2-wave4-reader-polish-design.md` +
+   `docs/07-plans/2026-07-05-blog-v2-wave4-reader-polish.md`. The P6 fast-follows
+   (outline-anchor markdown mismatch, `stripMarkdownSyntax` DRY) landed with it.
+4. **⛔ NEXT ACTION: Wave 5 (newsletter + RSS) = NOT STARTED** — spec not yet written
+   (spec → plan → execute). Scope in this file above. Reminder: fold in the deferred W3
+   BE fast-follow (`registerAsset` unique index/upsert) with Wave 5's `Subscriber`
+   migration go/no-go (user decision 2026-07-05).
+5. **Process:** spec → plan → execute per wave; TDD on pure logic;
+   `ecc:code-reviewer` only on BE slices; **merges = user source review, then rebase +
+   `--ff-only`** (user preference 2026-07-05 — supersedes the old "pre-authorized
+   `--no-ff`" line); migrations ALWAYS user-gated.
 6. **Carried fast-follows** live in each wave plan's STATUS block (W1: tag-race 409
    message + stale controller return types + prisma format; W2: none blocking; W3 slice 1:
-   registerAsset dup-race unique-index; P6: outline-anchor md-link mismatch +
-   `stripMarkdownSyntax` DRY — folded into Wave 4).
+   registerAsset dup-race unique-index → **scheduled into Wave 5**; P6: outline-anchor
+   md-link mismatch + `stripMarkdownSyntax` DRY — ✅ landed in Wave 4).

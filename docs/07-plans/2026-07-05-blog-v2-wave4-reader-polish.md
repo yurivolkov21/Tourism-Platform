@@ -108,4 +108,8 @@ per task (`feat(web): …` / `feat(i18n): …` folded into the task commit that 
 
 ## STATUS
 
-- [ ] Tasks 1–6 — pending (branch cut 2026-07-05).
+- [x] Tasks 1–6 — **DONE**, merged `b9b5158` fast-forward (2026-07-05, user-reviewed).
+  web **175** tests (155 + 20). Deviations: ShareRow uses the repo's own
+  `components/icons/social.tsx` glyphs (lucide-react 1.21 removed brand icons — the
+  spec's `Facebook`/`Twitter` imports fail typecheck); one extra i18n key
+  (`postNavLabel`) for the prev/next nav aria-label.
