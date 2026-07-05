@@ -3,7 +3,6 @@
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CheckCircle2Icon } from 'lucide-react';
 
 import {
   Button,
@@ -19,15 +18,11 @@ import {
 import { messages } from '@tourism/i18n';
 
 import type { BookingDto } from '../../lib/api/booking';
-import { cancelBookingAction, payNowAction } from '../../lib/booking/actions';
-import { buildCancellationRequestPayload } from '../../lib/booking/cancel-request';
-import { formatTripDate } from '../../lib/booking/my-bookings';
-import { submitEnquiry } from '../../lib/api/enquiry';
+import { cancelBookingAction, payNowAction, requestCancellationAction } from '../../lib/booking/actions';
+import { formatPrice } from './order-summary';
 
-type RequestStatus = 'idle' | 'sending' | 'sent' | 'error';
-
-/** Status-aware actions on the booking detail: pay/cancel a PENDING booking, or request cancellation
- * of a PAID one (refunds are admin-only → the request lands in the team's enquiry CRM). */
+/** Status-aware actions on the booking detail: pay/cancel a PENDING booking, request cancellation of a
+ * PAID one against the real cancellation-request record, and surface the terminal refund state. */
 export function BookingActions({ booking }: { booking: BookingDto }) {
   const t = messages.booking.detail;
   const router = useRouter();
@@ -36,7 +31,8 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
   const [cancelOpen, setCancelOpen] = useState(false);
   const [requesting, setRequesting] = useState(false);
   const [reason, setReason] = useState('');
-  const [reqStatus, setReqStatus] = useState<RequestStatus>('idle');
+  const [submitting, setSubmitting] = useState(false);
+  const [requestError, setRequestError] = useState<string>();
 
   async function payNow() {
     if (pending) return;
@@ -65,18 +61,16 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
 
   async function sendRequest(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (reqStatus === 'sending') return;
-    setReqStatus('sending');
-    const payload = buildCancellationRequestPayload({
-      code: booking.code,
-      tourTitle: booking.tour.title,
-      departureDate: formatTripDate(booking.departure.startDate),
-      name: booking.contactName,
-      email: booking.contactEmail,
-      reason,
-    });
-    const result = await submitEnquiry(payload);
-    setReqStatus(result.ok ? 'sent' : 'error');
+    if (submitting) return;
+    setSubmitting(true);
+    setRequestError(undefined);
+    const result = await requestCancellationAction(booking.code, reason);
+    if (result.ok) {
+      router.refresh(); // re-fetch → cancellationRequest.status flips to REQUESTED
+    } else {
+      setRequestError(result.error ?? t.requestError);
+      setSubmitting(false);
+    }
   }
 
   if (booking.status === 'PENDING') {
@@ -133,19 +127,25 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
   }
 
   if (booking.status === 'PAID') {
-    if (reqStatus === 'sent') {
+    const requestStatus = booking.cancellationRequest?.status;
+    if (requestStatus === 'REQUESTED') {
       return (
-        <p className="text-success flex items-center gap-2 text-sm font-medium" role="status">
-          <CheckCircle2Icon className="size-4" />
-          {t.requestSent}
+        <p className="text-muted-foreground text-sm font-medium" role="status">
+          {t.requestPending}
         </p>
       );
     }
+    const isDenied = requestStatus === 'DENIED';
     return (
       <div className="border-border space-y-3 rounded-xl border border-dashed p-4">
         <div className="space-y-1">
           <h3 className="text-sm font-semibold">{t.requestTitle}</h3>
           <p className="text-muted-foreground text-sm text-pretty">{t.requestBody}</p>
+          {isDenied ? (
+            <p className="text-destructive text-sm" role="alert">
+              {t.requestDenied}
+            </p>
+          ) : null}
         </div>
         {requesting ? (
           <form onSubmit={sendRequest} className="space-y-3">
@@ -161,18 +161,18 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
                 placeholder={t.reasonPlaceholder}
               />
             </div>
-            {reqStatus === 'error' ? (
+            {requestError ? (
               <p className="text-destructive text-sm" role="alert">
-                {t.requestError}
+                {requestError}
               </p>
             ) : null}
-            <Button type="submit" disabled={reqStatus === 'sending'}>
-              {reqStatus === 'sending' ? t.submitting : t.submitRequest}
+            <Button type="submit" disabled={submitting}>
+              {submitting ? t.submitting : isDenied ? t.requestResubmit : t.submitRequest}
             </Button>
           </form>
         ) : (
           <Button variant="outline" onClick={() => setRequesting(true)}>
-            {t.requestCta}
+            {isDenied ? t.requestResubmit : t.requestCta}
           </Button>
         )}
         <Link href="/cancellation-policy" className="text-muted-foreground inline-block text-xs hover:underline">
@@ -182,7 +182,16 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
     );
   }
 
-  return null; // CANCELLED / REFUNDED — read-only
+  if (booking.refundedAmount) {
+    const amount = formatPrice(booking.currency, Number(booking.refundedAmount));
+    return (
+      <p className="text-muted-foreground text-sm" role="status">
+        {booking.status === 'PARTIALLY_REFUNDED' ? t.partiallyRefundedNote(amount) : t.refundedNote(amount)}
+      </p>
+    );
+  }
+
+  return null; // CANCELLED (no refund) — read-only
 }
 
 export default BookingActions;
