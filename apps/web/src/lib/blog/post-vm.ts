@@ -38,6 +38,8 @@ export interface PostDetailVM extends PostSummaryVM {
   content: string;
   /** Admin-picked tours as card view-models (published only, pick order). */
   relatedTours: TourCardData[];
+  /** Last-edit timestamp for the "Updated on …" stamp; null-guarded (deploy-lag). */
+  updatedAt: string | null;
 }
 
 const EXCERPT_MAX = 160;
@@ -76,5 +78,6 @@ export function toPostDetail(dto: PostDetailDto): PostDetailVM {
     ...toPostSummary(dto),
     content: dto.content,
     relatedTours: (dto.relatedTours ?? []).map(toTourCard),
+    updatedAt: dto.updatedAt ?? null,
   };
 }

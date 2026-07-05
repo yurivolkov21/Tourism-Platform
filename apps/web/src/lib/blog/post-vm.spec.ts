@@ -85,6 +85,13 @@ describe('toPostDetail', () => {
     expect(vm.slug).toBe('hoi-an');
     expect(vm.coverUrl).toBeNull();
   });
+
+  it('exposes updatedAt, null-guarded for older APIs (deploy-lag)', () => {
+    expect(toPostDetail(base).updatedAt).toBe('2026-05-02T00:00:00.000Z');
+    const legacy = { ...base } as Record<string, unknown>;
+    delete legacy.updatedAt;
+    expect(toPostDetail(legacy as unknown as PostDetailDto).updatedAt).toBeNull();
+  });
 });
 
 describe('fallbackExcerpt', () => {

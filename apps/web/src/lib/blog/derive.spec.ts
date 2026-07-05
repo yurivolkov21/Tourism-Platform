@@ -1,4 +1,4 @@
-import { extractOutline, readingStats, slugifyHeading } from './derive';
+import { extractOutline, isMeaningfullyUpdated, readingStats, slugifyHeading } from './derive';
 
 describe('readingStats', () => {
   it('counts words and computes minutes at ~200 wpm', () => {
@@ -65,5 +65,24 @@ describe('extractOutline', () => {
     expect(extractOutline('### Run `npm i` first')).toEqual([
       { depth: 3, text: 'Run npm i first', id: 'run-npm-i-first' },
     ]);
+  });
+});
+
+describe('isMeaningfullyUpdated', () => {
+  it('is true when the update lands more than 24h after publish', () => {
+    expect(isMeaningfullyUpdated('2026-07-01T00:00:00Z', '2026-07-02T01:00:00Z')).toBe(true);
+  });
+
+  it('is false for same-day touch-ups within 24h', () => {
+    expect(isMeaningfullyUpdated('2026-07-01T00:00:00Z', '2026-07-01T02:00:00Z')).toBe(false);
+  });
+
+  it('is false when either date is missing', () => {
+    expect(isMeaningfullyUpdated(null, '2026-07-02T00:00:00Z')).toBe(false);
+    expect(isMeaningfullyUpdated('2026-07-01T00:00:00Z', null)).toBe(false);
+  });
+
+  it('is false on unparsable dates', () => {
+    expect(isMeaningfullyUpdated('not-a-date', '2026-07-02T00:00:00Z')).toBe(false);
   });
 });

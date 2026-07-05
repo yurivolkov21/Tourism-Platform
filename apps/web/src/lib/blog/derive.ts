@@ -36,6 +36,24 @@ export function slugifyHeading(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+const MEANINGFUL_UPDATE_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * True when a post was edited long enough after publishing (> 24 h, user decision
+ * 2026-07-05) that an "Updated on …" stamp is honest rather than same-day-typo noise.
+ * Null/unparsable dates → false.
+ */
+export function isMeaningfullyUpdated(
+  publishedAt: string | null,
+  updatedAt: string | null,
+): boolean {
+  if (!publishedAt || !updatedAt) return false;
+  const published = Date.parse(publishedAt);
+  const updated = Date.parse(updatedAt);
+  if (Number.isNaN(published) || Number.isNaN(updated)) return false;
+  return updated - published > MEANINGFUL_UPDATE_MS;
+}
+
 export interface OutlineItem {
   depth: 2 | 3;
   text: string;
