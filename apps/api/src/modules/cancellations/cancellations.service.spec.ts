@@ -28,11 +28,21 @@ function makeBookingRow(overrides: Record<string, unknown> = {}) {
 function makePrisma(opts: {
   findUnique?: jest.Mock;
   upsert?: jest.Mock;
+  crFindUnique?: jest.Mock;
+  update?: jest.Mock;
+  findMany?: jest.Mock;
+  count?: jest.Mock;
   outboxCreateMany?: jest.Mock;
   transaction?: jest.Mock;
 }) {
   const booking = { findUnique: opts.findUnique ?? jest.fn() };
-  const cancellationRequest = { upsert: opts.upsert ?? jest.fn() };
+  const cancellationRequest = {
+    upsert: opts.upsert ?? jest.fn(),
+    findUnique: opts.crFindUnique ?? jest.fn(),
+    update: opts.update ?? jest.fn(),
+    findMany: opts.findMany ?? jest.fn(),
+    count: opts.count ?? jest.fn(),
+  };
   const outbox = { createMany: opts.outboxCreateMany ?? jest.fn().mockResolvedValue({ count: 1 }) };
   return {
     booking,
@@ -169,6 +179,161 @@ describe('CancellationsService.createRequest', () => {
         decisionNote: null,
         decidedById: null,
         decidedAt: null,
+      },
+    });
+  });
+});
+
+function makeQueueRow(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'req-1',
+    status: CancellationRequestStatus.REQUESTED,
+    reason: 'Change of travel plans',
+    createdAt: new Date('2026-07-01T00:00:00.000Z'),
+    decidedAt: null,
+    decisionNote: null,
+    booking: {
+      code: 'BK-7Q2KX9AB',
+      contactName: 'Nguyen Van A',
+      contactEmail: 'guest@example.com',
+      tour: { title: 'Hoi An Walking Tour' },
+      departure: { startDate: new Date('2026-08-15T00:00:00.000Z') },
+    },
+    ...overrides,
+  };
+}
+
+describe('CancellationsService.findAllForAdmin', () => {
+  it('defaults the status filter to REQUESTED and maps a row to AdminCancellationRequestDto', async () => {
+    const findMany = jest.fn().mockResolvedValue([makeQueueRow()]);
+    const count = jest.fn().mockResolvedValue(1);
+    const svc = new CancellationsService(makePrisma({ findMany, count }) as never);
+
+    const result = await svc.findAllForAdmin({});
+
+    expect(findMany.mock.calls[0][0]).toMatchObject({
+      where: { status: CancellationRequestStatus.REQUESTED },
+      orderBy: { createdAt: 'desc' },
+      skip: 0,
+      take: 20,
+    });
+    expect(count.mock.calls[0][0]).toMatchObject({
+      where: { status: CancellationRequestStatus.REQUESTED },
+    });
+    expect(result).toEqual({
+      data: [
+        {
+          id: 'req-1',
+          status: CancellationRequestStatus.REQUESTED,
+          reason: 'Change of travel plans',
+          createdAt: new Date('2026-07-01T00:00:00.000Z').toISOString(),
+          decidedAt: null,
+          decisionNote: null,
+          booking: {
+            code: 'BK-7Q2KX9AB',
+            tourTitle: 'Hoi An Walking Tour',
+            departureStartDate: '2026-08-15',
+            customerName: 'Nguyen Van A',
+            customerEmail: 'guest@example.com',
+          },
+        },
+      ],
+      meta: { page: 1, pageSize: 20, total: 1, totalPages: 1 },
+    });
+  });
+
+  it('honors an explicit status filter, page and pageSize', async () => {
+    const findMany = jest.fn().mockResolvedValue([]);
+    const count = jest.fn().mockResolvedValue(0);
+    const svc = new CancellationsService(makePrisma({ findMany, count }) as never);
+
+    await svc.findAllForAdmin({ status: CancellationRequestStatus.DENIED, page: 2, pageSize: 10 });
+
+    expect(findMany.mock.calls[0][0]).toMatchObject({
+      where: { status: CancellationRequestStatus.DENIED },
+      skip: 10,
+      take: 10,
+    });
+  });
+});
+
+describe('CancellationsService.denyRequest', () => {
+  it('throws CANCELLATION_REQUEST_NOT_FOUND (404) when the request is missing', async () => {
+    const svc = new CancellationsService(
+      makePrisma({ crFindUnique: jest.fn().mockResolvedValue(null) }) as never,
+    );
+
+    await expect(svc.denyRequest('req-missing', 'admin-1', {})).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('throws CANCELLATION_NOT_PENDING (409) when the request is not REQUESTED', async () => {
+    const svc = new CancellationsService(
+      makePrisma({
+        crFindUnique: jest.fn().mockResolvedValue({ status: CancellationRequestStatus.DENIED }),
+      }) as never,
+    );
+
+    await expect(svc.denyRequest('req-1', 'admin-1', {})).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+  });
+
+  it('happy path: REQUESTED → DENIED + audit + outbox enqueue, returns mapped row', async () => {
+    const crFindUnique = jest.fn().mockResolvedValue({ status: CancellationRequestStatus.REQUESTED });
+    const decidedAt = new Date('2026-07-05T12:00:00.000Z');
+    const update = jest.fn();
+    const outboxCreateMany = jest.fn();
+    const transaction = jest.fn().mockResolvedValue([
+      makeQueueRow({
+        status: CancellationRequestStatus.DENIED,
+        decidedAt,
+        decisionNote: 'Outside the free-cancellation window',
+      }),
+      { count: 1 },
+    ]);
+    const svc = new CancellationsService(
+      makePrisma({ crFindUnique, update, outboxCreateMany, transaction }) as never,
+    );
+
+    const result = await svc.denyRequest('req-1', 'admin-1', {
+      decisionNote: 'Outside the free-cancellation window',
+    });
+
+    expect(transaction).toHaveBeenCalledTimes(1);
+    const opsArg = transaction.mock.calls[0][0];
+    expect(Array.isArray(opsArg)).toBe(true);
+    expect(update.mock.calls[0][0]).toMatchObject({
+      where: { id: 'req-1' },
+      data: {
+        status: CancellationRequestStatus.DENIED,
+        decisionNote: 'Outside the free-cancellation window',
+        decidedById: 'admin-1',
+      },
+    });
+    expect(outboxCreateMany.mock.calls[0][0]).toMatchObject({
+      data: [
+        expect.objectContaining({
+          type: 'CANCELLATION_DENIED',
+          dedupeKey: 'cancellation-denied:req-1',
+        }),
+      ],
+      skipDuplicates: true,
+    });
+    expect(result).toEqual({
+      id: 'req-1',
+      status: CancellationRequestStatus.DENIED,
+      reason: 'Change of travel plans',
+      createdAt: new Date('2026-07-01T00:00:00.000Z').toISOString(),
+      decidedAt: decidedAt.toISOString(),
+      decisionNote: 'Outside the free-cancellation window',
+      booking: {
+        code: 'BK-7Q2KX9AB',
+        tourTitle: 'Hoi An Walking Tour',
+        departureStartDate: '2026-08-15',
+        customerName: 'Nguyen Van A',
+        customerEmail: 'guest@example.com',
       },
     });
   });

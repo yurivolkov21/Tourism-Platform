@@ -2,7 +2,13 @@ import { ConflictException, Injectable, Logger, NotFoundException } from '@nestj
 import { CancellationRequestStatus, Prisma, UserRole } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCancellationRequestDto } from './dto/create-cancellation-request.dto';
-import { CancellationRequestSummaryDto } from './dto/cancellation-request.dto';
+import { DenyCancellationRequestDto } from './dto/deny-cancellation-request.dto';
+import { ListCancellationRequestsQueryDto } from './dto/list-cancellation-requests-query.dto';
+import {
+  AdminCancellationRequestDto,
+  CancellationRequestSummaryDto,
+  PaginatedCancellationRequestsDto,
+} from './dto/cancellation-request.dto';
 
 export interface Caller {
   id: string;
@@ -82,6 +88,126 @@ export class CancellationsService {
       createdAt: request.createdAt.toISOString(),
       decisionNote: request.decisionNote,
       decidedAt: request.decidedAt ? request.decidedAt.toISOString() : null,
+    };
+  }
+
+  /**
+   * Admin queue: paginated list of cancellation requests, defaulting to the
+   * open (REQUESTED) queue, newest first. Uses `Promise.all` (not a batch
+   * `$transaction`) — pooler-safe for parallel reads.
+   */
+  async findAllForAdmin(
+    query: ListCancellationRequestsQueryDto,
+  ): Promise<PaginatedCancellationRequestsDto> {
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 20;
+    const where: Prisma.CancellationRequestWhereInput = {
+      status: query.status ?? CancellationRequestStatus.REQUESTED,
+    };
+    const [rows, total] = await Promise.all([
+      this.prisma.cancellationRequest.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: {
+          id: true, status: true, reason: true, createdAt: true, decidedAt: true, decisionNote: true,
+          booking: {
+            select: {
+              code: true, contactName: true, contactEmail: true,
+              tour: { select: { title: true } },
+              departure: { select: { startDate: true } },
+            },
+          },
+        },
+      }),
+      this.prisma.cancellationRequest.count({ where }),
+    ]);
+    return {
+      data: rows.map((r) => ({
+        id: r.id,
+        status: r.status,
+        reason: r.reason,
+        createdAt: r.createdAt.toISOString(),
+        decidedAt: r.decidedAt ? r.decidedAt.toISOString() : null,
+        decisionNote: r.decisionNote,
+        booking: {
+          code: r.booking.code,
+          tourTitle: r.booking.tour.title,
+          departureStartDate: r.booking.departure.startDate.toISOString().slice(0, 10),
+          customerName: r.booking.contactName,
+          customerEmail: r.booking.contactEmail,
+        },
+      })),
+      meta: { page, pageSize, total, totalPages: Math.max(1, Math.ceil(total / pageSize)) },
+    };
+  }
+
+  /**
+   * Admin denies an open cancellation request. 404 if missing, 409 if not
+   * REQUESTED. Sets DENIED + audit (decidedById/decidedAt) and enqueues a
+   * CANCELLATION_DENIED outbox row. The booking itself is untouched (stays
+   * PAID) — deny does not cancel the booking.
+   */
+  async denyRequest(
+    id: string,
+    adminUserId: string,
+    dto: DenyCancellationRequestDto,
+  ): Promise<AdminCancellationRequestDto> {
+    const existing = await this.prisma.cancellationRequest.findUnique({
+      where: { id }, select: { status: true },
+    });
+    if (!existing) {
+      throw new NotFoundException({ code: 'CANCELLATION_REQUEST_NOT_FOUND', message: `Request "${id}" not found` });
+    }
+    if (existing.status !== CancellationRequestStatus.REQUESTED) {
+      throw new ConflictException({
+        code: 'CANCELLATION_NOT_PENDING',
+        message: `Request is ${existing.status}; only an open request can be denied`,
+      });
+    }
+    const [updated] = await this.prisma.$transaction([
+      this.prisma.cancellationRequest.update({
+        where: { id },
+        data: {
+          status: CancellationRequestStatus.DENIED,
+          decisionNote: dto.decisionNote?.trim() || null,
+          decidedById: adminUserId,
+          decidedAt: new Date(),
+        },
+        select: {
+          id: true, status: true, reason: true, createdAt: true, decidedAt: true, decisionNote: true,
+          booking: {
+            select: {
+              code: true, contactName: true, contactEmail: true,
+              tour: { select: { title: true } },
+              departure: { select: { startDate: true } },
+            },
+          },
+        },
+      }),
+      this.prisma.outbox.createMany({
+        data: [{
+          type: 'CANCELLATION_DENIED',
+          payload: { requestId: id } as Prisma.InputJsonValue,
+          dedupeKey: `cancellation-denied:${id}`,
+        }],
+        skipDuplicates: true,
+      }),
+    ]);
+    this.logger.log(`Cancellation request ${id} denied (by ${adminUserId})`);
+    return {
+      id: updated.id, status: updated.status, reason: updated.reason,
+      createdAt: updated.createdAt.toISOString(),
+      decidedAt: updated.decidedAt ? updated.decidedAt.toISOString() : null,
+      decisionNote: updated.decisionNote,
+      booking: {
+        code: updated.booking.code,
+        tourTitle: updated.booking.tour.title,
+        departureStartDate: updated.booking.departure.startDate.toISOString().slice(0, 10),
+        customerName: updated.booking.contactName,
+        customerEmail: updated.booking.contactEmail,
+      },
     };
   }
 }
