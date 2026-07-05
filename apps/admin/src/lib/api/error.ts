@@ -64,6 +64,9 @@ const FRIENDLY_BY_CODE: Record<string, string> = {
   USER_IS_ADMIN: 'Demote this admin to customer before deleting the account.',
   USER_HAS_POSTS: 'This user authored blog posts — reassign or delete those posts first.',
   ACCOUNT_HAS_BOOKINGS: 'This account has bookings on record and cannot be deleted.',
+  INVALID_REFUND_AMOUNT: 'That refund amount is not valid for this booking.',
+  CANCELLATION_REQUEST_NOT_FOUND: 'That cancellation request no longer exists.',
+  CANCELLATION_NOT_PENDING: 'This request has already been resolved.',
 };
 
 /**
