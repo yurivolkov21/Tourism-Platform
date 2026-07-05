@@ -96,7 +96,9 @@ Comments (moderation cost > value for an agency blog) · auto related-tours matc
   api 301 / admin 139 tests; fast-follows in the wave plan's STATUS)
 - [x] Wave 2 — reader funnel + taxonomy UX — **DONE 2026-07-03** (merged `b263e32`; web 155
   tests; final review 1 must-fix applied pre-merge; notes in the wave plan's STATUS)
-- [ ] Wave 3 — admin inline images — **IN PROGRESS, see RESUME STATE below**
+- [x] Wave 3 — admin inline images — **DONE 2026-07-05** (slice 1 BE merged `96e9ff1`,
+  migration applied live w/ user GO; slice 2 admin UI merged `335a60f` fast-forward;
+  api 309 / admin 142 tests; notes in the wave plan's STATUS)
 - [ ] Wave 4 — reader polish + P6 fast-follows
 - [ ] Wave 5 — newsletter + RSS
 
@@ -111,17 +113,18 @@ Comments (moderation cost > value for an agency blog) · auto related-tours matc
 
 1. **Waves 1 + 2 = DONE and on `main`** (merged `2f2193e`, `b263e32` + docs commits).
    Wave-1 migration `20260703120425_add_post_tags_and_post_tours` IS applied to the live
-   Supabase DB. Test baselines: api **309** · admin **139** · web **155**.
-2. **Wave 3 Slice 1 (BE) = DONE and on `main`** — merged `96e9ff1` (2026-07-03); the branch
-   is deleted local + remote. Migration `20260703144308_add_media_role_body` **IS applied**
-   to the live Supabase DB (user GO, applied BEFORE the merge). Gate green, all task
-   reviews approved, `ecc:code-reviewer` APPROVE-WITH-NOTES (LOW fast-follow:
-   `registerAsset` findFirst-then-create benign duplicate race — add a unique index or
-   upsert later).
-3. **⛔ NEXT ACTION: Wave 3 Slice 2 (admin editor UI) = NOT STARTED** — Tasks 6-8 of
-   `docs/07-plans/2026-07-03-blog-v2-wave3-inline-images.md` (insertSnippet TDD → insert-
-   image button + controlled textarea + Write|Preview toggle + `/media` role facet `body`
-   → gate/merge/docs). Branch name: `feat/blog-v2-body-images-ui`.
+   Supabase DB. Test baselines: api **309** · admin **142** · web **155**.
+2. **Wave 3 = DONE and on `main`** — slice 1 (BE) merged `96e9ff1` (2026-07-03), migration
+   `20260703144308_add_media_role_body` applied live (user GO, before merge),
+   `ecc:code-reviewer` APPROVE-WITH-NOTES (LOW fast-follow: `registerAsset`
+   findFirst-then-create benign duplicate race — add a unique index or upsert later);
+   slice 2 (admin editor UI) merged `335a60f` fast-forward (2026-07-05), admin **142**
+   tests, deviations noted in the wave plan's STATUS (notably: body-image registration is
+   a `registerBodyImage` server action in `apps/admin/src/lib/uploads.ts` — `apiWrite` is
+   server-only and cannot be imported by client components).
+3. **⛔ NEXT ACTION: Wave 4 (reader polish + P6 fast-follows) = NOT STARTED** — spec not
+   yet written (spec → plan → execute per the process header). Scope in this file above +
+   carried fast-follows in item 6.
 4. **Waves 4 + 5 = NOT STARTED** — scoped in this file above; specs not yet written (each
    wave gets spec → plan → SDD per the process header).
 5. **Process:** SDD with haiku transcription / sonnet reasoning + all reviewers;

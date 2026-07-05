@@ -731,5 +731,10 @@ git commit -m "feat(admin): insert body images from the post editor + write/prev
   `20260703144308_add_media_role_body` APPLIED to live Supabase (user GO, before merge).
   api 309 tests. ecc APPROVE-WITH-NOTES (LOW fast-follow: `registerAsset`
   findFirst-then-create benign dup race — unique index/upsert later).
-- [ ] Slice 2 (Tasks 6-8): admin editor UI — **pending, NEXT ACTION** (branch
-  `feat/blog-v2-body-images-ui`)
+- [x] Slice 2 (Tasks 6-8): admin editor UI — **DONE**, merged `335a60f` fast-forward
+  (2026-07-05). admin 142 tests (139 + 3 insertSnippet). Deviations from the plan's
+  snippets (all approved): body-image registration goes through a `registerBodyImage`
+  server action in `lib/uploads.ts` (`apiWrite` is server-only — the plan's direct import
+  into the client button would not build); `uploadFile` called with the file's real
+  `(file, role, purpose)` order; `ErrorAlert` instead of the snippet's bare `<p>` (global
+  constraint); extra `catch` around the server-action call for network failures.
