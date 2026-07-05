@@ -1,8 +1,14 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useMemo, useState, useTransition } from 'react';
 import { MailX } from 'lucide-react';
+import {
+  getCoreRowModel,
+  useReactTable,
+  type ColumnDef,
+  type VisibilityState,
+} from '@tanstack/react-table';
 
 import {
   Badge,
@@ -13,15 +19,11 @@ import {
   EmptyMedia,
   EmptyTitle,
   Spinner,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   toast,
 } from '@tourism/ui';
 
+import { AdminTableShell } from '../crud/admin-table-shell';
+import { ColumnsMenu } from '../crud/columns-menu';
 import { ServerTablePagination } from '../crud/server-table-pagination';
 import { formatShortDate } from '../../lib/format-date';
 import { retryOutbox } from '../../lib/outbox/actions';
@@ -33,9 +35,16 @@ function StatusBadge({ status }: { status: AdminOutboxRow['status'] }) {
   return <Badge variant="outline">Pending</Badge>;
 }
 
+/**
+ * Outbox queue table on the shared admin stack (AdminTableShell + ColumnsMenu +
+ * ServerTablePagination — the server-paginated variant, like Users). Retry stays an
+ * **inline button** (deliberate deviation from RowActions: the queue has exactly one
+ * action and the in-flight spinner belongs on the button — spec 2026-07-05).
+ */
 export function OutboxView({ rows, meta }: { rows: AdminOutboxRow[]; meta?: PageMeta }) {
   const router = useRouter();
   const [, startRetry] = useTransition();
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   // A Set, not a single id: overlapping retries on DIFFERENT rows must each keep
   // their own in-flight state — a lone id would clear row A's spinner when row B
   // is clicked, re-enabling A mid-request (duplicate-retry window).
@@ -59,97 +68,135 @@ export function OutboxView({ rows, meta }: { rows: AdminOutboxRow[]; meta?: Page
     });
   };
 
+  const columns = useMemo<ColumnDef<AdminOutboxRow>[]>(
+    () => [
+      {
+        id: 'type',
+        header: 'Type',
+        enableHiding: false,
+        meta: { label: 'Type' },
+        cell: ({ row }) => <span className="font-mono text-xs">{row.original.type}</span>,
+      },
+      {
+        id: 'status',
+        header: 'Status',
+        enableHiding: false,
+        meta: { label: 'Status' },
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      },
+      {
+        id: 'attempts',
+        header: 'Attempts',
+        meta: { label: 'Attempts' },
+        cell: ({ row }) =>
+          row.original.attempts > 0 ? (
+            <Badge variant="destructive">{row.original.attempts}</Badge>
+          ) : (
+            <span className="text-muted-foreground">0</span>
+          ),
+      },
+      {
+        id: 'lastError',
+        header: 'Last error',
+        meta: { label: 'Last error' },
+        cell: ({ row }) => (
+          <span className="text-muted-foreground block max-w-xs truncate text-xs">
+            {row.original.lastError ?? '—'}
+          </span>
+        ),
+      },
+      {
+        id: 'queued',
+        header: 'Queued',
+        meta: { label: 'Queued' },
+        cell: ({ row }) => (
+          <span className="text-muted-foreground text-sm">
+            {formatShortDate(row.original.createdAt)}
+          </span>
+        ),
+      },
+      {
+        id: 'processed',
+        header: 'Processed',
+        meta: { label: 'Processed' },
+        cell: ({ row }) => (
+          <span className="text-muted-foreground text-sm">
+            {formatShortDate(row.original.processedAt)}
+          </span>
+        ),
+      },
+      {
+        id: 'retry',
+        header: 'Retry',
+        enableHiding: false,
+        meta: { align: 'right' },
+        cell: ({ row }) => {
+          if (row.original.status !== 'FAILED') return null;
+          const isRetrying = retryingIds.has(row.original.id);
+          return (
+            <Button size="sm" onClick={() => onRetry(row.original.id)} disabled={isRetrying}>
+              {isRetrying ? (
+                <>
+                  <Spinner />
+                  Retrying…
+                </>
+              ) : (
+                'Retry'
+              )}
+            </Button>
+          );
+        },
+      },
+    ],
+    // Only retryingIds matters: onRetry is re-created each render but stable in behavior.
+    [retryingIds],
+  );
+
+  const table = useReactTable({
+    data: rows,
+    columns,
+    state: { columnVisibility },
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    // Server-paginated: the page's rows come in pre-sliced; no client row models.
+    manualPagination: true,
+  });
+
+  if (rows.length === 0) {
+    return (
+      <Empty className="border">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <MailX />
+          </EmptyMedia>
+          <EmptyTitle>No emails in the queue.</EmptyTitle>
+          <EmptyDescription>
+            Nothing queued right now — bookings, reviews and enquiries will add rows here as they
+            happen.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-muted-foreground text-sm">{meta?.total ?? rows.length} email(s) in the queue.</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-muted-foreground text-sm">
+          {meta?.total ?? rows.length} email(s) in the queue.
+        </p>
+        <ColumnsMenu table={table} />
+      </div>
 
-      {rows.length === 0 ? (
-        <Empty className="border">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <MailX />
-            </EmptyMedia>
-            <EmptyTitle>No emails in the queue.</EmptyTitle>
-            <EmptyDescription>
-              Nothing queued right now — bookings, reviews and enquiries will add rows here as they
-              happen.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      ) : (
-        <>
-          <div className="overflow-hidden rounded-lg border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Attempts</TableHead>
-                  <TableHead>Last error</TableHead>
-                  <TableHead>Queued</TableHead>
-                  <TableHead>Processed</TableHead>
-                  <TableHead className="text-right">Retry</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((row) => {
-                  const isRetrying = retryingIds.has(row.id);
-                  return (
-                    <TableRow key={row.id}>
-                      <TableCell>
-                        <span className="font-mono text-xs">{row.type}</span>
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge status={row.status} />
-                      </TableCell>
-                      <TableCell>
-                        {row.attempts > 0 ? (
-                          <Badge variant="destructive">{row.attempts}</Badge>
-                        ) : (
-                          <span className="text-muted-foreground">0</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="max-w-xs">
-                        <span className="text-muted-foreground block truncate text-xs">
-                          {row.lastError ?? '—'}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {formatShortDate(row.createdAt)}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {formatShortDate(row.processedAt)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {row.status === 'FAILED' ? (
-                          <Button size="sm" onClick={() => onRetry(row.id)} disabled={isRetrying}>
-                            {isRetrying ? (
-                              <>
-                                <Spinner />
-                                Retrying…
-                              </>
-                            ) : (
-                              'Retry'
-                            )}
-                          </Button>
-                        ) : null}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-          {meta ? (
-            <ServerTablePagination
-              page={meta.page}
-              pageCount={meta.totalPages}
-              total={meta.total}
-              pageSize={meta.pageSize}
-            />
-          ) : null}
-        </>
-      )}
+      <AdminTableShell table={table} />
+      {meta ? (
+        <ServerTablePagination
+          page={meta.page}
+          pageCount={meta.totalPages}
+          total={meta.total}
+          pageSize={meta.pageSize}
+        />
+      ) : null}
     </div>
   );
 }
