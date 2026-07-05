@@ -10,6 +10,7 @@ import { AdminMediaModule } from '../modules/media/admin-media.module';
 import { AdminStatsModule } from '../modules/admin-stats/admin-stats.module';
 import { AuthModule } from '../modules/auth/auth.module';
 import { BookingsModule } from '../modules/bookings/bookings.module';
+import { CancellationsModule } from '../modules/cancellations/cancellations.module';
 import { DeparturesModule } from '../modules/departures/departures.module';
 import { DestinationsModule } from '../modules/destinations/destinations.module';
 import { EmailModule } from '../modules/email/email.module';
@@ -44,6 +45,7 @@ import { AppService } from './app.service';
     ToursModule,
     DeparturesModule,
     BookingsModule,
+    CancellationsModule,
     UploadsModule,
     ReviewsModule,
     WishlistModule,
