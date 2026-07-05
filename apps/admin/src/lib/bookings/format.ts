@@ -15,6 +15,7 @@ const STATUS_META: Record<BookingStatus, StatusMeta> = {
   PAID: { label: 'Paid', variant: 'default' },
   CANCELLED: { label: 'Cancelled', variant: 'outline' },
   REFUNDED: { label: 'Refunded', variant: 'destructive' },
+  PARTIALLY_REFUNDED: { label: 'Partially refunded', variant: 'destructive' },
 };
 
 /** Friendly label + badge variant for a booking lifecycle status. */

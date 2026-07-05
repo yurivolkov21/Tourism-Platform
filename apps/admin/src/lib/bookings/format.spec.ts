@@ -6,6 +6,10 @@ describe('bookingStatusMeta', () => {
     expect(bookingStatusMeta('PAID')).toEqual({ label: 'Paid', variant: 'default' });
     expect(bookingStatusMeta('CANCELLED')).toEqual({ label: 'Cancelled', variant: 'outline' });
     expect(bookingStatusMeta('REFUNDED')).toEqual({ label: 'Refunded', variant: 'destructive' });
+    expect(bookingStatusMeta('PARTIALLY_REFUNDED')).toEqual({
+      label: 'Partially refunded',
+      variant: 'destructive',
+    });
   });
 });
 
@@ -15,6 +19,7 @@ describe('canRefund', () => {
     expect(canRefund('PENDING')).toBe(false);
     expect(canRefund('CANCELLED')).toBe(false);
     expect(canRefund('REFUNDED')).toBe(false);
+    expect(canRefund('PARTIALLY_REFUNDED')).toBe(false);
   });
 });
 
