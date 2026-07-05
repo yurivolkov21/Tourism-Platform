@@ -145,13 +145,20 @@ export class PayPalService implements OnModuleInit {
     }
   }
 
-  /** Refunds a captured payment — full, or a partial `amount` when provided. */
+  /**
+   * Refunds a captured payment — full, or a partial `amount` when provided.
+   * `requestId` (deterministic, e.g. `booking-refund:<bookingId>`) maps to the
+   * `PayPal-Request-Id` idempotency header via the SDK's `paypalRequestId`, so
+   * two concurrent refund attempts for the same booking can't double-charge.
+   */
   async refundCapture(
     captureId: string,
     amount?: { value: string; currencyCode: string },
+    requestId?: string,
   ): Promise<PayPalRefundResult> {
     const { result } = await this.payments.refundCapturedPayment({
       captureId,
+      ...(requestId ? { paypalRequestId: requestId } : {}),
       body: amount
         ? { amount: { value: amount.value, currencyCode: amount.currencyCode } }
         : undefined,

@@ -565,6 +565,10 @@ export class BookingsService {
 
     const { partial, amount } = classifyRefund(booking.totalAmount, args.amount);
 
+    // Deterministic per-booking key: two concurrent refund attempts for the same
+    // booking dedupe at the provider, so neither can double-charge the gateway.
+    const idempotencyKey = `booking-refund:${booking.id}`;
+
     // Provider-specific refund FIRST (authoritative — never flip the DB for a
     // refund that didn't happen). Converge if the provider says it's already done.
     try {
@@ -572,6 +576,7 @@ export class BookingsService {
         await this.stripe.createRefund({
           paymentIntentId: booking.providerPaymentId,
           reason: args.reason ?? 'requested_by_customer',
+          idempotencyKey,
           ...(partial ? { amountMinorUnits: toStripeMinorUnits(amount, booking.currency) } : {}),
         });
       } else {
@@ -580,6 +585,7 @@ export class BookingsService {
           partial
             ? { value: toPayPalAmount(amount, booking.currency), currencyCode: booking.currency }
             : undefined,
+          idempotencyKey,
         );
       }
     } catch (err) {

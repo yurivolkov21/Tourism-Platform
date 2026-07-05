@@ -135,17 +135,21 @@ export class StripeService implements OnModuleInit {
     paymentIntentId: string;
     reason?: string;
     amountMinorUnits?: number;
+    idempotencyKey?: string;
   }): Promise<RefundResult> {
     const reasonField =
       args.reason && isDocumentedRefundReason(args.reason)
         ? { reason: args.reason }
         : { metadata: { internal_reason: args.reason ?? '' } };
 
-    const refund = await this.stripe.refunds.create({
-      payment_intent: args.paymentIntentId,
-      ...(args.amountMinorUnits !== undefined ? { amount: args.amountMinorUnits } : {}),
-      ...reasonField,
-    });
+    const refund = await this.stripe.refunds.create(
+      {
+        payment_intent: args.paymentIntentId,
+        ...(args.amountMinorUnits !== undefined ? { amount: args.amountMinorUnits } : {}),
+        ...reasonField,
+      },
+      args.idempotencyKey ? { idempotencyKey: args.idempotencyKey } : undefined,
+    );
     this.logger.log(
       `Issued refund ${refund.id} for payment_intent ${args.paymentIntentId} (status=${refund.status})`,
     );

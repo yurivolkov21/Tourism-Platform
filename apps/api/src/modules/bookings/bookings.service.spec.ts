@@ -504,7 +504,7 @@ describe('BookingsService', () => {
     );
 
     await svc.refundByAdmin({ code: 'BK-1', adminUserId: 'admin-1' });
-    expect(paypal.refundCapture).toHaveBeenCalledWith('pi_1', undefined);
+    expect(paypal.refundCapture).toHaveBeenCalledWith('pi_1', undefined, expect.anything());
   });
 
   it('rejects an amount above the booking total with INVALID_REFUND_AMOUNT', async () => {
@@ -621,6 +621,59 @@ describe('BookingsService', () => {
     expect(paypal.refundCapture).toHaveBeenCalledWith(
       'cap_1',
       expect.objectContaining({ value: '40.00', currencyCode: 'USD' }),
+      expect.anything(),
+    );
+  });
+
+  it('passes a deterministic idempotency key to Stripe (prevents double-charge)', async () => {
+    const stripe = makeStripe();
+    const svc = svcWith(
+      makePrisma({
+        booking: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValueOnce(paidBooking)
+            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.PARTIALLY_REFUNDED }),
+        },
+        $queryRaw: jest.fn().mockResolvedValue([{ id: 'bk-1' }]),
+      }),
+      stripe,
+    );
+
+    await svc.refundByAdmin({ code: 'BK-1', amount: 30, adminUserId: 'admin-1' });
+
+    expect(stripe.createRefund).toHaveBeenCalledWith(
+      expect.objectContaining({ idempotencyKey: expect.stringMatching(/^booking-refund:/) }),
+    );
+  });
+
+  it('passes a deterministic request id to PayPal (prevents double-charge)', async () => {
+    const paypal = makePayPal();
+    const svc = svcWith(
+      makePrisma({
+        booking: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValueOnce({
+              ...paidBooking,
+              code: 'BK-PP',
+              paymentProvider: PaymentProvider.PAYPAL,
+              providerPaymentId: 'cap_1',
+            })
+            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.PARTIALLY_REFUNDED }),
+        },
+        $queryRaw: jest.fn().mockResolvedValue([{ id: 'bk-1' }]),
+      }),
+      makeStripe(),
+      paypal,
+    );
+
+    await svc.refundByAdmin({ code: 'BK-PP', amount: 40, adminUserId: 'admin-1' });
+
+    expect(paypal.refundCapture).toHaveBeenCalledWith(
+      'cap_1',
+      expect.anything(),
+      expect.stringMatching(/^booking-refund:/),
     );
   });
 

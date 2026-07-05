@@ -154,47 +154,55 @@ export class CancellationsService {
     adminUserId: string,
     dto: DenyCancellationRequestDto,
   ): Promise<AdminCancellationRequestDto> {
-    const existing = await this.prisma.cancellationRequest.findUnique({
-      where: { id }, select: { status: true },
+    // Atomic transition: only an open REQUESTED row flips to DENIED. This gates
+    // the transition in SQL so a concurrent refund-resolution can't be clobbered.
+    const claim = await this.prisma.cancellationRequest.updateMany({
+      where: { id, status: CancellationRequestStatus.REQUESTED },
+      data: {
+        status: CancellationRequestStatus.DENIED,
+        decisionNote: dto.decisionNote?.trim() || null,
+        decidedById: adminUserId,
+        decidedAt: new Date(),
+      },
     });
-    if (!existing) {
-      throw new NotFoundException({ code: 'CANCELLATION_REQUEST_NOT_FOUND', message: `Request "${id}" not found` });
-    }
-    if (existing.status !== CancellationRequestStatus.REQUESTED) {
+    if (claim.count === 0) {
+      // Distinguish a missing request (404) from one already resolved (409).
+      const exists = await this.prisma.cancellationRequest.findUnique({
+        where: { id }, select: { status: true },
+      });
+      if (!exists) {
+        throw new NotFoundException({ code: 'CANCELLATION_REQUEST_NOT_FOUND', message: `Request "${id}" not found` });
+      }
       throw new ConflictException({
         code: 'CANCELLATION_NOT_PENDING',
-        message: `Request is ${existing.status}; only an open request can be denied`,
+        message: `Request is ${exists.status}; only an open request can be denied`,
       });
     }
-    const [updated] = await this.prisma.$transaction([
-      this.prisma.cancellationRequest.update({
-        where: { id },
-        data: {
-          status: CancellationRequestStatus.DENIED,
-          decisionNote: dto.decisionNote?.trim() || null,
-          decidedById: adminUserId,
-          decidedAt: new Date(),
-        },
-        select: {
-          id: true, status: true, reason: true, createdAt: true, decidedAt: true, decisionNote: true,
-          booking: {
-            select: {
-              code: true, contactName: true, contactEmail: true,
-              tour: { select: { title: true } },
-              departure: { select: { startDate: true } },
-            },
+    // Claim won — enqueue the denial email (idempotent) and read back for the response.
+    await this.prisma.outbox.createMany({
+      data: [{
+        type: 'CANCELLATION_DENIED',
+        payload: { requestId: id } as Prisma.InputJsonValue,
+        dedupeKey: `cancellation-denied:${id}`,
+      }],
+      skipDuplicates: true,
+    });
+    const updated = await this.prisma.cancellationRequest.findUnique({
+      where: { id },
+      select: {
+        id: true, status: true, reason: true, createdAt: true, decidedAt: true, decisionNote: true,
+        booking: {
+          select: {
+            code: true, contactName: true, contactEmail: true,
+            tour: { select: { title: true } },
+            departure: { select: { startDate: true } },
           },
         },
-      }),
-      this.prisma.outbox.createMany({
-        data: [{
-          type: 'CANCELLATION_DENIED',
-          payload: { requestId: id } as Prisma.InputJsonValue,
-          dedupeKey: `cancellation-denied:${id}`,
-        }],
-        skipDuplicates: true,
-      }),
-    ]);
+      },
+    });
+    if (!updated) {
+      throw new NotFoundException({ code: 'CANCELLATION_REQUEST_NOT_FOUND', message: `Request "${id}" not found` });
+    }
     this.logger.log(`Cancellation request ${id} denied (by ${adminUserId})`);
     return {
       id: updated.id, status: updated.status, reason: updated.reason,

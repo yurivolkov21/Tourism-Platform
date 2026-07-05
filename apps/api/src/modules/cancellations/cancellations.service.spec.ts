@@ -29,6 +29,7 @@ function makePrisma(opts: {
   findUnique?: jest.Mock;
   upsert?: jest.Mock;
   crFindUnique?: jest.Mock;
+  updateMany?: jest.Mock;
   update?: jest.Mock;
   findMany?: jest.Mock;
   count?: jest.Mock;
@@ -39,6 +40,7 @@ function makePrisma(opts: {
   const cancellationRequest = {
     upsert: opts.upsert ?? jest.fn(),
     findUnique: opts.crFindUnique ?? jest.fn(),
+    updateMany: opts.updateMany ?? jest.fn().mockResolvedValue({ count: 1 }),
     update: opts.update ?? jest.fn(),
     findMany: opts.findMany ?? jest.fn(),
     count: opts.count ?? jest.fn(),
@@ -258,54 +260,27 @@ describe('CancellationsService.findAllForAdmin', () => {
 });
 
 describe('CancellationsService.denyRequest', () => {
-  it('throws CANCELLATION_REQUEST_NOT_FOUND (404) when the request is missing', async () => {
-    const svc = new CancellationsService(
-      makePrisma({ crFindUnique: jest.fn().mockResolvedValue(null) }) as never,
-    );
-
-    await expect(svc.denyRequest('req-missing', 'admin-1', {})).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
-  });
-
-  it('throws CANCELLATION_NOT_PENDING (409) when the request is not REQUESTED', async () => {
-    const svc = new CancellationsService(
-      makePrisma({
-        crFindUnique: jest.fn().mockResolvedValue({ status: CancellationRequestStatus.DENIED }),
-      }) as never,
-    );
-
-    await expect(svc.denyRequest('req-1', 'admin-1', {})).rejects.toBeInstanceOf(
-      ConflictException,
-    );
-  });
-
-  it('happy path: REQUESTED → DENIED + audit + outbox enqueue, returns mapped row', async () => {
-    const crFindUnique = jest.fn().mockResolvedValue({ status: CancellationRequestStatus.REQUESTED });
+  it('happy path: updateMany claims the open request atomically, enqueues outbox, returns mapped row', async () => {
     const decidedAt = new Date('2026-07-05T12:00:00.000Z');
-    const update = jest.fn();
+    const updateMany = jest.fn().mockResolvedValue({ count: 1 });
     const outboxCreateMany = jest.fn();
-    const transaction = jest.fn().mockResolvedValue([
+    const crFindUnique = jest.fn().mockResolvedValue(
       makeQueueRow({
         status: CancellationRequestStatus.DENIED,
         decidedAt,
         decisionNote: 'Outside the free-cancellation window',
       }),
-      { count: 1 },
-    ]);
+    );
     const svc = new CancellationsService(
-      makePrisma({ crFindUnique, update, outboxCreateMany, transaction }) as never,
+      makePrisma({ updateMany, outboxCreateMany, crFindUnique }) as never,
     );
 
     const result = await svc.denyRequest('req-1', 'admin-1', {
       decisionNote: 'Outside the free-cancellation window',
     });
 
-    expect(transaction).toHaveBeenCalledTimes(1);
-    const opsArg = transaction.mock.calls[0][0];
-    expect(Array.isArray(opsArg)).toBe(true);
-    expect(update.mock.calls[0][0]).toMatchObject({
-      where: { id: 'req-1' },
+    expect(updateMany.mock.calls[0][0]).toMatchObject({
+      where: { id: 'req-1', status: CancellationRequestStatus.REQUESTED },
       data: {
         status: CancellationRequestStatus.DENIED,
         decisionNote: 'Outside the free-cancellation window',
@@ -336,5 +311,35 @@ describe('CancellationsService.denyRequest', () => {
         customerEmail: 'guest@example.com',
       },
     });
+  });
+
+  it('lost the race / already resolved: updateMany count 0 + a non-REQUESTED row → 409, outbox NOT enqueued', async () => {
+    const updateMany = jest.fn().mockResolvedValue({ count: 0 });
+    const crFindUnique = jest
+      .fn()
+      .mockResolvedValue({ status: CancellationRequestStatus.REFUNDED });
+    const outboxCreateMany = jest.fn();
+    const svc = new CancellationsService(
+      makePrisma({ updateMany, crFindUnique, outboxCreateMany }) as never,
+    );
+
+    await expect(svc.denyRequest('req-1', 'admin-1', {})).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+    expect(outboxCreateMany).not.toHaveBeenCalled();
+  });
+
+  it('missing request: updateMany count 0 + findUnique null → 404', async () => {
+    const updateMany = jest.fn().mockResolvedValue({ count: 0 });
+    const crFindUnique = jest.fn().mockResolvedValue(null);
+    const outboxCreateMany = jest.fn();
+    const svc = new CancellationsService(
+      makePrisma({ updateMany, crFindUnique, outboxCreateMany }) as never,
+    );
+
+    await expect(svc.denyRequest('req-missing', 'admin-1', {})).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(outboxCreateMany).not.toHaveBeenCalled();
   });
 });
