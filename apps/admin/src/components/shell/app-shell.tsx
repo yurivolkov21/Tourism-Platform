@@ -13,6 +13,7 @@ import {
   MessageSquareQuote,
   Receipt,
   Tags,
+  TicketX,
   UsersRound,
 } from 'lucide-react';
 
@@ -49,6 +50,7 @@ const NAV: NavSection[] = [
     label: 'Operations',
     items: [
       { title: 'Bookings', href: '/bookings', icon: Receipt },
+      { title: 'Cancellations', href: '/cancellation-requests', icon: TicketX },
       { title: 'Enquiries', href: '/enquiries', icon: Inbox },
       { title: 'Subscribers', href: '/subscribers', icon: MailPlus },
       { title: 'Users', href: '/users', icon: UsersRound },
