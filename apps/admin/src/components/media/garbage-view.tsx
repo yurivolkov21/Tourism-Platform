@@ -23,15 +23,9 @@ import {
 } from '@tourism/ui';
 
 import { ServerTablePagination } from '../crud/server-table-pagination';
+import { formatShortDate } from '../../lib/format-date';
 import { runMediaCleanup } from '../../lib/media-library/actions';
 import type { MediaGarbageRow, PageMeta } from '../../lib/media-library/data';
-
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? '—'
-    : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-}
 
 export function GarbageView({ rows, meta }: { rows: MediaGarbageRow[]; meta?: PageMeta }) {
   const router = useRouter();
@@ -113,7 +107,7 @@ export function GarbageView({ rows, meta }: { rows: MediaGarbageRow[]; meta?: Pa
                       </span>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
-                      {formatDate(g.createdAt)}
+                      {formatShortDate(g.createdAt)}
                     </TableCell>
                   </TableRow>
                 ))}

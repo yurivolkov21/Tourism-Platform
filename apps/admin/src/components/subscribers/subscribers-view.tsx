@@ -19,14 +19,8 @@ import {
 } from '@tourism/ui';
 
 import { ServerTablePagination } from '../crud/server-table-pagination';
+import { formatShortDate } from '../../lib/format-date';
 import type { PageMeta, Subscriber } from '../../lib/subscribers/data';
-
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? '—'
-    : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-}
 
 /** Newsletter subscribers table — read-only list + CSV export (ESP-import handoff). */
 export function SubscribersView({
@@ -104,7 +98,7 @@ export function SubscribersView({
                       )}
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
-                      {formatDate(s.subscribedAt)}
+                      {formatShortDate(s.subscribedAt)}
                     </TableCell>
                   </TableRow>
                 ))}

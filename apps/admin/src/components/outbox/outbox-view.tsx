@@ -23,16 +23,9 @@ import {
 } from '@tourism/ui';
 
 import { ServerTablePagination } from '../crud/server-table-pagination';
+import { formatShortDate } from '../../lib/format-date';
 import { retryOutbox } from '../../lib/outbox/actions';
 import type { AdminOutboxRow, PageMeta } from '../../lib/outbox/data';
-
-function formatDate(iso: string | null): string {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? '—'
-    : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-}
 
 function StatusBadge({ status }: { status: AdminOutboxRow['status'] }) {
   if (status === 'FAILED') return <Badge variant="destructive">Failed</Badge>;
@@ -122,10 +115,10 @@ export function OutboxView({ rows, meta }: { rows: AdminOutboxRow[]; meta?: Page
                         </span>
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
-                        {formatDate(row.createdAt)}
+                        {formatShortDate(row.createdAt)}
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
-                        {formatDate(row.processedAt)}
+                        {formatShortDate(row.processedAt)}
                       </TableCell>
                       <TableCell className="text-right">
                         {row.status === 'FAILED' ? (
