@@ -121,5 +121,11 @@ harness (upsert adaptation).
 
 ## STATUS
 
-- [ ] Slice 1 (Tasks 1–5) — pending (branch cut 2026-07-05)
-- [ ] Slice 2 (Tasks 6–9) — pending
+- [x] Slice 1 (Tasks 1–5): BE — **DONE**, merged `15c5cb4` fast-forward (2026-07-05,
+  user-reviewed). Migration `20260705012606_add_subscribers_and_media_asset_unique`
+  APPLIED to live Supabase (user GO before merge; pre-GO dupe check = 0 rows; verified
+  post-apply: table + unique index + RLS). api **314** tests. Note: `prisma migrate dev
+  --create-only` refuses non-interactive envs — migration generated via
+  `prisma migrate diff --from-config-datasource --to-schema … --script` + hand-made
+  folder (SQL identical to Prisma's).
+- [ ] Slice 2 (Tasks 6–9) — **IN PROGRESS** (branch `feat/blog-v2-newsletter-fe`)
