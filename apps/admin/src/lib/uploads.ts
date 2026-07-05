@@ -20,7 +20,8 @@ export type UploadPurpose =
   | 'DESTINATION_GALLERY'
   | 'TOUR_HERO'
   | 'TOUR_GALLERY'
-  | 'POST_COVER';
+  | 'POST_COVER'
+  | 'POST_BODY';
 
 /**
  * Signs a direct-to-Cloudinary upload for any owner/role. The BE derives the target folder + a
@@ -39,6 +40,28 @@ export async function signUpload(
       contentType,
     });
     return { params: data };
+  } catch (e) {
+    return { error: apiErrorMessage(e) };
+  }
+}
+
+/**
+ * Registers an already-uploaded Cloudinary image as a POST-owned `body` asset
+ * (`POST /admin/posts/:slug/body-images`, idempotent) and returns its delivery URL for
+ * markdown insertion. Server action — `apiWrite` is server-only, so the client-side
+ * insert-image button goes through here.
+ */
+export async function registerBodyImage(
+  slug: string,
+  input: { publicId: string; width?: number; height?: number; format?: string },
+): Promise<{ url?: string; error?: string }> {
+  try {
+    const data = await apiWrite<{ url: string }>(
+      'POST',
+      `/api/v1/admin/posts/${encodeURIComponent(slug)}/body-images`,
+      input,
+    );
+    return { url: data.url };
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }

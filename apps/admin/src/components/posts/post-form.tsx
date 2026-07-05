@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useActionState, useState } from 'react';
+import { useActionState, useRef, useState } from 'react';
 
 import {
   Button,
@@ -20,6 +20,7 @@ import {
   SelectValue,
   Separator,
   Textarea,
+  cn,
 } from '@tourism/ui';
 
 import type { PostFormState } from '../../lib/posts/actions';
@@ -31,6 +32,9 @@ import type { MediaInput } from '../../lib/media';
 import { ErrorAlert } from '../crud/error-alert';
 import { TagsInput } from './tags-input';
 import { RelatedToursPicker } from './related-tours-picker';
+import { InsertImageButton } from './insert-image-button';
+import { PostContent } from './post-content';
+import { insertSnippet } from '../../lib/posts/markdown';
 
 interface PostFormProps {
   action: (prev: PostFormState, formData: FormData) => Promise<PostFormState>;
@@ -77,6 +81,24 @@ export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourO
   const [relatedSlugs, setRelatedSlugs] = useState<string[]>(
     (post?.relatedTours ?? []).map((t) => t.slug),
   );
+
+  // Body markdown is controlled so the insert-image button can splice at the caret and the
+  // Preview tab can render live; a hidden input carries `name="content"` (the Textarea
+  // unmounts on preview, which would otherwise drop the field from the form post).
+  const [content, setContent] = useState(post?.content ?? '');
+  const [editorTab, setEditorTab] = useState<'write' | 'preview'>('write');
+  const contentRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleInsertImage = (url: string) => {
+    const cursor = contentRef.current?.selectionStart ?? content.length;
+    const { next, nextCursor } = insertSnippet(content, cursor, `![](${url})`);
+    setContent(next);
+    setEditorTab('write');
+    requestAnimationFrame(() => {
+      contentRef.current?.focus();
+      contentRef.current?.setSelectionRange(nextCursor, nextCursor);
+    });
+  };
 
   return (
     <form action={formAction}>
@@ -167,17 +189,47 @@ export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourO
         <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
           <Field data-invalid={Boolean(errors.content)}>
             <FieldLabel htmlFor="content">Body</FieldLabel>
-            <Textarea
-              id="content"
-              name="content"
-              rows={16}
-              maxLength={50000}
-              required
-              defaultValue={post?.content ?? ''}
-              placeholder={'## A heading\n\nWrite the post in Markdown…'}
-              className="font-mono text-[0.8rem] leading-relaxed"
-              aria-invalid={Boolean(errors.content)}
-            />
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div
+                role="tablist"
+                className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
+              >
+                {(['write', 'preview'] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    role="tab"
+                    aria-selected={editorTab === tab}
+                    onClick={() => setEditorTab(tab)}
+                    className={cn(
+                      'inline-flex h-7 cursor-pointer items-center rounded-md px-3 text-sm font-medium capitalize transition-colors',
+                      editorTab === tab ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+                    )}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+              <InsertImageButton slug={post?.slug} onInsert={handleInsertImage} />
+            </div>
+            {editorTab === 'write' ? (
+              <Textarea
+                ref={contentRef}
+                id="content"
+                rows={16}
+                maxLength={50000}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder={'## A heading\n\nWrite the post in Markdown…'}
+                className="font-mono text-[0.8rem] leading-relaxed"
+                aria-invalid={Boolean(errors.content)}
+              />
+            ) : (
+              <div className="border-border/60 bg-muted/30 min-h-64 rounded-lg border p-4">
+                <PostContent markdown={content} />
+              </div>
+            )}
+            <input type="hidden" name="content" value={content} />
             <FieldDescription>Markdown — rendered (sanitized) on the public site.</FieldDescription>
             {errors.content ? <FieldError>{errors.content}</FieldError> : null}
           </Field>

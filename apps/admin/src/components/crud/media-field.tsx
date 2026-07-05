@@ -26,7 +26,7 @@ const ACCEPT = 'image/png,image/jpeg,image/webp';
 type UploadResult = { item: MediaInput } | { error: string };
 
 /** Sign → POST straight to Cloudinary → return the new media item, or the reason it failed. */
-async function uploadFile(
+export async function uploadFile(
   file: File,
   role: 'hero' | 'gallery',
   purpose: UploadPurpose,

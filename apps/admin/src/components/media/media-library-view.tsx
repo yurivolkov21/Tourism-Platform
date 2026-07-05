@@ -55,6 +55,7 @@ const ROLE_OPTIONS = [
   { value: 'hero', label: 'Hero' },
   { value: 'gallery', label: 'Gallery' },
   { value: 'avatar', label: 'Avatar' },
+  { value: 'body', label: 'Body' },
 ] as const;
 const TYPE_OPTIONS = [
   { value: 'IMAGE', label: 'Images' },

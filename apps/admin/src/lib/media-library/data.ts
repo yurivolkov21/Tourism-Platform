@@ -10,7 +10,7 @@ export interface MediaListParams {
   page?: number;
   pageSize?: number;
   ownerType?: 'TOUR' | 'DESTINATION' | 'USER' | 'POST';
-  role?: 'hero' | 'gallery' | 'avatar';
+  role?: 'hero' | 'gallery' | 'avatar' | 'body';
   type?: 'IMAGE' | 'VIDEO';
   search?: string;
 }

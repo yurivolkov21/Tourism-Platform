@@ -10,7 +10,7 @@ import { parsePageSize } from '../../../lib/pagination';
 import { cn } from '@tourism/ui';
 
 const OWNER_TYPES = ['TOUR', 'DESTINATION', 'POST', 'USER'] as const;
-const ROLES = ['hero', 'gallery', 'avatar'] as const;
+const ROLES = ['hero', 'gallery', 'avatar', 'body'] as const;
 const TYPES = ['IMAGE', 'VIDEO'] as const;
 
 function parseChoice<T extends string>(raw: string | undefined, allowed: readonly T[]): T | undefined {
