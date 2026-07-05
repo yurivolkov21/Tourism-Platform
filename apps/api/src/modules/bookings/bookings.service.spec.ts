@@ -386,6 +386,8 @@ describe('BookingsService', () => {
     departureId: 'dep-1',
     numAdults: 2,
     numChildren: 0,
+    totalAmount: new Prisma.Decimal('99.00'),
+    currency: 'USD',
   };
 
   it('refundByAdmin refunds via Stripe then releases seats + flips REFUNDED', async () => {
@@ -502,7 +504,68 @@ describe('BookingsService', () => {
     );
 
     await svc.refundByAdmin({ code: 'BK-1', adminUserId: 'admin-1' });
-    expect(paypal.refundCapture).toHaveBeenCalledWith('pi_1');
+    expect(paypal.refundCapture).toHaveBeenCalledWith('pi_1', undefined);
+  });
+
+  it('rejects an amount above the booking total with INVALID_REFUND_AMOUNT', async () => {
+    const stripe = makeStripe();
+    const svc = svcWith(
+      makePrisma({
+        booking: { findUnique: jest.fn().mockResolvedValue(paidBooking) },
+      }),
+      stripe,
+    );
+
+    await expect(
+      svc.refundByAdmin({ code: 'BK-1', amount: 150, adminUserId: 'admin-1' }),
+    ).rejects.toMatchObject({ response: { code: 'INVALID_REFUND_AMOUNT' } });
+    expect(stripe.createRefund).not.toHaveBeenCalled();
+  });
+
+  it('full refund (amount omitted) refunds the whole PI and releases seats', async () => {
+    const stripe = makeStripe();
+    const svc = svcWith(
+      makePrisma({
+        booking: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValueOnce(paidBooking)
+            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.REFUNDED }),
+        },
+        $queryRaw: jest.fn().mockResolvedValue([{ id: 'bk-1' }]),
+      }),
+      stripe,
+    );
+
+    await svc.refundByAdmin({ code: 'BK-1', reason: 'x', adminUserId: 'admin-1' });
+    expect(stripe.createRefund).toHaveBeenCalledWith(
+      expect.objectContaining({ paymentIntentId: 'pi_1' }),
+    );
+    // amountMinorUnits NOT passed on a full refund:
+    expect(stripe.createRefund).toHaveBeenCalledWith(
+      expect.not.objectContaining({ amountMinorUnits: expect.anything() }),
+    );
+  });
+
+  it('treats amount === total as a full refund (no amountMinorUnits)', async () => {
+    const stripe = makeStripe();
+    const svc = svcWith(
+      makePrisma({
+        booking: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValueOnce(paidBooking)
+            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.REFUNDED }),
+        },
+        $queryRaw: jest.fn().mockResolvedValue([{ id: 'bk-1' }]),
+      }),
+      stripe,
+    );
+
+    await svc.refundByAdmin({ code: 'BK-1', amount: 99, adminUserId: 'admin-1' });
+    expect(stripe.createRefund).toHaveBeenCalledWith(
+      expect.not.objectContaining({ amountMinorUnits: expect.anything() }),
+    );
   });
 
   // ── startCheckout (PayPal) + capturePayPal ─────────────────────────────────────

@@ -24,6 +24,7 @@ import { StripeService } from '../payments/stripe.service';
 import { mintBookingCode } from './booking-code';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { ListAdminBookingsQueryDto } from './dto/list-admin-bookings-query.dto';
+import { classifyRefund } from './refund-amount';
 
 /** Result of `startCheckout` — the FE redirects the buyer to `checkoutUrl`. */
 export interface CheckoutStarted {
@@ -493,6 +494,7 @@ export class BookingsService {
   async refundByAdmin(args: {
     code: string;
     reason?: string;
+    amount?: number;
     adminUserId: string;
   }): Promise<Booking> {
     const booking = await this.prisma.booking.findUnique({
@@ -506,6 +508,8 @@ export class BookingsService {
         departureId: true,
         numAdults: true,
         numChildren: true,
+        totalAmount: true,
+        currency: true,
       },
     });
     if (!booking) {
@@ -521,6 +525,8 @@ export class BookingsService {
       });
     }
 
+    const { partial, amount } = classifyRefund(booking.totalAmount, args.amount);
+
     // Provider-specific refund FIRST (authoritative — never flip the DB for a
     // refund that didn't happen). Converge if the provider says it's already done.
     try {
@@ -528,9 +534,15 @@ export class BookingsService {
         await this.stripe.createRefund({
           paymentIntentId: booking.providerPaymentId,
           reason: args.reason ?? 'requested_by_customer',
+          ...(partial ? { amountMinorUnits: toStripeMinorUnits(amount, booking.currency) } : {}),
         });
       } else {
-        await this.paypal.refundCapture(booking.providerPaymentId);
+        await this.paypal.refundCapture(
+          booking.providerPaymentId,
+          partial
+            ? { value: toPayPalAmount(amount, booking.currency), currencyCode: booking.currency }
+            : undefined,
+        );
       }
     } catch (err) {
       if (!this.isAlreadyRefundedError(err)) {
@@ -546,41 +558,61 @@ export class BookingsService {
       );
     }
 
-    const seats = booking.numAdults + booking.numChildren;
-    // Atomic, idempotent (gated on status='PAID'): release seats + flip REFUNDED.
-    await this.prisma.$queryRaw(Prisma.sql`
-      WITH released AS (
-        UPDATE tour_departures
-        SET seats_booked = GREATEST(seats_booked - ${seats}, 0)
-        WHERE id = ${booking.departureId}::uuid
-          AND EXISTS (
-            SELECT 1 FROM bookings
-            WHERE id = ${booking.id}::uuid AND status = 'PAID'::"BookingStatus"
-          )
-        RETURNING id
-      ),
-      refunded AS (
-        UPDATE bookings
-        SET status = 'REFUNDED'::"BookingStatus",
-            cancelled_at = now(),
-            refund_reason = ${args.reason ?? null},
-            refunded_by = ${args.adminUserId}::uuid
-        WHERE id = ${booking.id}::uuid AND status = 'PAID'::"BookingStatus"
-        RETURNING id
-      ),
-      -- Atomic outbox enqueue (ADR-0007): only when the booking actually flipped
-      -- to REFUNDED. Idempotent on retries via the dedupe_key UNIQUE.
-      outbox_insert AS (
-        INSERT INTO outbox (type, payload, dedupe_key)
-        SELECT 'BOOKING_REFUNDED'::"EmailType",
-               jsonb_build_object('bookingId', id),
-               'booking-refunded:' || id::text
-        FROM refunded
-        ON CONFLICT (dedupe_key) DO NOTHING
-        RETURNING id
-      )
-      SELECT id FROM refunded
-    `);
+    if (!partial) {
+      const seats = booking.numAdults + booking.numChildren;
+      // Atomic, idempotent (gated on status='PAID'): release seats + flip REFUNDED
+      // + resolve any open cancellation request for this booking.
+      await this.prisma.$queryRaw(Prisma.sql`
+        WITH released AS (
+          UPDATE tour_departures
+          SET seats_booked = GREATEST(seats_booked - ${seats}, 0)
+          WHERE id = ${booking.departureId}::uuid
+            AND EXISTS (
+              SELECT 1 FROM bookings
+              WHERE id = ${booking.id}::uuid AND status = 'PAID'::"BookingStatus"
+            )
+          RETURNING id
+        ),
+        refunded AS (
+          UPDATE bookings
+          SET status = 'REFUNDED'::"BookingStatus",
+              cancelled_at = now(),
+              refund_reason = ${args.reason ?? null},
+              refunded_by = ${args.adminUserId}::uuid,
+              refunded_amount = ${booking.totalAmount},
+              refunded_at = now()
+          WHERE id = ${booking.id}::uuid AND status = 'PAID'::"BookingStatus"
+          RETURNING id
+        ),
+        request_resolved AS (
+          UPDATE cancellation_requests
+          SET status = 'REFUNDED'::"CancellationRequestStatus",
+              decided_by = ${args.adminUserId}::uuid,
+              decided_at = now(),
+              updated_at = now()
+          WHERE booking_id = (SELECT id FROM refunded) AND status = 'REQUESTED'::"CancellationRequestStatus"
+          RETURNING id
+        ),
+        -- Atomic outbox enqueue (ADR-0007): only when the booking actually flipped
+        -- to REFUNDED. Idempotent on retries via the dedupe_key UNIQUE.
+        outbox_insert AS (
+          INSERT INTO outbox (type, payload, dedupe_key)
+          SELECT 'BOOKING_REFUNDED'::"EmailType",
+                 jsonb_build_object('bookingId', id),
+                 'booking-refunded:' || id::text
+          FROM refunded
+          ON CONFLICT (dedupe_key) DO NOTHING
+          RETURNING id
+        )
+        SELECT id FROM refunded
+      `);
+      this.logger.log(
+        `Admin full-refunded booking ${booking.code} (${seats} seat(s) released, by ${args.adminUserId})`,
+      );
+    } else {
+      // B5 fills this in.
+      throw new Error('partial refund not implemented yet');
+    }
 
     const updated = await this.prisma.booking.findUnique({
       where: { id: booking.id },
@@ -592,9 +624,6 @@ export class BookingsService {
         message: `Booking "${args.code}" not found`,
       });
     }
-    this.logger.log(
-      `Admin refunded booking ${booking.code} (${seats} seat(s) released, by ${args.adminUserId})`,
-    );
     return updated;
   }
 
