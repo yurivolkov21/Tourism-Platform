@@ -127,13 +127,14 @@ export class StripeService implements OnModuleInit {
   }
 
   /**
-   * Issues a full refund against a Payment Intent (the canonical handle once a
-   * session completes). Stripe's `reason` is a closed enum — forward only
-   * documented values, else stash the free-form reason in metadata.
+   * Issues a full or partial refund against a Payment Intent (the canonical
+   * handle once a session completes). Stripe's `reason` is a closed enum —
+   * forward only documented values, else stash the free-form reason in metadata.
    */
   async createRefund(args: {
     paymentIntentId: string;
     reason?: string;
+    amountMinorUnits?: number;
   }): Promise<RefundResult> {
     const reasonField =
       args.reason && isDocumentedRefundReason(args.reason)
@@ -142,6 +143,7 @@ export class StripeService implements OnModuleInit {
 
     const refund = await this.stripe.refunds.create({
       payment_intent: args.paymentIntentId,
+      ...(args.amountMinorUnits !== undefined ? { amount: args.amountMinorUnits } : {}),
       ...reasonField,
     });
     this.logger.log(

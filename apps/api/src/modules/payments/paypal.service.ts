@@ -145,9 +145,17 @@ export class PayPalService implements OnModuleInit {
     }
   }
 
-  /** Refunds a captured payment in full. */
-  async refundCapture(captureId: string): Promise<PayPalRefundResult> {
-    const { result } = await this.payments.refundCapturedPayment({ captureId });
+  /** Refunds a captured payment — full, or a partial `amount` when provided. */
+  async refundCapture(
+    captureId: string,
+    amount?: { value: string; currencyCode: string },
+  ): Promise<PayPalRefundResult> {
+    const { result } = await this.payments.refundCapturedPayment({
+      captureId,
+      body: amount
+        ? { amount: { value: amount.value, currencyCode: amount.currencyCode } }
+        : undefined,
+    });
     this.logger.log(`Refunded PayPal capture ${captureId} (status=${result.status})`);
     return { id: result.id ?? '', status: result.status ?? null };
   }
