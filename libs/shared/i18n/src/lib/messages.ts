@@ -1725,6 +1725,31 @@ export const messages = {
     removed: 'Removed from wishlist.',
     error: 'Something went wrong — please try again.',
   },
+  // Mobile app (P5, customer-facing Expo app).
+  mobile: {
+    tabs: {
+      home: 'Home',
+      explore: 'Explore',
+      saved: 'Saved',
+      account: 'Account',
+    },
+    home: {
+      greeting: 'Where to next?',
+      subtitle: 'Handcrafted journeys across Vietnam',
+      featuredTitle: 'Featured tours',
+      slowServer: 'Waking the server — the first load can take up to a minute…',
+      error: "Couldn't load tours. Check your connection and try again.",
+      retry: 'Try again',
+      empty: 'No tours to show yet — check back soon.',
+      from: 'From',
+      durationDays: (days: number) => `${days} ${days === 1 ? 'day' : 'days'}`,
+    },
+    placeholders: {
+      explore: 'Browse all tours and destinations — coming in the next update.',
+      saved: 'Your saved tours will live here. Sign-in arrives in a later update.',
+      account: 'Manage your profile and bookings here soon.',
+    },
+  },
 } as const;
 
 export type Messages = typeof messages;
