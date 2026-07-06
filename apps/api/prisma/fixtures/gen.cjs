@@ -943,7 +943,8 @@ addOutbox('ENQUIRY_RECEIVED', 'PENDING', `enquiry-received:${enquiries[9].id}`, 
 addOutbox('ENQUIRY_RECEIVED', 'FAILED', `enquiry-received:${enquiries[5].id}`, { to: enquiries[5].email, name: enquiries[5].name, tourTitle: null }, 5, 'Permanent failure: mailbox does not exist (SMTP 550). Marked failed after 5 attempts.', undefined);
 
 // ═══════════════════════════════════════════════════════════════════════════
-// MEDIA ASSETS (22) — all owner types + roles; one VIDEO with poster/duration
+// MEDIA ASSETS (83) — real Unsplash imagery: 16 destinations (hero + 2 gallery) +
+// 23 tour heroes + 10 post heroes + 2 user avatars (still Cloudinary placeholders)
 // ═══════════════════════════════════════════════════════════════════════════
 const MA = 'a5000001';
 const mediaAssets = [];
@@ -968,19 +969,70 @@ function addMedia(o) {
     updatedAt: ts(-10, 8),
   });
 }
-const mediaTours = ['hoi-an-walking-tour', 'halong-bay-2d1n', 'sa-pa-trek-3d2n', 'ba-na-hills-day', 'phu-quoc-4-islands'];
-mediaTours.forEach((slug) => {
-  const tid = tourId(slug);
-  addMedia({ publicId: `nexora/tours/${slug}/hero`, type: 'IMAGE', ownerType: 'TOUR', ownerId: tid, role: 'hero', format: 'jpg', width: 1600, height: 900, bytes: 384000, sortOrder: 0 });
-  addMedia({ publicId: `nexora/tours/${slug}/gallery-1`, type: 'IMAGE', ownerType: 'TOUR', ownerId: tid, role: 'gallery', format: 'jpg', width: 1600, height: 1067, bytes: 412000, sortOrder: 1 });
-  addMedia({ publicId: `nexora/tours/${slug}/gallery-2`, type: 'IMAGE', ownerType: 'TOUR', ownerId: tid, role: 'gallery', format: 'webp', width: 1600, height: 1067, bytes: 298000, sortOrder: 2 });
+// Real Unsplash imagery (curated + human-vetted + user-approved 2026-07-06). See
+// docs/07-plans/2026-07-06-real-content-authoring-plan.md. publicId = absolute URL
+// (the Cloudinary builder passes absolute http(s) URLs through as-is).
+const destMedia = {
+  "hanoi": ["https://images.unsplash.com/photo-1639484072046-6ac4984061e1?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1526674956144-c9667d22f71f?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1680796030177-26de76d55748?w=1600&q=70&auto=format&fit=crop"],
+  "ha-long-bay": ["https://images.unsplash.com/photo-1761127138372-cad230082b19?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1668000018482-a02acf02b22a?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1669819894338-53ab7afc6958?w=1600&q=70&auto=format&fit=crop"],
+  "ninh-binh": ["https://images.unsplash.com/photo-1560079561-3086e6dbde25?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1685345411484-c181bea48e9e?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1503539680555-732099a55a56?w=1600&q=70&auto=format&fit=crop"],
+  "sa-pa": ["https://images.unsplash.com/photo-1753003491860-89b500bc62f3?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1454580083719-5135531ae1dc?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1694083151781-946334842033?w=1600&q=70&auto=format&fit=crop"],
+  "ha-giang": ["https://images.unsplash.com/photo-1536511671359-849531c0a576?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1534785918844-ee0cdd66df36?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1585750902093-98e021b3ace2?w=1600&q=70&auto=format&fit=crop"],
+  "cat-ba": ["https://images.unsplash.com/photo-1722987203822-5c7a8b5bdbfd?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1741319717005-ffd7b1f4bb63?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1547024842-44f3087a4e20?w=1600&q=70&auto=format&fit=crop"],
+  "da-nang": ["https://images.unsplash.com/photo-1723142282970-1fd415eec1ad?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1440694997168-8ae4033554c7?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1551696574-bf6016b8810f?w=1600&q=70&auto=format&fit=crop"],
+  "hoi-an": ["https://images.unsplash.com/photo-1694391744914-8d82068cb46f?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1771348763473-2263cbf2ed94?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1664650440553-ab53804814b3?w=1600&q=70&auto=format&fit=crop"],
+  "hue": ["https://images.unsplash.com/photo-1716817623452-9ce58a3acac5?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1724533815121-ca09833513ee?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1568775791746-bcc117bcb312?w=1600&q=70&auto=format&fit=crop"],
+  "phong-nha": ["https://images.unsplash.com/photo-1523419163445-589ebf1785c8?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1554285859-6ac081ea54b9?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1719461208300-e9d199bc59f7?w=1600&q=70&auto=format&fit=crop"],
+  "ho-chi-minh-city": ["https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1578031894526-2e165e29f9d2?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1737192577651-45407e33d197?w=1600&q=70&auto=format&fit=crop"],
+  "mekong-delta": ["https://images.unsplash.com/photo-1529271230144-e8c648ef570d?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1689760661317-a839f59b1c32?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1547558902-0a66a7526661?w=1600&q=70&auto=format&fit=crop"],
+  "phu-quoc": ["https://images.unsplash.com/photo-1693282814784-649be45a459b?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1775874045802-2995172ff0e7?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1738070374913-38213dff257c?w=1600&q=70&auto=format&fit=crop"],
+  "mui-ne": ["https://images.unsplash.com/photo-1554736000-7c1b76461421?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1617620217902-5a6eefe41fa7?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1756798712671-a5c7facf64fe?w=1600&q=70&auto=format&fit=crop"],
+  "da-lat": ["https://images.unsplash.com/photo-1678099006439-dba9e4d3f9f5?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1584457173475-2996e0757ab8?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1564396738239-351774a1a50e?w=1600&q=70&auto=format&fit=crop"],
+  "con-dao": ["https://images.unsplash.com/photo-1686073769358-57d716df2f3b?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1768040632264-d8ad69bd4536?w=1600&q=70&auto=format&fit=crop", "https://images.unsplash.com/photo-1768780652079-63dfef5f829e?w=1600&q=70&auto=format&fit=crop"],
+};
+const tourHero = {
+  "hoi-an-walking-tour": "https://images.unsplash.com/photo-1694391744914-8d82068cb46f?w=1600&q=70&auto=format&fit=crop",
+  "ba-na-hills-day": "https://images.unsplash.com/photo-1741138327956-dfa75763b50d?w=1600&q=70&auto=format&fit=crop",
+  "hue-imperial-day": "https://images.unsplash.com/photo-1716817623452-9ce58a3acac5?w=1600&q=70&auto=format&fit=crop",
+  "ninh-binh-day": "https://images.unsplash.com/photo-1560079561-3086e6dbde25?w=1600&q=70&auto=format&fit=crop",
+  "cu-chi-tunnels-half-day": "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1600&q=70&auto=format&fit=crop",
+  "mekong-delta-day": "https://images.unsplash.com/photo-1529271230144-e8c648ef570d?w=1600&q=70&auto=format&fit=crop",
+  "phu-quoc-4-islands": "https://images.unsplash.com/photo-1693282814784-649be45a459b?w=1600&q=70&auto=format&fit=crop",
+  "phong-nha-paradise-cave-day": "https://images.unsplash.com/photo-1523419163445-589ebf1785c8?w=1600&q=70&auto=format&fit=crop",
+  "hanoi-street-food-walk": "https://images.unsplash.com/photo-1527997921830-de1cf1f9b430?w=1600&q=70&auto=format&fit=crop",
+  "mui-ne-dunes-day": "https://images.unsplash.com/photo-1554736000-7c1b76461421?w=1600&q=70&auto=format&fit=crop",
+  "halong-bay-2d1n": "https://images.unsplash.com/photo-1761127138372-cad230082b19?w=1600&q=70&auto=format&fit=crop",
+  "halong-lan-ha-3d2n": "https://images.unsplash.com/photo-1741319717005-ffd7b1f4bb63?w=1600&q=70&auto=format&fit=crop",
+  "sa-pa-trek-3d2n": "https://images.unsplash.com/photo-1753003491860-89b500bc62f3?w=1600&q=70&auto=format&fit=crop",
+  "ha-giang-loop-3d2n": "https://images.unsplash.com/photo-1536511671359-849531c0a576?w=1600&q=70&auto=format&fit=crop",
+  "cat-ba-national-park-trek": "https://images.unsplash.com/photo-1722987203822-5c7a8b5bdbfd?w=1600&q=70&auto=format&fit=crop",
+  "north-vietnam-5d4n": "https://images.unsplash.com/photo-1668000018482-a02acf02b22a?w=1600&q=70&auto=format&fit=crop",
+  "central-heritage-6d5n": "https://images.unsplash.com/photo-1724533815121-ca09833513ee?w=1600&q=70&auto=format&fit=crop",
+  "vietnam-grand-tour-14d": "https://images.unsplash.com/photo-1669819894338-53ab7afc6958?w=1600&q=70&auto=format&fit=crop",
+  "vietnam-romantic-10d": "https://images.unsplash.com/photo-1771348763473-2263cbf2ed94?w=1600&q=70&auto=format&fit=crop",
+  "phu-quoc-honeymoon-5d": "https://images.unsplash.com/photo-1775874045802-2995172ff0e7?w=1600&q=70&auto=format&fit=crop",
+  "dalat-highlands-3d": "https://images.unsplash.com/photo-1678099006439-dba9e4d3f9f5?w=1600&q=70&auto=format&fit=crop",
+  "saigon-city-half-day": "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1600&q=70&auto=format&fit=crop",
+  "business-hanoi-city-day": "https://images.unsplash.com/photo-1639484072046-6ac4984061e1?w=1600&q=70&auto=format&fit=crop",
+};
+const postHero = {
+  "best-time-to-visit-vietnam": "https://images.unsplash.com/photo-1685345411484-c181bea48e9e?w=1600&q=70&auto=format&fit=crop",
+  "two-unhurried-days-in-hoi-an": "https://images.unsplash.com/photo-1664650440553-ab53804814b3?w=1600&q=70&auto=format&fit=crop",
+  "morning-at-the-mekong-floating-markets": "https://images.unsplash.com/photo-1689760661317-a839f59b1c32?w=1600&q=70&auto=format&fit=crop",
+  "packing-for-a-sa-pa-trek": "https://images.unsplash.com/photo-1454580083719-5135531ae1dc?w=1600&q=70&auto=format&fit=crop",
+  "understanding-vietnamese-coffee": "https://images.unsplash.com/photo-1471922597728-92f81bfe2445?w=1600&q=70&auto=format&fit=crop",
+  "is-ha-giang-too-dangerous": "https://images.unsplash.com/photo-1534785918844-ee0cdd66df36?w=1600&q=70&auto=format&fit=crop",
+  "a-first-timers-week-in-the-north": "https://images.unsplash.com/photo-1526674956144-c9667d22f71f?w=1600&q=70&auto=format&fit=crop",
+  "eating-your-way-through-hanoi": "https://images.unsplash.com/photo-1680796030177-26de76d55748?w=1600&q=70&auto=format&fit=crop",
+  "the-caves-of-phong-nha": "https://images.unsplash.com/photo-1554285859-6ac081ea54b9?w=1600&q=70&auto=format&fit=crop",
+  "choosing-a-halong-cruise": "https://images.unsplash.com/photo-1668000018482-a02acf02b22a?w=1600&q=70&auto=format&fit=crop",
+};
+const postIdBySlug = (slug) => posts.find((p) => p.slug === slug).id;
+Object.entries(destMedia).forEach(([slug, urls]) => {
+  urls.forEach((url, i) => addMedia({ publicId: url, type: 'IMAGE', ownerType: 'DESTINATION', ownerId: destId(slug), role: i === 0 ? 'hero' : 'gallery', format: 'jpg', width: i === 0 ? 2000 : 1600, height: i === 0 ? 1125 : 1067, bytes: i === 0 ? 480000 : 400000, sortOrder: i }));
 });
-addMedia({ publicId: 'nexora/tours/halong-bay-2d1n/promo', type: 'VIDEO', ownerType: 'TOUR', ownerId: tourId('halong-bay-2d1n'), role: 'gallery', format: 'mp4', width: 1920, height: 1080, durationSec: 48.5, posterId: 'nexora/tours/halong-bay-2d1n/promo-poster', bytes: 18400000, sortOrder: 3 });
-['hanoi', 'ha-long-bay', 'hoi-an'].forEach((slug) => {
-  addMedia({ publicId: `nexora/destinations/${slug}/hero`, type: 'IMAGE', ownerType: 'DESTINATION', ownerId: destId(slug), role: 'hero', format: 'jpg', width: 2000, height: 1125, bytes: 520000, sortOrder: 0 });
-});
-addMedia({ publicId: 'nexora/posts/best-time-to-visit-vietnam/hero', type: 'IMAGE', ownerType: 'POST', ownerId: posts[0].id, role: 'hero', format: 'jpg', width: 1600, height: 900, bytes: 356000, sortOrder: 0 });
-addMedia({ publicId: 'nexora/posts/two-unhurried-days-in-hoi-an/hero', type: 'IMAGE', ownerType: 'POST', ownerId: posts[1].id, role: 'hero', format: 'webp', width: 1600, height: 900, bytes: 244000, sortOrder: 0 });
+Object.entries(tourHero).forEach(([slug, url]) => addMedia({ publicId: url, type: 'IMAGE', ownerType: 'TOUR', ownerId: tourId(slug), role: 'hero', format: 'jpg', width: 1600, height: 900, bytes: 384000, sortOrder: 0 }));
+Object.entries(postHero).forEach(([slug, url]) => addMedia({ publicId: url, type: 'IMAGE', ownerType: 'POST', ownerId: postIdBySlug(slug), role: 'hero', format: 'jpg', width: 1600, height: 900, bytes: 356000, sortOrder: 0 }));
 addMedia({ publicId: 'nexora/users/emma-thompson/avatar', type: 'IMAGE', ownerType: 'USER', ownerId: users[0].id, role: 'avatar', format: 'png', width: 512, height: 512, bytes: 88000, sortOrder: 0 });
 addMedia({ publicId: 'nexora/users/lukas-muller/avatar', type: 'IMAGE', ownerType: 'USER', ownerId: users[3].id, role: 'avatar', format: 'jpg', width: 512, height: 512, bytes: 72000, sortOrder: 0 });
 
