@@ -2408,4 +2408,27 @@ Append a `## STATUS` block to this plan (task checklist + commit hashes + on-dev
 
 ## STATUS
 
-_(filled in during execution)_
+- [x] Task 1 — i18n copy (`88c7152`; also dropped `placeholders.explore`)
+- [x] Task 2 — TextField (`f5f295e`)
+- [x] Task 3 — Chip (`8c52a00`)
+- [x] Task 4 — Accordion (`f46e805`)
+- [x] Task 5 — TourCardVm + fetchAllTours + pressable TourCard (`5e7f1ff`; interim
+      fix: W1 explore placeholder pointed at a surviving i18n key until Task 8)
+- [x] Task 6 — explore-state (`f2f33e6`; spec fixture uses `Hà Nội` — searchTours
+      strips accents, not spaces, so the accent-insensitivity case needs real
+      diacritics)
+- [x] Task 7 — destinations chips data (`2b0d01f`)
+- [x] Task 8 — Explore screen (`7c348fc`)
+- [x] Task 9 — tour-detail data layer (`71ce1dd`)
+- [x] Task 10 — detail screen + GalleryPager + routes (`be1af5e`)
+- [x] Task 11 — enquiry validator + submit (`10fcfd5`)
+- [x] Task 12 — enquiry modal (`5e250e5`; two execution findings: TanStack v5
+      passes a 2nd arg to `mutationFn` — assert on `mock.calls[0][0]`; mutation
+      cache needs `mutations: { gcTime: 0 }` in spec QueryClients or the jest
+      worker leaks a GC timer. Auto-dismiss timer moved into a cleaned-up
+      `useEffect`.)
+- [x] Task 13 — gate green (2026-07-06): mobile **33** · mobile-ui **25** · i18n 1;
+      `nx affected -t lint typecheck test --base=main` green (web + admin suites
+      pass untouched); `nx affected ... build --exclude=@tourism/mobile` green
+      (web + admin compile; mobile `build` = EAS cloud, excluded per standing
+      rule). **On-device Expo Go check: PENDING (user).**
