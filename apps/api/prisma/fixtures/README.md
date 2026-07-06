@@ -27,7 +27,7 @@ cd apps/api/prisma/fixtures && node gen.cjs   # regenerates + self-validates
 | tourDestinations | 38 | enquiries | 25 |
 | tourItineraryDays | 15 | posts | 10 |
 | tourFaqs | 13 | outbox | 12 |
-| tourPolicies | 16 | mediaAssets | 23 |
+| tourPolicies | 16 | mediaAssets | 83 |
 | tourDepartures | 50 | mediaGarbage | 4 |
 
 ## Edge cases deliberately exercised
