@@ -3,7 +3,7 @@
 import { useRef, useState, type ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Avatar, AvatarFallback, AvatarImage, Button } from '@tourism/ui';
+import { Avatar, AvatarFallback, AvatarImage, Button, toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { removeAvatar, requestAvatarUpload, saveAvatar } from '../../lib/account/actions';
@@ -26,7 +26,6 @@ export function AvatarUploader({ initialUrl, name }: { initialUrl: string | null
   const inputRef = useRef<HTMLInputElement>(null);
   const [url, setUrl] = useState<string | null>(initialUrl);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string>();
 
   async function syncMetadata(avatarUrl: string | null) {
     await createClient()
@@ -40,7 +39,6 @@ export function AvatarUploader({ initialUrl, name }: { initialUrl: string | null
     const file = event.target.files?.[0];
     if (!file) return;
     setBusy(true);
-    setError(undefined);
     try {
       const signed = await requestAvatarUpload(file.name, file.type);
       if (signed.error || !signed.params) throw new Error(signed.error ?? 'sign failed');
@@ -62,9 +60,10 @@ export function AvatarUploader({ initialUrl, name }: { initialUrl: string | null
 
       setUrl(saved.avatarUrl ?? null);
       await syncMetadata(saved.avatarUrl ?? null);
+      toast.success(t.saved);
       router.refresh();
     } catch {
-      setError(t.error);
+      toast.error(t.error);
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = '';
@@ -73,15 +72,15 @@ export function AvatarUploader({ initialUrl, name }: { initialUrl: string | null
 
   async function onRemove() {
     setBusy(true);
-    setError(undefined);
     const result = await removeAvatar();
     if (result.error) {
-      setError(result.error);
+      toast.error(result.error);
       setBusy(false);
       return;
     }
     setUrl(null);
     await syncMetadata(null);
+    toast.success(t.saved);
     setBusy(false);
     router.refresh();
   }
@@ -120,11 +119,6 @@ export function AvatarUploader({ initialUrl, name }: { initialUrl: string | null
         </div>
       </div>
       <p className="text-muted-foreground text-xs">{t.hint}</p>
-      {error ? (
-        <p className="text-destructive text-sm" role="alert">
-          {error}
-        </p>
-      ) : null}
     </div>
   );
 }

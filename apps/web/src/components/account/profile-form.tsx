@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 
-import { Button, Input, Label } from '@tourism/ui';
+import { Button, Input, Label, toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { saveProfile } from '../../lib/account/actions';
@@ -27,14 +27,12 @@ export function ProfileForm({
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string>();
-  const [saved, setSaved] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pending) return;
     setPending(true);
     setError(undefined);
-    setSaved(false);
 
     const form = new FormData(event.currentTarget);
     const payload = buildUpdateProfilePayload({
@@ -56,7 +54,7 @@ export function ProfileForm({
         // Best-effort navbar sync; the API profile is already saved.
       });
 
-    setSaved(true);
+    toast.success(t.saved);
     setPending(false);
     router.refresh();
   }
@@ -82,11 +80,6 @@ export function ProfileForm({
       {error ? (
         <p className="text-destructive text-sm" role="alert">
           {error}
-        </p>
-      ) : null}
-      {saved ? (
-        <p className="text-success text-sm" role="status">
-          {t.saved}
         </p>
       ) : null}
 

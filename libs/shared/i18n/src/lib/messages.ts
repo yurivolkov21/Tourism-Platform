@@ -149,6 +149,7 @@ export const messages = {
           remove: 'Remove',
           hint: 'JPG, PNG or WebP, up to ~5 MB.',
           error: 'Couldn’t upload that image. Please try another.',
+          saved: 'Photo updated.',
         },
       },
       settings: {

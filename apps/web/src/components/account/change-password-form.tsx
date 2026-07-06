@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { CheckIcon, EyeIcon, EyeOffIcon, XIcon } from 'lucide-react';
 
-import { Button, Input, Label, cn } from '@tourism/ui';
+import { Button, Input, Label, cn, toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { authErrorMessage } from '../../lib/auth/auth-error';
@@ -14,8 +14,7 @@ import { createClient } from '../../lib/supabase/client';
 export function ChangePasswordForm() {
   const t = messages.auth.account.securityPage.password;
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string>();
-  const [done, setDone] = useState(false);
+  const [fieldError, setFieldError] = useState<string>();
   const [pw, setPw] = useState('');
   const [show, setShow] = useState(false);
   const strength = scorePassword(pw);
@@ -24,8 +23,7 @@ export function ChangePasswordForm() {
     event.preventDefault();
     if (pending) return;
     setPending(true);
-    setError(undefined);
-    setDone(false);
+    setFieldError(undefined);
 
     const form = event.currentTarget;
     const data = new FormData(form);
@@ -34,14 +32,14 @@ export function ChangePasswordForm() {
 
     const invalid = validatePasswordPair(password, confirm);
     if (invalid) {
-      setError(messages.auth.passwordErrors[invalid]);
+      setFieldError(messages.auth.passwordErrors[invalid]);
       setPending(false);
       return;
     }
 
     const { error: updateError } = await createClient().auth.updateUser({ password });
     if (updateError) {
-      setError(authErrorMessage(updateError));
+      toast.error(authErrorMessage(updateError));
       setPending(false);
       return;
     }
@@ -49,7 +47,7 @@ export function ChangePasswordForm() {
     form.reset();
     setPw('');
     setShow(false);
-    setDone(true);
+    toast.success(t.success);
     setPending(false);
   }
 
@@ -125,14 +123,9 @@ export function ChangePasswordForm() {
           required
         />
       </div>
-      {error ? (
+      {fieldError ? (
         <p className="text-destructive text-sm" role="alert">
-          {error}
-        </p>
-      ) : null}
-      {done ? (
-        <p className="text-success text-sm" role="status">
-          {t.success}
+          {fieldError}
         </p>
       ) : null}
       <Button type="submit" disabled={pending}>

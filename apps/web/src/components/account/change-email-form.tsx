@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 
-import { Button, Input, Label } from '@tourism/ui';
+import { Button, Input, Label, toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { authErrorMessage } from '../../lib/auth/auth-error';
@@ -16,14 +16,12 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
   const t = messages.auth.account.securityPage.email;
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string>();
-  const [sent, setSent] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pending) return;
     setPending(true);
     setError(undefined);
-    setSent(false);
 
     const email = String(new FormData(event.currentTarget).get('email') ?? '').trim();
     const { error: updateError } = await createClient().auth.updateUser(
@@ -36,7 +34,7 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
       return;
     }
 
-    setSent(true);
+    toast.success(`${t.sent} ${t.sentHint}`);
     setPending(false);
   }
 
@@ -54,11 +52,6 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
       {error ? (
         <p className="text-destructive text-sm" role="alert">
           {error}
-        </p>
-      ) : null}
-      {sent ? (
-        <p className="text-success text-sm" role="status">
-          {t.sent} {t.sentHint}
         </p>
       ) : null}
       <Button type="submit" disabled={pending}>
