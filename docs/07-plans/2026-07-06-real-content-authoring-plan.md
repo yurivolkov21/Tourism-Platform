@@ -10,6 +10,10 @@
 
 **Spec:** `docs/06-specs/2026-07-06-real-content-authoring-design.md` — read it first.
 
+## STATUS — COMPLETE (2026-07-06, branch `feat/real-content-authoring`)
+
+All 7 tasks done. **Part A** (T1 `region-imagery.ts` `2edd1fa` · T2 region-page wire + `gallery`-gap fix `3e4e3fb` · T3 overview wire `998f639`) — each subagent-reviewed clean; web gate green (lint + **191 tests** + build). **Part B** (T4 curate 52 images → contact sheet, user-approved overall; Củ Chi → reuse HCMC hero since no genuine Unsplash photo exists · T5 `mediaAssets.json` seed `919796d`, 83 rows = 48 dest + 23 tour + 10 post + 2 avatar kept, 51 unique Unsplash urls · T6 live `media_assets` synced via Supabase MCP under user GO — verified 48/23/10 real + 2 avatar untouched, 0 fake). Docs swept (this file · CLAUDE.md · HANDOFF.md · frontend.md · roadmap.md). Pending: user source review → rebase + `--ff-only` merge.
+
 ## Global Constraints
 
 - **`apps/web` code + `apps/api/prisma/fixtures` data only** — no schema, no backend logic, no money-path.
@@ -171,7 +175,7 @@ git commit -m "feat(web): region/overview imagery derivation from destination me
 **Files:** Modify `apps/web/src/app/destinations/[region]/page.tsx`
 
 **Interfaces:**
-- Consumes: `deriveRegionImagery` (Task 1); `fetchRegionBookables(name).destinations` are tiles with a `gallery: string[]`.
+- Consumes: `deriveRegionImagery` (Task 1); `fetchRegionBookables(name).destinations` are tiles with a `gallery: string[]`. **(Correction, discovered during execution: `selectRegionBookables` originally narrowed each tile to `{ name, slug }` and dropped `gallery`; this task was expanded to thread `gallery` through `RegionTile`/`RegionDestination` + the selector + its spec so the derivation gets real media. Landed in the same commit `3e4e3fb`.)**
 
 - [ ] **Step 1: Import + compute the derived imagery.** After `const live = await fetchRegionBookables(data.name);` (currently line 50), add:
 ```tsx

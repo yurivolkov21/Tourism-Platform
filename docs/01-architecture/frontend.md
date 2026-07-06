@@ -23,7 +23,11 @@
 
 Next.js 16 App Router (RSC). Built **layout-first** with fixtures shaped like the `@tourism/core`
 DTOs; **real data is now wired** across home/destinations/tours/blog/account via the typed client
-(ISR). Only curated editorial imagery remains static (Unsplash via `next/image` `remotePatterns`).
+(ISR). **Region-page + `/destinations` overview imagery now derives from `Destination.media[]`**
+(`lib/region-imagery.ts`, all-real-or-fixture — a region with real uploaded media renders it, else
+falls back entirely to the `lib/regions.ts` fixture). Only the **brand-chrome** imagery (home hero,
+experiences/why-choose/trust, about/FAQ/legal/CTA heroes) stays static (deferred — needs a site/page
+-media model); all image hosts go through `next/image` `remotePatterns` (`images.unsplash.com`).
 
 ### Routes
 

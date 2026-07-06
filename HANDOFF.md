@@ -31,13 +31,16 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **DEPLOYED** (`main`)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **DEPLOYED** (`main`)
 
-> **Next action:** no active feature — web feedback layer (toast/flash/AlertDialog
-> on `apps/web`) MERGED + DEPLOYED (2026-07-06). Remaining candidates, user picks:
-> **real content authoring** (real `MediaAsset` images + tour/blog content —
-> highest visible impact, unblocked) · P5 mobile (teammate's lane — do not touch
-> `origin/nghia*` branches).
+> **Next action:** no active feature — real content authoring (region/overview
+> imagery now derives from `Destination.media[]` with fixtures as fallback + 48
+> destination / 23 tour / 10 post real Unsplash images seeded and synced to the live
+> `media_assets` table) COMPLETE (2026-07-06, branch `feat/real-content-authoring`).
+> Remaining candidates, user picks: **brand-chrome imagery** (home hero /
+> experiences / about-FAQ-legal-CTA heroes — deferred; needs a "site/page media"
+> model + admin surface) · tour gallery/video + post body imagery beyond heroes ·
+> P5 mobile (teammate's lane — do not touch `origin/nghia*` branches).
 >
 > **Verification status (user, 2026-07-06, on deployed) — refund + queue fully
 > e2e-verified on BOTH gateways:** ✅ **Stripe** partial refund + deny confirmed
@@ -97,8 +100,12 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
   cancellation panel on booking detail, new `/cancellation-requests` queue page). UI polish
   deferred. 152 admin tests.
 - **Real data wired:** home · destinations overview · **region-detail** · tours listing+detail ·
-  enquiry · reviews · contact · **tour-card availability**. Only curated editorial imagery stays
-  static (real `MediaAsset` pending admin upload).
+  enquiry · reviews · contact · **tour-card availability**. **Region-page hero/gallery/signature +
+  overview editorial gallery now derive from `Destination.media[]`** (`lib/region-imagery.ts`,
+  all-real-or-fixture: a region with real uploaded media renders it, else falls back entirely to the
+  `lib/regions.ts` fixture) — real Unsplash images seeded for all 16 destinations + tour/post heroes
+  and synced live. Only the **brand-chrome** imagery (home hero, experiences/why-choose/trust, about/
+  FAQ/legal/CTA heroes) stays static (deferred — needs a site/page-media model).
 
 ### History (P0–P1.6 detail)
 
