@@ -13,7 +13,7 @@ jest.mock('../../lib/tours', () => ({
 const mockFetch = fetchFeaturedTours as jest.MockedFunction<typeof fetchFeaturedTours>;
 
 function renderHome() {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   return render(
     <SafeAreaProvider>
       <ThemeProvider>
