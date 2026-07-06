@@ -31,7 +31,7 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **DEPLOYED** (`main`)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile W1 Foundation COMPLETE + on-device verified (2026-07-06)** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
 
 > **Next action:** no active feature — real content authoring (region/overview
 > imagery now derives from `Destination.media[]` with fixtures as fallback + 48
@@ -41,10 +41,25 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 > a Gallery grid-variant bug (single tiles collapsed to 0×0) + replaced all
 > wrong-location brand-chrome images (Maldives/Korea/Thailand stock) with curated,
 > user-approved real Vietnam photos — still hardcoded in components.**
-> Remaining candidates, user picks: **admin-managed brand-chrome** (an admin surface
+> **P5 mobile W1 Foundation COMPLETE (2026-07-06, branch `feat/mobile-w1-foundation`,
+> merged ff-only):** expo-router 4-tab shell · `@tourism/tokens` RN hex theme
+> (oklch→hex at build) · `@tourism/mobile-ui` founded (ThemeProvider + 5 primitives)
+> · env-validated `@tourism/core` client + TanStack Query · Home with real featured
+> tours (all data states + pull-to-refresh) — **verified on the user's Android phone
+> via Expo Go**. Monorepo fixes en route: **react pinned 19.1.0 workspace-wide**
+> (Expo SDK 54; pnpm override — web/admin re-verified green on it) · Metro Windows
+> drive-casing · expo-router route discovery (projectRoot→app dir; specs must stay
+> OUT of `src/app`) · Metro `.js`→`.ts` source resolver. Dev loop: `pnpm exec expo
+> start` from `apps/mobile` (running via nx = non-interactive → no QR). Baselines:
+> api 338 · web 191 · admin 152 · mobile 9 · mobile-ui 19.
+> The P5 lane note ("teammate's lane / `origin/nghia*`") is obsolete — the user
+> now drives P5 in-session; `origin/nghia` still must not be deleted.
+>
+> Remaining candidates, user picks: **P5 mobile W2 (browse & detail)** —
+> tours listing (reuse `filterTours`/`searchTours`) · destinations · tour detail +
+> enquiry form · **admin-managed brand-chrome** (an admin surface
 > for the now-real home/experiences/heroes images — needs a "site/page media" model)
-> · tour gallery/video + post body imagery beyond heroes ·
-> P5 mobile (teammate's lane — do not touch `origin/nghia*` branches).
+> · tour gallery/video + post body imagery beyond heroes.
 >
 > **Verification status (user, 2026-07-06, on deployed) — refund + queue fully
 > e2e-verified on BOTH gateways:** ✅ **Stripe** partial refund + deny confirmed
