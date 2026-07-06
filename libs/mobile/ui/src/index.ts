@@ -11,3 +11,5 @@ export type { ButtonProps } from './lib/button';
 export { Card } from './lib/card';
 export { TextField } from './lib/text-field';
 export type { TextFieldProps } from './lib/text-field';
+export { Chip } from './lib/chip';
+export type { ChipProps } from './lib/chip';
