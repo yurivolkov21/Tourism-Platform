@@ -37,9 +37,13 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 > imagery now derives from `Destination.media[]` with fixtures as fallback + 48
 > destination / 23 tour / 10 post real Unsplash images seeded and synced to the live
 > `media_assets` table) COMPLETE (2026-07-06, branch `feat/real-content-authoring`).
-> Remaining candidates, user picks: **brand-chrome imagery** (home hero /
-> experiences / about-FAQ-legal-CTA heroes — deferred; needs a "site/page media"
-> model + admin surface) · tour gallery/video + post body imagery beyond heroes ·
+> **Follow-up polish (2026-07-06, branch `fix/home-imagery-and-gallery-gap`): fixed
+> a Gallery grid-variant bug (single tiles collapsed to 0×0) + replaced all
+> wrong-location brand-chrome images (Maldives/Korea/Thailand stock) with curated,
+> user-approved real Vietnam photos — still hardcoded in components.**
+> Remaining candidates, user picks: **admin-managed brand-chrome** (an admin surface
+> for the now-real home/experiences/heroes images — needs a "site/page media" model)
+> · tour gallery/video + post body imagery beyond heroes ·
 > P5 mobile (teammate's lane — do not touch `origin/nghia*` branches).
 >
 > **Verification status (user, 2026-07-06, on deployed) — refund + queue fully
@@ -104,8 +108,9 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
   overview editorial gallery now derive from `Destination.media[]`** (`lib/region-imagery.ts`,
   all-real-or-fixture: a region with real uploaded media renders it, else falls back entirely to the
   `lib/regions.ts` fixture) — real Unsplash images seeded for all 16 destinations + tour/post heroes
-  and synced live. Only the **brand-chrome** imagery (home hero, experiences/why-choose/trust, about/
-  FAQ/legal/CTA heroes) stays static (deferred — needs a site/page-media model).
+  and synced live. The **brand-chrome** imagery (home hero, experiences/why-choose/trust, about/
+  FAQ/legal/CTA heroes) is now curated **real Vietnam** photos too, but stays **hardcoded** in the
+  components — an admin-managed site/page-media model is still deferred.
 
 ### History (P0–P1.6 detail)
 
