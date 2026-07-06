@@ -12,7 +12,7 @@
 
 ## STATUS — COMPLETE (2026-07-06, branch `feat/real-content-authoring`)
 
-All 7 tasks done. **Part A** (T1 `region-imagery.ts` `2edd1fa` · T2 region-page wire + `gallery`-gap fix `3e4e3fb` · T3 overview wire `998f639`) — each subagent-reviewed clean; web gate green (lint + **191 tests** + build). **Part B** (T4 curate 52 images → contact sheet, user-approved overall; Củ Chi → reuse HCMC hero since no genuine Unsplash photo exists · T5 `mediaAssets.json` seed `919796d`, 83 rows = 48 dest + 23 tour + 10 post + 2 avatar kept, 51 unique Unsplash urls · T6 live `media_assets` synced via Supabase MCP under user GO — verified 48/23/10 real + 2 avatar untouched, 0 fake). Docs swept (this file · CLAUDE.md · HANDOFF.md · frontend.md · roadmap.md). Pending: user source review → rebase + `--ff-only` merge.
+All 7 tasks done. **Part A** (T1 `region-imagery.ts` `2edd1fa` · T2 region-page wire + `gallery`-gap fix `3e4e3fb` · T3 overview wire `998f639`) — each subagent-reviewed clean; web gate green (lint + **191 tests** + build). **Part B** (T4 curate 52 images → contact sheet, user-approved overall; Củ Chi → reuse HCMC hero since no genuine Unsplash photo exists · T5 seed `919796d` (83 rows = 48 dest + 23 tour + 10 post + 2 avatar kept, 51 unique Unsplash urls) · T6 live `media_assets` synced via Supabase MCP under user GO — verified 48/23/10 real + 2 avatar untouched, 0 fake). **Final whole-branch review caught a Critical: T5 hand-edited only `json/mediaAssets.json`, but the seed loader reads `sample-data.ts` (via `insert.ts`) and both are `gen.cjs` outputs — so a fresh reseed / `node gen.cjs` would revert to fake. FIX `0d96e1f`: authored the real URLs in `gen.cjs` (single source) + regenerated `sample-data.ts` + `json/mediaAssets.json`; dropped the fake promo VIDEO + fake tour-gallery rows; `@tourism/api` typecheck + test green.** Docs swept (this file · CLAUDE.md · HANDOFF.md · frontend.md · roadmap.md). Pending: user source review → rebase + `--ff-only` merge.
 
 ## Global Constraints
 
@@ -32,7 +32,7 @@ All 7 tasks done. **Part A** (T1 `region-imagery.ts` `2edd1fa` · T2 region-page
 - Create: `apps/web/src/lib/region-imagery.spec.ts` — unit tests.
 - Modify: `apps/web/src/app/destinations/[region]/page.tsx` — consume `deriveRegionImagery`.
 - Modify: `apps/web/src/app/destinations/page.tsx` — consume `deriveOverviewGallery`.
-- Modify: `apps/api/prisma/fixtures/json/mediaAssets.json` — real image rows (Part B).
+- Modify: `apps/api/prisma/fixtures/gen.cjs` — real image rows (Part B). **NB (execution correction): the seed loader reads `sample-data.ts` (via `insert.ts`), and both `sample-data.ts` and `json/mediaAssets.json` are GENERATED outputs of `gen.cjs` (`fixtures/README.md`: edit the generator, not the outputs). Author the URLs in `gen.cjs` and re-run `node gen.cjs`; do not hand-edit the JSON.**
 - Modify (only if Pexels used): `apps/web/next.config.js` — add `images.pexels.com`.
 - Scratch (not committed): a contact-sheet artifact for user review.
 - Docs (after merge): `CLAUDE.md` · `HANDOFF.md` · `docs/01-architecture/frontend.md`.
@@ -42,10 +42,12 @@ All 7 tasks done. **Part A** (T1 `region-imagery.ts` `2edd1fa` · T2 region-page
 ## Task 1: `region-imagery.ts` derivation helpers (TDD)
 
 **Files:**
+
 - Create: `apps/web/src/lib/region-imagery.ts`
 - Test: `apps/web/src/lib/region-imagery.spec.ts`
 
 **Interfaces:**
+
 - Produces: `fillTo(urls: string[], n: number): string[]`;
   `deriveRegionImagery(tiles: { gallery: string[] }[], fixture: RegionImagery): RegionImagery`
   where `RegionImagery = { image: string; images: string[]; gallery: string[] }`;
@@ -53,6 +55,7 @@ All 7 tasks done. **Part A** (T1 `region-imagery.ts` `2edd1fa` · T2 region-page
   (`GallerySection` imported from `../components/marketing/gallery`).
 
 - [ ] **Step 1: Write the failing test** `apps/web/src/lib/region-imagery.spec.ts`:
+
 ```ts
 import { deriveRegionImagery, deriveOverviewGallery, fillTo } from './region-imagery';
 
@@ -100,6 +103,7 @@ Run: `pnpm nx test @tourism/web --skip-nx-cache -- region-imagery`
 Expected: FAIL.
 
 - [ ] **Step 3: Implement `apps/web/src/lib/region-imagery.ts`.**
+
 ```ts
 import type { GallerySection } from '../components/marketing/gallery';
 
@@ -163,6 +167,7 @@ Run: `pnpm nx test @tourism/web --skip-nx-cache -- region-imagery`
 Expected: PASS.
 
 - [ ] **Step 5: Commit.**
+
 ```bash
 git add apps/web/src/lib/region-imagery.ts apps/web/src/lib/region-imagery.spec.ts
 git commit -m "feat(web): region/overview imagery derivation from destination media"
@@ -175,9 +180,11 @@ git commit -m "feat(web): region/overview imagery derivation from destination me
 **Files:** Modify `apps/web/src/app/destinations/[region]/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `deriveRegionImagery` (Task 1); `fetchRegionBookables(name).destinations` are tiles with a `gallery: string[]`. **(Correction, discovered during execution: `selectRegionBookables` originally narrowed each tile to `{ name, slug }` and dropped `gallery`; this task was expanded to thread `gallery` through `RegionTile`/`RegionDestination` + the selector + its spec so the derivation gets real media. Landed in the same commit `3e4e3fb`.)**
 
 - [ ] **Step 1: Import + compute the derived imagery.** After `const live = await fetchRegionBookables(data.name);` (currently line 50), add:
+
 ```tsx
   const imagery = deriveRegionImagery(live.destinations, {
     image: data.image,
@@ -185,7 +192,9 @@ git commit -m "feat(web): region/overview imagery derivation from destination me
     gallery: data.gallery,
   });
 ```
+
   Add the import near the other `lib` imports:
+
 ```tsx
 import { deriveRegionImagery } from '../../../lib/region-imagery';
 ```
@@ -205,6 +214,7 @@ Run: `pnpm nx lint @tourism/web --skip-nx-cache && pnpm nx build @tourism/web --
 Expected: PASS (a region with no real media still renders via fixtures — no behavior change until media is seeded).
 
 - [ ] **Step 4: Commit.**
+
 ```bash
 git add "apps/web/src/app/destinations/[region]/page.tsx"
 git commit -m "feat(web): region page imagery from destination media (fixture fallback)"
@@ -217,14 +227,18 @@ git commit -m "feat(web): region page imagery from destination media (fixture fa
 **Files:** Modify `apps/web/src/app/destinations/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `deriveOverviewGallery` (Task 1); `fetchDestinationTiles()` returns tiles with `gallery: string[]`.
 
 - [ ] **Step 1: Derive the gallery sections.** In `apps/web/src/app/destinations/page.tsx`,
   import the helper (near the other `lib` imports):
+
 ```tsx
 import { deriveOverviewGallery } from '../../lib/region-imagery';
 ```
+
   Then, after the `Promise.all` that produces `tiles` (line 41-45), compute:
+
 ```tsx
   const editorialSections = deriveOverviewGallery(tiles, galleryFrames);
 ```
@@ -238,6 +252,7 @@ Run: `pnpm nx lint @tourism/web --skip-nx-cache && pnpm nx build @tourism/web --
 Expected: PASS (empty media → placeholder frames unchanged).
 
 - [ ] **Step 4: Commit.**
+
 ```bash
 git add apps/web/src/app/destinations/page.tsx
 git commit -m "feat(web): overview editorial gallery from destination media"
@@ -259,7 +274,7 @@ approved image list, not code.
 Northern (Hà Nội, Hạ Long Bay, Ninh Bình, Sa Pa, Hà Giang, Cát Bà), Central (Đà
 Nẵng, Hội An, Huế, Phong Nha, Đà Lạt), Southern (Hồ Chí Minh City, Mekong Delta,
 Phú Quốc, Mũi Né, Côn Đảo); 23 tour heroes; 10 post heroes. (Destination ids/slugs
-+ tour/post slugs are in `apps/api/prisma/fixtures/json/{destinations,tours,posts}.json`.)
+- tour/post slugs are in `apps/api/prisma/fixtures/json/{destinations,tours,posts}.json`.)
 
 - [ ] **Step 1: Source candidates.** For each subject, find a real, correctly-located
   **Unsplash** image (prefer iconic, visually-verifiable landmarks). Use WebSearch to
@@ -284,10 +299,12 @@ Phú Quốc, Mũi Né, Côn Đảo); 23 tour heroes; 10 post heroes. (Destinatio
 ## Task 5: Seed approved images into `mediaAssets.json`
 
 **Files:**
+
 - Modify: `apps/api/prisma/fixtures/json/mediaAssets.json`
 - Modify (only if any Pexels url was approved): `apps/web/next.config.js`
 
 **Interfaces:**
+
 - Consumes: the approved image list from Task 4.
 
 - [ ] **Step 1: Rewrite the media rows.** For each approved image, write a
@@ -308,6 +325,7 @@ Run: `node -e "JSON.parse(require('fs').readFileSync('apps/api/prisma/fixtures/j
 Then: `pnpm nx build @tourism/web --skip-nx-cache` (next/image host validation passes).
 Expected: valid JSON + build PASS.
 - [ ] **Step 4: Commit.**
+
 ```bash
 git add apps/api/prisma/fixtures/json/mediaAssets.json apps/web/next.config.js
 git commit -m "feat(content): seed real destination/tour/post imagery (user-approved)"
