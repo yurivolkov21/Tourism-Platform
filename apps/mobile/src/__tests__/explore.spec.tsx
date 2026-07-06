@@ -11,5 +11,5 @@ test('explore placeholder renders its copy', () => {
       </ThemeProvider>
     </SafeAreaProvider>,
   );
-  expect(screen.getByText(/coming in the next update/i)).toBeOnTheScreen();
+  expect(screen.getByText(/explore tours/i)).toBeOnTheScreen();
 });

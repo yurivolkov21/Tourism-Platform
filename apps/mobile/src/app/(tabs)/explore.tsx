@@ -11,7 +11,7 @@ export default function ExploreScreen() {
       >
         <AppText variant="title">{messages.mobile.tabs.explore}</AppText>
         <AppText variant="body" muted style={{ textAlign: 'center' }}>
-          {messages.mobile.placeholders.explore}
+          {messages.mobile.explore.title}
         </AppText>
       </View>
     </Screen>

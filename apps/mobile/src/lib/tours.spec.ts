@@ -5,7 +5,11 @@ const dto = {
   title: 'Ha Long Bay Cruise',
   durationDays: 3,
   basePrice: '450',
+  compareAtPrice: '520',
   currency: 'USD',
+  averageRating: 4.8,
+  reviewsCount: 12,
+  category: { slug: 'cruise', name: 'Cruises' },
   destinations: [
     { isPrimary: false, destination: { name: 'Hanoi' } },
     { isPrimary: true, destination: { name: 'Ha Long' } },
@@ -17,15 +21,20 @@ const dto = {
 } as unknown as TourSummaryDto;
 
 describe('toTourCardVm', () => {
-  it('picks the primary destination and hero image', () => {
+  it('picks the primary destination and hero image, mapping the filterable fields', () => {
     const vm = toTourCardVm(dto);
     expect(vm).toEqual({
       slug: 'ha-long-cruise',
       title: 'Ha Long Bay Cruise',
       destination: 'Ha Long',
       durationDays: 3,
-      price: 450,
+      basePrice: 450,
+      compareAtPrice: 520,
       currency: 'USD',
+      rating: 4.8,
+      reviewCount: 12,
+      category: 'cruise',
+      categoryName: 'Cruises',
       image: 'https://img.test/h.jpg',
     });
   });
@@ -39,5 +48,17 @@ describe('toTourCardVm', () => {
     const vm = toTourCardVm(bare);
     expect(vm.destination).toBe('Hanoi');
     expect(vm.image).toBe('https://img.test/g.jpg');
+  });
+
+  it('maps null compareAtPrice and missing category to undefined', () => {
+    const bare = {
+      ...dto,
+      compareAtPrice: null,
+      category: null,
+    } as unknown as TourSummaryDto;
+    const vm = toTourCardVm(bare);
+    expect(vm.compareAtPrice).toBeUndefined();
+    expect(vm.category).toBeUndefined();
+    expect(vm.categoryName).toBeUndefined();
   });
 });

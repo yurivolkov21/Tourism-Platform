@@ -5,6 +5,10 @@ import { ThemeProvider } from '@tourism/mobile-ui';
 import HomeScreen from '../app/(tabs)/index';
 import { fetchFeaturedTours } from '../lib/tours';
 
+jest.mock('expo-router', () => ({
+  router: { push: jest.fn(), back: jest.fn() },
+}));
+
 jest.mock('../lib/tours', () => ({
   ...jest.requireActual('../lib/tours'),
   fetchFeaturedTours: jest.fn(),
@@ -30,8 +34,10 @@ const vm = {
   title: 'Ha Long Bay Cruise',
   destination: 'Ha Long',
   durationDays: 3,
-  price: 450,
+  basePrice: 450,
   currency: 'USD',
+  rating: 4.8,
+  reviewCount: 12,
   image: 'https://img.test/h.jpg',
 };
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FlatList, RefreshControl, View } from 'react-native';
+import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import { AppText, Button, Card, Screen, Spinner, useTheme } from '@tourism/mobile-ui';
@@ -91,7 +92,9 @@ export default function HomeScreen() {
           horizontal
           data={data}
           keyExtractor={(item) => item.slug}
-          renderItem={({ item }) => <TourCard tour={item} />}
+          renderItem={({ item }) => (
+            <TourCard tour={item} onPress={() => router.push(`/tours/${item.slug}`)} />
+          )}
           ItemSeparatorComponent={() => <View style={{ width: theme.spacing(3) }} />}
           showsHorizontalScrollIndicator={false}
         />

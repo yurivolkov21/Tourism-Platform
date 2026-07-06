@@ -3,13 +3,19 @@ import { getApiClient } from './api';
 
 export type TourSummaryDto = components['schemas']['TourSummaryDto'];
 
+/** Structurally satisfies `@tourism/core`'s `FilterableTour` + `SearchableTour`. */
 export interface TourCardVm {
   slug: string;
   title: string;
   destination: string;
   durationDays: number;
-  price: number;
+  basePrice: number;
+  compareAtPrice?: number;
   currency: string;
+  rating: number;
+  reviewCount: number;
+  category?: string;
+  categoryName?: string;
   image?: string;
 }
 
@@ -21,8 +27,13 @@ export function toTourCardVm(dto: TourSummaryDto): TourCardVm {
     title: dto.title,
     destination: primary?.destination.name ?? '',
     durationDays: dto.durationDays,
-    price: Number(dto.basePrice),
+    basePrice: Number(dto.basePrice),
+    compareAtPrice: dto.compareAtPrice ? Number(dto.compareAtPrice) : undefined,
     currency: dto.currency,
+    rating: dto.averageRating,
+    reviewCount: dto.reviewsCount,
+    category: dto.category?.slug,
+    categoryName: dto.category?.name,
     image: hero?.url,
   };
 }
@@ -32,6 +43,16 @@ export async function fetchFeaturedTours(): Promise<TourCardVm[]> {
   const api = getApiClient();
   const { data } = await api.GET('/api/v1/tours', {
     params: { query: { featured: true, pageSize: 8 } },
+  });
+  const list = (data as unknown as { data: TourSummaryDto[] }).data ?? [];
+  return list.map(toTourCardVm);
+}
+
+/** Every published tour, one page (client-side filtering strategy — W2 spec decision #2). */
+export async function fetchAllTours(): Promise<TourCardVm[]> {
+  const api = getApiClient();
+  const { data } = await api.GET('/api/v1/tours', {
+    params: { query: { pageSize: 100 } },
   });
   const list = (data as unknown as { data: TourSummaryDto[] }).data ?? [];
   return list.map(toTourCardVm);
