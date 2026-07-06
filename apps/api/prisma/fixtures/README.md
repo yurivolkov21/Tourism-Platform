@@ -16,7 +16,7 @@ cd apps/api/prisma/fixtures && node gen.cjs   # regenerates + self-validates
 > unit/e2e fixtures, mocks, and manual DB loads. The records are shaped for
 > Prisma `createMany` (FKs by explicit UUID; insert parents before children).
 
-## What's inside (369 records across 18 models)
+## What's inside (429 records across 18 models)
 
 | Model | Rows | Model | Rows |
 | --- | --- | --- | --- |
