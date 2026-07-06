@@ -31,23 +31,27 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE, deploy pending merge (2026-07-06)** · **DEPLOYED** (`main`)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **DEPLOYED** (`main`)
 
-> **Next action:** web feedback layer (toast + flash infra + AlertDialog
-> standardization on `apps/web`) is done on `feat/web-feedback-layer` and awaiting
-> merge → deploy. Remaining candidates, user picks: real content authoring ·
-> P5 mobile (teammate's lane — do not touch `origin/nghia*` branches).
+> **Next action:** no active feature — web feedback layer (toast/flash/AlertDialog
+> on `apps/web`) MERGED + DEPLOYED (2026-07-06). Remaining candidates, user picks:
+> **real content authoring** (real `MediaAsset` images + tour/blog content —
+> highest visible impact, unblocked) · P5 mobile (teammate's lane — do not touch
+> `origin/nghia*` branches).
 >
-> **Verification status (user, 2026-07-05, on deployed):** ✅ **Stripe** partial
-> refund + deny confirmed working end-to-end (real test-mode booking → partial
-> refund → `PARTIALLY_REFUNDED`, seats kept; deny on seed booking OK since deny is
-> DB-only). ⚠️ **PayPal refund e2e NOT verified — account-gated** (user's PayPal
-> sandbox is suspended pending verification). The PayPal refund path is implemented
-> (partial amount + `paypalRequestId` idempotency) + unit-tested + opus-reviewed,
-> but never run against a real sandbox capture. **Next session: verify PayPal
-> refund e2e once the sandbox account is active** (book → pay via PayPal → refund).
-> Note: seed `BK-SEEDPAID` cannot be refunded (fake `pi_seed_paid_1`, no real
-> gateway payment — refund correctly returns `REFUND_FAILED` and keeps it PAID).
+> **Verification status (user, 2026-07-06, on deployed) — refund + queue fully
+> e2e-verified on BOTH gateways:** ✅ **Stripe** partial refund + deny confirmed
+> e2e (real test-mode booking → partial refund → `PARTIALLY_REFUNDED`, seats kept;
+> deny OK — deny is DB-only). ✅ **PayPal refund verified e2e (2026-07-06):** real
+> sandbox booking `BK-X4H36W2S` ($175, capture `4VE90804CM551970N`) → full refund
+> → `REFUNDED`, and its open cancellation request auto-resolved to `REFUNDED`.
+> Confirmed in Supabase: `refunded_amount=175.00`; `payment_events` has **0 rows
+> for that booking** — PayPal confirms PAID via **capture-on-return** (synchronous),
+> not webhook, and admin refund reads the stored capture id directly (independent
+> of webhooks), so an empty `payment_events` panel is expected, not a bug (8 PayPal
+> webhook events exist system-wide, so webhooks aren't broken). Note: seed
+> `BK-SEEDPAID` cannot be refunded (fake `pi_seed_paid_1`, no real gateway payment
+> — refund correctly returns `REFUND_FAILED` and keeps it PAID).
 
 ```text
 apps/   api (NestJS 11) · web + admin (Next 16) · mobile (Expo SDK 54)
