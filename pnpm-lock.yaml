@@ -577,6 +577,9 @@ importers:
 
   libs/mobile/ui:
     dependencies:
+      '@tourism/tokens':
+        specifier: workspace:*
+        version: link:../../shared/tokens
       react:
         specifier: ^19.1.0
         version: 19.2.7
