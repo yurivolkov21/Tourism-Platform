@@ -1,8 +1,9 @@
 import './global.css';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { Geist, Fraunces } from 'next/font/google';
 
-import { ThemeProvider, cn } from '@tourism/ui';
+import { ThemeProvider, Toaster, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { AuthProvider } from '../components/auth/auth-provider';
@@ -11,6 +12,7 @@ import { SiteHeader } from '../components/layout/site-header';
 import { SiteFooter } from '../components/layout/site-footer';
 import { FloatingContact } from '../components/layout/floating-contact';
 import { OrganizationJsonLd } from '../components/seo/json-ld';
+import { FlashToaster } from '../components/feedback/flash-toaster';
 import { SITE_URL } from '../lib/site';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
@@ -67,6 +69,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {children}
             </AppShell>
           </AuthProvider>
+          <Toaster position="bottom-right" richColors />
+          <Suspense fallback={null}>
+            <FlashToaster />
+          </Suspense>
         </ThemeProvider>
       </body>
     </html>
