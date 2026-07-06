@@ -5,20 +5,24 @@ import { useRouter } from 'next/navigation';
 import { Trash2Icon } from 'lucide-react';
 
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Button,
   Card,
   CardContent,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  toast,
 } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { deleteAccount } from '../../lib/account/actions';
+import { flashPath } from '../../lib/flash';
 import { createClient } from '../../lib/supabase/client';
 
 /** Delete-account control: a confirm dialog → `deleteAccount` action → sign out + leave. */
@@ -27,16 +31,14 @@ export function DangerZone() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string>();
 
   async function confirmDelete() {
     if (pending) return;
     setPending(true);
-    setError(undefined);
     const result = await deleteAccount();
     if (result.error) {
-      setError(result.error);
       setPending(false);
+      toast.error(result.error);
       return;
     }
     await createClient()
@@ -44,7 +46,7 @@ export function DangerZone() {
       .catch(() => {
         // The account is gone; leaving is what matters.
       });
-    router.push('/');
+    router.push(flashPath('/', 'account-deleted'));
     router.refresh();
   }
 
@@ -55,8 +57,8 @@ export function DangerZone() {
           <h3 className="text-sm font-medium">{t.deleteTitle}</h3>
           <p className="text-muted-foreground text-sm text-pretty">{t.deleteDesc}</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger
+        <AlertDialog open={open} onOpenChange={setOpen}>
+          <AlertDialogTrigger
             render={
               <Button
                 variant="outline"
@@ -66,27 +68,24 @@ export function DangerZone() {
           >
             <Trash2Icon className="size-4" />
             {t.deleteCta}
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>{t.confirmTitle}</DialogTitle>
-              <DialogDescription>{t.confirmBody}</DialogDescription>
-            </DialogHeader>
-            {error ? (
-              <p className="text-destructive text-sm" role="alert">
-                {error}
-              </p>
-            ) : null}
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setOpen(false)} disabled={pending}>
-                {t.cancel}
-              </Button>
-              <Button variant="destructive" onClick={() => void confirmDelete()} disabled={pending}>
+          </AlertDialogTrigger>
+          <AlertDialogContent className="sm:max-w-md">
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t.confirmTitle}</AlertDialogTitle>
+              <AlertDialogDescription>{t.confirmBody}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={pending}>{t.cancel}</AlertDialogCancel>
+              <AlertDialogAction
+                variant="destructive"
+                onClick={() => void confirmDelete()}
+                disabled={pending}
+              >
                 {pending ? t.deleting : t.confirmCta}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );
