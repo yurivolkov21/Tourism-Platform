@@ -7,7 +7,7 @@ import { Reveal } from './reveal';
 
 // Vietnam scenery behind the end-of-page CTA (Hạ Long Bay). Neutral Unsplash placeholder.
 const DEFAULT_IMAGE =
-  'https://images.unsplash.com/photo-1528127269322-539801943592?w=1600&q=72&auto=format&fit=crop';
+  'https://images.unsplash.com/photo-1668000018482-a02acf02b22a?w=1920&q=70&auto=format&fit=crop';
 
 // Reusable end-of-page CTA — a full-bleed background photo with a brand-tinted gradient
 // scrim, copy left + action right. Prop-driven so each page supplies its own copy

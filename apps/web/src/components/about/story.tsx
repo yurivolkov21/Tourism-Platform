@@ -5,14 +5,14 @@ import { messages } from '@tourism/i18n';
 
 import { StorySpine } from './story-spine';
 
-// Temp Unsplash imagery (review only) — one per milestone, aligned by index. Swap for real assets later.
+// Curated real Vietnam imagery (Unsplash) — one per milestone, aligned by index.
 const u = (id: string) => `https://images.unsplash.com/${id}?w=900&q=70&auto=format&fit=crop`;
 const milestoneImages = [
-  u('photo-1528127269322-539801943592'),
-  u('photo-1583417319070-4a69db38a482'),
-  u('photo-1559592413-7cec4d0cae2b'),
-  u('photo-1535139262971-c51845709a48'),
-  u('photo-1528181304800-259b08848526'),
+  u('photo-1583417319070-4a69db38a482'), // Hồ Chí Minh City
+  u('photo-1694391744914-8d82068cb46f'), // Hội An
+  u('photo-1716817623452-9ce58a3acac5'), // Huế
+  u('photo-1529271230144-e8c648ef570d'), // Mekong Delta
+  u('photo-1585750902093-98e021b3ace2'), // Hà Giang
 ];
 
 // About-page "Our story" — an alternating left/right milestone timeline with imagery, anchored to a

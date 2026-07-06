@@ -12,9 +12,9 @@ import { messages } from '@tourism/i18n';
 
 import { Reveal } from './reveal';
 
-// Temporary Unsplash image (review only) — a real team/office photo goes here later.
+// Curated real Vietnam imagery (Unsplash).
 const WHY_IMAGE =
-  'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=900&q=70&auto=format&fit=crop';
+  'https://images.unsplash.com/photo-1639458110591-17c4cede0c4b?w=1920&q=70&auto=format&fit=crop';
 
 // Four strongest pillars drawn from messages.features.items (icon paired per item).
 const pillars: { index: number; icon: LucideIcon }[] = [

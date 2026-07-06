@@ -9,7 +9,7 @@ import { messages } from '@tourism/i18n';
 // A real destination from the catalog (same Hạ Long shot the site uses elsewhere) — the auth screen
 // opens on the product's own world, not a stock login illustration.
 const PANEL_IMAGE =
-  'https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&q=75&auto=format&fit=crop';
+  'https://images.unsplash.com/photo-1462688681110-15bc88b1497c?w=1920&q=70&auto=format&fit=crop';
 
 /**
  * Split auth layout shared by login / register / forgot / reset. Left: a full-bleed Hạ Long Bay panel

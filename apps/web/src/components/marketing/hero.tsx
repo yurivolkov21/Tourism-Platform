@@ -4,9 +4,9 @@ import { MapPinIcon, SearchIcon } from 'lucide-react';
 import { Badge, Button, Input } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-// Temporary Unsplash hero image (review only) — swap for a real asset later.
+// Curated real Vietnam hero image (Unsplash).
 const HERO_IMAGE =
-  'https://images.unsplash.com/photo-1540202404-a2f29016b523?w=1920&q=70&auto=format&fit=crop';
+  'https://images.unsplash.com/photo-1634951412593-b2cdca1ae519?w=1920&q=70&auto=format&fit=crop';
 
 export function Hero() {
   const t = messages.hero;

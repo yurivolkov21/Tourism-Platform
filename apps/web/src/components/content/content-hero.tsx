@@ -4,9 +4,9 @@ import { ChevronRightIcon } from 'lucide-react';
 
 import { messages } from '@tourism/i18n';
 
-// Temporary Unsplash backdrop for content-page headers (review only) — swap for a real asset later.
+// Curated real Vietnam imagery (Unsplash) for content-page / Journal headers.
 const DEFAULT_IMAGE =
-  'https://images.unsplash.com/photo-1573790387438-4da905039392?w=1920&q=70&auto=format&fit=crop';
+  'https://images.unsplash.com/photo-1753003491860-89b500bc62f3?w=1920&q=70&auto=format&fit=crop';
 
 /** Shared header for content pages (FAQ, legal): full-bleed image + scrim + breadcrumb + title. */
 export function ContentHero({

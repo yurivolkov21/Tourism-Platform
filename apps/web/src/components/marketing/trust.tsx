@@ -4,9 +4,9 @@ import { messages } from '@tourism/i18n';
 
 import { MetricValue } from './metric-value';
 
-// Temporary Unsplash image (review only) — swap for a real asset later.
+// Curated real Vietnam image (Unsplash).
 const TRUST_IMAGE =
-  'https://images.unsplash.com/photo-1528181304800-259b08848526?w=1920&q=70&auto=format&fit=crop';
+  'https://images.unsplash.com/photo-1767768996421-9784fde0f946?w=1920&q=70&auto=format&fit=crop';
 
 // Full-bleed photo trust banner (Lily-style) with headline + our real stats overlaid.
 export function Trust() {

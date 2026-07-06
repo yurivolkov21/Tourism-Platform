@@ -23,9 +23,9 @@ const icons: LucideIcon[] = [
   WavesIcon,
 ];
 
-// Temporary Unsplash backdrop (review only) — swap for a real asset later.
+// Curated real Vietnam backdrop (Unsplash).
 const BG_IMAGE =
-  'https://images.unsplash.com/photo-1573790387438-4da905039392?w=1920&q=70&auto=format&fit=crop';
+  'https://images.unsplash.com/photo-1549797058-00bbab4f7e82?w=1920&q=70&auto=format&fit=crop';
 
 // Theme-led discovery backed by TourCategory — each card links to the filtered tours listing.
 export function Experiences() {

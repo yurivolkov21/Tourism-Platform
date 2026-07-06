@@ -2,9 +2,9 @@ import Image from 'next/image';
 
 import { messages } from '@tourism/i18n';
 
-// Temporary Unsplash hero image (review only) — swap for a real asset later.
+// Curated real Vietnam hero image (Unsplash).
 const HERO_IMAGE =
-  'https://images.unsplash.com/photo-1528127269322-539801943592?w=1920&q=70&auto=format&fit=crop';
+  'https://images.unsplash.com/photo-1462688681110-15bc88b1497c?w=1920&q=70&auto=format&fit=crop';
 
 /** Overview hero: full-bleed image + centred title/subtitle (inspiration tier). */
 export function DestinationsHero() {
