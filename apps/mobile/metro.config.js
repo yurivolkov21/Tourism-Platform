@@ -23,7 +23,7 @@ const customConfig = {
   },
 };
 
-module.exports = withNxMetro(mergeConfig(defaultConfig, customConfig), {
+const nxConfig = withNxMetro(mergeConfig(defaultConfig, customConfig), {
   // Change this to true to see debugging info.
   // Useful if you have issues resolving modules
   debug: false,
@@ -31,4 +31,18 @@ module.exports = withNxMetro(mergeConfig(defaultConfig, customConfig), {
   extensions: [],
   // Specify folders to watch, in addition to Nx defaults (workspace libraries and node_modules)
   watchFolders: [],
+});
+
+// Windows: Nx emits the workspace root with a lowercase drive ("c:\…") while Expo's
+// defaultConfig uses the real casing ("C:\…"). Metro then mixes projectRoot (lowercase)
+// with serverRoot (uppercase) and bundling dies on paths like "c:\C:\…" ("Failed to get
+// the SHA-1" / ENOENT for @expo/cli's metro-require runtime). Normalize the drive letter
+// on every root withNxMetro produced.
+const fixDriveCase = (p) =>
+  typeof p === 'string' ? p.replace(/^[a-z]:/, (d) => d.toUpperCase()) : p;
+
+module.exports = Promise.resolve(nxConfig).then((config) => {
+  config.projectRoot = fixDriveCase(config.projectRoot);
+  config.watchFolders = (config.watchFolders ?? []).map(fixDriveCase);
+  return config;
 });
