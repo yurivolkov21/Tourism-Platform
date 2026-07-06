@@ -38,6 +38,17 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 > Remaining candidates, user picks: web feedback layer (toast/AlertDialog on web) ·
 > real content authoring · P5 mobile (teammate's lane — do not touch `origin/nghia*`
 > branches).
+>
+> **Verification status (user, 2026-07-05, on deployed):** ✅ **Stripe** partial
+> refund + deny confirmed working end-to-end (real test-mode booking → partial
+> refund → `PARTIALLY_REFUNDED`, seats kept; deny on seed booking OK since deny is
+> DB-only). ⚠️ **PayPal refund e2e NOT verified — account-gated** (user's PayPal
+> sandbox is suspended pending verification). The PayPal refund path is implemented
+> (partial amount + `paypalRequestId` idempotency) + unit-tested + opus-reviewed,
+> but never run against a real sandbox capture. **Next session: verify PayPal
+> refund e2e once the sandbox account is active** (book → pay via PayPal → refund).
+> Note: seed `BK-SEEDPAID` cannot be refunded (fake `pi_seed_paid_1`, no real
+> gateway payment — refund correctly returns `REFUND_FAILED` and keeps it PAID).
 
 ```text
 apps/   api (NestJS 11) · web + admin (Next 16) · mobile (Expo SDK 54)
