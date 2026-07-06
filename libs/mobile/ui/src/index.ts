@@ -13,3 +13,5 @@ export { TextField } from './lib/text-field';
 export type { TextFieldProps } from './lib/text-field';
 export { Chip } from './lib/chip';
 export type { ChipProps } from './lib/chip';
+export { Accordion } from './lib/accordion';
+export type { AccordionProps } from './lib/accordion';
