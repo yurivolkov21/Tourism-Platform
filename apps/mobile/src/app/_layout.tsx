@@ -15,6 +15,8 @@ export default function RootLayout() {
         <StatusBar style="auto" />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="tours/[slug]/index" />
+          <Stack.Screen name="tours/[slug]/enquiry" options={{ presentation: 'modal' }} />
         </Stack>
       </QueryClientProvider>
     </ThemeProvider>
