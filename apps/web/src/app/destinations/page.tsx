@@ -15,6 +15,7 @@ import { fetchDestinationTiles } from '../../lib/api/destinations';
 import { fetchTourCards } from '../../lib/api/tours';
 import { fetchFeaturedReviews } from '../../lib/api/reviews';
 import { pickFeaturedDestinations } from '../../lib/featured-destinations';
+import { deriveOverviewGallery } from '../../lib/region-imagery';
 
 // Placeholder frames for the editorial gallery (data-ready; maps to MediaAsset later).
 const galleryFrames: GallerySection[] = [
@@ -44,6 +45,7 @@ export default async function DestinationsPage() {
     fetchFeaturedReviews(),
   ]);
   const groups = groupByRegion(tiles);
+  const editorialSections = deriveOverviewGallery(tiles, galleryFrames);
   // Map featured reviews → testimonial items; the component falls back to the i18n fixture when empty.
   const testimonials = featured.map((r) => ({
     name: r.authorName,
@@ -65,7 +67,7 @@ export default async function DestinationsPage() {
       <BestTime />
       {/* Curated teaser — cap the featured shelf at 8; the full set lives on /tours. */}
       <PopularTours tours={popular.slice(0, 8)} />
-      <Gallery variant="editorial" sections={galleryFrames} />
+      <Gallery variant="editorial" sections={editorialSections} />
       <Testimonials items={testimonials} />
       <TravelTips />
       <EnquiryCta heading={messages.enquiryCta.headings.destinations} />
