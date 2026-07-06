@@ -41,6 +41,9 @@
       "path": "../../libs/shared/tokens/tsconfig.lib.json"
     },
     {
+      "path": "../../libs/mobile/ui/tsconfig.lib.json"
+    },
+    {
       "path": "../../libs/shared/i18n/tsconfig.lib.json"
     },
     {

@@ -447,6 +447,9 @@ importers:
       '@tourism/i18n':
         specifier: workspace:*
         version: link:../../libs/shared/i18n
+      '@tourism/mobile-ui':
+        specifier: workspace:*
+        version: link:../../libs/mobile/ui
       '@tourism/tokens':
         specifier: workspace:*
         version: link:../../libs/shared/tokens

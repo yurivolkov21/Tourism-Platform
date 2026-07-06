@@ -19,6 +19,7 @@
     "@testing-library/react-native": "^13.2.2",
     "@tourism/core": "workspace:*",
     "@tourism/i18n": "workspace:*",
+    "@tourism/mobile-ui": "workspace:*",
     "@tourism/tokens": "workspace:*",
     "expo": "~54.0.0",
     "expo-constants": "~18.0.13",

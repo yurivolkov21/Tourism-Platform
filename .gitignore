@@ -78,6 +78,7 @@ cache/
 .env
 .env.*
 !.env.example
+!apps/mobile/.env
 
 # Playwright MCP review artifacts
 .playwright-mcp/
