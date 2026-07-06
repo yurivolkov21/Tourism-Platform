@@ -2,7 +2,7 @@
 
 How to install, run, and test the apps locally — and the **Nx command mapping** if you're used to
 plain NestJS (`pnpm start:dev`). Covers the **API** (NestJS), the **web** + **admin** front-ends
-(Next.js), and the test-data flow. Mobile (Expo) lands in P5.
+(Next.js), the test-data flow, and the **mobile** dev loop (Expo Go — see the last section).
 
 > Quick start lives in the root **[README.md](../../README.md)**; this is the deeper reference.
 
@@ -154,3 +154,19 @@ motion pass (every home section now a client `<Reveal>` + gsap/motion). **Fix ap
 `next dev --webpack`. So `pnpm nx dev @tourism/web` is stable again (compiles a bit slower
 than Turbopack, no leak). **Prod `build` still uses Turbopack** (unaffected). Revert to
 Turbopack dev later by removing that `dev` target once the upstream leak is fixed.
+
+## Mobile (Expo Go)
+
+Dev loop is a **physical Android phone + Expo Go** (Windows host, no emulator needed).
+
+1. Install "Expo Go" from the Play Store (once).
+2. `pnpm nx start @tourism/mobile` → scan the QR with Expo Go (phone + PC on the same Wi-Fi).
+3. The app calls the **deployed Render API** by default (`apps/mobile/.env` →
+   `EXPO_PUBLIC_API_BASE_URL=https://tourism-api-pqwr.onrender.com`). First fetch after idle
+   can take ~30s (free-tier cold start) — the Home screen shows a "waking the server" hint.
+4. **Local-API debugging:** run `pnpm nx serve @tourism/api`, find your PC's LAN IP
+   (`ipconfig` → IPv4), set `EXPO_PUBLIC_API_BASE_URL=http://<LAN-IP>:3000` in
+   `apps/mobile/.env`, restart `nx start` (env vars are inlined at bundle time).
+   Don't commit the LAN value — restore the Render URL before committing.
+5. Mobile `build` = EAS cloud build → excluded from the local gate; for mobile run
+   lint + typecheck + test.
