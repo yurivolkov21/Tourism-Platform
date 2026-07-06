@@ -138,7 +138,14 @@ export function Gallery({
                   {section.images.map((img) => renderTile(img, 'aspect-square'))}
                 </div>
               ) : (
-                <div key={i}>{section.images.map((img) => renderTile(img, 'aspect-square'))}</div>
+                // Single tile fills its cell. A bare `aspect-square` block collapses to 0×0 here
+                // because the cell is a grid item stretched to the sibling cluster's height and the
+                // button has no in-flow content (the image is `fill`/absolute) — Chromium then sizes
+                // width from (empty) content. Making the cell a 1-slot grid gives the tile a definite
+                // track width + stretch, so it fills the cell like the cluster tiles do.
+                <div key={i} className="grid">
+                  {section.images.map((img) => renderTile(img, 'size-full min-h-full'))}
+                </div>
               ),
             )}
           </div>
