@@ -5,15 +5,18 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
   Textarea,
+  toast,
 } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
@@ -27,20 +30,17 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
   const t = messages.booking.detail;
   const router = useRouter();
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string>();
   const [cancelOpen, setCancelOpen] = useState(false);
   const [requesting, setRequesting] = useState(false);
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [requestError, setRequestError] = useState<string>();
 
   async function payNow() {
     if (pending) return;
     setPending(true);
-    setError(undefined);
     const res = await payNowAction(booking.code); // redirects on success
     if (res?.error) {
-      setError(res.error);
+      toast.error(res.error);
       setPending(false);
     }
   }
@@ -48,14 +48,14 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
   async function confirmCancel() {
     if (pending) return;
     setPending(true);
-    setError(undefined);
     const res = await cancelBookingAction(booking.code);
     if (res.ok) {
       setCancelOpen(false);
+      toast.success(t.cancelled);
       router.refresh(); // re-fetch → status flips to CANCELLED → these actions disappear
     } else {
-      setError(res.error);
       setPending(false);
+      toast.error(res.error);
     }
   }
 
@@ -63,13 +63,13 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
     event.preventDefault();
     if (submitting) return;
     setSubmitting(true);
-    setRequestError(undefined);
     const result = await requestCancellationAction(booking.code, reason);
     if (result.ok) {
+      toast.success(t.requestToast);
       router.refresh(); // re-fetch → cancellationRequest.status flips to REQUESTED
     } else {
-      setRequestError(result.error ?? t.requestError);
       setSubmitting(false);
+      toast.error(result.error ?? t.requestError);
     }
   }
 
@@ -80,8 +80,8 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
           <Button size="lg" onClick={() => void payNow()} disabled={pending} className="sm:flex-1">
             {t.payNow}
           </Button>
-          <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
-            <DialogTrigger
+          <AlertDialog open={cancelOpen} onOpenChange={setCancelOpen}>
+            <AlertDialogTrigger
               render={
                 <Button
                   variant="outline"
@@ -91,37 +91,25 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
               }
             >
               {t.cancel}
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>{t.cancelConfirmTitle}</DialogTitle>
-                <DialogDescription>{t.cancelConfirmBody}</DialogDescription>
-              </DialogHeader>
-              {error ? (
-                <p className="text-destructive text-sm" role="alert">
-                  {error}
-                </p>
-              ) : null}
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setCancelOpen(false)} disabled={pending}>
-                  {t.keep}
-                </Button>
-                <Button
+            </AlertDialogTrigger>
+            <AlertDialogContent className="sm:max-w-md">
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t.cancelConfirmTitle}</AlertDialogTitle>
+                <AlertDialogDescription>{t.cancelConfirmBody}</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={pending}>{t.keep}</AlertDialogCancel>
+                <AlertDialogAction
                   variant="destructive"
                   onClick={() => void confirmCancel()}
                   disabled={pending}
                 >
                   {pending ? t.cancelling : t.cancelConfirmCta}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
-        {error && !cancelOpen ? (
-          <p className="text-destructive text-sm" role="alert">
-            {error}
-          </p>
-        ) : null}
       </div>
     );
   }
@@ -161,11 +149,6 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
                 placeholder={t.reasonPlaceholder}
               />
             </div>
-            {requestError ? (
-              <p className="text-destructive text-sm" role="alert">
-                {requestError}
-              </p>
-            ) : null}
             <Button type="submit" disabled={submitting}>
               {submitting ? t.submitting : isDenied ? t.requestResubmit : t.submitRequest}
             </Button>

@@ -411,6 +411,7 @@ export const messages = {
       keep: 'Keep booking',
       cancelling: 'Cancelling…',
       cancelled: 'Booking cancelled.',
+      requestToast: 'Cancellation requested — we’ll email you.',
       // PAID cancellation/refund request (admin processes refunds)
       requestTitle: 'Need to cancel?',
       requestBody:
