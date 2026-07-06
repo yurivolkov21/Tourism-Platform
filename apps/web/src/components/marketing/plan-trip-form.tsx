@@ -14,6 +14,7 @@ import {
   Textarea,
   ToggleGroup,
   ToggleGroupItem,
+  toast,
 } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
@@ -100,7 +101,12 @@ export function PlanTripForm() {
     }
     setStatus('submitting');
     const res = await submitEnquiry(payload);
-    setStatus(res.ok ? 'success' : res.rateLimited ? 'rateLimited' : 'error');
+    if (res.ok) {
+      setStatus('success');
+    } else {
+      toast.error(res.rateLimited ? messages.enquiryForm.rateLimited : messages.enquiryForm.errorGeneric);
+      setStatus('idle');
+    }
   }
 
   return (

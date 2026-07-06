@@ -18,6 +18,7 @@ import {
   Input,
   Separator,
   Textarea,
+  toast,
 } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
@@ -64,7 +65,6 @@ export function PrivateRequestForm({
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string>();
   const [done, setDone] = useState(false);
 
   const endDate = startDate ? deriveEndDate(startDate, durationDays) : '';
@@ -74,7 +74,6 @@ export function PrivateRequestForm({
     if (pending || !startDate) return;
     const fd = new FormData(event.currentTarget);
     setPending(true);
-    setError(undefined);
 
     const payload = buildPrivateEnquiryPayload({
       tourId,
@@ -93,7 +92,7 @@ export function PrivateRequestForm({
     if (result.ok) {
       setDone(true);
     } else {
-      setError(result.rateLimited ? tp.rateLimited : tp.error);
+      toast.error(result.rateLimited ? tp.rateLimited : tp.error);
       setPending(false);
     }
   }
@@ -244,12 +243,6 @@ export function PrivateRequestForm({
             </Field>
           </FieldGroup>
         </FieldSet>
-
-        {error ? (
-          <p className="text-destructive text-sm" role="alert">
-            {error}
-          </p>
-        ) : null}
 
         <Button
           type="submit"

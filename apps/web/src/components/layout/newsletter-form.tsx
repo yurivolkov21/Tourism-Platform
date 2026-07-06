@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckIcon } from 'lucide-react';
 
+import { toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { subscribeNewsletter } from '../../lib/api/newsletter';
 import { isValidNewsletterEmail } from '../../lib/newsletter-form';
 
-type FormStatus = 'idle' | 'submitting' | 'success' | 'invalid' | 'rateLimited' | 'error';
+type FormStatus = 'idle' | 'submitting' | 'invalid';
 
 /**
  * The footer newsletter signup, wired for real (was `action="#"`). Client island
@@ -22,7 +22,8 @@ export function NewsletterForm() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const fd = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const fd = new FormData(form);
     const email = String(fd.get('email') ?? '');
     const website = String(fd.get('website') ?? '');
     if (!isValidNewsletterEmail(email)) {
@@ -31,18 +32,13 @@ export function NewsletterForm() {
     }
     setStatus('submitting');
     const res = await subscribeNewsletter(email, website || undefined);
-    setStatus(res.ok ? 'success' : res.rateLimited ? 'rateLimited' : 'error');
-  }
-
-  if (status === 'success') {
-    return (
-      <p role="status" className="text-background/80 flex items-center gap-2 text-sm">
-        <span className="bg-background/15 flex size-6 shrink-0 items-center justify-center rounded-full">
-          <CheckIcon className="size-3.5" aria-hidden="true" />
-        </span>
-        {f.newsletterSuccess}
-      </p>
-    );
+    if (res.ok) {
+      form.reset();
+      toast.success(f.newsletterSuccess);
+    } else {
+      toast.error(res.rateLimited ? f.newsletterRateLimited : f.newsletterError);
+    }
+    setStatus('idle');
   }
 
   return (
@@ -72,13 +68,9 @@ export function NewsletterForm() {
           {status === 'submitting' ? f.newsletterSubmitting : f.newsletterCta}
         </button>
       </div>
-      {status === 'invalid' || status === 'rateLimited' || status === 'error' ? (
+      {status === 'invalid' ? (
         <p role="status" className="text-background/80 text-xs">
-          {status === 'invalid'
-            ? f.newsletterInvalid
-            : status === 'rateLimited'
-              ? f.newsletterRateLimited
-              : f.newsletterError}
+          {f.newsletterInvalid}
         </p>
       ) : null}
     </form>

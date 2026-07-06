@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { CheckIcon } from 'lucide-react';
 
-import { Button, Field, FieldLabel, Input } from '@tourism/ui';
+import { Button, Field, FieldLabel, Input, toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { buildEnquiryCtaPayload, isValidEnquiry } from '../../lib/enquiry-form';
@@ -44,7 +44,12 @@ export function EnquiryCta({ id = 'contact', heading, subtitle, prefillDestinati
     }
     setStatus('submitting');
     const res = await submitEnquiry(payload);
-    setStatus(res.ok ? 'success' : res.rateLimited ? 'rateLimited' : 'error');
+    if (res.ok) {
+      setStatus('success');
+    } else {
+      toast.error(res.rateLimited ? messages.enquiryForm.rateLimited : messages.enquiryForm.errorGeneric);
+      setStatus('idle');
+    }
   }
 
   return (
