@@ -1,4 +1,5 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 import { ThemeProvider } from './theme-provider';
 import { Button } from './button';
 
@@ -22,4 +23,14 @@ test('disabled blocks presses', async () => {
   );
   await userEvent.press(screen.getByTestId('btn'));
   expect(onPress).not.toHaveBeenCalled();
+});
+
+test('merges caller style with the themed style', () => {
+  render(
+    <ThemeProvider>
+      <Button label="Book now" onPress={jest.fn()} style={{ marginTop: 24 }} testID="btn" />
+    </ThemeProvider>,
+  );
+  const flattened = StyleSheet.flatten(screen.getByTestId('btn').props.style);
+  expect(flattened).toMatchObject({ marginTop: 24, minHeight: 44 });
 });

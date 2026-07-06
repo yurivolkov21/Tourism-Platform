@@ -22,6 +22,7 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
+// jest-expo's useColorScheme() returns null → ThemeProvider resolves 'light'; specs assert against tokens.colors.light unless they mock the hook.
 if (typeof global.structuredClone === 'undefined') {
   global.structuredClone = (object) => JSON.parse(JSON.stringify(object));
 }
