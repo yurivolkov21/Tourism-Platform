@@ -9,6 +9,14 @@ packages:
 # package.json. Editing this alone may not re-resolve — also touch package.json
 # or delete the lockfile. Remove an entry once the parent ships a patched range.
 overrides:
+  # One react across the workspace: Expo SDK 54 (apps/mobile in Expo Go) requires
+  # exactly react 19.1.0; a second 19.2.7 resolution duplicates every RN peer
+  # variant in .pnpm and breaks jest ("__fbBatchedBridgeConfig is not set").
+  # Next 16 (web/admin) supports 19.1.0. react-dom/react-test-renderer must
+  # match react's version exactly.
+  react: '19.1.0'
+  react-dom: '19.1.0'
+  react-test-renderer: '19.1.0'
   postcss: '^8.5.10' # GHSA-qx2v-qp2m-jg93 (XSS in CSS stringify), patched 8.5.10
   '@hono/node-server': '^1.19.13' # GHSA-92pp-h63x-v22m (serveStatic bypass), patched 1.19.13
   next: '>=16.2.6' # 14 advisories on Next.js 16 <16.2.6 (cache-poisoning/SSRF/DoS/middleware-bypass; last fix 16.2.6)
