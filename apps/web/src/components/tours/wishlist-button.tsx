@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { HeartIcon } from 'lucide-react';
 
-import { Button, cn } from '@tourism/ui';
+import { Button, cn, toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { useAuth } from '../auth/auth-provider';
@@ -54,7 +54,12 @@ export function WishlistButton({
     const res = next
       ? await addToWishlistAction(tourId)
       : await removeFromWishlistAction(tourId);
-    if (!res.ok) setSaved(!next); // roll back a failed optimistic toggle
+    if (res.ok) {
+      toast.success(next ? messages.wishlist.saved : messages.wishlist.removed);
+    } else {
+      setSaved(!next); // roll back a failed optimistic toggle
+      toast.error(messages.wishlist.error);
+    }
     setPending(false);
   };
 

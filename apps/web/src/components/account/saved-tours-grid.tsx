@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ImageIcon, XIcon } from 'lucide-react';
 
 import { messages } from '@tourism/i18n';
+import { toast } from '@tourism/ui';
 
 import type { SavedTour } from '../../lib/api/wishlist';
 import { removeFromWishlistAction } from '../../lib/wishlist/actions';
@@ -27,7 +28,12 @@ export function SavedToursGrid({ items: initial }: { items: SavedTour[] }) {
     const prev = items;
     setItems((cur) => cur.filter((s) => s.tourId !== tourId)); // optimistic
     const res = await removeFromWishlistAction(tourId);
-    if (!res.ok) setItems(prev); // roll back on failure
+    if (res.ok) {
+      toast.success(messages.wishlist.removed);
+    } else {
+      setItems(prev); // roll back on failure
+      toast.error(messages.wishlist.error);
+    }
     setRemoving(null);
   };
 

@@ -1720,6 +1720,11 @@ export const messages = {
     phone: '1900 292 958',
     rights: 'All rights reserved.',
   },
+  wishlist: {
+    saved: 'Saved to wishlist.',
+    removed: 'Removed from wishlist.',
+    error: 'Something went wrong — please try again.',
+  },
 } as const;
 
 export type Messages = typeof messages;
