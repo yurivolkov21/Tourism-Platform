@@ -15,13 +15,11 @@ import { createClient } from '../../lib/supabase/client';
 export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
   const t = messages.auth.account.securityPage.email;
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string>();
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pending) return;
     setPending(true);
-    setError(undefined);
 
     const email = String(new FormData(event.currentTarget).get('email') ?? '').trim();
     const { error: updateError } = await createClient().auth.updateUser(
@@ -29,7 +27,7 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
       { emailRedirectTo: `${window.location.origin}/auth/callback?redirect=/account` },
     );
     if (updateError) {
-      setError(authErrorMessage(updateError));
+      toast.error(authErrorMessage(updateError));
       setPending(false);
       return;
     }
@@ -49,11 +47,6 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
         <Label htmlFor="new-email">{t.newLabel}</Label>
         <Input id="new-email" name="email" type="email" autoComplete="email" required />
       </div>
-      {error ? (
-        <p className="text-destructive text-sm" role="alert">
-          {error}
-        </p>
-      ) : null}
       <Button type="submit" disabled={pending}>
         {pending ? t.submitting : t.submit}
       </Button>

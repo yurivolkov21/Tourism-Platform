@@ -26,13 +26,11 @@ export function ProfileForm({
   const t = messages.auth.account.profile;
   const router = useRouter();
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string>();
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pending) return;
     setPending(true);
-    setError(undefined);
 
     const form = new FormData(event.currentTarget);
     const payload = buildUpdateProfilePayload({
@@ -42,7 +40,7 @@ export function ProfileForm({
 
     const result = await saveProfile(payload);
     if (result.error) {
-      setError(result.error);
+      toast.error(result.error);
       setPending(false);
       return;
     }
@@ -76,12 +74,6 @@ export function ProfileForm({
         <Input id="email" type="email" value={email} disabled readOnly />
         <p className="text-muted-foreground text-xs">{t.emailHint}</p>
       </div>
-
-      {error ? (
-        <p className="text-destructive text-sm" role="alert">
-          {error}
-        </p>
-      ) : null}
 
       <Button type="submit" disabled={pending}>
         {pending ? t.saving : t.save}
