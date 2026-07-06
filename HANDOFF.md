@@ -31,13 +31,12 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **DEPLOYED** (`main`)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE, deploy pending merge (2026-07-06)** · **DEPLOYED** (`main`)
 
-> **Next action:** no active roadmap — candidate A (**refund-execution UI /
-> cancellation-request queue**) shipped 2026-07-05, closing the last strong P4 fold-in.
-> Remaining candidates, user picks: web feedback layer (toast/AlertDialog on web) ·
-> real content authoring · P5 mobile (teammate's lane — do not touch `origin/nghia*`
-> branches).
+> **Next action:** web feedback layer (toast + flash infra + AlertDialog
+> standardization on `apps/web`) is done on `feat/web-feedback-layer` and awaiting
+> merge → deploy. Remaining candidates, user picks: real content authoring ·
+> P5 mobile (teammate's lane — do not touch `origin/nghia*` branches).
 >
 > **Verification status (user, 2026-07-05, on deployed):** ✅ **Stripe** partial
 > refund + deny confirmed working end-to-end (real test-mode booking → partial
@@ -78,7 +77,14 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
   **real booking-tied cancellation request** (2026-07-05, replaces the Enquiry hack;
   status-aware `BookingActions` — requested/denied/refunded/partially-refunded copy).
   **Component reform done** (Tier 1/2/3a: native forms → `@tourism/ui`; shared lead-form
-  field baseline; dead-code swept). **Final polish pass MERGED** (`ca1cfd0`). 181 web tests.
+  field baseline; dead-code swept). **Final polish pass MERGED** (`ca1cfd0`). **Web feedback
+  layer** (2026-07-06, `feat/web-feedback-layer`): ported admin's toast + flash pattern
+  (`<Toaster>`/`<FlashToaster>`/`lib/flash.ts`) into the root layout; migrated account
+  settings (profile/email/password/avatar/delete), booking cancel + cancellation-request,
+  contact/enquiry-family/newsletter, and the wishlist save/remove toggles to fire outcome
+  toasts (field-level validation stays inline; lead-capture forms keep their success panel
+  and toast only failures); standardized cancel-booking + delete-account confirms on
+  `AlertDialog`; auth flows intentionally excluded. 185 web tests.
 - **Admin (P4) — CRUD breadth done + DEPLOYED on Vercel.** Auth + shell + dashboard +
   CRUD (Destinations · Categories · Tours · Departures · Posts) + **blog-v2 authoring**
   (tag combobox · related-tours picker · inline body-image editor w/ Write|Preview) +
@@ -148,12 +154,16 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
      [spec](docs/06-specs/2026-07-04-refund-cancellation-queue-design.md) +
      [plan](docs/07-plans/2026-07-04-refund-cancellation-queue-plan.md).
 
-*Done since last handoff (2026-07-05): **blog-v2 roadmap complete** — Wave 3 Slice 2 admin
+*Done since last handoff (2026-07-06): **web feedback layer** (`feat/web-feedback-layer`,
+`a8e5c7d`..`6a61972`): toast + flash infra ported from admin · outcome toasts across account
+settings, booking cancel/cancellation-request, contact/enquiry/newsletter, wishlist toggles ·
+`AlertDialog` on the two destructive confirms (cancel booking, delete account); awaiting merge.
+Previously (2026-07-05): **blog-v2 roadmap complete** — Wave 3 Slice 2 admin
 inline-image editor (`335a60f`) · Wave 4 reader polish (`b9b5158`) · Wave 5 newsletter + RSS
 (`15c5cb4` BE w/ live migration + `a91909d` FE). **Refund execution + cancellation-request
 queue complete** (2026-07-05, `b327dde`..`65acf64`): partial-refund CTE + idempotency key ·
 customer cancellation-request endpoint (replaces Enquiry hack) · admin queue + deny + refund-dialog
-partial amount. Baselines: api 338 · web 181 · admin 152.*
+partial amount. Baselines: api 338 · web 185 · admin 152.*
 
 > **Domain-gated (deferred until a real domain is bought):** Resend email delivery
 > (enquiry ack / booking confirm / refund) + Supabase custom-domain email confirmation.

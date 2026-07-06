@@ -93,6 +93,13 @@ content/       privacy.ts · terms.ts · legal-page.ts       (long-form legal do
 - Inspiration surfaces image-forward + Fraunces serif; per section/page: build → `/gate` (+ no-hex) →
   review → branch → rebase-merge.
 - **Legal pages** (`/privacy` `/terms` `/cancellation-policy`) are **complete real content** (placeholders filled, draft callout dropped) — **not lawyer-reviewed**, fine for the demo; have counsel review before a real launch.
+- **Feedback (2026-07-06):** an app-wide `<Toaster>` (sonner) + `<FlashToaster>` (mounted in
+  `app/layout.tsx`) give mutations an outcome toast; `lib/flash.ts` (`resolveFlash`/`flashPath`)
+  handles redirect-based Server Actions (ported from admin). Toast = operation outcome
+  (success + operation errors); field-level validation stays inline. Lead-capture forms with a
+  strong success panel (contact/enquiry family, private-request) keep the panel and toast only
+  failures. The two destructive confirms — cancel a PENDING booking, delete account — are
+  standardized on `AlertDialog`. Auth flows are excluded (deferred).
 
 ## Admin (`@tourism/admin`) — P4
 
