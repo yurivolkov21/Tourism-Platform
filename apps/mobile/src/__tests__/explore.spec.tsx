@@ -1,7 +1,7 @@
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { render, screen } from '@testing-library/react-native';
 import { ThemeProvider } from '@tourism/mobile-ui';
-import ExploreScreen from './explore';
+import ExploreScreen from '../app/(tabs)/explore';
 
 test('explore placeholder renders its copy', () => {
   render(

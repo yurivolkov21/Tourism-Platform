@@ -2,11 +2,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { render, screen } from '@testing-library/react-native';
 import { ThemeProvider } from '@tourism/mobile-ui';
-import HomeScreen from './index';
-import { fetchFeaturedTours } from '../../lib/tours';
+import HomeScreen from '../app/(tabs)/index';
+import { fetchFeaturedTours } from '../lib/tours';
 
-jest.mock('../../lib/tours', () => ({
-  ...jest.requireActual('../../lib/tours'),
+jest.mock('../lib/tours', () => ({
+  ...jest.requireActual('../lib/tours'),
   fetchFeaturedTours: jest.fn(),
 }));
 
