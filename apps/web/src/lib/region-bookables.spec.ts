@@ -1,7 +1,7 @@
 import type { TourCardData } from '../components/tours/tour-card';
 import { selectRegionBookables, type RegionTile } from './region-bookables';
 
-const tile = (name: string, slug: string, region: string): RegionTile => ({ name, slug, region });
+const tile = (name: string, slug: string, region: string, gallery: string[] = []): RegionTile => ({ name, slug, region, gallery });
 
 const tour = (slug: string, destination: string): TourCardData => ({
   slug,
@@ -16,8 +16,8 @@ const tour = (slug: string, destination: string): TourCardData => ({
 });
 
 const tiles: RegionTile[] = [
-  tile('Sa Pa', 'sa-pa', 'Northern Vietnam'),
-  tile('Hạ Long Bay', 'ha-long-bay', 'Northern Vietnam'),
+  tile('Sa Pa', 'sa-pa', 'Northern Vietnam', ['sapa-1.jpg']),
+  tile('Hạ Long Bay', 'ha-long-bay', 'Northern Vietnam', ['halong-1.jpg']),
   tile('Hội An', 'hoi-an', 'Central Vietnam'),
   tile('Mekong Delta', 'mekong-delta', 'Southern Vietnam'),
 ];
@@ -33,8 +33,8 @@ describe('selectRegionBookables', () => {
   it('returns the destinations within the region (name + slug), in order', () => {
     const { destinations } = selectRegionBookables(tiles, tours, 'Northern Vietnam');
     expect(destinations).toEqual([
-      { name: 'Sa Pa', slug: 'sa-pa' },
-      { name: 'Hạ Long Bay', slug: 'ha-long-bay' },
+      { name: 'Sa Pa', slug: 'sa-pa', gallery: ['sapa-1.jpg'] },
+      { name: 'Hạ Long Bay', slug: 'ha-long-bay', gallery: ['halong-1.jpg'] },
     ]);
   });
 

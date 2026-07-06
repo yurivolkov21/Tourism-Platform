@@ -17,6 +17,7 @@ import { EnquiryCta } from '../../../components/marketing/enquiry-cta';
 import { getRegion, regionSlugs } from '../../../lib/regions';
 import { getRegionTheme } from '../../../lib/region-theme';
 import { fetchRegionBookables } from '../../../lib/api/destinations';
+import { deriveRegionImagery } from '../../../lib/region-imagery';
 import { BreadcrumbJsonLd } from '../../../components/seo/json-ld';
 
 export function generateStaticParams() {
@@ -48,6 +49,11 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
 
   // Live destinations (tabs) + tours for this region; fall back to the curated fixtures on API error.
   const live = await fetchRegionBookables(data.name);
+  const imagery = deriveRegionImagery(live.destinations, {
+    image: data.image,
+    images: data.images,
+    gallery: data.gallery,
+  });
   const bookables =
     live.destinations.length > 0
       ? live
@@ -56,10 +62,10 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
   const t = messages.regionPage;
   const meta = t.regions[data.name];
   const theme = getRegionTheme(region);
-  const pool = data.images;
+  const pool = imagery.images;
 
   // Photo gallery — shadcn-style alternating "1 big + 2×2 cluster" (10 images: single·grid·grid·single).
-  const g = data.gallery;
+  const g = imagery.gallery;
   const cluster = (from: number): GallerySection => ({
     type: 'grid',
     images: g.slice(from, from + 4).map((src) => ({ src, alt: data.name })),
@@ -87,7 +93,7 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
       heading={meta.signature.heading}
       body={meta.signature.body}
       stats={meta.signature.stats}
-      image={pool[4] ?? pool[0] ?? data.image}
+      image={pool[4] ?? pool[0] ?? imagery.image}
       accentText={theme.accentText}
     />
   ) : theme.signature === 'heritage' && meta.signature.timeline ? (
@@ -112,7 +118,7 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
       heading={meta.signature.heading}
       body={meta.signature.body}
       points={meta.signature.points}
-      image={pool[4] ?? pool[0] ?? data.image}
+      image={pool[4] ?? pool[0] ?? imagery.image}
       accentText={theme.accentText}
       accentBg={theme.accentBg}
     />
@@ -129,7 +135,7 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
       />
       <RegionHero
         name={data.name}
-        image={data.image}
+        image={imagery.image}
         tagline={meta?.tagline ?? ''}
         heightClass={theme.heroHeight}
         scrimClass={theme.heroScrim}
@@ -139,7 +145,7 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
         intro={meta?.intro ?? ''}
         intro2={meta?.intro2 ?? ''}
         tags={meta?.tags ?? []}
-        images={data.images.slice(1)}
+        images={imagery.images.slice(1)}
         itinerariesHref="#itineraries"
         accentBg={theme.accentBg}
         accentBtnText={theme.accentBtnText}
@@ -166,7 +172,7 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
         heading={t.galleryHeading(data.name)}
         subtitle={t.gallerySubtitle}
       />
-      <ValueProps accentClass={theme.accentSoft} image={pool[3] ?? pool[0] ?? data.image} />
+      <ValueProps accentClass={theme.accentSoft} image={pool[3] ?? pool[0] ?? imagery.image} />
       <EnquiryCta heading={messages.enquiryCta.regionHeading(data.name)} prefillDestination={data.name} />
     </main>
   );
