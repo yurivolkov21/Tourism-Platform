@@ -3,11 +3,32 @@
 module.exports = {
   displayName: '@tourism/mobile',
   preset: 'jest-expo',
+  // Workspace source (@tourism/*) is authored under `moduleResolution:
+  // nodenext` and uses explicit `.js` specifiers for its own relative
+  // imports (resolved to sibling `.ts` files by tsc, not by Node/Jest).
+  // The jest-expo preset doesn't know about that mapping, so borrow Nx's
+  // resolver (falls back to TypeScript's own resolution) — same one the
+  // Nx-authored jest preset uses (verified 2026-07-06).
+  resolver: '@nx/jest/plugins/resolver',
   moduleFileExtensions: ['ts', 'js', 'html', 'tsx', 'jsx'],
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   moduleNameMapper: {
     '[.]svg$': '@nx/expo/plugins/jest/svg-mock',
+    '^@tourism/core$': '<rootDir>/../../libs/shared/core/src/index.ts',
+    '^@tourism/i18n$': '<rootDir>/../../libs/shared/i18n/src/index.ts',
+    '^@tourism/tokens/theme$':
+      '<rootDir>/../../libs/shared/tokens/generated/theme.js',
+    '^@tourism/mobile-ui$': '<rootDir>/../../libs/mobile/ui/src/index.ts',
   },
+  transformIgnorePatterns: [
+    // `.pnpm` must be allow-listed too: under pnpm, real packages sit one
+    // level deeper (node_modules/.pnpm/<pkg>@<ver>/node_modules/<pkg>/...),
+    // so the classic pattern alone leaves react-native's own jest setup
+    // untransformed. `expo-[^/]+` is needed too — unscoped Expo SDK
+    // packages (expo-router, expo-modules-core, expo-image, ...) don't
+    // match a bare `expo(nent)?` (verified 2026-07-06).
+    'node_modules/(?!(\\.pnpm|(jest-)?react-native|@react-native(-community)?|expo(nent)?|expo-[^/]+|@expo(-google-fonts)?|@expo/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|@tanstack)/)',
+  ],
   transform: {
     '[.][jt]sx?$': [
       'babel-jest',
