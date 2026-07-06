@@ -1,19 +1,202 @@
-import { View } from 'react-native';
+import { useMemo, useState, type ReactNode } from 'react';
+import { FlatList, RefreshControl, View } from 'react-native';
+import { router } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
+import type { DurationBucket, PriceBucket, TourSort } from '@tourism/core';
 import { messages } from '@tourism/i18n';
-import { AppText, Screen, useTheme } from '@tourism/mobile-ui';
+import {
+  AppText,
+  Button,
+  Card,
+  Chip,
+  Screen,
+  Spinner,
+  TextField,
+  useTheme,
+} from '@tourism/mobile-ui';
+import { TourCard } from '../../components/tour-card';
+import { fetchDestinations } from '../../lib/destinations';
+import {
+  applyExploreState,
+  defaultExploreState,
+  hasActiveFilters,
+  toggleBucket,
+  type ExploreState,
+} from '../../lib/explore-state';
+import { fetchAllTours } from '../../lib/tours';
+
+const t = messages.mobile.explore;
+
+const DURATIONS: DurationBucket[] = ['1', '2-3', '4+'];
+const PRICES: PriceBucket[] = ['<100', '100-300', '300+'];
+const SORTS: TourSort[] = ['popular', 'price-asc', 'price-desc', 'rating'];
+
+function ChipRow({ children }: { children: ReactNode }) {
+  const theme = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing(2) }}>
+      {children}
+    </View>
+  );
+}
+
+function SkeletonList() {
+  const theme = useTheme();
+  return (
+    <View style={{ gap: theme.spacing(3) }}>
+      {[0, 1, 2].map((i) => (
+        <Card key={i} style={{ height: 240, backgroundColor: theme.colors['muted'] }} />
+      ))}
+    </View>
+  );
+}
 
 export default function ExploreScreen() {
   const theme = useTheme();
+  const [state, setState] = useState<ExploreState>(defaultExploreState);
+
+  const toursQ = useQuery({ queryKey: ['tours', 'all'], queryFn: fetchAllTours });
+  const destQ = useQuery({ queryKey: ['destinations'], queryFn: fetchDestinations });
+
+  const results = useMemo(
+    () => (toursQ.data ? applyExploreState(toursQ.data, state) : []),
+    [toursQ.data, state],
+  );
+
+  const header = (
+    <View style={{ gap: theme.spacing(3), paddingVertical: theme.spacing(4) }}>
+      <AppText variant="display">{t.title}</AppText>
+      <TextField
+        placeholder={t.searchPlaceholder}
+        accessibilityLabel={t.searchPlaceholder}
+        value={state.query}
+        onChangeText={(query) => setState((s) => ({ ...s, query }))}
+        autoCorrect={false}
+      />
+      {destQ.data && destQ.data.length > 0 ? (
+        <View style={{ gap: theme.spacing(2) }}>
+          <AppText variant="title">{t.destinationsTitle}</AppText>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={destQ.data}
+            keyExtractor={(d) => d.slug}
+            renderItem={({ item }) => (
+              <Chip
+                label={item.name}
+                imageUri={item.image}
+                selected={state.destination === item.name}
+                onPress={() =>
+                  setState((s) => ({
+                    ...s,
+                    destination: s.destination === item.name ? undefined : item.name,
+                  }))
+                }
+              />
+            )}
+            ItemSeparatorComponent={() => <View style={{ width: theme.spacing(2) }} />}
+          />
+        </View>
+      ) : null}
+      <ChipRow>
+        {DURATIONS.map((d) => (
+          <Chip
+            key={d}
+            label={t.duration[d]}
+            selected={state.durations.includes(d)}
+            onPress={() => setState((s) => ({ ...s, durations: toggleBucket(s.durations, d) }))}
+          />
+        ))}
+      </ChipRow>
+      <ChipRow>
+        {PRICES.map((p) => (
+          <Chip
+            key={p}
+            label={t.price[p]}
+            selected={state.prices.includes(p)}
+            onPress={() => setState((s) => ({ ...s, prices: toggleBucket(s.prices, p) }))}
+          />
+        ))}
+      </ChipRow>
+      <ChipRow>
+        {SORTS.map((sort) => (
+          <Chip
+            key={sort}
+            label={t.sort[sort]}
+            selected={state.sort === sort}
+            onPress={() => setState((s) => ({ ...s, sort }))}
+          />
+        ))}
+      </ChipRow>
+      {toursQ.isSuccess ? (
+        <AppText variant="caption" muted>
+          {t.resultsCount(results.length)}
+        </AppText>
+      ) : null}
+    </View>
+  );
+
   return (
     <Screen scroll={false}>
-      <View
-        style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: theme.spacing(2) }}
-      >
-        <AppText variant="title">{messages.mobile.tabs.explore}</AppText>
-        <AppText variant="body" muted style={{ textAlign: 'center' }}>
-          {messages.mobile.explore.title}
-        </AppText>
-      </View>
+      <FlatList
+        data={toursQ.isSuccess ? results : []}
+        keyExtractor={(tour) => tour.slug}
+        renderItem={({ item }) => (
+          <TourCard tour={item} variant="list" onPress={() => router.push(`/tours/${item.slug}`)} />
+        )}
+        ItemSeparatorComponent={() => <View style={{ height: theme.spacing(3) }} />}
+        ListHeaderComponent={header}
+        ListFooterComponent={<View style={{ height: theme.spacing(6) }} />}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={toursQ.isRefetching} onRefresh={() => toursQ.refetch()} />
+        }
+        ListEmptyComponent={
+          toursQ.isPending ? (
+            <View style={{ gap: theme.spacing(3) }}>
+              <SkeletonList />
+              <View style={{ alignItems: 'center', gap: theme.spacing(2) }}>
+                <Spinner />
+                <AppText variant="caption" muted style={{ textAlign: 'center' }}>
+                  {t.slowServer}
+                </AppText>
+              </View>
+            </View>
+          ) : toursQ.isError ? (
+            <View
+              style={{
+                alignItems: 'center',
+                gap: theme.spacing(3),
+                paddingVertical: theme.spacing(6),
+              }}
+            >
+              <AppText variant="body" style={{ textAlign: 'center' }}>
+                {t.error}
+              </AppText>
+              <Button label={t.retry} onPress={() => toursQ.refetch()} />
+            </View>
+          ) : (
+            <View
+              style={{
+                alignItems: 'center',
+                gap: theme.spacing(3),
+                paddingVertical: theme.spacing(6),
+              }}
+            >
+              <AppText variant="body" muted style={{ textAlign: 'center' }}>
+                {t.empty}
+              </AppText>
+              {hasActiveFilters(state) ? (
+                <Button
+                  label={t.clearFilters}
+                  variant="outline"
+                  onPress={() => setState(defaultExploreState)}
+                />
+              ) : null}
+            </View>
+          )
+        }
+      />
     </Screen>
   );
 }
