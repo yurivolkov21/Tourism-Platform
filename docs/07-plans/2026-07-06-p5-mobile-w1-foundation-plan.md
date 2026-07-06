@@ -1717,7 +1717,12 @@ Record any failures; fix before merge. (Merge flow per repo rules: user reviews 
 - [x] Task 10 — runbook (`a97af1e`) + full gate green (api 338 · web 185 · admin 152 ·
       mobile 9 · mobile-ui 19; web+admin builds green) + **Metro bundle proven** via
       `expo export --platform android` (2.49 MB hbc) after the Windows drive-casing fix
-      (`00e77d5`). **On-device Expo Go checklist = pending user.**
+      (`00e77d5`). **On-device Expo Go check: VERIFIED by the user (2026-07-06)** —
+      tabs + themed shell + real tour cards render on a physical Android phone.
+      Post-review on-device fixes: react 19.1.0 workspace pin (`abf7157`) ·
+      expo-router route discovery (projectRoot/app-dir + `.js`→`.ts` resolver +
+      specs out of `src/app`, `d30c7c7`) · dropped Expo's auto-generated
+      onboarding route (`e8e3679`).
 
 Final whole-branch review (2026-07-06): "ready with fixes" → both Important items closed
 (Metro seam proven by export; Button caller-style merged `8e84284`). Deferred minors:
