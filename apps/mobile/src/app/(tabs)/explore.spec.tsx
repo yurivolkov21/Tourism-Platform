@@ -1,7 +1,15 @@
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { render, screen } from '@testing-library/react-native';
+import { ThemeProvider } from '@tourism/mobile-ui';
 import ExploreScreen from './explore';
 
 test('explore placeholder renders its copy', () => {
-  render(<ExploreScreen />);
+  render(
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <ExploreScreen />
+      </ThemeProvider>
+    </SafeAreaProvider>,
+  );
   expect(screen.getByText(/coming in the next update/i)).toBeOnTheScreen();
 });

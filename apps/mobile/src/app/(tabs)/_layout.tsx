@@ -1,12 +1,24 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { messages } from '@tourism/i18n';
+import { useTheme } from '@tourism/mobile-ui';
 
 const t = messages.mobile.tabs;
 
 export default function TabsLayout() {
+  const theme = useTheme();
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: theme.colors['primary'],
+        tabBarInactiveTintColor: theme.colors['muted-foreground'],
+        tabBarStyle: {
+          backgroundColor: theme.colors['background'],
+          borderTopColor: theme.colors['border'],
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
