@@ -1705,13 +1705,21 @@ Record any failures; fix before merge. (Merge flow per repo rules: user reviews 
 
 ## STATUS
 
-- [ ] Task 1 — tokens RN converter
-- [ ] Task 2 — i18n mobile copy
-- [ ] Task 3 — expo-router shell
-- [ ] Task 4 — mobile-ui theme + provider
-- [ ] Task 5 — AppText/Screen/Spinner
-- [ ] Task 6 — Button/Card
-- [ ] Task 7 — env + api + providers
-- [ ] Task 8 — Home real data
-- [ ] Task 9 — themed tabs + placeholders
-- [ ] Task 10 — runbook + gate + on-device check
+- [x] Task 1 — tokens RN converter (`7d66c5f`)
+- [x] Task 2 — i18n mobile copy (`b42d270`)
+- [x] Task 3 — expo-router shell (`d55283d`)
+- [x] Task 4 — mobile-ui theme + provider (`2af7d8b` + dark-scheme test `36f3d35`)
+- [x] Task 5 — AppText/Screen/Spinner (`362fbae` + test hardening `48dc680`)
+- [x] Task 6 — Button/Card (`6d4a883`; caller-style merge fixed in `8e84284`)
+- [x] Task 7 — env + api + providers (`d0bc0b2`)
+- [x] Task 8 — Home real data (`1290499` + quiet jest worker `55a1f20`)
+- [x] Task 9 — themed tabs + placeholders (`0debe8e`)
+- [x] Task 10 — runbook (`a97af1e`) + full gate green (api 338 · web 185 · admin 152 ·
+      mobile 9 · mobile-ui 19; web+admin builds green) + **Metro bundle proven** via
+      `expo export --platform android` (2.49 MB hbc) after the Windows drive-casing fix
+      (`00e77d5`). **On-device Expo Go checklist = pending user.**
+
+Final whole-branch review (2026-07-06): "ready with fixes" → both Important items closed
+(Metro seam proven by export; Button caller-style merged `8e84284`). Deferred minors:
+TourCard price-line test + USD-only symbol · placeholder dedup · theme.d.ts drift note ·
+metro one-liner formatting.
