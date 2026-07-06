@@ -12,6 +12,11 @@ module.exports = {
   resolver: '@nx/jest/plugins/resolver',
   moduleFileExtensions: ['ts', 'js', 'html', 'tsx', 'jsx'],
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
+  // typecheck emits declaration artifacts to out-tsc/ — jest's default
+  // `**/__tests__/**` pattern would pick up out-tsc/jest/src/__tests__/*.spec.d.ts
+  // ("must contain at least one test").
+  // (plain substring — separator-agnostic so it matches on Windows too)
+  testPathIgnorePatterns: ['/node_modules/', 'out-tsc'],
   moduleNameMapper: {
     '[.]svg$': '@nx/expo/plugins/jest/svg-mock',
     '^@tourism/core$': '<rootDir>/../../libs/shared/core/src/index.ts',
