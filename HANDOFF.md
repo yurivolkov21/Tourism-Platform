@@ -31,9 +31,32 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile W1 Foundation + W2 Browse & Detail + W2.5 Design Language COMPLETE + on-device verified (W2.5 merged 2026-07-07)** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile W1 + W2 + W2.5 + W3 Auth & Account COMPLETE + on-device verified (W3 merged 2026-07-07)** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
 
-> **Next action:** no active feature. **P5 mobile W2.5 Design Language COMPLETE
+> **Next action:** no active feature. **P5 mobile W3 Auth & Account COMPLETE
+> (2026-07-07, branch `feat/mobile-w3-auth-account`, merged ff-only):**
+> **guest-first Supabase auth** — `@supabase/supabase-js` on the official Expo
+> pattern (AsyncStorage session + AppState auto-refresh; SecureStore's 2KB
+> limit rules out the W1 note, encrypted LargeSecureStore = deferred
+> hardening); the typed client finally passes `getToken`; `POST /auth/sync`
+> mirrors users after sign-in. 3 modal screens (sign-in w/ `?reason=wishlist`
+> context · sign-up w/ check-your-inbox branch · forgot → reset completes on
+> the web). **Wishlist**: `useWishlist` optimistic toggle + `HeartButton` on
+> cards/detail (guest tap → sign-in), **Saved tab** w/ AuthGate + instant
+> remove, **Account tab** (profile · edit display name `PATCH /users/me` ·
+> Privacy/Terms open `EXPO_PUBLIC_WEB_URL` · sign out). New env:
+> `EXPO_PUBLIC_SUPABASE_URL/ANON_KEY` + `EXPO_PUBLIC_WEB_URL` in the committed
+> `apps/mobile/.env`. Execution findings: `react-native-url-polyfill` needs
+> the jest transform allowlist · web account copy nests at
+> `messages.auth.account` · nested Pressables → testID presses (RNTL).
+> On-device verified (real sign-up, hearts visible in the web account — same
+> DB); dark-mode visual pass deferred (token-driven, low-risk). Baselines:
+> api 338 · web 191 · admin 152 · **mobile 67 · mobile-ui 31**.
+> **Next: P5 W4 (booking — the final wave)** — departure picker · booking form
+> · hosted Stripe/PayPal checkout via browser + return deep-link · bookings
+> list/detail/cancel in Account.
+>
+> Previously: **P5 mobile W2.5 Design Language COMPLETE
 > (2026-07-07, branch `feat/mobile-w25-design-language`, merged ff-only):**
 > **Fraunces + Geist** brand fonts wired through the mobile theme (`fontFamily`
 > per variant, splash-gated `useFonts`; every `fontWeight` swept — custom fonts
