@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import { AppText, Button, Screen, TextField, useTheme } from '@tourism/mobile-ui';
@@ -62,7 +63,7 @@ export default function EnquiryModal() {
         <View
           style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: theme.spacing(3) }}
         >
-          <AppText variant="display">✓</AppText>
+          <Ionicons name="checkmark-circle" size={56} color={theme.colors['success']} />
           <AppText variant="body" style={{ textAlign: 'center' }}>
             {t.success}
           </AppText>

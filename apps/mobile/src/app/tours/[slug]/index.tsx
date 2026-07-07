@@ -2,11 +2,14 @@ import type { ReactNode } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
-import { Accordion, AppText, Button, Screen, Spinner, useTheme } from '@tourism/mobile-ui';
+import { Accordion, AppText, Badge, Button, Screen, Spinner, useTheme } from '@tourism/mobile-ui';
 import { GalleryPager } from '../../../components/gallery-pager';
+import { TourBadges } from '../../../components/tour-badges';
 import { fetchTourDetail, fetchTourReviews } from '../../../lib/tour-detail';
+import type { TourBadge } from '../../../lib/tours';
 
 const t = messages.mobile.tourDetail;
 const th = messages.mobile.home;
@@ -117,11 +120,6 @@ export default function TourDetailScreen() {
   }
 
   const tour = detailQ.data;
-  const facts = [
-    th.durationDays(tour.durationDays),
-    t.maxGroup(tour.maxGroupSize),
-    ...(tour.difficulty ? [tour.difficulty] : []),
-  ].join(' · ');
   const dollar = tour.currency === 'USD' ? '$' : '';
 
   return (
@@ -130,7 +128,18 @@ export default function TourDetailScreen() {
         contentContainerStyle={{ paddingBottom: theme.spacing(6) }}
         showsVerticalScrollIndicator={false}
       >
-        <GalleryPager images={tour.gallery} title={tour.title} />
+        <View>
+          <GalleryPager images={tour.gallery} title={tour.title} />
+          <View
+            style={{
+              position: 'absolute',
+              top: insets.top + theme.spacing(2),
+              right: theme.spacing(4),
+            }}
+          >
+            <TourBadges badges={tour.badges as TourBadge[]} />
+          </View>
+        </View>
         <View
           style={{
             paddingHorizontal: theme.spacing(4),
@@ -144,20 +153,68 @@ export default function TourDetailScreen() {
             </AppText>
             <AppText variant="display">{tour.title}</AppText>
             {tour.reviewCount > 0 ? (
-              <AppText variant="caption" muted>
-                {t.reviewsLine(tour.rating, tour.reviewCount)}
-              </AppText>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(1) }}>
+                <Ionicons name="star" size={14} color={theme.colors['rating']} />
+                <AppText variant="caption">{tour.rating.toFixed(1)}</AppText>
+                <AppText variant="caption" muted>
+                  ({tour.reviewCount} {messages.featuredTours.reviewsLabel})
+                </AppText>
+              </View>
             ) : null}
-            <AppText variant="caption" muted>
-              {facts}
-            </AppText>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing(3) }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(1) }}>
+                <Ionicons name="time-outline" size={13} color={theme.colors['muted-foreground']} />
+                <AppText variant="caption" muted>
+                  {th.durationDays(tour.durationDays)}
+                </AppText>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(1) }}>
+                <Ionicons
+                  name="people-outline"
+                  size={13}
+                  color={theme.colors['muted-foreground']}
+                />
+                <AppText variant="caption" muted>
+                  {t.maxGroup(tour.maxGroupSize)}
+                </AppText>
+              </View>
+              {tour.difficulty ? (
+                <View
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(1) }}
+                >
+                  <Ionicons
+                    name="walk-outline"
+                    size={13}
+                    color={theme.colors['muted-foreground']}
+                  />
+                  <AppText variant="caption" muted>
+                    {tour.difficulty}
+                  </AppText>
+                </View>
+              ) : null}
+            </View>
             {tour.nextDepartureDate ? (
-              <AppText variant="body" style={{ fontWeight: '600' }}>
-                {t.nextDeparture(tour.nextDepartureDate)}
-                {tour.nextDepartureSeatsLeft != null
-                  ? ` · ${t.seatsLeft(tour.nextDepartureSeatsLeft)}`
-                  : ''}
-              </AppText>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: theme.spacing(2),
+                  flexWrap: 'wrap',
+                }}
+              >
+                <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold }}>
+                  {t.nextDeparture(tour.nextDepartureDate)}
+                </AppText>
+                {tour.nextDepartureSeatsLeft != null ? (
+                  tour.nextDepartureSeatsLeft <= 5 ? (
+                    <Badge tone="warning" label={t.seatsLeft(tour.nextDepartureSeatsLeft)} />
+                  ) : (
+                    <AppText variant="caption" muted>
+                      {t.seatsLeft(tour.nextDepartureSeatsLeft)}
+                    </AppText>
+                  )
+                ) : null}
+              </View>
             ) : null}
           </View>
 
@@ -230,7 +287,7 @@ export default function TourDetailScreen() {
               <View style={{ gap: theme.spacing(3) }}>
                 {tour.policies.map((policy) => (
                   <View key={policy.title} style={{ gap: theme.spacing(1) }}>
-                    <AppText variant="body" style={{ fontWeight: '600' }}>
+                    <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold }}>
                       {policy.title}
                     </AppText>
                     <AppText variant="body" muted>
@@ -265,7 +322,14 @@ export default function TourDetailScreen() {
             {t.from}
           </AppText>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing(2) }}>
-            <AppText variant="title">
+            <AppText
+              style={{
+                fontFamily: theme.fontFamilies.sansSemiBold,
+                fontSize: 18,
+                lineHeight: 24,
+                color: theme.colors['foreground'],
+              }}
+            >
               {dollar}
               {tour.basePrice}
             </AppText>

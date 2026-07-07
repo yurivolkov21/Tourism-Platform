@@ -65,6 +65,7 @@ test('renders the full detail with itinerary accordion and CTA', async () => {
   ]);
   renderDetail();
   expect(await screen.findByText('Ha Long Bay Cruise')).toBeOnTheScreen();
+  expect(screen.getByText('Popular')).toBeOnTheScreen();
   expect(screen.getByText(/next departure: 15 aug 2026/i)).toBeOnTheScreen();
   expect(screen.getByText(/6 seats left/i)).toBeOnTheScreen();
   expect(screen.getByText('Sunset kayaking', { exact: false })).toBeOnTheScreen();
