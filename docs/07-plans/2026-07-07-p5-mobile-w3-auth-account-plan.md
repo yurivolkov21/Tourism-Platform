@@ -2141,5 +2141,9 @@ Append `## STATUS` (tasks + hashes + on-device result). User review → rebase +
       removed from i18n (last consumers replaced).
 - [x] Task 9 — gate green (2026-07-07): mobile **67** · mobile-ui **31** ·
       i18n 1; `nx affected -t lint typecheck test --base=main` green across
-      all 9 projects. **On-device Expo Go check (real sign-up, hearts → web
-      parity, edit name, sign out; light + dark): PENDING (user).**
+      all 9 projects. **On-device Expo Go check: DONE by the user
+      (2026-07-07)** — real sign-up, guest gates, wishlist hearts (web parity
+      via shared DB), edit name, sign out all verified. Dark-mode visual pass
+      deferred (user couldn't locate the OS toggle on the ROG Phone 7;
+      low-risk — all colors are token-driven). Backlog note: an in-app theme
+      toggle (Account → Appearance) was discussed and parked.
