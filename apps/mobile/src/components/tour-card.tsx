@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,13 +15,15 @@ export interface TourCardProps {
   /** 'shelf' = 260-wide horizontal-rail card (Home). 'list' = full-width row (Explore). */
   variant?: 'shelf' | 'list';
   onPress?: () => void;
+  /** Injected wishlist heart (keeps the card presentation-only). */
+  heartSlot?: ReactNode;
 }
 
 function price(currency: string, amount: number) {
   return `${currency === 'USD' ? '$' : `${currency} `}${amount.toLocaleString('en-US')}`;
 }
 
-export function TourCard({ tour, variant = 'shelf', onPress }: TourCardProps) {
+export function TourCard({ tour, variant = 'shelf', onPress, heartSlot }: TourCardProps) {
   const theme = useTheme();
   const list = variant === 'list';
   const lowSeats = tour.nextDepartureSeatsLeft != null && tour.nextDepartureSeatsLeft <= 5;
@@ -43,6 +46,11 @@ export function TourCard({ tour, variant = 'shelf', onPress }: TourCardProps) {
           <View style={{ position: 'absolute', top: theme.spacing(2), left: theme.spacing(2) }}>
             <TourBadges badges={tour.badges} />
           </View>
+          {heartSlot ? (
+            <View style={{ position: 'absolute', top: theme.spacing(2), right: theme.spacing(2) }}>
+              {heartSlot}
+            </View>
+          ) : null}
         </View>
         {/* Every row below renders unconditionally with a locked height so all
             cards in a rail/list line up (web parity — the user's on-device

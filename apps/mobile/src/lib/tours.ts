@@ -6,6 +6,7 @@ export type TourBadge = TourSummaryDto['badges'][number];
 
 /** Structurally satisfies `@tourism/core`'s `FilterableTour` + `SearchableTour`. */
 export interface TourCardVm {
+  id: string;
   slug: string;
   title: string;
   summary?: string;
@@ -27,6 +28,7 @@ export function toTourCardVm(dto: TourSummaryDto): TourCardVm {
   const primary = dto.destinations.find((d) => d.isPrimary) ?? dto.destinations[0];
   const hero = dto.media.find((m) => m.role === 'hero') ?? dto.media[0];
   return {
+    id: dto.id,
     slug: dto.slug,
     title: dto.title,
     summary: dto.summary ?? undefined,

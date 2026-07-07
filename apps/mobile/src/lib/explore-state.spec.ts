@@ -8,6 +8,7 @@ import {
 } from './explore-state';
 
 const tour = (over: Partial<TourCardVm>): TourCardVm => ({
+  id: 'x',
   slug: 'x',
   title: 'X',
   destination: 'Hanoi',

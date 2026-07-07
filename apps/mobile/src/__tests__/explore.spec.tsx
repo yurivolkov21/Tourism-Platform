@@ -26,10 +26,15 @@ jest.mock('../lib/destinations', () => ({
   fetchDestinations: jest.fn(),
 }));
 
+jest.mock('../lib/wishlist', () => ({
+  useWishlist: () => ({ isGuest: true, isSaved: () => false, toggle: jest.fn() }),
+}));
+
 const mockTours = fetchAllTours as jest.MockedFunction<typeof fetchAllTours>;
 const mockDests = fetchDestinations as jest.MockedFunction<typeof fetchDestinations>;
 
 const tour = (over: Partial<TourCardVm>): TourCardVm => ({
+  id: 'x',
   slug: 'x',
   title: 'X',
   destination: 'Hanoi',

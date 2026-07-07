@@ -16,6 +16,10 @@ jest.mock('../lib/tour-detail', () => ({
   fetchTourReviews: jest.fn(),
 }));
 
+jest.mock('../lib/wishlist', () => ({
+  useWishlist: () => ({ isGuest: true, isSaved: () => false, toggle: jest.fn() }),
+}));
+
 const mockDetail = fetchTourDetail as jest.MockedFunction<typeof fetchTourDetail>;
 const mockReviews = fetchTourReviews as jest.MockedFunction<typeof fetchTourReviews>;
 

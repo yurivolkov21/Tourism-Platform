@@ -20,6 +20,10 @@ jest.mock('../lib/destinations', () => ({
   fetchDestinations: jest.fn(),
 }));
 
+jest.mock('../lib/wishlist', () => ({
+  useWishlist: () => ({ isGuest: true, isSaved: () => false, toggle: jest.fn() }),
+}));
+
 import { router } from 'expo-router';
 
 const mockFetch = fetchFeaturedTours as jest.MockedFunction<typeof fetchFeaturedTours>;
@@ -39,6 +43,7 @@ function renderHome() {
 }
 
 const vm = {
+  id: 'uuid-1',
   slug: 'ha-long-cruise',
   title: 'Ha Long Bay Cruise',
   destination: 'Ha Long',

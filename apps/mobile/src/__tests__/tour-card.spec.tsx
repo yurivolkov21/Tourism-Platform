@@ -5,6 +5,7 @@ import { TourCard } from '../components/tour-card';
 import type { TourCardVm } from '../lib/tours';
 
 const vm: TourCardVm = {
+  id: 'uuid-1',
   slug: 'ha-long-cruise',
   title: 'Ha Long Bay Cruise',
   summary: 'Two days among the karsts.',

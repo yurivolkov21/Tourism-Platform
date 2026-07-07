@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import { AppText, Badge, Button, Screen, Skeleton, useTheme } from '@tourism/mobile-ui';
 import { DestinationCard } from '../../components/destination-card';
+import { HeartButton } from '../../components/heart-button';
 import { SectionHeading } from '../../components/section-heading';
 import { TourCard } from '../../components/tour-card';
 import { fetchDestinations } from '../../lib/destinations';
@@ -173,7 +174,11 @@ export default function HomeScreen() {
               data={toursQ.data}
               keyExtractor={(item) => item.slug}
               renderItem={({ item }) => (
-                <TourCard tour={item} onPress={() => router.push(`/tours/${item.slug}`)} />
+                <TourCard
+                  tour={item}
+                  heartSlot={<HeartButton tourId={item.id} />}
+                  onPress={() => router.push(`/tours/${item.slug}`)}
+                />
               )}
               ItemSeparatorComponent={() => <View style={{ width: theme.spacing(3) }} />}
               showsHorizontalScrollIndicator={false}

@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import { Accordion, AppText, Badge, Button, Screen, Spinner, useTheme } from '@tourism/mobile-ui';
 import { GalleryPager } from '../../../components/gallery-pager';
+import { HeartButton } from '../../../components/heart-button';
 import { TourBadges } from '../../../components/tour-badges';
 import { fetchTourDetail, fetchTourReviews } from '../../../lib/tour-detail';
 import type { TourBadge } from '../../../lib/tours';
@@ -135,8 +136,12 @@ export default function TourDetailScreen() {
               position: 'absolute',
               top: insets.top + theme.spacing(2),
               right: theme.spacing(4),
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: theme.spacing(2),
             }}
           >
+            <HeartButton tourId={tour.id} />
             <TourBadges badges={tour.badges as TourBadge[]} />
           </View>
         </View>

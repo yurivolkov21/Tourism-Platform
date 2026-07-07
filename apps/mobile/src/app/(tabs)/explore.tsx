@@ -15,6 +15,7 @@ import {
   TextField,
   useTheme,
 } from '@tourism/mobile-ui';
+import { HeartButton } from '../../components/heart-button';
 import { SectionHeading } from '../../components/section-heading';
 import { TourCard } from '../../components/tour-card';
 import { fetchDestinations } from '../../lib/destinations';
@@ -153,7 +154,12 @@ export default function ExploreScreen() {
         data={toursQ.isSuccess ? results : []}
         keyExtractor={(tour) => tour.slug}
         renderItem={({ item }) => (
-          <TourCard tour={item} variant="list" onPress={() => router.push(`/tours/${item.slug}`)} />
+          <TourCard
+            tour={item}
+            variant="list"
+            heartSlot={<HeartButton tourId={item.id} />}
+            onPress={() => router.push(`/tours/${item.slug}`)}
+          />
         )}
         ItemSeparatorComponent={() => <View style={{ height: theme.spacing(3) }} />}
         ListHeaderComponent={header}

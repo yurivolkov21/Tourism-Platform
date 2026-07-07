@@ -1,6 +1,7 @@
 import { toTourCardVm, type TourSummaryDto } from './tours';
 
 const dto = {
+  id: 'uuid-1',
   slug: 'ha-long-cruise',
   title: 'Ha Long Bay Cruise',
   summary: 'Two days among the karsts.',
@@ -27,6 +28,7 @@ describe('toTourCardVm', () => {
   it('picks the primary destination and hero image, mapping the filterable fields', () => {
     const vm = toTourCardVm(dto);
     expect(vm).toEqual({
+      id: 'uuid-1',
       slug: 'ha-long-cruise',
       title: 'Ha Long Bay Cruise',
       summary: 'Two days among the karsts.',
