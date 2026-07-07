@@ -1680,4 +1680,11 @@ Append `## STATUS` (tasks + hashes + on-device result). Then user review → reb
       i18n 1; `nx affected -t lint typecheck test --base=main` green across all
       9 projects (note: the session's `pnpm add`s wiped the generated Prisma
       client — `npx prisma generate` from `apps/api` restored it; CI does this
-      every run). **On-device Expo Go check (light + dark): PENDING (user).**
+      every run). **On-device Expo Go check: DONE by the user (2026-07-07)** —
+      brand fonts/hero/cards confirmed; feedback round produced the
+      **locked equal-height TourCard rows** fix (`67b8bbf`: meta 1L · title 2L
+      reserved · summary 2L on list · rating always · price 1L, web parity)
+      and a locked direction decision: **"Brand 100% + Structure native"**
+      (bottom tabs stay, no navbar/hamburger/footer/TechCloud; "Browse by
+      experience" categories section goes to the backlog). User closed the
+      wave; future visual adjustments ride later waves.
