@@ -2431,4 +2431,12 @@ Append a `## STATUS` block to this plan (task checklist + commit hashes + on-dev
       `nx affected -t lint typecheck test --base=main` green (web + admin suites
       pass untouched); `nx affected ... build --exclude=@tourism/mobile` green
       (web + admin compile; mobile `build` = EAS cloud, excluded per standing
-      rule). **On-device Expo Go check: PENDING (user).**
+      rule). **On-device Expo Go check: DONE by the user (2026-07-07)** — browse /
+      filter / detail / enquiry all work. Two findings, both fixed in `6f36dd4`:
+      Android renders `presentation: 'modal'` as a full-screen page (no iOS-style
+      sheet) → added `animation: 'slide_from_bottom'` so it visibly slides up
+      (full-screen form = the Material pattern, keyboard-safe); the detail
+      ScrollView flashed its scroll indicator on entry → hidden (Explore already
+      hid its own). Deferred (user-accepted): visual polish to match the web's
+      responsive design is NOT this wave — W2 is the skeleton; a later design
+      pass will close the gap.
