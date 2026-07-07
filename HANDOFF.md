@@ -31,9 +31,30 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile W1 Foundation + W2 Browse & Detail COMPLETE + on-device verified (W2 merged 2026-07-07)** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile W1 Foundation + W2 Browse & Detail + W2.5 Design Language COMPLETE + on-device verified (W2.5 merged 2026-07-07)** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
 
-> **Next action:** no active feature. **P5 mobile W2 Browse & Detail COMPLETE
+> **Next action:** no active feature. **P5 mobile W2.5 Design Language COMPLETE
+> (2026-07-07, branch `feat/mobile-w25-design-language`, merged ff-only):**
+> **Fraunces + Geist** brand fonts wired through the mobile theme (`fontFamily`
+> per variant, splash-gated `useFonts`; every `fontWeight` swept — custom fonts
+> on Android need family switches) · `@tourism/mobile-ui` gains Badge (web tone
+> map) and Skeleton (pulse) plus Card shadow and `TextField.leading` · **web-parity
+> TourCard** with **locked equal-height rows** (meta 1L · title 2L reserved ·
+> summary 2L on list · rating always shown · price 1L — user feedback: no more
+> short/tall card mix) · **Home rebuilt** (full-bleed hero + scrim + centred
+> Fraunces headline + search pill → Explore autofocus · featured shelf ·
+> destinations rail → pre-filtered Explore · why-strip · CTA band) · icon facts
+> + gallery badges on detail · tab bar filled active icons · styled
+> placeholders. **UI direction LOCKED with the user: "Brand 100% + Structure
+> native"** — web-identical identity, app-native structure (no navbar/
+> hamburger/footer/TechCloud); **backlog: "Browse by experience" categories
+> section**. New deps: expo-font · expo-splash-screen ·
+> @expo-google-fonts/{fraunces,geist}. Baselines: api 338 · web 191 · admin 152
+> · **mobile 41 · mobile-ui 31**.
+> **Next: P5 W3 (auth & account)** — Supabase auth (secure-store token),
+> login/register, account/profile, wishlist (heart + Saved tab).
+>
+> Previously: **P5 mobile W2 Browse & Detail COMPLETE
 > (2026-07-07, branch `feat/mobile-w2-browse-detail`, merged ff-only):** real
 > Explore tab (instant client-side search via `@tourism/core` helpers ·
 > destination chips rail · duration/price/sort facet chips · full-width tour
