@@ -77,6 +77,18 @@ function ThemedStack() {
           name="tours/[slug]/enquiry"
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
+        <Stack.Screen
+          name="auth/sign-in"
+          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        />
+        <Stack.Screen
+          name="auth/sign-up"
+          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        />
+        <Stack.Screen
+          name="auth/forgot"
+          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        />
       </Stack>
     </NavigationThemeProvider>
   );
