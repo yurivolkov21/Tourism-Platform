@@ -15,3 +15,5 @@ export { Chip } from './lib/chip';
 export type { ChipProps } from './lib/chip';
 export { Accordion } from './lib/accordion';
 export type { AccordionProps } from './lib/accordion';
+export { Badge } from './lib/badge';
+export type { BadgeProps, BadgeTone } from './lib/badge';

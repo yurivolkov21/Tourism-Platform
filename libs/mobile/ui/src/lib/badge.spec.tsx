@@ -1,0 +1,26 @@
+import { render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
+import { theme as tokens } from '@tourism/tokens/theme';
+import { ThemeProvider } from './theme-provider';
+import { Badge } from './badge';
+
+test('renders the label on the tone background', () => {
+  render(
+    <ThemeProvider>
+      <Badge label="Best value" tone="success" testID="badge" />
+    </ThemeProvider>,
+  );
+  expect(screen.getByText('Best value')).toBeOnTheScreen();
+  const flattened = StyleSheet.flatten(screen.getByTestId('badge').props.style);
+  expect(flattened.backgroundColor).toBe(tokens.colors.light['success']);
+});
+
+test('rating tone keeps foreground text (web parity)', () => {
+  render(
+    <ThemeProvider>
+      <Badge label="Popular" tone="rating" />
+    </ThemeProvider>,
+  );
+  const text = screen.getByText('Popular');
+  expect(StyleSheet.flatten(text.props.style).color).toBe(tokens.colors.light['foreground']);
+});
