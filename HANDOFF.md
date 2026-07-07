@@ -31,9 +31,30 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile W1 Foundation COMPLETE + on-device verified (2026-07-06)** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile W1 Foundation + W2 Browse & Detail COMPLETE + on-device verified (W2 merged 2026-07-07)** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
 
-> **Next action:** no active feature — real content authoring (region/overview
+> **Next action:** no active feature. **P5 mobile W2 Browse & Detail COMPLETE
+> (2026-07-07, branch `feat/mobile-w2-browse-detail`, merged ff-only):** real
+> Explore tab (instant client-side search via `@tourism/core` helpers ·
+> destination chips rail · duration/price/sort facet chips · full-width tour
+> list) · tour-detail stack screen at web parity (gallery pager + dots ·
+> seats-left · itinerary/FAQ accordions · reviews · sticky price + "Inquire
+> now" bar) · enquiry bottom-modal (validated form, 429-aware, thank-you
+> auto-close) · 3 new `@tourism/mobile-ui` primitives (TextField · Chip ·
+> Accordion). On-device feedback hardening: **three-layer background theming**
+> kills the white transition flash (Stack `contentStyle` + Tabs `sceneStyle` ·
+> react-navigation `ThemeProvider` · `expo-system-ui` root view — see
+> `apps/mobile/src/app/_layout.tsx` doc comment) · `ios_from_right` push +
+> `slide_from_bottom` modal · device-polish audit (Screen hides scroll
+> indicators by default · pressed states + hitSlop · keyboard-friendly Explore
+> taps · themed RefreshControl) · mobile jest `testTimeout: 20000` (RN suites
+> blew Jest's 5s on the shared CI runner — CI run #371 was that, not a lint
+> break). New SDK-pinned deps: `@react-navigation/native` · `expo-system-ui`.
+> Baselines: api 338 · web 191 · admin 152 · **mobile 33 · mobile-ui 26**.
+> **Next: P5 W3 (auth & account)** — Supabase auth (secure-store token),
+> login/register, account/profile, wishlist (heart + Saved tab).
+>
+> Previously — real content authoring (region/overview
 > imagery now derives from `Destination.media[]` with fixtures as fallback + 48
 > destination / 23 tour / 10 post real Unsplash images seeded and synced to the live
 > `media_assets` table) COMPLETE (2026-07-06, branch `feat/real-content-authoring`).
@@ -55,11 +76,12 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 > The P5 lane note ("teammate's lane / `origin/nghia*`") is obsolete — the user
 > now drives P5 in-session; `origin/nghia` still must not be deleted.
 >
-> Remaining candidates, user picks: **P5 mobile W2 (browse & detail)** —
-> tours listing (reuse `filterTours`/`searchTours`) · destinations · tour detail +
-> enquiry form · **admin-managed brand-chrome** (an admin surface
+> Remaining candidates, user picks: **P5 mobile W3 (auth & account)** — Supabase
+> auth (secure-store token) · login/register · account/profile · wishlist (heart +
+> Saved tab) · **admin-managed brand-chrome** (an admin surface
 > for the now-real home/experiences/heroes images — needs a "site/page media" model)
-> · tour gallery/video + post body imagery beyond heroes.
+> · tour gallery/video + post body imagery beyond heroes · mobile design-polish
+> pass (match web's responsive look; splash/adaptive-icon dark-mode assets).
 >
 > **Verification status (user, 2026-07-06, on deployed) — refund + queue fully
 > e2e-verified on BOTH gateways:** ✅ **Stripe** partial refund + deny confirmed
