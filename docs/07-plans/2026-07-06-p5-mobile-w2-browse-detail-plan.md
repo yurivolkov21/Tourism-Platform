@@ -2437,6 +2437,10 @@ Append a `## STATUS` block to this plan (task checklist + commit hashes + on-dev
       sheet) → added `animation: 'slide_from_bottom'` so it visibly slides up
       (full-screen form = the Material pattern, keyboard-safe); the detail
       ScrollView flashed its scroll indicator on entry → hidden (Explore already
-      hid its own). Deferred (user-accepted): visual polish to match the web's
+      hid its own). Third finding (`e6bf68c`): pushes to the detail flashed a
+      white strip — the native-stack default background is white and shows
+      through the transition gap → themed `contentStyle` on the root Stack +
+      `animation: 'ios_from_right'` (smooth parallax push on Android). Deferred
+      (user-accepted): visual polish to match the web's
       responsive design is NOT this wave — W2 is the skeleton; a later design
       pass will close the gap.
