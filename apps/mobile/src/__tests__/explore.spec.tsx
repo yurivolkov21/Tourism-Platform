@@ -78,10 +78,12 @@ test('duration chip filters, clear filters restores', async () => {
   mockDests.mockResolvedValueOnce([]);
   renderExplore();
   await screen.findByText('Ha Long Bay Cruise');
-  await userEvent.press(screen.getByRole('button', { name: '1 day' }));
+  // Bucket chips are pressed by testID: RNTL's byRole name matching also scans a
+  // button's descendant text, so "1 day" would collide with a 1-day tour card.
+  await userEvent.press(screen.getByTestId('duration-1'));
   expect(screen.queryByText('Ha Long Bay Cruise')).not.toBeOnTheScreen();
-  await userEvent.press(screen.getByRole('button', { name: '4+ days' }));
-  await userEvent.press(screen.getByRole('button', { name: '1 day' }));
+  await userEvent.press(screen.getByTestId('duration-4+'));
+  await userEvent.press(screen.getByTestId('duration-1'));
   // only 4+ selected now -> nothing matches -> empty state with clear
   expect(await screen.findByText('No tours match your search.')).toBeOnTheScreen();
   await userEvent.press(screen.getByRole('button', { name: 'Clear filters' }));

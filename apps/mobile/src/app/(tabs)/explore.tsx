@@ -102,6 +102,7 @@ export default function ExploreScreen() {
         {DURATIONS.map((d) => (
           <Chip
             key={d}
+            testID={`duration-${d}`}
             label={t.duration[d]}
             selected={state.durations.includes(d)}
             onPress={() => setState((s) => ({ ...s, durations: toggleBucket(s.durations, d) }))}
@@ -112,6 +113,7 @@ export default function ExploreScreen() {
         {PRICES.map((p) => (
           <Chip
             key={p}
+            testID={`price-${p}`}
             label={t.price[p]}
             selected={state.prices.includes(p)}
             onPress={() => setState((s) => ({ ...s, prices: toggleBucket(s.prices, p) }))}
@@ -122,6 +124,7 @@ export default function ExploreScreen() {
         {SORTS.map((sort) => (
           <Chip
             key={sort}
+            testID={`sort-${sort}`}
             label={t.sort[sort]}
             selected={state.sort === sort}
             onPress={() => setState((s) => ({ ...s, sort }))}
