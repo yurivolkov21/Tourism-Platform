@@ -1656,4 +1656,28 @@ Append `## STATUS` (tasks + hashes + on-device result). Then user review → reb
 
 ## STATUS
 
-_(filled in during execution)_
+- [x] Task 1 — fonts foundation (`68e2bdd`): theme `fontFamily` per variant +
+      `fontFamilies`, root-layout `useFonts` + splash gate, `fontWeight` swept
+      from all lib components; deps expo-font ~14.0.12 · expo-splash-screen
+      ~31.0.13 · @expo-google-fonts/{fraunces ^0.4.1, geist ^0.4.2}
+- [x] Task 2 — Badge (`707dbbe`)
+- [x] Task 3 — Skeleton + Card shadow (`74ac102`)
+- [x] Task 4 — VM badges/seats/toursCount (`7f7ff4c` + fixture fixup `682e6cd`)
+- [x] Task 5 — SectionHeading + TourBadges + TourCard redesign +
+      DestinationCard (`85c656e`). Execution finding: RNTL `byRole` name
+      matching also scans a button's DESCENDANT text — a "1 day" chip collides
+      with a 1-day tour card. Facet chips + destination tiles now carry
+      `testID`s and tests press by testID.
+- [x] Task 6 — Home rebuilt (`2fd0443`): hero (centred copy like web) +
+      featured + destinations rail + why + CTA; `mobile.home.cta*` i18n keys
+- [x] Task 7 — Explore polish (`8d6dedb`): TextField `leading` slot +
+      `initialExploreState` (TDD) + autofocus from `focusSearch=1`
+- [x] Task 8 — detail + modal polish (`05f7005`): gallery badges (top-right),
+      icon facts, low-seats warning Badge, success check icon; zero
+      `fontWeight` left in `apps/mobile/src`
+- [x] Task 9 — tab bar filled active icons + styled placeholders (`b45a102`)
+- [x] Task 10 — gate green (2026-07-07): mobile **39** · mobile-ui **31** ·
+      i18n 1; `nx affected -t lint typecheck test --base=main` green across all
+      9 projects (note: the session's `pnpm add`s wiped the generated Prisma
+      client — `npx prisma generate` from `apps/api` restored it; CI does this
+      every run). **On-device Expo Go check (light + dark): PENDING (user).**
