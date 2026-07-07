@@ -13,6 +13,7 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: theme.colors['primary'],
         tabBarInactiveTintColor: theme.colors['muted-foreground'],
+        tabBarLabelStyle: { fontFamily: theme.fontFamilies.sansMedium, fontSize: 11 },
         tabBarStyle: {
           backgroundColor: theme.colors['background'],
           borderTopColor: theme.colors['border'],
@@ -26,8 +27,8 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: t.home,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'home' : 'home-outline'} color={color} size={size} />
           ),
         }}
       />
@@ -35,8 +36,8 @@ export default function TabsLayout() {
         name="explore"
         options={{
           title: t.explore,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="compass-outline" color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'compass' : 'compass-outline'} color={color} size={size} />
           ),
         }}
       />
@@ -44,8 +45,8 @@ export default function TabsLayout() {
         name="saved"
         options={{
           title: t.saved,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart-outline" color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'heart' : 'heart-outline'} color={color} size={size} />
           ),
         }}
       />
@@ -53,8 +54,12 @@ export default function TabsLayout() {
         name="account"
         options={{
           title: t.account,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-circle-outline" color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'person-circle' : 'person-circle-outline'}
+              color={color}
+              size={size}
+            />
           ),
         }}
       />
