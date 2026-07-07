@@ -17,6 +17,7 @@ export function DestinationCard({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={destination.name}
+      testID={`destination-${destination.slug}`}
       onPress={onPress}
       style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
     >

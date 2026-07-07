@@ -1743,6 +1743,9 @@ export const messages = {
       empty: 'No tours to show yet — check back soon.',
       from: 'From',
       durationDays: (days: number) => `${days} ${days === 1 ? 'day' : 'days'}`,
+      ctaTitle: 'Dreaming of Vietnam?',
+      ctaSubtitle: 'Tell us your dates and wishes — we will craft the journey.',
+      ctaButton: 'Start exploring',
     },
     explore: {
       title: 'Explore tours',
