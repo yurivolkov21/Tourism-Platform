@@ -17,6 +17,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { ThemeProvider, useTheme } from '@tourism/mobile-ui';
+import { AuthProvider } from '../lib/auth-context';
 
 const queryClient = new QueryClient({
   // Render free tier cold-starts (~30s): keep retrying a bit before erroring.
@@ -99,8 +100,10 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
-        <StatusBar style="auto" />
-        <ThemedStack />
+        <AuthProvider>
+          <StatusBar style="auto" />
+          <ThemedStack />
+        </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );
