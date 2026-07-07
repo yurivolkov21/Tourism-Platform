@@ -1850,10 +1850,6 @@ export const messages = {
       error: "Couldn't load your saved tours.",
       retry: 'Try again',
     },
-    placeholders: {
-      saved: 'Your saved tours will live here. Sign-in arrives in a later update.',
-      account: 'Manage your profile and bookings here soon.',
-    },
   },
 } as const;
 
