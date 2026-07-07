@@ -65,7 +65,8 @@ test('signed-in users see their saved tours and can remove one', async () => {
   ]);
   renderSaved();
   expect(await screen.findByText('Ha Long Bay Cruise')).toBeOnTheScreen();
-  await userEvent.press(screen.getByRole('button', { name: 'Remove from saved' }));
+  // by testID: the row Pressable nests the remove button (RNTL name matching collides)
+  await userEvent.press(screen.getByTestId('remove-uuid-1'));
   expect(mockToggle).toHaveBeenCalledWith('uuid-1');
 });
 

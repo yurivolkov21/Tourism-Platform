@@ -60,6 +60,7 @@ function SavedRow({ tour, onRemove }: { tour: SavedTourVm; onRemove: () => void 
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t.removeLabel}
+        testID={`remove-${tour.tourId}`}
         hitSlop={8}
         onPress={onRemove}
         style={({ pressed }) => ({ padding: theme.spacing(2), opacity: pressed ? 0.6 : 1 })}
