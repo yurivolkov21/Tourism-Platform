@@ -2440,7 +2440,21 @@ Append a `## STATUS` block to this plan (task checklist + commit hashes + on-dev
       hid its own). Third finding (`e6bf68c`): pushes to the detail flashed a
       white strip — the native-stack default background is white and shows
       through the transition gap → themed `contentStyle` on the root Stack +
-      `animation: 'ios_from_right'` (smooth parallax push on Android). Deferred
+      `animation: 'ios_from_right'` (smooth parallax push on Android). Fourth
+      (`2ced2b9`): the POP direction still flashed — the Tabs navigator's scene
+      wrapper has its own white react-navigation background → themed
+      `sceneStyle` in the Tabs `screenOptions`. **Proactive device-polish audit
+      (user asked to stop whack-a-mole, `2226af3`):** `Screen` now hides the
+      vertical scroll indicator by default (kills the class for Home + enquiry
+      modal + all future screens; +1 mobile-ui test = 26) · pressed-state
+      feedback on `TourCard` and the detail back overlay (+`hitSlop` — 36dp
+      circle < 44dp touch target) · Explore list gets
+      `keyboardShouldPersistTaps="handled"` + `keyboardDismissMode="on-drag"`
+      (first tap acts instead of only dismissing the search keyboard) · themed
+      `RefreshControl` (Home + Explore). Audited clean: `userInterfaceStyle:
+      "automatic"` (dark mode) · no other navigator lacks scene theming · no
+      stray hex. Splash/adaptive-icon backgrounds are white → deferred to the
+      design-polish pass. Deferred
       (user-accepted): visual polish to match the web's
       responsive design is NOT this wave — W2 is the skeleton; a later design
       pass will close the gap.
