@@ -8,6 +8,7 @@ export type TourBadge = TourSummaryDto['badges'][number];
 export interface TourCardVm {
   slug: string;
   title: string;
+  summary?: string;
   destination: string;
   durationDays: number;
   basePrice: number;
@@ -28,6 +29,7 @@ export function toTourCardVm(dto: TourSummaryDto): TourCardVm {
   return {
     slug: dto.slug,
     title: dto.title,
+    summary: dto.summary ?? undefined,
     destination: primary?.destination.name ?? '',
     durationDays: dto.durationDays,
     basePrice: Number(dto.basePrice),

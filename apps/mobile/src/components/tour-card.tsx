@@ -44,26 +44,45 @@ export function TourCard({ tour, variant = 'shelf', onPress }: TourCardProps) {
             <TourBadges badges={tour.badges} />
           </View>
         </View>
+        {/* Every row below renders unconditionally with a locked height so all
+            cards in a rail/list line up (web parity — the user's on-device
+            feedback 2026-07-07: no more short/tall card mix). */}
         <View style={{ padding: theme.spacing(3), gap: theme.spacing(2) }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(3) }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(1) }}>
+          {/* Row 1 — meta, exactly 1 line */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: theme.spacing(3),
+              height: 18,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: theme.spacing(1),
+                flexShrink: 1,
+              }}
+            >
               <Ionicons
                 name="location-outline"
                 size={13}
                 color={theme.colors['muted-foreground']}
               />
-              <AppText variant="caption" muted>
+              <AppText variant="caption" muted numberOfLines={1} style={{ flexShrink: 1 }}>
                 {tour.destination}
               </AppText>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(1) }}>
               <Ionicons name="time-outline" size={13} color={theme.colors['muted-foreground']} />
-              <AppText variant="caption" muted>
+              <AppText variant="caption" muted numberOfLines={1}>
                 {tm.home.durationDays(tour.durationDays)}
               </AppText>
             </View>
           </View>
 
+          {/* Row 2 — title, exactly 2 lines reserved */}
           <AppText
             numberOfLines={2}
             style={{
@@ -77,30 +96,36 @@ export function TourCard({ tour, variant = 'shelf', onPress }: TourCardProps) {
             {tour.title}
           </AppText>
 
+          {/* Row 3 (list only) — summary, exactly 2 lines reserved */}
+          {list ? (
+            <AppText variant="caption" muted numberOfLines={2} style={{ minHeight: 32 }}>
+              {tour.summary ?? ''}
+            </AppText>
+          ) : null}
+
+          {/* Row 4 — rating (always shown, web parity) + seats badge, 1 line */}
           <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'space-between',
               gap: theme.spacing(2),
+              height: 20,
             }}
           >
-            {tour.reviewCount > 0 ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(1) }}>
-                <Ionicons name="star" size={14} color={theme.colors['rating']} />
-                <AppText variant="caption">{tour.rating.toFixed(1)}</AppText>
-                <AppText variant="caption" muted>
-                  ({tour.reviewCount} {t.reviewsLabel})
-                </AppText>
-              </View>
-            ) : (
-              <View />
-            )}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(1) }}>
+              <Ionicons name="star" size={14} color={theme.colors['rating']} />
+              <AppText variant="caption">{tour.rating.toFixed(1)}</AppText>
+              <AppText variant="caption" muted>
+                ({tour.reviewCount} {t.reviewsLabel})
+              </AppText>
+            </View>
             {list && lowSeats && tour.nextDepartureSeatsLeft != null ? (
               <Badge tone="warning" label={tm.tourDetail.seatsLeft(tour.nextDepartureSeatsLeft)} />
             ) : null}
           </View>
 
+          {/* Row 5 — price, 1 line */}
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing(2) }}>
             <AppText variant="caption" muted>
               {t.from}

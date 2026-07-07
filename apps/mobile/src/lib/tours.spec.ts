@@ -3,6 +3,7 @@ import { toTourCardVm, type TourSummaryDto } from './tours';
 const dto = {
   slug: 'ha-long-cruise',
   title: 'Ha Long Bay Cruise',
+  summary: 'Two days among the karsts.',
   durationDays: 3,
   basePrice: '450',
   compareAtPrice: '520',
@@ -28,6 +29,7 @@ describe('toTourCardVm', () => {
     expect(vm).toEqual({
       slug: 'ha-long-cruise',
       title: 'Ha Long Bay Cruise',
+      summary: 'Two days among the karsts.',
       destination: 'Ha Long',
       durationDays: 3,
       basePrice: 450,

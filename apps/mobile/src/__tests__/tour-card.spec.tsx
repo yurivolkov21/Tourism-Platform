@@ -7,6 +7,7 @@ import type { TourCardVm } from '../lib/tours';
 const vm: TourCardVm = {
   slug: 'ha-long-cruise',
   title: 'Ha Long Bay Cruise',
+  summary: 'Two days among the karsts.',
   destination: 'Ha Long',
   durationDays: 3,
   basePrice: 450,
@@ -45,4 +46,24 @@ test('list variant shows the low-seats badge', () => {
 test('shelf variant hides the low-seats badge', () => {
   renderCard('shelf');
   expect(screen.queryByText('3 seats left')).not.toBeOnTheScreen();
+});
+
+test('list variant shows the 2-line summary; shelf does not', () => {
+  renderCard('list');
+  expect(screen.getByText('Two days among the karsts.')).toBeOnTheScreen();
+  screen.unmount();
+  renderCard('shelf');
+  expect(screen.queryByText('Two days among the karsts.')).not.toBeOnTheScreen();
+});
+
+test('rating row always renders (locked card height), even with zero reviews', () => {
+  render(
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <TourCard tour={{ ...vm, rating: 0, reviewCount: 0 }} onPress={jest.fn()} />
+      </ThemeProvider>
+    </SafeAreaProvider>,
+  );
+  expect(screen.getByText('0.0')).toBeOnTheScreen();
+  expect(screen.getByText(/\(0 reviews\)/)).toBeOnTheScreen();
 });
