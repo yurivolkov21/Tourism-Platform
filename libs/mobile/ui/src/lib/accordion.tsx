@@ -35,7 +35,7 @@ export function Accordion({ title, children, initiallyOpen = false }: AccordionP
           backgroundColor: state.pressed ? theme.colors['muted'] : 'transparent',
         })}
       >
-        <AppText variant="body" style={{ fontWeight: '600', flex: 1 }}>
+        <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold, flex: 1 }}>
           {title}
         </AppText>
         <AppText variant="body" muted>

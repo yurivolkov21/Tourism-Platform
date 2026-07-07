@@ -4,9 +4,27 @@ export type ColorScheme = 'light' | 'dark';
 
 export interface TypographyVariant {
   fontSize: number;
-  fontWeight: '400' | '600' | '700';
   lineHeight: number;
+  /** Exact loaded font name — custom fonts on Android ignore fontWeight. */
+  fontFamily: string;
 }
+
+export interface FontFamilies {
+  heading: string;
+  headingBold: string;
+  sans: string;
+  sansMedium: string;
+  sansSemiBold: string;
+}
+
+/** PostScript names as registered by @expo-google-fonts (loaded in the app's root layout). */
+export const fontFamilies: FontFamilies = {
+  heading: 'Fraunces_600SemiBold',
+  headingBold: 'Fraunces_700Bold',
+  sans: 'Geist_400Regular',
+  sansMedium: 'Geist_500Medium',
+  sansSemiBold: 'Geist_600SemiBold',
+};
 
 export interface Theme {
   scheme: ColorScheme;
@@ -15,6 +33,7 @@ export interface Theme {
   radius: { sm: number; md: number; lg: number; xl: number };
   /** 4dp grid: spacing(4) = 16. */
   spacing: (steps: number) => number;
+  fontFamilies: FontFamilies;
   typography: {
     display: TypographyVariant;
     title: TypographyVariant;
@@ -35,11 +54,12 @@ export function buildTheme(scheme: ColorScheme): Theme {
       xl: base * 2,
     },
     spacing: (steps) => steps * 4,
+    fontFamilies,
     typography: {
-      display: { fontSize: 28, fontWeight: '700', lineHeight: 34 },
-      title: { fontSize: 20, fontWeight: '600', lineHeight: 26 },
-      body: { fontSize: 15, fontWeight: '400', lineHeight: 22 },
-      caption: { fontSize: 12, fontWeight: '400', lineHeight: 16 },
+      display: { fontSize: 28, lineHeight: 34, fontFamily: fontFamilies.headingBold },
+      title: { fontSize: 20, lineHeight: 26, fontFamily: fontFamilies.heading },
+      body: { fontSize: 15, lineHeight: 22, fontFamily: fontFamilies.sans },
+      caption: { fontSize: 12, lineHeight: 16, fontFamily: fontFamilies.sansMedium },
     },
   };
 }

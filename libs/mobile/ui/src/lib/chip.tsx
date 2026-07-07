@@ -42,7 +42,7 @@ export function Chip({ label, selected = false, imageUri, style, ...rest }: Chip
       <AppText
         variant="caption"
         style={{
-          fontWeight: '600',
+          fontFamily: theme.fontFamilies.sansSemiBold,
           color: selected ? theme.colors['primary-foreground'] : theme.colors['foreground'],
         }}
       >

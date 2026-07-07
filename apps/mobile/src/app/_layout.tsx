@@ -5,7 +5,15 @@ import {
   ThemeProvider as NavigationThemeProvider,
 } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useFonts } from 'expo-font';
+import { Fraunces_600SemiBold, Fraunces_700Bold } from '@expo-google-fonts/fraunces';
+import {
+  Geist_400Regular,
+  Geist_500Medium,
+  Geist_600SemiBold,
+} from '@expo-google-fonts/geist';
 import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { ThemeProvider, useTheme } from '@tourism/mobile-ui';
@@ -14,6 +22,9 @@ const queryClient = new QueryClient({
   // Render free tier cold-starts (~30s): keep retrying a bit before erroring.
   defaultOptions: { queries: { retry: 2, staleTime: 5 * 60_000 } },
 });
+
+// Hold the splash until the brand fonts are ready (no system-font flash).
+SplashScreen.preventAutoHideAsync();
 
 /**
  * Needs useTheme, so it lives inside ThemeProvider. Three background layers
@@ -71,6 +82,20 @@ function ThemedStack() {
 }
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    Fraunces_600SemiBold,
+    Fraunces_700Bold,
+    Geist_400Regular,
+    Geist_500Medium,
+    Geist_600SemiBold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null; // splash stays visible
+
   return (
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>

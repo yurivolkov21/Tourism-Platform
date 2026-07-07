@@ -20,4 +20,13 @@ describe('buildTheme', () => {
   it('spaces on a 4dp grid', () => {
     expect(buildTheme('light').spacing(4)).toBe(16);
   });
+
+  it('maps typography variants to the brand font families', () => {
+    const { typography, fontFamilies } = buildTheme('light');
+    expect(typography.display.fontFamily).toBe('Fraunces_700Bold');
+    expect(typography.title.fontFamily).toBe('Fraunces_600SemiBold');
+    expect(typography.body.fontFamily).toBe('Geist_400Regular');
+    expect(typography.caption.fontFamily).toBe('Geist_500Medium');
+    expect(fontFamilies.sansSemiBold).toBe('Geist_600SemiBold');
+  });
 });

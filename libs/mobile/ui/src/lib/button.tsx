@@ -39,7 +39,7 @@ export function Button({ label, variant = 'primary', loading, disabled, style, .
       <AppText
         variant="body"
         style={{
-          fontWeight: '600',
+          fontFamily: theme.fontFamilies.sansSemiBold,
           color: primary ? theme.colors['primary-foreground'] : theme.colors['foreground'],
         }}
       >

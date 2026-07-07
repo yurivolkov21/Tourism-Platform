@@ -13,7 +13,7 @@ export function TextField({ label, error, multiline, style, ...rest }: TextField
   return (
     <View style={{ gap: theme.spacing(1) }}>
       {label ? (
-        <AppText variant="caption" style={{ fontWeight: '600' }}>
+        <AppText variant="caption" style={{ fontFamily: theme.fontFamilies.sansSemiBold }}>
           {label}
         </AppText>
       ) : null}
