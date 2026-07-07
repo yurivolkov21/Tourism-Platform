@@ -35,6 +35,11 @@ jest.mock('expo-image', () => {
   };
 });
 
+// AsyncStorage native module doesn't exist under jest — use the package's own mock.
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
+);
+
 if (typeof global.structuredClone === 'undefined') {
   global.structuredClone = (object) => JSON.parse(JSON.stringify(object));
 }
