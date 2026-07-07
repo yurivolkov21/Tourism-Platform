@@ -16,7 +16,10 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="tours/[slug]/index" />
-          <Stack.Screen name="tours/[slug]/enquiry" options={{ presentation: 'modal' }} />
+          <Stack.Screen
+            name="tours/[slug]/enquiry"
+            options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+          />
         </Stack>
       </QueryClientProvider>
     </ThemeProvider>

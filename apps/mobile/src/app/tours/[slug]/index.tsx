@@ -124,7 +124,10 @@ export default function TourDetailScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors['background'] }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: theme.spacing(6) }}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: theme.spacing(6) }}
+        showsVerticalScrollIndicator={false}
+      >
         <GalleryPager images={tour.gallery} title={tour.title} />
         <View
           style={{
