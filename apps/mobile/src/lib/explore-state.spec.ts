@@ -3,6 +3,7 @@ import {
   applyExploreState,
   defaultExploreState,
   hasActiveFilters,
+  initialExploreState,
   toggleBucket,
 } from './explore-state';
 
@@ -52,6 +53,15 @@ test('sort price-asc orders by basePrice', () => {
 test('toggleBucket adds then removes', () => {
   expect(toggleBucket(['1'], '2-3')).toEqual(['1', '2-3']);
   expect(toggleBucket(['1', '2-3'], '1')).toEqual(['2-3']);
+});
+
+test('initialExploreState presets the destination from route params', () => {
+  expect(initialExploreState({ destination: 'Ha Long' })).toEqual({
+    ...defaultExploreState,
+    destination: 'Ha Long',
+  });
+  expect(initialExploreState({})).toEqual(defaultExploreState);
+  expect(initialExploreState({ destination: ['A', 'B'] })).toEqual(defaultExploreState);
 });
 
 test('hasActiveFilters is false for default, true for any facet', () => {

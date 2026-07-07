@@ -1,3 +1,4 @@
+import { Text } from 'react-native';
 import { render, screen, userEvent } from '@testing-library/react-native';
 import { ThemeProvider } from './theme-provider';
 import { TextField } from './text-field';
@@ -20,4 +21,13 @@ test('renders the error message', () => {
     </ThemeProvider>,
   );
   expect(screen.getByText('Please enter a valid email address.')).toBeOnTheScreen();
+});
+
+test('renders the leading slot', () => {
+  render(
+    <ThemeProvider>
+      <TextField label="Search" leading={<Text>go</Text>} />
+    </ThemeProvider>,
+  );
+  expect(screen.getByText('go')).toBeOnTheScreen();
 });

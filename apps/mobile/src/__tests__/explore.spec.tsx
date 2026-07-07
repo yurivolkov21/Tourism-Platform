@@ -6,9 +6,15 @@ import ExploreScreen from '../app/(tabs)/explore';
 import { fetchDestinations } from '../lib/destinations';
 import { fetchAllTours, type TourCardVm } from '../lib/tours';
 
+let mockParams: Record<string, string> = {};
 jest.mock('expo-router', () => ({
   router: { push: jest.fn(), back: jest.fn() },
+  useLocalSearchParams: () => mockParams,
 }));
+
+beforeEach(() => {
+  mockParams = {};
+});
 
 jest.mock('../lib/tours', () => ({
   ...jest.requireActual('../lib/tours'),
@@ -96,4 +102,14 @@ test('renders the error state with retry', async () => {
   renderExplore();
   expect(await screen.findByText(/couldn't load tours/i)).toBeOnTheScreen();
   expect(screen.getByRole('button', { name: /try again/i })).toBeOnTheScreen();
+});
+
+test('destination route param presets the filter', async () => {
+  mockParams = { destination: 'Ha Long' };
+  mockTours.mockResolvedValueOnce(tours);
+  mockDests.mockResolvedValueOnce([]);
+  renderExplore();
+  expect(await screen.findByText('Ha Long Bay Cruise')).toBeOnTheScreen();
+  expect(screen.queryByText('Hanoi Street Food')).not.toBeOnTheScreen();
+  expect(screen.getByText('1 tour')).toBeOnTheScreen();
 });

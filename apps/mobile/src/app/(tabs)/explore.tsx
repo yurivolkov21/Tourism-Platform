@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { FlatList, RefreshControl, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import type { DurationBucket, PriceBucket, TourSort } from '@tourism/core';
 import { messages } from '@tourism/i18n';
@@ -14,12 +15,14 @@ import {
   TextField,
   useTheme,
 } from '@tourism/mobile-ui';
+import { SectionHeading } from '../../components/section-heading';
 import { TourCard } from '../../components/tour-card';
 import { fetchDestinations } from '../../lib/destinations';
 import {
   applyExploreState,
   defaultExploreState,
   hasActiveFilters,
+  initialExploreState,
   toggleBucket,
   type ExploreState,
 } from '../../lib/explore-state';
@@ -53,7 +56,8 @@ function SkeletonList() {
 
 export default function ExploreScreen() {
   const theme = useTheme();
-  const [state, setState] = useState<ExploreState>(defaultExploreState);
+  const params = useLocalSearchParams<{ destination?: string; focusSearch?: string }>();
+  const [state, setState] = useState<ExploreState>(() => initialExploreState(params));
 
   const toursQ = useQuery({ queryKey: ['tours', 'all'], queryFn: fetchAllTours });
   const destQ = useQuery({ queryKey: ['destinations'], queryFn: fetchDestinations });
@@ -65,13 +69,17 @@ export default function ExploreScreen() {
 
   const header = (
     <View style={{ gap: theme.spacing(3), paddingVertical: theme.spacing(4) }}>
-      <AppText variant="display">{t.title}</AppText>
+      <SectionHeading title={t.title} />
       <TextField
         placeholder={t.searchPlaceholder}
         accessibilityLabel={t.searchPlaceholder}
         value={state.query}
         onChangeText={(query) => setState((s) => ({ ...s, query }))}
         autoCorrect={false}
+        autoFocus={params.focusSearch === '1'}
+        leading={
+          <Ionicons name="search-outline" size={16} color={theme.colors['muted-foreground']} />
+        }
       />
       {destQ.data && destQ.data.length > 0 ? (
         <View style={{ gap: theme.spacing(2) }}>

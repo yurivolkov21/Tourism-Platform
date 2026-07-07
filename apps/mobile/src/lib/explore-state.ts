@@ -38,6 +38,17 @@ export function hasActiveFilters(state: ExploreState): boolean {
   );
 }
 
+/** Route-param → initial filter state (Home's destination tiles / search pill deep-link). */
+export function initialExploreState(params: {
+  destination?: string | string[];
+}): ExploreState {
+  const destination =
+    typeof params.destination === 'string' && params.destination !== ''
+      ? params.destination
+      : undefined;
+  return { ...defaultExploreState, destination };
+}
+
 /** search → filter → sort, all pure `@tourism/core` helpers. */
 export function applyExploreState(
   tours: readonly TourCardVm[],
