@@ -2443,7 +2443,14 @@ Append a `## STATUS` block to this plan (task checklist + commit hashes + on-dev
       `animation: 'ios_from_right'` (smooth parallax push on Android). Fourth
       (`2ced2b9`): the POP direction still flashed — the Tabs navigator's scene
       wrapper has its own white react-navigation background → themed
-      `sceneStyle` in the Tabs `screenOptions`. **Proactive device-polish audit
+      `sceneStyle` in the Tabs `screenOptions`. That still wasn't enough on
+      device — the flash has **three** layers; the last two closed in
+      `0d4c9f8`: react-navigation's own theme (root `ThemeProvider` from
+      `@react-navigation/native`, themed `colors.background` paints the
+      navigator container) + the Android root-view/window background
+      (`expo-system-ui` `setBackgroundColorAsync`). Two new SDK-pinned deps:
+      `@react-navigation/native ^7.3.7` · `expo-system-ui ~6.0.9` (both Expo
+      Go-compatible). **Proactive device-polish audit
       (user asked to stop whack-a-mole, `2226af3`):** `Screen` now hides the
       vertical scroll indicator by default (kills the class for Home + enquiry
       modal + all future screens; +1 mobile-ui test = 26) · pressed-state
