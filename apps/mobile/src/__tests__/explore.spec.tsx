@@ -56,7 +56,7 @@ function renderExplore() {
 
 test('renders all tours on success', async () => {
   mockTours.mockResolvedValueOnce(tours);
-  mockDests.mockResolvedValueOnce([{ slug: 'ha-long', name: 'Ha Long' }]);
+  mockDests.mockResolvedValueOnce([{ slug: 'ha-long', name: 'Ha Long', toursCount: 3 }]);
   renderExplore();
   expect(await screen.findByText('Ha Long Bay Cruise')).toBeOnTheScreen();
   expect(screen.getByText('Hanoi Street Food')).toBeOnTheScreen();
