@@ -23,6 +23,7 @@
 ### Task 1: Fonts foundation — theme `fontFamily` + root-layout loading + weight sweep
 
 **Files:**
+
 - Modify: `libs/mobile/ui/src/lib/theme.ts`
 - Modify: `libs/mobile/ui/src/lib/theme.spec.ts`
 - Modify: `libs/mobile/ui/src/lib/button.tsx`, `libs/mobile/ui/src/lib/chip.tsx`, `libs/mobile/ui/src/lib/text-field.tsx`, `libs/mobile/ui/src/lib/accordion.tsx` (fontWeight → fontFamily)
@@ -30,6 +31,7 @@
 - Modify: `apps/mobile/package.json` (new deps via CLI)
 
 **Interfaces:**
+
 - Produces: `TypographyVariant { fontSize, lineHeight, fontFamily }` (fontWeight **removed**); `Theme.fontFamilies: { heading, headingBold, sans, sansMedium, sansSemiBold }`; exported `fontFamilies` const. Every later task styles bold text with `theme.fontFamilies.sansSemiBold`.
 
 - [ ] **Step 1: Install the deps**
@@ -220,11 +222,13 @@ git commit -m "feat(mobile): Fraunces + Geist brand fonts wired through the them
 ### Task 2: `Badge` primitive
 
 **Files:**
+
 - Create: `libs/mobile/ui/src/lib/badge.tsx`
 - Test: `libs/mobile/ui/src/lib/badge.spec.tsx`
 - Modify: `libs/mobile/ui/src/index.ts`
 
 **Interfaces:**
+
 - Produces: `Badge({ label, tone?: BadgeTone })`, `type BadgeTone = 'primary' | 'success' | 'warning' | 'info' | 'rating'` (default `'primary'`; `rating` uses plain `foreground` text like web).
 
 - [ ] **Step 1: Failing spec**
@@ -325,12 +329,14 @@ git commit -m "feat(mobile-ui): Badge primitive with web tone map"
 ### Task 3: `Skeleton` primitive + Card shadow
 
 **Files:**
+
 - Create: `libs/mobile/ui/src/lib/skeleton.tsx`
 - Test: `libs/mobile/ui/src/lib/skeleton.spec.tsx`
 - Modify: `libs/mobile/ui/src/lib/card.tsx`
 - Modify: `libs/mobile/ui/src/index.ts`
 
 **Interfaces:**
+
 - Produces: `Skeleton({ width?, height?, borderRadius?, style? })` — pulsing muted block. `Card` unchanged API, gains resting shadow.
 
 - [ ] **Step 1: Failing spec**
@@ -438,12 +444,14 @@ git commit -m "feat(mobile-ui): Skeleton pulse primitive + Card resting shadow"
 ### Task 4: VM extensions — badges, seats, toursCount (TDD)
 
 **Files:**
+
 - Modify: `apps/mobile/src/lib/tours.ts` + `tours.spec.ts`
 - Modify: `apps/mobile/src/lib/destinations.ts` + `destinations.spec.ts`
 - Modify: `apps/mobile/src/lib/tour-detail.ts` + `tour-detail.spec.ts`
 - Modify (fixtures only): `apps/mobile/src/__tests__/home.spec.tsx`, `explore.spec.tsx`, `tour-detail-screen.spec.tsx`, `apps/mobile/src/lib/explore-state.spec.ts`
 
 **Interfaces:**
+
 - Produces: `type TourBadge = TourSummaryDto['badges'][number]`; `TourCardVm` gains `badges: TourBadge[]` + `nextDepartureSeatsLeft?: number`; `DestinationChipVm` gains `toursCount: number`; `TourDetailVm` gains `badges: string[]`.
 
 - [ ] **Step 1: Failing specs**
@@ -505,6 +513,7 @@ git commit -m "feat(mobile): VM badges + seats-left + toursCount (TDD)"
 ### Task 5: `SectionHeading` + `TourBadges` + redesigned `TourCard` + `DestinationCard`
 
 **Files:**
+
 - Create: `apps/mobile/src/components/section-heading.tsx`
 - Create: `apps/mobile/src/components/tour-badges.tsx`
 - Create: `apps/mobile/src/components/destination-card.tsx`
@@ -512,6 +521,7 @@ git commit -m "feat(mobile): VM badges + seats-left + toursCount (TDD)"
 - Test: `apps/mobile/src/__tests__/tour-card.spec.tsx` (new)
 
 **Interfaces:**
+
 - Consumes: `Badge`/`BadgeTone`/`Skeleton` (T2/T3), `TourBadge`/VM fields (T4), `theme.fontFamilies` (T1).
 - Produces: `SectionHeading({ eyebrow?, title, subtitle? })` · `TourBadges({ badges })` (overlay row, maps enum → tone + i18n label) · `DestinationCard({ destination, onPress })` (140×180 image tile) · `TourCard` (same props as W2: `{ tour, variant?, onPress? }`).
 
@@ -868,11 +878,13 @@ git commit -m "feat(mobile): web-parity TourCard + SectionHeading + DestinationC
 ### Task 6: Home rebuild — hero + 5 sections
 
 **Files:**
+
 - Modify: `libs/shared/i18n/src/lib/messages.ts` (add `mobile.home.cta*`)
 - Modify: `apps/mobile/src/app/(tabs)/index.tsx` (full rebuild)
 - Modify: `apps/mobile/src/__tests__/home.spec.tsx`
 
 **Interfaces:**
+
 - Consumes: `SectionHeading`/`TourCard`/`DestinationCard` (T5), `Badge`/`Skeleton` (T2/T3), `fetchFeaturedTours`/`fetchDestinations` (existing), `messages.hero/featuredTours/destinations/features`.
 - Produces: routes `/explore?focusSearch=1` (search pill) and `/explore?destination=<name>` (destination tiles) — Task 7 consumes these params.
 
@@ -1261,12 +1273,14 @@ git commit -m "feat(mobile): Home rebuilt - hero, featured, destinations, why, C
 ### Task 7: Explore polish — SectionHeading, search icon, route-param presets
 
 **Files:**
+
 - Modify: `libs/mobile/ui/src/lib/text-field.tsx` + `text-field.spec.tsx` (`leading` slot)
 - Modify: `apps/mobile/src/lib/explore-state.ts` + `explore-state.spec.ts` (`initialExploreState`)
 - Modify: `apps/mobile/src/app/(tabs)/explore.tsx`
 - Modify: `apps/mobile/src/__tests__/explore.spec.tsx`
 
 **Interfaces:**
+
 - Consumes: Home's `/explore?destination=<name>` + `/explore?focusSearch=1` (T6).
 - Produces: `TextField({ leading?: ReactNode, … })`; `initialExploreState(params: { destination?: string | string[] }): ExploreState`.
 
@@ -1450,11 +1464,13 @@ git commit -m "feat(mobile): Explore polish - search icon, section heading, rout
 ### Task 8: Detail + enquiry-modal polish
 
 **Files:**
+
 - Modify: `apps/mobile/src/app/tours/[slug]/index.tsx`
 - Modify: `apps/mobile/src/app/tours/[slug]/enquiry.tsx`
 - Modify: `apps/mobile/src/__tests__/tour-detail-screen.spec.tsx` (badge assertion)
 
 **Interfaces:**
+
 - Consumes: `TourBadges` (T5 — detail VM `badges` from T4), `Badge`, `theme.fontFamilies`.
 
 - [ ] **Step 1: Detail screen polish**
@@ -1578,6 +1594,7 @@ git commit -m "feat(mobile): detail + enquiry polish - icon facts, gallery badge
 ### Task 9: Tab bar + Saved/Account placeholders
 
 **Files:**
+
 - Modify: `apps/mobile/src/app/(tabs)/_layout.tsx`
 - Modify: `apps/mobile/src/app/(tabs)/saved.tsx`, `apps/mobile/src/app/(tabs)/account.tsx`
 
