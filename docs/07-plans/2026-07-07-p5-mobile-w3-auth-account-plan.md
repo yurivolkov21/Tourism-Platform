@@ -2118,4 +2118,28 @@ Append `## STATUS` (tasks + hashes + on-device result). User review → rebase +
 
 ## STATUS
 
-_(filled in during execution)_
+- [x] Task 1 — supabase client + env (`75b44ba`): deps @supabase/supabase-js
+      ^2.108.2 · async-storage 2.2.0 · url-polyfill ^3; env validators (TDD);
+      `.env` gains SUPABASE_URL/ANON_KEY + WEB_URL
+      (`https://tourism-platform-web.vercel.app`, resolved via Vercel MCP)
+- [x] Task 2 — validators + mapAuthError (`1c6260c`)
+- [x] Task 3 — i18n authPrompts/authErrors/account/saved (`3caff08`)
+- [x] Task 4 — AuthProvider + authed client (`b044e19`). Finding:
+      `react-native-url-polyfill` needed a `transformIgnorePatterns` allowlist
+      entry (the `react-native` alternative requires a following `/`).
+- [x] Task 5 — auth modals sign-in/up/forgot (`61bc422`)
+- [x] Task 6 — wishlist hearts (`da99991`): `useWishlist` optimistic toggle ·
+      `HeartButton` · `TourCardVm.id` · `heartSlot` on TourCard · hearts on
+      Home/Explore/detail
+- [x] Task 7 — AuthGate + Saved tab (`bb177a2` + `5f01206`). Finding: nested
+      Pressables (row wrapping the remove button) trip RNTL byRole name
+      matching → press by `testID` (established W2.5 pattern).
+- [x] Task 8 — profile + Account tab (`26f0893`). Findings: the web copy for
+      the account title lives at `messages.auth.account.title` (nested under
+      `auth`, not top-level) · TanStack v5 second-mutationFn-arg assertion
+      gotcha hit again (assert `mock.calls[0][0]`). `mobile.placeholders`
+      removed from i18n (last consumers replaced).
+- [x] Task 9 — gate green (2026-07-07): mobile **67** · mobile-ui **31** ·
+      i18n 1; `nx affected -t lint typecheck test --base=main` green across
+      all 9 projects. **On-device Expo Go check (real sign-up, hearts → web
+      parity, edit name, sign out; light + dark): PENDING (user).**
