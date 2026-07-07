@@ -5,6 +5,9 @@ module.exports = {
   preset: 'jest-expo',
   moduleFileExtensions: ['ts', 'js', 'html', 'tsx', 'jsx'],
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
+  // Same CI headroom as apps/mobile: cold jest-expo transform + first render
+  // can exceed Jest's 5s default on the shared runner (CI run #371).
+  testTimeout: 20000,
   moduleNameMapper: {
     '[.]svg$': '@nx/expo/plugins/jest/svg-mock',
     '^@tourism/tokens/theme$':

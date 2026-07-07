@@ -17,6 +17,11 @@ module.exports = {
   // ("must contain at least one test").
   // (plain substring — separator-agnostic so it matches on Windows too)
   testPathIgnorePatterns: ['/node_modules/', 'out-tsc'],
+  // RN component suites pay a cold jest-expo transform + first-render cost;
+  // on the shared 2-core CI runner (9 projects in parallel) the first test in
+  // a suite can blow Jest's 5s default (CI run #371, home.spec). 20s is the
+  // per-test ceiling, not a slowdown — fast tests stay fast.
+  testTimeout: 20000,
   moduleNameMapper: {
     '[.]svg$': '@nx/expo/plugins/jest/svg-mock',
     '^@tourism/core$': '<rootDir>/../../libs/shared/core/src/index.ts',
