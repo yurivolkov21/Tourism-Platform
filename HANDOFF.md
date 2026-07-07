@@ -44,7 +44,7 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 > short/tall card mix) · **Home rebuilt** (full-bleed hero + scrim + centred
 > Fraunces headline + search pill → Explore autofocus · featured shelf ·
 > destinations rail → pre-filtered Explore · why-strip · CTA band) · icon facts
-> + gallery badges on detail · tab bar filled active icons · styled
+> and gallery badges on detail · tab bar filled active icons · styled
 > placeholders. **UI direction LOCKED with the user: "Brand 100% + Structure
 > native"** — web-identical identity, app-native structure (no navbar/
 > hamburger/footer/TechCloud); **backlog: "Browse by experience" categories
