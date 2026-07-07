@@ -17,6 +17,9 @@ export default function TabsLayout() {
           backgroundColor: theme.colors['background'],
           borderTopColor: theme.colors['border'],
         },
+        // The tabs' scene wrapper defaults to react-navigation's (white) theme
+        // background — it peeks through when a pushed screen slides back off.
+        sceneStyle: { backgroundColor: theme.colors['background'] },
       }}
     >
       <Tabs.Screen
