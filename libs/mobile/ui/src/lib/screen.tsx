@@ -32,6 +32,9 @@ export function Screen({ scroll = true, scrollProps, children, style, ...rest }:
           paddingHorizontal: theme.spacing(4),
           paddingBottom: theme.spacing(6),
         }}
+        // The indicator flashing on screen entry reads as a glitch on-device
+        // (user feedback 2026-07-07); callers can re-enable via scrollProps.
+        showsVerticalScrollIndicator={false}
         {...scrollProps}
       >
         {children}

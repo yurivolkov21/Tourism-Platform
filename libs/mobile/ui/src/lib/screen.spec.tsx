@@ -32,6 +32,19 @@ test('renders a ScrollView by default', () => {
   expect(screen.UNSAFE_getByType(ScrollView)).toBeTruthy();
 });
 
+test('hides the vertical scroll indicator by default', () => {
+  render(
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <Screen>
+          <Text>Body</Text>
+        </Screen>
+      </ThemeProvider>
+    </SafeAreaProvider>,
+  );
+  expect(screen.UNSAFE_getByType(ScrollView).props.showsVerticalScrollIndicator).toBe(false);
+});
+
 test('renders a plain View with no ScrollView when scroll={false}', () => {
   render(
     <SafeAreaProvider>

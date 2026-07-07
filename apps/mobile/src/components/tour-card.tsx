@@ -23,6 +23,7 @@ export function TourCard({ tour, variant = 'shelf', onPress }: TourCardProps) {
       accessibilityLabel={tour.title}
       onPress={onPress}
       disabled={!onPress}
+      style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
     >
       <Card style={list ? undefined : { width: 240 }}>
         <Image

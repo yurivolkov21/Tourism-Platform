@@ -148,8 +148,17 @@ export default function ExploreScreen() {
         ListHeaderComponent={header}
         ListFooterComponent={<View style={{ height: theme.spacing(6) }} />}
         showsVerticalScrollIndicator={false}
+        // First tap on a chip/card must act, not just dismiss the search keyboard.
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         refreshControl={
-          <RefreshControl refreshing={toursQ.isRefetching} onRefresh={() => toursQ.refetch()} />
+          <RefreshControl
+            refreshing={toursQ.isRefetching}
+            onRefresh={() => toursQ.refetch()}
+            colors={[theme.colors['primary']]}
+            tintColor={theme.colors['primary']}
+            progressBackgroundColor={theme.colors['card']}
+          />
         }
         ListEmptyComponent={
           toursQ.isPending ? (

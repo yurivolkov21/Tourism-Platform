@@ -43,7 +43,8 @@ function BackOverlay() {
       accessibilityRole="button"
       accessibilityLabel={t.goBack}
       onPress={() => router.back()}
-      style={{
+      hitSlop={8}
+      style={({ pressed }) => ({
         position: 'absolute',
         top: insets.top + theme.spacing(2),
         left: theme.spacing(4),
@@ -53,7 +54,8 @@ function BackOverlay() {
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: theme.colors['background'],
-      }}
+        opacity: pressed ? 0.7 : 1,
+      })}
     >
       <AppText variant="title">‹</AppText>
     </Pressable>

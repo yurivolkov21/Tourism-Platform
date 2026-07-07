@@ -50,7 +50,13 @@ export default function HomeScreen() {
     <Screen
       scrollProps={{
         refreshControl: (
-          <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => refetch()}
+            colors={[theme.colors['primary']]}
+            tintColor={theme.colors['primary']}
+            progressBackgroundColor={theme.colors['card']}
+          />
         ),
       }}
     >
