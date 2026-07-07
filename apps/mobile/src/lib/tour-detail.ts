@@ -17,6 +17,7 @@ export interface TourDetailVm {
   currency: string;
   rating: number;
   reviewCount: number;
+  badges: string[];
   /** Pre-formatted for display, e.g. "15 Aug 2026". */
   nextDepartureDate?: string;
   nextDepartureSeatsLeft?: number;
@@ -58,6 +59,7 @@ export function toTourDetailVm(dto: TourDetailDto): TourDetailVm {
     currency: dto.currency,
     rating: dto.averageRating,
     reviewCount: dto.reviewsCount,
+    badges: dto.badges ?? [],
     nextDepartureDate: dto.nextDepartureDate
       ? formatDepartureDate(dto.nextDepartureDate)
       : undefined,

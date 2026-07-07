@@ -32,6 +32,7 @@ const vm: TourDetailVm = {
   currency: 'USD',
   rating: 4.9,
   reviewCount: 214,
+  badges: ['POPULAR'],
   nextDepartureDate: '15 Aug 2026',
   nextDepartureSeatsLeft: 6,
   overview: 'Two days among the karsts.',

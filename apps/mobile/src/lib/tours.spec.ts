@@ -9,6 +9,8 @@ const dto = {
   currency: 'USD',
   averageRating: 4.8,
   reviewsCount: 12,
+  badges: ['POPULAR'],
+  nextDepartureSeatsLeft: 4,
   category: { slug: 'cruise', name: 'Cruises' },
   destinations: [
     { isPrimary: false, destination: { name: 'Hanoi' } },
@@ -33,6 +35,8 @@ describe('toTourCardVm', () => {
       currency: 'USD',
       rating: 4.8,
       reviewCount: 12,
+      badges: ['POPULAR'],
+      nextDepartureSeatsLeft: 4,
       category: 'cruise',
       categoryName: 'Cruises',
       image: 'https://img.test/h.jpg',
@@ -55,10 +59,14 @@ describe('toTourCardVm', () => {
       ...dto,
       compareAtPrice: null,
       category: null,
+      badges: null,
+      nextDepartureSeatsLeft: null,
     } as unknown as TourSummaryDto;
     const vm = toTourCardVm(bare);
     expect(vm.compareAtPrice).toBeUndefined();
     expect(vm.category).toBeUndefined();
     expect(vm.categoryName).toBeUndefined();
+    expect(vm.badges).toEqual([]);
+    expect(vm.nextDepartureSeatsLeft).toBeUndefined();
   });
 });

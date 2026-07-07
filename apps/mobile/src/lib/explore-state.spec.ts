@@ -15,6 +15,7 @@ const tour = (over: Partial<TourCardVm>): TourCardVm => ({
   currency: 'USD',
   rating: 4.0,
   reviewCount: 10,
+  badges: [],
   ...over,
 });
 

@@ -2,6 +2,7 @@ import type { components } from '@tourism/core';
 import { getApiClient } from './api';
 
 export type TourSummaryDto = components['schemas']['TourSummaryDto'];
+export type TourBadge = TourSummaryDto['badges'][number];
 
 /** Structurally satisfies `@tourism/core`'s `FilterableTour` + `SearchableTour`. */
 export interface TourCardVm {
@@ -14,6 +15,8 @@ export interface TourCardVm {
   currency: string;
   rating: number;
   reviewCount: number;
+  badges: TourBadge[];
+  nextDepartureSeatsLeft?: number;
   category?: string;
   categoryName?: string;
   image?: string;
@@ -32,6 +35,8 @@ export function toTourCardVm(dto: TourSummaryDto): TourCardVm {
     currency: dto.currency,
     rating: dto.averageRating,
     reviewCount: dto.reviewsCount,
+    badges: dto.badges ?? [],
+    nextDepartureSeatsLeft: dto.nextDepartureSeatsLeft ?? undefined,
     category: dto.category?.slug,
     categoryName: dto.category?.name,
     image: hero?.url,

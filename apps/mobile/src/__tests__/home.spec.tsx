@@ -38,6 +38,7 @@ const vm = {
   currency: 'USD',
   rating: 4.8,
   reviewCount: 12,
+  badges: [],
   image: 'https://img.test/h.jpg',
 };
 

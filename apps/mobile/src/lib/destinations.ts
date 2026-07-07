@@ -7,11 +7,17 @@ export interface DestinationChipVm {
   slug: string;
   name: string;
   image?: string;
+  toursCount: number;
 }
 
 export function toDestinationChipVm(dto: DestinationDto): DestinationChipVm {
   const hero = dto.media.find((m) => m.role === 'hero') ?? dto.media[0];
-  return { slug: dto.slug, name: dto.name, image: hero?.url };
+  return {
+    slug: dto.slug,
+    name: dto.name,
+    image: hero?.url,
+    toursCount: dto.toursCount ?? 0,
+  };
 }
 
 /** Active destinations for the Explore chips rail (same query shape web's overview uses). */

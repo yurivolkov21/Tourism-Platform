@@ -25,6 +25,7 @@ test('prefers the hero image', () => {
     slug: 'ha-long',
     name: 'Ha Long',
     image: 'https://img.test/hero.jpg',
+    toursCount: 3,
   });
 });
 
