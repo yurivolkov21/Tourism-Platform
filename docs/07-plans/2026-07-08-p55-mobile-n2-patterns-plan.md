@@ -26,12 +26,30 @@ keys) · `@tourism/i18n`.
 
 ## STATUS
 
-- **State:** NOT STARTED
+- **State:** EXECUTED (2026-07-08) — all 6 tasks done inline; full gate
+  green (lint + typecheck + test + build ×9, run by the user). Awaiting the
+  on-device pass, then merge.
 - **Branch:** `feat/mobile-n2-patterns`
-- **Baselines:** mobile **126** · mobile-ui **33** (api 338 · web 191 · admin 152)
-- **RESUME STATE:** start at Task 1
-- **Standing debts:** the N1 feel checklist + W4 payment loop device passes
-  are still unreported — N2's device pass (Task 6) covers all three.
+- **Tests:** mobile **126 → 139** · mobile-ui **33 → 34** (counts computed
+  from suite runs; the user's full gate confirmed green).
+- **Adversarial re-review (money path) DONE — 5 findings, all fixed**
+  (`66b1d03`): AppSheet `scrollable` + keyboard props (long departure lists
+  clipped, keyboard covered sheet forms) · BookingDraft resets on
+  SIGNED_OUT (contact PII across account switches) · Continue re-clamps
+  the party against current seats · "Edit trip" reopens seeded instead of
+  hard-reset.
+- **Deviations from plan:** `currency` added to BookingDraft (trip summary
+  needed it); `require('@tourism/mobile-ui')` inside a jest.mock factory
+  trips `@nx/enforce-module-boundaries` project-wide (lazy-load detection)
+  — mocks render plain RN Text; bottom-sheet 5.2.14 verified bundling with
+  reanimated 4 (`expo export --clear`; the SHA-1 error was stale Metro
+  cache after pnpm re-link). Process rules added mid-wave: kill orphaned
+  nx/jest node processes before new runs; the USER runs gate checks
+  manually in his own terminal.
+- **RESUME STATE:** hand off for the combined on-device pass (N2 checklist
+  + owed N1 feel checklist + owed W4 payment loop), then rebase +
+  `--ff-only` merge + docs sweep. Next wave: N3 IA & Home (5 tabs w/ Trips ·
+  task-first Home).
 
 ## Global Constraints
 
