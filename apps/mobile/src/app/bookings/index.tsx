@@ -1,6 +1,5 @@
 import { FlatList, Pressable, View } from 'react-native';
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import { AppText, Badge, Button, Screen, Skeleton, useTheme } from '@tourism/mobile-ui';
@@ -12,36 +11,6 @@ import { formatMoney } from '../../lib/money';
 const t = messages.booking.list;
 const tm = messages.mobile.booking;
 const tp = messages.mobile.authPrompts;
-
-function Header() {
-  const theme = useTheme();
-  return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: theme.spacing(3),
-        paddingBottom: theme.spacing(3),
-      }}
-    >
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={messages.booking.detail.back}
-        onPress={() => router.back()}
-        hitSlop={8}
-        style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-      >
-        <Ionicons name="arrow-back" size={22} color={theme.colors['foreground']} />
-      </Pressable>
-      <View style={{ flex: 1, gap: 2 }}>
-        <AppText variant="display">{t.title}</AppText>
-        <AppText variant="caption" muted>
-          {t.subtitle}
-        </AppText>
-      </View>
-    </View>
-  );
-}
 
 function BookingCard({ booking }: { booking: BookingVm }) {
   const theme = useTheme();
@@ -104,8 +73,10 @@ export default function BookingsScreen() {
 
   return (
     <Screen scroll={false}>
-      <View style={{ flex: 1, paddingTop: theme.spacing(2) }}>
-        <Header />
+      <View style={{ flex: 1, paddingTop: theme.spacing(2), gap: theme.spacing(3) }}>
+        <AppText variant="caption" muted>
+          {t.subtitle}
+        </AppText>
         {listQ.isPending ? (
           <View style={{ gap: theme.spacing(3) }}>
             <Skeleton height={104} />

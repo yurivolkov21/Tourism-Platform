@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import { AppText, Badge, Button, Screen, Spinner, TextField, useTheme } from '@tourism/mobile-ui';
@@ -199,21 +198,12 @@ export default function BookingDetailScreen() {
   return (
     <Screen scrollProps={{ keyboardShouldPersistTaps: 'handled' }}>
       <View style={{ gap: theme.spacing(5), paddingVertical: theme.spacing(4) }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(3) }}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t.back}
-            onPress={() => router.back()}
-            hitSlop={8}
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-          >
-            <Ionicons name="arrow-back" size={22} color={theme.colors['foreground']} />
-          </Pressable>
-          <AppText variant="display" style={{ flex: 1 }}>
-            {t.title}
-          </AppText>
-          <Badge tone={booking.statusMeta.tone} label={booking.statusMeta.label} />
-        </View>
+        {/* Native stack header carries the title; the status leads the content. */}
+        <Badge
+          tone={booking.statusMeta.tone}
+          label={booking.statusMeta.label}
+          style={{ alignSelf: 'flex-start' }}
+        />
 
         <View
           style={{

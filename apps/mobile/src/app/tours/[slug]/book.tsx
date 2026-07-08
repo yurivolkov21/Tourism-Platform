@@ -272,28 +272,17 @@ export default function BookScreen() {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: theme.spacing(4),
-          paddingTop: insets.top + theme.spacing(2),
+          paddingTop: theme.spacing(4),
           paddingBottom: theme.spacing(6),
           gap: theme.spacing(5),
         }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(3) }}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t.page.backToTour}
-            onPress={() => router.back()}
-            hitSlop={8}
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-          >
-            <Ionicons name="arrow-back" size={22} color={theme.colors['foreground']} />
-          </Pressable>
-          <AppText variant="display" style={{ flex: 1 }}>
-            {t.page.title}
-          </AppText>
-        </View>
+        {/* Native stack header carries the title; the subtitle anchors context. */}
+        <AppText variant="caption" muted>
+          {t.page.subtitle}
+        </AppText>
 
         {/* Trip summary */}
         <View

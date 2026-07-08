@@ -16,6 +16,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
+import { messages } from '@tourism/i18n';
 import { ThemeProvider, useTheme } from '@tourism/mobile-ui';
 import { AuthProvider } from '../lib/auth-context';
 
@@ -69,6 +70,12 @@ function ThemedStack() {
           headerShown: false,
           animation: 'ios_from_right',
           contentStyle: { backgroundColor: theme.colors['background'] },
+          // Brand-styled native header for the screens that opt in below.
+          headerStyle: { backgroundColor: theme.colors['background'] },
+          headerTintColor: theme.colors['foreground'],
+          headerTitleStyle: { fontFamily: theme.fontFamilies.heading, fontSize: 18 },
+          headerShadowVisible: false,
+          headerBackButtonDisplayMode: 'minimal',
         }}
       >
         <Stack.Screen name="(tabs)" />
@@ -77,9 +84,18 @@ function ThemedStack() {
           name="tours/[slug]/enquiry"
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
-        <Stack.Screen name="tours/[slug]/book" />
-        <Stack.Screen name="bookings/index" />
-        <Stack.Screen name="bookings/[code]/index" />
+        <Stack.Screen
+          name="tours/[slug]/book"
+          options={{ headerShown: true, title: messages.booking.page.title }}
+        />
+        <Stack.Screen
+          name="bookings/index"
+          options={{ headerShown: true, title: messages.booking.list.title }}
+        />
+        <Stack.Screen
+          name="bookings/[code]/index"
+          options={{ headerShown: true, title: messages.booking.detail.title }}
+        />
         <Stack.Screen name="bookings/[code]/result" />
         <Stack.Screen
           name="auth/sign-in"
