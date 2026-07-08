@@ -21,6 +21,7 @@ import * as SystemUI from 'expo-system-ui';
 import { messages } from '@tourism/i18n';
 import { ThemeProvider, useTheme } from '@tourism/mobile-ui';
 import { AuthProvider } from '../lib/auth-context';
+import { BookingDraftProvider } from '../lib/booking-draft';
 
 const queryClient = new QueryClient({
   // Render free tier cold-starts (~30s): keep retrying a bit before erroring.
@@ -91,6 +92,10 @@ function ThemedStack() {
           options={{ headerShown: true, title: messages.booking.page.title }}
         />
         <Stack.Screen
+          name="tours/[slug]/book-payment"
+          options={{ headerShown: true, title: messages.booking.form.paymentHeading }}
+        />
+        <Stack.Screen
           name="bookings/index"
           options={{ headerShown: true, title: messages.booking.list.title }}
         />
@@ -136,10 +141,12 @@ export default function RootLayout() {
       <ThemeProvider>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <BottomSheetModalProvider>
-              <StatusBar style="auto" />
-              <ThemedStack />
-            </BottomSheetModalProvider>
+            <BookingDraftProvider>
+              <BottomSheetModalProvider>
+                <StatusBar style="auto" />
+                <ThemedStack />
+              </BottomSheetModalProvider>
+            </BookingDraftProvider>
           </AuthProvider>
         </QueryClientProvider>
       </ThemeProvider>

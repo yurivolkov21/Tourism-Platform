@@ -3,6 +3,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { render, screen, userEvent } from '@testing-library/react-native';
 import { ThemeProvider } from '@tourism/mobile-ui';
 import TourDetailScreen from '../app/tours/[slug]';
+import { BookingDraftProvider } from '../lib/booking-draft';
 import { fetchTourDetail, fetchTourReviews, type TourDetailVm } from '../lib/tour-detail';
 
 jest.mock('expo-router', () => ({
@@ -22,6 +23,13 @@ jest.mock('../lib/wishlist', () => ({
 
 // The sticky bar's Book now CTA reads the auth status directly.
 jest.mock('../lib/auth-context', () => ({ useAuth: () => ({ status: 'signedOut' }) }));
+
+// The DepartureSheet (mounted by the detail) fetches departures + supabase.
+jest.mock('../lib/supabase', () => ({ supabase: { auth: { getSession: jest.fn() } } }));
+jest.mock('../lib/booking', () => ({
+  ...jest.requireActual('../lib/booking'),
+  fetchTourDepartures: jest.fn().mockResolvedValue([]),
+}));
 
 const mockDetail = fetchTourDetail as jest.MockedFunction<typeof fetchTourDetail>;
 const mockReviews = fetchTourReviews as jest.MockedFunction<typeof fetchTourReviews>;
@@ -58,7 +66,9 @@ function renderDetail() {
     <SafeAreaProvider>
       <ThemeProvider>
         <QueryClientProvider client={client}>
-          <TourDetailScreen />
+          <BookingDraftProvider>
+            <TourDetailScreen />
+          </BookingDraftProvider>
         </QueryClientProvider>
       </ThemeProvider>
     </SafeAreaProvider>,

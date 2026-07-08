@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import { Accordion, AppText, Badge, Button, Screen, Spinner, useTheme } from '@tourism/mobile-ui';
+import { DepartureSheet, type DepartureSheetRef } from '../../../components/departure-sheet';
 import { GalleryPager } from '../../../components/gallery-pager';
 import { HeartButton } from '../../../components/heart-button';
 import { TourBadges } from '../../../components/tour-badges';
@@ -75,6 +76,7 @@ export default function TourDetailScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { status } = useAuth();
+  const departureSheetRef = useRef<DepartureSheetRef>(null);
 
   const detailQ = useQuery({
     queryKey: ['tours', 'detail', slug],
@@ -361,14 +363,21 @@ export default function TourDetailScreen() {
             label={tb.bookCta}
             onPress={() =>
               // Only a *known* guest goes to sign-in; while the session is still
-              // restoring ('loading') head to the book screen, which re-checks.
+              // restoring ('loading') open the sheet — the contact step re-checks.
               status === 'signedOut'
                 ? router.push('/auth/sign-in?reason=booking')
-                : router.push(`/tours/${slug}/book`)
+                : departureSheetRef.current?.open()
             }
           />
         </View>
       </View>
+
+      <DepartureSheet
+        ref={departureSheetRef}
+        slug={slug}
+        basePrice={tour.basePrice}
+        currency={tour.currency}
+      />
     </View>
   );
 }

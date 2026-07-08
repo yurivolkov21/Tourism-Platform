@@ -1815,6 +1815,10 @@ export const messages = {
       bookCta: 'Book now',
       departuresError: "Couldn't load departures.",
       soldOut: 'Sold out',
+      stepLabel: (n: number, total: number) => `Step ${n} of ${total}`,
+      continueCta: 'Continue',
+      tripHeading: 'Your trip',
+      editTrip: 'Edit',
       stepperDecrease: (field: string) => `Decrease ${field}`,
       stepperIncrease: (field: string) => `Increase ${field}`,
       browserHint:

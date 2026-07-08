@@ -86,3 +86,6 @@ cache/
 # Local design references (heavy screenshots + Claude Design wireframes) — read
 # locally for design work; share via Drive, not git. See docs/03-reference.
 docs/Lily Wireframes/
+
+# manual check logs pasted by the user
+.log
