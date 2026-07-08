@@ -9,11 +9,13 @@ import { Accordion, AppText, Badge, Button, Screen, Spinner, useTheme } from '@t
 import { GalleryPager } from '../../../components/gallery-pager';
 import { HeartButton } from '../../../components/heart-button';
 import { TourBadges } from '../../../components/tour-badges';
+import { useAuth } from '../../../lib/auth-context';
 import { fetchTourDetail, fetchTourReviews } from '../../../lib/tour-detail';
 import type { TourBadge } from '../../../lib/tours';
 
 const t = messages.mobile.tourDetail;
 const th = messages.mobile.home;
+const tb = messages.mobile.booking;
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   const theme = useTheme();
@@ -70,6 +72,7 @@ export default function TourDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const { status } = useAuth();
 
   const detailQ = useQuery({
     queryKey: ['tours', 'detail', slug],
@@ -322,7 +325,7 @@ export default function TourDetailScreen() {
           backgroundColor: theme.colors['background'],
         }}
       >
-        <View>
+        <View style={{ flexShrink: 1 }}>
           <AppText variant="caption" muted>
             {t.from}
           </AppText>
@@ -346,7 +349,21 @@ export default function TourDetailScreen() {
             ) : null}
           </View>
         </View>
-        <Button label={t.inquireNow} onPress={() => router.push(`/tours/${slug}/enquiry`)} />
+        <View style={{ flexDirection: 'row', gap: theme.spacing(2) }}>
+          <Button
+            variant="outline"
+            label={t.inquireNow}
+            onPress={() => router.push(`/tours/${slug}/enquiry`)}
+          />
+          <Button
+            label={tb.bookCta}
+            onPress={() =>
+              status === 'signedIn'
+                ? router.push(`/tours/${slug}/book`)
+                : router.push('/auth/sign-in?reason=booking')
+            }
+          />
+        </View>
       </View>
     </View>
   );

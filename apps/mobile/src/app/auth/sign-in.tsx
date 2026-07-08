@@ -41,7 +41,11 @@ export default function SignInScreen() {
         <View style={{ gap: theme.spacing(1) }}>
           <AppText variant="title">{t.title}</AppText>
           <AppText variant="body" muted>
-            {reason === 'wishlist' ? tp.wishlistReason : t.subtitle}
+            {reason === 'wishlist'
+              ? tp.wishlistReason
+              : reason === 'booking'
+                ? tp.bookingReason
+                : t.subtitle}
           </AppText>
         </View>
         <TextField

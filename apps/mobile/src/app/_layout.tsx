@@ -77,6 +77,10 @@ function ThemedStack() {
           name="tours/[slug]/enquiry"
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
+        <Stack.Screen name="tours/[slug]/book" />
+        <Stack.Screen name="bookings/index" />
+        <Stack.Screen name="bookings/[code]/index" />
+        <Stack.Screen name="bookings/[code]/result" />
         <Stack.Screen
           name="auth/sign-in"
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}

@@ -20,6 +20,9 @@ jest.mock('../lib/wishlist', () => ({
   useWishlist: () => ({ isGuest: true, isSaved: () => false, toggle: jest.fn() }),
 }));
 
+// The sticky bar's Book now CTA reads the auth status directly.
+jest.mock('../lib/auth-context', () => ({ useAuth: () => ({ status: 'signedOut' }) }));
+
 const mockDetail = fetchTourDetail as jest.MockedFunction<typeof fetchTourDetail>;
 const mockReviews = fetchTourReviews as jest.MockedFunction<typeof fetchTourReviews>;
 
