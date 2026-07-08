@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { forwardRef, type ReactNode } from 'react';
 import { TextInput, View, type TextInputProps } from 'react-native';
 import { AppText } from './app-text';
 import { useTheme } from './theme-provider';
@@ -11,7 +11,11 @@ export interface TextFieldProps extends TextInputProps {
   leading?: ReactNode;
 }
 
-export function TextField({ label, error, leading, multiline, style, ...rest }: TextFieldProps) {
+/** Ref forwards to the inner TextInput (return-key focus chaining). */
+export const TextField = forwardRef<TextInput, TextFieldProps>(function TextField(
+  { label, error, leading, multiline, style, ...rest },
+  ref,
+) {
   const theme = useTheme();
   return (
     <View style={{ gap: theme.spacing(1) }}>
@@ -36,6 +40,7 @@ export function TextField({ label, error, leading, multiline, style, ...rest }: 
       >
         {leading}
         <TextInput
+          ref={ref}
           accessibilityLabel={label}
           placeholderTextColor={theme.colors['muted-foreground']}
           multiline={multiline}
@@ -60,4 +65,4 @@ export function TextField({ label, error, leading, multiline, style, ...rest }: 
       ) : null}
     </View>
   );
-}
+});

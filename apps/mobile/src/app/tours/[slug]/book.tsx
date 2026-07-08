@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { KeyboardAvoidingView, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -277,7 +277,10 @@ export default function BookScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors['background'] }}>
+    <KeyboardAvoidingView
+      behavior={process.env.EXPO_OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1, backgroundColor: theme.colors['background'] }}
+    >
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: theme.spacing(4),
@@ -432,7 +435,13 @@ export default function BookScreen() {
         {/* Contact */}
         <View style={{ gap: theme.spacing(3) }}>
           <SectionTitle title={t.form.heading} />
-          <TextField label={t.form.contactName} value={name} onChangeText={setName} />
+          <TextField
+            label={t.form.contactName}
+            value={name}
+            onChangeText={setName}
+            autoComplete="name"
+            textContentType="name"
+          />
           <TextField
             label={t.form.contactEmail}
             value={email}
@@ -440,12 +449,16 @@ export default function BookScreen() {
             autoCapitalize="none"
             autoCorrect={false}
             keyboardType="email-address"
+            autoComplete="email"
+            textContentType="emailAddress"
           />
           <TextField
             label={t.form.contactPhone}
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
+            autoComplete="tel"
+            textContentType="telephoneNumber"
           />
           <TextField
             label={t.form.specialRequests}
@@ -561,6 +574,6 @@ export default function BookScreen() {
           disabled={!selected}
         />
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }

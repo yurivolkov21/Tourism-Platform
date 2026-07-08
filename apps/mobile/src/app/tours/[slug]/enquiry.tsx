@@ -89,6 +89,8 @@ export default function EnquiryModal() {
           onChangeText={setName}
           error={errors.name ? t.errors[errors.name] : undefined}
           autoCorrect={false}
+          autoComplete="name"
+          textContentType="name"
         />
         <TextField
           label={t.emailLabel}
@@ -98,12 +100,16 @@ export default function EnquiryModal() {
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
+          autoComplete="email"
+          textContentType="emailAddress"
         />
         <TextField
           label={t.phoneLabel}
           value={phone}
           onChangeText={setPhone}
           keyboardType="phone-pad"
+          autoComplete="tel"
+          textContentType="telephoneNumber"
         />
         <TextField
           label={t.messageLabel}

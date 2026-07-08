@@ -217,7 +217,7 @@ export default function BookingDetailScreen() {
             padding: theme.spacing(4),
           }}
         >
-          <FactRow label={tl.refLabel} value={booking.code} />
+          <FactRow label={tl.refLabel} value={booking.code} selectable />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={tl.viewTour}
@@ -233,7 +233,7 @@ export default function BookingDetailScreen() {
             label={tl.totalLabel}
             value={formatMoney(booking.currency, booking.totalAmount)}
           />
-          <FactRow label={t.paymentLabel} value={booking.paymentProvider} />
+          <FactRow label={t.paymentLabel} value={booking.paymentProvider} selectable />
           <FactRow
             label={t.contactLabel}
             value={`${booking.contactName} · ${booking.contactEmail}`}

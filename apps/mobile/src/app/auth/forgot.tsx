@@ -72,6 +72,10 @@ export default function ForgotScreen() {
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
+          autoComplete="email"
+          textContentType="emailAddress"
+          returnKeyType="done"
+          onSubmitEditing={() => void onSubmit()}
         />
         {banner ? (
           <AppText variant="body" style={{ color: theme.colors['destructive'] }}>

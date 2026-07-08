@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Pressable, View, type TextInput } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { messages } from '@tourism/i18n';
@@ -13,6 +13,9 @@ const te = messages.mobile.authErrors;
 export default function SignUpScreen() {
   const theme = useTheme();
   const { signUp } = useAuth();
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+  const confirmRef = useRef<TextInput>(null);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -74,8 +77,13 @@ export default function SignUpScreen() {
           onChangeText={setFullName}
           error={errors.fullName ? te[errors.fullName] : undefined}
           autoCorrect={false}
+          autoComplete="name"
+          textContentType="name"
+          returnKeyType="next"
+          onSubmitEditing={() => emailRef.current?.focus()}
         />
         <TextField
+          ref={emailRef}
           label={t.emailLabel}
           value={email}
           onChangeText={setEmail}
@@ -83,20 +91,34 @@ export default function SignUpScreen() {
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
+          autoComplete="email"
+          textContentType="emailAddress"
+          returnKeyType="next"
+          onSubmitEditing={() => passwordRef.current?.focus()}
         />
         <TextField
+          ref={passwordRef}
           label={t.passwordLabel}
           value={password}
           onChangeText={setPassword}
           error={errors.password ? te[errors.password] : undefined}
           secureTextEntry
+          autoComplete="new-password"
+          textContentType="newPassword"
+          returnKeyType="next"
+          onSubmitEditing={() => confirmRef.current?.focus()}
         />
         <TextField
+          ref={confirmRef}
           label={t.confirmLabel}
           value={confirm}
           onChangeText={setConfirm}
           error={errors.confirm ? te[errors.confirm] : undefined}
           secureTextEntry
+          autoComplete="new-password"
+          textContentType="newPassword"
+          returnKeyType="done"
+          onSubmitEditing={() => void onSubmit()}
         />
         {banner ? (
           <AppText variant="body" style={{ color: theme.colors['destructive'] }}>

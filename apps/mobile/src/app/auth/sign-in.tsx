@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Pressable, View, type TextInput } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { messages } from '@tourism/i18n';
 import { AppText, Button, Screen, TextField, useTheme } from '@tourism/mobile-ui';
@@ -14,6 +14,7 @@ export default function SignInScreen() {
   const theme = useTheme();
   const { reason } = useLocalSearchParams<{ reason?: string }>();
   const { signIn } = useAuth();
+  const passwordRef = useRef<TextInput>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<SignInErrors>({});
@@ -56,13 +57,22 @@ export default function SignInScreen() {
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
+          autoComplete="email"
+          textContentType="emailAddress"
+          returnKeyType="next"
+          onSubmitEditing={() => passwordRef.current?.focus()}
         />
         <TextField
+          ref={passwordRef}
           label={t.passwordLabel}
           value={password}
           onChangeText={setPassword}
           error={errors.password ? te[errors.password] : undefined}
           secureTextEntry
+          autoComplete="current-password"
+          textContentType="password"
+          returnKeyType="done"
+          onSubmitEditing={() => void onSubmit()}
         />
         {banner ? (
           <AppText variant="body" style={{ color: theme.colors['destructive'] }}>
