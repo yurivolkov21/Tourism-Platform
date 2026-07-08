@@ -31,9 +31,39 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile W1 + W2 + W2.5 + W3 Auth & Account COMPLETE + on-device verified (W3 merged 2026-07-07)** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08; ⚠️ W4 on-device payment pass deferred)** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
 
-> **Next action:** no active feature. **P5 mobile W3 Auth & Account COMPLETE
+> **Next action:** no active feature — **P5 is the last roadmap phase and it's
+> merged.** The one open verification debt: **W4 on-device payment pass**
+> (user env issues at merge time, not the app) — run the full loop on the
+> Android phone via Expo Go before treating the mobile money path as
+> production-ready: Stripe test-card payment · PayPal sandbox
+> (capture-on-return; close the tab early on purpose) · abandon → "Pay now"
+> rescue · cancel PENDING · cancellation-request PAID (check the admin
+> queue) · guest gating on Book now.
+>
+> **P5 mobile W4 Booking COMPLETE (2026-07-08, branch
+> `feat/mobile-w4-booking`, merged ff-only):** full money path, zero BE
+> changes — web pure logic ported **verbatim** (`booking-form.ts` payload
+> builder · `price.ts` totals · departure/status/VM mappers, TDD) · booking
+> form `tours/[slug]/book` (departure picker w/ seats-left + sold-out ·
+> steppers capped by seats · profile prefill · Stripe/PayPal radio cards ·
+> live total) · hosted checkout via **`expo-web-browser`** + self-verifying
+> result screen (refetch + idempotent PayPal capture-on-return) · bookings
+> list/detail in Account (Pay now · cancel PENDING via `Alert.alert` ·
+> cancellation-request w/ reason · refund states). **Adversarial money-path
+> review: 13 findings fixed** — the big one: **Android's `openBrowserAsync`
+> resolves immediately (`{type:'opened'}`), so verify runs on AppState
+> return-to-foreground** (iOS: on promise resolve); plus no-duplicate-PENDING
+> on checkout failure (navigate to result → Pay now), `['bookings']` cache
+> cleared on sign-out (cross-account PII), terminal statuses never payable,
+> plain-401 sync retry (web parity), destructive Badge text via the primary
+> pair (no `destructive-foreground` token exists). Gate fixes: `mobile:build`
+> → **`expo export`** (overrides the inferred, unusable `eas build`) · api
+> jest `testTimeout: 20000` (parallel-run flake). Baselines: api 338 ·
+> web 191 · admin 152 · **mobile 126 · mobile-ui 33**.
+>
+> Previously: **P5 mobile W3 Auth & Account COMPLETE
 > (2026-07-07, branch `feat/mobile-w3-auth-account`, merged ff-only):**
 > **guest-first Supabase auth** — `@supabase/supabase-js` on the official Expo
 > pattern (AsyncStorage session + AppState auto-refresh; SecureStore's 2KB
@@ -225,8 +255,10 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
   reads. Reconcile/destroy job deferred → P1.x.
 - **Tests:** 119 passing (api). CI green (lint·typecheck·test·build + CodeQL +
   GitGuardian). **Dependabot: 0 open** (js-yaml DoS resolved via `^4.2.0` override).
-- **Gate:** `nx run-many -t lint typecheck test` + `build` green; mobile `build`
-  is an Expo EAS cloud build (needs global `eas-cli`) → excluded from the local gate.
+- **Gate:** `nx run-many -t lint typecheck test build` fully green. Mobile's
+  `build` target is overridden to **`expo export`** (production Metro bundle
+  check) since W4 — the inferred `eas build` needed `eas-cli` + an EAS account
+  the Expo Go workflow doesn't use.
 
 ## Next steps (resume order)
 
