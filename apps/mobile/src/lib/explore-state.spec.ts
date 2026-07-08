@@ -2,6 +2,7 @@ import type { TourCardVm } from './tours';
 import {
   applyExploreState,
   defaultExploreState,
+  countActiveFilters,
   hasActiveFilters,
   initialExploreState,
   toggleBucket,
@@ -70,4 +71,12 @@ test('hasActiveFilters is false for default, true for any facet', () => {
   expect(hasActiveFilters({ ...defaultExploreState, query: 'x' })).toBe(true);
   expect(hasActiveFilters({ ...defaultExploreState, destination: 'Hanoi' })).toBe(true);
   expect(hasActiveFilters({ ...defaultExploreState, durations: ['1'] })).toBe(true);
+});
+
+test('countActiveFilters counts buckets and a non-default sort', () => {
+  expect(countActiveFilters(defaultExploreState)).toBe(0);
+  expect(
+    countActiveFilters({ ...defaultExploreState, durations: ['1'], prices: ['<100', '300+'] }),
+  ).toBe(3);
+  expect(countActiveFilters({ ...defaultExploreState, sort: 'rating' })).toBe(1);
 });

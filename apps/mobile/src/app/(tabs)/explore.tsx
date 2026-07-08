@@ -1,10 +1,9 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { FlatList, RefreshControl, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import type { DurationBucket, PriceBucket, TourSort } from '@tourism/core';
 import { messages } from '@tourism/i18n';
 import {
   AppText,
@@ -16,34 +15,22 @@ import {
   TextField,
   useTheme,
 } from '@tourism/mobile-ui';
+import { FilterSheet, type FilterSheetRef } from '../../components/filter-sheet';
 import { HeartButton } from '../../components/heart-button';
 import { SectionHeading } from '../../components/section-heading';
 import { TourCard } from '../../components/tour-card';
 import { fetchDestinations } from '../../lib/destinations';
 import {
   applyExploreState,
+  countActiveFilters,
   defaultExploreState,
   hasActiveFilters,
   initialExploreState,
-  toggleBucket,
   type ExploreState,
 } from '../../lib/explore-state';
 import { fetchAllTours } from '../../lib/tours';
 
 const t = messages.mobile.explore;
-
-const DURATIONS: DurationBucket[] = ['1', '2-3', '4+'];
-const PRICES: PriceBucket[] = ['<100', '100-300', '300+'];
-const SORTS: TourSort[] = ['popular', 'price-asc', 'price-desc', 'rating'];
-
-function ChipRow({ children }: { children: ReactNode }) {
-  const theme = useTheme();
-  return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing(2) }}>
-      {children}
-    </View>
-  );
-}
 
 function SkeletonList() {
   const theme = useTheme();
@@ -60,6 +47,7 @@ export default function ExploreScreen() {
   const theme = useTheme();
   const params = useLocalSearchParams<{ destination?: string; focusSearch?: string }>();
   const [state, setState] = useState<ExploreState>(() => initialExploreState(params));
+  const filterSheetRef = useRef<FilterSheetRef>(null);
 
   const toursQ = useQuery({ queryKey: ['tours', 'all'], queryFn: fetchAllTours });
   const destQ = useQuery({ queryKey: ['destinations'], queryFn: fetchDestinations });
@@ -108,39 +96,31 @@ export default function ExploreScreen() {
           />
         </View>
       ) : null}
-      <ChipRow>
-        {DURATIONS.map((d) => (
-          <Chip
-            key={d}
-            testID={`duration-${d}`}
-            label={t.duration[d]}
-            selected={state.durations.includes(d)}
-            onPress={() => setState((s) => ({ ...s, durations: toggleBucket(s.durations, d) }))}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(2) }}>
+        <Button
+          testID="open-filters"
+          variant="outline"
+          label={
+            countActiveFilters(state) > 0
+              ? `${t.filtersCta} (${countActiveFilters(state)})`
+              : t.filtersCta
+          }
+          onPress={() => filterSheetRef.current?.open(state)}
+        />
+        {countActiveFilters(state) > 0 ? (
+          <Button
+            variant="outline"
+            label={t.clearAll}
+            onPress={() =>
+              setState((s) => ({
+                ...defaultExploreState,
+                query: s.query,
+                destination: s.destination,
+              }))
+            }
           />
-        ))}
-      </ChipRow>
-      <ChipRow>
-        {PRICES.map((p) => (
-          <Chip
-            key={p}
-            testID={`price-${p}`}
-            label={t.price[p]}
-            selected={state.prices.includes(p)}
-            onPress={() => setState((s) => ({ ...s, prices: toggleBucket(s.prices, p) }))}
-          />
-        ))}
-      </ChipRow>
-      <ChipRow>
-        {SORTS.map((sort) => (
-          <Chip
-            key={sort}
-            testID={`sort-${sort}`}
-            label={t.sort[sort]}
-            selected={state.sort === sort}
-            onPress={() => setState((s) => ({ ...s, sort }))}
-          />
-        ))}
-      </ChipRow>
+        ) : null}
+      </View>
       {toursQ.isSuccess ? (
         <AppText variant="caption" muted>
           {t.resultsCount(results.length)}
@@ -224,6 +204,21 @@ export default function ExploreScreen() {
               ) : null}
             </View>
           )
+        }
+      />
+      <FilterSheet
+        ref={filterSheetRef}
+        previewCount={(draft) =>
+          toursQ.data
+            ? applyExploreState(toursQ.data, {
+                ...draft,
+                query: state.query,
+                destination: state.destination,
+              }).length
+            : 0
+        }
+        onApply={(draft) =>
+          setState((s) => ({ ...draft, query: s.query, destination: s.destination }))
         }
       />
     </Screen>

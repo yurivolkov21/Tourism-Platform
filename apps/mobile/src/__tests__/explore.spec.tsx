@@ -84,18 +84,23 @@ test('typing in search narrows the list', async () => {
   expect(screen.getByText('Hanoi Street Food')).toBeOnTheScreen();
 });
 
-test('duration chip filters, clear filters restores', async () => {
+test('filter sheet: chips edit a draft, Show results applies, clear restores', async () => {
   mockTours.mockResolvedValueOnce(tours);
   mockDests.mockResolvedValueOnce([]);
   renderExplore();
   await screen.findByText('Ha Long Bay Cruise');
   // Bucket chips are pressed by testID: RNTL's byRole name matching also scans a
   // button's descendant text, so "1 day" would collide with a 1-day tour card.
+  await userEvent.press(screen.getByTestId('open-filters'));
   await userEvent.press(screen.getByTestId('duration-1'));
+  // Draft only — the list is untouched until the CTA applies it.
+  expect(screen.getByText('Ha Long Bay Cruise')).toBeOnTheScreen();
+  await userEvent.press(screen.getByTestId('apply-filters'));
   expect(screen.queryByText('Ha Long Bay Cruise')).not.toBeOnTheScreen();
+  // Flip the draft to 4+ only -> nothing matches -> empty state with clear
   await userEvent.press(screen.getByTestId('duration-4+'));
   await userEvent.press(screen.getByTestId('duration-1'));
-  // only 4+ selected now -> nothing matches -> empty state with clear
+  await userEvent.press(screen.getByTestId('apply-filters'));
   expect(await screen.findByText('No tours match your search.')).toBeOnTheScreen();
   await userEvent.press(screen.getByRole('button', { name: 'Clear filters' }));
   expect(await screen.findByText('Ha Long Bay Cruise')).toBeOnTheScreen();

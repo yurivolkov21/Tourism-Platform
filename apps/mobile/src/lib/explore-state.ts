@@ -29,6 +29,15 @@ export function toggleBucket<T>(list: readonly T[], value: T): T[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
+/** Facets active beyond the defaults (drives the Filter button badge). */
+export function countActiveFilters(state: ExploreState): number {
+  return (
+    state.durations.length +
+    state.prices.length +
+    (state.sort === defaultExploreState.sort ? 0 : 1)
+  );
+}
+
 export function hasActiveFilters(state: ExploreState): boolean {
   return (
     state.query.trim() !== '' ||
