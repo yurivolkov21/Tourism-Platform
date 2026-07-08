@@ -10,16 +10,14 @@ export function Card({ style, ...rest }: ViewProps) {
         {
           backgroundColor: theme.colors['card'],
           borderRadius: theme.radius.lg,
+          borderCurve: 'continuous',
           borderWidth: 1,
           borderColor: theme.colors['border'],
           overflow: 'hidden',
-          // Android-first resting depth (web card parity); iOS clips shadows
-          // under overflow:hidden — acceptable this phase.
-          shadowColor: theme.colors['foreground'],
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 2 },
-          elevation: 2,
+          // RN 0.81 CSS shadow (replaces legacy shadow* + elevation). The rgba
+          // is a shadow alpha, not a palette color — mirrors the web tokens'
+          // card shadow, exempt from the no-hex palette rule.
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
         },
         style,
       ]}
