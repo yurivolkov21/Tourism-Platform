@@ -1,37 +1,27 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { AppState, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import * as WebBrowser from 'expo-web-browser';
 import { messages } from '@tourism/i18n';
-import { AppText, Button, Screen, Spinner, useTheme } from '@tourism/mobile-ui';
+import { AppText, Badge, Button, Screen, Spinner, useTheme } from '@tourism/mobile-ui';
+import { FactRow } from '../../../components/fact-row';
 import {
   captureBooking,
   fetchBooking,
   startCheckout,
   type BookingVm,
 } from '../../../lib/booking';
+import { formatMoney } from '../../../lib/money';
 
 const ts = messages.booking.success;
 const td = messages.booking.detail;
 const tm = messages.mobile.booking;
 
-type Phase = 'paying' | 'verifying' | 'paid' | 'pending' | 'notFound' | 'error';
-
-function Fact({ label, value }: { label: string; value: string }) {
-  const theme = useTheme();
-  return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: theme.spacing(3) }}>
-      <AppText variant="caption" muted>
-        {label}
-      </AppText>
-      <AppText variant="body" style={{ flexShrink: 1, textAlign: 'right' }}>
-        {value}
-      </AppText>
-    </View>
-  );
-}
+// 'closed' = terminal non-payable statuses (CANCELLED / REFUNDED / …) — never
+// offer Pay now on those.
+type Phase = 'paying' | 'verifying' | 'paid' | 'pending' | 'closed' | 'notFound' | 'error';
 
 export default function BookingResultScreen() {
   const { code, checkoutUrl } = useLocalSearchParams<{ code: string; checkoutUrl?: string }>();
@@ -39,7 +29,12 @@ export default function BookingResultScreen() {
   const queryClient = useQueryClient();
   const [phase, setPhase] = useState<Phase>('paying');
   const [booking, setBooking] = useState<BookingVm | null>(null);
+  // Pay-now can mint a fresh checkout session — always reopen the LATEST url,
+  // never the (possibly superseded) route param.
+  const [currentUrl, setCurrentUrl] = useState(checkoutUrl ?? null);
   const started = useRef(false);
+  const phaseRef = useRef(phase);
+  phaseRef.current = phase;
 
   const verify = useCallback(async () => {
     setPhase('verifying');
@@ -60,7 +55,16 @@ export default function BookingResultScreen() {
       }
       setBooking(vm);
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
-      setPhase(vm.status === 'PAID' ? 'paid' : 'pending');
+      if (vm.status === 'PAID') {
+        // Seats just sold — stale departure/detail caches would show them free.
+        queryClient.invalidateQueries({ queryKey: ['departures'] });
+        queryClient.invalidateQueries({ queryKey: ['tours'] });
+        setPhase('paid');
+      } else if (vm.status === 'PENDING') {
+        setPhase('pending');
+      } else {
+        setPhase('closed');
+      }
     } catch {
       setPhase('error');
     }
@@ -68,9 +72,13 @@ export default function BookingResultScreen() {
 
   const openCheckout = useCallback(
     async (url: string) => {
+      setCurrentUrl(url);
       setPhase('paying');
-      await WebBrowser.openBrowserAsync(url);
-      await verify(); // the promise resolves when the user closes the browser
+      const result = await WebBrowser.openBrowserAsync(url);
+      // iOS resolves when the browser closes; Android resolves IMMEDIATELY with
+      // { type: 'opened' } — there the AppState listener below verifies when
+      // the user returns to the app.
+      if (result.type !== 'opened') await verify();
     },
     [verify],
   );
@@ -92,7 +100,14 @@ export default function BookingResultScreen() {
     else void verify();
   }, [checkoutUrl, openCheckout, verify]);
 
-  const dollar = booking?.currency === 'USD' ? '$' : '';
+  // Android return path: the custom tab backgrounds the app; coming back to
+  // 'active' while we're still in 'paying' means the user left the checkout.
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active' && phaseRef.current === 'paying') void verify();
+    });
+    return () => sub.remove();
+  }, [verify]);
 
   return (
     <Screen>
@@ -109,11 +124,11 @@ export default function BookingResultScreen() {
             <AppText variant="body" muted style={{ textAlign: 'center' }}>
               {phase === 'paying' ? tm.browserHint : tm.verifying}
             </AppText>
-            {phase === 'paying' && checkoutUrl ? (
+            {phase === 'paying' && currentUrl ? (
               <Button
                 variant="outline"
                 label={tm.openCheckout}
-                onPress={() => void openCheckout(checkoutUrl)}
+                onPress={() => void openCheckout(currentUrl)}
               />
             ) : null}
           </View>
@@ -139,11 +154,14 @@ export default function BookingResultScreen() {
                 padding: theme.spacing(4),
               }}
             >
-              <Fact label={ts.refLabel} value={booking.code} />
-              <Fact label={ts.tourLabel} value={booking.tourTitle} />
-              <Fact label={ts.departureLabel} value={booking.departureLabel} />
-              <Fact label={ts.travellersLabel} value={booking.party} />
-              <Fact label={ts.totalLabel} value={`${dollar}${booking.totalAmount}`} />
+              <FactRow label={ts.refLabel} value={booking.code} />
+              <FactRow label={ts.tourLabel} value={booking.tourTitle} />
+              <FactRow label={ts.departureLabel} value={booking.departureLabel} />
+              <FactRow label={ts.travellersLabel} value={booking.party} />
+              <FactRow
+                label={ts.totalLabel}
+                value={formatMoney(booking.currency, booking.totalAmount)}
+              />
             </View>
             <AppText variant="caption" muted style={{ textAlign: 'center' }}>
               {ts.emailNote}
@@ -164,7 +182,7 @@ export default function BookingResultScreen() {
                 {tm.stillPendingTitle}
               </AppText>
               <AppText variant="body" muted style={{ textAlign: 'center' }}>
-                {messages.booking.cancel.body}
+                {tm.stillPendingBody}
               </AppText>
             </View>
             <Button testID="verify-again" label={tm.verifyAgain} onPress={() => void verify()} />
@@ -174,6 +192,17 @@ export default function BookingResultScreen() {
               label={tm.viewBooking}
               onPress={() => router.replace(`/bookings/${booking.code}`)}
             />
+          </View>
+        ) : null}
+
+        {phase === 'closed' && booking ? (
+          <View style={{ alignItems: 'center', gap: theme.spacing(3), paddingVertical: theme.spacing(6) }}>
+            <Badge tone={booking.statusMeta.tone} label={booking.statusMeta.label} />
+            <Button
+              label={tm.viewBooking}
+              onPress={() => router.replace(`/bookings/${booking.code}`)}
+            />
+            <Button variant="outline" label={tm.browseTours} onPress={() => router.replace('/')} />
           </View>
         ) : null}
 

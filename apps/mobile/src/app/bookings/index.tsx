@@ -7,6 +7,7 @@ import { AppText, Badge, Button, Screen, Skeleton, useTheme } from '@tourism/mob
 import { AuthGate } from '../../components/auth-gate';
 import { useAuth } from '../../lib/auth-context';
 import { fetchMyBookings, type BookingVm } from '../../lib/booking';
+import { formatMoney } from '../../lib/money';
 
 const t = messages.booking.list;
 const tm = messages.mobile.booking;
@@ -44,7 +45,6 @@ function Header() {
 
 function BookingCard({ booking }: { booking: BookingVm }) {
   const theme = useTheme();
-  const dollar = booking.currency === 'USD' ? '$' : '';
   return (
     <Pressable
       testID={`booking-${booking.code}`}
@@ -78,8 +78,7 @@ function BookingCard({ booking }: { booking: BookingVm }) {
           {t.departureLabel}: {booking.departureLabel}
         </AppText>
         <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold }}>
-          {dollar}
-          {booking.totalAmount}
+          {formatMoney(booking.currency, booking.totalAmount)}
         </AppText>
       </View>
     </Pressable>

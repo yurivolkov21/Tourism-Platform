@@ -1,5 +1,6 @@
+import { AppState } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { ThemeProvider } from '@tourism/mobile-ui';
 import * as WebBrowser from 'expo-web-browser';
 import ResultScreen from '../app/bookings/[code]/result';
@@ -60,6 +61,8 @@ function renderScreen() {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  // clearAllMocks keeps replaced implementations — restore the iOS-style default.
+  (WebBrowser.openBrowserAsync as jest.Mock).mockResolvedValue({ type: 'dismiss' });
   mockParams = { code: 'BK-1', checkoutUrl: 'https://pay.example/session' };
 });
 
@@ -103,4 +106,33 @@ test('without a checkoutUrl it verifies immediately (no browser)', async () => {
   renderScreen();
   await waitFor(() => expect(screen.getByText(/booking confirmed/i)).toBeOnTheScreen());
   expect(WebBrowser.openBrowserAsync).not.toHaveBeenCalled();
+});
+
+test("Android: browser opens without blocking; verify runs when the app returns to foreground", async () => {
+  const appStateSpy = jest.spyOn(AppState, 'addEventListener');
+  // Android resolves immediately with { type: 'opened' } (docs) — must NOT verify yet.
+  (WebBrowser.openBrowserAsync as jest.Mock).mockResolvedValue({ type: 'opened' });
+  (fetchBooking as jest.Mock).mockResolvedValue(paidVm);
+  renderScreen();
+  // Still in the paying phase: the hand-off hint is visible, no verify ran.
+  expect(await screen.findByText(/complete your payment in the secure browser/i)).toBeOnTheScreen();
+  expect(fetchBooking).not.toHaveBeenCalled();
+  // User closes the checkout tab → app returns to 'active' → verify.
+  const handler = appStateSpy.mock.calls[0][1] as (state: string) => void;
+  await act(async () => {
+    handler('active');
+  });
+  expect(await screen.findByText(/booking confirmed/i)).toBeOnTheScreen();
+});
+
+test('terminal statuses (CANCELLED/REFUNDED) never offer Pay now', async () => {
+  (fetchBooking as jest.Mock).mockResolvedValue({
+    ...paidVm,
+    status: 'CANCELLED',
+    statusMeta: { label: 'Cancelled', tone: 'muted' },
+  });
+  renderScreen();
+  expect(await screen.findByText('Cancelled')).toBeOnTheScreen();
+  expect(screen.queryByText(/pay now/i)).toBeNull();
+  expect(screen.queryByText(/payment not confirmed/i)).toBeNull();
 });

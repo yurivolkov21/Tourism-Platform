@@ -358,9 +358,11 @@ export default function TourDetailScreen() {
           <Button
             label={tb.bookCta}
             onPress={() =>
-              status === 'signedIn'
-                ? router.push(`/tours/${slug}/book`)
-                : router.push('/auth/sign-in?reason=booking')
+              // Only a *known* guest goes to sign-in; while the session is still
+              // restoring ('loading') head to the book screen, which re-checks.
+              status === 'signedOut'
+                ? router.push('/auth/sign-in?reason=booking')
+                : router.push(`/tours/${slug}/book`)
             }
           />
         </View>

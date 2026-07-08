@@ -145,6 +145,19 @@ describe('createBooking USER_NOT_SYNCED retry', () => {
     expect(POST.mock.calls[1][0]).toBe('/api/v1/auth/sync');
   });
 
+  test('a plain 401 (unmirrored user without the code) also re-syncs, like web', async () => {
+    const POST = jest
+      .fn()
+      .mockRejectedValueOnce(apiError(401, 'UNAUTHORIZED'))
+      .mockResolvedValueOnce({ data: {} }) // auth/sync
+      .mockResolvedValueOnce({ data: { data: bookingDto } });
+    (getApiClient as jest.Mock).mockReturnValue({ POST });
+
+    const result = await createBooking(payload);
+    expect(result.code).toBe('BK-7Q2KX9AB');
+    expect(POST).toHaveBeenCalledTimes(3);
+  });
+
   test('other errors are not retried', async () => {
     const POST = jest.fn().mockRejectedValue(apiError(409, 'SEATS_NOT_AVAILABLE'));
     (getApiClient as jest.Mock).mockReturnValue({ POST });

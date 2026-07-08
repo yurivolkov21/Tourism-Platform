@@ -21,6 +21,7 @@ import {
   type CreateBookingPayload,
   type PaymentProvider,
 } from '../../../lib/booking-form';
+import { formatMoney } from '../../../lib/money';
 import { computeBookingTotal } from '../../../lib/price';
 import { fetchProfile } from '../../../lib/profile';
 import { fetchTourDetail } from '../../../lib/tour-detail';
@@ -173,11 +174,22 @@ export default function BookScreen() {
   const submitM = useMutation({
     mutationFn: async (payload: CreateBookingPayload) => {
       const booking = await createBooking(payload);
-      const url = await startCheckout(booking.code);
-      return { code: booking.code, url };
+      try {
+        const url = await startCheckout(booking.code);
+        return { code: booking.code, url };
+      } catch {
+        // The PENDING booking exists and holds seats — never leave the user on
+        // the form (a retap would create a duplicate). The result screen shows
+        // the pending state and offers Pay now against the SAME booking.
+        return { code: booking.code, url: null };
+      }
     },
     onSuccess: ({ code, url }) => {
-      router.replace(`/bookings/${code}/result?checkoutUrl=${encodeURIComponent(url)}`);
+      router.replace(
+        url
+          ? `/bookings/${code}/result?checkoutUrl=${encodeURIComponent(url)}`
+          : `/bookings/${code}/result`,
+      );
     },
     onError: (error) => setFormError(bookingErrorMessage(error)),
   });
@@ -189,6 +201,20 @@ export default function BookScreen() {
       <Screen scroll={false}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Spinner />
+        </View>
+      </Screen>
+    );
+  }
+  if (tourQ.isError) {
+    return (
+      <Screen scroll={false}>
+        <View
+          style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: theme.spacing(3) }}
+        >
+          <AppText variant="body" style={{ textAlign: 'center' }}>
+            {td.error}
+          </AppText>
+          <Button label={td.retry} onPress={() => tourQ.refetch()} />
         </View>
       </Screen>
     );
@@ -212,7 +238,6 @@ export default function BookScreen() {
   const seatsLeft = selected?.seatsLeft ?? 20;
   const unitPrice = selected?.price ?? tour.basePrice;
   const total = computeBookingTotal(unitPrice, adults, children).total;
-  const dollar = tour.currency === 'USD' ? '$' : '';
 
   const selectDeparture = (option: DepartureOption) => {
     if (option.seatsLeft === 0) return;
@@ -298,8 +323,8 @@ export default function BookScreen() {
               {tour.title}
             </AppText>
             <AppText variant="caption" muted>
-              {messages.mobile.home.durationDays(tour.durationDays)} · {td.from} {dollar}
-              {tour.basePrice}
+              {messages.mobile.home.durationDays(tour.durationDays)} · {td.from}{' '}
+              {formatMoney(tour.currency, tour.basePrice)}
             </AppText>
           </View>
         </View>
@@ -307,7 +332,18 @@ export default function BookScreen() {
         {/* Departure picker */}
         <View style={{ gap: theme.spacing(3) }}>
           <SectionTitle title={t.form.datesHeading} desc={t.form.datesDesc} />
-          {options.length === 0 ? (
+          {departuresQ.isError ? (
+            <View style={{ gap: theme.spacing(3) }}>
+              <AppText variant="body" muted>
+                {tm.departuresError}
+              </AppText>
+              <Button
+                variant="outline"
+                label={tm.retry}
+                onPress={() => departuresQ.refetch()}
+              />
+            </View>
+          ) : options.length === 0 ? (
             <AppText variant="body" muted>
               {t.box.noDepartures}
             </AppText>
@@ -343,8 +379,7 @@ export default function BookScreen() {
                     }}
                   >
                     <AppText variant="caption" muted>
-                      {dollar}
-                      {option.price} {t.page.perAdult}
+                      {formatMoney(tour.currency, option.price)} {t.page.perAdult}
                     </AppText>
                     {soldOut ? (
                       <Badge tone="muted" label={tm.soldOut} />
@@ -499,8 +534,7 @@ export default function BookScreen() {
               color: theme.colors['foreground'],
             }}
           >
-            {dollar}
-            {total}
+            {formatMoney(tour.currency, total)}
           </AppText>
           <AppText variant="caption" muted>
             {t.page.totalNote}
@@ -511,7 +545,8 @@ export default function BookScreen() {
           label={submitM.isPending ? t.form.submitting : t.form.submit}
           loading={submitM.isPending}
           onPress={onSubmit}
-          disabled={options.length === 0}
+          // No selectable departure (none open, or ALL sold out) → nothing to buy.
+          disabled={!selected}
         />
       </View>
     </View>

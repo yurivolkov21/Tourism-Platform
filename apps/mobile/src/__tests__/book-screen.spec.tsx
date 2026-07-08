@@ -144,6 +144,19 @@ test('happy path: create → checkout → replace to the result screen', async (
   );
 });
 
+test('checkout failure after a created booking still navigates (no duplicate create)', async () => {
+  (createBooking as jest.Mock).mockResolvedValue({ code: 'BK-1' });
+  (startCheckout as jest.Mock).mockRejectedValue(new Error('gateway down'));
+  renderScreen();
+  await screen.findByTestId('departure-dep-1');
+  await screen.findByDisplayValue('a@example.com');
+  fireEvent.press(screen.getByTestId('submit'));
+  await waitFor(() => expect(mockRouter.replace).toHaveBeenCalled());
+  // The PENDING booking exists — land on its result screen (Pay now lives there).
+  expect(mockRouter.replace.mock.calls[0][0]).toBe('/bookings/BK-1/result');
+  expect(createBooking).toHaveBeenCalledTimes(1);
+});
+
 test('API rejection surfaces the mapped copy', async () => {
   const { ApiRequestError } = jest.requireActual('@tourism/core');
   (createBooking as jest.Mock).mockRejectedValue(

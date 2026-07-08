@@ -62,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await syncUser();
       queryClient.invalidateQueries({ queryKey: ['wishlist'] });
       queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
       return {};
     },
     [queryClient],
@@ -79,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await syncUser(fullName);
       queryClient.invalidateQueries({ queryKey: ['wishlist'] });
       queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
       return {};
     },
     [queryClient],
@@ -93,6 +95,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     queryClient.removeQueries({ queryKey: ['wishlist'] });
     queryClient.removeQueries({ queryKey: ['profile'] });
+    // Bookings are account-scoped PII — never let them survive an account switch.
+    queryClient.removeQueries({ queryKey: ['bookings'] });
   }, [queryClient]);
 
   const value = useMemo(

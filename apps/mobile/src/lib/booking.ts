@@ -132,16 +132,16 @@ export function bookingErrorMessage(error: unknown): string {
   return errors['generic'];
 }
 
-/** Open departures for a tour (public). `[]` on any error → graceful empty state. */
+/**
+ * Open departures for a tour (public). Throws on failure so the booking form
+ * can tell "no departures" apart from "couldn't load departures" (a swallowed
+ * network error here would silently dead-end the money path).
+ */
 export async function fetchTourDepartures(slug: string): Promise<DepartureDto[]> {
-  try {
-    const { data } = await getApiClient().GET('/api/v1/tours/{slug}/departures', {
-      params: { path: { slug }, query: { status: 'OPEN' } },
-    });
-    return (data as unknown as { data?: DepartureDto[] } | undefined)?.data ?? [];
-  } catch {
-    return [];
-  }
+  const { data } = await getApiClient().GET('/api/v1/tours/{slug}/departures', {
+    params: { path: { slug }, query: { status: 'OPEN' } },
+  });
+  return (data as unknown as { data?: DepartureDto[] } | undefined)?.data ?? [];
 }
 
 /** The caller's bookings, newest first (top 50 on the API). Throws on failure. */
@@ -177,14 +177,18 @@ async function postBooking(payload: CreateBookingPayload): Promise<BookingDto> {
 }
 
 /**
- * Create a PENDING booking. The first authed write can race the user mirror
- * (USER_NOT_SYNCED) — re-sync once and retry, exactly like web.
+ * Create a PENDING booking. The first authed write can race the user mirror —
+ * re-sync once and retry, exactly like web's createBookingWithSync (which also
+ * treats a plain 401 as the unmirrored-user case, not just USER_NOT_SYNCED).
  */
 export async function createBooking(payload: CreateBookingPayload): Promise<BookingDto> {
   try {
     return await postBooking(payload);
   } catch (error) {
-    if (error instanceof ApiRequestError && error.code === 'USER_NOT_SYNCED') {
+    if (
+      error instanceof ApiRequestError &&
+      (error.code === 'USER_NOT_SYNCED' || error.status === 401)
+    ) {
       await getApiClient().POST('/api/v1/auth/sync', { body: {} });
       return postBooking(payload);
     }

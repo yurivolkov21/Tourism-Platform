@@ -1817,6 +1817,8 @@ export const messages = {
       verifying: 'Confirming your payment…',
       verifyAgain: 'Verify again',
       stillPendingTitle: 'Payment not confirmed yet',
+      stillPendingBody:
+        "We haven't received the payment confirmation yet. If you just paid, it can take a moment - verify again in a few seconds (don't pay twice). If you didn't finish paying, you can pay now.",
       viewBooking: 'View booking',
       browseTours: 'Browse more tours',
       resultError: "Couldn't check your booking. Please try again.",

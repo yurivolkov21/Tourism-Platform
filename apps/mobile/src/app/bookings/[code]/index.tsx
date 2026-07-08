@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import { AppText, Badge, Button, Screen, Spinner, TextField, useTheme } from '@tourism/mobile-ui';
+import { FactRow } from '../../../components/fact-row';
 import {
   bookingErrorMessage,
   cancelBooking,
@@ -13,24 +14,11 @@ import {
   startCheckout,
   type BookingVm,
 } from '../../../lib/booking';
+import { formatMoney } from '../../../lib/money';
 
 const t = messages.booking.detail;
 const tl = messages.booking.list;
 const tm = messages.mobile.booking;
-
-function Fact({ label, value }: { label: string; value: string }) {
-  const theme = useTheme();
-  return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: theme.spacing(3) }}>
-      <AppText variant="caption" muted>
-        {label}
-      </AppText>
-      <AppText variant="body" style={{ flexShrink: 1, textAlign: 'right' }}>
-        {value}
-      </AppText>
-    </View>
-  );
-}
 
 function Actions({ booking }: { booking: BookingVm }) {
   const theme = useTheme();
@@ -160,8 +148,7 @@ function Actions({ booking }: { booking: BookingVm }) {
   }
 
   if (booking.refundedAmount != null) {
-    const dollar = booking.currency === 'USD' ? '$' : '';
-    const amount = `${dollar}${booking.refundedAmount}`;
+    const amount = formatMoney(booking.currency, booking.refundedAmount);
     return (
       <AppText variant="body" muted>
         {booking.status === 'PARTIALLY_REFUNDED'
@@ -208,7 +195,6 @@ export default function BookingDetailScreen() {
   }
 
   const booking = bookingQ.data;
-  const dollar = booking.currency === 'USD' ? '$' : '';
 
   return (
     <Screen scrollProps={{ keyboardShouldPersistTaps: 'handled' }}>
@@ -238,7 +224,7 @@ export default function BookingDetailScreen() {
             padding: theme.spacing(4),
           }}
         >
-          <Fact label={tl.refLabel} value={booking.code} />
+          <FactRow label={tl.refLabel} value={booking.code} />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={tl.viewTour}
@@ -246,15 +232,21 @@ export default function BookingDetailScreen() {
             hitSlop={4}
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           >
-            <Fact label={messages.booking.success.tourLabel} value={booking.tourTitle} />
+            <FactRow label={messages.booking.success.tourLabel} value={booking.tourTitle} />
           </Pressable>
-          <Fact label={tl.departureLabel} value={booking.departureLabel} />
-          <Fact label={tl.travellersLabel} value={booking.party} />
-          <Fact label={tl.totalLabel} value={`${dollar}${booking.totalAmount}`} />
-          <Fact label={t.paymentLabel} value={booking.paymentProvider} />
-          <Fact label={t.contactLabel} value={`${booking.contactName} · ${booking.contactEmail}`} />
+          <FactRow label={tl.departureLabel} value={booking.departureLabel} />
+          <FactRow label={tl.travellersLabel} value={booking.party} />
+          <FactRow
+            label={tl.totalLabel}
+            value={formatMoney(booking.currency, booking.totalAmount)}
+          />
+          <FactRow label={t.paymentLabel} value={booking.paymentProvider} />
+          <FactRow
+            label={t.contactLabel}
+            value={`${booking.contactName} · ${booking.contactEmail}`}
+          />
           {booking.specialRequests ? (
-            <Fact label={t.requestsLabel} value={booking.specialRequests} />
+            <FactRow label={t.requestsLabel} value={booking.specialRequests} />
           ) : null}
         </View>
 

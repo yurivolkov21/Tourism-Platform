@@ -45,4 +45,7 @@ test('destructive tone renders the destructive pair (booking REFUNDED)', () => {
   );
   const flattened = StyleSheet.flatten(screen.getByTestId('badge').props.style);
   expect(flattened.backgroundColor).toBe(tokens.colors.light['destructive']);
+  // No destructive-foreground token exists — the primary pair is reused.
+  const text = StyleSheet.flatten(screen.getByText('Refunded').props.style);
+  expect(text.color).toBe(tokens.colors.light['primary-foreground']);
 });
