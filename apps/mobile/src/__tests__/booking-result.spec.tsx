@@ -2,6 +2,7 @@ import { AppState } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { ThemeProvider } from '@tourism/mobile-ui';
+import * as Haptics from 'expo-haptics';
 import * as WebBrowser from 'expo-web-browser';
 import ResultScreen from '../app/bookings/[code]/result';
 import { captureBooking, fetchBooking, type BookingVm } from '../lib/booking';
@@ -74,6 +75,7 @@ test('opens the browser then confirms a PAID booking', async () => {
     'https://pay.example/session',
   );
   expect(captureBooking).not.toHaveBeenCalled(); // Stripe never captures in-app
+  expect(Haptics.notificationAsync).toHaveBeenCalledWith('success');
 });
 
 test('PayPal + PENDING triggers the idempotent capture, then confirms', async () => {

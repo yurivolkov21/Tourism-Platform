@@ -13,6 +13,7 @@ import {
   startCheckout,
   type BookingVm,
 } from '../../../lib/booking';
+import { hapticSuccess } from '../../../lib/haptics';
 import { formatMoney } from '../../../lib/money';
 
 const ts = messages.booking.success;
@@ -59,6 +60,7 @@ export default function BookingResultScreen() {
         // Seats just sold — stale departure/detail caches would show them free.
         queryClient.invalidateQueries({ queryKey: ['departures'] });
         queryClient.invalidateQueries({ queryKey: ['tours'] });
+        hapticSuccess();
         setPhase('paid');
       } else if (vm.status === 'PENDING') {
         setPhase('pending');

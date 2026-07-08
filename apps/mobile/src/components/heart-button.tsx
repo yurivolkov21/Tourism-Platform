@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { messages } from '@tourism/i18n';
 import { useTheme } from '@tourism/mobile-ui';
+import { hapticSelect } from '../lib/haptics';
 import { useWishlist } from '../lib/wishlist';
 
 const t = messages.mobile.saved;
@@ -22,6 +23,7 @@ export function HeartButton({ tourId, size = 32 }: { tourId: string; size?: numb
         if (isGuest) {
           router.push('/auth/sign-in?reason=wishlist');
         } else {
+          hapticSelect();
           toggle(tourId);
         }
       }}

@@ -13,6 +13,7 @@ import {
   startCheckout,
   type BookingVm,
 } from '../../../lib/booking';
+import { hapticWarning } from '../../../lib/haptics';
 import { formatMoney } from '../../../lib/money';
 
 const t = messages.booking.detail;
@@ -48,11 +49,13 @@ function Actions({ booking }: { booking: BookingVm }) {
     onError: (error) => setBanner(bookingErrorMessage(error)),
   });
 
-  const confirmCancel = () =>
+  const confirmCancel = () => {
+    hapticWarning();
     Alert.alert(t.cancelConfirmTitle, t.cancelConfirmBody, [
       { text: t.keep, style: 'cancel' },
       { text: t.cancelConfirmCta, style: 'destructive', onPress: () => cancelM.mutate() },
     ]);
+  };
 
   const bannerEl = banner ? (
     <AppText variant="body" style={{ color: theme.colors['destructive'] }}>

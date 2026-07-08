@@ -8,6 +8,7 @@ import { AppText, Button, Screen, Skeleton, useTheme } from '@tourism/mobile-ui'
 import { AuthGate } from '../../components/auth-gate';
 import { SectionHeading } from '../../components/section-heading';
 import { useAuth } from '../../lib/auth-context';
+import { hapticSelect } from '../../lib/haptics';
 import { fetchSavedTours, useWishlist, type SavedTourVm } from '../../lib/wishlist';
 
 const t = messages.mobile.saved;
@@ -99,7 +100,15 @@ export default function SavedScreen() {
       <FlatList
         data={listQ.data ?? []}
         keyExtractor={(item) => item.tourId}
-        renderItem={({ item }) => <SavedRow tour={item} onRemove={() => toggle(item.tourId)} />}
+        renderItem={({ item }) => (
+          <SavedRow
+            tour={item}
+            onRemove={() => {
+              hapticSelect();
+              toggle(item.tourId);
+            }}
+          />
+        )}
         ItemSeparatorComponent={() => <View style={{ height: theme.spacing(4) }} />}
         ListHeaderComponent={
           <View style={{ paddingVertical: theme.spacing(4) }}>
