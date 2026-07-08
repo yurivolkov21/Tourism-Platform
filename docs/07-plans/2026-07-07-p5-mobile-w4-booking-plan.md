@@ -26,9 +26,14 @@ refetches the booking and fires the idempotent PayPal capture itself.
 
 ## STATUS
 
-- **State:** EXECUTED (2026-07-08) — all 11 tasks done inline; awaiting
-  on-device verification by the user, then merge.
-- **Branch:** `feat/mobile-w4-booking`
+- **State:** MERGED (2026-07-08) — all 11 tasks done inline + adversarial
+  review fixed + gate fully green. **On-device verification DEFERRED** (user
+  hit unrelated environment issues): the full payment loop — Stripe
+  test-card · PayPal sandbox capture-on-return · abandon → Pay now rescue ·
+  cancel PENDING · cancellation-request PAID · guest gating — still needs a
+  real-device pass before P5 is called production-ready. Do that pass before
+  building anything on top of the mobile booking flow.
+- **Branch:** `feat/mobile-w4-booking` (merged ff-only, deleted)
 - **Tests:** mobile **67 → 126** · mobile-ui **31 → 33** (gate: lint +
   typecheck + test green across the workspace; `mobile:build` = `eas build`
   fails for lack of `eas-cli` — pre-existing on `main`, not a W4 regression;
