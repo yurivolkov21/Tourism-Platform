@@ -23,12 +23,31 @@ expo-haptics · `Pressable android_ripple`.
 
 ## STATUS
 
-- **State:** NOT STARTED
-- **Branch:** `feat/mobile-n1-feel` (spec committed)
-- **Baselines:** mobile **126** · mobile-ui **33** (api 338 · web 191 · admin 152)
-- **RESUME STATE:** start at Task 1
-- **Reminder:** the W4 on-device payment pass is still owed — schedule it
-  with this wave's device pass (same checklist, see Task 9).
+- **State:** EXECUTED (2026-07-08) — all 9 tasks done inline; awaiting the
+  user's on-device pass, then merge.
+- **Branch:** `feat/mobile-n1-feel`
+- **Tests:** mobile **126** · mobile-ui **33** (counts unchanged — N1 is
+  feel-layer polish; the one new assertion rides an existing result-screen
+  test). Full workspace gate green (lint + typecheck + test + build ×9).
+- **Deviations from plan:**
+  - Reanimated 4's own `/mock` pulls `react-native-worklets` (throws without
+    the native part) and ships as untransformed TS — both test-setups mock
+    the small reanimated surface we use (Animated.View + chainable
+    entering/exiting/layout builders) instead; `react-native-worklets`/
+    `-reanimated`/`-gesture-handler` added to the apps/mobile transform
+    allowlist; `mobile-ui` declares reanimated as peer+dev dep (pnpm strict
+    linking).
+  - The planned Button ripple unit test was DROPPED: jest-expo runs as iOS
+    where Pressable strips `android_ripple` before the host view and the
+    memo wrapper hides it from every RNTL matcher — ripple is a device-pass
+    item.
+  - `expo install` re-resolution briefly duplicated react (19.2.7) in
+    `.pnpm` → `pnpm dedupe` fixed the links (lockfile itself stayed clean);
+    same `__fbBatchedBridgeConfig` symptom as the known react-pin gotcha.
+- **RESUME STATE:** hand off to the user for the on-device pass (Task 9
+  Step 3 — N1 checklist + the owed W4 payment pass), then rebase +
+  `--ff-only` merge + docs sweep. Next wave: N2 Patterns (bottom sheets ·
+  stepped booking · disclosure).
 
 ## Global Constraints
 
