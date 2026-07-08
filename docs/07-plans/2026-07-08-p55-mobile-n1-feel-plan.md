@@ -23,9 +23,11 @@ expo-haptics · `Pressable android_ripple`.
 
 ## STATUS
 
-- **State:** EXECUTED (2026-07-08) — all 9 tasks done inline; awaiting the
-  user's on-device pass, then merge.
-- **Branch:** `feat/mobile-n1-feel`
+- **State:** MERGED (2026-07-08) — all 9 tasks done inline, gate green,
+  merged ff-only on user approval. Note: the user did not explicitly report
+  the on-device N1 checklist or the owed W4 payment pass at merge time —
+  both remain on the standing device-pass list (see Task 9 Step 3).
+- **Branch:** `feat/mobile-n1-feel` (merged, deleted)
 - **Tests:** mobile **126** · mobile-ui **33** (counts unchanged — N1 is
   feel-layer polish; the one new assertion rides an existing result-screen
   test). Full workspace gate green (lint + typecheck + test + build ×9).
