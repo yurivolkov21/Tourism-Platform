@@ -99,10 +99,12 @@ already exist in the RN theme, and `badge.tsx` already derives colors
 generically from the tone name — only the type union changes.
 
 **Files:**
+
 - Modify: `libs/mobile/ui/src/lib/badge.tsx:4`
 - Test: `libs/mobile/ui/src/lib/badge.spec.tsx`
 
 **Interfaces:**
+
 - Produces: `BadgeTone` now includes `'muted' | 'destructive'` — Task 5's
   `bookingStatusMeta` returns these.
 
@@ -172,10 +174,12 @@ copy; only mobile-flow copy (browser hand-off, verify states, steppers) is
 new.
 
 **Files:**
+
 - Modify: `libs/shared/i18n/src/lib/messages.ts` — two edits inside the
   `mobile` section (which starts at line ~1729).
 
 **Interfaces:**
+
 - Produces: `messages.mobile.booking.*` and
   `messages.mobile.authPrompts.bookingReason` — consumed by Tasks 6–10.
 
@@ -232,10 +236,12 @@ cannot drift between clients. Same `BookingFormError` codes →
 `messages.booking.errors` maps 1:1.
 
 **Files:**
+
 - Create: `apps/mobile/src/lib/booking-form.ts`
 - Test: `apps/mobile/src/lib/booking-form.spec.ts`
 
 **Interfaces:**
+
 - Produces: `buildCreateBookingPayload(raw: BookingFormRaw): BuildBookingResult`,
   types `CreateBookingPayload`, `PaymentProvider = 'STRIPE' | 'PAYPAL'`,
   `BookingFormError` — consumed by Tasks 5 and 7.
@@ -445,10 +451,12 @@ Verbatim port of `apps/web/src/lib/booking/price.ts`. Children price =
 adult price (`childPriceRatio = 1`); the API recomputes the real charge.
 
 **Files:**
+
 - Create: `apps/mobile/src/lib/price.ts`
 - Test: `apps/mobile/src/lib/price.spec.ts`
 
 **Interfaces:**
+
 - Produces: `computeBookingTotal(departurePrice, numAdults, numChildren?, childPriceRatio?) → { total: number; lines: PriceLine[] }` — consumed by Task 7.
 
 - [ ] **Step 1: Write the failing spec** — `price.spec.ts`:
@@ -585,10 +593,12 @@ status→Badge-tone meta, error-code→copy mapping, and the API wrappers
 including the **USER_NOT_SYNCED retry-once**.
 
 **Files:**
+
 - Create: `apps/mobile/src/lib/booking.ts`
 - Test: `apps/mobile/src/lib/booking.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `CreateBookingPayload` (Task 3) · `BadgeTone` incl. `muted`/`destructive` (Task 1) · `getApiClient` (`./api`).
 - Produces (consumed by Tasks 7–10):
   - `toDepartureOptions(departures: DepartureDto[], basePrice: number): DepartureOption[]` — `DepartureOption = { id; label; price; seatsLeft }`
@@ -1013,6 +1023,7 @@ don't exist yet only at runtime — so this task also creates **placeholder
 files** that each later task replaces (keeps every commit runnable).
 
 **Files:**
+
 - Modify: `apps/mobile/src/app/_layout.tsx` (Stack.Screen list)
 - Modify: `apps/mobile/src/app/tours/[slug]/index.tsx` (sticky bar)
 - Modify: `apps/mobile/src/app/auth/sign-in.tsx:44` (reason line)
@@ -1022,6 +1033,7 @@ files** that each later task replaces (keeps every commit runnable).
   `apps/mobile/src/app/bookings/[code]/result.tsx`
 
 **Interfaces:**
+
 - Consumes: `messages.mobile.booking.bookCta`, `messages.mobile.authPrompts.bookingReason` (Task 2), `useAuth` (existing).
 - Produces: routes `/tours/[slug]/book`, `/bookings`, `/bookings/[code]`, `/bookings/[code]/result` — used by Tasks 7–10.
 
@@ -1107,10 +1119,12 @@ git commit -m "feat(mobile): booking routes + Book now CTA + booking sign-in rea
 ### Task 7: Booking form screen `tours/[slug]/book`
 
 **Files:**
+
 - Replace placeholder: `apps/mobile/src/app/tours/[slug]/book.tsx`
 - Test: `apps/mobile/src/__tests__/book-screen.spec.tsx`
 
 **Interfaces:**
+
 - Consumes: `fetchTourDetail` (existing) · `fetchTourDepartures`,
   `toDepartureOptions`, `createBooking`, `startCheckout`,
   `bookingErrorMessage`, `DepartureOption` (Task 5) ·
@@ -1820,11 +1834,13 @@ git commit -m "feat(mobile): booking form screen - departures, steppers, prefill
 ### Task 8: `expo-web-browser` + payment result screen
 
 **Files:**
+
 - Modify: `apps/mobile/package.json` (via `expo install`)
 - Replace placeholder: `apps/mobile/src/app/bookings/[code]/result.tsx`
 - Test: `apps/mobile/src/__tests__/booking-result.spec.tsx`
 
 **Interfaces:**
+
 - Consumes: `fetchBooking`, `captureBooking`, `startCheckout`, `BookingVm` (Task 5); `messages.booking.success/cancel/detail` + `messages.mobile.booking` (Task 2).
 - Produces: route `/bookings/[code]/result?checkoutUrl=…` — Task 7 replaces
   into it; Task 10's Pay now pushes it.
@@ -2175,11 +2191,13 @@ git commit -m "feat(mobile): self-verifying payment result screen via expo-web-b
 ### Task 9: Bookings list + Account menu row
 
 **Files:**
+
 - Replace placeholder: `apps/mobile/src/app/bookings/index.tsx`
 - Modify: `apps/mobile/src/app/(tabs)/account.tsx` (MenuRow)
 - Test: `apps/mobile/src/__tests__/bookings-list.spec.tsx`
 
 **Interfaces:**
+
 - Consumes: `fetchMyBookings`, `BookingVm` (Task 5) · `AuthGate` (existing) · `messages.booking.list` + `messages.mobile.booking`.
 - Produces: route `/bookings`; taps push `/bookings/{code}` (Task 10).
 
@@ -2458,10 +2476,12 @@ git commit -m "feat(mobile): my-bookings list + Account menu entry"
 ### Task 10: Booking detail + status-aware actions
 
 **Files:**
+
 - Replace placeholder: `apps/mobile/src/app/bookings/[code]/index.tsx`
 - Test: `apps/mobile/src/__tests__/booking-detail.spec.tsx`
 
 **Interfaces:**
+
 - Consumes: `fetchBooking`, `cancelBooking`, `requestCancellation`,
   `startCheckout`, `bookingErrorMessage`, `BookingVm` (Task 5) ·
   `messages.booking.detail` · native `Alert.alert` (platform-convention
