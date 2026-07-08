@@ -1,7 +1,14 @@
 import { Text, View, type ViewProps } from 'react-native';
 import { useTheme } from './theme-provider';
 
-export type BadgeTone = 'primary' | 'success' | 'warning' | 'info' | 'rating';
+export type BadgeTone =
+  | 'primary'
+  | 'success'
+  | 'warning'
+  | 'info'
+  | 'rating'
+  | 'muted'
+  | 'destructive';
 
 export interface BadgeProps extends ViewProps {
   label: string;
