@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Linking, Pressable, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -182,7 +183,9 @@ export default function AccountScreen() {
           <Button label={t.retry} onPress={() => profileQ.refetch()} />
         </View>
       ) : (
-        <Profile profile={profileQ.data} />
+        <Animated.View entering={FadeIn.duration(200)}>
+          <Profile profile={profileQ.data} />
+        </Animated.View>
       )}
     </Screen>
   );

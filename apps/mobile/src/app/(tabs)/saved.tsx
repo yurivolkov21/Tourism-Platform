@@ -1,4 +1,5 @@
 import { FlatList, Pressable, RefreshControl, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -101,13 +102,15 @@ export default function SavedScreen() {
         data={listQ.data ?? []}
         keyExtractor={(item) => item.tourId}
         renderItem={({ item }) => (
-          <SavedRow
-            tour={item}
-            onRemove={() => {
-              hapticSelect();
-              toggle(item.tourId);
-            }}
-          />
+          <Animated.View entering={FadeIn.duration(200)}>
+            <SavedRow
+              tour={item}
+              onRemove={() => {
+                hapticSelect();
+                toggle(item.tourId);
+              }}
+            />
+          </Animated.View>
         )}
         ItemSeparatorComponent={() => <View style={{ height: theme.spacing(4) }} />}
         ListHeaderComponent={

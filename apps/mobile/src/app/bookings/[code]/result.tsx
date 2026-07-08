@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, View } from 'react-native';
+import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
@@ -137,9 +138,11 @@ export default function BookingResultScreen() {
         ) : null}
 
         {phase === 'paid' && booking ? (
-          <View style={{ gap: theme.spacing(4) }}>
+          <Animated.View entering={FadeIn.duration(200)} style={{ gap: theme.spacing(4) }}>
             <View style={{ alignItems: 'center', gap: theme.spacing(2) }}>
-              <Ionicons name="checkmark-circle" size={56} color={theme.colors['success']} />
+              <Animated.View entering={ZoomIn.springify().damping(12)}>
+                <Ionicons name="checkmark-circle" size={56} color={theme.colors['success']} />
+              </Animated.View>
               <AppText variant="display" style={{ textAlign: 'center' }}>
                 {ts.confirmedTitle}
               </AppText>
@@ -173,7 +176,7 @@ export default function BookingResultScreen() {
               onPress={() => router.replace(`/bookings/${booking.code}`)}
             />
             <Button variant="outline" label={tm.browseTours} onPress={() => router.replace('/')} />
-          </View>
+          </Animated.View>
         ) : null}
 
         {phase === 'pending' && booking ? (

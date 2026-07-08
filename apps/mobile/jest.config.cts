@@ -37,7 +37,9 @@ module.exports = {
     // untransformed. `expo-[^/]+` is needed too — unscoped Expo SDK
     // packages (expo-router, expo-modules-core, expo-image, ...) don't
     // match a bare `expo(nent)?` (verified 2026-07-06).
-    'node_modules/(?!(\\.pnpm|react-native-url-polyfill|(jest-)?react-native|@react-native(-community)?|expo(nent)?|expo-[^/]+|@expo(-google-fonts)?|@expo/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|@tanstack)/)',
+    // reanimated 4 ships TS sources (src/mock.ts) + splits out react-native-worklets —
+    // both must be transformed, as must gesture-handler's jestSetup.
+    'node_modules/(?!(\\.pnpm|react-native-url-polyfill|react-native-reanimated|react-native-worklets|react-native-gesture-handler|(jest-)?react-native|@react-native(-community)?|expo(nent)?|expo-[^/]+|@expo(-google-fonts)?|@expo/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|@tanstack)/)',
   ],
   transform: {
     '[.][jt]sx?$': [

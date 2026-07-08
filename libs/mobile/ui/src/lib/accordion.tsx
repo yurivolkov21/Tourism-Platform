@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable } from 'react-native';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import { AppText } from './app-text';
 import { useTheme } from './theme-provider';
 
@@ -13,7 +14,8 @@ export function Accordion({ title, children, initiallyOpen = false }: AccordionP
   const theme = useTheme();
   const [open, setOpen] = useState(initiallyOpen);
   return (
-    <View
+    <Animated.View
+      layout={LinearTransition.duration(200)}
       style={{
         borderWidth: 1,
         borderColor: theme.colors['border'],
@@ -47,10 +49,14 @@ export function Accordion({ title, children, initiallyOpen = false }: AccordionP
         </AppText>
       </Pressable>
       {open ? (
-        <View style={{ paddingHorizontal: theme.spacing(3), paddingBottom: theme.spacing(3) }}>
+        <Animated.View
+          entering={FadeIn.duration(150)}
+          exiting={FadeOut.duration(100)}
+          style={{ paddingHorizontal: theme.spacing(3), paddingBottom: theme.spacing(3) }}
+        >
           {children}
-        </View>
+        </Animated.View>
       ) : null}
-    </View>
+    </Animated.View>
   );
 }

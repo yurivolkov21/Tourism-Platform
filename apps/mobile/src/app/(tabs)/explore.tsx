@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { FlatList, RefreshControl, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
@@ -154,12 +155,14 @@ export default function ExploreScreen() {
         data={toursQ.isSuccess ? results : []}
         keyExtractor={(tour) => tour.slug}
         renderItem={({ item }) => (
-          <TourCard
-            tour={item}
-            variant="list"
-            heartSlot={<HeartButton tourId={item.id} />}
-            onPress={() => router.push(`/tours/${item.slug}`)}
-          />
+          <Animated.View entering={FadeIn.duration(200)}>
+            <TourCard
+              tour={item}
+              variant="list"
+              heartSlot={<HeartButton tourId={item.id} />}
+              onPress={() => router.push(`/tours/${item.slug}`)}
+            />
+          </Animated.View>
         )}
         ItemSeparatorComponent={() => <View style={{ height: theme.spacing(3) }} />}
         ListHeaderComponent={header}

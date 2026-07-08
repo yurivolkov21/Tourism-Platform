@@ -22,6 +22,25 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
+// Reanimated 4's own mock still pulls react-native-worklets (throws without
+// the native part), so mock the small surface we actually use: Animated.View
+// + chainable entering/exiting/layout builders, all no-ops under jest.
+jest.mock('react-native-reanimated', () => {
+  const { View } = require('react-native');
+  const chain: Record<string, () => unknown> = {};
+  for (const k of ['duration', 'springify', 'damping', 'delay', 'easing']) {
+    chain[k] = () => chain;
+  }
+  return {
+    __esModule: true,
+    default: { View, createAnimatedComponent: (c: unknown) => c },
+    FadeIn: chain,
+    FadeOut: chain,
+    ZoomIn: chain,
+    LinearTransition: chain,
+  };
+});
+
 // jest-expo's useColorScheme() returns null → ThemeProvider resolves 'light'; specs assert against tokens.colors.light unless they mock the hook.
 if (typeof global.structuredClone === 'undefined') {
   global.structuredClone = (object) => JSON.parse(JSON.stringify(object));

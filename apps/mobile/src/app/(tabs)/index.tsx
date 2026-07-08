@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -174,11 +175,13 @@ export default function HomeScreen() {
               data={toursQ.data}
               keyExtractor={(item) => item.slug}
               renderItem={({ item }) => (
-                <TourCard
-                  tour={item}
-                  heartSlot={<HeartButton tourId={item.id} />}
-                  onPress={() => router.push(`/tours/${item.slug}`)}
-                />
+                <Animated.View entering={FadeIn.duration(200)}>
+                  <TourCard
+                    tour={item}
+                    heartSlot={<HeartButton tourId={item.id} />}
+                    onPress={() => router.push(`/tours/${item.slug}`)}
+                  />
+                </Animated.View>
               )}
               ItemSeparatorComponent={() => <View style={{ width: theme.spacing(3) }} />}
               showsHorizontalScrollIndicator={false}

@@ -1,4 +1,5 @@
 import { FlatList, Pressable, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
@@ -112,15 +113,17 @@ export default function BookingsScreen() {
             <Button label={t.browse} onPress={() => router.push('/explore')} />
           </View>
         ) : (
-          <FlatList
-            data={listQ.data}
-            keyExtractor={(item) => item.code}
-            renderItem={({ item }) => <BookingCard booking={item} />}
-            contentContainerStyle={{ gap: theme.spacing(3), paddingBottom: theme.spacing(6) }}
-            showsVerticalScrollIndicator={false}
-            refreshing={listQ.isRefetching}
-            onRefresh={() => listQ.refetch()}
-          />
+          <Animated.View entering={FadeIn.duration(200)} style={{ flex: 1 }}>
+            <FlatList
+              data={listQ.data}
+              keyExtractor={(item) => item.code}
+              renderItem={({ item }) => <BookingCard booking={item} />}
+              contentContainerStyle={{ gap: theme.spacing(3), paddingBottom: theme.spacing(6) }}
+              showsVerticalScrollIndicator={false}
+              refreshing={listQ.isRefetching}
+              onRefresh={() => listQ.refetch()}
+            />
+          </Animated.View>
         )}
       </View>
     </Screen>

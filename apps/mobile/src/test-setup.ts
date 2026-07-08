@@ -40,9 +40,24 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );
 
-// Reanimated + gesture-handler have native parts jest can't load — use the
-// libraries' official mocks (entering/exiting props become no-ops).
-jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+// Reanimated 4's own mock still pulls react-native-worklets (throws without
+// the native part), so mock the small surface we actually use: Animated.View
+// + chainable entering/exiting/layout builders, all no-ops under jest.
+jest.mock('react-native-reanimated', () => {
+  const { View } = require('react-native');
+  const chain: Record<string, () => unknown> = {};
+  for (const k of ['duration', 'springify', 'damping', 'delay', 'easing']) {
+    chain[k] = () => chain;
+  }
+  return {
+    __esModule: true,
+    default: { View, createAnimatedComponent: (c: unknown) => c },
+    FadeIn: chain,
+    FadeOut: chain,
+    ZoomIn: chain,
+    LinearTransition: chain,
+  };
+});
 require('react-native-gesture-handler/jestSetup');
 
 // Haptics are fire-and-forget native calls — a global no-op mock keeps every
