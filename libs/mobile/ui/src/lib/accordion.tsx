@@ -26,13 +26,17 @@ export function Accordion({ title, children, initiallyOpen = false }: AccordionP
         accessibilityLabel={title}
         accessibilityState={{ expanded: open }}
         onPress={() => setOpen((v) => !v)}
+        android_ripple={{ color: theme.colors['muted'] }}
         style={(state) => ({
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: theme.spacing(2),
           padding: theme.spacing(3),
-          backgroundColor: state.pressed ? theme.colors['muted'] : 'transparent',
+          backgroundColor:
+            process.env.EXPO_OS === 'ios' && state.pressed
+              ? theme.colors['muted']
+              : 'transparent',
         })}
       >
         <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold, flex: 1 }}>

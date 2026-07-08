@@ -32,12 +32,13 @@ function MenuRow({
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
+      android_ripple={{ color: theme.colors['muted'] }}
       style={({ pressed }) => ({
         flexDirection: 'row',
         alignItems: 'center',
         gap: theme.spacing(3),
         paddingVertical: theme.spacing(3),
-        opacity: pressed ? 0.7 : 1,
+        opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.7 : 1,
       })}
     >
       <Ionicons name={icon} size={20} color={color} />

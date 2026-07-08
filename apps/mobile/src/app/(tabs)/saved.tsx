@@ -21,11 +21,12 @@ function SavedRow({ tour, onRemove }: { tour: SavedTourVm; onRemove: () => void 
       accessibilityRole="button"
       accessibilityLabel={tour.title}
       onPress={() => router.push(`/tours/${tour.slug}`)}
+      android_ripple={{ color: theme.colors['muted'] }}
       style={({ pressed }) => ({
         flexDirection: 'row',
         alignItems: 'center',
         gap: theme.spacing(3),
-        opacity: pressed ? 0.85 : 1,
+        opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.85 : 1,
       })}
     >
       <Image
@@ -63,7 +64,11 @@ function SavedRow({ tour, onRemove }: { tour: SavedTourVm; onRemove: () => void 
         testID={`remove-${tour.tourId}`}
         hitSlop={8}
         onPress={onRemove}
-        style={({ pressed }) => ({ padding: theme.spacing(2), opacity: pressed ? 0.6 : 1 })}
+        android_ripple={{ color: theme.colors['muted'], borderless: true }}
+        style={({ pressed }) => ({
+          padding: theme.spacing(2),
+          opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.6 : 1,
+        })}
       >
         <Ionicons name="heart-dislike-outline" size={20} color={theme.colors['destructive']} />
       </Pressable>

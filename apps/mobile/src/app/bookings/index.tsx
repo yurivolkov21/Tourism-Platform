@@ -20,13 +20,15 @@ function BookingCard({ booking }: { booking: BookingVm }) {
       accessibilityRole="button"
       accessibilityLabel={booking.tourTitle}
       onPress={() => router.push(`/bookings/${booking.code}`)}
+      android_ripple={{ color: theme.colors['muted'], foreground: true }}
       style={({ pressed }) => ({
         borderWidth: 1,
         borderColor: theme.colors['border'],
         borderRadius: theme.radius.md,
+        overflow: 'hidden',
         padding: theme.spacing(4),
         gap: theme.spacing(2),
-        opacity: pressed ? 0.85 : 1,
+        opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.85 : 1,
       })}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(2) }}>

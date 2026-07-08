@@ -25,6 +25,10 @@ test('disabled blocks presses', async () => {
   expect(onPress).not.toHaveBeenCalled();
 });
 
+// NOTE: android_ripple is intentionally untested here — jest-expo runs as iOS,
+// where Pressable strips the prop before the host view and the memo wrapper
+// hides it from composite matchers. Ripple is verified in the on-device pass.
+
 test('merges caller style with the themed style', () => {
   render(
     <ThemeProvider>

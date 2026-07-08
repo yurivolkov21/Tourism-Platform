@@ -17,6 +17,11 @@ export function Button({ label, variant = 'primary', loading, disabled, style, .
       accessibilityRole="button"
       accessibilityLabel={label}
       disabled={disabled || loading}
+      // Muted ripple is invisible on the emerald fill — use the primary pair there.
+      android_ripple={{
+        color: primary ? theme.colors['primary-foreground'] : theme.colors['muted'],
+        foreground: true,
+      }}
       {...rest}
       style={(state) => [
         {
@@ -27,10 +32,15 @@ export function Button({ label, variant = 'primary', loading, disabled, style, .
           minHeight: 44,
           paddingHorizontal: theme.spacing(5),
           borderRadius: theme.radius.md,
+          overflow: 'hidden', // clip the ripple to the rounded shape
           backgroundColor: primary ? theme.colors['primary'] : 'transparent',
           borderWidth: primary ? 0 : 1,
           borderColor: theme.colors['border'],
-          opacity: disabled ? 0.5 : state.pressed ? 0.85 : 1,
+          opacity: disabled
+            ? 0.5
+            : process.env.EXPO_OS === 'ios' && state.pressed
+              ? 0.85
+              : 1,
         },
         typeof style === 'function' ? style(state) : style,
       ]}

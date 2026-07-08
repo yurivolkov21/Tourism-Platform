@@ -50,6 +50,7 @@ function BackOverlay() {
       accessibilityLabel={t.goBack}
       onPress={() => router.back()}
       hitSlop={8}
+      android_ripple={{ color: theme.colors['muted'], foreground: true }}
       style={({ pressed }) => ({
         position: 'absolute',
         top: insets.top + theme.spacing(2),
@@ -57,10 +58,11 @@ function BackOverlay() {
         width: 36,
         height: 36,
         borderRadius: 18,
+        overflow: 'hidden',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: theme.colors['background'],
-        opacity: pressed ? 0.7 : 1,
+        opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.7 : 1,
       })}
     >
       <AppText variant="title">‹</AppText>

@@ -25,14 +25,16 @@ export function HeartButton({ tourId, size = 32 }: { tourId: string; size?: numb
           toggle(tourId);
         }
       }}
+      android_ripple={{ color: theme.colors['muted'], foreground: true }}
       style={({ pressed }) => ({
         width: size,
         height: size,
         borderRadius: size / 2,
+        overflow: 'hidden',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: theme.colors['background'],
-        opacity: pressed ? 0.7 : 1,
+        opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.7 : 1,
       })}
     >
       <Ionicons

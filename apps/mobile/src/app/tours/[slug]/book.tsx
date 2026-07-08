@@ -52,6 +52,7 @@ function Stepper({
     width: 36,
     height: 36,
     borderRadius: 18,
+    overflow: 'hidden' as const,
     borderWidth: 1,
     borderColor: theme.colors['border'],
     alignItems: 'center' as const,
@@ -76,7 +77,11 @@ function Stepper({
           disabled={value <= min}
           hitSlop={8}
           onPress={() => onChange(value - 1)}
-          style={({ pressed }) => [circle(value <= min), pressed && { opacity: 0.7 }]}
+          android_ripple={{ color: theme.colors['muted'], foreground: true }}
+          style={({ pressed }) => [
+            circle(value <= min),
+            process.env.EXPO_OS === 'ios' && pressed && { opacity: 0.7 },
+          ]}
         >
           <Ionicons name="remove" size={18} color={theme.colors['foreground']} />
         </Pressable>
@@ -94,7 +99,11 @@ function Stepper({
           disabled={value >= max}
           hitSlop={8}
           onPress={() => onChange(value + 1)}
-          style={({ pressed }) => [circle(value >= max), pressed && { opacity: 0.7 }]}
+          android_ripple={{ color: theme.colors['muted'], foreground: true }}
+          style={({ pressed }) => [
+            circle(value >= max),
+            process.env.EXPO_OS === 'ios' && pressed && { opacity: 0.7 },
+          ]}
         >
           <Ionicons name="add" size={18} color={theme.colors['foreground']} />
         </Pressable>
@@ -348,13 +357,19 @@ export default function BookScreen() {
                   accessibilityState={{ selected: isSelected, disabled: soldOut }}
                   disabled={soldOut}
                   onPress={() => selectDeparture(option)}
+                  android_ripple={{ color: theme.colors['muted'], foreground: true }}
                   style={({ pressed }) => ({
                     borderWidth: isSelected ? 2 : 1,
                     borderColor: isSelected ? theme.colors['primary'] : theme.colors['border'],
                     borderRadius: theme.radius.md,
+                    overflow: 'hidden',
                     padding: theme.spacing(3),
                     gap: 2,
-                    opacity: soldOut ? 0.5 : pressed ? 0.85 : 1,
+                    opacity: soldOut
+                      ? 0.5
+                      : process.env.EXPO_OS === 'ios' && pressed
+                        ? 0.85
+                        : 1,
                   })}
                 >
                   <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold }}>
@@ -452,6 +467,7 @@ export default function BookScreen() {
                 accessibilityRole="radio"
                 accessibilityState={{ selected: isSelected }}
                 onPress={() => setProvider(method.id)}
+                android_ripple={{ color: theme.colors['muted'], foreground: true }}
                 style={({ pressed }) => ({
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -459,8 +475,9 @@ export default function BookScreen() {
                   borderWidth: isSelected ? 2 : 1,
                   borderColor: isSelected ? theme.colors['primary'] : theme.colors['border'],
                   borderRadius: theme.radius.md,
+                  overflow: 'hidden',
                   padding: theme.spacing(3),
-                  opacity: pressed ? 0.85 : 1,
+                  opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.85 : 1,
                 })}
               >
                 <Ionicons name={method.icon} size={20} color={theme.colors['foreground']} />

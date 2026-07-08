@@ -33,7 +33,13 @@ export function TourCard({ tour, variant = 'shelf', onPress, heartSlot }: TourCa
       accessibilityLabel={tour.title}
       onPress={onPress}
       disabled={!onPress}
-      style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
+      android_ripple={{ color: theme.colors['muted'], foreground: true }}
+      style={({ pressed }) => ({
+        // Clip the ripple to the Card's rounded shape.
+        borderRadius: theme.radius.lg,
+        overflow: 'hidden',
+        opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.85 : 1,
+      })}
     >
       <Card style={list ? undefined : { width: 260 }}>
         <View>

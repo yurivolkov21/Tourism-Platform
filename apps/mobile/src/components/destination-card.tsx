@@ -19,7 +19,12 @@ export function DestinationCard({
       accessibilityLabel={destination.name}
       testID={`destination-${destination.slug}`}
       onPress={onPress}
-      style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
+      android_ripple={{ color: theme.colors['muted'], foreground: true }}
+      style={({ pressed }) => ({
+        borderRadius: theme.radius.lg,
+        overflow: 'hidden',
+        opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.85 : 1,
+      })}
     >
       <View
         style={{

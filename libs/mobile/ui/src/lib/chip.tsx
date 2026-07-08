@@ -16,6 +16,10 @@ export function Chip({ label, selected = false, imageUri, style, ...rest }: Chip
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ selected }}
+      android_ripple={{
+        color: selected ? theme.colors['primary-foreground'] : theme.colors['muted'],
+        foreground: true,
+      }}
       {...rest}
       style={(state) => [
         {
@@ -25,10 +29,11 @@ export function Chip({ label, selected = false, imageUri, style, ...rest }: Chip
           minHeight: 36,
           paddingHorizontal: theme.spacing(3),
           borderRadius: 999,
+          overflow: 'hidden', // clip the ripple to the capsule
           borderWidth: 1,
           borderColor: selected ? theme.colors['primary'] : theme.colors['border'],
           backgroundColor: selected ? theme.colors['primary'] : 'transparent',
-          opacity: state.pressed ? 0.85 : 1,
+          opacity: process.env.EXPO_OS === 'ios' && state.pressed ? 0.85 : 1,
         },
         typeof style === 'function' ? style(state) : style,
       ]}
