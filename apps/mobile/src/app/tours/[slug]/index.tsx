@@ -247,11 +247,18 @@ export default function TourDetailScreen() {
           {tour.itinerary.length > 0 ? (
             <Section title={t.itineraryTitle}>
               <View style={{ gap: theme.spacing(2) }}>
-                {tour.itinerary.map((day) => (
+                {tour.itinerary.slice(0, 3).map((day) => (
                   <Accordion key={day.day} title={`${t.dayLabel(day.day)}: ${day.title}`}>
                     <AppText variant="body">{day.body}</AppText>
                   </Accordion>
                 ))}
+                {tour.itinerary.length > 3 ? (
+                  <Button
+                    variant="outline"
+                    label={t.showAllDays(tour.itinerary.length)}
+                    onPress={() => router.push(`/tours/${slug}/itinerary`)}
+                  />
+                ) : null}
               </View>
             </Section>
           ) : null}
@@ -271,7 +278,7 @@ export default function TourDetailScreen() {
           {reviewsQ.data && reviewsQ.data.length > 0 ? (
             <Section title={t.reviewsTitle}>
               <View style={{ gap: theme.spacing(3) }}>
-                {reviewsQ.data.map((review) => (
+                {reviewsQ.data.slice(0, 3).map((review) => (
                   <View key={review.id} style={{ gap: theme.spacing(1) }}>
                     <AppText variant="caption" muted>
                       {'★'.repeat(review.rating)} · {review.author}
@@ -280,6 +287,13 @@ export default function TourDetailScreen() {
                     <AppText variant="body">{review.quote}</AppText>
                   </View>
                 ))}
+                {tour.reviewCount > 3 ? (
+                  <Button
+                    variant="outline"
+                    label={t.seeAllReviews(tour.reviewCount)}
+                    onPress={() => router.push(`/tours/${slug}/reviews`)}
+                  />
+                ) : null}
               </View>
             </Section>
           ) : null}
@@ -287,11 +301,18 @@ export default function TourDetailScreen() {
           {tour.faqs.length > 0 ? (
             <Section title={t.faqsTitle}>
               <View style={{ gap: theme.spacing(2) }}>
-                {tour.faqs.map((faq) => (
+                {tour.faqs.slice(0, 3).map((faq) => (
                   <Accordion key={faq.question} title={faq.question}>
                     <AppText variant="body">{faq.answer}</AppText>
                   </Accordion>
                 ))}
+                {tour.faqs.length > 3 ? (
+                  <Button
+                    variant="outline"
+                    label={t.showAllFaqs(tour.faqs.length)}
+                    onPress={() => router.push(`/tours/${slug}/faqs`)}
+                  />
+                ) : null}
               </View>
             </Section>
           ) : null}

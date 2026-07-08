@@ -92,6 +92,18 @@ function ThemedStack() {
           options={{ headerShown: true, title: messages.booking.form.paymentHeading }}
         />
         <Stack.Screen
+          name="tours/[slug]/itinerary"
+          options={{ headerShown: true, title: messages.mobile.tourDetail.itineraryTitle }}
+        />
+        <Stack.Screen
+          name="tours/[slug]/faqs"
+          options={{ headerShown: true, title: messages.mobile.tourDetail.faqsTitle }}
+        />
+        <Stack.Screen
+          name="tours/[slug]/reviews"
+          options={{ headerShown: true, title: messages.mobile.tourDetail.reviewsTitle }}
+        />
+        <Stack.Screen
           name="bookings/index"
           options={{ headerShown: true, title: messages.booking.list.title }}
         />

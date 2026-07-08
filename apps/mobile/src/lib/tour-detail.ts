@@ -108,11 +108,11 @@ function formatReviewDate(iso: string): string {
     : date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
 }
 
-/** First approved reviews for the detail screen. */
-export async function fetchTourReviews(slug: string): Promise<TourReviewVm[]> {
+/** Approved reviews (detail teaser keeps the small default; See-all asks for more). */
+export async function fetchTourReviews(slug: string, pageSize = 6): Promise<TourReviewVm[]> {
   const api = getApiClient();
   const { data } = await api.GET('/api/v1/tours/{slug}/reviews', {
-    params: { path: { slug }, query: { pageSize: 6 } },
+    params: { path: { slug }, query: { pageSize } },
   });
   const list = (data as unknown as { data: PublicReviewDto[] }).data ?? [];
   return list.map((r) => ({
