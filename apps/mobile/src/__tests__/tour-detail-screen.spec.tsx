@@ -81,7 +81,9 @@ test('renders the full detail with itinerary accordion and CTA', async () => {
     { id: 'r1', author: 'Jane', date: 'May 2026', rating: 5, quote: 'Wonderful trip.' },
   ]);
   renderDetail();
-  expect(await screen.findByText('Ha Long Bay Cruise')).toBeOnTheScreen();
+  // The title renders twice now: detail heading + the enquiry sheet's subtitle
+  // (the jest sheet mock renders its children unconditionally).
+  expect((await screen.findAllByText('Ha Long Bay Cruise')).length).toBeGreaterThan(0);
   expect(screen.getByText('Popular')).toBeOnTheScreen();
   expect(screen.getByText(/next departure: 15 aug 2026/i)).toBeOnTheScreen();
   expect(screen.getByText(/6 seats left/i)).toBeOnTheScreen();

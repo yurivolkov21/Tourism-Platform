@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import { Accordion, AppText, Badge, Button, Screen, Spinner, useTheme } from '@tourism/mobile-ui';
 import { DepartureSheet, type DepartureSheetRef } from '../../../components/departure-sheet';
+import { EnquirySheet, type EnquirySheetRef } from '../../../components/enquiry-sheet';
 import { GalleryPager } from '../../../components/gallery-pager';
 import { HeartButton } from '../../../components/heart-button';
 import { TourBadges } from '../../../components/tour-badges';
@@ -77,6 +78,7 @@ export default function TourDetailScreen() {
   const insets = useSafeAreaInsets();
   const { status } = useAuth();
   const departureSheetRef = useRef<DepartureSheetRef>(null);
+  const enquirySheetRef = useRef<EnquirySheetRef>(null);
 
   const detailQ = useQuery({
     queryKey: ['tours', 'detail', slug],
@@ -357,7 +359,7 @@ export default function TourDetailScreen() {
           <Button
             variant="outline"
             label={t.inquireNow}
-            onPress={() => router.push(`/tours/${slug}/enquiry`)}
+            onPress={() => enquirySheetRef.current?.open()}
           />
           <Button
             label={tb.bookCta}
@@ -378,6 +380,7 @@ export default function TourDetailScreen() {
         basePrice={tour.basePrice}
         currency={tour.currency}
       />
+      <EnquirySheet ref={enquirySheetRef} tourId={tour.id} tourTitle={tour.title} />
     </View>
   );
 }

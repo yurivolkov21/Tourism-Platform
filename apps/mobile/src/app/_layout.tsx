@@ -84,10 +84,6 @@ function ThemedStack() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="tours/[slug]/index" />
         <Stack.Screen
-          name="tours/[slug]/enquiry"
-          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
-        />
-        <Stack.Screen
           name="tours/[slug]/book"
           options={{ headerShown: true, title: messages.booking.page.title }}
         />
