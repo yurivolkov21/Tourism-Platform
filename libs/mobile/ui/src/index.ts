@@ -19,3 +19,5 @@ export { Badge } from './lib/badge';
 export type { BadgeProps, BadgeTone } from './lib/badge';
 export { Skeleton } from './lib/skeleton';
 export type { SkeletonProps } from './lib/skeleton';
+export { AppSheet, AppSheetScrollView, AppSheetTextInput } from './lib/sheet';
+export type { AppSheetProps, AppSheetRef } from './lib/sheet';

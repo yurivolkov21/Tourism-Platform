@@ -12,6 +12,8 @@ import {
   Geist_500Medium,
   Geist_600SemiBold,
 } from '@expo-google-fonts/geist';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -130,13 +132,17 @@ export default function RootLayout() {
   if (!fontsLoaded) return null; // splash stays visible
 
   return (
-    <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <StatusBar style="auto" />
-          <ThemedStack />
-        </AuthProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <BottomSheetModalProvider>
+              <StatusBar style="auto" />
+              <ThemedStack />
+            </BottomSheetModalProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

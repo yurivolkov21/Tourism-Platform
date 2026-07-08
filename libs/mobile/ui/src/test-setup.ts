@@ -41,6 +41,30 @@ jest.mock('react-native-reanimated', () => {
   };
 });
 
+// Bottom sheet has native gesture/reanimated internals — render children
+// in plain Views; present() is inert, dismiss() fires onDismiss.
+jest.mock('@gorhom/bottom-sheet', () => {
+  const React = require('react');
+  const { View, ScrollView, TextInput } = require('react-native');
+  const Modal = React.forwardRef(
+    (props: { children?: unknown; onDismiss?: () => void }, ref: unknown) => {
+      React.useImperativeHandle(ref, () => ({
+        present: jest.fn(),
+        dismiss: () => props.onDismiss?.(),
+      }));
+      return React.createElement(View, null, props.children as never);
+    },
+  );
+  return {
+    BottomSheetModal: Modal,
+    BottomSheetModalProvider: ({ children }: { children?: unknown }) => children,
+    BottomSheetView: View,
+    BottomSheetScrollView: ScrollView,
+    BottomSheetTextInput: TextInput,
+    BottomSheetBackdrop: () => null,
+  };
+});
+
 // jest-expo's useColorScheme() returns null → ThemeProvider resolves 'light'; specs assert against tokens.colors.light unless they mock the hook.
 if (typeof global.structuredClone === 'undefined') {
   global.structuredClone = (object) => JSON.parse(JSON.stringify(object));

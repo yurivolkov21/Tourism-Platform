@@ -60,6 +60,30 @@ jest.mock('react-native-reanimated', () => {
 });
 require('react-native-gesture-handler/jestSetup');
 
+// Bottom sheet has native gesture/reanimated internals — render children
+// in plain Views; present() is inert, dismiss() fires onDismiss.
+jest.mock('@gorhom/bottom-sheet', () => {
+  const React = require('react');
+  const { View, ScrollView, TextInput } = require('react-native');
+  const Modal = React.forwardRef(
+    (props: { children?: unknown; onDismiss?: () => void }, ref: unknown) => {
+      React.useImperativeHandle(ref, () => ({
+        present: jest.fn(),
+        dismiss: () => props.onDismiss?.(),
+      }));
+      return React.createElement(View, null, props.children as never);
+    },
+  );
+  return {
+    BottomSheetModal: Modal,
+    BottomSheetModalProvider: ({ children }: { children?: unknown }) => children,
+    BottomSheetView: View,
+    BottomSheetScrollView: ScrollView,
+    BottomSheetTextInput: TextInput,
+    BottomSheetBackdrop: () => null,
+  };
+});
+
 // Haptics are fire-and-forget native calls — a global no-op mock keeps every
 // spec deterministic; specs that assert on haptics re-mock locally.
 jest.mock('expo-haptics', () => ({
