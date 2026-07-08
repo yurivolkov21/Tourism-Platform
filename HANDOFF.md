@@ -31,16 +31,36 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08; ⚠️ W4 on-device payment pass deferred)** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08)** · **P5.5 app-native UX pass IN PROGRESS — N1 Feel merged (2026-07-08), N2 Patterns next** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
 
-> **Next action:** no active feature — **P5 is the last roadmap phase and it's
-> merged.** The one open verification debt: **W4 on-device payment pass**
-> (user env issues at merge time, not the app) — run the full loop on the
-> Android phone via Expo Go before treating the mobile money path as
-> production-ready: Stripe test-card payment · PayPal sandbox
-> (capture-on-return; close the tab early on purpose) · abandon → "Pay now"
-> rescue · cancel PENDING · cancellation-request PAID (check the admin
-> queue) · guest gating on Book now.
+> **Next action: P5.5 N2 "Patterns"** (bottom-sheet infra → Explore filter
+> sheet · **stepped booking, Airbnb-style** · enquiry → sheet · accordion →
+> "Show all" sub-screens). Umbrella spec:
+> `docs/06-specs/2026-07-08-p55-mobile-native-ux-design.md` (5 user
+> decisions locked: 5 tabs w/ Trips · Home search-first · stepped booking ·
+> N1→N2→N3 · deps approved). N2 is money-path-adjacent → adversarial
+> re-review before merge.
+>
+> **P5.5 N1 "Feel" COMPLETE (2026-07-08, branch `feat/mobile-n1-feel`,
+> merged ff-only):** native stack headers (Fraunces `headerTitleStyle`; 3
+> hand-rolled headers removed) · Android **ripple** on every pressable
+> (pressed-opacity gated to iOS) · **haptics** (heart · booking success ·
+> destructive confirm) · **reanimated motion** (accordion layout transition ·
+> skeleton→content crossfade ×5 · success ZoomIn) · image `transition`
+> fade-in + tinted placeholders · Card `boxShadow`+`borderCurve` · forms
+> (autofill hints · return-key chaining via TextField forwardRef ·
+> KeyboardAvoidingView on the booking form · selectable booking code).
+> Jest gotchas: reanimated 4's own /mock pulls react-native-worklets →
+> hand-rolled minimal mock in BOTH test-setups + transform allowlist +
+> mobile-ui peer dep; `expo install` re-resolution duped react 19.2.7 in
+> `.pnpm` → `pnpm dedupe` (lockfile stayed clean). Tests unchanged:
+> mobile 126 · mobile-ui 33.
+>
+> ⚠️ **Device passes owed (not yet reported by the user):** N1 feel
+> checklist (ripple/haptics/headers/keyboard/autofill) + the **W4 payment
+> loop**: Stripe test-card · PayPal sandbox (capture-on-return; close the
+> tab early on purpose) · abandon → "Pay now" rescue · cancel PENDING ·
+> cancellation-request PAID (admin queue) · guest gating on Book now.
 >
 > **P5 mobile W4 Booking COMPLETE (2026-07-08, branch
 > `feat/mobile-w4-booking`, merged ff-only):** full money path, zero BE
