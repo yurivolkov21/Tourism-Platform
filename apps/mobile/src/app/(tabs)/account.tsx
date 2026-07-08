@@ -117,6 +117,11 @@ function Profile({ profile }: { profile: ProfileVm }) {
       </View>
 
       <View>
+        <MenuRow
+          icon="receipt-outline"
+          label={messages.booking.list.menuLink}
+          onPress={() => router.push('/bookings')}
+        />
         <MenuRow icon="heart-outline" label={t.menuSaved} onPress={() => router.push('/saved')} />
         <MenuRow
           icon="shield-checkmark-outline"
