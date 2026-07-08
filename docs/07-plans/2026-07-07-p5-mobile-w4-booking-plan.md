@@ -26,10 +26,31 @@ refetches the booking and fires the idempotent PayPal capture itself.
 
 ## STATUS
 
-- **State:** NOT STARTED
-- **Branch:** `feat/mobile-w4-booking` (already created; spec committed)
-- **Baselines before W4:** mobile **67** tests · mobile-ui **31** tests
-- **RESUME STATE:** start at Task 1
+- **State:** EXECUTED (2026-07-08) — all 11 tasks done inline; awaiting
+  on-device verification by the user, then merge.
+- **Branch:** `feat/mobile-w4-booking`
+- **Tests:** mobile **67 → 126** · mobile-ui **31 → 33** (gate: lint +
+  typecheck + test green across the workspace; `mobile:build` = `eas build`
+  fails for lack of `eas-cli` — pre-existing on `main`, not a W4 regression;
+  `api:test` is flaky under full-parallel `nx affected` but passes standalone
+  338/338).
+- **Adversarial review (money path) DONE** — 8-angle finder pass + verify;
+  all confirmed findings fixed in `fix(mobile): W4 adversarial-review
+  findings…`. Highlights: Android `openBrowserAsync` resolves immediately
+  (`{type:'opened'}`) → the result screen now verifies on AppState
+  return-to-foreground; checkout failure after create lands on the result
+  screen instead of risking a duplicate PENDING; `['bookings']` caches
+  cleared on sign-out (cross-account PII); terminal statuses never offer
+  Pay now; plain-401 sync retry (web parity); Badge destructive text uses
+  the primary pair (no `destructive-foreground` token exists).
+- **Deviations from plan:** `numChildren: 0` made explicit in `postBooking`
+  (the generated `CreateBookingDto` requires it); review fixes added
+  `lib/money.ts` (formatMoney) + `components/fact-row.tsx` and changed
+  `fetchTourDepartures` to throw so the book screen shows a retry state
+  (the plan's swallow-to-`[]` was itself a review finding); Book now gates
+  only known guests (`signedOut`), not the transient `loading` state.
+- **RESUME STATE:** hand off to the user for on-device verification
+  (Task 11 Step 4), then rebase + `--ff-only` merge + docs sweep.
 
 ## Global Constraints
 
