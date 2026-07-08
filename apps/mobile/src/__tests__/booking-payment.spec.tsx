@@ -28,7 +28,14 @@ jest.mock('expo-router', () => ({
   },
 }));
 jest.mock('../lib/auth-context', () => ({ useAuth: () => ({ status: 'signedIn' }) }));
-jest.mock('../lib/supabase', () => ({ supabase: { auth: { getSession: jest.fn() } } }));
+jest.mock('../lib/supabase', () => ({
+  supabase: {
+    auth: {
+      getSession: jest.fn(),
+      onAuthStateChange: jest.fn(() => ({ data: { subscription: { unsubscribe: jest.fn() } } })),
+    },
+  },
+}));
 jest.mock('../lib/booking', () => ({
   ...jest.requireActual('../lib/booking'),
   createBooking: jest.fn(),

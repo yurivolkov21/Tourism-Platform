@@ -69,7 +69,7 @@ export const FilterSheet = forwardRef<
   }));
 
   return (
-    <AppSheet ref={sheetRef}>
+    <AppSheet ref={sheetRef} scrollable>
       <View style={{ paddingHorizontal: theme.spacing(4), gap: theme.spacing(4) }}>
         <Section title={t.durationTitle}>
           {DURATIONS.map((d) => (

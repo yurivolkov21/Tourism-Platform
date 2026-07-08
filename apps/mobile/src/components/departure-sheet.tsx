@@ -39,7 +39,7 @@ export const DepartureSheet = forwardRef<
 >(function DepartureSheet({ slug, basePrice, currency }, ref) {
   const theme = useTheme();
   const sheetRef = useRef<AppSheetRef>(null);
-  const { setTrip } = useBookingDraft();
+  const { draft, setTrip } = useBookingDraft();
 
   const departuresQ = useQuery({
     queryKey: ['departures', slug],
@@ -57,10 +57,17 @@ export const DepartureSheet = forwardRef<
 
   useImperativeHandle(ref, () => ({
     open: () => {
-      // Fresh trip every time the sheet opens.
-      setDepartureId('');
-      setAdults(1);
-      setChildren(0);
+      if (draft && draft.tourSlug === slug) {
+        // "Edit trip" from the contact step: seed the previous selection.
+        setDepartureId(draft.departureId);
+        setAdults(draft.adults);
+        setChildren(draft.children);
+      } else {
+        // Fresh trip.
+        setDepartureId('');
+        setAdults(1);
+        setChildren(0);
+      }
       sheetRef.current?.present();
     },
   }));
@@ -80,6 +87,16 @@ export const DepartureSheet = forwardRef<
 
   const onContinue = () => {
     if (!selected) return; // CTA is disabled, but never trust a race
+    // Departures can refetch between selection and Continue (retry, cache
+    // invalidation) — re-clamp against the CURRENT seats instead of seeding
+    // an over-capacity party that only fails at the final payment submit.
+    if (selected.seatsLeft === 0 || adults + children > selected.seatsLeft) {
+      const nextAdults = Math.max(1, Math.min(adults, selected.seatsLeft));
+      setAdults(nextAdults);
+      setChildren(Math.min(children, Math.max(0, selected.seatsLeft - nextAdults)));
+      if (selected.seatsLeft === 0) setDepartureId('');
+      return; // the user sees the corrected steppers and confirms again
+    }
     setTrip({
       tourSlug: slug,
       departureId: selected.id,
@@ -94,7 +111,7 @@ export const DepartureSheet = forwardRef<
   };
 
   return (
-    <AppSheet ref={sheetRef}>
+    <AppSheet ref={sheetRef} scrollable>
       <View style={{ paddingHorizontal: theme.spacing(4), gap: theme.spacing(4) }}>
         <AppText variant="title">{t.form.datesHeading}</AppText>
 

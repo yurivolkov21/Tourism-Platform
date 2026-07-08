@@ -2,6 +2,19 @@ import type { ReactNode } from 'react';
 import { act, renderHook } from '@testing-library/react-native';
 import { BookingDraftProvider, useBookingDraft } from '../lib/booking-draft';
 
+let mockAuthCallback: ((event: string, session: unknown) => void) | undefined;
+jest.mock('../lib/supabase', () => ({
+  supabase: {
+    auth: {
+      getSession: jest.fn(),
+      onAuthStateChange: (cb: (event: string, session: unknown) => void) => {
+        mockAuthCallback = cb;
+        return { data: { subscription: { unsubscribe: jest.fn() } } };
+      },
+    },
+  },
+}));
+
 const wrapper = ({ children }: { children: ReactNode }) => (
   <BookingDraftProvider>{children}</BookingDraftProvider>
 );
@@ -48,5 +61,16 @@ test('setContact without a trip is a no-op', () => {
   act(() =>
     result.current.setContact({ name: 'A', email: 'a@x.com', phone: '', requests: '' }),
   );
+  expect(result.current.draft).toBeNull();
+});
+
+test('signing out clears the draft (contact PII must not survive an account switch)', () => {
+  const { result } = renderHook(() => useBookingDraft(), { wrapper });
+  act(() => result.current.setTrip(trip));
+  act(() =>
+    result.current.setContact({ name: 'Nguyen Van A', email: 'a@x.com', phone: '', requests: '' }),
+  );
+  expect(result.current.draft).not.toBeNull();
+  act(() => mockAuthCallback?.('SIGNED_OUT', null));
   expect(result.current.draft).toBeNull();
 });

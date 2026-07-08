@@ -2,10 +2,12 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react';
+import { supabase } from './supabase';
 
 /**
  * In-memory state for the stepped booking flow (departure sheet → contact →
@@ -53,6 +55,14 @@ const BookingDraftContext = createContext<BookingDraftValue | null>(null);
 
 export function BookingDraftProvider({ children }: { children: ReactNode }) {
   const [draft, setDraft] = useState<BookingDraft | null>(null);
+
+  // The draft carries contact PII — never let it survive an account switch.
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') setDraft(null);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   const setTrip = useCallback((trip: BookingTrip) => {
     setDraft({ ...trip }); // fresh draft — never carry contact across trips

@@ -24,6 +24,11 @@ export interface AppSheetProps {
   children: ReactNode;
   /** Omit for content-sized sheets (dynamic sizing). */
   snapPoints?: (string | number)[];
+  /**
+   * Content taller than the sheet's max height scrolls instead of clipping
+   * (long departure lists, forms). Also required for keyboard handling.
+   */
+  scrollable?: boolean;
   onDismiss?: () => void;
 }
 
@@ -33,7 +38,7 @@ export interface AppSheetProps {
  * BottomSheetModalProvider + GestureHandlerRootView at the app root.
  */
 export const AppSheet = forwardRef<AppSheetRef, AppSheetProps>(function AppSheet(
-  { children, snapPoints, onDismiss },
+  { children, snapPoints, scrollable, onDismiss },
   ref,
 ) {
   const theme = useTheme();
@@ -63,13 +68,27 @@ export const AppSheet = forwardRef<AppSheetRef, AppSheetProps>(function AppSheet
       enableDynamicSizing={!snapPoints}
       onDismiss={onDismiss}
       backdropComponent={renderBackdrop}
+      // Text inputs inside sheets: grow with the keyboard, restore on blur.
+      keyboardBehavior="extend"
+      keyboardBlurBehavior="restore"
+      android_keyboardInputMode="adjustResize"
       backgroundStyle={{
         backgroundColor: theme.colors['card'],
         borderRadius: theme.radius.lg,
       }}
       handleIndicatorStyle={{ backgroundColor: theme.colors['muted-foreground'] }}
     >
-      <BottomSheetView style={{ paddingBottom: theme.spacing(6) }}>{children}</BottomSheetView>
+      {scrollable ? (
+        <BottomSheetScrollView
+          contentContainerStyle={{ paddingBottom: theme.spacing(6) }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {children}
+        </BottomSheetScrollView>
+      ) : (
+        <BottomSheetView style={{ paddingBottom: theme.spacing(6) }}>{children}</BottomSheetView>
+      )}
     </BottomSheetModal>
   );
 });

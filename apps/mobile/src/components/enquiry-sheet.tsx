@@ -80,7 +80,7 @@ export const EnquirySheet = forwardRef<
   };
 
   return (
-    <AppSheet ref={sheetRef}>
+    <AppSheet ref={sheetRef} scrollable>
       <View style={{ paddingHorizontal: theme.spacing(4), gap: theme.spacing(4) }}>
         {sent ? (
           <View style={{ alignItems: 'center', gap: theme.spacing(3), paddingVertical: theme.spacing(6) }}>

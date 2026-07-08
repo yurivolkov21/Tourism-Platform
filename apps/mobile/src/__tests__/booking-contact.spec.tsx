@@ -23,7 +23,14 @@ jest.mock('expo-router', () => ({
   },
 }));
 jest.mock('../lib/auth-context', () => ({ useAuth: () => ({ status: 'signedIn' }) }));
-jest.mock('../lib/supabase', () => ({ supabase: { auth: { getSession: jest.fn() } } }));
+jest.mock('../lib/supabase', () => ({
+  supabase: {
+    auth: {
+      getSession: jest.fn(),
+      onAuthStateChange: jest.fn(() => ({ data: { subscription: { unsubscribe: jest.fn() } } })),
+    },
+  },
+}));
 jest.mock('../lib/profile', () => ({ fetchProfile: jest.fn() }));
 
 const trip: BookingTrip = {
