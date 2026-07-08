@@ -40,6 +40,19 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );
 
+// Reanimated + gesture-handler have native parts jest can't load — use the
+// libraries' official mocks (entering/exiting props become no-ops).
+jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+require('react-native-gesture-handler/jestSetup');
+
+// Haptics are fire-and-forget native calls — a global no-op mock keeps every
+// spec deterministic; specs that assert on haptics re-mock locally.
+jest.mock('expo-haptics', () => ({
+  selectionAsync: jest.fn().mockResolvedValue(undefined),
+  notificationAsync: jest.fn().mockResolvedValue(undefined),
+  NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
+}));
+
 if (typeof global.structuredClone === 'undefined') {
   global.structuredClone = (object) => JSON.parse(JSON.stringify(object));
 }
