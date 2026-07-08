@@ -47,6 +47,7 @@ export function TourCard({ tour, variant = 'shelf', onPress, heartSlot }: TourCa
             source={tour.image ? { uri: tour.image } : undefined}
             style={{ width: '100%', aspectRatio: 4 / 3, backgroundColor: theme.colors['muted'] }}
             contentFit="cover"
+            transition={200}
             accessibilityLabel={tour.title}
           />
           <View style={{ position: 'absolute', top: theme.spacing(2), left: theme.spacing(2) }}>

@@ -40,6 +40,7 @@ function SavedRow({ tour, onRemove }: { tour: SavedTourVm; onRemove: () => void 
           backgroundColor: theme.colors['muted'],
         }}
         contentFit="cover"
+        transition={200}
         accessibilityLabel={tour.title}
       />
       <View style={{ flex: 1, gap: theme.spacing(1) }}>

@@ -308,8 +308,14 @@ export default function BookScreen() {
           {tour.gallery[0] ? (
             <Image
               source={{ uri: tour.gallery[0] }}
-              style={{ width: 72, height: 56, borderRadius: theme.radius.sm }}
+              style={{
+                width: 72,
+                height: 56,
+                borderRadius: theme.radius.sm,
+                backgroundColor: theme.colors['muted'],
+              }}
               contentFit="cover"
+              transition={200}
             />
           ) : null}
           <View style={{ flex: 1, gap: 2 }}>

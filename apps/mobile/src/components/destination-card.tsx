@@ -39,6 +39,7 @@ export function DestinationCard({
           source={destination.image ? { uri: destination.image } : undefined}
           style={{ width: '100%', height: '100%' }}
           contentFit="cover"
+          transition={200}
           accessibilityLabel={destination.name}
         />
         <View

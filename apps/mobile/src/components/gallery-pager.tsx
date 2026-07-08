@@ -25,6 +25,7 @@ export function GalleryPager({ images, title }: { images: string[]; title: strin
             source={{ uri: item }}
             style={{ width, height: 280, backgroundColor: theme.colors['muted'] }}
             contentFit="cover"
+            transition={200}
             accessibilityLabel={title}
           />
         )}

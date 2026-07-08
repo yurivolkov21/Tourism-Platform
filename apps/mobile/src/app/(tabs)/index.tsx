@@ -37,6 +37,7 @@ function Hero() {
         source={{ uri: HERO_IMAGE }}
         style={StyleSheet.absoluteFill}
         contentFit="cover"
+        transition={200}
         accessibilityLabel={hero.imageAlt}
       />
       {/* overlay token carries its own alpha (#…80) */}
