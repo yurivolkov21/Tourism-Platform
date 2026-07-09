@@ -29,10 +29,11 @@ tab. **User-confirmed layout A + time-of-day greeting.**
 
 ## STATUS
 
-- **State:** EXECUTED inline (2026-07-09) — all 5 tasks done, committed
-  task-by-task on `feat/mobile-n3-ia-home`. Adversarial review clean.
-  **Awaiting: user's full gate + combined device pass + merge approval.**
-- **Branch:** `feat/mobile-n3-ia-home` (off `main`; 4 feat commits).
+- **State:** MERGED (2026-07-09) — all 5 tasks done inline, adversarial
+  review clean, merged **ff-only** on user approval; branch deleted. The full
+  `run-many` gate is the user's manual run (standing rule); the **combined
+  on-device pass remains owed** (N3 + N2 + N1 + W4 — Task 5 Step 4).
+- **Branch:** `feat/mobile-n3-ia-home` (merged ff-only, deleted).
 - **Tests:** mobile **139 → 153** (home 4→6 · new home-helpers +11 · new
   upcoming-trip-card +1 · `trips` renamed from `bookings-list`, still 4);
   mobile-ui unchanged (34). In-session targeted runs all green

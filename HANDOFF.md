@@ -31,18 +31,41 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08)** · **P5.5 app-native UX pass IN PROGRESS — N1 Feel + N2 Patterns merged (2026-07-08), N3 IA & Home next** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08)** · **P5.5 app-native UX pass COMPLETE — N1 Feel + N2 Patterns (2026-07-08) + N3 IA & Home (2026-07-09) all merged; combined on-device pass still owed** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
 
-> **Next action: P5.5 N3 "IA & Home"** — the LAST wave of the app-native UX
-> pass: **5 tabs** (Home · Explore · **Trips** · Saved · Account — bookings
-> list moves out of Account into its own tab) + **task-first Home rebuild**
-> (drop the full-bleed hero/why-strip/CTA band → greeting + prominent
-> search field → contextual rows: upcoming-trip card · saved rail ·
-> featured shelf · destinations rail) + a **reference-gathering step**
-> before layouting (GitHub/web examples; Figma MCP if connected). Umbrella
-> spec: `docs/06-specs/2026-07-08-p55-mobile-native-ux-design.md` (Wave N3
-> section; 5 user decisions locked). Flow: plan → user reviews → inline
-> execution; the user runs gate checks manually in his own terminal.
+> **Next action: the combined on-device pass** (Expo Go, Android) — P5.5
+> feature work is done; the one owed item is a single device session covering
+> **N3** (5 tabs render · Trips tab list + auth gate · Home guest vs
+> signed-in: greeting by time of day · next-trip card → detail · saved rail ·
+> See all → Saved · search pill → Explore autofocus · Account "My bookings" →
+> Trips) **+** the still-owed **N2** (filter sheet · stepped booking on Stripe
+> + PayPal · enquiry sheet · show-all screens), **N1** (ripple · haptics ·
+> Fraunces headers · image fade-in · autofill) and **W4 payment loop**
+> checklists. After that, pick the next phase with the user (mobile backlog:
+> "Browse by experience" · dark-mode splash/adaptive-icon assets · in-app
+> theme toggle · encrypted LargeSecureStore; or an admin-managed brand-chrome
+> media model; or store builds via EAS).
+>
+> **P5.5 N3 "IA & Home" COMPLETE (2026-07-09, branch
+> `feat/mobile-n3-ia-home`, merged ff-only):** **5 tabs** — bookings list
+> moved out of Account into a dedicated **Trips** tab (`briefcase`; booking
+> detail `/bookings/[code]` stays a stack screen; Account keeps a Trips link)
+> · **task-first Home rebuild** — greeting (time-of-day + first name) +
+> prominent search pill → Explore autofocus · signed-in context rows
+> (next-trip card `selectUpcomingTrip` → booking detail · recently-saved rail
+> → Saved) · featured + destinations shelves; **dropped** the full-bleed
+> hero, why-strip and CTA band · pure helpers
+> `selectUpcomingTrip`/`timeGreetingKey`/`firstName` + additive
+> `BookingVm.departureDate` (TDD). Reference step done in-session
+> (Airbnb/Booking.com/GetYourGuide task-first pattern; user-confirmed layout A
+> + time-of-day greeting). Gotcha: adding a **required** VM field
+> (`departureDate`) broke three existing `BookingVm` literals at `tsc`
+> (jest/ts-jest doesn't enforce missing props) → run `nx typecheck` before
+> committing a VM change. Adversarial review (money-path-adjacent): 0
+> findings. Baselines: api 338 · web 191 · admin 152 · **mobile 153 ·
+> mobile-ui 34**. Umbrella spec:
+> `docs/06-specs/2026-07-08-p55-mobile-native-ux-design.md`; plan:
+> `docs/07-plans/2026-07-09-p55-mobile-n3-ia-home-plan.md`.
 >
 > **P5.5 N2 "Patterns" COMPLETE (2026-07-08, branch
 > `feat/mobile-n2-patterns`, merged ff-only):** `AppSheet` themed
