@@ -26,10 +26,12 @@ keys) · `@tourism/i18n`.
 
 ## STATUS
 
-- **State:** EXECUTED (2026-07-08) — all 6 tasks done inline; full gate
-  green (lint + typecheck + test + build ×9, run by the user). Awaiting the
-  on-device pass, then merge.
-- **Branch:** `feat/mobile-n2-patterns`
+- **State:** MERGED (2026-07-08) — all 6 tasks done inline; full gate green
+  (run by the user); merged ff-only on user approval. The combined
+  on-device pass (N2 checklist + owed N1 feel checklist + owed W4 payment
+  loop) was NOT explicitly reported before merge — it remains the standing
+  device-pass debt (see Task 6 Step 4).
+- **Branch:** `feat/mobile-n2-patterns` (merged, deleted)
 - **Tests:** mobile **126 → 139** · mobile-ui **33 → 34** (counts computed
   from suite runs; the user's full gate confirmed green).
 - **Adversarial re-review (money path) DONE — 5 findings, all fixed**
