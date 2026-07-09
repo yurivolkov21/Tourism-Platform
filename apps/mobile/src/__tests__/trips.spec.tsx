@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { ThemeProvider } from '@tourism/mobile-ui';
-import BookingsScreen from '../app/bookings/index';
+import BookingsScreen from '../app/(tabs)/trips';
 import { fetchMyBookings, type BookingVm } from '../lib/booking';
 
 const mockRouter = { push: jest.fn(), back: jest.fn() };

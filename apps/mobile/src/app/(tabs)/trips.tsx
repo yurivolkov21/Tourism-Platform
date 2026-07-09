@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import { AppText, Badge, Button, Screen, Skeleton, useTheme } from '@tourism/mobile-ui';
 import { AuthGate } from '../../components/auth-gate';
+import { SectionHeading } from '../../components/section-heading';
 import { useAuth } from '../../lib/auth-context';
 import { fetchMyBookings, type BookingVm } from '../../lib/booking';
 import { formatMoney } from '../../lib/money';
@@ -57,7 +58,7 @@ function BookingCard({ booking }: { booking: BookingVm }) {
   );
 }
 
-export default function BookingsScreen() {
+export default function TripsScreen() {
   const theme = useTheme();
   const { status } = useAuth();
   const listQ = useQuery({
@@ -69,17 +70,15 @@ export default function BookingsScreen() {
   if (status !== 'signedIn') {
     return (
       <Screen scroll={false}>
-        <AuthGate icon="receipt-outline" title={t.title} body={tp.accountGateBody} />
+        <AuthGate icon="briefcase-outline" title={t.title} body={tp.accountGateBody} />
       </Screen>
     );
   }
 
   return (
     <Screen scroll={false}>
-      <View style={{ flex: 1, paddingTop: theme.spacing(2), gap: theme.spacing(3) }}>
-        <AppText variant="caption" muted>
-          {t.subtitle}
-        </AppText>
+      <View style={{ flex: 1, paddingTop: theme.spacing(4), gap: theme.spacing(3) }}>
+        <SectionHeading title={t.title} subtitle={t.subtitle} />
         {listQ.isPending ? (
           <View style={{ gap: theme.spacing(3) }}>
             <Skeleton height={104} />
@@ -88,11 +87,7 @@ export default function BookingsScreen() {
           </View>
         ) : listQ.isError || !listQ.data ? (
           <View
-            style={{
-              alignItems: 'center',
-              gap: theme.spacing(3),
-              paddingVertical: theme.spacing(6),
-            }}
+            style={{ alignItems: 'center', gap: theme.spacing(3), paddingVertical: theme.spacing(6) }}
           >
             <AppText variant="body" style={{ textAlign: 'center' }}>
               {tm.listError}
@@ -101,11 +96,7 @@ export default function BookingsScreen() {
           </View>
         ) : listQ.data.length === 0 ? (
           <View
-            style={{
-              alignItems: 'center',
-              gap: theme.spacing(3),
-              paddingVertical: theme.spacing(6),
-            }}
+            style={{ alignItems: 'center', gap: theme.spacing(3), paddingVertical: theme.spacing(6) }}
           >
             <AppText variant="body" muted style={{ textAlign: 'center' }}>
               {t.empty}

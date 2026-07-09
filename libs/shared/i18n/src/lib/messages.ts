@@ -1730,6 +1730,7 @@ export const messages = {
     tabs: {
       home: 'Home',
       explore: 'Explore',
+      trips: 'Trips',
       saved: 'Saved',
       account: 'Account',
     },

@@ -104,10 +104,6 @@ function ThemedStack() {
           options={{ headerShown: true, title: messages.mobile.tourDetail.reviewsTitle }}
         />
         <Stack.Screen
-          name="bookings/index"
-          options={{ headerShown: true, title: messages.booking.list.title }}
-        />
-        <Stack.Screen
           name="bookings/[code]/index"
           options={{ headerShown: true, title: messages.booking.detail.title }}
         />
