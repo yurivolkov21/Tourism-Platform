@@ -90,6 +90,8 @@ export interface BookingVm {
   tourTitle: string;
   tourSlug: string;
   departureLabel: string;
+  /** Raw YYYY-MM-DD (UTC) departure date — for ranking upcoming trips. */
+  departureDate: string;
   bookedOn: string;
   party: string;
   totalAmount: number;
@@ -111,6 +113,7 @@ export function toBookingVm(dto: BookingDto): BookingVm {
     tourTitle: dto.tour.title,
     tourSlug: dto.tour.slug,
     departureLabel: formatDepartureLabel(dto.departure.startDate),
+    departureDate: dto.departure.startDate,
     bookedOn: formatBookingDate(dto.createdAt),
     party: partyLine(dto.numAdults, dto.numChildren),
     totalAmount: Number(dto.totalAmount),
