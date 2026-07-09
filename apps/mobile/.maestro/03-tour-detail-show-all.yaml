@@ -1,0 +1,31 @@
+# N2 progressive disclosure + enquiry sheet. Start with the app open in Expo
+# Go. Opens the FIRST tour in Explore; adjust if your seed data differs.
+# UNVERIFIED (see README).
+appId: host.exp.exponent
+---
+- tapOn: "Explore"
+# TourCard has no testID — tap the first card via its "From" price label.
+- tapOn:
+    text: "From"
+    index: 0
+- assertVisible: "Overview"
+# Show-all buttons render only when a section has more than 3 items.
+- runFlow:
+    when:
+      visible: "Show all"
+    commands:
+      - tapOn: "Show all"
+      - back
+- runFlow:
+    when:
+      visible: "See all"
+    commands:
+      - tapOn: "See all"
+      - back
+# Enquiry opens as a bottom sheet (not a full-screen route).
+- scrollUntilVisible:
+    element:
+      text: "Inquire now"
+- tapOn: "Inquire now"
+- assertVisible: "Full name"
+- back

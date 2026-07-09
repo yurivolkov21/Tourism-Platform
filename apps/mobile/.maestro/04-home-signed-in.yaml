@@ -1,0 +1,32 @@
+# N3 signed-in Home context rows. Needs a test account:
+#   maestro test -e EMAIL=you@test.dev -e PASSWORD=secret 04-home-signed-in.yaml
+# UNVERIFIED — the auth-screen field selectors are best-guess; reconcile with
+# apps/mobile/src/app/auth/sign-in.tsx. Start with the app open in Expo Go.
+appId: host.exp.exponent
+---
+- tapOn: "Account"
+- tapOn: "Sign in"
+# --- auth modal: adjust these three selectors to the real field labels ---
+- tapOn: "Email"
+- inputText: ${EMAIL}
+- tapOn: "Password"
+- inputText: ${PASSWORD}
+- tapOn:
+    text: "Sign in"
+    index: 1
+# ------------------------------------------------------------------------
+- tapOn: "Home"
+- assertVisible: "Featured tours"
+# Context rows are data-dependent: assert them only when present.
+- runFlow:
+    when:
+      visible: "Your next trip"
+    commands:
+      - tapOn:
+          text: "Your next trip"
+      - back
+- runFlow:
+    when:
+      visible: "Recently saved"
+    commands:
+      - assertVisible: "See all"
