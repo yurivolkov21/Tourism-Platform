@@ -31,15 +31,38 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08)** · **P5.5 app-native UX pass IN PROGRESS — N1 Feel merged (2026-07-08), N2 Patterns next** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08)** · **P5.5 app-native UX pass IN PROGRESS — N1 Feel + N2 Patterns merged (2026-07-08), N3 IA & Home next** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
 
-> **Next action: P5.5 N2 "Patterns"** (bottom-sheet infra → Explore filter
-> sheet · **stepped booking, Airbnb-style** · enquiry → sheet · accordion →
-> "Show all" sub-screens). Umbrella spec:
-> `docs/06-specs/2026-07-08-p55-mobile-native-ux-design.md` (5 user
-> decisions locked: 5 tabs w/ Trips · Home search-first · stepped booking ·
-> N1→N2→N3 · deps approved). N2 is money-path-adjacent → adversarial
-> re-review before merge.
+> **Next action: P5.5 N3 "IA & Home"** — the LAST wave of the app-native UX
+> pass: **5 tabs** (Home · Explore · **Trips** · Saved · Account — bookings
+> list moves out of Account into its own tab) + **task-first Home rebuild**
+> (drop the full-bleed hero/why-strip/CTA band → greeting + prominent
+> search field → contextual rows: upcoming-trip card · saved rail ·
+> featured shelf · destinations rail) + a **reference-gathering step**
+> before layouting (GitHub/web examples; Figma MCP if connected). Umbrella
+> spec: `docs/06-specs/2026-07-08-p55-mobile-native-ux-design.md` (Wave N3
+> section; 5 user decisions locked). Flow: plan → user reviews → inline
+> execution; the user runs gate checks manually in his own terminal.
+>
+> **P5.5 N2 "Patterns" COMPLETE (2026-07-08, branch
+> `feat/mobile-n2-patterns`, merged ff-only):** `AppSheet` themed
+> bottom-sheet wrapper in `@tourism/mobile-ui` (`@gorhom/bottom-sheet`
+> 5.2.14 — verified bundling with reanimated 4; `scrollable` +
+> keyboard-safe; jest mock renders children in plain Views, dismiss fires
+> onDismiss) + root GestureHandlerRootView/BottomSheetModalProvider ·
+> **Explore filter sheet** (draft state + live "Show N results" +
+> `countActiveFilters` TDD) · **stepped booking** (Book now →
+> DepartureSheet → contact step → payment step; `BookingDraft` context —
+> fresh per trip, resets on SIGNED_OUT, guards redirect stale/foreign
+> drafts; money pipeline byte-identical) · **enquiry → sheet** ·
+> **show-all sub-screens** (itinerary/FAQs/reviews). Adversarial re-review:
+> 5 findings fixed (sheet clipping/keyboard · draft PII on sign-out · seats
+> re-clamp · Edit-trip reseed). Gotchas: `require('@tourism/mobile-ui')`
+> inside a jest.mock factory = lazy-load → module-boundaries bans all
+> static imports (mocks use plain RN Text); orphaned nx processes deadlock
+> `.nx/workspace-data` → kill before new runs; the user runs gate checks
+> manually. Baselines: api 338 · web 191 · admin 152 · **mobile 139 ·
+> mobile-ui 34**.
 >
 > **P5.5 N1 "Feel" COMPLETE (2026-07-08, branch `feat/mobile-n1-feel`,
 > merged ff-only):** native stack headers (Fraunces `headerTitleStyle`; 3
@@ -56,9 +79,12 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 > `.pnpm` → `pnpm dedupe` (lockfile stayed clean). Tests unchanged:
 > mobile 126 · mobile-ui 33.
 >
-> ⚠️ **Device passes owed (not yet reported by the user):** N1 feel
-> checklist (ripple/haptics/headers/keyboard/autofill) + the **W4 payment
-> loop**: Stripe test-card · PayPal sandbox (capture-on-return; close the
+> ⚠️ **Device passes owed (combined, not yet reported by the user):**
+> **N2** — filter sheet (draft/apply/clear · keyboard) · full stepped
+> booking loop · Edit-trip reseed · enquiry sheet · show-all screens ·
+> many-departure tour scrolls inside the sheet; **N1** — ripple · haptics ·
+> Fraunces headers + back gesture · image fade-in · autofill; **W4 payment
+> loop** — Stripe test-card · PayPal sandbox (capture-on-return; close the
 > tab early on purpose) · abandon → "Pay now" rescue · cancel PENDING ·
 > cancellation-request PAID (admin queue) · guest gating on Book now.
 >
