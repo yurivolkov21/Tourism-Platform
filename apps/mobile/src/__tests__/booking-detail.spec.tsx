@@ -32,6 +32,7 @@ const base: BookingVm = {
   tourTitle: 'Hoi An Walking Tour',
   tourSlug: 'hoi-an-walking-tour',
   departureLabel: 'Sat, 15 Aug 2026',
+  departureDate: '2026-08-15',
   bookedOn: '07 Jul 2026',
   party: '2 adults',
   totalAmount: 200,
