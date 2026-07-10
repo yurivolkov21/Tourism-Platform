@@ -114,7 +114,7 @@ export function PostForm({
   };
 
   return (
-    <form action={formAction}>
+    <form action={formAction} noValidate>
       {/* Basics */}
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
@@ -129,7 +129,7 @@ export function PostForm({
             <Input
               id="title"
               name="title"
-              required
+              aria-required="true"
               maxLength={160}
               value={title}
               onChange={(e) => {

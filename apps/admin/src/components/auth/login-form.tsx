@@ -3,7 +3,7 @@
 import { useActionState, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
-import { Button, Input, Label, Spinner } from '@tourism/ui';
+import { Button, FieldError, Input, Label, Spinner } from '@tourism/ui';
 
 import { ErrorAlert } from '../crud/error-alert';
 import { signIn, type SignInState } from '../../lib/auth/actions';
@@ -14,9 +14,11 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
     {},
   );
   const [showPassword, setShowPassword] = useState(false);
+  // Server-validated per-field messages from `signIn` (empty until a submit comes back).
+  const fieldErrors = state.fieldErrors ?? {};
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} noValidate className="space-y-4">
       <input type="hidden" name="redirect" value={redirectTo} />
 
       <div className="space-y-1.5">
@@ -26,10 +28,15 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
           name="email"
           type="email"
           autoComplete="email"
-          required
+          aria-required="true"
+          aria-invalid={Boolean(fieldErrors.email)}
+          aria-describedby={fieldErrors.email ? 'email-error' : undefined}
           placeholder="you@nexora.com"
           className="bg-background/40"
         />
+        {fieldErrors.email ? (
+          <FieldError id="email-error">{fieldErrors.email}</FieldError>
+        ) : null}
       </div>
 
       <div className="space-y-1.5">
@@ -40,7 +47,11 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
             name="password"
             type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
-            required
+            aria-required="true"
+            aria-invalid={Boolean(fieldErrors.password)}
+            aria-describedby={
+              fieldErrors.password ? 'password-error' : undefined
+            }
             className="bg-background/40 pr-10"
           />
           <Button
@@ -59,6 +70,9 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
             )}
           </Button>
         </div>
+        {fieldErrors.password ? (
+          <FieldError id="password-error">{fieldErrors.password}</FieldError>
+        ) : null}
       </div>
 
       {state.error ? <ErrorAlert>{state.error}</ErrorAlert> : null}

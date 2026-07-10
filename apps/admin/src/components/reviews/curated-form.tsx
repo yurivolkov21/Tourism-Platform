@@ -34,7 +34,7 @@ export function CuratedForm() {
   const errors = state.fieldErrors ?? {};
 
   return (
-    <form action={action}>
+    <form action={action} noValidate>
       {/* Traveller */}
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
@@ -49,7 +49,7 @@ export function CuratedForm() {
             <Input
               id="authorName"
               name="authorName"
-              required
+              aria-required="true"
               placeholder="Emily Carter"
               aria-invalid={Boolean(errors.authorName)}
             />
@@ -116,7 +116,7 @@ export function CuratedForm() {
               id="body"
               name="body"
               rows={4}
-              required
+              aria-required="true"
               placeholder="What made the trip memorable…"
               aria-invalid={Boolean(errors.body)}
             />

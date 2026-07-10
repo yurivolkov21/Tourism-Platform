@@ -56,7 +56,7 @@ export function CategoryForm({
   const errors = state.fieldErrors ?? {};
 
   return (
-    <form action={formAction}>
+    <form action={formAction} noValidate>
       {/* Category details */}
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
@@ -77,7 +77,7 @@ export function CategoryForm({
             <Input
               id="name"
               name="name"
-              required
+              aria-required="true"
               maxLength={120}
               value={name}
               onChange={(e) => {

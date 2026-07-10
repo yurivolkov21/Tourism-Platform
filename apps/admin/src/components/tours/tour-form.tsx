@@ -111,7 +111,7 @@ export function TourForm({
   const primaryOptions = destinations.filter((d) => destSlugs.includes(d.slug));
 
   return (
-    <form action={formAction}>
+    <form action={formAction} noValidate>
       {/* Tour details */}
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
@@ -128,7 +128,7 @@ export function TourForm({
             <Input
               id="title"
               name="title"
-              required
+              aria-required="true"
               maxLength={200}
               value={title}
               onChange={(e) => {
@@ -198,6 +198,7 @@ export function TourForm({
               <SelectTrigger
                 id="categorySlug"
                 className="w-full"
+                aria-required="true"
                 aria-invalid={Boolean(errors.categorySlug)}
               >
                 <SelectValue placeholder="Select a category…" />
@@ -243,6 +244,7 @@ export function TourForm({
               <SelectTrigger
                 id="primaryDestinationSlug"
                 className="w-full"
+                aria-required="true"
                 aria-invalid={Boolean(errors.primaryDestinationSlug)}
               >
                 <SelectValue

@@ -7,9 +7,13 @@ import { apiWrite } from '../api/client';
 import { createClient } from '../supabase/server';
 import { authErrorMessage } from './auth-error';
 import { safeRedirect } from './safe-redirect';
+import { validateSignInFields, type SignInFieldErrors } from './validate';
 
 export interface SignInState {
+  /** Form-level failure (Supabase / admin-sync API). */
   error?: string;
+  /** Server-validated per-field messages (the form is `noValidate`). */
+  fieldErrors?: SignInFieldErrors;
 }
 
 /**
@@ -24,7 +28,8 @@ export async function signIn(
   const password = String(formData.get('password') ?? '');
   const redirectTo = safeRedirect(formData.get('redirect')?.toString(), '/');
 
-  if (!email || !password) return { error: 'Enter your email and password.' };
+  const fieldErrors = validateSignInFields({ email, password });
+  if (Object.keys(fieldErrors).length > 0) return { fieldErrors };
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({

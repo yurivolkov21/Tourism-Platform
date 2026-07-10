@@ -62,7 +62,7 @@ export function DepartureForm({
   const errors = state.fieldErrors ?? {};
 
   return (
-    <form action={formAction}>
+    <form action={formAction} noValidate>
       {/* Schedule & capacity */}
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
@@ -81,7 +81,7 @@ export function DepartureForm({
               id="startDate"
               name="startDate"
               type="date"
-              required
+              aria-required="true"
               defaultValue={departure ? toDateOnly(departure.startDate) : ''}
               aria-invalid={Boolean(errors.startDate)}
             />
@@ -96,7 +96,7 @@ export function DepartureForm({
               id="endDate"
               name="endDate"
               type="date"
-              required
+              aria-required="true"
               defaultValue={departure ? toDateOnly(departure.endDate) : ''}
               aria-invalid={Boolean(errors.endDate)}
             />
@@ -116,7 +116,7 @@ export function DepartureForm({
               max={1000}
               step={1}
               inputMode="numeric"
-              required
+              aria-required="true"
               defaultValue={departure?.seatsTotal ?? ''}
               placeholder="15"
               className="max-w-32"

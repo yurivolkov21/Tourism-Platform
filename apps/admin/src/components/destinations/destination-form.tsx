@@ -80,7 +80,7 @@ export function DestinationForm({
   const [media, setMedia] = useState<MediaInput[]>(initialMedia);
 
   return (
-    <form action={formAction}>
+    <form action={formAction} noValidate>
       {/* Destination details */}
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
@@ -101,7 +101,7 @@ export function DestinationForm({
             <Input
               id="name"
               name="name"
-              required
+              aria-required="true"
               maxLength={120}
               value={name}
               onChange={(e) => {
