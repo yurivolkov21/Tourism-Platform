@@ -6,7 +6,12 @@ import { useMutation } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import { AppText, Button, useTheme } from '@tourism/mobile-ui';
 import { useAuth } from '../../../lib/auth-context';
-import { bookingErrorMessage, createBooking, partyLine, startCheckout } from '../../../lib/booking';
+import {
+  bookingErrorMessage,
+  createBooking,
+  partyLine,
+  startCheckout,
+} from '../../../lib/booking';
 import { useBookingDraft } from '../../../lib/booking-draft';
 import {
   buildCreateBookingPayload,
@@ -58,12 +63,19 @@ export default function BookingPaymentScreen() {
     onError: (error) => setFormError(bookingErrorMessage(error)),
   });
 
-  if (status === 'signedOut') return <Redirect href="/auth/sign-in?reason=booking" />;
+  if (status === 'signedOut')
+    return <Redirect href="/auth/sign-in?reason=booking" />;
   // The payment step needs a full draft for THIS tour (trip + contact).
-  if (!draft || draft.tourSlug !== slug) return <Redirect href={`/tours/${slug}`} />;
-  if (!draft.name || !draft.email) return <Redirect href={`/tours/${slug}/book`} />;
+  if (!draft || draft.tourSlug !== slug)
+    return <Redirect href={`/tours/${slug}`} />;
+  if (!draft.name || !draft.email)
+    return <Redirect href={`/tours/${slug}/book`} />;
 
-  const breakdown = computeBookingTotal(draft.unitPrice, draft.adults, draft.children);
+  const breakdown = computeBookingTotal(
+    draft.unitPrice,
+    draft.adults,
+    draft.children,
+  );
 
   const onSubmit = () => {
     if (submitM.isPending) return;
@@ -126,7 +138,9 @@ export default function BookingPaymentScreen() {
                 ? `${t.page.adultsLine(line.quantity)} × ${formatMoney(draft.currency, line.unitPrice)}`
                 : `${t.page.childrenLine(line.quantity)} × ${formatMoney(draft.currency, line.unitPrice)}`}
             </AppText>
-            <AppText variant="caption">{formatMoney(draft.currency, line.subtotal)}</AppText>
+            <AppText variant="caption">
+              {formatMoney(draft.currency, line.subtotal)}
+            </AppText>
           </View>
         ))}
         <View
@@ -138,10 +152,16 @@ export default function BookingPaymentScreen() {
             paddingTop: theme.spacing(2),
           }}
         >
-          <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold }}>
+          <AppText
+            variant="body"
+            style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+          >
             {t.page.totalLabel}
           </AppText>
-          <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold }}>
+          <AppText
+            variant="body"
+            style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+          >
             {formatMoney(draft.currency, breakdown.total)}
           </AppText>
         </View>
@@ -155,8 +175,18 @@ export default function BookingPaymentScreen() {
         <AppText variant="title">{t.form.paymentHeading}</AppText>
         {(
           [
-            { id: 'STRIPE', label: t.form.stripe, hint: t.form.stripeHint, icon: 'card-outline' },
-            { id: 'PAYPAL', label: t.form.paypal, hint: t.form.paypalHint, icon: 'logo-paypal' },
+            {
+              id: 'STRIPE',
+              label: t.form.stripe,
+              hint: t.form.stripeHint,
+              icon: 'card-outline',
+            },
+            {
+              id: 'PAYPAL',
+              label: t.form.paypal,
+              hint: t.form.paypalHint,
+              icon: 'logo-paypal',
+            },
           ] as const
         ).map((method) => {
           const isSelected = provider === method.id;
@@ -167,22 +197,34 @@ export default function BookingPaymentScreen() {
               accessibilityRole="radio"
               accessibilityState={{ selected: isSelected }}
               onPress={() => setProvider(method.id)}
-              android_ripple={{ color: theme.colors['muted'], foreground: true }}
+              android_ripple={{
+                color: theme.colors['muted'],
+                foreground: true,
+              }}
               style={({ pressed }) => ({
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: theme.spacing(3),
                 borderWidth: isSelected ? 2 : 1,
-                borderColor: isSelected ? theme.colors['primary'] : theme.colors['border'],
+                borderColor: isSelected
+                  ? theme.colors['primary']
+                  : theme.colors['border'],
                 borderRadius: theme.radius.md,
                 overflow: 'hidden',
                 padding: theme.spacing(3),
                 opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.85 : 1,
               })}
             >
-              <Ionicons name={method.icon} size={20} color={theme.colors['foreground']} />
+              <Ionicons
+                name={method.icon}
+                size={20}
+                color={theme.colors['foreground']}
+              />
               <View style={{ flex: 1, gap: 2 }}>
-                <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold }}>
+                <AppText
+                  variant="body"
+                  style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+                >
                   {method.label}
                 </AppText>
                 <AppText variant="caption" muted>
@@ -192,7 +234,11 @@ export default function BookingPaymentScreen() {
               <Ionicons
                 name={isSelected ? 'radio-button-on' : 'radio-button-off'}
                 size={20}
-                color={isSelected ? theme.colors['primary'] : theme.colors['muted-foreground']}
+                color={
+                  isSelected
+                    ? theme.colors['primary']
+                    : theme.colors['muted-foreground']
+                }
               />
             </Pressable>
           );

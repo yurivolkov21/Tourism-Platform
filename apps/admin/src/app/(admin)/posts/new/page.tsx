@@ -19,7 +19,12 @@ export default async function NewPostPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 lg:px-6">
       <div className="space-y-3">
-        <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/posts" />}>
+        <Button
+          variant="ghost"
+          size="sm"
+          nativeButton={false}
+          render={<Link href="/posts" />}
+        >
           <ArrowLeft data-icon="inline-start" />
           Back to posts
         </Button>
@@ -31,7 +36,12 @@ export default async function NewPostPage() {
         </div>
       </div>
 
-      <PostForm action={createPost} submitLabel="Create post" tagSuggestions={tagSuggestions} tourOptions={tourOptions} />
+      <PostForm
+        action={createPost}
+        submitLabel="Create post"
+        tagSuggestions={tagSuggestions}
+        tourOptions={tourOptions}
+      />
     </div>
   );
 }

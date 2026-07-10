@@ -21,7 +21,11 @@ export interface PostFormState {
 async function putPostMedia(slug: string, mediaJson: string): Promise<void> {
   try {
     const media = assembleMediaSet(parseMediaField(mediaJson));
-    await apiWrite('PUT', `/api/v1/admin/posts/${encodeURIComponent(slug)}/media`, { media });
+    await apiWrite(
+      'PUT',
+      `/api/v1/admin/posts/${encodeURIComponent(slug)}/media`,
+      { media },
+    );
   } catch {
     // Saved without a cover; recoverable via edit.
   }
@@ -112,7 +116,9 @@ export interface DeletePostState {
 export async function deletePost(slug: string): Promise<DeletePostState> {
   try {
     const api = await getApiClient();
-    await api.DELETE('/api/v1/admin/posts/{slug}', { params: { path: { slug } } });
+    await api.DELETE('/api/v1/admin/posts/{slug}', {
+      params: { path: { slug } },
+    });
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }

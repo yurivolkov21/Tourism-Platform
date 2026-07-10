@@ -4,7 +4,14 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Star } from 'lucide-react';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, cn } from '@tourism/ui';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  cn,
+} from '@tourism/ui';
 
 import { formatMoney } from '../../lib/dashboard/transforms';
 import type { DashboardStats } from '../../lib/dashboard/stats';
@@ -17,7 +24,15 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: 'wishlist', label: 'Wishlisted' },
 ];
 
-function RowShell({ slug, title, right }: { slug: string; title: string; right: React.ReactNode }) {
+function RowShell({
+  slug,
+  title,
+  right,
+}: {
+  slug: string;
+  title: string;
+  right: React.ReactNode;
+}) {
   return (
     <li className="flex items-center justify-between gap-4 text-sm">
       <Link
@@ -27,7 +42,9 @@ function RowShell({ slug, title, right }: { slug: string; title: string; right: 
       >
         {title}
       </Link>
-      <span className="text-muted-foreground shrink-0 tabular-nums">{right}</span>
+      <span className="text-muted-foreground shrink-0 tabular-nums">
+        {right}
+      </span>
     </li>
   );
 }
@@ -46,7 +63,11 @@ export function TopToursCard({
 }) {
   const [tab, setTab] = useState<TabKey>('revenue');
 
-  const empty = <p className="text-muted-foreground py-4 text-center text-sm">No data yet.</p>;
+  const empty = (
+    <p className="text-muted-foreground py-4 text-center text-sm">
+      No data yet.
+    </p>
+  );
 
   const activeIndex = TABS.findIndex((t) => t.key === tab);
 
@@ -86,7 +107,9 @@ export function TopToursCard({
                 onClick={() => setTab(t.key)}
                 className={cn(
                   'inline-flex h-6 cursor-pointer items-center rounded-md px-2.5 text-xs font-medium whitespace-nowrap transition-colors',
-                  isActive ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+                  isActive
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'hover:text-foreground',
                 )}
               >
                 {t.label}
@@ -95,7 +118,11 @@ export function TopToursCard({
           })}
         </div>
 
-        <div id="top-tours-panel" role="tabpanel" aria-labelledby={`top-tours-tab-${tab}`}>
+        <div
+          id="top-tours-panel"
+          role="tabpanel"
+          aria-labelledby={`top-tours-tab-${tab}`}
+        >
           {tab === 'revenue' &&
             (byRevenue.length ? (
               <ul className="space-y-2.5">
@@ -121,7 +148,10 @@ export function TopToursCard({
                     title={t.title}
                     right={
                       <span className="inline-flex items-center gap-1">
-                        <Star className="size-3 fill-current text-amber-500" aria-hidden />
+                        <Star
+                          className="size-3 fill-current text-amber-500"
+                          aria-hidden
+                        />
                         {t.averageRating.toFixed(1)} · {t.reviewsCount} reviews
                       </span>
                     }

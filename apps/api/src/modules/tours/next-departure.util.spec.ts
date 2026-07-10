@@ -2,7 +2,9 @@ import { nextDepartureInfo, toDateOnlyIso } from './next-departure.util';
 
 describe('toDateOnlyIso', () => {
   it('formats a UTC date as YYYY-MM-DD', () => {
-    expect(toDateOnlyIso(new Date('2026-08-15T00:00:00.000Z'))).toBe('2026-08-15');
+    expect(toDateOnlyIso(new Date('2026-08-15T00:00:00.000Z'))).toBe(
+      '2026-08-15',
+    );
   });
 });
 

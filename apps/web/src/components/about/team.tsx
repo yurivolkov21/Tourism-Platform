@@ -39,7 +39,9 @@ export function Team() {
             {/* Header row: badge + heading (left), nav arrows (top-right) */}
             <div className="flex items-end justify-between gap-4">
               <div className="flex flex-col gap-3">
-                <Badge className="w-fit border-0 px-3 py-1 text-sm">{t.eyebrow}</Badge>
+                <Badge className="w-fit border-0 px-3 py-1 text-sm">
+                  {t.eyebrow}
+                </Badge>
                 <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl">
                   {t.heading}
                 </h2>
@@ -56,14 +58,21 @@ export function Team() {
                   <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-6">
                     {/* Bio + name + role */}
                     <div className="order-2 flex flex-col gap-8 sm:flex-row sm:gap-10 lg:order-1 lg:col-span-8 lg:pe-12">
-                      <QuoteIcon className="text-muted-foreground/30 size-10 shrink-0" aria-hidden />
+                      <QuoteIcon
+                        className="text-muted-foreground/30 size-10 shrink-0"
+                        aria-hidden
+                      />
                       <div className="flex flex-col gap-10">
                         <p className="text-muted-foreground text-xl text-pretty sm:text-3xl sm:leading-snug">
                           {member.bio}
                         </p>
                         <div>
-                          <p className="text-base font-semibold">{member.name}</p>
-                          <p className="text-primary text-sm font-medium">{member.role}</p>
+                          <p className="text-base font-semibold">
+                            {member.name}
+                          </p>
+                          <p className="text-primary text-sm font-medium">
+                            {member.role}
+                          </p>
                         </div>
                       </div>
                     </div>

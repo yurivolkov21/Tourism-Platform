@@ -19,7 +19,12 @@ export type CtaBandProps = {
   image?: string;
 };
 
-export function CtaBand({ heading, subtitle, cta, image = DEFAULT_IMAGE }: CtaBandProps) {
+export function CtaBand({
+  heading,
+  subtitle,
+  cta,
+  image = DEFAULT_IMAGE,
+}: CtaBandProps) {
   return (
     <section className="py-12 sm:py-16 lg:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -40,7 +45,9 @@ export function CtaBand({ heading, subtitle, cta, image = DEFAULT_IMAGE }: CtaBa
                 <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
                   {heading}
                 </h2>
-                <p className="text-on-media/85 text-lg text-pretty">{subtitle}</p>
+                <p className="text-on-media/85 text-lg text-pretty">
+                  {subtitle}
+                </p>
               </div>
               <a
                 href={cta.href}

@@ -37,7 +37,10 @@ export class WishlistController {
   @Post(':tourId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Add a tour to caller's wishlist (idempotent)" })
-  @ApiOkResponse({ type: WishlistItemDto, description: 'Wishlist row (created or existing)' })
+  @ApiOkResponse({
+    type: WishlistItemDto,
+    description: 'Wishlist row (created or existing)',
+  })
   @ApiResponse({ status: 401, description: 'User not synced' })
   @ApiResponse({ status: 404, description: 'Tour not found or unpublished' })
   add(
@@ -56,7 +59,9 @@ export class WishlistController {
   /** `DELETE /wishlist/:tourId` — idempotent remove (absent → 204, no error). */
   @Delete(':tourId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Remove a tour from caller's wishlist (idempotent)" })
+  @ApiOperation({
+    summary: "Remove a tour from caller's wishlist (idempotent)",
+  })
   @ApiNoContentResponse({ description: 'Removed (or already absent)' })
   @ApiResponse({ status: 401, description: 'User not synced' })
   async remove(
@@ -76,7 +81,10 @@ export class WishlistController {
   @Get('me')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Caller's wishlist with joined tour previews" })
-  @ApiOkResponse({ type: [WishlistItemDto], description: 'Wishlist rows + tour' })
+  @ApiOkResponse({
+    type: [WishlistItemDto],
+    description: 'Wishlist rows + tour',
+  })
   @ApiResponse({ status: 401, description: 'User not synced' })
   list(@CurrentUser() user: User | null): Promise<WishlistWithTour[]> {
     if (!user) {

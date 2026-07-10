@@ -32,9 +32,9 @@ describe('extractOutline', () => {
   });
 
   it('skips headings inside code fences and ignores h4+', () => {
-    expect(extractOutline('```\n# not a heading\n```\n\n## Real\n\n#### Too deep')).toEqual([
-      { depth: 2, text: 'Real' },
-    ]);
+    expect(
+      extractOutline('```\n# not a heading\n```\n\n## Real\n\n#### Too deep'),
+    ).toEqual([{ depth: 2, text: 'Real' }]);
   });
 
   it('returns empty for heading-less content', () => {

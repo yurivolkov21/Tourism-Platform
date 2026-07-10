@@ -13,7 +13,9 @@ interface EditDeparturePageProps {
   params: Promise<{ slug: string; id: string }>;
 }
 
-export default async function EditDeparturePage({ params }: EditDeparturePageProps) {
+export default async function EditDeparturePage({
+  params,
+}: EditDeparturePageProps) {
   const { slug, id } = await params;
 
   let departure;
@@ -29,7 +31,12 @@ export default async function EditDeparturePage({ params }: EditDeparturePagePro
   return (
     <div className="mx-auto max-w-2xl space-y-6 p-6">
       <div className="space-y-3">
-        <Button variant="ghost" size="sm" nativeButton={false} render={<Link href={`/tours/${slug}/departures`} />}>
+        <Button
+          variant="ghost"
+          size="sm"
+          nativeButton={false}
+          render={<Link href={`/tours/${slug}/departures`} />}
+        >
           <ArrowLeft data-icon="inline-start" />
           Back to departures
         </Button>
@@ -41,7 +48,12 @@ export default async function EditDeparturePage({ params }: EditDeparturePagePro
         </div>
       </div>
 
-      <DepartureForm action={action} departure={departure} slug={slug} submitLabel="Save changes" />
+      <DepartureForm
+        action={action}
+        departure={departure}
+        slug={slug}
+        submitLabel="Save changes"
+      />
     </div>
   );
 }

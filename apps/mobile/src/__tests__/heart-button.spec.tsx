@@ -27,7 +27,11 @@ function renderHeart() {
 beforeEach(() => jest.clearAllMocks());
 
 test('guest tap routes to sign-in with the wishlist reason', async () => {
-  mockUseWishlist.mockReturnValue({ isGuest: true, isSaved: () => false, toggle: jest.fn() });
+  mockUseWishlist.mockReturnValue({
+    isGuest: true,
+    isSaved: () => false,
+    toggle: jest.fn(),
+  });
   renderHeart();
   await userEvent.press(screen.getByRole('button', { name: 'Save tour' }));
   expect(router.push).toHaveBeenCalledWith('/auth/sign-in?reason=wishlist');
@@ -35,7 +39,11 @@ test('guest tap routes to sign-in with the wishlist reason', async () => {
 
 test('signed-in tap toggles; saved state flips the label', async () => {
   const toggle = jest.fn();
-  mockUseWishlist.mockReturnValue({ isGuest: false, isSaved: () => true, toggle });
+  mockUseWishlist.mockReturnValue({
+    isGuest: false,
+    isSaved: () => true,
+    toggle,
+  });
   renderHeart();
   const btn = screen.getByRole('button', { name: 'Remove from saved' });
   expect(btn.props.accessibilityState).toMatchObject({ selected: true });

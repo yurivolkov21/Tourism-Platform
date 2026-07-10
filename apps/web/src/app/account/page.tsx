@@ -49,7 +49,8 @@ export default async function AccountPage() {
 
   // One extra fetch for the next trip's hero image (graceful: gradient if it fails).
   const nextTripImage = stats.nextTrip
-    ? ((await fetchTourDetail(stats.nextTrip.tour.slug).catch(() => null))?.image ?? null)
+    ? ((await fetchTourDetail(stats.nextTrip.tour.slug).catch(() => null))
+        ?.image ?? null)
     : null;
 
   const nextTrip: DashboardNextTrip | null = stats.nextTrip
@@ -58,17 +59,21 @@ export default async function AccountPage() {
         slug: stats.nextTrip.tour.slug,
         code: stats.nextTrip.code,
         dateLabel: formatTripDate(stats.nextTrip.departure.startDate),
-        countdown: t.nextTrip.countdown(daysUntil(stats.nextTrip.departure.startDate, now)),
+        countdown: t.nextTrip.countdown(
+          daysUntil(stats.nextTrip.departure.startDate, now),
+        ),
         image: nextTripImage,
       }
     : null;
 
-  const upcoming: DashboardUpcomingRow[] = stats.upcomingTrips.slice(0, MAX_UPCOMING_ROWS).map((b) => ({
-    title: b.tour.title,
-    dateLabel: formatTripDate(b.departure.startDate),
-    status: b.status,
-    code: b.code,
-  }));
+  const upcoming: DashboardUpcomingRow[] = stats.upcomingTrips
+    .slice(0, MAX_UPCOMING_ROWS)
+    .map((b) => ({
+      title: b.tour.title,
+      dateLabel: formatTripDate(b.departure.startDate),
+      status: b.status,
+      code: b.code,
+    }));
 
   const memberSince = profile?.createdAt
     ? new Date(profile.createdAt).toLocaleDateString('en-GB', {

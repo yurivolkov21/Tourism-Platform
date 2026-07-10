@@ -8,7 +8,10 @@ const RELATIVE_CUTOFF_DAYS = 30;
  * ~30 days it falls back to an absolute date. `now` is injectable for deterministic tests. Returns
  * an empty string for an unparseable input.
  */
-export function formatRelativeTime(iso: string, now: Date = new Date()): string {
+export function formatRelativeTime(
+  iso: string,
+  now: Date = new Date(),
+): string {
   const then = new Date(iso);
   if (Number.isNaN(then.getTime())) return '';
 
@@ -22,7 +25,12 @@ export function formatRelativeTime(iso: string, now: Date = new Date()): string 
   if (hr < 24) return `${hr} ${hr === 1 ? 'hour' : 'hours'} ago`;
 
   const day = Math.round(sec / DAY);
-  if (day <= RELATIVE_CUTOFF_DAYS) return `${day} ${day === 1 ? 'day' : 'days'} ago`;
+  if (day <= RELATIVE_CUTOFF_DAYS)
+    return `${day} ${day === 1 ? 'day' : 'days'} ago`;
 
-  return then.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return then.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
 }

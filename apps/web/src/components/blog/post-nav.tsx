@@ -55,7 +55,11 @@ export function PostNav({
       aria-label={messages.blog.postNavLabel}
       className="mx-auto mt-12 grid max-w-3xl gap-4 sm:grid-cols-2 lg:max-w-5xl"
     >
-      {older ? <NavCell post={older} direction="older" /> : <div aria-hidden className="hidden sm:block" />}
+      {older ? (
+        <NavCell post={older} direction="older" />
+      ) : (
+        <div aria-hidden className="hidden sm:block" />
+      )}
       {newer ? <NavCell post={newer} direction="newer" /> : null}
     </nav>
   );

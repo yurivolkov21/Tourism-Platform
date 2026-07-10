@@ -36,7 +36,9 @@ export function NewsletterForm() {
       form.reset();
       toast.success(f.newsletterSuccess);
     } else {
-      toast.error(res.rateLimited ? f.newsletterRateLimited : f.newsletterError);
+      toast.error(
+        res.rateLimited ? f.newsletterRateLimited : f.newsletterError,
+      );
     }
     setStatus('idle');
   }

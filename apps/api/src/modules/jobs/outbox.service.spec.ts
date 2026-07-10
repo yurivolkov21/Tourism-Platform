@@ -56,7 +56,10 @@ const seededBooking = {
   numAdults: 2,
   numChildren: 0,
   tour: { title: 'Hoi An Walk' },
-  departure: { startDate: new Date('2026-08-01'), endDate: new Date('2026-08-03') },
+  departure: {
+    startDate: new Date('2026-08-01'),
+    endDate: new Date('2026-08-03'),
+  },
 };
 
 describe('OutboxService.drainOutbox', () => {
@@ -87,7 +90,9 @@ describe('OutboxService.drainOutbox', () => {
     const prisma = makePrisma({
       findMany: jest
         .fn()
-        .mockResolvedValue([{ ...bookingRow, type: EmailType.BOOKING_REFUNDED }]),
+        .mockResolvedValue([
+          { ...bookingRow, type: EmailType.BOOKING_REFUNDED },
+        ]),
       bookingFindUnique: jest.fn().mockResolvedValue(seededBooking),
     });
     const svc = new OutboxService(prisma as never, email as never);
@@ -102,7 +107,11 @@ describe('OutboxService.drainOutbox', () => {
     const email = makeEmail();
     const prisma = makePrisma({
       findMany: jest.fn().mockResolvedValue([
-        { ...bookingRow, type: EmailType.REVIEW_APPROVED, payload: { reviewId: 'rv-1' } },
+        {
+          ...bookingRow,
+          type: EmailType.REVIEW_APPROVED,
+          payload: { reviewId: 'rv-1' },
+        },
       ]),
       reviewFindUnique: jest.fn().mockResolvedValue({
         rating: 5,
@@ -124,7 +133,11 @@ describe('OutboxService.drainOutbox', () => {
     const email = makeEmail();
     const prisma = makePrisma({
       findMany: jest.fn().mockResolvedValue([
-        { ...bookingRow, type: EmailType.ENQUIRY_RECEIVED, payload: { enquiryId: 'en-1' } },
+        {
+          ...bookingRow,
+          type: EmailType.ENQUIRY_RECEIVED,
+          payload: { enquiryId: 'en-1' },
+        },
       ]),
       enquiryFindUnique: jest.fn().mockResolvedValue({
         name: 'Jane',
@@ -157,7 +170,9 @@ describe('OutboxService.drainOutbox', () => {
     const result = await svc.drainOutbox();
 
     expect(result).toEqual({ sent: 0, failed: 1 });
-    type UpdCall = { data: { status: OutboxStatus; attempts: number; lastError: string } };
+    type UpdCall = {
+      data: { status: OutboxStatus; attempts: number; lastError: string };
+    };
     const calls = update.mock.calls as unknown as UpdCall[][];
     expect(calls[0][0].data.attempts).toBe(2);
     expect(calls[0][0].data.status).toBe(OutboxStatus.PENDING);

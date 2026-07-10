@@ -63,7 +63,11 @@ export class CreateTourDto {
 
   // ── References (by slug) ───────────────────────────────────────────────────
 
-  @ApiProperty({ example: 'day-tours', description: 'Existing tour-category slug', maxLength: 60 })
+  @ApiProperty({
+    example: 'day-tours',
+    description: 'Existing tour-category slug',
+    maxLength: 60,
+  })
   @IsString()
   @MaxLength(60)
   @Matches(KEBAB, { message: 'categorySlug must be a kebab-case slug' })
@@ -72,19 +76,29 @@ export class CreateTourDto {
   @ApiProperty({
     type: [String],
     example: ['hoi-an', 'da-nang'],
-    description: 'Slugs of existing destinations (>=1). `primaryDestinationSlug` must be one of these.',
+    description:
+      'Slugs of existing destinations (>=1). `primaryDestinationSlug` must be one of these.',
   })
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(20)
   @IsString({ each: true })
-  @Matches(KEBAB, { each: true, message: 'each destination slug must be kebab-case' })
+  @Matches(KEBAB, {
+    each: true,
+    message: 'each destination slug must be kebab-case',
+  })
   destinationSlugs!: string[];
 
-  @ApiProperty({ example: 'hoi-an', description: 'Primary destination slug (∈ destinationSlugs)', maxLength: 80 })
+  @ApiProperty({
+    example: 'hoi-an',
+    description: 'Primary destination slug (∈ destinationSlugs)',
+    maxLength: 80,
+  })
   @IsString()
   @MaxLength(80)
-  @Matches(KEBAB, { message: 'primaryDestinationSlug must be a kebab-case slug' })
+  @Matches(KEBAB, {
+    message: 'primaryDestinationSlug must be a kebab-case slug',
+  })
   primaryDestinationSlug!: string;
 
   // ── Logistics ─────────────────────────────────────────────────────────────
@@ -104,7 +118,10 @@ export class CreateTourDto {
   @Max(100)
   maxGroupSize?: number;
 
-  @ApiPropertyOptional({ example: 'Hoi An tourist info centre, 78 Le Loi street', maxLength: 300 })
+  @ApiPropertyOptional({
+    example: 'Hoi An tourist info centre, 78 Le Loi street',
+    maxLength: 300,
+  })
   @IsOptional()
   @IsString()
   @MaxLength(300)
@@ -119,14 +136,23 @@ export class CreateTourDto {
   basePrice!: number;
 
   /** Optional strike-through anchor (D-P1.3). Must exceed `basePrice` to read as a discount. */
-  @ApiPropertyOptional({ example: 69, minimum: 0, description: 'Decimal(12,2) compare-at anchor' })
+  @ApiPropertyOptional({
+    example: 69,
+    minimum: 0,
+    description: 'Decimal(12,2) compare-at anchor',
+  })
   @IsOptional()
   @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   compareAtPrice?: number;
 
-  @ApiPropertyOptional({ example: 'USD', minLength: 3, maxLength: 3, default: 'USD' })
+  @ApiPropertyOptional({
+    example: 'USD',
+    minLength: 3,
+    maxLength: 3,
+    default: 'USD',
+  })
   @IsOptional()
   @IsString()
   @Length(3, 3)
@@ -179,7 +205,10 @@ export class CreateTourDto {
 
   // ── Content arrays (text[]) ────────────────────────────────────────────────
 
-  @ApiPropertyOptional({ type: [String], example: ['Local guide', 'Bottled water', 'Lunch'] })
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['Local guide', 'Bottled water', 'Lunch'],
+  })
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(30)
@@ -187,7 +216,10 @@ export class CreateTourDto {
   @MaxLength(200, { each: true })
   included?: string[];
 
-  @ApiPropertyOptional({ type: [String], example: ['Personal expenses', 'Tips'] })
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['Personal expenses', 'Tips'],
+  })
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(30)
@@ -195,7 +227,10 @@ export class CreateTourDto {
   @MaxLength(200, { each: true })
   excluded?: string[];
 
-  @ApiPropertyOptional({ type: [String], example: ['Lantern-lit old town', 'Hands-on cooking class'] })
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['Lantern-lit old town', 'Hands-on cooking class'],
+  })
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(30)

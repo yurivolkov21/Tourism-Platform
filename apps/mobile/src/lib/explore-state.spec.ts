@@ -23,13 +23,39 @@ const tour = (over: Partial<TourCardVm>): TourCardVm => ({
 });
 
 const tours: TourCardVm[] = [
-  tour({ slug: 'a', title: 'Ha Long Bay Cruise', destination: 'Ha Long', durationDays: 3, basePrice: 450, rating: 4.9, reviewCount: 200 }),
-  tour({ slug: 'b', title: 'Hanoi Street Food', destination: 'Hà Nội', durationDays: 1, basePrice: 49, rating: 4.7, reviewCount: 320 }),
-  tour({ slug: 'c', title: 'Sapa Trek', destination: 'Sapa', durationDays: 4, basePrice: 220, rating: 4.8, reviewCount: 90 }),
+  tour({
+    slug: 'a',
+    title: 'Ha Long Bay Cruise',
+    destination: 'Ha Long',
+    durationDays: 3,
+    basePrice: 450,
+    rating: 4.9,
+    reviewCount: 200,
+  }),
+  tour({
+    slug: 'b',
+    title: 'Hanoi Street Food',
+    destination: 'Hà Nội',
+    durationDays: 1,
+    basePrice: 49,
+    rating: 4.7,
+    reviewCount: 320,
+  }),
+  tour({
+    slug: 'c',
+    title: 'Sapa Trek',
+    destination: 'Sapa',
+    durationDays: 4,
+    basePrice: 220,
+    rating: 4.8,
+    reviewCount: 90,
+  }),
 ];
 
 test('default state returns all tours sorted by popularity (reviewCount desc)', () => {
-  expect(applyExploreState(tours, defaultExploreState).map((t) => t.slug)).toEqual(['b', 'a', 'c']);
+  expect(
+    applyExploreState(tours, defaultExploreState).map((t) => t.slug),
+  ).toEqual(['b', 'a', 'c']);
 });
 
 test('query narrows accent-insensitively', () => {
@@ -49,7 +75,11 @@ test('destination + duration + price facets AND together', () => {
 
 test('sort price-asc orders by basePrice', () => {
   const state = { ...defaultExploreState, sort: 'price-asc' as const };
-  expect(applyExploreState(tours, state).map((t) => t.slug)).toEqual(['b', 'c', 'a']);
+  expect(applyExploreState(tours, state).map((t) => t.slug)).toEqual([
+    'b',
+    'c',
+    'a',
+  ]);
 });
 
 test('toggleBucket adds then removes', () => {
@@ -63,20 +93,32 @@ test('initialExploreState presets the destination from route params', () => {
     destination: 'Ha Long',
   });
   expect(initialExploreState({})).toEqual(defaultExploreState);
-  expect(initialExploreState({ destination: ['A', 'B'] })).toEqual(defaultExploreState);
+  expect(initialExploreState({ destination: ['A', 'B'] })).toEqual(
+    defaultExploreState,
+  );
 });
 
 test('hasActiveFilters is false for default, true for any facet', () => {
   expect(hasActiveFilters(defaultExploreState)).toBe(false);
   expect(hasActiveFilters({ ...defaultExploreState, query: 'x' })).toBe(true);
-  expect(hasActiveFilters({ ...defaultExploreState, destination: 'Hanoi' })).toBe(true);
-  expect(hasActiveFilters({ ...defaultExploreState, durations: ['1'] })).toBe(true);
+  expect(
+    hasActiveFilters({ ...defaultExploreState, destination: 'Hanoi' }),
+  ).toBe(true);
+  expect(hasActiveFilters({ ...defaultExploreState, durations: ['1'] })).toBe(
+    true,
+  );
 });
 
 test('countActiveFilters counts buckets and a non-default sort', () => {
   expect(countActiveFilters(defaultExploreState)).toBe(0);
   expect(
-    countActiveFilters({ ...defaultExploreState, durations: ['1'], prices: ['<100', '300+'] }),
+    countActiveFilters({
+      ...defaultExploreState,
+      durations: ['1'],
+      prices: ['<100', '300+'],
+    }),
   ).toBe(3);
-  expect(countActiveFilters({ ...defaultExploreState, sort: 'rating' })).toBe(1);
+  expect(countActiveFilters({ ...defaultExploreState, sort: 'rating' })).toBe(
+    1,
+  );
 });

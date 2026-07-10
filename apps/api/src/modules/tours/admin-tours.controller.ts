@@ -63,7 +63,10 @@ export class AdminToursController {
   @Post()
   @ApiOperation({ summary: 'Admin: create a tour' })
   @ApiCreatedResponse({ type: TourDetailDto })
-  @ApiResponse({ status: 400, description: 'Invalid category / destination ref' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid category / destination ref',
+  })
   @ApiResponse({ status: 409, description: 'Slug already exists' })
   create(@Body() body: CreateTourDto): Promise<Tour> {
     return this.toursService.create(body);
@@ -73,7 +76,10 @@ export class AdminToursController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Admin: partial update a tour' })
   @ApiOkResponse({ type: TourDetailDto })
-  @ApiResponse({ status: 400, description: 'Invalid category / destination ref' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid category / destination ref',
+  })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 409, description: 'New slug already exists' })
   update(
@@ -86,7 +92,10 @@ export class AdminToursController {
   @Put(':slug/media')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Admin: replace a tour’s media set' })
-  @ApiOkResponse({ type: [MediaItemDto], description: 'New media set with URLs' })
+  @ApiOkResponse({
+    type: [MediaItemDto],
+    description: 'New media set with URLs',
+  })
   @ApiResponse({ status: 404, description: 'Tour not found' })
   setMedia(
     @Param('slug') slug: string,

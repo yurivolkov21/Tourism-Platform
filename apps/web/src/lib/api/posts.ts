@@ -26,7 +26,12 @@ export interface PostsPage {
  * callers pick their own degradation (home falls back to fixtures; `/blog` shows a notice).
  */
 export async function fetchPosts(
-  opts: { page?: number; pageSize?: number; tag?: string; search?: string } = {},
+  opts: {
+    page?: number;
+    pageSize?: number;
+    tag?: string;
+    search?: string;
+  } = {},
 ): Promise<PostsPage> {
   const api = getApiClient();
   const { data, error } = await api.GET('/api/v1/posts', {
@@ -55,21 +60,24 @@ export async function fetchPostSlugs(): Promise<string[]> {
  * enveloped (`{ data }`) → unwrap `.data` (envelope gotcha). Wrapped in React `cache()` so
  * `generateMetadata` and the page body share one fetch per request.
  */
-export const fetchPost = cache(async (slug: string): Promise<PostDetailVM | null> => {
-  const api = getApiClient();
-  const { data, error } = await api.GET('/api/v1/posts/{slug}', {
-    params: { path: { slug } },
-  });
-  const dto = (data as unknown as { data?: PostDetailDto } | undefined)?.data;
-  if (error || !dto) return null;
-  return toPostDetail(dto);
-});
+export const fetchPost = cache(
+  async (slug: string): Promise<PostDetailVM | null> => {
+    const api = getApiClient();
+    const { data, error } = await api.GET('/api/v1/posts/{slug}', {
+      params: { path: { slug } },
+    });
+    const dto = (data as unknown as { data?: PostDetailDto } | undefined)?.data;
+    if (error || !dto) return null;
+    return toPostDetail(dto);
+  },
+);
 
 /** Public tags in use (bare-array endpoint → enveloped at runtime). [] on error. */
 export async function fetchPostTags(): Promise<PostTagWithCountDto[]> {
   const api = getApiClient();
   const { data, error } = await api.GET('/api/v1/posts/tags');
-  const list = (data as unknown as { data?: PostTagWithCountDto[] } | undefined)?.data;
+  const list = (data as unknown as { data?: PostTagWithCountDto[] } | undefined)
+    ?.data;
   if (error || !list) return [];
   return list;
 }

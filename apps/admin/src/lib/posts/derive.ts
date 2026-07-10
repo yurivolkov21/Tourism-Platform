@@ -19,7 +19,8 @@ export function readingStats(content: string): ReadingStats {
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1') // links → their text
     .replace(/[#>*_~`|-]+/g, ' '); // markdown syntax chars
   const words = plain.split(/\s+/).filter(Boolean).length;
-  const minutes = words === 0 ? 0 : Math.max(1, Math.round(words / WORDS_PER_MINUTE));
+  const minutes =
+    words === 0 ? 0 : Math.max(1, Math.round(words / WORDS_PER_MINUTE));
   return { words, minutes };
 }
 

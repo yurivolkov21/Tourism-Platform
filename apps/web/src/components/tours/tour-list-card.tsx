@@ -68,14 +68,21 @@ export function TourListCard({ tour }: { tour: TourCardData }) {
           </h3>
 
           {tour.summary ? (
-            <p className="text-muted-foreground line-clamp-2 text-sm text-pretty">{tour.summary}</p>
+            <p className="text-muted-foreground line-clamp-2 text-sm text-pretty">
+              {tour.summary}
+            </p>
           ) : null}
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1">
             <span className="inline-flex items-center gap-1.5 text-sm">
-              <StarIcon className="fill-rating text-rating size-4" aria-hidden="true" />
+              <StarIcon
+                className="fill-rating text-rating size-4"
+                aria-hidden="true"
+              />
               <span className="font-semibold">{tour.rating.toFixed(1)}</span>
-              <span className="text-muted-foreground">({tour.reviewCount})</span>
+              <span className="text-muted-foreground">
+                ({tour.reviewCount})
+              </span>
             </span>
             <div className="flex flex-wrap gap-1.5">
               {tags.map((tag) => (
@@ -105,9 +112,14 @@ export function TourListCard({ tour }: { tour: TourCardData }) {
             <span className="text-primary font-heading text-2xl font-bold">
               {formatPrice(tour.currency, tour.basePrice)}
             </span>
-            <span className="text-muted-foreground block text-xs">{t.perPerson}</span>
+            <span className="text-muted-foreground block text-xs">
+              {t.perPerson}
+            </span>
           </div>
-          <Link href={href} className={cn(buttonVariants({ size: 'sm' }), 'w-full sm:w-auto')}>
+          <Link
+            href={href}
+            className={cn(buttonVariants({ size: 'sm' }), 'w-full sm:w-auto')}
+          >
             {t.viewTour}
           </Link>
         </div>

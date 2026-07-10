@@ -12,9 +12,12 @@ describe('validatePasswordPair', () => {
 
   it('rejects a too-short password', () => {
     expect(validatePasswordPair('abc', 'abc')).toBe('TOO_SHORT');
-    expect(validatePasswordPair('a'.repeat(MIN_PASSWORD - 1), 'a'.repeat(MIN_PASSWORD - 1))).toBe(
-      'TOO_SHORT',
-    );
+    expect(
+      validatePasswordPair(
+        'a'.repeat(MIN_PASSWORD - 1),
+        'a'.repeat(MIN_PASSWORD - 1),
+      ),
+    ).toBe('TOO_SHORT');
   });
 
   it('rejects a mismatch (checked after length)', () => {

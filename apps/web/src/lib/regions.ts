@@ -20,7 +20,8 @@ export interface RegionData {
 const groups = groupByRegion(destinations).filter((g) => g.region !== 'Other');
 
 // Temporary Unsplash imagery (review only) — a curated 10-image gallery set per region.
-const u = (id: string) => `https://images.unsplash.com/${id}?w=1100&q=70&auto=format&fit=crop`;
+const u = (id: string) =>
+  `https://images.unsplash.com/${id}?w=1100&q=70&auto=format&fit=crop`;
 const REGION_GALLERY_IMAGES: Record<string, string[]> = {
   'northern-vietnam': [
     'photo-1528127269322-539801943592',
@@ -70,7 +71,9 @@ export function getRegion(regionSlug: string): RegionData | undefined {
   const group = groups.find((g) => slugify(g.region) === regionSlug);
   if (!group) return undefined;
   // Bento pool (destination covers + galleries).
-  const images = Array.from(new Set(group.items.flatMap((d) => [d.image, ...d.gallery])));
+  const images = Array.from(
+    new Set(group.items.flatMap((d) => [d.image, ...d.gallery])),
+  );
 
   return {
     name: group.region,

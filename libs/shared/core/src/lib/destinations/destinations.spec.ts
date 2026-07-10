@@ -11,7 +11,11 @@ const rows: Row[] = [
 
 describe('REGION_ORDER', () => {
   it('is North → Central → South', () => {
-    expect(REGION_ORDER).toEqual(['Northern Vietnam', 'Central Vietnam', 'Southern Vietnam']);
+    expect(REGION_ORDER).toEqual([
+      'Northern Vietnam',
+      'Central Vietnam',
+      'Southern Vietnam',
+    ]);
   });
 });
 

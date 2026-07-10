@@ -9,7 +9,10 @@ import { ErrorAlert } from '../crud/error-alert';
 import { signIn, type SignInState } from '../../lib/auth/actions';
 
 export function LoginForm({ redirectTo }: { redirectTo: string }) {
-  const [state, formAction, pending] = useActionState<SignInState, FormData>(signIn, {});
+  const [state, formAction, pending] = useActionState<SignInState, FormData>(
+    signIn,
+    {},
+  );
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -49,7 +52,11 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
             aria-pressed={showPassword}
             className="text-muted-foreground hover:text-foreground absolute top-1/2 right-1 -translate-y-1/2"
           >
-            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            {showPassword ? (
+              <EyeOff className="size-4" />
+            ) : (
+              <Eye className="size-4" />
+            )}
           </Button>
         </div>
       </div>

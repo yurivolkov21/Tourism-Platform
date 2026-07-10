@@ -45,7 +45,8 @@ export function formatDepartureDate(iso: string): string {
 }
 
 export function toTourDetailVm(dto: TourDetailDto): TourDetailVm {
-  const primary = dto.destinations.find((d) => d.isPrimary) ?? dto.destinations[0];
+  const primary =
+    dto.destinations.find((d) => d.isPrimary) ?? dto.destinations[0];
   return {
     id: dto.id,
     slug: dto.slug,
@@ -75,15 +76,23 @@ export function toTourDetailVm(dto: TourDetailDto): TourDetailVm {
     included: dto.included ?? [],
     excluded: dto.excluded ?? [],
     faqs: dto.faqs.map((f) => ({ question: f.question, answer: f.answer })),
-    policies: dto.policies.map((p) => ({ kind: p.kind, title: p.title, body: p.body })),
+    policies: dto.policies.map((p) => ({
+      kind: p.kind,
+      title: p.title,
+      body: p.body,
+    })),
   };
 }
 
 /** Full detail VM, or null when the slug is unknown/unpublished (404). */
-export async function fetchTourDetail(slug: string): Promise<TourDetailVm | null> {
+export async function fetchTourDetail(
+  slug: string,
+): Promise<TourDetailVm | null> {
   const api = getApiClient();
   try {
-    const { data } = await api.GET('/api/v1/tours/{slug}', { params: { path: { slug } } });
+    const { data } = await api.GET('/api/v1/tours/{slug}', {
+      params: { path: { slug } },
+    });
     const dto = (data as unknown as { data?: TourDetailDto } | undefined)?.data;
     return dto ? toTourDetailVm(dto) : null;
   } catch (error) {
@@ -109,7 +118,10 @@ function formatReviewDate(iso: string): string {
 }
 
 /** Approved reviews (detail teaser keeps the small default; See-all asks for more). */
-export async function fetchTourReviews(slug: string, pageSize = 6): Promise<TourReviewVm[]> {
+export async function fetchTourReviews(
+  slug: string,
+  pageSize = 6,
+): Promise<TourReviewVm[]> {
   const api = getApiClient();
   const { data } = await api.GET('/api/v1/tours/{slug}/reviews', {
     params: { path: { slug }, query: { pageSize } },

@@ -45,7 +45,10 @@ function makePrisma(opts: {
     findMany: opts.findMany ?? jest.fn(),
     count: opts.count ?? jest.fn(),
   };
-  const outbox = { createMany: opts.outboxCreateMany ?? jest.fn().mockResolvedValue({ count: 1 }) };
+  const outbox = {
+    createMany:
+      opts.outboxCreateMany ?? jest.fn().mockResolvedValue({ count: 1 }),
+  };
   return {
     booking,
     cancellationRequest,
@@ -61,53 +64,71 @@ describe('CancellationsService.createRequest', () => {
       makePrisma({ findUnique: jest.fn().mockResolvedValue(null) }) as never,
     );
 
-    await expect(svc.createRequest('BK-MISSING', caller, {})).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    await expect(
+      svc.createRequest('BK-MISSING', caller, {}),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('throws BOOKING_NOT_FOUND (404) when the booking is not owned by the caller', async () => {
     const svc = new CancellationsService(
       makePrisma({
-        findUnique: jest.fn().mockResolvedValue(makeBookingRow({ userId: 'other-user' })),
+        findUnique: jest
+          .fn()
+          .mockResolvedValue(makeBookingRow({ userId: 'other-user' })),
       }) as never,
     );
 
-    await expect(svc.createRequest('BK-1', caller, {})).rejects.toBeInstanceOf(NotFoundException);
+    await expect(svc.createRequest('BK-1', caller, {})).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
   });
 
   it('throws CANCELLATION_NOT_ALLOWED (409) when the booking is not PAID', async () => {
     const svc = new CancellationsService(
       makePrisma({
-        findUnique: jest.fn().mockResolvedValue(makeBookingRow({ status: 'PENDING' })),
+        findUnique: jest
+          .fn()
+          .mockResolvedValue(makeBookingRow({ status: 'PENDING' })),
       }) as never,
     );
 
-    await expect(svc.createRequest('BK-1', caller, {})).rejects.toBeInstanceOf(ConflictException);
+    await expect(svc.createRequest('BK-1', caller, {})).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 
   it('throws DEPARTURE_ALREADY_STARTED (409) when the departure has already started', async () => {
     const svc = new CancellationsService(
       makePrisma({
-        findUnique: jest.fn().mockResolvedValue(
-          makeBookingRow({ departure: { startDate: PAST_DEPARTURE } }),
-        ),
+        findUnique: jest
+          .fn()
+          .mockResolvedValue(
+            makeBookingRow({ departure: { startDate: PAST_DEPARTURE } }),
+          ),
       }) as never,
     );
 
-    await expect(svc.createRequest('BK-1', caller, {})).rejects.toBeInstanceOf(ConflictException);
+    await expect(svc.createRequest('BK-1', caller, {})).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 
   it('throws CANCELLATION_ALREADY_REQUESTED (409) when an open REQUESTED row exists', async () => {
     const svc = new CancellationsService(
       makePrisma({
         findUnique: jest.fn().mockResolvedValue(
-          makeBookingRow({ cancellationRequest: { status: CancellationRequestStatus.REQUESTED } }),
+          makeBookingRow({
+            cancellationRequest: {
+              status: CancellationRequestStatus.REQUESTED,
+            },
+          }),
         ),
       }) as never,
     );
 
-    await expect(svc.createRequest('BK-1', caller, {})).rejects.toBeInstanceOf(ConflictException);
+    await expect(svc.createRequest('BK-1', caller, {})).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 
   it('happy path: PAID + future departure + no open request → upserts REQUESTED + enqueues outbox', async () => {
@@ -133,7 +154,9 @@ describe('CancellationsService.createRequest', () => {
       }) as never,
     );
 
-    const result = await svc.createRequest('BK-1', caller, { reason: 'Change of travel plans' });
+    const result = await svc.createRequest('BK-1', caller, {
+      reason: 'Change of travel plans',
+    });
 
     expect(transaction).toHaveBeenCalledTimes(1);
     const opsArg = transaction.mock.calls[0][0];
@@ -164,7 +187,9 @@ describe('CancellationsService.createRequest', () => {
     const svc = new CancellationsService(
       makePrisma({
         findUnique: jest.fn().mockResolvedValue(
-          makeBookingRow({ cancellationRequest: { status: CancellationRequestStatus.DENIED } }),
+          makeBookingRow({
+            cancellationRequest: { status: CancellationRequestStatus.DENIED },
+          }),
         ),
         upsert,
         outboxCreateMany,
@@ -209,7 +234,9 @@ describe('CancellationsService.findAllForAdmin', () => {
   it('defaults the status filter to REQUESTED and maps a row to AdminCancellationRequestDto', async () => {
     const findMany = jest.fn().mockResolvedValue([makeQueueRow()]);
     const count = jest.fn().mockResolvedValue(1);
-    const svc = new CancellationsService(makePrisma({ findMany, count }) as never);
+    const svc = new CancellationsService(
+      makePrisma({ findMany, count }) as never,
+    );
 
     const result = await svc.findAllForAdmin({});
 
@@ -247,9 +274,15 @@ describe('CancellationsService.findAllForAdmin', () => {
   it('honors an explicit status filter, page and pageSize', async () => {
     const findMany = jest.fn().mockResolvedValue([]);
     const count = jest.fn().mockResolvedValue(0);
-    const svc = new CancellationsService(makePrisma({ findMany, count }) as never);
+    const svc = new CancellationsService(
+      makePrisma({ findMany, count }) as never,
+    );
 
-    await svc.findAllForAdmin({ status: CancellationRequestStatus.DENIED, page: 2, pageSize: 10 });
+    await svc.findAllForAdmin({
+      status: CancellationRequestStatus.DENIED,
+      page: 2,
+      pageSize: 10,
+    });
 
     expect(findMany.mock.calls[0][0]).toMatchObject({
       where: { status: CancellationRequestStatus.DENIED },
@@ -323,9 +356,9 @@ describe('CancellationsService.denyRequest', () => {
       makePrisma({ updateMany, crFindUnique, outboxCreateMany }) as never,
     );
 
-    await expect(svc.denyRequest('req-1', 'admin-1', {})).rejects.toBeInstanceOf(
-      ConflictException,
-    );
+    await expect(
+      svc.denyRequest('req-1', 'admin-1', {}),
+    ).rejects.toBeInstanceOf(ConflictException);
     expect(outboxCreateMany).not.toHaveBeenCalled();
   });
 
@@ -337,9 +370,9 @@ describe('CancellationsService.denyRequest', () => {
       makePrisma({ updateMany, crFindUnique, outboxCreateMany }) as never,
     );
 
-    await expect(svc.denyRequest('req-missing', 'admin-1', {})).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    await expect(
+      svc.denyRequest('req-missing', 'admin-1', {}),
+    ).rejects.toBeInstanceOf(NotFoundException);
     expect(outboxCreateMany).not.toHaveBeenCalled();
   });
 });

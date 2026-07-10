@@ -37,7 +37,13 @@ const PLACEHOLDER_SECTIONS: GallerySection[] = [
   { images: [{ alt: 'Rolling green highlands' }] },
 ];
 
-export function Tile({ image, className }: { image: GalleryImage; className?: string }) {
+export function Tile({
+  image,
+  className,
+}: {
+  image: GalleryImage;
+  className?: string;
+}) {
   if (image.src) {
     return (
       <div className={cn('relative overflow-hidden rounded-lg', className)}>
@@ -118,7 +124,9 @@ export function Gallery({
           <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
             {heading ?? t.heading}
           </h2>
-          <p className="text-muted-foreground text-lg text-pretty">{subtitle ?? t.subtitle}</p>
+          <p className="text-muted-foreground text-lg text-pretty">
+            {subtitle ?? t.subtitle}
+          </p>
         </div>
 
         {variant === 'editorial' ? (
@@ -135,7 +143,9 @@ export function Gallery({
             {sections.map((section, i) =>
               section.type === 'grid' ? (
                 <div key={i} className="grid grid-cols-2 gap-5">
-                  {section.images.map((img) => renderTile(img, 'aspect-square'))}
+                  {section.images.map((img) =>
+                    renderTile(img, 'aspect-square'),
+                  )}
                 </div>
               ) : (
                 // Single tile fills its cell. A bare `aspect-square` block collapses to 0×0 here
@@ -144,7 +154,9 @@ export function Gallery({
                 // width from (empty) content. Making the cell a 1-slot grid gives the tile a definite
                 // track width + stretch, so it fills the cell like the cluster tiles do.
                 <div key={i} className="grid">
-                  {section.images.map((img) => renderTile(img, 'size-full min-h-full'))}
+                  {section.images.map((img) =>
+                    renderTile(img, 'size-full min-h-full'),
+                  )}
                 </div>
               ),
             )}

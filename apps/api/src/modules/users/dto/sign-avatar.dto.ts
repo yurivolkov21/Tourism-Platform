@@ -7,7 +7,11 @@ import { IsOptional, IsString, MaxLength } from 'class-validator';
  * or destination folder.
  */
 export class SignAvatarDto {
-  @ApiProperty({ example: 'me.jpg', maxLength: 200, description: 'Original filename (single extension).' })
+  @ApiProperty({
+    example: 'me.jpg',
+    maxLength: 200,
+    description: 'Original filename (single extension).',
+  })
   @IsString()
   @MaxLength(200)
   filename!: string;

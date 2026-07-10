@@ -31,7 +31,11 @@ function shortDate(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? '—'
-    : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    : d.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
 }
 
 const bookingColumns: ColumnDef<Booking>[] = [
@@ -41,7 +45,10 @@ const bookingColumns: ColumnDef<Booking>[] = [
     enableHiding: false,
     meta: { label: 'Code' },
     cell: ({ row }) => (
-      <Link href={`/bookings/${row.original.code}`} className="hover:text-primary font-medium hover:underline">
+      <Link
+        href={`/bookings/${row.original.code}`}
+        className="hover:text-primary font-medium hover:underline"
+      >
         {row.original.code}
       </Link>
     ),
@@ -51,7 +58,9 @@ const bookingColumns: ColumnDef<Booking>[] = [
     header: 'Tour',
     meta: { label: 'Tour' },
     cell: ({ row }) => (
-      <span className="text-muted-foreground block max-w-56 truncate">{row.original.tour.title}</span>
+      <span className="text-muted-foreground block max-w-56 truncate">
+        {row.original.tour.title}
+      </span>
     ),
   },
   {
@@ -61,7 +70,9 @@ const bookingColumns: ColumnDef<Booking>[] = [
     cell: ({ row }) => (
       <>
         <span className="block font-medium">{row.original.contactName}</span>
-        <span className="text-muted-foreground text-xs">{row.original.contactEmail}</span>
+        <span className="text-muted-foreground text-xs">
+          {row.original.contactEmail}
+        </span>
       </>
     ),
   },
@@ -70,7 +81,9 @@ const bookingColumns: ColumnDef<Booking>[] = [
     header: 'Travel date',
     meta: { label: 'Travel date' },
     cell: ({ row }) => (
-      <span className="text-muted-foreground tabular-nums">{shortDate(row.original.departure.startDate)}</span>
+      <span className="text-muted-foreground tabular-nums">
+        {shortDate(row.original.departure.startDate)}
+      </span>
     ),
   },
   {
@@ -133,7 +146,11 @@ export function BookingsTable({
 
   return (
     <div className="flex flex-col gap-4">
-      <BookingsFilters status={status} search={search} trailing={<ColumnsMenu table={table} />} />
+      <BookingsFilters
+        status={status}
+        search={search}
+        trailing={<ColumnsMenu table={table} />}
+      />
 
       {rows.length === 0 ? (
         <Empty className="border">

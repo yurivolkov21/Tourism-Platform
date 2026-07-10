@@ -44,7 +44,11 @@ export async function createCategory(
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
   try {
-    await apiWrite('POST', '/api/v1/admin/tour-categories', toCategoryPayload(parsed.data));
+    await apiWrite(
+      'POST',
+      '/api/v1/admin/tour-categories',
+      toCategoryPayload(parsed.data),
+    );
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }
@@ -86,7 +90,9 @@ export interface DeleteCategoryState {
  * active or still has tours attached; `apiErrorMessage` surfaces that reason so the user knows to
  * deactivate or detach first.
  */
-export async function deleteCategory(slug: string): Promise<DeleteCategoryState> {
+export async function deleteCategory(
+  slug: string,
+): Promise<DeleteCategoryState> {
   try {
     const api = await getApiClient();
     await api.DELETE('/api/v1/admin/tour-categories/{slug}', {

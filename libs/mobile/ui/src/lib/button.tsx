@@ -9,7 +9,14 @@ export interface ButtonProps extends Omit<PressableProps, 'children'> {
   loading?: boolean;
 }
 
-export function Button({ label, variant = 'primary', loading, disabled, style, ...rest }: ButtonProps) {
+export function Button({
+  label,
+  variant = 'primary',
+  loading,
+  disabled,
+  style,
+  ...rest
+}: ButtonProps) {
   const theme = useTheme();
   const primary = variant === 'primary';
   return (
@@ -19,7 +26,9 @@ export function Button({ label, variant = 'primary', loading, disabled, style, .
       disabled={disabled || loading}
       // Muted ripple is invisible on the emerald fill — use the primary pair there.
       android_ripple={{
-        color: primary ? theme.colors['primary-foreground'] : theme.colors['muted'],
+        color: primary
+          ? theme.colors['primary-foreground']
+          : theme.colors['muted'],
         foreground: true,
       }}
       {...rest}
@@ -50,7 +59,9 @@ export function Button({ label, variant = 'primary', loading, disabled, style, .
         variant="body"
         style={{
           fontFamily: theme.fontFamilies.sansSemiBold,
-          color: primary ? theme.colors['primary-foreground'] : theme.colors['foreground'],
+          color: primary
+            ? theme.colors['primary-foreground']
+            : theme.colors['foreground'],
         }}
       >
         {label}

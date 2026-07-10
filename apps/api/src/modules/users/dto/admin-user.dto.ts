@@ -63,11 +63,14 @@ export class AdminUserDetailDto extends AdminUserListItemDto {
   counts!: AdminUserCountsDto;
 
   @ApiProperty({
-    description: 'Email is on the ADMIN_EMAILS bootstrap allowlist — demote is blocked in the UI.',
+    description:
+      'Email is on the ADMIN_EMAILS bootstrap allowlist — demote is blocked in the UI.',
   })
   isEnvAdmin!: boolean;
 
-  @ApiProperty({ description: 'Target is the caller — self-directed actions are blocked.' })
+  @ApiProperty({
+    description: 'Target is the caller — self-directed actions are blocked.',
+  })
   isSelf!: boolean;
 }
 

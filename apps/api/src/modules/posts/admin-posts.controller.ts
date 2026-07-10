@@ -31,9 +31,17 @@ import { ListPostsQueryDto } from './dto/list-posts-query.dto';
 import { PaginatedPostsDto } from './dto/paginated-posts.dto';
 import { PostDto } from './dto/post.dto';
 import { PostTagWithCountDto } from './dto/post-tag.dto';
-import { BodyImageUrlDto, RegisterBodyImageDto } from './dto/register-body-image.dto';
+import {
+  BodyImageUrlDto,
+  RegisterBodyImageDto,
+} from './dto/register-body-image.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { AdminPostDetail, PaginatedPosts, PostsService, PostWithMedia } from './posts.service';
+import {
+  AdminPostDetail,
+  PaginatedPosts,
+  PostsService,
+  PostWithMedia,
+} from './posts.service';
 
 /**
  * Admin CRUD at `/admin/posts` — every route gated by `@Roles(ADMIN)` (the global
@@ -56,7 +64,9 @@ export class AdminPostsController {
   }
 
   @Get('tags')
-  @ApiOperation({ summary: 'Admin: list all tags with post counts (form suggestions)' })
+  @ApiOperation({
+    summary: 'Admin: list all tags with post counts (form suggestions)',
+  })
   @ApiOkResponse({ type: [PostTagWithCountDto] })
   tags(): Promise<{ slug: string; name: string; count: number }[]> {
     return this.postsService.findAdminTags();
@@ -74,7 +84,10 @@ export class AdminPostsController {
   @ApiOperation({ summary: 'Admin: create a post' })
   @ApiCreatedResponse({ type: PostDto })
   @ApiResponse({ status: 409, description: 'Slug already exists' })
-  create(@Body() body: CreatePostDto, @CurrentUser() user: User | null): Promise<PostWithMedia> {
+  create(
+    @Body() body: CreatePostDto,
+    @CurrentUser() user: User | null,
+  ): Promise<PostWithMedia> {
     // RolesGuard guarantees an ADMIN, but narrow for type-safety / not-yet-synced.
     if (!user) {
       throw new UnauthorizedException({
@@ -91,21 +104,32 @@ export class AdminPostsController {
   @ApiOkResponse({ type: PostDto })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiResponse({ status: 409, description: 'New slug already exists' })
-  update(@Param('slug') slug: string, @Body() body: UpdatePostDto): Promise<PostWithMedia> {
+  update(
+    @Param('slug') slug: string,
+    @Body() body: UpdatePostDto,
+  ): Promise<PostWithMedia> {
     return this.postsService.update(slug, body);
   }
 
   @Put(':slug/media')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Admin: replace a post's media set (cover)" })
-  @ApiOkResponse({ type: [MediaItemDto], description: 'New media set with URLs' })
+  @ApiOkResponse({
+    type: [MediaItemDto],
+    description: 'New media set with URLs',
+  })
   @ApiResponse({ status: 404, description: 'Not found' })
-  setMedia(@Param('slug') slug: string, @Body() body: SetMediaDto): Promise<MediaItemDto[]> {
+  setMedia(
+    @Param('slug') slug: string,
+    @Body() body: SetMediaDto,
+  ): Promise<MediaItemDto[]> {
     return this.postsService.setMedia(slug, body.media);
   }
 
   @HttpPost(':slug/body-images')
-  @ApiOperation({ summary: 'Admin: register an uploaded body image (markdown insert)' })
+  @ApiOperation({
+    summary: 'Admin: register an uploaded body image (markdown insert)',
+  })
   @ApiCreatedResponse({ type: BodyImageUrlDto })
   @ApiResponse({ status: 404, description: 'Not found' })
   addBodyImage(

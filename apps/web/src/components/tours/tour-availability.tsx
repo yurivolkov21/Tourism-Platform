@@ -3,7 +3,10 @@ import { CalendarDaysIcon, FlameIcon } from 'lucide-react';
 import { cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-import { formatShortDate, tourAvailability } from '../../lib/tours/availability';
+import {
+  formatShortDate,
+  tourAvailability,
+} from '../../lib/tours/availability';
 
 /**
  * Card availability badge: a warm "Only N seats left" pill when the nearest departure is filling up,
@@ -39,7 +42,8 @@ export function TourAvailability({
     );
   }
 
-  const label = state.kind === 'next' ? t.next(formatShortDate(state.date)) : t.onRequest;
+  const label =
+    state.kind === 'next' ? t.next(formatShortDate(state.date)) : t.onRequest;
   return (
     <span
       className={cn(

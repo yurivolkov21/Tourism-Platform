@@ -25,7 +25,10 @@ import { ErrorAlert } from '../crud/error-alert';
 
 interface CategoryFormProps {
   /** Bound server action (create, or update with the slug already applied). */
-  action: (prev: CategoryFormState, formData: FormData) => Promise<CategoryFormState>;
+  action: (
+    prev: CategoryFormState,
+    formData: FormData,
+  ) => Promise<CategoryFormState>;
   /** Existing record when editing; omitted when creating. */
   category?: Category;
   submitLabel: string;
@@ -36,8 +39,15 @@ interface CategoryFormProps {
  * column beside the fields). Slug auto-derives from the name (until the admin edits it). Mirrors the
  * Destinations form, minus images (categories have none). Shared by create + edit.
  */
-export function CategoryForm({ action, category, submitLabel }: CategoryFormProps) {
-  const [state, formAction, pending] = useActionState<CategoryFormState, FormData>(action, {});
+export function CategoryForm({
+  action,
+  category,
+  submitLabel,
+}: CategoryFormProps) {
+  const [state, formAction, pending] = useActionState<
+    CategoryFormState,
+    FormData
+  >(action, {});
   const [name, setName] = useState(category?.name ?? '');
   const [slug, setSlug] = useState(category?.slug ?? '');
   // On edit the slug is pre-set → treat as user-owned so editing the name doesn't clobber the URL.
@@ -50,12 +60,19 @@ export function CategoryForm({ action, category, submitLabel }: CategoryFormProp
       {/* Category details */}
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
-          <FieldLegend className="mb-1.5 font-semibold">Category details</FieldLegend>
-          <FieldDescription>The name travellers see, its URL slug, and where it sorts.</FieldDescription>
+          <FieldLegend className="mb-1.5 font-semibold">
+            Category details
+          </FieldLegend>
+          <FieldDescription>
+            The name travellers see, its URL slug, and where it sorts.
+          </FieldDescription>
         </div>
 
         <FieldGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:col-span-2">
-          <Field className="gap-2 sm:col-span-2" data-invalid={Boolean(errors.name)}>
+          <Field
+            className="gap-2 sm:col-span-2"
+            data-invalid={Boolean(errors.name)}
+          >
             <FieldLabel htmlFor="name">Name</FieldLabel>
             <Input
               id="name"
@@ -88,8 +105,8 @@ export function CategoryForm({ action, category, submitLabel }: CategoryFormProp
               aria-invalid={Boolean(errors.slug)}
             />
             <FieldDescription className="text-xs">
-              Auto-generated from the name. Edit it only for a custom URL — keep it lowercase with
-              words separated by hyphens.
+              Auto-generated from the name. Edit it only for a custom URL — keep
+              it lowercase with words separated by hyphens.
             </FieldDescription>
             {errors.slug ? <FieldError>{errors.slug}</FieldError> : null}
           </Field>
@@ -107,7 +124,9 @@ export function CategoryForm({ action, category, submitLabel }: CategoryFormProp
               className="max-w-32"
               aria-invalid={Boolean(errors.order)}
             />
-            <FieldDescription className="text-xs">Lower numbers appear first. Defaults to 0.</FieldDescription>
+            <FieldDescription className="text-xs">
+              Lower numbers appear first. Defaults to 0.
+            </FieldDescription>
             {errors.order ? <FieldError>{errors.order}</FieldError> : null}
           </Field>
         </FieldGroup>
@@ -118,7 +137,9 @@ export function CategoryForm({ action, category, submitLabel }: CategoryFormProp
       {/* Content & visibility */}
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
-          <FieldLegend className="mb-1.5 font-semibold">Content &amp; visibility</FieldLegend>
+          <FieldLegend className="mb-1.5 font-semibold">
+            Content &amp; visibility
+          </FieldLegend>
           <FieldDescription>
             The public summary, and whether this category is live on the site.
           </FieldDescription>
@@ -136,28 +157,47 @@ export function CategoryForm({ action, category, submitLabel }: CategoryFormProp
               placeholder="A short summary of what this category groups."
               aria-invalid={Boolean(errors.description)}
             />
-            {errors.description ? <FieldError>{errors.description}</FieldError> : null}
+            {errors.description ? (
+              <FieldError>{errors.description}</FieldError>
+            ) : null}
           </Field>
 
           <Field orientation="horizontal" className="items-center">
-            <Switch id="isActive" checked={isActive} onCheckedChange={setIsActive} />
-            <input type="hidden" name="isActive" value={isActive ? 'true' : 'false'} />
+            <Switch
+              id="isActive"
+              checked={isActive}
+              onCheckedChange={setIsActive}
+            />
+            <input
+              type="hidden"
+              name="isActive"
+              value={isActive ? 'true' : 'false'}
+            />
             <div>
               <FieldLabel htmlFor="isActive" className="font-normal">
                 Active
               </FieldLabel>
-              <FieldDescription>Inactive categories are hidden from the public site.</FieldDescription>
+              <FieldDescription>
+                Inactive categories are hidden from the public site.
+              </FieldDescription>
             </div>
           </Field>
         </FieldGroup>
       </FieldSet>
 
-      {state.error ? <ErrorAlert className="mt-6">{state.error}</ErrorAlert> : null}
+      {state.error ? (
+        <ErrorAlert className="mt-6">{state.error}</ErrorAlert>
+      ) : null}
 
       <Separator className="my-8" />
 
       <div className="flex justify-end gap-3">
-        <Button type="button" variant="outline" nativeButton={false} render={<Link href="/categories" />}>
+        <Button
+          type="button"
+          variant="outline"
+          nativeButton={false}
+          render={<Link href="/categories" />}
+        >
           Cancel
         </Button>
         <Button type="submit" disabled={pending}>

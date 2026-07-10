@@ -37,7 +37,10 @@ export function NavMain({ sections }: { sections: NavSection[] }) {
           </SidebarGroupLabel>
           <SidebarMenu>
             {section.items.map((item) => {
-              const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+              const active =
+                item.href === '/'
+                  ? pathname === '/'
+                  : pathname.startsWith(item.href);
               return (
                 <SidebarMenuItem key={item.title}>
                   {item.soon ? (

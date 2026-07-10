@@ -26,11 +26,19 @@ export default async function ContactPage() {
 
   return (
     <main>
-      <ContentHero breadcrumb={t.breadcrumb} title={t.heading} subtitle={t.subtitle} />
+      <ContentHero
+        breadcrumb={t.breadcrumb}
+        title={t.heading}
+        subtitle={t.subtitle}
+      />
       <ContactInquiry interestOptions={interestOptions} />
       <ContactLocation />
       <ContactFaq />
-      <CtaBand heading={t.ctaBand.heading} subtitle={t.ctaBand.subtitle} cta={t.ctaBand.cta} />
+      <CtaBand
+        heading={t.ctaBand.heading}
+        subtitle={t.ctaBand.subtitle}
+        cta={t.ctaBand.cta}
+      />
     </main>
   );
 }

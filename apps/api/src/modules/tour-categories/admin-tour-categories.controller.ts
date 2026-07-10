@@ -43,9 +43,7 @@ import {
 @Roles(UserRole.ADMIN)
 @Controller('admin/tour-categories')
 export class AdminTourCategoriesController {
-  constructor(
-    private readonly tourCategoriesService: TourCategoriesService,
-  ) {}
+  constructor(private readonly tourCategoriesService: TourCategoriesService) {}
 
   @Get()
   @ApiOperation({ summary: 'Admin: list all tour categories (incl. inactive)' })
@@ -58,7 +56,9 @@ export class AdminTourCategoriesController {
   }
 
   @Get(':slug')
-  @ApiOperation({ summary: 'Admin: get one tour category by slug (with its tours)' })
+  @ApiOperation({
+    summary: 'Admin: get one tour category by slug (with its tours)',
+  })
   @ApiOkResponse({ type: AdminTourCategoryDetailDto })
   @ApiResponse({ status: 404, description: 'Not found' })
   detail(@Param('slug') slug: string): Promise<AdminTourCategoryDetail> {

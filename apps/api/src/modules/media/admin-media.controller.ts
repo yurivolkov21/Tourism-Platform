@@ -47,7 +47,10 @@ export class AdminMediaController {
   constructor(private readonly adminMedia: AdminMediaService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Admin: list media assets (paginated, filter/search, owner resolved)' })
+  @ApiOperation({
+    summary:
+      'Admin: list media assets (paginated, filter/search, owner resolved)',
+  })
   @ApiOkResponse({ type: PaginatedAdminMediaDto })
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   list(@Query() query: ListAdminMediaQueryDto): Promise<PaginatedAdminMedia> {
@@ -55,7 +58,9 @@ export class AdminMediaController {
   }
 
   @Get('garbage')
-  @ApiOperation({ summary: 'Admin: list the deferred Cloudinary-destroy queue (oldest first)' })
+  @ApiOperation({
+    summary: 'Admin: list the deferred Cloudinary-destroy queue (oldest first)',
+  })
   @ApiOkResponse({ type: PaginatedMediaGarbageDto })
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   listGarbage(
@@ -66,7 +71,10 @@ export class AdminMediaController {
 
   @Post('garbage/reconcile')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Admin: run one Cloudinary cleanup batch now (same as the daily cron)' })
+  @ApiOperation({
+    summary:
+      'Admin: run one Cloudinary cleanup batch now (same as the daily cron)',
+  })
   @ApiOkResponse({ type: MediaReconcileResultDto })
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   reconcile(): Promise<ReconcileResult> {
@@ -74,11 +82,17 @@ export class AdminMediaController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Admin: detach one asset from its owner + queue Cloudinary destroy' })
+  @ApiOperation({
+    summary:
+      'Admin: detach one asset from its owner + queue Cloudinary destroy',
+  })
   @ApiOkResponse({ type: DeletedMediaAssetDto })
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   @ApiResponse({ status: 404, description: 'Asset not found' })
-  @ApiResponse({ status: 409, description: 'USER-owned asset (customer avatar)' })
+  @ApiResponse({
+    status: 409,
+    description: 'USER-owned asset (customer avatar)',
+  })
   remove(@Param('id', ParseUUIDPipe) id: string): Promise<DeletedMediaAsset> {
     return this.adminMedia.deleteAsset(id);
   }

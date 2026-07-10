@@ -36,7 +36,13 @@ export function Stepper({
     opacity: disabled ? 0.4 : 1,
   });
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+    >
       <View>
         <AppText variant="body">{label}</AppText>
         {hint ? (
@@ -45,7 +51,13 @@ export function Stepper({
           </AppText>
         ) : null}
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(3) }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: theme.spacing(3),
+        }}
+      >
         <Pressable
           testID={`${testIDPrefix}-dec`}
           accessibilityRole="button"
@@ -59,12 +71,20 @@ export function Stepper({
             process.env.EXPO_OS === 'ios' && pressed && { opacity: 0.7 },
           ]}
         >
-          <Ionicons name="remove" size={18} color={theme.colors['foreground']} />
+          <Ionicons
+            name="remove"
+            size={18}
+            color={theme.colors['foreground']}
+          />
         </Pressable>
         <AppText
           testID={`${testIDPrefix}-count`}
           variant="body"
-          style={{ minWidth: 24, textAlign: 'center', fontFamily: theme.fontFamilies.sansSemiBold }}
+          style={{
+            minWidth: 24,
+            textAlign: 'center',
+            fontFamily: theme.fontFamilies.sansSemiBold,
+          }}
         >
           {value}
         </AppText>

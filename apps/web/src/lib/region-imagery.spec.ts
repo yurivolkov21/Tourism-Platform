@@ -1,4 +1,8 @@
-import { deriveRegionImagery, deriveOverviewGallery, fillTo } from './region-imagery';
+import {
+  deriveRegionImagery,
+  deriveOverviewGallery,
+  fillTo,
+} from './region-imagery';
 
 describe('fillTo', () => {
   it('cycles urls to reach n', () => {
@@ -10,10 +14,16 @@ describe('fillTo', () => {
 });
 
 describe('deriveRegionImagery', () => {
-  const fixture = { image: 'fx', images: ['fx1', 'fx2'], gallery: ['g0', 'g1', 'g2'] };
+  const fixture = {
+    image: 'fx',
+    images: ['fx1', 'fx2'],
+    gallery: ['g0', 'g1', 'g2'],
+  };
 
   it('returns the fixture unchanged when no destination has real media', () => {
-    expect(deriveRegionImagery([{ gallery: [] }, { gallery: [] }], fixture)).toEqual(fixture);
+    expect(
+      deriveRegionImagery([{ gallery: [] }, { gallery: [] }], fixture),
+    ).toEqual(fixture);
   });
 
   it('derives from real media (deduped), filling the gallery to the fixture length', () => {
@@ -33,7 +43,17 @@ describe('deriveOverviewGallery', () => {
   });
 
   it('fills srcs from real media, keeping the frame alts', () => {
-    const out = deriveOverviewGallery([{ gallery: ['r1', 'r2', 'r3'] }], frames);
-    expect(out).toEqual([{ images: [{ src: 'r1', alt: 'a' }, { src: 'r2', alt: 'b' }] }]);
+    const out = deriveOverviewGallery(
+      [{ gallery: ['r1', 'r2', 'r3'] }],
+      frames,
+    );
+    expect(out).toEqual([
+      {
+        images: [
+          { src: 'r1', alt: 'a' },
+          { src: 'r2', alt: 'b' },
+        ],
+      },
+    ]);
   });
 });

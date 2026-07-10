@@ -14,11 +14,21 @@ export function FactRow({
 }) {
   const theme = useTheme();
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: theme.spacing(3) }}>
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: theme.spacing(3),
+      }}
+    >
       <AppText variant="caption" muted>
         {label}
       </AppText>
-      <AppText variant="body" selectable={selectable} style={{ flexShrink: 1, textAlign: 'right' }}>
+      <AppText
+        variant="body"
+        selectable={selectable}
+        style={{ flexShrink: 1, textAlign: 'right' }}
+      >
         {value}
       </AppText>
     </View>

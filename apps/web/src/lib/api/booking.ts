@@ -39,11 +39,17 @@ export async function cancelBooking(code: string): Promise<void> {
 }
 
 /** Request cancellation/refund of a PAID booking (`POST /bookings/{code}/cancellation-request`). */
-export async function requestBookingCancellation(code: string, body: { reason?: string }): Promise<void> {
-  await authedJson(`/api/v1/bookings/${encodeURIComponent(code)}/cancellation-request`, {
-    method: 'POST',
-    body,
-  });
+export async function requestBookingCancellation(
+  code: string,
+  body: { reason?: string },
+): Promise<void> {
+  await authedJson(
+    `/api/v1/bookings/${encodeURIComponent(code)}/cancellation-request`,
+    {
+      method: 'POST',
+      body,
+    },
+  );
 }
 
 /** Start a checkout session for a PENDING booking (`POST /bookings/{code}/checkout`). */

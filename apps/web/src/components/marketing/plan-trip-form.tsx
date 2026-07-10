@@ -22,7 +22,11 @@ import { buildPlanTripPayload, isValidEnquiry } from '../../lib/enquiry-form';
 import { submitEnquiry } from '../../lib/api/enquiry';
 import { LEAD_FIELD_CLASS, LEAD_TEXTAREA_CLASS } from '../../lib/form-field';
 import { DatePicker } from '../booking/date-picker';
-import { EnquiryStatus, EnquirySuccess, type EnquiryFormStatus } from './enquiry-status';
+import {
+  EnquiryStatus,
+  EnquirySuccess,
+  type EnquiryFormStatus,
+} from './enquiry-status';
 
 // Pill-style choice chips, built on the design-system ToggleGroup (keeps the primary-filled look
 // while gaining real toggle semantics + keyboard support over the old native buttons).
@@ -104,7 +108,11 @@ export function PlanTripForm() {
     if (res.ok) {
       setStatus('success');
     } else {
-      toast.error(res.rateLimited ? messages.enquiryForm.rateLimited : messages.enquiryForm.errorGeneric);
+      toast.error(
+        res.rateLimited
+          ? messages.enquiryForm.rateLimited
+          : messages.enquiryForm.errorGeneric,
+      );
       setStatus('idle');
     }
   }
@@ -119,7 +127,9 @@ export function PlanTripForm() {
               <h2 className="font-heading text-3xl font-semibold text-balance sm:text-4xl">
                 {t.heading}
               </h2>
-              <p className="text-primary-foreground/85 text-lg text-pretty">{t.subtitle}</p>
+              <p className="text-primary-foreground/85 text-lg text-pretty">
+                {t.subtitle}
+              </p>
             </div>
             <ul className="space-y-3">
               {t.benefits.map((b) => (
@@ -127,7 +137,9 @@ export function PlanTripForm() {
                   <span className="bg-primary-foreground/15 mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full">
                     <CheckIcon className="size-3.5" />
                   </span>
-                  <span className="text-primary-foreground/90 text-sm">{b}</span>
+                  <span className="text-primary-foreground/90 text-sm">
+                    {b}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -180,7 +192,9 @@ export function PlanTripForm() {
                     />
                   </Field>
                   <Field className="gap-1.5">
-                    <FieldLabel htmlFor="pt-nationality">{f.nationality}</FieldLabel>
+                    <FieldLabel htmlFor="pt-nationality">
+                      {f.nationality}
+                    </FieldLabel>
                     <Input
                       id="pt-nationality"
                       name="nationality"
@@ -199,7 +213,9 @@ export function PlanTripForm() {
                     />
                   </Field>
                   <Field className="gap-1.5">
-                    <FieldLabel htmlFor="pt-travellers">{f.travellers}</FieldLabel>
+                    <FieldLabel htmlFor="pt-travellers">
+                      {f.travellers}
+                    </FieldLabel>
                     <Input
                       id="pt-travellers"
                       name="groupSize"
@@ -243,8 +259,15 @@ export function PlanTripForm() {
                 </Field>
 
                 <EnquiryStatus status={status} />
-                <Button type="submit" size="lg" disabled={status === 'submitting'} className="mt-1 w-full">
-                  {status === 'submitting' ? messages.enquiryForm.submitting : t.submit}
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={status === 'submitting'}
+                  className="mt-1 w-full"
+                >
+                  {status === 'submitting'
+                    ? messages.enquiryForm.submitting
+                    : t.submit}
                 </Button>
                 <p className="text-muted-foreground text-xs">{t.note}</p>
               </form>

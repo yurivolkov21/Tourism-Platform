@@ -3,7 +3,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { AppText, ThemeProvider } from '@tourism/mobile-ui';
 import type { components } from '@tourism/core';
-import { DepartureSheet, type DepartureSheetRef } from '../components/departure-sheet';
+import {
+  DepartureSheet,
+  type DepartureSheetRef,
+} from '../components/departure-sheet';
 import { fetchTourDepartures } from '../lib/booking';
 import { BookingDraftProvider, useBookingDraft } from '../lib/booking-draft';
 
@@ -19,7 +22,9 @@ jest.mock('../lib/supabase', () => ({
   supabase: {
     auth: {
       getSession: jest.fn(),
-      onAuthStateChange: jest.fn(() => ({ data: { subscription: { unsubscribe: jest.fn() } } })),
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
     },
   },
 }));
@@ -31,9 +36,27 @@ jest.mock('../lib/booking', () => ({
 type DepartureDto = components['schemas']['DepartureDto'];
 
 const departures = [
-  { id: 'dep-1', startDate: '2026-08-15', seatsTotal: 10, seatsBooked: 7, priceOverride: null },
-  { id: 'dep-2', startDate: '2026-09-01', seatsTotal: 10, seatsBooked: 0, priceOverride: '150.00' },
-  { id: 'dep-3', startDate: '2026-10-01', seatsTotal: 10, seatsBooked: 10, priceOverride: null },
+  {
+    id: 'dep-1',
+    startDate: '2026-08-15',
+    seatsTotal: 10,
+    seatsBooked: 7,
+    priceOverride: null,
+  },
+  {
+    id: 'dep-2',
+    startDate: '2026-09-01',
+    seatsTotal: 10,
+    seatsBooked: 0,
+    priceOverride: '150.00',
+  },
+  {
+    id: 'dep-3',
+    startDate: '2026-10-01',
+    seatsTotal: 10,
+    seatsBooked: 10,
+    priceOverride: null,
+  },
 ] as unknown as DepartureDto[];
 
 /** Exposes the draft so tests can assert what Continue stored. */
@@ -41,21 +64,31 @@ function DraftProbe() {
   const { draft } = useBookingDraft();
   return (
     <AppText testID="draft-probe">
-      {draft ? `${draft.departureId}:${draft.adults}:${draft.children}:${draft.unitPrice}` : 'none'}
+      {draft
+        ? `${draft.departureId}:${draft.adults}:${draft.children}:${draft.unitPrice}`
+        : 'none'}
     </AppText>
   );
 }
 
 function renderSheet() {
   const client = new QueryClient({
-    defaultOptions: { queries: { retry: false, gcTime: 0 }, mutations: { gcTime: 0 } },
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+      mutations: { gcTime: 0 },
+    },
   });
   const ref = createRef<DepartureSheetRef>();
   render(
     <ThemeProvider>
       <QueryClientProvider client={client}>
         <BookingDraftProvider>
-          <DepartureSheet ref={ref} slug="hoi-an-walking-tour" basePrice={100} currency="USD" />
+          <DepartureSheet
+            ref={ref}
+            slug="hoi-an-walking-tour"
+            basePrice={100}
+            currency="USD"
+          />
           <DraftProbe />
         </BookingDraftProvider>
       </QueryClientProvider>
@@ -99,5 +132,7 @@ test('Continue is disabled until a departure is picked, then seeds the draft and
   fireEvent.press(screen.getByTestId('adults-inc')); // 2 adults
   fireEvent.press(screen.getByTestId('continue-trip'));
   expect(screen.getByTestId('draft-probe')).toHaveTextContent('dep-2:2:0:150');
-  expect(mockRouter.push.mock.calls[0][0]).toBe('/tours/hoi-an-walking-tour/book');
+  expect(mockRouter.push.mock.calls[0][0]).toBe(
+    '/tours/hoi-an-walking-tour/book',
+  );
 });

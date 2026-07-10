@@ -9,10 +9,14 @@ export type EnquiryResult = { ok: true } | { ok: false; rateLimited: boolean };
  * rather than funnelling every lead through one server IP). Never throws — returns
  * a result the form can render. A 429 maps to `rateLimited` for a tailored message.
  */
-export async function submitEnquiry(payload: EnquiryPayload): Promise<EnquiryResult> {
+export async function submitEnquiry(
+  payload: EnquiryPayload,
+): Promise<EnquiryResult> {
   try {
     const api = getApiClient();
-    const { error, response } = await api.POST('/api/v1/enquiries', { body: payload });
+    const { error, response } = await api.POST('/api/v1/enquiries', {
+      body: payload,
+    });
     if (error || !response.ok) {
       return { ok: false, rateLimited: response?.status === 429 };
     }

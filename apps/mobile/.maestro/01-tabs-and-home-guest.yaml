@@ -3,21 +3,21 @@
 appId: host.exp.exponent
 ---
 # 5 tabs present, in order.
-- assertVisible: "Home"
-- assertVisible: "Explore"
-- assertVisible: "Trips"
-- assertVisible: "Saved"
-- assertVisible: "Account"
+- assertVisible: 'Home'
+- assertVisible: 'Explore'
+- assertVisible: 'Trips'
+- assertVisible: 'Saved'
+- assertVisible: 'Account'
 # Task-first Home for guests: greeting + search, no signed-in context rows.
-- assertVisible: "Where to next?"
-- assertVisible: "Featured tours"
-- assertNotVisible: "Your next trip"
-- assertNotVisible: "Recently saved"
+- assertVisible: 'Where to next?'
+- assertVisible: 'Featured tours'
+- assertNotVisible: 'Your next trip'
+- assertNotVisible: 'Recently saved'
 # Search pill jumps to Explore (its Filters button is a stable landmark there).
-- tapOn: "Search tours & destinations"
-- assertVisible: "Filters"
-- tapOn: "Home"
+- tapOn: 'Search tours & destinations'
+- assertVisible: 'Filters'
+- tapOn: 'Home'
 # Trips is auth-gated for guests.
-- tapOn: "Trips"
-- assertVisible: "Sign in"
-- tapOn: "Home"
+- tapOn: 'Trips'
+- assertVisible: 'Sign in'
+- tapOn: 'Home'

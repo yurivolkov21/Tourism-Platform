@@ -6,8 +6,22 @@ import { Prisma } from '@prisma/client';
  * pricing currency) and JPY/KRW etc. (ADR-0008 `toProviderAmount`, R1).
  */
 const ZERO_DECIMAL_CURRENCIES = new Set([
-  'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG',
-  'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF',
+  'BIF',
+  'CLP',
+  'DJF',
+  'GNF',
+  'JPY',
+  'KMF',
+  'KRW',
+  'MGA',
+  'PYG',
+  'RWF',
+  'UGX',
+  'VND',
+  'VUV',
+  'XAF',
+  'XOF',
+  'XPF',
 ]);
 
 /**
@@ -30,7 +44,10 @@ export function toStripeMinorUnits(
  * currencies like JPY/VND). PayPal rejects a value whose precision doesn't match
  * the currency.
  */
-export function toPayPalAmount(amount: Prisma.Decimal, currency: string): string {
+export function toPayPalAmount(
+  amount: Prisma.Decimal,
+  currency: string,
+): string {
   const decimals = ZERO_DECIMAL_CURRENCIES.has(currency.toUpperCase()) ? 0 : 2;
   return amount.toFixed(decimals);
 }

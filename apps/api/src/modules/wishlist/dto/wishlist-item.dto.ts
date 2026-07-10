@@ -19,7 +19,10 @@ export class WishlistTourPreviewDto {
   @ApiProperty({ nullable: true, type: String })
   summary!: string | null;
 
-  @ApiProperty({ example: '149.00', description: 'Decimal serialized as string' })
+  @ApiProperty({
+    example: '149.00',
+    description: 'Decimal serialized as string',
+  })
   basePrice!: string;
 
   @ApiProperty({ example: 'USD' })

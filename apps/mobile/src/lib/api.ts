@@ -8,7 +8,8 @@ let client: ApiClient | undefined;
 export function getApiClient(): ApiClient {
   client ??= createApiClient({
     baseUrl: API_BASE_URL,
-    getToken: async () => (await supabase.auth.getSession()).data.session?.access_token,
+    getToken: async () =>
+      (await supabase.auth.getSession()).data.session?.access_token,
   });
   return client;
 }

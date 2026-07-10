@@ -17,7 +17,13 @@ export type TourGalleryData = {
 };
 
 // Varied aspect ratios give the masonry column genuine rhythm (not uniform squares).
-const PLACEHOLDER_TILES = ['aspect-3/4', 'aspect-square', 'aspect-4/5', 'aspect-square', 'aspect-3/4'];
+const PLACEHOLDER_TILES = [
+  'aspect-3/4',
+  'aspect-square',
+  'aspect-4/5',
+  'aspect-square',
+  'aspect-3/4',
+];
 
 const shareLinks = [
   { Icon: FacebookIcon, label: 'Facebook' },
@@ -36,8 +42,15 @@ export function TourGallery({ tour }: { tour: TourGalleryData }) {
         <div className="columns-1 gap-5 sm:columns-2 lg:col-span-2">
           {images.length > 0
             ? images.map((src) => (
-                <div key={src} className="mb-5 break-inside-avoid overflow-hidden rounded-xl">
-                  <img src={src} alt={t.imageAlt} className="w-full object-cover" />
+                <div
+                  key={src}
+                  className="mb-5 break-inside-avoid overflow-hidden rounded-xl"
+                >
+                  <img
+                    src={src}
+                    alt={t.imageAlt}
+                    className="w-full object-cover"
+                  />
                 </div>
               ))
             : PLACEHOLDER_TILES.map((aspect, i) => (
@@ -64,7 +77,9 @@ export function TourGallery({ tour }: { tour: TourGalleryData }) {
             {tour.title}
           </h3>
 
-          <p className="text-muted-foreground text-pretty">{tour.description}</p>
+          <p className="text-muted-foreground text-pretty">
+            {tour.description}
+          </p>
 
           <Separator />
 

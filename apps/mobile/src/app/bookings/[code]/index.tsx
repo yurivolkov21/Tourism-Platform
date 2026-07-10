@@ -3,7 +3,15 @@ import { Alert, Pressable, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
-import { AppText, Badge, Button, Screen, Spinner, TextField, useTheme } from '@tourism/mobile-ui';
+import {
+  AppText,
+  Badge,
+  Button,
+  Screen,
+  Spinner,
+  TextField,
+  useTheme,
+} from '@tourism/mobile-ui';
 import { FactRow } from '../../../components/fact-row';
 import {
   bookingErrorMessage,
@@ -27,12 +35,15 @@ function Actions({ booking }: { booking: BookingVm }) {
   const [reason, setReason] = useState('');
   const [banner, setBanner] = useState<string | null>(null);
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ['bookings'] });
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: ['bookings'] });
 
   const payM = useMutation({
     mutationFn: () => startCheckout(booking.code),
     onSuccess: (url) =>
-      router.push(`/bookings/${booking.code}/result?checkoutUrl=${encodeURIComponent(url)}`),
+      router.push(
+        `/bookings/${booking.code}/result?checkoutUrl=${encodeURIComponent(url)}`,
+      ),
     onError: (error) => setBanner(bookingErrorMessage(error)),
   });
   const cancelM = useMutation({
@@ -53,7 +64,11 @@ function Actions({ booking }: { booking: BookingVm }) {
     hapticWarning();
     Alert.alert(t.cancelConfirmTitle, t.cancelConfirmBody, [
       { text: t.keep, style: 'cancel' },
-      { text: t.cancelConfirmCta, style: 'destructive', onPress: () => cancelM.mutate() },
+      {
+        text: t.cancelConfirmCta,
+        style: 'destructive',
+        onPress: () => cancelM.mutate(),
+      },
     ]);
   };
 
@@ -105,14 +120,20 @@ function Actions({ booking }: { booking: BookingVm }) {
         }}
       >
         <View style={{ gap: 2 }}>
-          <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold }}>
+          <AppText
+            variant="body"
+            style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+          >
             {t.requestTitle}
           </AppText>
           <AppText variant="caption" muted>
             {t.requestBody}
           </AppText>
           {isDenied ? (
-            <AppText variant="caption" style={{ color: theme.colors['destructive'] }}>
+            <AppText
+              variant="caption"
+              style={{ color: theme.colors['destructive'] }}
+            >
               {t.requestDenied}
             </AppText>
           ) : null}
@@ -130,7 +151,11 @@ function Actions({ booking }: { booking: BookingVm }) {
             <Button
               testID="send-request"
               label={
-                requestM.isPending ? t.submitting : isDenied ? t.requestResubmit : t.submitRequest
+                requestM.isPending
+                  ? t.submitting
+                  : isDenied
+                    ? t.requestResubmit
+                    : t.submitRequest
               }
               loading={requestM.isPending}
               onPress={() => requestM.mutate()}
@@ -175,7 +200,9 @@ export default function BookingDetailScreen() {
   if (bookingQ.isPending) {
     return (
       <Screen scroll={false}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <View
+          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+        >
           <Spinner />
         </View>
       </Screen>
@@ -185,10 +212,17 @@ export default function BookingDetailScreen() {
     return (
       <Screen scroll={false}>
         <View
-          style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: theme.spacing(3) }}
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: theme.spacing(3),
+          }}
         >
           <AppText variant="body" style={{ textAlign: 'center' }}>
-            {bookingQ.isError ? tm.detailError : messages.booking.success.notFound}
+            {bookingQ.isError
+              ? tm.detailError
+              : messages.booking.success.notFound}
           </AppText>
           <Button label={tm.retry} onPress={() => bookingQ.refetch()} />
         </View>
@@ -200,7 +234,9 @@ export default function BookingDetailScreen() {
 
   return (
     <Screen scrollProps={{ keyboardShouldPersistTaps: 'handled' }}>
-      <View style={{ gap: theme.spacing(5), paddingVertical: theme.spacing(4) }}>
+      <View
+        style={{ gap: theme.spacing(5), paddingVertical: theme.spacing(4) }}
+      >
         {/* Native stack header carries the title; the status leads the content. */}
         <Badge
           tone={booking.statusMeta.tone}
@@ -225,7 +261,10 @@ export default function BookingDetailScreen() {
             hitSlop={4}
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           >
-            <FactRow label={messages.booking.success.tourLabel} value={booking.tourTitle} />
+            <FactRow
+              label={messages.booking.success.tourLabel}
+              value={booking.tourTitle}
+            />
           </Pressable>
           <FactRow label={tl.departureLabel} value={booking.departureLabel} />
           <FactRow label={tl.travellersLabel} value={booking.party} />
@@ -233,7 +272,11 @@ export default function BookingDetailScreen() {
             label={tl.totalLabel}
             value={formatMoney(booking.currency, booking.totalAmount)}
           />
-          <FactRow label={t.paymentLabel} value={booking.paymentProvider} selectable />
+          <FactRow
+            label={t.paymentLabel}
+            value={booking.paymentProvider}
+            selectable
+          />
           <FactRow
             label={t.contactLabel}
             value={`${booking.contactName} · ${booking.contactEmail}`}

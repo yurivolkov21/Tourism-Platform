@@ -11,7 +11,13 @@ interface StatusMeta {
 }
 
 /** CRM pipeline order — used for the status tabs and the change-status control. */
-export const ENQUIRY_STATUSES: EnquiryStatus[] = ['NEW', 'CONTACTED', 'QUOTED', 'WON', 'LOST'];
+export const ENQUIRY_STATUSES: EnquiryStatus[] = [
+  'NEW',
+  'CONTACTED',
+  'QUOTED',
+  'WON',
+  'LOST',
+];
 
 const STATUS_META: Record<EnquiryStatus, StatusMeta> = {
   NEW: { label: 'New', variant: 'default' },

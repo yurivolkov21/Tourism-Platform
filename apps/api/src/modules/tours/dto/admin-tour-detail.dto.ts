@@ -9,7 +9,10 @@ export class TourOpsDto {
   @ApiProperty({ example: 24 })
   bookingsPaid!: number;
 
-  @ApiProperty({ example: '4500.00', description: 'Sum of PAID totals (string Decimal)' })
+  @ApiProperty({
+    example: '4500.00',
+    description: 'Sum of PAID totals (string Decimal)',
+  })
   revenue!: string;
 
   @ApiProperty({ example: 42 })

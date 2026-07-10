@@ -68,7 +68,10 @@ export function BookingBox({
               </span>
             </div>
             <div className="flex items-center gap-1.5 text-sm">
-              <StarIcon className="fill-rating text-rating size-4" aria-hidden="true" />
+              <StarIcon
+                className="fill-rating text-rating size-4"
+                aria-hidden="true"
+              />
               <span className="font-semibold">{rating.toFixed(1)}</span>
               <span className="text-muted-foreground">
                 ({t.reviewsInline(reviewCount)})

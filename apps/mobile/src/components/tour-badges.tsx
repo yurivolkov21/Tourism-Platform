@@ -16,9 +16,15 @@ export function TourBadges({ badges }: { badges: TourBadge[] }) {
   const theme = useTheme();
   if (badges.length === 0) return null;
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing(1) }}>
+    <View
+      style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing(1) }}
+    >
       {badges.map((badge) => (
-        <Badge key={badge} label={messages.featuredTours.badges[badge]} tone={TONE[badge]} />
+        <Badge
+          key={badge}
+          label={messages.featuredTours.badges[badge]}
+          tone={TONE[badge]}
+        />
       ))}
     </View>
   );

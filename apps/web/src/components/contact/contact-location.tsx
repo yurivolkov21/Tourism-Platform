@@ -50,7 +50,9 @@ export function ContactLocation() {
           <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
             {t.officesHeading}
           </h2>
-          <p className="text-muted-foreground mt-4 text-lg text-pretty">{t.officesSubtitle}</p>
+          <p className="text-muted-foreground mt-4 text-lg text-pretty">
+            {t.officesSubtitle}
+          </p>
         </div>
 
         {/* Full-bleed map */}
@@ -68,7 +70,9 @@ export function ContactLocation() {
               key={office.city}
               className="bg-background ring-border shadow-card rounded-xl p-5 ring-1 sm:p-6"
             >
-              <h3 className="font-heading text-xl font-semibold">{office.city}</h3>
+              <h3 className="font-heading text-xl font-semibold">
+                {office.city}
+              </h3>
               <div className="mt-3 space-y-3 text-sm">
                 <div className="flex items-start gap-2.5">
                   <MapPinIcon className="text-primary mt-0.5 size-4.5 shrink-0" />

@@ -43,7 +43,9 @@ beforeEach(() => {
 test('sign-in validates before calling supabase', async () => {
   wrap(<SignInScreen />);
   await userEvent.press(screen.getByRole('button', { name: 'Sign in' }));
-  expect(screen.getByText('Please enter a valid email address.')).toBeOnTheScreen();
+  expect(
+    screen.getByText('Please enter a valid email address.'),
+  ).toBeOnTheScreen();
   expect(mockSignIn).not.toHaveBeenCalled();
 });
 
@@ -57,7 +59,9 @@ test('sign-in success routes back; failure shows the banner', async () => {
 
   mockSignIn.mockResolvedValueOnce({ error: 'invalidCredentials' });
   await userEvent.press(screen.getByRole('button', { name: 'Sign in' }));
-  expect(await screen.findByText('Email or password is incorrect.')).toBeOnTheScreen();
+  expect(
+    await screen.findByText('Email or password is incorrect.'),
+  ).toBeOnTheScreen();
 });
 
 test('sign-in shows the wishlist reason line', () => {
@@ -86,7 +90,9 @@ test('forgot sends and shows the sent state', async () => {
   mockSendReset.mockResolvedValueOnce({});
   wrap(<ForgotScreen />);
   await userEvent.type(screen.getByLabelText('Email'), 'jane@example.com');
-  await userEvent.press(screen.getByRole('button', { name: 'Send reset link' }));
+  await userEvent.press(
+    screen.getByRole('button', { name: 'Send reset link' }),
+  );
   expect(await screen.findByText('Check your inbox')).toBeOnTheScreen();
   expect(mockSendReset).toHaveBeenCalledWith('jane@example.com');
 });

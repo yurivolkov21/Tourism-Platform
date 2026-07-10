@@ -307,7 +307,8 @@ export class DeparturesService {
 
   private isForeignKeyError(err: unknown): boolean {
     return (
-      err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003'
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === 'P2003'
     );
   }
 }

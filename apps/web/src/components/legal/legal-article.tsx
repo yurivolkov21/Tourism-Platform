@@ -14,7 +14,11 @@ export function LegalArticle({ doc }: { doc: LegalDoc }) {
 
   return (
     <main>
-      <ContentHero breadcrumb={doc.breadcrumb} title={doc.title} meta={doc.updated} />
+      <ContentHero
+        breadcrumb={doc.breadcrumb}
+        title={doc.title}
+        meta={doc.updated}
+      />
 
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <div className="lg:grid lg:grid-cols-[14rem_1fr] lg:gap-12">
@@ -30,13 +34,18 @@ export function LegalArticle({ doc }: { doc: LegalDoc }) {
             {doc.reviewNote ? (
               <div className="border-warning/40 bg-warning/10 mb-10 flex gap-3 rounded-lg border p-4 text-sm">
                 <TriangleAlertIcon className="text-warning size-5 shrink-0" />
-                <p className="text-foreground/90 leading-relaxed">{doc.reviewNote}</p>
+                <p className="text-foreground/90 leading-relaxed">
+                  {doc.reviewNote}
+                </p>
               </div>
             ) : null}
 
             <div className="space-y-4">
               {doc.intro.map((p, i) => (
-                <p key={i} className="text-muted-foreground leading-relaxed text-pretty">
+                <p
+                  key={i}
+                  className="text-muted-foreground leading-relaxed text-pretty"
+                >
                   {p}
                 </p>
               ))}

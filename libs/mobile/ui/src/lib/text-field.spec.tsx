@@ -20,7 +20,9 @@ test('renders the error message', () => {
       <TextField label="Email" error="Please enter a valid email address." />
     </ThemeProvider>,
   );
-  expect(screen.getByText('Please enter a valid email address.')).toBeOnTheScreen();
+  expect(
+    screen.getByText('Please enter a valid email address.'),
+  ).toBeOnTheScreen();
 });
 
 test('renders the leading slot', () => {

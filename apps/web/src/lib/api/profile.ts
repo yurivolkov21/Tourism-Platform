@@ -18,8 +18,13 @@ export async function fetchProfile(): Promise<UserDto | null> {
 }
 
 /** Update the caller's profile (`PATCH /users/me`). Throws `ApiRequestError` on failure. */
-export async function updateProfile(payload: UpdateProfilePayload): Promise<UserDto> {
-  return authedJson<UserDto>('/api/v1/users/me', { method: 'PATCH', body: payload });
+export async function updateProfile(
+  payload: UpdateProfilePayload,
+): Promise<UserDto> {
+  return authedJson<UserDto>('/api/v1/users/me', {
+    method: 'PATCH',
+    body: payload,
+  });
 }
 
 /** Cloudinary signed-upload params for a customer avatar (`POST /users/me/avatar/sign`). */

@@ -16,7 +16,9 @@ export const privacyDoc: LegalDoc = {
   sections: [
     {
       heading: 'Information we collect',
-      paragraphs: ['We collect the following categories of personal information:'],
+      paragraphs: [
+        'We collect the following categories of personal information:',
+      ],
       bullets: [
         'Information you provide directly: your name, email address, and phone number; enquiry details such as nationality, travel dates, group size, budget range, and travel interests; booking details; reviews you submit; and newsletter sign-ups.',
         'Account information: if you create an account, your email and authentication details. Sign-in is handled by our authentication provider (Supabase); we never see or store your password.',

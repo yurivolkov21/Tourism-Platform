@@ -55,12 +55,18 @@ export function DestinationCard({
         >
           <AppText
             variant="body"
-            style={{ fontFamily: theme.fontFamilies.sansSemiBold, color: theme.colors['on-media'] }}
+            style={{
+              fontFamily: theme.fontFamilies.sansSemiBold,
+              color: theme.colors['on-media'],
+            }}
           >
             {destination.name}
           </AppText>
           {destination.toursCount > 0 ? (
-            <AppText variant="caption" style={{ color: theme.colors['on-media'], opacity: 0.85 }}>
+            <AppText
+              variant="caption"
+              style={{ color: theme.colors['on-media'], opacity: 0.85 }}
+            >
               {destination.toursCount} {messages.destinations.toursLabel}
             </AppText>
           ) : null}

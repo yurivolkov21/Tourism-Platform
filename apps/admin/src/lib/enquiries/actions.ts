@@ -19,7 +19,11 @@ export async function updateEnquiryStatus(
   status: EnquiryStatus,
 ): Promise<UpdateEnquiryStatusState> {
   try {
-    await apiWrite('PATCH', `/api/v1/admin/enquiries/${encodeURIComponent(id)}/status`, { status });
+    await apiWrite(
+      'PATCH',
+      `/api/v1/admin/enquiries/${encodeURIComponent(id)}/status`,
+      { status },
+    );
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }

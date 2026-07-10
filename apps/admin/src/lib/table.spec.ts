@@ -13,7 +13,10 @@ interface FakeColumn {
   label?: string;
 }
 
-function fakeTable(columns: FakeColumn[]): { table: Table<unknown>; toggle: jest.Mock } {
+function fakeTable(columns: FakeColumn[]): {
+  table: Table<unknown>;
+  toggle: jest.Mock;
+} {
   const toggle = jest.fn();
   // Build column objects once so identity is stable across getAllColumns() calls.
   const built = columns.map((c) => ({
@@ -45,8 +48,16 @@ describe('hideableColumns', () => {
     ]);
 
     const items = hideableColumns(table);
-    expect(items[0]).toMatchObject({ id: 'compareAt', label: 'Compare-at', isVisible: true });
-    expect(items[1]).toMatchObject({ id: 'category', label: 'category', isVisible: false });
+    expect(items[0]).toMatchObject({
+      id: 'compareAt',
+      label: 'Compare-at',
+      isVisible: true,
+    });
+    expect(items[1]).toMatchObject({
+      id: 'category',
+      label: 'category',
+      isVisible: false,
+    });
   });
 
   it('setVisible forwards to the underlying column toggle', () => {

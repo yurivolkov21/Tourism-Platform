@@ -12,7 +12,9 @@ export async function getSavedTourIdsAction(): Promise<string[]> {
 }
 
 /** Save a tour (idempotent). Returns `{ ok }` so the client can roll back an optimistic toggle. */
-export async function addToWishlistAction(tourId: string): Promise<{ ok: boolean }> {
+export async function addToWishlistAction(
+  tourId: string,
+): Promise<{ ok: boolean }> {
   try {
     await addToWishlist(tourId);
     return { ok: true };

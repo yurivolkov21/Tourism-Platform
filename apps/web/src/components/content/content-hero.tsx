@@ -24,7 +24,14 @@ export function ContentHero({
 }) {
   return (
     <section className="relative isolate overflow-hidden">
-      <Image src={image} alt="" fill priority sizes="100vw" className="-z-10 object-cover" />
+      <Image
+        src={image}
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="-z-10 object-cover"
+      />
       {/* Scrim for legibility — darker toward the bottom where copy sits */}
       <div className="from-overlay/85 via-overlay/55 to-overlay/45 absolute inset-0 -z-10 bg-linear-to-t" />
 
@@ -45,7 +52,9 @@ export function ContentHero({
         </h1>
         {meta ? <p className="text-on-media/80 mt-3 text-sm">{meta}</p> : null}
         {subtitle ? (
-          <p className="text-on-media/90 mt-4 max-w-2xl text-lg text-pretty">{subtitle}</p>
+          <p className="text-on-media/90 mt-4 max-w-2xl text-lg text-pretty">
+            {subtitle}
+          </p>
         ) : null}
       </div>
     </section>

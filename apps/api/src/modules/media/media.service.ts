@@ -47,7 +47,9 @@ export class MediaService {
     const where: Prisma.MediaAssetWhereInput = {
       ownerType,
       ownerId,
-      ...(opts?.preserveRoles?.length ? { role: { notIn: opts.preserveRoles } } : {}),
+      ...(opts?.preserveRoles?.length
+        ? { role: { notIn: opts.preserveRoles } }
+        : {}),
     };
 
     // Garbage-collect Cloudinary assets that are dropped and NOT recreated. Read
@@ -111,7 +113,11 @@ export class MediaService {
    */
   private async recordGarbage(
     tx: Prisma.TransactionClient,
-    dropped: Array<{ publicId: string; posterId: string | null; type: MediaType }>,
+    dropped: Array<{
+      publicId: string;
+      posterId: string | null;
+      type: MediaType;
+    }>,
   ): Promise<void> {
     if (dropped.length === 0) return;
     const rows: Array<{ publicId: string; resourceType: string }> = [];
@@ -189,11 +195,20 @@ export class MediaService {
     ownerType: MediaOwnerType,
     ownerId: string,
     role: MediaRole,
-    input: { publicId: string; width?: number; height?: number; format?: string },
+    input: {
+      publicId: string;
+      width?: number;
+      height?: number;
+      format?: string;
+    },
   ): Promise<{ url: string }> {
     await this.prisma.mediaAsset.upsert({
       where: {
-        ownerType_ownerId_publicId: { ownerType, ownerId, publicId: input.publicId },
+        ownerType_ownerId_publicId: {
+          ownerType,
+          ownerId,
+          publicId: input.publicId,
+        },
       },
       update: {},
       create: {

@@ -87,7 +87,8 @@ export const renderReviewApproved = (
   vars: ReviewApprovedVars,
 ): RenderedEmail => {
   const subject = `Your review is now live — ${vars.tourTitle}`;
-  const stars = '★'.repeat(vars.rating) + '☆'.repeat(Math.max(0, 5 - vars.rating));
+  const stars =
+    '★'.repeat(vars.rating) + '☆'.repeat(Math.max(0, 5 - vars.rating));
   const text = [
     `Hi ${vars.reviewerName},`,
     ``,

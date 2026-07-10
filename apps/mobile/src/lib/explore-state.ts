@@ -26,7 +26,9 @@ export const defaultExploreState: ExploreState = {
 
 /** Immutable multi-select toggle for bucket chips. */
 export function toggleBucket<T>(list: readonly T[], value: T): T[] {
-  return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
+  return list.includes(value)
+    ? list.filter((v) => v !== value)
+    : [...list, value];
 }
 
 /** Facets active beyond the defaults (drives the Filter button badge). */

@@ -41,11 +41,14 @@ export default async function CancellationRequestsPage({
 
       {error ? (
         <ErrorAlert>
-          Couldn&apos;t load cancellation requests: {error}. Check that the API is running and
-          your admin session is valid.
+          Couldn&apos;t load cancellation requests: {error}. Check that the API
+          is running and your admin session is valid.
         </ErrorAlert>
       ) : (
-        <CancellationRequestsView rows={result?.data ?? []} meta={result?.meta} />
+        <CancellationRequestsView
+          rows={result?.data ?? []}
+          meta={result?.meta}
+        />
       )}
     </div>
   );

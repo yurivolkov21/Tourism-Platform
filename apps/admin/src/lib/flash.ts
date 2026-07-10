@@ -17,7 +17,9 @@ const FLASH_MESSAGES: Record<string, FlashMessage> = {
 };
 
 /** Resolve a `?flash=` key to its toast message, or null for a missing/unknown key. */
-export function resolveFlash(key: string | null | undefined): FlashMessage | null {
+export function resolveFlash(
+  key: string | null | undefined,
+): FlashMessage | null {
   if (!key) return null;
   return FLASH_MESSAGES[key] ?? null;
 }

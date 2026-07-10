@@ -10,7 +10,9 @@ test('renders a themed muted block', () => {
       <Skeleton width={240} height={130} testID="skeleton" />
     </ThemeProvider>,
   );
-  const flattened = StyleSheet.flatten(screen.getByTestId('skeleton').props.style);
+  const flattened = StyleSheet.flatten(
+    screen.getByTestId('skeleton').props.style,
+  );
   expect(flattened.backgroundColor).toBe(tokens.colors.light['muted']);
   expect(flattened.width).toBe(240);
 });

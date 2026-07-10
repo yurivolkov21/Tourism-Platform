@@ -3,7 +3,12 @@
 import { useId, useState } from 'react';
 import { MinusIcon, PlusIcon } from 'lucide-react';
 
-import type { DurationBucket, PriceBucket, TourTheme, TravelStyle } from '@tourism/core';
+import type {
+  DurationBucket,
+  PriceBucket,
+  TourTheme,
+  TravelStyle,
+} from '@tourism/core';
 
 import { Button, Checkbox } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
@@ -38,7 +43,9 @@ function FacetGroup({
   selected: readonly string[];
   onToggle: (value: string) => void;
 }) {
-  const activeInGroup = options.filter((o) => selected.includes(o.value)).length;
+  const activeInGroup = options.filter((o) =>
+    selected.includes(o.value),
+  ).length;
   // Collapsed by default to save space; opens automatically if the group already has a selection.
   const [open, setOpen] = useState(activeInGroup > 0);
   const panelId = useId();
@@ -56,13 +63,21 @@ function FacetGroup({
           <span className="font-sans text-sm font-semibold tracking-wide uppercase">
             {heading}
             {activeInGroup > 0 ? (
-              <span className="text-primary ml-1.5 text-xs">({activeInGroup})</span>
+              <span className="text-primary ml-1.5 text-xs">
+                ({activeInGroup})
+              </span>
             ) : null}
           </span>
           {open ? (
-            <MinusIcon className="text-muted-foreground size-4 shrink-0" aria-hidden="true" />
+            <MinusIcon
+              className="text-muted-foreground size-4 shrink-0"
+              aria-hidden="true"
+            />
           ) : (
-            <PlusIcon className="text-muted-foreground size-4 shrink-0" aria-hidden="true" />
+            <PlusIcon
+              className="text-muted-foreground size-4 shrink-0"
+              aria-hidden="true"
+            />
           )}
         </button>
       </h3>
@@ -141,7 +156,10 @@ export function ToursFilters({
       />
       <FacetGroup
         heading={t.facets.duration}
-        options={DURATIONS.map((d) => ({ value: d, label: t.durationLabels[d] }))}
+        options={DURATIONS.map((d) => ({
+          value: d,
+          label: t.durationLabels[d],
+        }))}
         selected={value.durations}
         onToggle={(v) => onToggle('durations', v)}
       />

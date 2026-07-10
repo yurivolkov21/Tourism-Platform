@@ -39,7 +39,10 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
     }
 
     const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
     if (signInError) {
       setError(authErrorMessage(signInError));
       setPending(false);
@@ -73,7 +76,13 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 
       <div className="space-y-1.5">
         <Label htmlFor="password">{t.passwordLabel}</Label>
-        <Input id="password" name="password" type="password" autoComplete="current-password" required />
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          required
+        />
         <div className="text-right">
           <Link
             href="/forgot-password"
@@ -96,7 +105,10 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 
       <p className="text-muted-foreground text-center text-sm">
         {t.noAccount}{' '}
-        <Link href="/register" className="text-primary font-medium hover:underline">
+        <Link
+          href="/register"
+          className="text-primary font-medium hover:underline"
+        >
           {t.registerCta}
         </Link>
       </p>

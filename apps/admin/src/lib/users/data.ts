@@ -26,7 +26,9 @@ export const DEFAULT_PAGE_SIZE = 20;
  * Lists users for the admin table (`GET /admin/users`, paginated + role/search filters). The wire
  * format is already the `{ data, meta }` envelope, so the typed body matches.
  */
-export async function listUsers(params: UserListParams = {}): Promise<UserList> {
+export async function listUsers(
+  params: UserListParams = {},
+): Promise<UserList> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/users', {
     params: {

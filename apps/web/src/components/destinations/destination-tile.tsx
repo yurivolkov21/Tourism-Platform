@@ -35,7 +35,8 @@ export function DestinationTile({
       href={`/destinations/${slugify(d.region ?? '')}?d=${d.slug}`}
       className={cn(
         'group relative block overflow-hidden',
-        variant === 'default' && 'aspect-4/3 rounded-xl lg:aspect-auto lg:h-full',
+        variant === 'default' &&
+          'aspect-4/3 rounded-xl lg:aspect-auto lg:h-full',
         variant === 'feature' && 'h-full min-h-56',
         variant === 'photo' && 'h-full min-h-40',
         className ?? (variant === 'default' ? d.span : undefined),
@@ -61,7 +62,9 @@ export function DestinationTile({
 
       {variant === 'photo' ? (
         <div className="text-on-media absolute inset-0 flex flex-col items-center justify-center p-4 text-center [text-shadow:0_1px_4px_rgb(0_0_0/0.55)]">
-          <h3 className="font-heading text-lg leading-tight font-semibold">{d.name}</h3>
+          <h3 className="font-heading text-lg leading-tight font-semibold">
+            {d.name}
+          </h3>
           {/* Tagline + affordance lift in on hover/focus; reduced-motion = instant. */}
           <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-300 ease-out-expo group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-visible:grid-rows-[1fr] group-focus-visible:opacity-100 motion-reduce:transition-none">
             <div className="flex min-h-0 flex-col items-center gap-1 overflow-hidden pt-2">
@@ -77,13 +80,13 @@ export function DestinationTile({
         </div>
       ) : variant === 'feature' ? (
         <div className="text-on-media absolute inset-0 flex flex-col items-center justify-center p-5 text-center [text-shadow:0_1px_4px_rgb(0_0_0/0.55)]">
-          <h3 className="font-heading text-2xl leading-tight font-semibold">{d.name}</h3>
+          <h3 className="font-heading text-2xl leading-tight font-semibold">
+            {d.name}
+          </h3>
           {/* Tagline + affordance lift in on hover/focus (centred, Lily-style) */}
           <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-300 ease-out-expo group-hover:grid-rows-[1fr] group-hover:opacity-100 group-focus-visible:grid-rows-[1fr] group-focus-visible:opacity-100 motion-reduce:transition-none">
             <div className="flex min-h-0 flex-col items-center gap-1 overflow-hidden pt-2">
-              <span className="text-on-media/90 text-xs">
-                {d.tagline}
-              </span>
+              <span className="text-on-media/90 text-xs">{d.tagline}</span>
               <span className="text-on-media inline-flex items-center gap-1 text-sm font-medium">
                 {tp.viewMore}
                 <ArrowRightIcon className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -93,10 +96,10 @@ export function DestinationTile({
         </div>
       ) : (
         <div className="text-on-media absolute inset-x-0 bottom-0 flex flex-col gap-1 p-5">
-          <h3 className="font-heading text-2xl leading-tight font-semibold">{d.name}</h3>
-          <span className="text-on-media/85 text-xs">
-            {d.tagline}
-          </span>
+          <h3 className="font-heading text-2xl leading-tight font-semibold">
+            {d.name}
+          </h3>
+          <span className="text-on-media/85 text-xs">{d.tagline}</span>
           <span className="text-on-media/70 text-xs">
             {t.toursCountLabel(d.tourCount)}
           </span>

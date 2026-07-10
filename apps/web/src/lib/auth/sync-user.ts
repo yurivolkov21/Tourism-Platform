@@ -1,6 +1,7 @@
 import { createClient } from '../supabase/server';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
 
 /**
  * Mirror the signed-in Supabase user into the API's local DB via `POST /auth/sync` (idempotent
@@ -25,17 +26,26 @@ export async function syncUser(): Promise<boolean> {
 
     // Forward the sign-up display name (Supabase user metadata) so the API profile is pre-filled.
     const metaName = session.user?.user_metadata?.full_name;
-    const body = typeof metaName === 'string' && metaName.trim() ? { fullName: metaName.trim() } : {};
+    const body =
+      typeof metaName === 'string' && metaName.trim()
+        ? { fullName: metaName.trim() }
+        : {};
 
     const res = await fetch(`${API_BASE}/api/v1/auth/sync`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(body),
       cache: 'no-store',
     });
     if (!res.ok) {
       const body = await res.text().catch(() => '');
-      console.error('[syncUser] /auth/sync non-ok', { status: res.status, body: body.slice(0, 300) });
+      console.error('[syncUser] /auth/sync non-ok', {
+        status: res.status,
+        body: body.slice(0, 300),
+      });
       return false;
     }
     return true;

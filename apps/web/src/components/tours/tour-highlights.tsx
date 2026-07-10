@@ -14,7 +14,10 @@ export function TourHighlights({ highlights }: { highlights: string[] }) {
       <ul className="grid gap-3 sm:grid-cols-2">
         {highlights.map((item) => (
           <li key={item} className="flex items-start gap-2.5 text-pretty">
-            <SparklesIcon className="text-primary mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <SparklesIcon
+              className="text-primary mt-0.5 size-4 shrink-0"
+              aria-hidden="true"
+            />
             <span className="text-muted-foreground">{item}</span>
           </li>
         ))}

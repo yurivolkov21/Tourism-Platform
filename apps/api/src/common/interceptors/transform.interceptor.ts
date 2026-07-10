@@ -21,9 +21,10 @@ import { SKIP_TRANSFORM_KEY } from '../decorators/skip-transform.decorator';
  * @template T Type of the inner `data` payload.
  */
 @Injectable()
-export class TransformInterceptor<T>
-  implements NestInterceptor<T, ApiResponse<T> | T>
-{
+export class TransformInterceptor<T> implements NestInterceptor<
+  T,
+  ApiResponse<T> | T
+> {
   constructor(private readonly reflector: Reflector) {}
 
   intercept(

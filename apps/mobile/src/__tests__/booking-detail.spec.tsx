@@ -1,6 +1,11 @@
 import { Alert } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react-native';
 import { ThemeProvider } from '@tourism/mobile-ui';
 import BookingDetailScreen from '../app/bookings/[code]';
 import {
@@ -13,10 +18,15 @@ import {
 
 const mockRouter = { push: jest.fn(), back: jest.fn() };
 jest.mock('expo-router', () => ({
-  router: { push: (...a: unknown[]) => mockRouter.push(...a), back: () => mockRouter.back() },
+  router: {
+    push: (...a: unknown[]) => mockRouter.push(...a),
+    back: () => mockRouter.back(),
+  },
   useLocalSearchParams: () => ({ code: 'BK-1' }),
 }));
-jest.mock('../lib/supabase', () => ({ supabase: { auth: { getSession: jest.fn() } } }));
+jest.mock('../lib/supabase', () => ({
+  supabase: { auth: { getSession: jest.fn() } },
+}));
 jest.mock('../lib/booking', () => ({
   ...jest.requireActual('../lib/booking'),
   fetchBooking: jest.fn(),
@@ -44,7 +54,10 @@ const base: BookingVm = {
 
 function renderScreen() {
   const client = new QueryClient({
-    defaultOptions: { queries: { retry: false, gcTime: 0 }, mutations: { gcTime: 0 } },
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+      mutations: { gcTime: 0 },
+    },
   });
   return render(
     <ThemeProvider>

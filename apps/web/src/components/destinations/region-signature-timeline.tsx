@@ -28,15 +28,22 @@ export function RegionSignatureTimeline({
 
         <ol className="mt-14 grid gap-12 sm:mt-20 sm:grid-cols-3 sm:gap-8">
           {timeline.map((stop, i) => (
-            <li key={stop.title} className="border-rating/30 relative border-t pt-9">
+            <li
+              key={stop.title}
+              className="border-rating/30 relative border-t pt-9"
+            >
               <span className="text-rating border-rating bg-background font-heading absolute -top-4 left-0 flex size-8 items-center justify-center rounded-full border text-sm font-bold">
                 {i + 1}
               </span>
               <span className="text-rating text-xs font-semibold tracking-widest uppercase">
                 {stop.era}
               </span>
-              <h3 className="font-heading mt-1 text-2xl font-semibold">{stop.title}</h3>
-              <p className="text-muted-foreground mt-2 text-sm text-pretty">{stop.body}</p>
+              <h3 className="font-heading mt-1 text-2xl font-semibold">
+                {stop.title}
+              </h3>
+              <p className="text-muted-foreground mt-2 text-sm text-pretty">
+                {stop.body}
+              </p>
             </li>
           ))}
         </ol>

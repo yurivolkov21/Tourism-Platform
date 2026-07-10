@@ -59,7 +59,9 @@ export class AdminUsersController {
   constructor(private readonly adminUsers: AdminUsersService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Admin: list users (paginated, filter by role, search name/email)' })
+  @ApiOperation({
+    summary: 'Admin: list users (paginated, filter by role, search name/email)',
+  })
   @ApiOkResponse({ type: PaginatedAdminUsersDto })
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   list(@Query() query: ListAdminUsersQueryDto): Promise<PaginatedAdminUsers> {
@@ -76,7 +78,9 @@ export class AdminUsersController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Admin: one user with footprint counts + action flags' })
+  @ApiOperation({
+    summary: 'Admin: one user with footprint counts + action flags',
+  })
   @ApiOkResponse({ type: AdminUserDetailDto })
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   @ApiResponse({ status: 404, description: 'User not found' })
@@ -88,11 +92,17 @@ export class AdminUsersController {
   }
 
   @Patch(':id/role')
-  @ApiOperation({ summary: "Admin: change a user's role (guards: self / env-admin / last admin)" })
+  @ApiOperation({
+    summary:
+      "Admin: change a user's role (guards: self / env-admin / last admin)",
+  })
   @ApiOkResponse({ type: AdminUserListItemDto })
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 409, description: 'Self-change, env-admin demote, or last-admin demote' })
+  @ApiResponse({
+    status: 409,
+    description: 'Self-change, env-admin demote, or last-admin demote',
+  })
   changeRole(
     @CurrentUser() user: User | null,
     @Param('id', ParseUUIDPipe) id: string,
@@ -103,11 +113,16 @@ export class AdminUsersController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Admin: delete a customer account (bookings/posts-free only)' })
+  @ApiOperation({
+    summary: 'Admin: delete a customer account (bookings/posts-free only)',
+  })
   @ApiOkResponse({ type: DeletedUserDto })
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 409, description: 'Self, admin target, has bookings, or authored posts' })
+  @ApiResponse({
+    status: 409,
+    description: 'Self, admin target, has bookings, or authored posts',
+  })
   remove(
     @CurrentUser() user: User | null,
     @Param('id', ParseUUIDPipe) id: string,

@@ -1,11 +1,29 @@
-import { bookingStatusMeta, canRefund, formatGuests, formatMoney, formatSeatsSummary } from './format';
+import {
+  bookingStatusMeta,
+  canRefund,
+  formatGuests,
+  formatMoney,
+  formatSeatsSummary,
+} from './format';
 
 describe('bookingStatusMeta', () => {
   test('maps each status to a friendly label + badge variant', () => {
-    expect(bookingStatusMeta('PENDING')).toEqual({ label: 'Pending payment', variant: 'secondary' });
-    expect(bookingStatusMeta('PAID')).toEqual({ label: 'Paid', variant: 'default' });
-    expect(bookingStatusMeta('CANCELLED')).toEqual({ label: 'Cancelled', variant: 'outline' });
-    expect(bookingStatusMeta('REFUNDED')).toEqual({ label: 'Refunded', variant: 'destructive' });
+    expect(bookingStatusMeta('PENDING')).toEqual({
+      label: 'Pending payment',
+      variant: 'secondary',
+    });
+    expect(bookingStatusMeta('PAID')).toEqual({
+      label: 'Paid',
+      variant: 'default',
+    });
+    expect(bookingStatusMeta('CANCELLED')).toEqual({
+      label: 'Cancelled',
+      variant: 'outline',
+    });
+    expect(bookingStatusMeta('REFUNDED')).toEqual({
+      label: 'Refunded',
+      variant: 'destructive',
+    });
     expect(bookingStatusMeta('PARTIALLY_REFUNDED')).toEqual({
       label: 'Partially refunded',
       variant: 'destructive',

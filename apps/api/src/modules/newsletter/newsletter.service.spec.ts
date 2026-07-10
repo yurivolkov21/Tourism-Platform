@@ -40,8 +40,12 @@ describe('NewsletterService.subscribe', () => {
     const upsert = jest.fn().mockResolvedValue({ id: 's-1' });
     const svc = new NewsletterService(makePrisma({ upsert }) as never);
 
-    await expect(svc.subscribe({ email: 'new@x.com' })).resolves.toBeUndefined();
-    await expect(svc.subscribe({ email: 'new@x.com' })).resolves.toBeUndefined();
+    await expect(
+      svc.subscribe({ email: 'new@x.com' }),
+    ).resolves.toBeUndefined();
+    await expect(
+      svc.subscribe({ email: 'new@x.com' }),
+    ).resolves.toBeUndefined();
     expect(upsert).toHaveBeenCalledTimes(2);
   });
 
@@ -51,13 +55,18 @@ describe('NewsletterService.subscribe', () => {
 
     await svc.subscribe({ email: 'a@b.com' });
 
-    expect(upsert.mock.calls[0][0].create).toEqual({ email: 'a@b.com', source: null });
+    expect(upsert.mock.calls[0][0].create).toEqual({
+      email: 'a@b.com',
+      source: null,
+    });
   });
 });
 
 describe('NewsletterService.findAllForAdmin', () => {
   it('lists newest-first with pagination and hoistable { items, meta }', async () => {
-    const rows = [{ id: 's-1', email: 'a@b.com', source: null, subscribedAt: new Date() }];
+    const rows = [
+      { id: 's-1', email: 'a@b.com', source: null, subscribedAt: new Date() },
+    ];
     const findMany = jest.fn().mockResolvedValue(rows);
     const count = jest.fn().mockResolvedValue(41);
     const svc = new NewsletterService(makePrisma({ findMany, count }) as never);
@@ -71,7 +80,12 @@ describe('NewsletterService.findAllForAdmin', () => {
       take: 20,
     });
     expect(out.items).toEqual(rows);
-    expect(out.meta).toEqual({ page: 2, pageSize: 20, total: 41, totalPages: 3 });
+    expect(out.meta).toEqual({
+      page: 2,
+      pageSize: 20,
+      total: 41,
+      totalPages: 3,
+    });
   });
 
   it('filters by case-insensitive email contains on search', async () => {

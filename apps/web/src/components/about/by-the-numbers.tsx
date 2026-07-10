@@ -39,10 +39,15 @@ export function ByTheNumbers({ values }: { values: string[] }) {
                   return (
                     <span
                       key={pill}
-                      className={cn('flex items-center gap-2.5 rounded-full px-5 py-2', pillColors[i])}
+                      className={cn(
+                        'flex items-center gap-2.5 rounded-full px-5 py-2',
+                        pillColors[i],
+                      )}
                     >
                       <Icon className="size-6 sm:size-7" />
-                      <span className="font-heading text-2xl italic sm:text-3xl">{pill}</span>
+                      <span className="font-heading text-2xl italic sm:text-3xl">
+                        {pill}
+                      </span>
                     </span>
                   );
                 })}
@@ -63,7 +68,9 @@ export function ByTheNumbers({ values }: { values: string[] }) {
                   <dt className="text-primary font-heading text-5xl font-bold lg:text-6xl">
                     <MetricValue value={values[i] ?? '—'} />
                   </dt>
-                  <dd className="text-muted-foreground text-sm font-medium">{label}</dd>
+                  <dd className="text-muted-foreground text-sm font-medium">
+                    {label}
+                  </dd>
                 </div>
               ))}
             </dl>

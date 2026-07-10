@@ -37,60 +37,66 @@ export interface AppSheetProps {
  * (and any future replacement) stays behind ONE component. Requires
  * BottomSheetModalProvider + GestureHandlerRootView at the app root.
  */
-export const AppSheet = forwardRef<AppSheetRef, AppSheetProps>(function AppSheet(
-  { children, snapPoints, scrollable, onDismiss },
-  ref,
-) {
-  const theme = useTheme();
-  const modalRef = useRef<BottomSheetModal>(null);
+export const AppSheet = forwardRef<AppSheetRef, AppSheetProps>(
+  function AppSheet({ children, snapPoints, scrollable, onDismiss }, ref) {
+    const theme = useTheme();
+    const modalRef = useRef<BottomSheetModal>(null);
 
-  useImperativeHandle(ref, () => ({
-    present: () => modalRef.current?.present(),
-    dismiss: () => modalRef.current?.dismiss(),
-  }));
+    useImperativeHandle(ref, () => ({
+      present: () => modalRef.current?.present(),
+      dismiss: () => modalRef.current?.dismiss(),
+    }));
 
-  const renderBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        {...props}
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-        pressBehavior="close"
-      />
-    ),
-    [],
-  );
+    const renderBackdrop = useCallback(
+      (props: BottomSheetBackdropProps) => (
+        <BottomSheetBackdrop
+          {...props}
+          appearsOnIndex={0}
+          disappearsOnIndex={-1}
+          pressBehavior="close"
+        />
+      ),
+      [],
+    );
 
-  return (
-    <BottomSheetModal
-      ref={modalRef}
-      snapPoints={snapPoints}
-      enableDynamicSizing={!snapPoints}
-      onDismiss={onDismiss}
-      backdropComponent={renderBackdrop}
-      // Text inputs inside sheets: grow with the keyboard, restore on blur.
-      keyboardBehavior="extend"
-      keyboardBlurBehavior="restore"
-      android_keyboardInputMode="adjustResize"
-      backgroundStyle={{
-        backgroundColor: theme.colors['card'],
-        borderRadius: theme.radius.lg,
-      }}
-      handleIndicatorStyle={{ backgroundColor: theme.colors['muted-foreground'] }}
-    >
-      {scrollable ? (
-        <BottomSheetScrollView
-          contentContainerStyle={{ paddingBottom: theme.spacing(6) }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {children}
-        </BottomSheetScrollView>
-      ) : (
-        <BottomSheetView style={{ paddingBottom: theme.spacing(6) }}>{children}</BottomSheetView>
-      )}
-    </BottomSheetModal>
-  );
-});
+    return (
+      <BottomSheetModal
+        ref={modalRef}
+        snapPoints={snapPoints}
+        enableDynamicSizing={!snapPoints}
+        onDismiss={onDismiss}
+        backdropComponent={renderBackdrop}
+        // Text inputs inside sheets: grow with the keyboard, restore on blur.
+        keyboardBehavior="extend"
+        keyboardBlurBehavior="restore"
+        android_keyboardInputMode="adjustResize"
+        backgroundStyle={{
+          backgroundColor: theme.colors['card'],
+          borderRadius: theme.radius.lg,
+        }}
+        handleIndicatorStyle={{
+          backgroundColor: theme.colors['muted-foreground'],
+        }}
+      >
+        {scrollable ? (
+          <BottomSheetScrollView
+            contentContainerStyle={{ paddingBottom: theme.spacing(6) }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {children}
+          </BottomSheetScrollView>
+        ) : (
+          <BottomSheetView style={{ paddingBottom: theme.spacing(6) }}>
+            {children}
+          </BottomSheetView>
+        )}
+      </BottomSheetModal>
+    );
+  },
+);
 
-export { BottomSheetScrollView as AppSheetScrollView, BottomSheetTextInput as AppSheetTextInput };
+export {
+  BottomSheetScrollView as AppSheetScrollView,
+  BottomSheetTextInput as AppSheetTextInput,
+};

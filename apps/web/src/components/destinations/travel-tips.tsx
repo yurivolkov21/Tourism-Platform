@@ -28,8 +28,12 @@ export function TravelTips() {
     <section className="bg-muted/40 py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto mb-10 max-w-2xl space-y-3 text-center sm:mb-12">
-          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">{t.heading}</h2>
-          <p className="text-muted-foreground text-lg text-pretty">{t.subtitle}</p>
+          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
+            {t.heading}
+          </h2>
+          <p className="text-muted-foreground text-lg text-pretty">
+            {t.subtitle}
+          </p>
         </div>
 
         <div className="grid gap-x-8 gap-y-7 sm:grid-cols-2 lg:grid-cols-3">
@@ -42,7 +46,9 @@ export function TravelTips() {
                 </span>
                 <div>
                   <h3 className="font-semibold">{item.title}</h3>
-                  <p className="text-muted-foreground mt-1 text-pretty">{item.body}</p>
+                  <p className="text-muted-foreground mt-1 text-pretty">
+                    {item.body}
+                  </p>
                 </div>
               </div>
             );

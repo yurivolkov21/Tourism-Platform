@@ -97,7 +97,9 @@ export class EmailService implements OnModuleInit {
       text: rendered.text,
     });
     if (result.error) {
-      throw new Error(`Resend rejected ${tag} → ${to}: ${result.error.message}`);
+      throw new Error(
+        `Resend rejected ${tag} → ${to}: ${result.error.message}`,
+      );
     }
     this.logger.log(
       `Sent ${tag} → ${to} (resend_id=${result.data?.id ?? 'n/a'})`,

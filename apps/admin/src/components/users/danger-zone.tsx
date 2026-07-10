@@ -107,7 +107,10 @@ export function DangerZone({ detail }: DangerZoneProps) {
             <p className="text-sm font-medium">Role</p>
             <p className="text-muted-foreground text-sm">
               Currently{' '}
-              <span className="text-foreground font-medium">{ROLE_LABEL[detail.role]}</span>.
+              <span className="text-foreground font-medium">
+                {ROLE_LABEL[detail.role]}
+              </span>
+              .
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <Select
@@ -132,7 +135,9 @@ export function DangerZone({ detail }: DangerZoneProps) {
               </Button>
             </div>
             {roleDisabledReason ? (
-              <p className="text-muted-foreground text-xs">{roleDisabledReason}</p>
+              <p className="text-muted-foreground text-xs">
+                {roleDisabledReason}
+              </p>
             ) : null}
           </div>
 
@@ -151,7 +156,9 @@ export function DangerZone({ detail }: DangerZoneProps) {
                   Delete user
                 </Button>
                 {deleteDisabled ? (
-                  <p className="text-muted-foreground text-xs">Demote to customer first.</p>
+                  <p className="text-muted-foreground text-xs">
+                    Demote to customer first.
+                  </p>
                 ) : null}
               </div>
             </>
@@ -170,7 +177,8 @@ export function DangerZone({ detail }: DangerZoneProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Change role?</AlertDialogTitle>
             <AlertDialogDescription>
-              Change {detail.email} from {ROLE_LABEL[detail.role]} to {ROLE_LABEL[role]}?
+              Change {detail.email} from {ROLE_LABEL[detail.role]} to{' '}
+              {ROLE_LABEL[role]}?
             </AlertDialogDescription>
           </AlertDialogHeader>
           {roleError ? (
@@ -179,7 +187,9 @@ export function DangerZone({ detail }: DangerZoneProps) {
             </p>
           ) : null}
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={roleChanging}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={roleChanging}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               variant={role === 'CUSTOMER' ? 'destructive' : 'default'}
               onClick={confirmRoleChange}
@@ -202,8 +212,9 @@ export function DangerZone({ detail }: DangerZoneProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete user?</AlertDialogTitle>
             <AlertDialogDescription>
-              Permanently deletes {detail.email}&apos;s account and sign-in. Accounts with bookings or
-              authored posts cannot be deleted. This cannot be undone.
+              Permanently deletes {detail.email}&apos;s account and sign-in.
+              Accounts with bookings or authored posts cannot be deleted. This
+              cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           {deleteError ? (
@@ -213,7 +224,11 @@ export function DangerZone({ detail }: DangerZoneProps) {
           ) : null}
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={confirmDelete} disabled={deleting}>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deleting}
+            >
               {deleting ? 'Deleting…' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -26,7 +26,10 @@ export async function mirrorUser(): Promise<void> {
 }
 
 /** Email + password sign-up with email confirmation → returns `sent` so the UI shows "check inbox". */
-export async function signUp(_prev: SignUpState, formData: FormData): Promise<SignUpState> {
+export async function signUp(
+  _prev: SignUpState,
+  formData: FormData,
+): Promise<SignUpState> {
   const fullName = String(formData.get('fullName') ?? '').trim();
   const email = String(formData.get('email') ?? '').trim();
   const password = String(formData.get('password') ?? '');
@@ -41,7 +44,10 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
 
   // Confirmation link returns to our /auth/callback on the same origin the form was posted from.
   const h = await headers();
-  const origin = h.get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001';
+  const origin =
+    h.get('origin') ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    'http://localhost:3001';
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
@@ -49,7 +55,10 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
     password,
     // Store the name in user metadata → the navbar greets by name immediately, and `syncUser`
     // forwards it to the API so the profile is pre-filled.
-    options: { emailRedirectTo: `${origin}/auth/callback`, data: { full_name: fullName } },
+    options: {
+      emailRedirectTo: `${origin}/auth/callback`,
+      data: { full_name: fullName },
+    },
   });
   if (error) return { error: authErrorMessage(error) };
 

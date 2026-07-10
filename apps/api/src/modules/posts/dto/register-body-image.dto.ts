@@ -3,7 +3,10 @@ import { IsInt, IsOptional, IsString, Length, Min } from 'class-validator';
 
 /** Registers an already-uploaded Cloudinary image as a post BODY asset (markdown insert). */
 export class RegisterBodyImageDto {
-  @ApiProperty({ example: 'tourism/posts/body/1717000000000-boat', maxLength: 300 })
+  @ApiProperty({
+    example: 'tourism/posts/body/1717000000000-boat',
+    maxLength: 300,
+  })
   @IsString()
   @Length(1, 300)
   publicId!: string;

@@ -12,7 +12,10 @@ import { RegionSignatureTimeline } from '../../../components/destinations/region
 import { RegionSignatureDelta } from '../../../components/destinations/region-signature-delta';
 import { RegionTours } from '../../../components/destinations/region-tours';
 import { ValueProps } from '../../../components/destinations/value-props';
-import { Gallery, type GallerySection } from '../../../components/marketing/gallery';
+import {
+  Gallery,
+  type GallerySection,
+} from '../../../components/marketing/gallery';
 import { EnquiryCta } from '../../../components/marketing/enquiry-cta';
 import { getRegion, regionSlugs } from '../../../lib/regions';
 import { getRegionTheme } from '../../../lib/region-theme';
@@ -42,7 +45,11 @@ export async function generateMetadata({
   };
 }
 
-export default async function RegionPage({ params }: { params: Promise<{ region: string }> }) {
+export default async function RegionPage({
+  params,
+}: {
+  params: Promise<{ region: string }>;
+}) {
   const { region } = await params;
   const data = getRegion(region);
   if (!data) notFound();
@@ -172,8 +179,14 @@ export default async function RegionPage({ params }: { params: Promise<{ region:
         heading={t.galleryHeading(data.name)}
         subtitle={t.gallerySubtitle}
       />
-      <ValueProps accentClass={theme.accentSoft} image={pool[3] ?? pool[0] ?? imagery.image} />
-      <EnquiryCta heading={messages.enquiryCta.regionHeading(data.name)} prefillDestination={data.name} />
+      <ValueProps
+        accentClass={theme.accentSoft}
+        image={pool[3] ?? pool[0] ?? imagery.image}
+      />
+      <EnquiryCta
+        heading={messages.enquiryCta.regionHeading(data.name)}
+        prefillDestination={data.name}
+      />
     </main>
   );
 }

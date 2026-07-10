@@ -2,7 +2,10 @@ import { apiErrorMessage } from '../../../lib/api/error';
 import { AdminListHeader } from '../../../components/crud/list-header';
 import { EnquiriesView } from '../../../components/enquiries/enquiries-view';
 import { listEnquiries, type EnquiryList } from '../../../lib/enquiries/data';
-import { ENQUIRY_STATUSES, type EnquiryStatus } from '../../../lib/enquiries/status';
+import {
+  ENQUIRY_STATUSES,
+  type EnquiryStatus,
+} from '../../../lib/enquiries/status';
 import { ErrorAlert } from '../../../components/crud/error-alert';
 import { parsePageSize } from '../../../lib/pagination';
 
@@ -18,10 +21,17 @@ function parsePage(raw?: string): number {
 }
 
 interface EnquiriesPageProps {
-  searchParams: Promise<{ status?: string; page?: string; pageSize?: string; q?: string }>;
+  searchParams: Promise<{
+    status?: string;
+    page?: string;
+    pageSize?: string;
+    q?: string;
+  }>;
 }
 
-export default async function EnquiriesPage({ searchParams }: EnquiriesPageProps) {
+export default async function EnquiriesPage({
+  searchParams,
+}: EnquiriesPageProps) {
   const sp = await searchParams;
   const status = parseStatus(sp.status);
   const page = parsePage(sp.page);
@@ -31,7 +41,12 @@ export default async function EnquiriesPage({ searchParams }: EnquiriesPageProps
   let result: EnquiryList | undefined;
   let error: string | null = null;
   try {
-    result = await listEnquiries({ page, pageSize, status, search: q || undefined });
+    result = await listEnquiries({
+      page,
+      pageSize,
+      status,
+      search: q || undefined,
+    });
   } catch (e) {
     error = apiErrorMessage(e);
   }
@@ -45,11 +60,16 @@ export default async function EnquiriesPage({ searchParams }: EnquiriesPageProps
 
       {error ? (
         <ErrorAlert>
-          Couldn&apos;t load enquiries: {error}. Check that the API is running and your admin session
-          is valid.
+          Couldn&apos;t load enquiries: {error}. Check that the API is running
+          and your admin session is valid.
         </ErrorAlert>
       ) : result ? (
-        <EnquiriesView rows={result.data} status={status ?? 'all'} meta={result.meta} query={q} />
+        <EnquiriesView
+          rows={result.data}
+          status={status ?? 'all'}
+          meta={result.meta}
+          query={q}
+        />
       ) : null}
     </div>
   );

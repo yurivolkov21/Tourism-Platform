@@ -41,14 +41,21 @@ import { ColumnsMenu } from '../crud/columns-menu';
 import { AdminTableShell } from '../crud/admin-table-shell';
 import { updateEnquiryStatus } from '../../lib/enquiries/actions';
 import type { Enquiry, PageMeta } from '../../lib/enquiries/data';
-import { ENQUIRY_STATUSES, enquiryStatusMeta, type EnquiryStatus } from '../../lib/enquiries/status';
+import {
+  ENQUIRY_STATUSES,
+  enquiryStatusMeta,
+  type EnquiryStatus,
+} from '../../lib/enquiries/status';
 import { EnquiryStatusBadge } from './enquiry-status-badge';
 
 type TabValue = 'all' | EnquiryStatus;
 
 const TABS: { value: TabValue; label: string }[] = [
   { value: 'all', label: 'All' },
-  ...ENQUIRY_STATUSES.map((s) => ({ value: s, label: enquiryStatusMeta(s).label })),
+  ...ENQUIRY_STATUSES.map((s) => ({
+    value: s,
+    label: enquiryStatusMeta(s).label,
+  })),
 ];
 
 function receivedAt(iso: string): string {
@@ -73,7 +80,9 @@ const enquiryColumns: ColumnDef<Enquiry>[] = [
     cell: ({ row }) => (
       <>
         <span className="block font-medium">{row.original.name}</span>
-        <span className="text-muted-foreground text-xs">{row.original.email}</span>
+        <span className="text-muted-foreground text-xs">
+          {row.original.email}
+        </span>
       </>
     ),
   },
@@ -100,7 +109,9 @@ const enquiryColumns: ColumnDef<Enquiry>[] = [
     cell: ({ row }) => (
       <span className="text-muted-foreground tabular-nums whitespace-nowrap">
         {receivedAt(row.original.createdAt)}
-        <span className="block text-xs">{formatRelativeTime(row.original.createdAt)}</span>
+        <span className="block text-xs">
+          {formatRelativeTime(row.original.createdAt)}
+        </span>
       </span>
     ),
   },
@@ -143,7 +154,11 @@ export function EnquiriesView({
     setDraft(query);
   }, [query]);
 
-  const pushParams = (changes: { status?: TabValue; page?: number; q?: string }) => {
+  const pushParams = (changes: {
+    status?: TabValue;
+    page?: number;
+    q?: string;
+  }) => {
     const next = new URLSearchParams(params.toString());
     if (changes.status !== undefined) {
       if (changes.status === 'all') next.delete('status');
@@ -218,7 +233,9 @@ export function EnquiriesView({
                 onClick={() => pushParams({ status: t.value })}
                 className={cn(
                   'inline-flex h-7 cursor-pointer items-center rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                  active ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+                  active
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'hover:text-foreground',
                 )}
               >
                 {t.label}
@@ -251,7 +268,9 @@ export function EnquiriesView({
 
       <p className="text-muted-foreground text-sm">
         {meta.total} {meta.total === 1 ? 'enquiry' : 'enquiries'}
-        {status !== 'all' ? ` · ${enquiryStatusMeta(status).label.toLowerCase()}` : ''}
+        {status !== 'all'
+          ? ` · ${enquiryStatusMeta(status).label.toLowerCase()}`
+          : ''}
         {query ? (
           <>
             {' · matching “'}
@@ -327,7 +346,11 @@ export function EnquiriesView({
                     value={selected.status}
                     onValueChange={(v) => v && changeStatus(v as EnquiryStatus)}
                   >
-                    <SelectTrigger className="w-full" disabled={saving} aria-label="Change status">
+                    <SelectTrigger
+                      className="w-full"
+                      disabled={saving}
+                      aria-label="Change status"
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent align="start" alignItemWithTrigger={false}>
@@ -411,28 +434,39 @@ export function EnquiriesView({
                       <dl className="space-y-2 text-sm">
                         {selected.nationality ? (
                           <div className="flex justify-between gap-4">
-                            <dt className="text-muted-foreground">Nationality</dt>
+                            <dt className="text-muted-foreground">
+                              Nationality
+                            </dt>
                             <dd>{selected.nationality}</dd>
                           </div>
                         ) : null}
                         {selected.travelDate ? (
                           <div className="flex justify-between gap-4">
-                            <dt className="text-muted-foreground">Travel date</dt>
+                            <dt className="text-muted-foreground">
+                              Travel date
+                            </dt>
                             <dd>
-                              {new Date(selected.travelDate).toLocaleDateString('en-GB', {
-                                day: 'numeric',
-                                month: 'short',
-                                year: 'numeric',
-                              })}
+                              {new Date(selected.travelDate).toLocaleDateString(
+                                'en-GB',
+                                {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                },
+                              )}
                             </dd>
                           </div>
                         ) : null}
                         {selected.groupSize ? (
                           <div className="flex justify-between gap-4">
-                            <dt className="text-muted-foreground">Group size</dt>
+                            <dt className="text-muted-foreground">
+                              Group size
+                            </dt>
                             <dd>
                               {selected.groupSize}{' '}
-                              {selected.groupSize === 1 ? 'traveller' : 'travellers'}
+                              {selected.groupSize === 1
+                                ? 'traveller'
+                                : 'travellers'}
                             </dd>
                           </div>
                         ) : null}

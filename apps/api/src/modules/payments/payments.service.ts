@@ -78,7 +78,9 @@ export class PaymentsService {
         select: { processedAt: true },
       });
       if (existing?.processedAt) {
-        this.logger.log(`Skipping duplicate ${provider} event ${eventId} (${type})`);
+        this.logger.log(
+          `Skipping duplicate ${provider} event ${eventId} (${type})`,
+        );
         return false;
       }
       this.logger.warn(
@@ -102,7 +104,9 @@ export class PaymentsService {
     rawBody: Buffer,
     signature: string,
   ): Promise<WebhookAck> {
-    const webhookSecret = this.config.getOrThrow<string>('stripe.webhookSecret');
+    const webhookSecret = this.config.getOrThrow<string>(
+      'stripe.webhookSecret',
+    );
 
     // 1. Verify signature over the RAW bytes.
     let event: StripeWebhookEvent;
@@ -118,7 +122,14 @@ export class PaymentsService {
     }
 
     // 2. Idempotency — record first; skip a true duplicate (processedAt set).
-    if (!(await this.beginEvent(PaymentProvider.STRIPE, event.id, event.type, event))) {
+    if (
+      !(await this.beginEvent(
+        PaymentProvider.STRIPE,
+        event.id,
+        event.type,
+        event,
+      ))
+    ) {
       return { received: true, eventId: event.id, type: event.type };
     }
 
@@ -162,7 +173,9 @@ export class PaymentsService {
 
     const verified = await this.paypal.verifyWebhookSignature(headers, body);
     if (!verified) {
-      this.logger.warn(`Rejected PayPal webhook ${event.id} — signature invalid`);
+      this.logger.warn(
+        `Rejected PayPal webhook ${event.id} — signature invalid`,
+      );
       throw new BadRequestException({
         code: 'PAYPAL_WEBHOOK_INVALID',
         message: 'Signature verification failed',
@@ -415,7 +428,8 @@ export class PaymentsService {
 
   private isUniqueConstraintError(err: unknown): boolean {
     return (
-      err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002'
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === 'P2002'
     );
   }
 }

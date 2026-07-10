@@ -23,10 +23,16 @@ function price(currency: string, amount: number) {
   return `${currency === 'USD' ? '$' : `${currency} `}${amount.toLocaleString('en-US')}`;
 }
 
-export function TourCard({ tour, variant = 'shelf', onPress, heartSlot }: TourCardProps) {
+export function TourCard({
+  tour,
+  variant = 'shelf',
+  onPress,
+  heartSlot,
+}: TourCardProps) {
   const theme = useTheme();
   const list = variant === 'list';
-  const lowSeats = tour.nextDepartureSeatsLeft != null && tour.nextDepartureSeatsLeft <= 5;
+  const lowSeats =
+    tour.nextDepartureSeatsLeft != null && tour.nextDepartureSeatsLeft <= 5;
   return (
     <Pressable
       accessibilityRole="button"
@@ -45,16 +51,32 @@ export function TourCard({ tour, variant = 'shelf', onPress, heartSlot }: TourCa
         <View>
           <Image
             source={tour.image ? { uri: tour.image } : undefined}
-            style={{ width: '100%', aspectRatio: 4 / 3, backgroundColor: theme.colors['muted'] }}
+            style={{
+              width: '100%',
+              aspectRatio: 4 / 3,
+              backgroundColor: theme.colors['muted'],
+            }}
             contentFit="cover"
             transition={200}
             accessibilityLabel={tour.title}
           />
-          <View style={{ position: 'absolute', top: theme.spacing(2), left: theme.spacing(2) }}>
+          <View
+            style={{
+              position: 'absolute',
+              top: theme.spacing(2),
+              left: theme.spacing(2),
+            }}
+          >
             <TourBadges badges={tour.badges} />
           </View>
           {heartSlot ? (
-            <View style={{ position: 'absolute', top: theme.spacing(2), right: theme.spacing(2) }}>
+            <View
+              style={{
+                position: 'absolute',
+                top: theme.spacing(2),
+                right: theme.spacing(2),
+              }}
+            >
               {heartSlot}
             </View>
           ) : null}
@@ -85,12 +107,27 @@ export function TourCard({ tour, variant = 'shelf', onPress, heartSlot }: TourCa
                 size={13}
                 color={theme.colors['muted-foreground']}
               />
-              <AppText variant="caption" muted numberOfLines={1} style={{ flexShrink: 1 }}>
+              <AppText
+                variant="caption"
+                muted
+                numberOfLines={1}
+                style={{ flexShrink: 1 }}
+              >
                 {tour.destination}
               </AppText>
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(1) }}>
-              <Ionicons name="time-outline" size={13} color={theme.colors['muted-foreground']} />
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: theme.spacing(1),
+              }}
+            >
+              <Ionicons
+                name="time-outline"
+                size={13}
+                color={theme.colors['muted-foreground']}
+              />
               <AppText variant="caption" muted numberOfLines={1}>
                 {tm.home.durationDays(tour.durationDays)}
               </AppText>
@@ -113,7 +150,12 @@ export function TourCard({ tour, variant = 'shelf', onPress, heartSlot }: TourCa
 
           {/* Row 3 (list only) — summary, exactly 2 lines reserved */}
           {list ? (
-            <AppText variant="caption" muted numberOfLines={2} style={{ minHeight: 32 }}>
+            <AppText
+              variant="caption"
+              muted
+              numberOfLines={2}
+              style={{ minHeight: 32 }}
+            >
               {tour.summary ?? ''}
             </AppText>
           ) : null}
@@ -128,7 +170,13 @@ export function TourCard({ tour, variant = 'shelf', onPress, heartSlot }: TourCa
               height: 20,
             }}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(1) }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: theme.spacing(1),
+              }}
+            >
               <Ionicons name="star" size={14} color={theme.colors['rating']} />
               <AppText variant="caption">{tour.rating.toFixed(1)}</AppText>
               <AppText variant="caption" muted>
@@ -136,12 +184,21 @@ export function TourCard({ tour, variant = 'shelf', onPress, heartSlot }: TourCa
               </AppText>
             </View>
             {list && lowSeats && tour.nextDepartureSeatsLeft != null ? (
-              <Badge tone="warning" label={tm.tourDetail.seatsLeft(tour.nextDepartureSeatsLeft)} />
+              <Badge
+                tone="warning"
+                label={tm.tourDetail.seatsLeft(tour.nextDepartureSeatsLeft)}
+              />
             ) : null}
           </View>
 
           {/* Row 5 — price, 1 line */}
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing(2) }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'baseline',
+              gap: theme.spacing(2),
+            }}
+          >
             <AppText variant="caption" muted>
               {t.from}
             </AppText>
@@ -156,7 +213,11 @@ export function TourCard({ tour, variant = 'shelf', onPress, heartSlot }: TourCa
               {price(tour.currency, tour.basePrice)}
             </AppText>
             {tour.compareAtPrice ? (
-              <AppText variant="caption" muted style={{ textDecorationLine: 'line-through' }}>
+              <AppText
+                variant="caption"
+                muted
+                style={{ textDecorationLine: 'line-through' }}
+              >
                 {price(tour.currency, tour.compareAtPrice)}
               </AppText>
             ) : null}

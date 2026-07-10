@@ -40,20 +40,37 @@ export function RegionSignature({
           )}
         >
           {image ? (
-            <Image src={image} alt={heading} fill sizes="(min-width:1024px) 50vw, 100vw" className="object-cover" />
+            <Image
+              src={image}
+              alt={heading}
+              fill
+              sizes="(min-width:1024px) 50vw, 100vw"
+              className="object-cover"
+            />
           ) : null}
         </div>
 
-        <div className={cn('space-y-5', imageRight ? 'lg:order-1' : 'lg:order-2')}>
-          <span className={cn('text-xs font-semibold tracking-widest uppercase', accentText)}>
+        <div
+          className={cn('space-y-5', imageRight ? 'lg:order-1' : 'lg:order-2')}
+        >
+          <span
+            className={cn(
+              'text-xs font-semibold tracking-widest uppercase',
+              accentText,
+            )}
+          >
             {eyebrow}
           </span>
-          <h2 className="font-heading text-3xl font-semibold text-balance md:text-4xl">{heading}</h2>
+          <h2 className="font-heading text-3xl font-semibold text-balance md:text-4xl">
+            {heading}
+          </h2>
           <p className="text-muted-foreground text-lg text-pretty">{body}</p>
           <ul className="space-y-3">
             {points.map((point) => (
               <li key={point} className="flex items-start gap-3">
-                <span className={cn('mt-2 size-2 shrink-0 rounded-full', accentBg)} />
+                <span
+                  className={cn('mt-2 size-2 shrink-0 rounded-full', accentBg)}
+                />
                 <span className="text-foreground text-pretty">{point}</span>
               </li>
             ))}

@@ -1,6 +1,11 @@
 import Link from 'next/link';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@tourism/ui';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { Reveal } from '../marketing/reveal';
@@ -14,12 +19,20 @@ export function ContactFaq() {
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         <Reveal>
           <div className="mb-8 flex items-center gap-3">
-            <span className="bg-primary h-6 w-1.5 shrink-0 rounded-full" aria-hidden />
+            <span
+              className="bg-primary h-6 w-1.5 shrink-0 rounded-full"
+              aria-hidden
+            />
             <div>
-              <h2 className="font-heading text-2xl font-semibold sm:text-3xl">{t.heading}</h2>
+              <h2 className="font-heading text-2xl font-semibold sm:text-3xl">
+                {t.heading}
+              </h2>
               <p className="text-muted-foreground mt-1 text-pretty">
                 {t.subtitle}{' '}
-                <Link href="/faq" className="text-primary font-medium hover:underline">
+                <Link
+                  href="/faq"
+                  className="text-primary font-medium hover:underline"
+                >
                   {t.seeAll}
                 </Link>
                 .

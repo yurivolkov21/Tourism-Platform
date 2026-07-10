@@ -1,4 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@tourism/ui';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@tourism/ui';
 
 import {
   bookingsPipeline,
@@ -13,7 +19,11 @@ const DOT_CLASS: Record<PipelineStatus, string> = {
 };
 
 /** Bookings-by-status breakdown — counts + share bars in a fixed pipeline order. */
-export function BookingsPipeline({ byStatus }: { byStatus: Record<PipelineStatus, number> }) {
+export function BookingsPipeline({
+  byStatus,
+}: {
+  byStatus: Record<PipelineStatus, number>;
+}) {
   const rows = bookingsPipeline(byStatus);
   return (
     <Card>
@@ -26,7 +36,10 @@ export function BookingsPipeline({ byStatus }: { byStatus: Record<PipelineStatus
           <div key={row.status} className="space-y-1.5">
             <div className="flex items-center justify-between gap-4 text-sm">
               <span className="inline-flex items-center gap-2">
-                <span className={`size-2 rounded-full ${DOT_CLASS[row.status]}`} aria-hidden />
+                <span
+                  className={`size-2 rounded-full ${DOT_CLASS[row.status]}`}
+                  aria-hidden
+                />
                 {row.label}
               </span>
               <span className="font-medium tabular-nums">{row.count}</span>

@@ -6,7 +6,10 @@ import { Button } from '@tourism/ui';
 import { apiErrorMessage } from '../../../lib/api/error';
 import { AdminListHeader } from '../../../components/crud/list-header';
 import { ReviewsView } from '../../../components/reviews/reviews-view';
-import { listAdminReviews, type AdminReviewList } from '../../../lib/reviews/data';
+import {
+  listAdminReviews,
+  type AdminReviewList,
+} from '../../../lib/reviews/data';
 import { ErrorAlert } from '../../../components/crud/error-alert';
 
 export default async function ReviewsPage() {

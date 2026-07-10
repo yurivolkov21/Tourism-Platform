@@ -39,8 +39,16 @@ export function TechCloud() {
               key={b.name}
               className="mr-10 flex items-center gap-2.5 opacity-90 transition-opacity hover:opacity-100 lg:mr-14"
             >
-              <img src={colored(b.slug)} alt="" className="h-6 w-6 dark:hidden" />
-              <img src={mono(b.slug)} alt="" className="hidden h-6 w-6 dark:block" />
+              <img
+                src={colored(b.slug)}
+                alt=""
+                className="h-6 w-6 dark:hidden"
+              />
+              <img
+                src={mono(b.slug)}
+                alt=""
+                className="hidden h-6 w-6 dark:block"
+              />
               <span className="text-foreground/85 text-base font-medium whitespace-nowrap">
                 {b.name}
               </span>

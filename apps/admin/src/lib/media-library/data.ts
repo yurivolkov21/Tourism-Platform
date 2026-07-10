@@ -31,7 +31,9 @@ export interface GarbageList {
 }
 
 /** Lists media assets (`GET /admin/media`) — server-side filters + pagination. */
-export async function listMedia(params: MediaListParams = {}): Promise<MediaList> {
+export async function listMedia(
+  params: MediaListParams = {},
+): Promise<MediaList> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/media', {
     params: {
@@ -49,7 +51,9 @@ export async function listMedia(params: MediaListParams = {}): Promise<MediaList
 }
 
 /** Lists the deferred Cloudinary-destroy queue (`GET /api/v1/admin/media/garbage`). */
-export async function listGarbage(params: GarbageListParams = {}): Promise<GarbageList> {
+export async function listGarbage(
+  params: GarbageListParams = {},
+): Promise<GarbageList> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/media/garbage', {
     params: { query: { page: params.page, pageSize: params.pageSize } },

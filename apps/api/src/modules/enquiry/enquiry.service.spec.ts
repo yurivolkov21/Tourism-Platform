@@ -31,15 +31,18 @@ function makePrisma(opts: {
     findUnique: opts.findUnique ?? jest.fn(),
     update: opts.update ?? jest.fn(),
   };
-  const outbox = { create: opts.outboxCreate ?? jest.fn().mockResolvedValue({}) };
+  const outbox = {
+    create: opts.outboxCreate ?? jest.fn().mockResolvedValue({}),
+  };
   return {
     tour: { findFirst: opts.tourFindFirst ?? jest.fn() },
     enquiry,
     outbox,
     // Interactive tx — run the callback against the same mock (ADR-0007 enqueue).
     $transaction: jest.fn(
-      (cb: (tx: { enquiry: typeof enquiry; outbox: typeof outbox }) => unknown) =>
-        cb({ enquiry, outbox }),
+      (
+        cb: (tx: { enquiry: typeof enquiry; outbox: typeof outbox }) => unknown,
+      ) => cb({ enquiry, outbox }),
     ),
   };
 }
@@ -48,7 +51,9 @@ describe('EnquiryService.create', () => {
   it('creates a general enquiry (no tourId) and enqueues an ack email', async () => {
     const create = jest.fn().mockResolvedValue({ id: 'e-1' });
     const outboxCreate = jest.fn().mockResolvedValue({});
-    const svc = new EnquiryService(makePrisma({ create, outboxCreate }) as never);
+    const svc = new EnquiryService(
+      makePrisma({ create, outboxCreate }) as never,
+    );
 
     await svc.create(baseDto);
 
@@ -100,7 +105,11 @@ describe('EnquiryService.create', () => {
     await svc.create(baseDto);
 
     type CreateCall = {
-      data: { nationality: string | null; travelDate: Date | null; interests: string[] };
+      data: {
+        nationality: string | null;
+        travelDate: Date | null;
+        interests: string[];
+      };
     };
     const calls = create.mock.calls as unknown as CreateCall[][];
     expect(calls[0][0].data.nationality).toBeNull();

@@ -30,7 +30,11 @@ export async function refundBooking(
   if (input.amount !== undefined) body.amount = input.amount;
 
   try {
-    await apiWrite('POST', `/api/v1/admin/bookings/${encodeURIComponent(code)}/refund`, body);
+    await apiWrite(
+      'POST',
+      `/api/v1/admin/bookings/${encodeURIComponent(code)}/refund`,
+      body,
+    );
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }

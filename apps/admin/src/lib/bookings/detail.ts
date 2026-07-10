@@ -32,13 +32,28 @@ export function buildBookingTimeline(b: TimelineInput): TimelineStep[] {
   if (b.paidAt) {
     steps.push({ key: 'paid', label: 'Paid', at: b.paidAt, done: true });
   } else if (b.status === 'PENDING') {
-    steps.push({ key: 'paid', label: 'Awaiting payment', at: null, done: false });
+    steps.push({
+      key: 'paid',
+      label: 'Awaiting payment',
+      at: null,
+      done: false,
+    });
   }
 
   if (b.status === 'REFUNDED') {
-    steps.push({ key: 'refunded', label: 'Refunded', at: b.cancelledAt, done: true });
+    steps.push({
+      key: 'refunded',
+      label: 'Refunded',
+      at: b.cancelledAt,
+      done: true,
+    });
   } else if (b.status === 'CANCELLED') {
-    steps.push({ key: 'cancelled', label: 'Cancelled', at: b.cancelledAt, done: true });
+    steps.push({
+      key: 'cancelled',
+      label: 'Cancelled',
+      at: b.cancelledAt,
+      done: true,
+    });
   }
 
   return steps;

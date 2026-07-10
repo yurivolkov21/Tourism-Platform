@@ -9,13 +9,24 @@ describe('parseMetric', () => {
     const result = parseMetric(input);
 
     // Assert
-    expect(result).toMatchObject({ prefix: '', value: 12000, suffix: '+', decimals: 0, animate: true });
+    expect(result).toMatchObject({
+      prefix: '',
+      value: 12000,
+      suffix: '+',
+      decimals: 0,
+      animate: true,
+    });
   });
 
   it('parses a leading currency prefix and a scale suffix', () => {
     const result = parseMetric('$2M');
 
-    expect(result).toMatchObject({ prefix: '$', value: 2, suffix: 'M', animate: true });
+    expect(result).toMatchObject({
+      prefix: '$',
+      value: 2,
+      suffix: 'M',
+      animate: true,
+    });
   });
 
   it('keeps decimal precision', () => {
@@ -47,6 +58,11 @@ describe('parseMetric', () => {
   it('trims surrounding whitespace', () => {
     const result = parseMetric('  150+  ');
 
-    expect(result).toMatchObject({ value: 150, suffix: '+', animate: true, raw: '150+' });
+    expect(result).toMatchObject({
+      value: 150,
+      suffix: '+',
+      animate: true,
+      raw: '150+',
+    });
   });
 });

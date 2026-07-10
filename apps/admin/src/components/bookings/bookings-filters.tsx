@@ -87,7 +87,9 @@ export function BookingsFilters({
               onClick={() => pushWith({ status: t.value })}
               className={cn(
                 'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                active ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+                active
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'hover:text-foreground',
               )}
             >
               {t.label}

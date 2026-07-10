@@ -34,7 +34,12 @@ describe('destinationSchema', () => {
 describe('toDestinationPayload', () => {
   it('omits empty optionals and keeps set ones', () => {
     expect(
-      toDestinationPayload({ name: 'Hoi An', slug: '', region: 'Central Vietnam', isActive: true }),
+      toDestinationPayload({
+        name: 'Hoi An',
+        slug: '',
+        region: 'Central Vietnam',
+        isActive: true,
+      }),
     ).toEqual({ name: 'Hoi An', region: 'Central Vietnam', isActive: true });
   });
 

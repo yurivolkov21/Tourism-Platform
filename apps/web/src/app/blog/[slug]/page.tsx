@@ -2,7 +2,13 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeftIcon, ArrowRightIcon, CalendarDaysIcon, ClockIcon, RefreshCwIcon } from 'lucide-react';
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CalendarDaysIcon,
+  ClockIcon,
+  RefreshCwIcon,
+} from 'lucide-react';
 
 import { messages } from '@tourism/i18n';
 import { ScrollProgress } from '@tourism/ui';
@@ -14,10 +20,17 @@ import { PostContent } from '../../../components/blog/post-content';
 import { OutlineRail } from '../../../components/blog/outline-rail';
 import { PostNav } from '../../../components/blog/post-nav';
 import { ShareRow } from '../../../components/blog/share-row';
-import { ArticleJsonLd, BreadcrumbJsonLd } from '../../../components/seo/json-ld';
+import {
+  ArticleJsonLd,
+  BreadcrumbJsonLd,
+} from '../../../components/seo/json-ld';
 import { fetchPost, fetchPosts, fetchPostSlugs } from '../../../lib/api/posts';
 import { pickAdjacentPosts } from '../../../lib/blog/adjacent';
-import { extractOutline, isMeaningfullyUpdated, readingStats } from '../../../lib/blog/derive';
+import {
+  extractOutline,
+  isMeaningfullyUpdated,
+  readingStats,
+} from '../../../lib/blog/derive';
 import { pickMorePosts } from '../../../lib/blog/pick-more-posts';
 import { absoluteUrl } from '../../../lib/site';
 
@@ -53,7 +66,11 @@ export async function generateMetadata({
 
 const dateFmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' });
 
-export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function BlogPostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const post = await fetchPost(slug);
   if (!post) notFound();
@@ -70,7 +87,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     fetchPosts({ pageSize: 6 }).catch(() => null),
     fetchPosts({ pageSize: 100 }).catch(() => null),
   ]);
-  const more = pickMorePosts(taggedPage?.posts ?? [], recentPage?.posts ?? [], slug);
+  const more = pickMorePosts(
+    taggedPage?.posts ?? [],
+    recentPage?.posts ?? [],
+    slug,
+  );
   const { newer, older } = pickAdjacentPosts(widePage?.posts ?? [], slug);
   const showUpdated = isMeaningfullyUpdated(post.publishedAt, post.updatedAt);
 
@@ -176,7 +197,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <ShareRow url={absoluteUrl(`/blog/${slug}`)} title={post.title} />
           </div>
 
-          {outline.length >= 2 ? <OutlineRail items={outline} heading={t.outlineHeading} /> : null}
+          {outline.length >= 2 ? (
+            <OutlineRail items={outline} heading={t.outlineHeading} />
+          ) : null}
         </div>
 
         <PostNav newer={newer} older={older} />

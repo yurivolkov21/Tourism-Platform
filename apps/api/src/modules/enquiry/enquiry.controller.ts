@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiCreatedResponse,
   ApiOperation,
@@ -31,7 +38,9 @@ export class EnquiryController {
 
   @Post()
   @Public()
-  @Throttle({ default: { limit: ENQUIRY_RATE_LIMIT, ttl: ENQUIRY_RATE_TTL_MS } })
+  @Throttle({
+    default: { limit: ENQUIRY_RATE_LIMIT, ttl: ENQUIRY_RATE_TTL_MS },
+  })
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Submit a tour enquiry (public, rate-limited)' })
   @ApiCreatedResponse({ type: EnquiryAckDto, description: 'Received' })

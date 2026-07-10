@@ -48,13 +48,19 @@ describe('buildCreateBookingPayload', () => {
   });
 
   it('accepts PAYPAL as a gateway', () => {
-    const result = buildCreateBookingPayload({ ...valid, paymentProvider: 'PAYPAL' });
+    const result = buildCreateBookingPayload({
+      ...valid,
+      paymentProvider: 'PAYPAL',
+    });
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.payload.paymentProvider).toBe('PAYPAL');
   });
 
   it('rejects an unknown gateway', () => {
-    const result = buildCreateBookingPayload({ ...valid, paymentProvider: 'BITCOIN' });
+    const result = buildCreateBookingPayload({
+      ...valid,
+      paymentProvider: 'BITCOIN',
+    });
     expect(result).toEqual({ ok: false, error: 'INVALID_PROVIDER' });
   });
 
@@ -88,7 +94,9 @@ describe('buildCreateBookingPayload', () => {
       ok: false,
       error: 'INVALID_CONTACT',
     });
-    expect(buildCreateBookingPayload({ ...valid, contactEmail: 'not-an-email' })).toEqual({
+    expect(
+      buildCreateBookingPayload({ ...valid, contactEmail: 'not-an-email' }),
+    ).toEqual({
       ok: false,
       error: 'INVALID_CONTACT',
     });

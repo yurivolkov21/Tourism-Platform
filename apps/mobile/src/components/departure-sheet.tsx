@@ -1,4 +1,10 @@
-import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Pressable, View } from 'react-native';
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -93,7 +99,9 @@ export const DepartureSheet = forwardRef<
     if (selected.seatsLeft === 0 || adults + children > selected.seatsLeft) {
       const nextAdults = Math.max(1, Math.min(adults, selected.seatsLeft));
       setAdults(nextAdults);
-      setChildren(Math.min(children, Math.max(0, selected.seatsLeft - nextAdults)));
+      setChildren(
+        Math.min(children, Math.max(0, selected.seatsLeft - nextAdults)),
+      );
       if (selected.seatsLeft === 0) setDepartureId('');
       return; // the user sees the corrected steppers and confirms again
     }
@@ -112,7 +120,9 @@ export const DepartureSheet = forwardRef<
 
   return (
     <AppSheet ref={sheetRef} scrollable>
-      <View style={{ paddingHorizontal: theme.spacing(4), gap: theme.spacing(4) }}>
+      <View
+        style={{ paddingHorizontal: theme.spacing(4), gap: theme.spacing(4) }}
+      >
         <AppText variant="title">{t.form.datesHeading}</AppText>
 
         {departuresQ.isError ? (
@@ -120,7 +130,11 @@ export const DepartureSheet = forwardRef<
             <AppText variant="body" muted>
               {tm.departuresError}
             </AppText>
-            <Button variant="outline" label={tm.retry} onPress={() => departuresQ.refetch()} />
+            <Button
+              variant="outline"
+              label={tm.retry}
+              onPress={() => departuresQ.refetch()}
+            />
           </View>
         ) : options.length === 0 ? (
           <AppText variant="body" muted>
@@ -136,13 +150,21 @@ export const DepartureSheet = forwardRef<
                   key={option.id}
                   testID={`departure-${option.id}`}
                   accessibilityRole="radio"
-                  accessibilityState={{ selected: isSelected, disabled: soldOut }}
+                  accessibilityState={{
+                    selected: isSelected,
+                    disabled: soldOut,
+                  }}
                   disabled={soldOut}
                   onPress={() => selectDeparture(option)}
-                  android_ripple={{ color: theme.colors['muted'], foreground: true }}
+                  android_ripple={{
+                    color: theme.colors['muted'],
+                    foreground: true,
+                  }}
                   style={({ pressed }) => ({
                     borderWidth: isSelected ? 2 : 1,
-                    borderColor: isSelected ? theme.colors['primary'] : theme.colors['border'],
+                    borderColor: isSelected
+                      ? theme.colors['primary']
+                      : theme.colors['border'],
                     borderRadius: theme.radius.md,
                     overflow: 'hidden',
                     padding: theme.spacing(3),
@@ -154,7 +176,10 @@ export const DepartureSheet = forwardRef<
                         : 1,
                   })}
                 >
-                  <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold }}>
+                  <AppText
+                    variant="body"
+                    style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+                  >
                     {option.label}
                   </AppText>
                   <View
@@ -170,7 +195,10 @@ export const DepartureSheet = forwardRef<
                     {soldOut ? (
                       <Badge tone="muted" label={tm.soldOut} />
                     ) : option.seatsLeft <= 5 ? (
-                      <Badge tone="warning" label={td.seatsLeft(option.seatsLeft)} />
+                      <Badge
+                        tone="warning"
+                        label={td.seatsLeft(option.seatsLeft)}
+                      />
                     ) : (
                       <AppText variant="caption" muted>
                         {td.seatsLeft(option.seatsLeft)}

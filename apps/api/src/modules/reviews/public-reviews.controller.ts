@@ -8,10 +8,7 @@ import {
 import { Public } from '../../common/decorators/public.decorator';
 import { ListReviewsQueryDto } from './dto/list-reviews-query.dto';
 import { PaginatedPublicReviewsDto } from './dto/public-review.dto';
-import {
-  PaginatedPublicReviews,
-  ReviewsService,
-} from './reviews.service';
+import { PaginatedPublicReviews, ReviewsService } from './reviews.service';
 
 /**
  * Public read surface for approved reviews on one tour. Mounted at
@@ -30,7 +27,10 @@ export class PublicReviewsController {
     type: PaginatedPublicReviewsDto,
     description: 'Paginated approved reviews + average rating',
   })
-  @ApiResponse({ status: 404, description: 'Tour slug not found or unpublished' })
+  @ApiResponse({
+    status: 404,
+    description: 'Tour slug not found or unpublished',
+  })
   list(
     @Param('slug') slug: string,
     @Query() query: ListReviewsQueryDto,

@@ -37,7 +37,9 @@ export function ResetPasswordForm() {
       return;
     }
 
-    const { error: updateError } = await createClient().auth.updateUser({ password });
+    const { error: updateError } = await createClient().auth.updateUser({
+      password,
+    });
     if (updateError) {
       setError(authErrorMessage(updateError));
       setPending(false);
@@ -52,12 +54,24 @@ export function ResetPasswordForm() {
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="password">{t.passwordLabel}</Label>
-        <Input id="password" name="password" type="password" autoComplete="new-password" required />
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="new-password"
+          required
+        />
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="confirm">{t.confirmLabel}</Label>
-        <Input id="confirm" name="confirm" type="password" autoComplete="new-password" required />
+        <Input
+          id="confirm"
+          name="confirm"
+          type="password"
+          autoComplete="new-password"
+          required
+        />
       </div>
 
       {error ? (

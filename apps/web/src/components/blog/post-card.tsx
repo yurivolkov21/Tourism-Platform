@@ -17,7 +17,13 @@ const cardShell =
  * the lead-story treatment (spans 2 cols / 2 rows in a 3-col grid). Cover is optional → muted
  * placeholder panel, never a broken image.
  */
-export function PostCard({ post, featured = false }: { post: PostSummaryVM; featured?: boolean }) {
+export function PostCard({
+  post,
+  featured = false,
+}: {
+  post: PostSummaryVM;
+  featured?: boolean;
+}) {
   const t = messages.blog;
   return (
     <Link
@@ -27,7 +33,9 @@ export function PostCard({ post, featured = false }: { post: PostSummaryVM; feat
       <div
         className={cn(
           'relative overflow-hidden',
-          featured ? 'aspect-16/10 lg:aspect-auto lg:min-h-64 lg:flex-1' : 'aspect-16/10',
+          featured
+            ? 'aspect-16/10 lg:aspect-auto lg:min-h-64 lg:flex-1'
+            : 'aspect-16/10',
         )}
       >
         {post.coverUrl ? (
@@ -35,7 +43,11 @@ export function PostCard({ post, featured = false }: { post: PostSummaryVM; feat
             src={post.coverUrl}
             alt={post.title}
             fill
-            sizes={featured ? '(min-width: 1024px) 66vw, 100vw' : '(min-width: 1024px) 33vw, 50vw'}
+            sizes={
+              featured
+                ? '(min-width: 1024px) 66vw, 100vw'
+                : '(min-width: 1024px) 33vw, 50vw'
+            }
             className="object-cover transition-transform duration-300 ease-out-expo group-hover:scale-105"
           />
         ) : (
@@ -49,7 +61,12 @@ export function PostCard({ post, featured = false }: { post: PostSummaryVM; feat
           </span>
         )}
       </div>
-      <div className={cn('flex flex-1 flex-col gap-2 p-5 lg:p-6', featured && 'lg:flex-none')}>
+      <div
+        className={cn(
+          'flex flex-1 flex-col gap-2 p-5 lg:p-6',
+          featured && 'lg:flex-none',
+        )}
+      >
         {post.tags.length > 0 ? (
           <span className="flex flex-wrap gap-1">
             {post.tags.slice(0, 2).map((t) => (

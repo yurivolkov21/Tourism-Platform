@@ -3,7 +3,14 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
-import { AppText, Badge, Button, Screen, Skeleton, useTheme } from '@tourism/mobile-ui';
+import {
+  AppText,
+  Badge,
+  Button,
+  Screen,
+  Skeleton,
+  useTheme,
+} from '@tourism/mobile-ui';
 import { AuthGate } from '../../components/auth-gate';
 import { SectionHeading } from '../../components/section-heading';
 import { useAuth } from '../../lib/auth-context';
@@ -33,7 +40,13 @@ function BookingCard({ booking }: { booking: BookingVm }) {
         opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.85 : 1,
       })}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(2) }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: theme.spacing(2),
+        }}
+      >
         <AppText
           variant="body"
           numberOfLines={1}
@@ -41,16 +54,28 @@ function BookingCard({ booking }: { booking: BookingVm }) {
         >
           {booking.tourTitle}
         </AppText>
-        <Badge tone={booking.statusMeta.tone} label={booking.statusMeta.label} />
+        <Badge
+          tone={booking.statusMeta.tone}
+          label={booking.statusMeta.label}
+        />
       </View>
       <AppText variant="caption" muted>
         {t.refLabel}: {booking.code} · {t.bookedOn(booking.bookedOn)}
       </AppText>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         <AppText variant="caption" muted>
           {t.departureLabel}: {booking.departureLabel}
         </AppText>
-        <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold }}>
+        <AppText
+          variant="body"
+          style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+        >
           {formatMoney(booking.currency, booking.totalAmount)}
         </AppText>
       </View>
@@ -70,14 +95,20 @@ export default function TripsScreen() {
   if (status !== 'signedIn') {
     return (
       <Screen scroll={false}>
-        <AuthGate icon="briefcase-outline" title={t.title} body={tp.accountGateBody} />
+        <AuthGate
+          icon="briefcase-outline"
+          title={t.title}
+          body={tp.accountGateBody}
+        />
       </Screen>
     );
   }
 
   return (
     <Screen scroll={false}>
-      <View style={{ flex: 1, paddingTop: theme.spacing(4), gap: theme.spacing(3) }}>
+      <View
+        style={{ flex: 1, paddingTop: theme.spacing(4), gap: theme.spacing(3) }}
+      >
         <SectionHeading title={t.title} subtitle={t.subtitle} />
         {listQ.isPending ? (
           <View style={{ gap: theme.spacing(3) }}>
@@ -87,7 +118,11 @@ export default function TripsScreen() {
           </View>
         ) : listQ.isError || !listQ.data ? (
           <View
-            style={{ alignItems: 'center', gap: theme.spacing(3), paddingVertical: theme.spacing(6) }}
+            style={{
+              alignItems: 'center',
+              gap: theme.spacing(3),
+              paddingVertical: theme.spacing(6),
+            }}
           >
             <AppText variant="body" style={{ textAlign: 'center' }}>
               {tm.listError}
@@ -96,7 +131,11 @@ export default function TripsScreen() {
           </View>
         ) : listQ.data.length === 0 ? (
           <View
-            style={{ alignItems: 'center', gap: theme.spacing(3), paddingVertical: theme.spacing(6) }}
+            style={{
+              alignItems: 'center',
+              gap: theme.spacing(3),
+              paddingVertical: theme.spacing(6),
+            }}
           >
             <AppText variant="body" muted style={{ textAlign: 'center' }}>
               {t.empty}
@@ -109,7 +148,10 @@ export default function TripsScreen() {
               data={listQ.data}
               keyExtractor={(item) => item.code}
               renderItem={({ item }) => <BookingCard booking={item} />}
-              contentContainerStyle={{ gap: theme.spacing(3), paddingBottom: theme.spacing(6) }}
+              contentContainerStyle={{
+                gap: theme.spacing(3),
+                paddingBottom: theme.spacing(6),
+              }}
               showsVerticalScrollIndicator={false}
               refreshing={listQ.isRefetching}
               onRefresh={() => listQ.refetch()}

@@ -5,9 +5,23 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
-import { Accordion, AppText, Badge, Button, Screen, Spinner, useTheme } from '@tourism/mobile-ui';
-import { DepartureSheet, type DepartureSheetRef } from '../../../components/departure-sheet';
-import { EnquirySheet, type EnquirySheetRef } from '../../../components/enquiry-sheet';
+import {
+  Accordion,
+  AppText,
+  Badge,
+  Button,
+  Screen,
+  Spinner,
+  useTheme,
+} from '@tourism/mobile-ui';
+import {
+  DepartureSheet,
+  type DepartureSheetRef,
+} from '../../../components/departure-sheet';
+import {
+  EnquirySheet,
+  type EnquirySheetRef,
+} from '../../../components/enquiry-sheet';
 import { GalleryPager } from '../../../components/gallery-pager';
 import { HeartButton } from '../../../components/heart-button';
 import { TourBadges } from '../../../components/tour-badges';
@@ -94,7 +108,9 @@ export default function TourDetailScreen() {
   if (detailQ.isPending) {
     return (
       <Screen scroll={false}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <View
+          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+        >
           <Spinner />
         </View>
       </Screen>
@@ -104,7 +120,12 @@ export default function TourDetailScreen() {
     return (
       <Screen scroll={false}>
         <View
-          style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: theme.spacing(3) }}
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: theme.spacing(3),
+          }}
         >
           <AppText variant="body" style={{ textAlign: 'center' }}>
             {t.error}
@@ -118,7 +139,12 @@ export default function TourDetailScreen() {
     return (
       <Screen scroll={false}>
         <View
-          style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: theme.spacing(3) }}
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: theme.spacing(3),
+          }}
         >
           <AppText variant="body" style={{ textAlign: 'center' }}>
             {t.notFound}
@@ -167,22 +193,54 @@ export default function TourDetailScreen() {
             </AppText>
             <AppText variant="display">{tour.title}</AppText>
             {tour.reviewCount > 0 ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(1) }}>
-                <Ionicons name="star" size={14} color={theme.colors['rating']} />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: theme.spacing(1),
+                }}
+              >
+                <Ionicons
+                  name="star"
+                  size={14}
+                  color={theme.colors['rating']}
+                />
                 <AppText variant="caption">{tour.rating.toFixed(1)}</AppText>
                 <AppText variant="caption" muted>
                   ({tour.reviewCount} {messages.featuredTours.reviewsLabel})
                 </AppText>
               </View>
             ) : null}
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing(3) }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(1) }}>
-                <Ionicons name="time-outline" size={13} color={theme.colors['muted-foreground']} />
+            <View
+              style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: theme.spacing(3),
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: theme.spacing(1),
+                }}
+              >
+                <Ionicons
+                  name="time-outline"
+                  size={13}
+                  color={theme.colors['muted-foreground']}
+                />
                 <AppText variant="caption" muted>
                   {th.durationDays(tour.durationDays)}
                 </AppText>
               </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(1) }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: theme.spacing(1),
+                }}
+              >
                 <Ionicons
                   name="people-outline"
                   size={13}
@@ -194,7 +252,11 @@ export default function TourDetailScreen() {
               </View>
               {tour.difficulty ? (
                 <View
-                  style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(1) }}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: theme.spacing(1),
+                  }}
                 >
                   <Ionicons
                     name="walk-outline"
@@ -216,12 +278,18 @@ export default function TourDetailScreen() {
                   flexWrap: 'wrap',
                 }}
               >
-                <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold }}>
+                <AppText
+                  variant="body"
+                  style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+                >
                   {t.nextDeparture(tour.nextDepartureDate)}
                 </AppText>
                 {tour.nextDepartureSeatsLeft != null ? (
                   tour.nextDepartureSeatsLeft <= 5 ? (
-                    <Badge tone="warning" label={t.seatsLeft(tour.nextDepartureSeatsLeft)} />
+                    <Badge
+                      tone="warning"
+                      label={t.seatsLeft(tour.nextDepartureSeatsLeft)}
+                    />
                   ) : (
                     <AppText variant="caption" muted>
                       {t.seatsLeft(tour.nextDepartureSeatsLeft)}
@@ -248,7 +316,10 @@ export default function TourDetailScreen() {
             <Section title={t.itineraryTitle}>
               <View style={{ gap: theme.spacing(2) }}>
                 {tour.itinerary.slice(0, 3).map((day) => (
-                  <Accordion key={day.day} title={`${t.dayLabel(day.day)}: ${day.title}`}>
+                  <Accordion
+                    key={day.day}
+                    title={`${t.dayLabel(day.day)}: ${day.title}`}
+                  >
                     <AppText variant="body">{day.body}</AppText>
                   </Accordion>
                 ))}
@@ -322,7 +393,10 @@ export default function TourDetailScreen() {
               <View style={{ gap: theme.spacing(3) }}>
                 {tour.policies.map((policy) => (
                   <View key={policy.title} style={{ gap: theme.spacing(1) }}>
-                    <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold }}>
+                    <AppText
+                      variant="body"
+                      style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+                    >
                       {policy.title}
                     </AppText>
                     <AppText variant="body" muted>
@@ -356,7 +430,13 @@ export default function TourDetailScreen() {
           <AppText variant="caption" muted>
             {t.from}
           </AppText>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing(2) }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'baseline',
+              gap: theme.spacing(2),
+            }}
+          >
             <AppText
               style={{
                 fontFamily: theme.fontFamilies.sansSemiBold,
@@ -369,7 +449,11 @@ export default function TourDetailScreen() {
               {tour.basePrice}
             </AppText>
             {tour.compareAtPrice ? (
-              <AppText variant="caption" muted style={{ textDecorationLine: 'line-through' }}>
+              <AppText
+                variant="caption"
+                muted
+                style={{ textDecorationLine: 'line-through' }}
+              >
                 {dollar}
                 {tour.compareAtPrice}
               </AppText>
@@ -401,7 +485,11 @@ export default function TourDetailScreen() {
         basePrice={tour.basePrice}
         currency={tour.currency}
       />
-      <EnquirySheet ref={enquirySheetRef} tourId={tour.id} tourTitle={tour.title} />
+      <EnquirySheet
+        ref={enquirySheetRef}
+        tourId={tour.id}
+        tourTitle={tour.title}
+      />
     </View>
   );
 }

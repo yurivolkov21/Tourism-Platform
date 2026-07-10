@@ -79,7 +79,8 @@ export function bookingStatusMeta(status: string): BookingStatusMeta {
 /** "2 adults · 1 child" via the shared web copy helpers. */
 export function partyLine(numAdults: number, numChildren: number): string {
   const parts = [messages.booking.page.adultsLine(numAdults)];
-  if (numChildren > 0) parts.push(messages.booking.page.childrenLine(numChildren));
+  if (numChildren > 0)
+    parts.push(messages.booking.page.childrenLine(numChildren));
   return parts.join(' · ');
 }
 
@@ -124,14 +125,16 @@ export function toBookingVm(dto: BookingDto): BookingVm {
     contactPhone: dto.contactPhone ?? undefined,
     specialRequests: dto.specialRequests ?? undefined,
     cancellationStatus: dto.cancellationRequest?.status,
-    refundedAmount: dto.refundedAmount != null ? Number(dto.refundedAmount) : undefined,
+    refundedAmount:
+      dto.refundedAmount != null ? Number(dto.refundedAmount) : undefined,
   };
 }
 
 /** Friendly EN for a booking/API failure (`ApiRequestError.code` → web copy). */
 export function bookingErrorMessage(error: unknown): string {
   const errors = messages.booking.errors as Record<string, string>;
-  if (error instanceof ApiRequestError && errors[error.code]) return errors[error.code];
+  if (error instanceof ApiRequestError && errors[error.code])
+    return errors[error.code];
   return errors['generic'];
 }
 
@@ -140,7 +143,9 @@ export function bookingErrorMessage(error: unknown): string {
  * can tell "no departures" apart from "couldn't load departures" (a swallowed
  * network error here would silently dead-end the money path).
  */
-export async function fetchTourDepartures(slug: string): Promise<DepartureDto[]> {
+export async function fetchTourDepartures(
+  slug: string,
+): Promise<DepartureDto[]> {
   const { data } = await getApiClient().GET('/api/v1/tours/{slug}/departures', {
     params: { path: { slug }, query: { status: 'OPEN' } },
   });
@@ -150,7 +155,8 @@ export async function fetchTourDepartures(slug: string): Promise<DepartureDto[]>
 /** The caller's bookings, newest first (top 50 on the API). Throws on failure. */
 export async function fetchMyBookings(): Promise<BookingVm[]> {
   const { data } = await getApiClient().GET('/api/v1/bookings/me');
-  const list = (data as unknown as { data?: BookingDto[] } | undefined)?.data ?? [];
+  const list =
+    (data as unknown as { data?: BookingDto[] } | undefined)?.data ?? [];
   return list.map(toBookingVm);
 }
 
@@ -184,7 +190,9 @@ async function postBooking(payload: CreateBookingPayload): Promise<BookingDto> {
  * re-sync once and retry, exactly like web's createBookingWithSync (which also
  * treats a plain 401 as the unmirrored-user case, not just USER_NOT_SYNCED).
  */
-export async function createBooking(payload: CreateBookingPayload): Promise<BookingDto> {
+export async function createBooking(
+  payload: CreateBookingPayload,
+): Promise<BookingDto> {
   try {
     return await postBooking(payload);
   } catch (error) {
@@ -201,10 +209,14 @@ export async function createBooking(payload: CreateBookingPayload): Promise<Book
 
 /** Start a hosted-checkout session for a PENDING booking → the gateway URL. */
 export async function startCheckout(code: string): Promise<string> {
-  const { data } = await getApiClient().POST('/api/v1/bookings/{code}/checkout', {
-    params: { path: { code } },
-  });
-  const dto = (data as unknown as { data?: CheckoutSessionDto } | undefined)?.data;
+  const { data } = await getApiClient().POST(
+    '/api/v1/bookings/{code}/checkout',
+    {
+      params: { path: { code } },
+    },
+  );
+  const dto = (data as unknown as { data?: CheckoutSessionDto } | undefined)
+    ?.data;
   if (!dto?.checkoutUrl) throw new Error('empty checkout response');
   return dto.checkoutUrl;
 }
@@ -224,7 +236,10 @@ export async function cancelBooking(code: string): Promise<void> {
 }
 
 /** Request cancellation/refund of a PAID booking (admin processes it). */
-export async function requestCancellation(code: string, reason?: string): Promise<void> {
+export async function requestCancellation(
+  code: string,
+  reason?: string,
+): Promise<void> {
   const trimmed = reason?.trim();
   await getApiClient().POST('/api/v1/bookings/{code}/cancellation-request', {
     params: { path: { code } },

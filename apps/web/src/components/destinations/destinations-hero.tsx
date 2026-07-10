@@ -26,7 +26,9 @@ export function DestinationsHero() {
         <h1 className="text-4xl leading-tight font-bold text-balance sm:text-5xl lg:text-6xl">
           {t.heroTitle}
         </h1>
-        <p className="text-on-media/85 max-w-xl text-lg text-pretty">{t.heroSubtitle}</p>
+        <p className="text-on-media/85 max-w-xl text-lg text-pretty">
+          {t.heroSubtitle}
+        </p>
         {/* Breadcrumb pill (Lily-style) */}
         <nav
           aria-label="Breadcrumb"

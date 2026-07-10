@@ -61,12 +61,23 @@ export function ProfileForm({
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="fullName">{t.fullNameLabel}</Label>
-        <Input id="fullName" name="fullName" autoComplete="name" defaultValue={fullName} />
+        <Input
+          id="fullName"
+          name="fullName"
+          autoComplete="name"
+          defaultValue={fullName}
+        />
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="phone">{t.phoneLabel}</Label>
-        <Input id="phone" name="phone" type="tel" autoComplete="tel" defaultValue={phone} />
+        <Input
+          id="phone"
+          name="phone"
+          type="tel"
+          autoComplete="tel"
+          defaultValue={phone}
+        />
       </div>
 
       <div className="space-y-1.5">

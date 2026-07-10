@@ -16,7 +16,12 @@ import { OutboxService } from './outbox.service';
 @Module({
   imports: [MediaModule],
   controllers: [AdminOutboxController],
-  providers: [OutboxService, MaintenanceService, JobsService, AdminOutboxService],
+  providers: [
+    OutboxService,
+    MaintenanceService,
+    JobsService,
+    AdminOutboxService,
+  ],
   exports: [OutboxService, MaintenanceService],
 })
 export class JobsModule {}

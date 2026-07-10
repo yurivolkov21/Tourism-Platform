@@ -19,7 +19,9 @@ export default async function DashboardPage() {
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
       {stats ? (
         <>
-          <SectionCards cards={computeCardModels(stats.overview, stats.monthlyTrend)} />
+          <SectionCards
+            cards={computeCardModels(stats.overview, stats.monthlyTrend)}
+          />
           <div className="px-4 lg:px-6">
             <ChartAreaInteractive daily={stats.dailyTrend} />
           </div>
@@ -31,7 +33,9 @@ export default async function DashboardPage() {
               byWishlist={stats.topToursByWishlist}
               currency={stats.overview.currency}
             />
-            {stats.pendingCounts ? <NeedsAttention counts={stats.pendingCounts} /> : null}
+            {stats.pendingCounts ? (
+              <NeedsAttention counts={stats.pendingCounts} />
+            ) : null}
           </div>
         </>
       ) : (

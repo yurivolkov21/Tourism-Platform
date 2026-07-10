@@ -35,7 +35,11 @@ function dayStart(iso: string): number {
 /** Whole days from `now` until `startDate` (0 = today, negative = past). */
 export function daysUntil(startDate: string, now: Date): number {
   const start = dayStart(startDate);
-  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const today = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+  );
   if (Number.isNaN(start)) return 0;
   return Math.round((start - today) / 86_400_000);
 }
@@ -62,7 +66,8 @@ export function summarizeBookings(
 
   upcomingTrips.sort(
     (a, b) =>
-      daysUntil(a.departure.startDate, now) - daysUntil(b.departure.startDate, now),
+      daysUntil(a.departure.startDate, now) -
+      daysUntil(b.departure.startDate, now),
   );
 
   return {

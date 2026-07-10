@@ -6,7 +6,13 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { BookingStatus, EmailType, Prisma, Review, ReviewSource } from '@prisma/client';
+import {
+  BookingStatus,
+  EmailType,
+  Prisma,
+  Review,
+  ReviewSource,
+} from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCuratedReviewDto } from './dto/create-curated-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -401,10 +407,13 @@ export class ReviewsService {
     if (existing.source !== ReviewSource.CURATED) {
       throw new ConflictException({
         code: 'REVIEW_NOT_CURATED',
-        message: 'Only curated testimonials can be deleted — unapprove a verified review to hide it.',
+        message:
+          'Only curated testimonials can be deleted — unapprove a verified review to hide it.',
       });
     }
-    const deleted = await this.prisma.review.delete({ where: { id: reviewId } });
+    const deleted = await this.prisma.review.delete({
+      where: { id: reviewId },
+    });
     this.logger.log(`Deleted curated review ${reviewId}`);
     return deleted;
   }

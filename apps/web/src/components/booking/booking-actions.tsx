@@ -21,7 +21,11 @@ import {
 import { messages } from '@tourism/i18n';
 
 import type { BookingDto } from '../../lib/api/booking';
-import { cancelBookingAction, payNowAction, requestCancellationAction } from '../../lib/booking/actions';
+import {
+  cancelBookingAction,
+  payNowAction,
+  requestCancellationAction,
+} from '../../lib/booking/actions';
 import { formatPrice } from './order-summary';
 
 /** Status-aware actions on the booking detail: pay/cancel a PENDING booking, request cancellation of a
@@ -77,7 +81,12 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
     return (
       <div className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button size="lg" onClick={() => void payNow()} disabled={pending} className="sm:flex-1">
+          <Button
+            size="lg"
+            onClick={() => void payNow()}
+            disabled={pending}
+            className="sm:flex-1"
+          >
             {t.payNow}
           </Button>
           <AlertDialog open={cancelOpen} onOpenChange={setCancelOpen}>
@@ -95,10 +104,14 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
             <AlertDialogContent className="sm:max-w-md">
               <AlertDialogHeader>
                 <AlertDialogTitle>{t.cancelConfirmTitle}</AlertDialogTitle>
-                <AlertDialogDescription>{t.cancelConfirmBody}</AlertDialogDescription>
+                <AlertDialogDescription>
+                  {t.cancelConfirmBody}
+                </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={pending}>{t.keep}</AlertDialogCancel>
+                <AlertDialogCancel disabled={pending}>
+                  {t.keep}
+                </AlertDialogCancel>
                 <AlertDialogAction
                   variant="destructive"
                   onClick={() => void confirmCancel()}
@@ -128,7 +141,9 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
       <div className="border-border space-y-3 rounded-xl border border-dashed p-4">
         <div className="space-y-1">
           <h3 className="text-sm font-semibold">{t.requestTitle}</h3>
-          <p className="text-muted-foreground text-sm text-pretty">{t.requestBody}</p>
+          <p className="text-muted-foreground text-sm text-pretty">
+            {t.requestBody}
+          </p>
           {isDenied ? (
             <p className="text-destructive text-sm" role="alert">
               {t.requestDenied}
@@ -150,7 +165,11 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
               />
             </div>
             <Button type="submit" disabled={submitting}>
-              {submitting ? t.submitting : isDenied ? t.requestResubmit : t.submitRequest}
+              {submitting
+                ? t.submitting
+                : isDenied
+                  ? t.requestResubmit
+                  : t.submitRequest}
             </Button>
           </form>
         ) : (
@@ -158,7 +177,10 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
             {isDenied ? t.requestResubmit : t.requestCta}
           </Button>
         )}
-        <Link href="/cancellation-policy" className="text-muted-foreground inline-block text-xs hover:underline">
+        <Link
+          href="/cancellation-policy"
+          className="text-muted-foreground inline-block text-xs hover:underline"
+        >
           {t.policyLink}
         </Link>
       </div>
@@ -166,10 +188,15 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
   }
 
   if (booking.refundedAmount) {
-    const amount = formatPrice(booking.currency, Number(booking.refundedAmount));
+    const amount = formatPrice(
+      booking.currency,
+      Number(booking.refundedAmount),
+    );
     return (
       <p className="text-muted-foreground text-sm" role="status">
-        {booking.status === 'PARTIALLY_REFUNDED' ? t.partiallyRefundedNote(amount) : t.refundedNote(amount)}
+        {booking.status === 'PARTIALLY_REFUNDED'
+          ? t.partiallyRefundedNote(amount)
+          : t.refundedNote(amount)}
       </p>
     );
   }

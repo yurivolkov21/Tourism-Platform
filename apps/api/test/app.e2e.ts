@@ -25,7 +25,9 @@ const ENQUIRY_EMAIL = 'e2e-lead@tourism.test';
  * than stubbing the guard — exercises the actual auth + roles path.
  */
 async function mintJwt(sub: string, email: string): Promise<string> {
-  const secret = new TextEncoder().encode(process.env.SUPABASE_JWT_SECRET ?? '');
+  const secret = new TextEncoder().encode(
+    process.env.SUPABASE_JWT_SECRET ?? '',
+  );
   return new SignJWT({ email })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(sub)
@@ -57,7 +59,9 @@ describe('API happy-path (e2e, seeded DB)', () => {
       );
     }
     if (!process.env.SUPABASE_JWT_SECRET) {
-      throw new Error('e2e needs SUPABASE_JWT_SECRET (HS256) set in apps/api/.env');
+      throw new Error(
+        'e2e needs SUPABASE_JWT_SECRET (HS256) set in apps/api/.env',
+      );
     }
 
     const moduleRef = await Test.createTestingModule({
@@ -103,7 +107,9 @@ describe('API happy-path (e2e, seeded DB)', () => {
       await prisma.review.deleteMany({ where: { bookingId: booking.id } });
       tourId = booking.tourId;
     }
-    await prisma.wishlist.deleteMany({ where: { userId: CUSTOMER_ID, tourId } });
+    await prisma.wishlist.deleteMany({
+      where: { userId: CUSTOMER_ID, tourId },
+    });
     await prisma.enquiry.deleteMany({ where: { email: ENQUIRY_EMAIL } });
   });
 
@@ -119,13 +125,17 @@ describe('API happy-path (e2e, seeded DB)', () => {
     t.set('Authorization', `Bearer ${adminToken}`);
 
   it('lists published tours (public) including the seeded tour', async () => {
-    const res = await request(server()).get('/api/v1/tours?pageSize=50').expect(200);
+    const res = await request(server())
+      .get('/api/v1/tours?pageSize=50')
+      .expect(200);
     const list = res.body as ListBody<{ slug: string }>;
     expect(list.data.map((t) => t.slug)).toContain(TOUR_SLUG);
   });
 
   it('returns the seeded tour detail', async () => {
-    const res = await request(server()).get(`/api/v1/tours/${TOUR_SLUG}`).expect(200);
+    const res = await request(server())
+      .get(`/api/v1/tours/${TOUR_SLUG}`)
+      .expect(200);
     const item = res.body as ItemBody<{ slug: string; id: string }>;
     expect(item.data.slug).toBe(TOUR_SLUG);
   });
@@ -169,8 +179,12 @@ describe('API happy-path (e2e, seeded DB)', () => {
   });
 
   it('lets the customer add + list a wishlist item', async () => {
-    await asCustomer(request(server()).post(`/api/v1/wishlist/${tourId}`)).expect(200);
-    const res = await asCustomer(request(server()).get('/api/v1/wishlist/me')).expect(200);
+    await asCustomer(
+      request(server()).post(`/api/v1/wishlist/${tourId}`),
+    ).expect(200);
+    const res = await asCustomer(
+      request(server()).get('/api/v1/wishlist/me'),
+    ).expect(200);
     const list = res.body as ItemBody<Array<{ tourId: string }>>;
     expect(list.data.some((w) => w.tourId === tourId)).toBe(true);
   });
@@ -184,7 +198,9 @@ describe('API happy-path (e2e, seeded DB)', () => {
         message: 'Interested in the seeded tour — submitted by the e2e suite.',
       })
       .expect(201);
-    expect((ack.body as ItemBody<{ received: boolean }>).data.received).toBe(true);
+    expect((ack.body as ItemBody<{ received: boolean }>).data.received).toBe(
+      true,
+    );
 
     const res = await asAdmin(
       request(server()).get('/api/v1/admin/enquiries?pageSize=100'),

@@ -1,7 +1,15 @@
-import { parseMediaField, assembleMediaSet, cloudinaryUrl, type MediaInput } from './media';
+import {
+  parseMediaField,
+  assembleMediaSet,
+  cloudinaryUrl,
+  type MediaInput,
+} from './media';
 
 test('parseMediaField keeps valid items, ≤1 hero, ≤9 gallery', () => {
-  const gallery = Array.from({ length: 12 }, (_, i) => ({ publicId: `g${i}`, role: 'gallery' }));
+  const gallery = Array.from({ length: 12 }, (_, i) => ({
+    publicId: `g${i}`,
+    role: 'gallery',
+  }));
   const json = JSON.stringify([
     { publicId: 'h1', role: 'hero' },
     { publicId: 'h2', role: 'hero' },
@@ -35,5 +43,7 @@ test('cloudinaryUrl builds a delivery URL', () => {
   expect(cloudinaryUrl('demo', 'tourism/destinations/hero/123-x', 'jpg')).toBe(
     'https://res.cloudinary.com/demo/image/upload/tourism/destinations/hero/123-x.jpg',
   );
-  expect(cloudinaryUrl('demo', 'p')).toBe('https://res.cloudinary.com/demo/image/upload/p');
+  expect(cloudinaryUrl('demo', 'p')).toBe(
+    'https://res.cloudinary.com/demo/image/upload/p',
+  );
 });

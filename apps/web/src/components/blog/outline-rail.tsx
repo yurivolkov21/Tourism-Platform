@@ -12,7 +12,13 @@ import type { OutlineItem } from '../../lib/blog/derive';
  * the top third of the viewport highlights its link. Progressive enhancement — without
  * IntersectionObserver the rail renders exactly as before, just without the highlight.
  */
-export function OutlineRail({ items, heading }: { items: OutlineItem[]; heading: string }) {
+export function OutlineRail({
+  items,
+  heading,
+}: {
+  items: OutlineItem[];
+  heading: string;
+}) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -38,10 +44,15 @@ export function OutlineRail({ items, heading }: { items: OutlineItem[]; heading:
   return (
     <aside className="max-lg:order-first">
       <nav aria-label={heading} className="lg:sticky lg:top-28">
-        <h2 className="font-sans text-sm font-semibold tracking-wide uppercase">{heading}</h2>
+        <h2 className="font-sans text-sm font-semibold tracking-wide uppercase">
+          {heading}
+        </h2>
         <ul className="border-border/60 mt-3 space-y-2 border-l pl-4 text-sm">
           {items.map((item, i) => (
-            <li key={`${item.id}-${i}`} className={item.depth === 3 ? 'pl-3' : undefined}>
+            <li
+              key={`${item.id}-${i}`}
+              className={item.depth === 3 ? 'pl-3' : undefined}
+            >
               <a
                 href={`#${item.id}`}
                 aria-current={activeId === item.id ? 'true' : undefined}

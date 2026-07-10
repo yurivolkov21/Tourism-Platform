@@ -23,7 +23,8 @@ function parsePage(raw?: string): number {
   return Number.isInteger(n) && n >= 1 ? n : 1;
 }
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Narrows a raw `?userId=` to a uuid (anything else = ignore the filter, avoid API 400s). */
 function parseUserId(raw?: string): string | undefined {
@@ -40,7 +41,9 @@ interface BookingsPageProps {
   }>;
 }
 
-export default async function BookingsPage({ searchParams }: BookingsPageProps) {
+export default async function BookingsPage({
+  searchParams,
+}: BookingsPageProps) {
   const sp = await searchParams;
   const status = parseStatus(sp.status);
   const page = parsePage(sp.page);
@@ -51,7 +54,13 @@ export default async function BookingsPage({ searchParams }: BookingsPageProps) 
   let result: BookingList | undefined;
   let error: string | null = null;
   try {
-    result = await listBookings({ page, pageSize, status, search: search || undefined, userId });
+    result = await listBookings({
+      page,
+      pageSize,
+      status,
+      search: search || undefined,
+      userId,
+    });
   } catch (e) {
     error = apiErrorMessage(e);
   }
@@ -80,8 +89,8 @@ export default async function BookingsPage({ searchParams }: BookingsPageProps) 
           <>
             <BookingsFilters status={status ?? 'all'} search={search} />
             <ErrorAlert>
-              Couldn&apos;t load bookings: {error}. Check that the API is running and your admin
-              session is valid.
+              Couldn&apos;t load bookings: {error}. Check that the API is
+              running and your admin session is valid.
             </ErrorAlert>
           </>
         ) : (

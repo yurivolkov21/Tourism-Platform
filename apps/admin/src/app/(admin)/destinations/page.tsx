@@ -13,7 +13,10 @@ import {
 import { apiErrorMessage } from '../../../lib/api/error';
 import { AdminListHeader } from '../../../components/crud/list-header';
 import { DestinationsTable } from '../../../components/destinations/destinations-table';
-import { listDestinations, type DestinationList } from '../../../lib/destinations/data';
+import {
+  listDestinations,
+  type DestinationList,
+} from '../../../lib/destinations/data';
 import { ErrorAlert } from '../../../components/crud/error-alert';
 
 export default async function DestinationsPage() {
@@ -34,7 +37,10 @@ export default async function DestinationsPage() {
         title="Destinations"
         description="Manage the places your tours run in. Drafts (inactive) are shown here too."
         action={
-          <Button nativeButton={false} render={<Link href="/destinations/new" />}>
+          <Button
+            nativeButton={false}
+            render={<Link href="/destinations/new" />}
+          >
             <Plus data-icon="inline-start" />
             New destination
           </Button>
@@ -43,8 +49,8 @@ export default async function DestinationsPage() {
 
       {error ? (
         <ErrorAlert>
-          Couldn&apos;t load destinations: {error}. Check that the API is running and your admin
-          session is valid.
+          Couldn&apos;t load destinations: {error}. Check that the API is
+          running and your admin session is valid.
         </ErrorAlert>
       ) : rows.length === 0 ? (
         <Empty className="border">
@@ -57,7 +63,10 @@ export default async function DestinationsPage() {
               Create your first destination to start building the catalog.
             </EmptyDescription>
           </EmptyHeader>
-          <Button nativeButton={false} render={<Link href="/destinations/new" />}>
+          <Button
+            nativeButton={false}
+            render={<Link href="/destinations/new" />}
+          >
             <Plus data-icon="inline-start" />
             New destination
           </Button>

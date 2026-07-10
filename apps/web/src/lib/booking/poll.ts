@@ -14,6 +14,9 @@ export function confirmPollDelayMs(attempt: number): number {
 }
 
 /** Whether to schedule another poll (stops once the cap is reached). */
-export function shouldKeepPolling(attempt: number, max: number = MAX_CONFIRM_POLLS): boolean {
+export function shouldKeepPolling(
+  attempt: number,
+  max: number = MAX_CONFIRM_POLLS,
+): boolean {
   return attempt < max;
 }

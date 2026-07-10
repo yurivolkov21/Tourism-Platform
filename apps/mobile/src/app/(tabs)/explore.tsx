@@ -15,7 +15,10 @@ import {
   TextField,
   useTheme,
 } from '@tourism/mobile-ui';
-import { FilterSheet, type FilterSheetRef } from '../../components/filter-sheet';
+import {
+  FilterSheet,
+  type FilterSheetRef,
+} from '../../components/filter-sheet';
 import { HeartButton } from '../../components/heart-button';
 import { SectionHeading } from '../../components/section-heading';
 import { TourCard } from '../../components/tour-card';
@@ -37,7 +40,10 @@ function SkeletonList() {
   return (
     <View style={{ gap: theme.spacing(3) }}>
       {[0, 1, 2].map((i) => (
-        <Card key={i} style={{ height: 240, backgroundColor: theme.colors['muted'] }} />
+        <Card
+          key={i}
+          style={{ height: 240, backgroundColor: theme.colors['muted'] }}
+        />
       ))}
     </View>
   );
@@ -45,12 +51,23 @@ function SkeletonList() {
 
 export default function ExploreScreen() {
   const theme = useTheme();
-  const params = useLocalSearchParams<{ destination?: string; focusSearch?: string }>();
-  const [state, setState] = useState<ExploreState>(() => initialExploreState(params));
+  const params = useLocalSearchParams<{
+    destination?: string;
+    focusSearch?: string;
+  }>();
+  const [state, setState] = useState<ExploreState>(() =>
+    initialExploreState(params),
+  );
   const filterSheetRef = useRef<FilterSheetRef>(null);
 
-  const toursQ = useQuery({ queryKey: ['tours', 'all'], queryFn: fetchAllTours });
-  const destQ = useQuery({ queryKey: ['destinations'], queryFn: fetchDestinations });
+  const toursQ = useQuery({
+    queryKey: ['tours', 'all'],
+    queryFn: fetchAllTours,
+  });
+  const destQ = useQuery({
+    queryKey: ['destinations'],
+    queryFn: fetchDestinations,
+  });
 
   const results = useMemo(
     () => (toursQ.data ? applyExploreState(toursQ.data, state) : []),
@@ -68,7 +85,11 @@ export default function ExploreScreen() {
         autoCorrect={false}
         autoFocus={params.focusSearch === '1'}
         leading={
-          <Ionicons name="search-outline" size={16} color={theme.colors['muted-foreground']} />
+          <Ionicons
+            name="search-outline"
+            size={16}
+            color={theme.colors['muted-foreground']}
+          />
         }
       />
       {destQ.data && destQ.data.length > 0 ? (
@@ -87,16 +108,25 @@ export default function ExploreScreen() {
                 onPress={() =>
                   setState((s) => ({
                     ...s,
-                    destination: s.destination === item.name ? undefined : item.name,
+                    destination:
+                      s.destination === item.name ? undefined : item.name,
                   }))
                 }
               />
             )}
-            ItemSeparatorComponent={() => <View style={{ width: theme.spacing(2) }} />}
+            ItemSeparatorComponent={() => (
+              <View style={{ width: theme.spacing(2) }} />
+            )}
           />
         </View>
       ) : null}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(2) }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: theme.spacing(2),
+        }}
+      >
         <Button
           testID="open-filters"
           variant="outline"
@@ -144,7 +174,9 @@ export default function ExploreScreen() {
             />
           </Animated.View>
         )}
-        ItemSeparatorComponent={() => <View style={{ height: theme.spacing(3) }} />}
+        ItemSeparatorComponent={() => (
+          <View style={{ height: theme.spacing(3) }} />
+        )}
         ListHeaderComponent={header}
         ListFooterComponent={<View style={{ height: theme.spacing(6) }} />}
         showsVerticalScrollIndicator={false}
@@ -166,7 +198,11 @@ export default function ExploreScreen() {
               <SkeletonList />
               <View style={{ alignItems: 'center', gap: theme.spacing(2) }}>
                 <Spinner />
-                <AppText variant="caption" muted style={{ textAlign: 'center' }}>
+                <AppText
+                  variant="caption"
+                  muted
+                  style={{ textAlign: 'center' }}
+                >
                   {t.slowServer}
                 </AppText>
               </View>
@@ -218,7 +254,11 @@ export default function ExploreScreen() {
             : 0
         }
         onApply={(draft) =>
-          setState((s) => ({ ...draft, query: s.query, destination: s.destination }))
+          setState((s) => ({
+            ...draft,
+            query: s.query,
+            destination: s.destination,
+          }))
         }
       />
     </Screen>

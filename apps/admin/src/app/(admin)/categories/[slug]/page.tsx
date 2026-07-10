@@ -3,12 +3,22 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { ArrowLeft, Pencil } from 'lucide-react';
 
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@tourism/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@tourism/ui';
 
 import { LinkedToursCard } from '../../../../components/crud/linked-tours-card';
 import { RowActions } from '../../../../components/crud/row-actions';
 import { deleteCategory } from '../../../../lib/categories/actions';
-import { getCategory, type CategoryDetail } from '../../../../lib/categories/data';
+import {
+  getCategory,
+  type CategoryDetail,
+} from '../../../../lib/categories/data';
 import { formatRelativeTime } from '../../../../lib/relative-time';
 
 interface CategoryDetailPageProps {
@@ -19,7 +29,11 @@ function formatDate(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? '—'
-    : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    : d.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
 }
 
 /** Label/value row for the details rail. */
@@ -32,7 +46,9 @@ function Row({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
-export default async function CategoryDetailPage({ params }: CategoryDetailPageProps) {
+export default async function CategoryDetailPage({
+  params,
+}: CategoryDetailPageProps) {
   const { slug } = await params;
 
   let category: CategoryDetail;
@@ -56,13 +72,23 @@ export default async function CategoryDetailPage({ params }: CategoryDetailPageP
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-heading text-2xl font-bold tracking-tight">{category.name}</h1>
-            <Badge variant={category.isActive ? 'default' : 'secondary'} className="gap-1.5">
-              <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+            <h1 className="font-heading text-2xl font-bold tracking-tight">
+              {category.name}
+            </h1>
+            <Badge
+              variant={category.isActive ? 'default' : 'secondary'}
+              className="gap-1.5"
+            >
+              <span
+                className="size-1.5 rounded-full bg-current opacity-70"
+                aria-hidden
+              />
               {category.isActive ? 'Active' : 'Draft'}
             </Badge>
           </div>
-          <p className="text-muted-foreground text-sm">Display order {category.order}</p>
+          <p className="text-muted-foreground text-sm">
+            Display order {category.order}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -114,8 +140,14 @@ export default async function CategoryDetailPage({ params }: CategoryDetailPageP
             <CardContent>
               <dl className="space-y-3">
                 <Row label="Display order" value={category.order} />
-                <Row label="Slug" value={<code className="text-xs">{category.slug}</code>} />
-                <Row label="Status" value={category.isActive ? 'Active' : 'Draft'} />
+                <Row
+                  label="Slug"
+                  value={<code className="text-xs">{category.slug}</code>}
+                />
+                <Row
+                  label="Status"
+                  value={category.isActive ? 'Active' : 'Draft'}
+                />
                 <Row
                   label="Created"
                   value={

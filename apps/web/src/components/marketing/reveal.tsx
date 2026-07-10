@@ -14,7 +14,13 @@ export function Reveal({
   delay?: number;
 }) {
   return (
-    <AnimatedContent distance={40} duration={0.6} threshold={0.12} delay={delay} className={className}>
+    <AnimatedContent
+      distance={40}
+      duration={0.6}
+      threshold={0.12}
+      delay={delay}
+      className={className}
+    >
       {children}
     </AnimatedContent>
   );

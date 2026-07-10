@@ -25,7 +25,10 @@ export class DeparturesController {
   @Public()
   @Get()
   @ApiOperation({ summary: 'List upcoming open departures for a tour' })
-  @ApiOkResponse({ type: [DepartureDto], description: 'Ordered by startDate asc' })
+  @ApiOkResponse({
+    type: [DepartureDto],
+    description: 'Ordered by startDate asc',
+  })
   @ApiResponse({ status: 404, description: 'Tour not found or unpublished' })
   list(
     @Param('slug') slug: string,

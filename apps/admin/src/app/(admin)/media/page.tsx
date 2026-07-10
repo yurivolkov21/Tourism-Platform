@@ -5,7 +5,12 @@ import { ErrorAlert } from '../../../components/crud/error-alert';
 import { MediaLibraryView } from '../../../components/media/media-library-view';
 import { GarbageView } from '../../../components/media/garbage-view';
 import { apiErrorMessage } from '../../../lib/api/error';
-import { listMedia, listGarbage, type MediaList, type GarbageList } from '../../../lib/media-library/data';
+import {
+  listMedia,
+  listGarbage,
+  type MediaList,
+  type GarbageList,
+} from '../../../lib/media-library/data';
 import { parsePageSize } from '../../../lib/pagination';
 import { cn } from '@tourism/ui';
 
@@ -13,7 +18,10 @@ const OWNER_TYPES = ['TOUR', 'DESTINATION', 'POST', 'USER'] as const;
 const ROLES = ['hero', 'gallery', 'avatar', 'body'] as const;
 const TYPES = ['IMAGE', 'VIDEO'] as const;
 
-function parseChoice<T extends string>(raw: string | undefined, allowed: readonly T[]): T | undefined {
+function parseChoice<T extends string>(
+  raw: string | undefined,
+  allowed: readonly T[],
+): T | undefined {
   return allowed.find((v) => v === raw);
 }
 
@@ -93,7 +101,9 @@ export default async function MediaPage({ searchParams }: MediaPageProps) {
               aria-selected={active}
               className={cn(
                 'inline-flex h-7 items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                active ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+                active
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'hover:text-foreground',
               )}
             >
               {t.label}
@@ -104,8 +114,8 @@ export default async function MediaPage({ searchParams }: MediaPageProps) {
 
       {error ? (
         <ErrorAlert>
-          Couldn&apos;t load media: {error}. Check that the API is running and your admin session is
-          valid.
+          Couldn&apos;t load media: {error}. Check that the API is running and
+          your admin session is valid.
         </ErrorAlert>
       ) : tab === 'library' ? (
         <MediaLibraryView

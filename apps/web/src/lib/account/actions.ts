@@ -22,7 +22,9 @@ function errorOf(e: unknown, fallback: string): string {
 }
 
 /** Persist the profile edit (`PATCH /users/me`). The client also syncs the Supabase display name. */
-export async function saveProfile(payload: UpdateProfilePayload): Promise<ProfileActionState> {
+export async function saveProfile(
+  payload: UpdateProfilePayload,
+): Promise<ProfileActionState> {
   try {
     await updateProfile(payload);
   } catch (e) {

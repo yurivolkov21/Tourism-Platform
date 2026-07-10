@@ -1,6 +1,12 @@
 import { AppState } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react-native';
 import { ThemeProvider } from '@tourism/mobile-ui';
 import * as Haptics from 'expo-haptics';
 import * as WebBrowser from 'expo-web-browser';
@@ -20,7 +26,9 @@ jest.mock('expo-router', () => ({
 jest.mock('expo-web-browser', () => ({
   openBrowserAsync: jest.fn().mockResolvedValue({ type: 'dismiss' }),
 }));
-jest.mock('../lib/supabase', () => ({ supabase: { auth: { getSession: jest.fn() } } }));
+jest.mock('../lib/supabase', () => ({
+  supabase: { auth: { getSession: jest.fn() } },
+}));
 jest.mock('../lib/booking', () => ({
   ...jest.requireActual('../lib/booking'),
   fetchBooking: jest.fn(),
@@ -64,7 +72,9 @@ function renderScreen() {
 beforeEach(() => {
   jest.clearAllMocks();
   // clearAllMocks keeps replaced implementations — restore the iOS-style default.
-  (WebBrowser.openBrowserAsync as jest.Mock).mockResolvedValue({ type: 'dismiss' });
+  (WebBrowser.openBrowserAsync as jest.Mock).mockResolvedValue({
+    type: 'dismiss',
+  });
   mockParams = { code: 'BK-1', checkoutUrl: 'https://pay.example/session' };
 });
 
@@ -81,7 +91,11 @@ test('opens the browser then confirms a PAID booking', async () => {
 
 test('PayPal + PENDING triggers the idempotent capture, then confirms', async () => {
   (fetchBooking as jest.Mock)
-    .mockResolvedValueOnce({ ...paidVm, status: 'PENDING', paymentProvider: 'PAYPAL' })
+    .mockResolvedValueOnce({
+      ...paidVm,
+      status: 'PENDING',
+      paymentProvider: 'PAYPAL',
+    })
     .mockResolvedValueOnce({ ...paidVm, paymentProvider: 'PAYPAL' });
   renderScreen();
   expect(await screen.findByText(/booking confirmed/i)).toBeOnTheScreen();
@@ -89,9 +103,14 @@ test('PayPal + PENDING triggers the idempotent capture, then confirms', async ()
 });
 
 test('still-PENDING shows verify-again + pay-now actions', async () => {
-  (fetchBooking as jest.Mock).mockResolvedValue({ ...paidVm, status: 'PENDING' });
+  (fetchBooking as jest.Mock).mockResolvedValue({
+    ...paidVm,
+    status: 'PENDING',
+  });
   renderScreen();
-  expect(await screen.findByText(/payment not confirmed yet/i)).toBeOnTheScreen();
+  expect(
+    await screen.findByText(/payment not confirmed yet/i),
+  ).toBeOnTheScreen();
   (fetchBooking as jest.Mock).mockResolvedValue(paidVm);
   fireEvent.press(screen.getByTestId('verify-again'));
   expect(await screen.findByText(/booking confirmed/i)).toBeOnTheScreen();
@@ -100,25 +119,33 @@ test('still-PENDING shows verify-again + pay-now actions', async () => {
 test('unknown booking renders the not-found copy', async () => {
   (fetchBooking as jest.Mock).mockResolvedValue(null);
   renderScreen();
-  expect(await screen.findByText(/couldn.t find that booking/i)).toBeOnTheScreen();
+  expect(
+    await screen.findByText(/couldn.t find that booking/i),
+  ).toBeOnTheScreen();
 });
 
 test('without a checkoutUrl it verifies immediately (no browser)', async () => {
   mockParams = { code: 'BK-1' };
   (fetchBooking as jest.Mock).mockResolvedValue(paidVm);
   renderScreen();
-  await waitFor(() => expect(screen.getByText(/booking confirmed/i)).toBeOnTheScreen());
+  await waitFor(() =>
+    expect(screen.getByText(/booking confirmed/i)).toBeOnTheScreen(),
+  );
   expect(WebBrowser.openBrowserAsync).not.toHaveBeenCalled();
 });
 
-test("Android: browser opens without blocking; verify runs when the app returns to foreground", async () => {
+test('Android: browser opens without blocking; verify runs when the app returns to foreground', async () => {
   const appStateSpy = jest.spyOn(AppState, 'addEventListener');
   // Android resolves immediately with { type: 'opened' } (docs) — must NOT verify yet.
-  (WebBrowser.openBrowserAsync as jest.Mock).mockResolvedValue({ type: 'opened' });
+  (WebBrowser.openBrowserAsync as jest.Mock).mockResolvedValue({
+    type: 'opened',
+  });
   (fetchBooking as jest.Mock).mockResolvedValue(paidVm);
   renderScreen();
   // Still in the paying phase: the hand-off hint is visible, no verify ran.
-  expect(await screen.findByText(/complete your payment in the secure browser/i)).toBeOnTheScreen();
+  expect(
+    await screen.findByText(/complete your payment in the secure browser/i),
+  ).toBeOnTheScreen();
   expect(fetchBooking).not.toHaveBeenCalled();
   // User closes the checkout tab → app returns to 'active' → verify.
   const handler = appStateSpy.mock.calls[0][1] as (state: string) => void;

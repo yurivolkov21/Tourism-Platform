@@ -6,13 +6,18 @@ import { Button } from '@tourism/ui';
 
 import { DestinationForm } from '../../../../../components/destinations/destination-form';
 import { updateDestination } from '../../../../../lib/destinations/actions';
-import { getDestination, type Destination } from '../../../../../lib/destinations/data';
+import {
+  getDestination,
+  type Destination,
+} from '../../../../../lib/destinations/data';
 
 interface EditDestinationPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export default async function EditDestinationPage({ params }: EditDestinationPageProps) {
+export default async function EditDestinationPage({
+  params,
+}: EditDestinationPageProps) {
   const { slug } = await params;
 
   let destination: Destination;
@@ -27,7 +32,12 @@ export default async function EditDestinationPage({ params }: EditDestinationPag
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 lg:px-6">
       <div className="space-y-3">
-        <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/destinations" />}>
+        <Button
+          variant="ghost"
+          size="sm"
+          nativeButton={false}
+          render={<Link href="/destinations" />}
+        >
           <ArrowLeft data-icon="inline-start" />
           Back to destinations
         </Button>
@@ -37,7 +47,11 @@ export default async function EditDestinationPage({ params }: EditDestinationPag
         </div>
       </div>
 
-      <DestinationForm action={action} destination={destination} submitLabel="Save changes" />
+      <DestinationForm
+        action={action}
+        destination={destination}
+        submitLabel="Save changes"
+      />
     </div>
   );
 }

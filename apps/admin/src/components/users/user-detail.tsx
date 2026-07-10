@@ -20,7 +20,11 @@ function formatDate(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? '—'
-    : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    : d.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
 }
 
 /** One label/value pair in the main content cards (mirrors the booking detail page's `Fact`). */
@@ -74,19 +78,31 @@ export function UserDetail({ detail }: UserDetailProps) {
       {/* Header */}
       <div className="flex flex-wrap items-center gap-4">
         <Avatar className="size-14 rounded-lg">
-          {detail.avatarUrl ? <AvatarImage src={detail.avatarUrl} alt={displayName} /> : null}
+          {detail.avatarUrl ? (
+            <AvatarImage src={detail.avatarUrl} alt={displayName} />
+          ) : null}
           <AvatarFallback className="rounded-lg text-base">
             {initialsFor(detail.fullName, detail.email)}
           </AvatarFallback>
         </Avatar>
         <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="font-heading text-2xl font-bold tracking-tight">{displayName}</h1>
-            <Badge variant={detail.role === 'ADMIN' ? 'default' : 'outline'} className="gap-1.5">
-              <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+            <h1 className="font-heading text-2xl font-bold tracking-tight">
+              {displayName}
+            </h1>
+            <Badge
+              variant={detail.role === 'ADMIN' ? 'default' : 'outline'}
+              className="gap-1.5"
+            >
+              <span
+                className="size-1.5 rounded-full bg-current opacity-70"
+                aria-hidden
+              />
               {detail.role === 'ADMIN' ? 'Admin' : 'Customer'}
             </Badge>
-            {detail.isEnvAdmin ? <Badge variant="outline">Env admin</Badge> : null}
+            {detail.isEnvAdmin ? (
+              <Badge variant="outline">Env admin</Badge>
+            ) : null}
             {detail.isSelf ? <Badge variant="outline">You</Badge> : null}
           </div>
           <p className="text-muted-foreground text-sm">{detail.email}</p>
@@ -133,7 +149,10 @@ export function UserDetail({ detail }: UserDetailProps) {
                 label="Reviews"
                 value={
                   detail.counts.reviews > 0 ? (
-                    <Link href="/reviews" className="text-primary hover:underline">
+                    <Link
+                      href="/reviews"
+                      className="text-primary hover:underline"
+                    >
                       {detail.counts.reviews} · View reviews
                     </Link>
                   ) : (

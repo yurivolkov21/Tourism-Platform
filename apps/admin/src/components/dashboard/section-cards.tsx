@@ -24,7 +24,10 @@ export function SectionCards({ cards }: { cards: CardModel[] }) {
       {cards.map((c) => {
         const up = (c.delta ?? 0) >= 0;
         const Icon = up ? TrendingUp : TrendingDown;
-        const pct = c.delta === null ? null : `${up ? '+' : ''}${Math.round(c.delta * 100)}%`;
+        const pct =
+          c.delta === null
+            ? null
+            : `${up ? '+' : ''}${Math.round(c.delta * 100)}%`;
         return (
           <Card key={c.key} className="@container/card">
             <CardHeader>
@@ -44,7 +47,8 @@ export function SectionCards({ cards }: { cards: CardModel[] }) {
             <CardFooter className="flex-col items-start gap-1.5 text-sm">
               {pct !== null ? (
                 <div className="line-clamp-1 flex gap-2 font-medium">
-                  {up ? 'Up' : 'Down'} {Math.abs(Math.round(c.delta! * 100))}% this month
+                  {up ? 'Up' : 'Down'} {Math.abs(Math.round(c.delta! * 100))}%
+                  this month
                   <Icon className="size-4" aria-hidden />
                 </div>
               ) : null}

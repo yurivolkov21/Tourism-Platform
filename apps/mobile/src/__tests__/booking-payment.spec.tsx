@@ -1,6 +1,11 @@
 import { useEffect, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react-native';
 import { AppText, ThemeProvider } from '@tourism/mobile-ui';
 import BookingPaymentScreen from '../app/tours/[slug]/book-payment';
 import { createBooking, startCheckout } from '../lib/booking';
@@ -27,12 +32,16 @@ jest.mock('expo-router', () => ({
     return React.createElement(Text, { testID: 'redirect' }, href);
   },
 }));
-jest.mock('../lib/auth-context', () => ({ useAuth: () => ({ status: 'signedIn' }) }));
+jest.mock('../lib/auth-context', () => ({
+  useAuth: () => ({ status: 'signedIn' }),
+}));
 jest.mock('../lib/supabase', () => ({
   supabase: {
     auth: {
       getSession: jest.fn(),
-      onAuthStateChange: jest.fn(() => ({ data: { subscription: { unsubscribe: jest.fn() } } })),
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
     },
   },
 }));
@@ -81,7 +90,10 @@ function Seed({
 
 function renderScreen(seedTrip?: BookingTrip, seedContact?: BookingContact) {
   const client = new QueryClient({
-    defaultOptions: { queries: { retry: false, gcTime: 0 }, mutations: { gcTime: 0 } },
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+      mutations: { gcTime: 0 },
+    },
   });
   return render(
     <ThemeProvider>
@@ -100,7 +112,9 @@ beforeEach(() => jest.clearAllMocks());
 
 test('without a trip it redirects to the tour; without contact to the contact step', () => {
   renderScreen(undefined);
-  expect(screen.getByTestId('redirect')).toHaveTextContent('/tours/hoi-an-walking-tour');
+  expect(screen.getByTestId('redirect')).toHaveTextContent(
+    '/tours/hoi-an-walking-tour',
+  );
 });
 
 test('trip without contact redirects to the contact step', async () => {

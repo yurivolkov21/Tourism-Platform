@@ -104,7 +104,10 @@ export function BookingForm({
       <div className="bg-muted/40 flex items-center justify-between gap-4 rounded-xl border p-4">
         <div>
           <p className="font-medium">{t.modeToggle.label}</p>
-          <p id="booking-mode-hint" className="text-muted-foreground text-sm text-pretty">
+          <p
+            id="booking-mode-hint"
+            className="text-muted-foreground text-sm text-pretty"
+          >
             {noDepartures ? t.modeToggle.noDepartures : t.modeToggle.hint}
           </p>
         </div>
@@ -304,7 +307,11 @@ export function BookingForm({
             </FieldSet>
 
             {state.error ? (
-              <p id="booking-error" className="text-destructive text-sm" role="alert">
+              <p
+                id="booking-error"
+                className="text-destructive text-sm"
+                role="alert"
+              >
                 {state.error}
               </p>
             ) : null}

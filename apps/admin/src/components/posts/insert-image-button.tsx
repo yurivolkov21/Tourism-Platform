@@ -50,7 +50,9 @@ export function InsertImageButton({ slug, onInsert }: InsertImageButtonProps) {
       }
       onInsert(registered.url);
     } catch {
-      setError('Could not register the image — check your connection and try again.');
+      setError(
+        'Could not register the image — check your connection and try again.',
+      );
     } finally {
       setBusy(false);
       if (fileRef.current) fileRef.current.value = '';

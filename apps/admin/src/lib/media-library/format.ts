@@ -8,7 +8,10 @@ export function formatBytes(bytes: number | null | undefined): string | null {
 }
 
 /** Admin route for a media owner; null when there is no page to link (USER / missing). */
-export function ownerHref(ownerType: string, ownerSlug: string | null): string | null {
+export function ownerHref(
+  ownerType: string,
+  ownerSlug: string | null,
+): string | null {
   if (!ownerSlug) return null;
   switch (ownerType) {
     case 'TOUR':

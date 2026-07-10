@@ -40,7 +40,9 @@ describe('AdminOutboxService', () => {
       const count = jest.fn().mockResolvedValue(1);
       const prisma = makePrisma({ outbox: { findMany, count } });
 
-      const res = await svcWith(prisma).list({ status: OutboxStatus.FAILED } as never);
+      const res = await svcWith(prisma).list({
+        status: OutboxStatus.FAILED,
+      } as never);
 
       expect(res.meta.total).toBe(1);
       expect(res.items[0]).toEqual({
@@ -61,7 +63,9 @@ describe('AdminOutboxService', () => {
   describe('retry', () => {
     it('resets a FAILED row to PENDING, attempts untouched', async () => {
       const findUnique = jest.fn().mockResolvedValue(OUTBOX_ROW);
-      const update = jest.fn().mockResolvedValue({ ...OUTBOX_ROW, status: OutboxStatus.PENDING });
+      const update = jest
+        .fn()
+        .mockResolvedValue({ ...OUTBOX_ROW, status: OutboxStatus.PENDING });
       const prisma = makePrisma({ outbox: { findUnique, update } });
 
       const res = await svcWith(prisma).retry('outbox-1');
@@ -77,11 +81,15 @@ describe('AdminOutboxService', () => {
     it('rejects retrying a non-FAILED row with 409', async () => {
       const prisma = makePrisma({
         outbox: {
-          findUnique: jest.fn().mockResolvedValue({ ...OUTBOX_ROW, status: OutboxStatus.PENDING }),
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ ...OUTBOX_ROW, status: OutboxStatus.PENDING }),
         },
       });
 
-      await expect(svcWith(prisma).retry('outbox-1')).rejects.toBeInstanceOf(ConflictException);
+      await expect(svcWith(prisma).retry('outbox-1')).rejects.toBeInstanceOf(
+        ConflictException,
+      );
     });
 
     it('404s on an unknown id', async () => {

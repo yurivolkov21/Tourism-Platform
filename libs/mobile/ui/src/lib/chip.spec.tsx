@@ -21,7 +21,9 @@ test('unselected by default', () => {
       <Chip label="4+ days" onPress={jest.fn()} />
     </ThemeProvider>,
   );
-  expect(screen.getByRole('button', { name: '4+ days' }).props.accessibilityState).toMatchObject({
+  expect(
+    screen.getByRole('button', { name: '4+ days' }).props.accessibilityState,
+  ).toMatchObject({
     selected: false,
   });
 });

@@ -1,10 +1,20 @@
 import Link from 'next/link';
 import { ArrowRight, Inbox, MessageSquareQuote } from 'lucide-react';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@tourism/ui';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@tourism/ui';
 
 /** Operational queues — what's waiting on an admin right now. */
-export function NeedsAttention({ counts }: { counts: { reviews: number; enquiries: number } }) {
+export function NeedsAttention({
+  counts,
+}: {
+  counts: { reviews: number; enquiries: number };
+}) {
   const tiles = [
     {
       key: 'reviews',

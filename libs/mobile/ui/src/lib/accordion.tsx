@@ -1,6 +1,10 @@
 import { useState, type ReactNode } from 'react';
 import { Pressable } from 'react-native';
-import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from 'react-native-reanimated';
 import { AppText } from './app-text';
 import { useTheme } from './theme-provider';
 
@@ -10,7 +14,11 @@ export interface AccordionProps {
   initiallyOpen?: boolean;
 }
 
-export function Accordion({ title, children, initiallyOpen = false }: AccordionProps) {
+export function Accordion({
+  title,
+  children,
+  initiallyOpen = false,
+}: AccordionProps) {
   const theme = useTheme();
   const [open, setOpen] = useState(initiallyOpen);
   return (
@@ -41,7 +49,10 @@ export function Accordion({ title, children, initiallyOpen = false }: AccordionP
               : 'transparent',
         })}
       >
-        <AppText variant="body" style={{ fontFamily: theme.fontFamilies.sansSemiBold, flex: 1 }}>
+        <AppText
+          variant="body"
+          style={{ fontFamily: theme.fontFamilies.sansSemiBold, flex: 1 }}
+        >
           {title}
         </AppText>
         <AppText variant="body" muted>
@@ -52,7 +63,10 @@ export function Accordion({ title, children, initiallyOpen = false }: AccordionP
         <Animated.View
           entering={FadeIn.duration(150)}
           exiting={FadeOut.duration(100)}
-          style={{ paddingHorizontal: theme.spacing(3), paddingBottom: theme.spacing(3) }}
+          style={{
+            paddingHorizontal: theme.spacing(3),
+            paddingBottom: theme.spacing(3),
+          }}
         >
           {children}
         </Animated.View>

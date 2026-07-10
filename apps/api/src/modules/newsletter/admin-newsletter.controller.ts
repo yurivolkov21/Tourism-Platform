@@ -26,8 +26,13 @@ export class AdminNewsletterController {
 
   @Get('subscribers')
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'List newsletter subscribers (paginated, email search)' })
-  @ApiOkResponse({ type: PaginatedSubscribersDto, description: 'Paginated subscribers' })
+  @ApiOperation({
+    summary: 'List newsletter subscribers (paginated, email search)',
+  })
+  @ApiOkResponse({
+    type: PaginatedSubscribersDto,
+    description: 'Paginated subscribers',
+  })
   @ApiResponse({ status: 401, description: 'Missing/invalid token' })
   @ApiResponse({ status: 403, description: 'Caller is not an admin' })
   list(@Query() query: ListSubscribersQueryDto): Promise<PaginatedSubscribers> {

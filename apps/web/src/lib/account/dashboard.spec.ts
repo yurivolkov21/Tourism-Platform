@@ -1,9 +1,22 @@
-import { daysUntil, summarizeBookings, type DashboardBooking } from './dashboard';
+import {
+  daysUntil,
+  summarizeBookings,
+  type DashboardBooking,
+} from './dashboard';
 
 const NOW = new Date('2026-06-27T10:00:00Z');
 
-function booking(status: string, startDate: string, code = 'BK-1'): DashboardBooking {
-  return { code, status, tour: { slug: 't', title: 'Tour' }, departure: { startDate } };
+function booking(
+  status: string,
+  startDate: string,
+  code = 'BK-1',
+): DashboardBooking {
+  return {
+    code,
+    status,
+    tour: { slug: 't', title: 'Tour' },
+    departure: { startDate },
+  };
 }
 
 describe('daysUntil', () => {
@@ -36,7 +49,10 @@ describe('summarizeBookings', () => {
 
   it('sorts upcomingTrips soonest-first and exposes the first as nextTrip', () => {
     const stats = summarizeBookings(
-      [booking('PAID', '2026-09-01', 'late'), booking('PAID', '2026-07-09', 'soon')],
+      [
+        booking('PAID', '2026-09-01', 'late'),
+        booking('PAID', '2026-07-09', 'soon'),
+      ],
       NOW,
     );
     expect(stats.upcomingTrips.map((b) => b.code)).toEqual(['soon', 'late']);
@@ -44,7 +60,10 @@ describe('summarizeBookings', () => {
   });
 
   it('has no nextTrip when nothing upcoming', () => {
-    const stats = summarizeBookings([booking('PAID', '2026-01-01', 'past')], NOW);
+    const stats = summarizeBookings(
+      [booking('PAID', '2026-01-01', 'past')],
+      NOW,
+    );
     expect(stats.nextTrip).toBeNull();
     expect(stats.upcoming).toBe(0);
   });

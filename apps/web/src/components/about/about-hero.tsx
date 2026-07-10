@@ -16,7 +16,10 @@ export function AboutHero() {
             {t.heading}
           </h1>
           <p className="text-muted-foreground text-lg text-pretty">{t.body}</p>
-          <a href="#story" className={cn(buttonVariants({ size: 'lg' }), 'group')}>
+          <a
+            href="#story"
+            className={cn(buttonVariants({ size: 'lg' }), 'group')}
+          >
             {t.cta}
             <ArrowRightIcon className="transition-transform duration-200 group-hover:translate-x-0.5" />
           </a>
@@ -28,7 +31,10 @@ export function AboutHero() {
           role="img"
           aria-label={t.imageAlt}
         >
-          <ImageIcon className="text-primary-foreground/80 size-10" aria-hidden />
+          <ImageIcon
+            className="text-primary-foreground/80 size-10"
+            aria-hidden
+          />
         </div>
       </div>
     </section>

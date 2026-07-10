@@ -35,8 +35,8 @@ export default async function PostsPage() {
 
       {error ? (
         <ErrorAlert>
-          Couldn&apos;t load posts: {error}. Check that the API is running and your admin session is
-          valid.
+          Couldn&apos;t load posts: {error}. Check that the API is running and
+          your admin session is valid.
         </ErrorAlert>
       ) : (
         <PostsTable rows={rows} />

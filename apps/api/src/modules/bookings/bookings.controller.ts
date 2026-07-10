@@ -36,7 +36,9 @@ export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a PENDING booking (payment minted in P1.5b)' })
+  @ApiOperation({
+    summary: 'Create a PENDING booking (payment minted in P1.5b)',
+  })
   @ApiCreatedResponse({ type: BookingDto })
   @ApiResponse({ status: 400, description: 'Departure not OPEN / departed' })
   @ApiResponse({ status: 401, description: 'User not synced' })
@@ -78,7 +80,9 @@ export class BookingsController {
 
   @Post(':code/checkout')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Start a Stripe Checkout session for a PENDING booking' })
+  @ApiOperation({
+    summary: 'Start a Stripe Checkout session for a PENDING booking',
+  })
   @ApiOkResponse({ type: CheckoutSessionDto })
   @ApiResponse({ status: 400, description: 'Payment provider not available' })
   @ApiResponse({ status: 401, description: 'User not synced' })
@@ -98,12 +102,17 @@ export class BookingsController {
 
   @Post(':code/capture')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Capture an approved PayPal order (on buyer return)' })
+  @ApiOperation({
+    summary: 'Capture an approved PayPal order (on buyer return)',
+  })
   @ApiOkResponse({ type: BookingDto, description: 'Booking confirmed PAID' })
   @ApiResponse({ status: 400, description: 'Not a PayPal booking / no order' })
   @ApiResponse({ status: 401, description: 'User not synced' })
   @ApiResponse({ status: 404, description: 'Booking not found or not owned' })
-  @ApiResponse({ status: 409, description: 'Not capturable, or seats sold out (refunded)' })
+  @ApiResponse({
+    status: 409,
+    description: 'Not capturable, or seats sold out (refunded)',
+  })
   capture(
     @CurrentUser() user: User | null,
     @Param('code') code: string,

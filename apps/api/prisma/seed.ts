@@ -84,10 +84,13 @@ async function main(): Promise<void> {
   // 1. Data — catalog + sample users/bookings/reviews all come from the fixtures.
   console.log('[seed] loading fixtures...');
   const inserted = await insertFixtures(prisma);
-  console.log(`[seed] fixtures: ${inserted} rows inserted (duplicates skipped).`);
+  console.log(
+    `[seed] fixtures: ${inserted} rows inserted (duplicates skipped).`,
+  );
 
   // 2. Functional overlay — a known, login-able CUSTOMER + an ADMIN (upsert by email; citext unique).
-  const adminEmail = process.env.ADMIN_EMAILS?.split(',')[0]?.trim() || 'admin@tourism.test';
+  const adminEmail =
+    process.env.ADMIN_EMAILS?.split(',')[0]?.trim() || 'admin@tourism.test';
   const customer = await prisma.user.upsert({
     where: { email: 'customer@tourism.test' },
     create: {
@@ -109,7 +112,9 @@ async function main(): Promise<void> {
     },
     update: { role: UserRole.ADMIN },
   });
-  console.log(`[seed] overlay users: customer=${customer.email} admin=${admin.email}`);
+  console.log(
+    `[seed] overlay users: customer=${customer.email} admin=${admin.email}`,
+  );
 
   // 3. Self-signed PAID booking owned by the overlay customer — write a PAID row directly (no gateway)
   //    + claim seats, so the review flow + "my bookings" + e2e are runnable. Created once; attached to
@@ -123,7 +128,9 @@ async function main(): Promise<void> {
   if (!existing) {
     const departure = await pickPaidDeparture(PAID_SEATS);
     if (!departure) {
-      throw new Error('[seed] no OPEN fixture departure with free seats for the PAID booking');
+      throw new Error(
+        '[seed] no OPEN fixture departure with free seats for the PAID booking',
+      );
     }
     const unitPrice = departure.priceOverride ?? departure.tour.basePrice; // Prisma.Decimal
     await prisma.$transaction(async (tx) => {
@@ -154,9 +161,13 @@ async function main(): Promise<void> {
     });
     paidDepartureId = departure.id;
     paidTourSlug = departure.tour.slug;
-    console.log(`[seed] created PAID booking ${PAID_BOOKING_CODE} on ${paidTourSlug} (${PAID_SEATS} seats)`);
+    console.log(
+      `[seed] created PAID booking ${PAID_BOOKING_CODE} on ${paidTourSlug} (${PAID_SEATS} seats)`,
+    );
   } else {
-    console.log(`[seed] PAID booking ${PAID_BOOKING_CODE} already exists — skipped`);
+    console.log(
+      `[seed] PAID booking ${PAID_BOOKING_CODE} already exists — skipped`,
+    );
   }
 
   // 4. Write seeded identifiers for the e2e suite (gitignored; no secrets).

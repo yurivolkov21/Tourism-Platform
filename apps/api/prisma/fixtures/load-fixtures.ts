@@ -31,7 +31,9 @@ if (!connectionString) {
 // refuse to run against a non-local database unless explicitly confirmed, so the
 // fixtures can never accidentally pollute production. Set LOAD_FIXTURES_CONFIRM=1
 // to override (e.g. for a throwaway staging DB you actually mean to fill).
-const isLocalDb = /@(localhost|127\.0\.0\.1|\[::1\])[:/]/.test(connectionString);
+const isLocalDb = /@(localhost|127\.0\.0\.1|\[::1\])[:/]/.test(
+  connectionString,
+);
 if (!isLocalDb && process.env.LOAD_FIXTURES_CONFIRM !== '1') {
   throw new Error(
     '[load-fixtures] refusing to load into a non-local database. This targets ' +

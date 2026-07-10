@@ -42,7 +42,10 @@ export class AdminDeparturesController {
 
   @Get()
   @ApiOperation({ summary: 'Admin: list departures (full history)' })
-  @ApiOkResponse({ type: [DepartureDto], description: 'Ordered by startDate asc' })
+  @ApiOkResponse({
+    type: [DepartureDto],
+    description: 'Ordered by startDate asc',
+  })
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   @ApiResponse({ status: 404, description: 'Tour not found' })
   list(
@@ -68,7 +71,10 @@ export class AdminDeparturesController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Admin: partial update a departure' })
   @ApiOkResponse({ type: DepartureDto })
-  @ApiResponse({ status: 400, description: 'Invalid date range / seatsTotal below booked' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid date range / seatsTotal below booked',
+  })
   @ApiResponse({ status: 404, description: 'Tour or departure not found' })
   update(
     @Param('slug') slug: string,

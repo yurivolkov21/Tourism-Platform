@@ -19,7 +19,13 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { Button, FieldDescription, FieldLegend, FieldSet, cn } from '@tourism/ui';
+import {
+  Button,
+  FieldDescription,
+  FieldLegend,
+  FieldSet,
+  cn,
+} from '@tourism/ui';
 
 type WithKey<T> = T & { _key: string };
 
@@ -36,12 +42,22 @@ function SortableCard({
   onRemove: () => void;
   children: ReactNode;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
   return (
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={cn('bg-card space-y-3 rounded-lg border p-3', isDragging && 'z-10 opacity-70')}
+      className={cn(
+        'bg-card space-y-3 rounded-lg border p-3',
+        isDragging && 'z-10 opacity-70',
+      )}
     >
       <div className="flex items-center justify-between gap-2">
         <div className="text-muted-foreground flex items-center gap-2">
@@ -99,18 +115,32 @@ export function RepeatableCards<T extends Record<string, unknown>>({
   itemLabel: string;
   initial: T[];
   makeItem: () => T;
-  renderFields: (item: T, patch: (partial: Partial<T>) => void, index: number) => ReactNode;
+  renderFields: (
+    item: T,
+    patch: (partial: Partial<T>) => void,
+    index: number,
+  ) => ReactNode;
 }) {
   const keySeq = useRef(0);
   const [items, setItems] = useState<WithKey<T>[]>(() =>
     initial.map((it) => ({ ...it, _key: String(keySeq.current++) })),
   );
-  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor),
+  );
 
-  const add = () => setItems((prev) => [...prev, { ...makeItem(), _key: String(keySeq.current++) }]);
-  const remove = (key: string) => setItems((prev) => prev.filter((x) => x._key !== key));
+  const add = () =>
+    setItems((prev) => [
+      ...prev,
+      { ...makeItem(), _key: String(keySeq.current++) },
+    ]);
+  const remove = (key: string) =>
+    setItems((prev) => prev.filter((x) => x._key !== key));
   const patch = (key: string, partial: Partial<T>) =>
-    setItems((prev) => prev.map((x) => (x._key === key ? { ...x, ...partial } : x)));
+    setItems((prev) =>
+      prev.map((x) => (x._key === key ? { ...x, ...partial } : x)),
+    );
 
   const onDragEnd = (ev: DragEndEvent) => {
     const { active, over } = ev;
@@ -141,8 +171,15 @@ export function RepeatableCards<T extends Record<string, unknown>>({
 
       <div className="space-y-3 md:col-span-2">
         {items.length ? (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-            <SortableContext items={items.map((x) => x._key)} strategy={verticalListSortingStrategy}>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={onDragEnd}
+          >
+            <SortableContext
+              items={items.map((x) => x._key)}
+              strategy={verticalListSortingStrategy}
+            >
               <div className="space-y-3">
                 {items.map((item, i) => (
                   <SortableCard
@@ -152,7 +189,11 @@ export function RepeatableCards<T extends Record<string, unknown>>({
                     index={i}
                     onRemove={() => remove(item._key)}
                   >
-                    {renderFields(item, (partial) => patch(item._key, partial), i)}
+                    {renderFields(
+                      item,
+                      (partial) => patch(item._key, partial),
+                      i,
+                    )}
                   </SortableCard>
                 ))}
               </div>
@@ -164,7 +205,13 @@ export function RepeatableCards<T extends Record<string, unknown>>({
           </p>
         )}
 
-        <Button type="button" variant="outline" size="sm" onClick={add} className="cursor-pointer">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={add}
+          className="cursor-pointer"
+        >
           <Plus className="size-4" />
           {addLabel}
         </Button>

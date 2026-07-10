@@ -8,7 +8,11 @@ export class PublicPostAuthorDto {
   @ApiProperty({ nullable: true, type: String, example: 'Ana Admin' })
   fullName!: string | null;
 
-  @ApiProperty({ nullable: true, type: String, description: 'Avatar delivery URL, when set.' })
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    description: 'Avatar delivery URL, when set.',
+  })
   avatarUrl!: string | null;
 }
 
@@ -44,10 +48,16 @@ export class PostDto {
   @ApiProperty({ format: 'date-time' })
   updatedAt!: string;
 
-  @ApiProperty({ type: [MediaItemDto], description: 'Attached media; the cover is role `hero`.' })
+  @ApiProperty({
+    type: [MediaItemDto],
+    description: 'Attached media; the cover is role `hero`.',
+  })
   media!: MediaItemDto[];
 
-  @ApiProperty({ type: [PostTagDto], description: 'Free-form topics (empty when untagged).' })
+  @ApiProperty({
+    type: [PostTagDto],
+    description: 'Free-form topics (empty when untagged).',
+  })
   tags!: PostTagDto[];
 
   @ApiProperty({ type: PublicPostAuthorDto })

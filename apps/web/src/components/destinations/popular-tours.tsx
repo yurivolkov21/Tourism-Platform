@@ -21,7 +21,9 @@ export function PopularTours({ tours }: { tours: TourCardData[] }) {
           <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
             {t.popularHeading}
           </h2>
-          <p className="text-muted-foreground text-lg text-pretty">{t.popularSubtitle}</p>
+          <p className="text-muted-foreground text-lg text-pretty">
+            {t.popularSubtitle}
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">

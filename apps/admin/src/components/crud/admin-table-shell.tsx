@@ -43,10 +43,20 @@ export function AdminTableShell<T>({
           {table.getHeaderGroups().map((group) => (
             <TableRow key={group.id}>
               {group.headers.map((header) => (
-                <TableHead key={header.id} className={header.column.columnDef.meta?.align === 'right' ? 'text-right' : undefined}>
+                <TableHead
+                  key={header.id}
+                  className={
+                    header.column.columnDef.meta?.align === 'right'
+                      ? 'text-right'
+                      : undefined
+                  }
+                >
                   {header.isPlaceholder
                     ? null
-                    : flexRender(header.column.columnDef.header, header.getContext())}
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                 </TableHead>
               ))}
             </TableRow>
@@ -70,12 +80,18 @@ export function AdminTableShell<T>({
                       },
                     }
                   : {})}
-                className={cn(interactive && 'focus-visible:bg-muted/60 cursor-pointer')}
+                className={cn(
+                  interactive && 'focus-visible:bg-muted/60 cursor-pointer',
+                )}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className={cell.column.columnDef.meta?.align === 'right' ? 'text-right' : undefined}
+                    className={
+                      cell.column.columnDef.meta?.align === 'right'
+                        ? 'text-right'
+                        : undefined
+                    }
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
@@ -84,7 +100,10 @@ export function AdminTableShell<T>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={colSpan} className="text-muted-foreground h-24 text-center">
+              <TableCell
+                colSpan={colSpan}
+                className="text-muted-foreground h-24 text-center"
+              >
                 {emptyLabel}
               </TableCell>
             </TableRow>

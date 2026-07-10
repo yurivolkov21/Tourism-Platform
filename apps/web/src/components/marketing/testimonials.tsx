@@ -39,7 +39,8 @@ function metaLine(item: TestimonialItem): string {
  */
 export function Testimonials({ items }: { items?: TestimonialItem[] }) {
   const t = messages.testimonials;
-  const list: readonly TestimonialItem[] = items && items.length > 0 ? items : t.items;
+  const list: readonly TestimonialItem[] =
+    items && items.length > 0 ? items : t.items;
 
   return (
     <section className="py-16 sm:py-20 lg:py-24">
@@ -56,12 +57,22 @@ export function Testimonials({ items }: { items?: TestimonialItem[] }) {
             <h2 className="text-2xl font-semibold text-balance sm:text-3xl lg:text-4xl">
               {t.heading}
             </h2>
-            <p className="text-muted-foreground text-lg text-pretty">{t.subtitle}</p>
+            <p className="text-muted-foreground text-lg text-pretty">
+              {t.subtitle}
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <CarouselPrevious variant="outline" size="icon" className="static translate-y-0" />
-            <CarouselNext variant="outline" size="icon" className="static translate-y-0" />
+            <CarouselPrevious
+              variant="outline"
+              size="icon"
+              className="static translate-y-0"
+            />
+            <CarouselNext
+              variant="outline"
+              size="icon"
+              className="static translate-y-0"
+            />
           </div>
         </div>
 
@@ -72,7 +83,10 @@ export function Testimonials({ items }: { items?: TestimonialItem[] }) {
               <CarouselItem key={`${item.name}-${idx}`} className="sm:pl-6">
                 <figure className="flex flex-col gap-8">
                   <div className="space-y-1">
-                    <p className="font-heading text-primary/25 h-12 text-7xl leading-none select-none" aria-hidden>
+                    <p
+                      className="font-heading text-primary/25 h-12 text-7xl leading-none select-none"
+                      aria-hidden
+                    >
                       &ldquo;
                     </p>
                     <blockquote className="text-foreground/90 text-xl font-medium text-pretty sm:text-2xl lg:text-3xl">
@@ -88,7 +102,9 @@ export function Testimonials({ items }: { items?: TestimonialItem[] }) {
                     </Avatar>
                     <div>
                       <p className="font-medium">{item.name}</p>
-                      <p className="text-muted-foreground text-sm">{metaLine(item)}</p>
+                      <p className="text-muted-foreground text-sm">
+                        {metaLine(item)}
+                      </p>
                     </div>
                   </figcaption>
                 </figure>

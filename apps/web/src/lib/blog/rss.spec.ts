@@ -31,7 +31,9 @@ describe('buildRssXml', () => {
       },
     ]);
     expect(xml).toContain('<pubDate>Wed, 01 Jul 2026 08:30:00 GMT</pubDate>');
-    expect(xml).toContain('<guid isPermaLink="true">https://nexora.example/blog/t</guid>');
+    expect(xml).toContain(
+      '<guid isPermaLink="true">https://nexora.example/blog/t</guid>',
+    );
   });
 
   it('omits pubDate when the item has none', () => {

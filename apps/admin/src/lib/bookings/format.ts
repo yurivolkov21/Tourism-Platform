@@ -36,7 +36,10 @@ export function formatMoney(amount: string, currency: string): string {
   const value = Number(amount);
   if (!Number.isFinite(value)) return `${amount} ${currency}`;
   try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(value);
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+    }).format(value);
   } catch {
     return `${amount} ${currency}`;
   }
@@ -59,7 +62,8 @@ export function formatSeatsSummary(
   seatsTotal: number | undefined,
   seatsBooked: number | undefined,
 ): string | null {
-  if (typeof seatsTotal !== 'number' || typeof seatsBooked !== 'number') return null;
+  if (typeof seatsTotal !== 'number' || typeof seatsBooked !== 'number')
+    return null;
   const left = Math.max(seatsTotal - seatsBooked, 0);
   return `${seatsBooked}/${seatsTotal} booked · ${left} left`;
 }

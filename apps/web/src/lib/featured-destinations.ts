@@ -9,7 +9,12 @@ import type { DestinationTileVM } from './destinations.fixtures';
 export const FEATURED_DESTINATIONS: Record<string, string[]> = {
   'Northern Vietnam': ['ha-long-bay', 'sa-pa', 'ninh-binh', 'hanoi'],
   'Central Vietnam': ['hoi-an', 'hue', 'da-nang', 'phong-nha'],
-  'Southern Vietnam': ['phu-quoc', 'mekong-delta', 'ho-chi-minh-city', 'mui-ne'],
+  'Southern Vietnam': [
+    'phu-quoc',
+    'mekong-delta',
+    'ho-chi-minh-city',
+    'mui-ne',
+  ],
 };
 
 /** How many tiles `RegionGroup` is designed to show (1 feature + 3 photo). */

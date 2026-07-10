@@ -18,7 +18,13 @@ import { DestinationTile } from './destination-tile';
 const TILE_ACCORDION =
   'sm:flex-1 sm:basis-0 motion-safe:sm:transition-[flex-grow] motion-safe:sm:duration-700 motion-safe:sm:ease-in-out motion-safe:sm:hover:grow-[2.5] motion-safe:sm:focus-within:grow-[2.5]';
 
-export function RegionGroup({ region, items }: { region: string; items: DestinationTileVM[] }) {
+export function RegionGroup({
+  region,
+  items,
+}: {
+  region: string;
+  items: DestinationTileVM[];
+}) {
   const t = messages.destinationsPage;
   const [feature, ...rest] = items;
   if (!feature) return null;
@@ -33,7 +39,9 @@ export function RegionGroup({ region, items }: { region: string; items: Destinat
           {t.regionHeading(region)}
         </h2>
         {t.regionIntro[region] ? (
-          <p className="text-muted-foreground text-pretty">{t.regionIntro[region]}</p>
+          <p className="text-muted-foreground text-pretty">
+            {t.regionIntro[region]}
+          </p>
         ) : null}
         <Link
           href={`/destinations/${regionId}`}
@@ -47,9 +55,18 @@ export function RegionGroup({ region, items }: { region: string; items: Destinat
       {/* Full-bleed expanding-panels mosaic: equal widths at rest; hover/focus widens a tile as the
           others narrow. Desktop only (motion-safe); mobile stacks edge-to-edge. */}
       <div className="flex flex-col gap-px border-y border-border bg-border sm:h-100 sm:flex-row">
-        <DestinationTile destination={feature} variant="feature" className={TILE_ACCORDION} />
+        <DestinationTile
+          destination={feature}
+          variant="feature"
+          className={TILE_ACCORDION}
+        />
         {rest.map((d) => (
-          <DestinationTile key={d.slug} destination={d} variant="photo" className={TILE_ACCORDION} />
+          <DestinationTile
+            key={d.slug}
+            destination={d}
+            variant="photo"
+            className={TILE_ACCORDION}
+          />
         ))}
       </div>
     </section>

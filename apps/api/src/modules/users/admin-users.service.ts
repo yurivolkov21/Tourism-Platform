@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MediaOwnerType, Prisma, UserRole } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -77,7 +81,9 @@ export class AdminUsersService {
     ]);
 
     return {
-      items: rows.map(({ _count, ...u }) => this.toListItem(u, _count.bookings)),
+      items: rows.map(({ _count, ...u }) =>
+        this.toListItem(u, _count.bookings),
+      ),
       meta: {
         page,
         pageSize,
@@ -165,11 +171,14 @@ export class AdminUsersService {
     if (demoting && this.isEnvAdmin(user.email)) {
       throw new ConflictException({
         code: 'ROLE_ENV_ADMIN',
-        message: 'This admin is on the ADMIN_EMAILS bootstrap list — remove them from the env to demote',
+        message:
+          'This admin is on the ADMIN_EMAILS bootstrap list — remove them from the env to demote',
       });
     }
     if (demoting) {
-      const admins = await this.prisma.user.count({ where: { role: UserRole.ADMIN } });
+      const admins = await this.prisma.user.count({
+        where: { role: UserRole.ADMIN },
+      });
       if (admins <= 1) {
         throw new ConflictException({
           code: 'ROLE_LAST_ADMIN',
@@ -178,7 +187,10 @@ export class AdminUsersService {
       }
     }
 
-    const updated = await this.prisma.user.update({ where: { id }, data: { role } });
+    const updated = await this.prisma.user.update({
+      where: { id },
+      data: { role },
+    });
     const bookings = await this.prisma.booking.count({ where: { userId: id } });
     return this.toListItem(updated, bookings);
   }
@@ -222,7 +234,8 @@ export class AdminUsersService {
     if (posts > 0) {
       throw new ConflictException({
         code: 'USER_HAS_POSTS',
-        message: 'This user authored blog posts — reassign or delete those posts first',
+        message:
+          'This user authored blog posts — reassign or delete those posts first',
       });
     }
 

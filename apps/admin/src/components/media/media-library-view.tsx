@@ -110,7 +110,9 @@ function FacetFilter({
             <DropdownMenuCheckboxItem
               key={o.value}
               checked={value === o.value}
-              onCheckedChange={(checked) => onSelect(param, checked === true ? o.value : null)}
+              onCheckedChange={(checked) =>
+                onSelect(param, checked === true ? o.value : null)
+              }
               closeOnClick={false}
             >
               {o.label}
@@ -120,7 +122,9 @@ function FacetFilter({
         {value ? (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => onSelect(param, null)}>Clear filter</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSelect(param, null)}>
+              Clear filter
+            </DropdownMenuItem>
           </>
         ) : null}
       </DropdownMenuContent>
@@ -160,7 +164,9 @@ export function MediaLibraryView({
       setConfirmOpen(false);
       if (res.ok) {
         setSelected(null);
-        toast('Media deleted. Cloudinary cleanup is queued — see the Garbage tab.');
+        toast(
+          'Media deleted. Cloudinary cleanup is queued — see the Garbage tab.',
+        );
         router.refresh();
       } else {
         toast.error(res.error ?? 'Delete failed.');
@@ -168,15 +174,35 @@ export function MediaLibraryView({
     });
   };
 
-  const selectedHref = selected ? ownerHref(selected.ownerType, selected.ownerSlug) : null;
+  const selectedHref = selected
+    ? ownerHref(selected.ownerType, selected.ownerSlug)
+    : null;
 
   return (
     <div className="flex flex-col gap-4">
       {/* Filters + search */}
       <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
-        <FacetFilter label="Owner" param="ownerType" value={ownerType} options={OWNER_OPTIONS} onSelect={(p, v) => pushParams({ [p]: v })} />
-        <FacetFilter label="Role" param="role" value={role} options={ROLE_OPTIONS} onSelect={(p, v) => pushParams({ [p]: v })} />
-        <FacetFilter label="Type" param="type" value={type} options={TYPE_OPTIONS} onSelect={(p, v) => pushParams({ [p]: v })} />
+        <FacetFilter
+          label="Owner"
+          param="ownerType"
+          value={ownerType}
+          options={OWNER_OPTIONS}
+          onSelect={(p, v) => pushParams({ [p]: v })}
+        />
+        <FacetFilter
+          label="Role"
+          param="role"
+          value={role}
+          options={ROLE_OPTIONS}
+          onSelect={(p, v) => pushParams({ [p]: v })}
+        />
+        <FacetFilter
+          label="Type"
+          param="type"
+          value={type}
+          options={TYPE_OPTIONS}
+          onSelect={(p, v) => pushParams({ [p]: v })}
+        />
         <form
           className="relative w-full lg:ml-auto lg:max-w-xs"
           onSubmit={(e) => {
@@ -227,7 +253,11 @@ export function MediaLibraryView({
                 >
                   <span className="bg-muted relative block aspect-square">
                     <img
-                      src={asset.type === 'VIDEO' ? (asset.posterUrl ?? asset.url) : asset.url}
+                      src={
+                        asset.type === 'VIDEO'
+                          ? (asset.posterUrl ?? asset.url)
+                          : asset.url
+                      }
                       alt={asset.ownerTitle ?? asset.publicId}
                       loading="lazy"
                       className="absolute inset-0 size-full object-cover transition-transform duration-200 group-hover:scale-105"
@@ -242,7 +272,10 @@ export function MediaLibraryView({
                     <span className="text-muted-foreground truncate text-xs">
                       {asset.ownerTitle ?? 'Unknown owner'}
                     </span>
-                    <Badge variant="outline" className="shrink-0 text-[10px] capitalize">
+                    <Badge
+                      variant="outline"
+                      className="shrink-0 text-[10px] capitalize"
+                    >
                       {asset.role}
                     </Badge>
                   </span>
@@ -262,7 +295,10 @@ export function MediaLibraryView({
       )}
 
       {/* Detail drawer */}
-      <Sheet open={selected !== null} onOpenChange={(open) => !open && setSelected(null)}>
+      <Sheet
+        open={selected !== null}
+        onOpenChange={(open) => !open && setSelected(null)}
+      >
         <SheetContent className="flex w-full flex-col gap-0 overflow-y-auto sm:max-w-md">
           {selected ? (
             <>
@@ -277,14 +313,20 @@ export function MediaLibraryView({
               <div className="flex flex-col gap-4 px-4 pb-6">
                 <div className="bg-muted relative aspect-video overflow-hidden rounded-lg">
                   <img
-                    src={selected.type === 'VIDEO' ? (selected.posterUrl ?? selected.url) : selected.url}
+                    src={
+                      selected.type === 'VIDEO'
+                        ? (selected.posterUrl ?? selected.url)
+                        : selected.url
+                    }
                     alt={selected.ownerTitle ?? selected.publicId}
                     className="absolute inset-0 size-full object-contain"
                   />
                 </div>
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
                   <div className="space-y-0.5">
-                    <dt className="text-muted-foreground text-xs">Dimensions</dt>
+                    <dt className="text-muted-foreground text-xs">
+                      Dimensions
+                    </dt>
                     <dd className="text-sm font-medium">
                       {selected.width && selected.height
                         ? `${selected.width} × ${selected.height}`
@@ -293,36 +335,50 @@ export function MediaLibraryView({
                   </div>
                   <div className="space-y-0.5">
                     <dt className="text-muted-foreground text-xs">Size</dt>
-                    <dd className="text-sm font-medium">{formatBytes(selected.bytes) ?? '—'}</dd>
+                    <dd className="text-sm font-medium">
+                      {formatBytes(selected.bytes) ?? '—'}
+                    </dd>
                   </div>
                   <div className="space-y-0.5">
                     <dt className="text-muted-foreground text-xs">Format</dt>
-                    <dd className="text-sm font-medium uppercase">{selected.format ?? '—'}</dd>
+                    <dd className="text-sm font-medium uppercase">
+                      {selected.format ?? '—'}
+                    </dd>
                   </div>
                   <div className="space-y-0.5">
                     <dt className="text-muted-foreground text-xs">Uploaded</dt>
                     <dd className="text-sm font-medium">
-                      {new Date(selected.createdAt).toLocaleDateString('en-GB', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                      })}
+                      {new Date(selected.createdAt).toLocaleDateString(
+                        'en-GB',
+                        {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        },
+                      )}
                     </dd>
                   </div>
                 </dl>
                 <Separator />
                 <div className="space-y-0.5">
                   <p className="text-muted-foreground text-xs">Public ID</p>
-                  <p className="font-mono text-xs break-all">{selected.publicId}</p>
+                  <p className="font-mono text-xs break-all">
+                    {selected.publicId}
+                  </p>
                 </div>
                 <div className="space-y-0.5">
                   <p className="text-muted-foreground text-xs">Used in</p>
                   {selectedHref ? (
-                    <Link href={selectedHref} className="text-primary text-sm hover:underline">
+                    <Link
+                      href={selectedHref}
+                      className="text-primary text-sm hover:underline"
+                    >
                       {selected.ownerTitle}
                     </Link>
                   ) : (
-                    <p className="text-sm">{selected.ownerTitle ?? 'Unknown owner'}</p>
+                    <p className="text-sm">
+                      {selected.ownerTitle ?? 'Unknown owner'}
+                    </p>
                   )}
                 </div>
                 {selected.ownerType !== 'USER' ? (
@@ -349,14 +405,18 @@ export function MediaLibraryView({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this media?</AlertDialogTitle>
             <AlertDialogDescription>
-              Removes it from {selected?.ownerTitle ?? 'its owner'} and permanently deletes it from
-              Cloudinary within the day — or run cleanup now from the Garbage tab. This cannot be
-              undone.
+              Removes it from {selected?.ownerTitle ?? 'its owner'} and
+              permanently deletes it from Cloudinary within the day — or run
+              cleanup now from the Garbage tab. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={onDelete} disabled={deleting}>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={onDelete}
+              disabled={deleting}
+            >
               {deleting ? 'Deleting…' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>

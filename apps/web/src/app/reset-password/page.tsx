@@ -25,7 +25,10 @@ export default async function ResetPasswordPage() {
     return (
       <AuthShell title={t.invalidTitle} subtitle={t.invalidBody}>
         <div className="text-center">
-          <Link href="/forgot-password" className="text-primary font-medium hover:underline">
+          <Link
+            href="/forgot-password"
+            className="text-primary font-medium hover:underline"
+          >
             {t.requestNew}
           </Link>
         </div>

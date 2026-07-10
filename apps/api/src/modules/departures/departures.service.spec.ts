@@ -53,8 +53,12 @@ describe('DeparturesService', () => {
   it('create resolves the tour, connects it, and never sets seatsBooked', async () => {
     const create = jest
       .fn()
-      .mockImplementation(({ data }) => Promise.resolve({ id: 'd-1', ...data }));
-    const svc = new DeparturesService(makePrisma({ tourDeparture: { create } }));
+      .mockImplementation(({ data }) =>
+        Promise.resolve({ id: 'd-1', ...data }),
+      );
+    const svc = new DeparturesService(
+      makePrisma({ tourDeparture: { create } }),
+    );
 
     await svc.create('hoi-an', body({ priceOverride: 59, compareAtPrice: 79 }));
 
@@ -82,16 +86,23 @@ describe('DeparturesService', () => {
   it('create rejects a start date in the past (400)', async () => {
     const svc = new DeparturesService(makePrisma());
     await expect(
-      svc.create('hoi-an', body({ startDate: '2000-01-01', endDate: '2000-01-02' })),
+      svc.create(
+        'hoi-an',
+        body({ startDate: '2000-01-01', endDate: '2000-01-02' }),
+      ),
     ).rejects.toThrow(BadRequestException);
   });
 
   // ── update ────────────────────────────────────────────────────────────────
 
   it('update rejects lowering seatsTotal below seatsBooked (400)', async () => {
-    const findFirst = jest
-      .fn()
-      .mockResolvedValue({ id: 'd-1', tourId: 'tour-1', seatsBooked: 8, startDate: new Date(FUTURE), endDate: new Date(FUTURE_END) });
+    const findFirst = jest.fn().mockResolvedValue({
+      id: 'd-1',
+      tourId: 'tour-1',
+      seatsBooked: 8,
+      startDate: new Date(FUTURE),
+      endDate: new Date(FUTURE_END),
+    });
     const svc = new DeparturesService(
       makePrisma({ tourDeparture: { findFirst } }),
     );
@@ -140,7 +151,10 @@ describe('DeparturesService', () => {
       makePrisma({ tourDeparture: { findFirst } }),
     );
     await expect(
-      svc.update('hoi-an', 'd-1', { startDate: '2000-01-01', endDate: '2000-01-02' }),
+      svc.update('hoi-an', 'd-1', {
+        startDate: '2000-01-01',
+        endDate: '2000-01-02',
+      }),
     ).rejects.toThrow(BadRequestException);
   });
 
@@ -180,7 +194,10 @@ describe('DeparturesService', () => {
     );
 
     await expect(
-      svc.update('hoi-an', 'd-1', { startDate: '2999-02-01', endDate: '2999-02-03' }),
+      svc.update('hoi-an', 'd-1', {
+        startDate: '2999-02-01',
+        endDate: '2999-02-03',
+      }),
     ).resolves.toEqual({ id: 'd-1' });
   });
 
@@ -193,7 +210,9 @@ describe('DeparturesService', () => {
     const svc = new DeparturesService(
       makePrisma({ tourDeparture: { findFirst } }),
     );
-    await expect(svc.remove('hoi-an', 'd-1')).rejects.toThrow(ConflictException);
+    await expect(svc.remove('hoi-an', 'd-1')).rejects.toThrow(
+      ConflictException,
+    );
   });
 
   it('remove maps an FK violation (P2003) to 409', async () => {
@@ -204,7 +223,9 @@ describe('DeparturesService', () => {
     const svc = new DeparturesService(
       makePrisma({ tourDeparture: { findFirst, delete: del } }),
     );
-    await expect(svc.remove('hoi-an', 'd-1')).rejects.toThrow(ConflictException);
+    await expect(svc.remove('hoi-an', 'd-1')).rejects.toThrow(
+      ConflictException,
+    );
   });
 
   // ── reads ─────────────────────────────────────────────────────────────────

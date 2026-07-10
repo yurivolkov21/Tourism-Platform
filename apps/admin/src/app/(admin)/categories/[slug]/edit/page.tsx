@@ -12,7 +12,9 @@ interface EditCategoryPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export default async function EditCategoryPage({ params }: EditCategoryPageProps) {
+export default async function EditCategoryPage({
+  params,
+}: EditCategoryPageProps) {
   const { slug } = await params;
 
   let category: Category;
@@ -27,7 +29,12 @@ export default async function EditCategoryPage({ params }: EditCategoryPageProps
   return (
     <div className="mx-auto max-w-2xl space-y-6 p-6">
       <div className="space-y-3">
-        <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/categories" />}>
+        <Button
+          variant="ghost"
+          size="sm"
+          nativeButton={false}
+          render={<Link href="/categories" />}
+        >
           <ArrowLeft data-icon="inline-start" />
           Back to categories
         </Button>
@@ -37,7 +44,11 @@ export default async function EditCategoryPage({ params }: EditCategoryPageProps
         </div>
       </div>
 
-      <CategoryForm action={action} category={category} submitLabel="Save changes" />
+      <CategoryForm
+        action={action}
+        category={category}
+        submitLabel="Save changes"
+      />
     </div>
   );
 }

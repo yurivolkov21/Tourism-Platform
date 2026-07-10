@@ -17,7 +17,9 @@ export interface OutboxList {
 }
 
 /** Lists queued transactional emails (`GET /api/v1/admin/outbox`) — server-side filter + pagination. */
-export async function listOutbox(params: OutboxListParams = {}): Promise<OutboxList> {
+export async function listOutbox(
+  params: OutboxListParams = {},
+): Promise<OutboxList> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/outbox', {
     params: {

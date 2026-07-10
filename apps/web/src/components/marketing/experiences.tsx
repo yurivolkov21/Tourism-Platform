@@ -37,12 +37,20 @@ export function Experiences() {
       className="relative isolate overflow-hidden py-16 sm:py-20 lg:py-24"
     >
       {/* Atmospheric backdrop + scrim; white cards float on top */}
-      <Image src={BG_IMAGE} alt="" fill sizes="100vw" className="-z-10 object-cover" />
+      <Image
+        src={BG_IMAGE}
+        alt=""
+        fill
+        sizes="100vw"
+        className="-z-10 object-cover"
+      />
       <div className="bg-overlay/65 absolute inset-0 -z-10" />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-on-media mx-auto mb-10 max-w-2xl space-y-3 text-center sm:mb-14">
-          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">{t.heading}</h2>
+          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
+            {t.heading}
+          </h2>
           <p className="text-on-media/85 text-lg text-pretty">{t.subtitle}</p>
         </div>
 
@@ -62,7 +70,9 @@ export function Experiences() {
                   <h3 className="group-hover:text-primary font-sans font-semibold transition-colors">
                     {item.name}
                   </h3>
-                  <p className="text-muted-foreground text-sm text-pretty">{item.description}</p>
+                  <p className="text-muted-foreground text-sm text-pretty">
+                    {item.description}
+                  </p>
                   <span className="text-muted-foreground/80 text-xs">
                     {item.tourCount} {t.toursLabel}
                   </span>

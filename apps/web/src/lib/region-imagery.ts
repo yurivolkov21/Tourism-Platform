@@ -50,6 +50,9 @@ export function deriveOverviewGallery(
   if (real.length === 0) return fixtureFrames;
   const frame = fixtureFrames[0];
   const count = frame?.images.length ?? real.length;
-  const images = fillTo(real, count).map((src, i) => ({ src, alt: frame?.images[i]?.alt ?? '' }));
+  const images = fillTo(real, count).map((src, i) => ({
+    src,
+    alt: frame?.images[i]?.alt ?? '',
+  }));
   return [{ ...frame, images }];
 }

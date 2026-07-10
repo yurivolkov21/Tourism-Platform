@@ -6,7 +6,8 @@ import { messages } from '@tourism/i18n';
 import { StorySpine } from './story-spine';
 
 // Curated real Vietnam imagery (Unsplash) — one per milestone, aligned by index.
-const u = (id: string) => `https://images.unsplash.com/${id}?w=900&q=70&auto=format&fit=crop`;
+const u = (id: string) =>
+  `https://images.unsplash.com/${id}?w=900&q=70&auto=format&fit=crop`;
 const milestoneImages = [
   u('photo-1583417319070-4a69db38a482'), // Hồ Chí Minh City
   u('photo-1694391744914-8d82068cb46f'), // Hội An
@@ -25,8 +26,12 @@ export function Story() {
     <section id="story" className="scroll-mt-20 py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="mb-14 space-y-4 text-center sm:mb-20">
-          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">{t.heading}</h2>
-          <p className="text-muted-foreground mx-auto max-w-2xl text-lg text-pretty">{t.subtitle}</p>
+          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
+            {t.heading}
+          </h2>
+          <p className="text-muted-foreground mx-auto max-w-2xl text-lg text-pretty">
+            {t.subtitle}
+          </p>
         </div>
 
         <ol className="relative space-y-12 lg:space-y-24">
@@ -64,9 +69,18 @@ export function Story() {
                 </div>
 
                 {/* Copy */}
-                <div className={cn('lg:row-start-1', imageLeft ? 'lg:col-start-3' : 'lg:col-start-1')}>
-                  <h3 className="font-sans text-xl font-semibold text-balance">{m.title}</h3>
-                  <p className="text-muted-foreground mt-2 text-pretty">{m.description}</p>
+                <div
+                  className={cn(
+                    'lg:row-start-1',
+                    imageLeft ? 'lg:col-start-3' : 'lg:col-start-1',
+                  )}
+                >
+                  <h3 className="font-sans text-xl font-semibold text-balance">
+                    {m.title}
+                  </h3>
+                  <p className="text-muted-foreground mt-2 text-pretty">
+                    {m.description}
+                  </p>
                 </div>
               </li>
             );

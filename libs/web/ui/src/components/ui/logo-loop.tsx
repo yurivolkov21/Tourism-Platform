@@ -401,7 +401,9 @@ export const LogoLoop = React.memo<LogoLoopProps>(
           );
 
         const itemAriaLabel =
-          'node' in item ? (item.ariaLabel ?? item.title) : (item.alt ?? item.title);
+          'node' in item
+            ? (item.ariaLabel ?? item.title)
+            : (item.alt ?? item.title);
 
         const inner = item.href ? (
           <a

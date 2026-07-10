@@ -13,7 +13,8 @@ const TECH = [
   { name: 'Tailwind CSS', slug: 'tailwindcss' },
 ] as const;
 
-const icon = (slug: string, color: string) => `https://cdn.simpleicons.org/${slug}/${color}`;
+const icon = (slug: string, color: string) =>
+  `https://cdn.simpleicons.org/${slug}/${color}`;
 
 /** Shared "built with" logo marquee (real tech stack) with edge fades. */
 export function TechMarquee({ className }: { className?: string }) {

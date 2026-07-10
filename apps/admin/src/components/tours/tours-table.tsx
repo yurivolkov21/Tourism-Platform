@@ -51,12 +51,15 @@ type Tab = 'all' | 'published' | 'draft';
 
 function money(value: string, currency: string): string {
   const n = Number(value);
-  const body = Number.isFinite(n) ? n.toLocaleString('en-US', { maximumFractionDigits: 0 }) : value;
+  const body = Number.isFinite(n)
+    ? n.toLocaleString('en-US', { maximumFractionDigits: 0 })
+    : value;
   return currency === 'USD' ? `$${body}` : `${currency} ${body}`;
 }
 
 function primaryDestination(tour: TourSummary): string {
-  const primary = tour.destinations.find((d) => d.isPrimary) ?? tour.destinations[0];
+  const primary =
+    tour.destinations.find((d) => d.isPrimary) ?? tour.destinations[0];
   return primary?.destination.name ?? '—';
 }
 
@@ -99,20 +102,30 @@ const tourColumns: ColumnDef<TourSummary>[] = [
     id: 'category',
     header: 'Category',
     meta: { label: 'Category' },
-    cell: ({ row }) => <span className="text-muted-foreground">{row.original.category.name}</span>,
+    cell: ({ row }) => (
+      <span className="text-muted-foreground">
+        {row.original.category.name}
+      </span>
+    ),
   },
   {
     id: 'primaryDestination',
     header: 'Primary destination',
     meta: { label: 'Primary destination' },
-    cell: ({ row }) => <span className="text-muted-foreground">{primaryDestination(row.original)}</span>,
+    cell: ({ row }) => (
+      <span className="text-muted-foreground">
+        {primaryDestination(row.original)}
+      </span>
+    ),
   },
   {
     id: 'price',
     header: 'Price',
     meta: { label: 'Price', align: 'right' },
     cell: ({ row }) => (
-      <span className="font-medium tabular-nums">{money(row.original.basePrice, row.original.currency)}</span>
+      <span className="font-medium tabular-nums">
+        {money(row.original.basePrice, row.original.currency)}
+      </span>
     ),
   },
   {
@@ -132,7 +145,9 @@ const tourColumns: ColumnDef<TourSummary>[] = [
     id: 'days',
     header: 'Days',
     meta: { label: 'Days', align: 'right' },
-    cell: ({ row }) => <span className="tabular-nums">{row.original.durationDays}</span>,
+    cell: ({ row }) => (
+      <span className="tabular-nums">{row.original.durationDays}</span>
+    ),
   },
   {
     id: 'rating',
@@ -144,7 +159,9 @@ const tourColumns: ColumnDef<TourSummary>[] = [
       ) : (
         <span className="inline-flex items-center gap-1">
           <Star className="size-3 fill-current text-amber-500" aria-hidden />
-          <span className="tabular-nums">{row.original.averageRating.toFixed(1)}</span>
+          <span className="tabular-nums">
+            {row.original.averageRating.toFixed(1)}
+          </span>
           <span className="text-muted-foreground text-xs tabular-nums">
             ({row.original.reviewsCount})
           </span>
@@ -161,9 +178,14 @@ const tourColumns: ColumnDef<TourSummary>[] = [
       const seats = row.original.nextDepartureSeatsLeft;
       return (
         <span className="whitespace-nowrap tabular-nums">
-          {new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+          {new Date(d).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'short',
+          })}
           {seats !== null && seats !== undefined ? (
-            <span className="text-muted-foreground block text-xs">{seats} seats left</span>
+            <span className="text-muted-foreground block text-xs">
+              {seats} seats left
+            </span>
           ) : null}
         </span>
       );
@@ -175,11 +197,19 @@ const tourColumns: ColumnDef<TourSummary>[] = [
     meta: { label: 'Status' },
     cell: ({ row }) => (
       <div className="flex flex-wrap items-center gap-1">
-        <Badge variant={row.original.isPublished ? 'default' : 'secondary'} className="gap-1.5">
-          <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+        <Badge
+          variant={row.original.isPublished ? 'default' : 'secondary'}
+          className="gap-1.5"
+        >
+          <span
+            className="size-1.5 rounded-full bg-current opacity-70"
+            aria-hidden
+          />
           {row.original.isPublished ? 'Published' : 'Draft'}
         </Badge>
-        {row.original.isFeatured ? <Badge variant="outline">Featured</Badge> : null}
+        {row.original.isFeatured ? (
+          <Badge variant="outline">Featured</Badge>
+        ) : null}
       </div>
     ),
   },
@@ -242,7 +272,8 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
     return rows.filter((r) => {
       if (tab === 'published' && !r.isPublished) return false;
       if (tab === 'draft' && r.isPublished) return false;
-      if (selectedCats.length && !selectedCats.includes(r.category.slug)) return false;
+      if (selectedCats.length && !selectedCats.includes(r.category.slug))
+        return false;
       if (needle) {
         const haystack = `${r.title} ${r.category.name} ${r.destinations
           .map((d) => d.destination.name)
@@ -265,7 +296,9 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
   });
 
   const toggleCategory = (slug: string, checked: boolean) => {
-    setSelectedCats((prev) => (checked ? [...prev, slug] : prev.filter((s) => s !== slug)));
+    setSelectedCats((prev) =>
+      checked ? [...prev, slug] : prev.filter((s) => s !== slug),
+    );
   };
 
   // Trigger label: "All categories" / the single name / "N categories".
@@ -273,7 +306,8 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
     selectedCats.length === 0
       ? 'All categories'
       : selectedCats.length === 1
-        ? (categoryOptions.find((c) => c.slug === selectedCats[0])?.name ?? '1 category')
+        ? (categoryOptions.find((c) => c.slug === selectedCats[0])?.name ??
+          '1 category')
         : `${selectedCats.length} categories`;
 
   const tabs: { value: Tab; label: string; count: number }[] = [
@@ -301,7 +335,9 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
                 onClick={() => setTab(t.value)}
                 className={cn(
                   'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                  isActive ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+                  isActive
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'hover:text-foreground',
                 )}
               >
                 {t.label}
@@ -337,7 +373,9 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
                   <DropdownMenuCheckboxItem
                     key={c.slug}
                     checked={selectedCats.includes(c.slug)}
-                    onCheckedChange={(checked) => toggleCategory(c.slug, checked === true)}
+                    onCheckedChange={(checked) =>
+                      toggleCategory(c.slug, checked === true)
+                    }
                     closeOnClick={false}
                   >
                     {c.name}
@@ -347,7 +385,9 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
               {selectedCats.length ? (
                 <>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setSelectedCats([])}>Clear filter</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedCats([])}>
+                    Clear filter
+                  </DropdownMenuItem>
                 </>
               ) : null}
             </DropdownMenuContent>
@@ -374,7 +414,9 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
               <Compass />
             </EmptyMedia>
             <EmptyTitle>No tours match your filters</EmptyTitle>
-            <EmptyDescription>Try different filters or clear them to see them all.</EmptyDescription>
+            <EmptyDescription>
+              Try different filters or clear them to see them all.
+            </EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : (

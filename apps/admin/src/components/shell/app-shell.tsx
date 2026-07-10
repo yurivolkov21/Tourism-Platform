@@ -34,7 +34,10 @@ import { NavMain, type NavSection } from './nav-main';
 import { NavUser } from './nav-user';
 
 const NAV: NavSection[] = [
-  { label: 'Overview', items: [{ title: 'Dashboard', href: '/', icon: LayoutDashboard }] },
+  {
+    label: 'Overview',
+    items: [{ title: 'Dashboard', href: '/', icon: LayoutDashboard }],
+  },
   {
     label: 'Catalog',
     items: [
@@ -67,13 +70,21 @@ function usePageTitle(): string {
   const pathname = usePathname();
   const items = NAV.flatMap((s) => s.items);
   const match = items
-    .filter((i) => (i.href === '/' ? pathname === '/' : pathname.startsWith(i.href)))
+    .filter((i) =>
+      i.href === '/' ? pathname === '/' : pathname.startsWith(i.href),
+    )
     .sort((a, b) => b.href.length - a.href.length)[0];
   return match?.title ?? 'Console';
 }
 
 /** Admin app shell: inset brand sidebar (nav + account) + a sticky topbar (trigger · title · theme). */
-export function AppShell({ email, children }: { email: string; children: React.ReactNode }) {
+export function AppShell({
+  email,
+  children,
+}: {
+  email: string;
+  children: React.ReactNode;
+}) {
   const title = usePageTitle();
 
   return (

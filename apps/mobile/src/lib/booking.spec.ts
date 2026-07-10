@@ -9,7 +9,9 @@ import {
 import { getApiClient } from './api';
 
 jest.mock('./api', () => ({ getApiClient: jest.fn() }));
-jest.mock('./supabase', () => ({ supabase: { auth: { getSession: jest.fn() } } }));
+jest.mock('./supabase', () => ({
+  supabase: { auth: { getSession: jest.fn() } },
+}));
 
 type BookingDto = components['schemas']['BookingDto'];
 type DepartureDto = components['schemas']['DepartureDto'];
@@ -34,8 +36,15 @@ describe('toDepartureOptions', () => {
   });
 
   test('price override wins and seats clamp at 0', () => {
-    const overbooked = { ...departure, priceOverride: '99.00', seatsBooked: 12 } as DepartureDto;
-    expect(toDepartureOptions([overbooked], 120)[0]).toMatchObject({ price: 99, seatsLeft: 0 });
+    const overbooked = {
+      ...departure,
+      priceOverride: '99.00',
+      seatsBooked: 12,
+    } as DepartureDto;
+    expect(toDepartureOptions([overbooked], 120)[0]).toMatchObject({
+      price: 99,
+      seatsLeft: 0,
+    });
   });
 });
 
@@ -51,7 +60,10 @@ describe('bookingStatusMeta', () => {
   });
 
   test('unknown status falls back to muted with the raw status as label', () => {
-    expect(bookingStatusMeta('SOMETHING_NEW')).toEqual({ label: 'SOMETHING_NEW', tone: 'muted' });
+    expect(bookingStatusMeta('SOMETHING_NEW')).toEqual({
+      label: 'SOMETHING_NEW',
+      tone: 'muted',
+    });
   });
 });
 
@@ -104,7 +116,12 @@ describe('toBookingVm', () => {
       numChildren: 0,
       status: 'PARTIALLY_REFUNDED',
       refundedAmount: '30.00',
-      cancellationRequest: { status: 'REFUNDED', reason: '', createdAt: '', decisionNote: null },
+      cancellationRequest: {
+        status: 'REFUNDED',
+        reason: '',
+        createdAt: '',
+        decisionNote: null,
+      },
     } as unknown as BookingDto);
     expect(vm.party).toBe('1 adult');
     expect(vm.refundedAmount).toBe(30);
@@ -114,10 +131,14 @@ describe('toBookingVm', () => {
 
 describe('bookingErrorMessage', () => {
   test('maps a known API code', () => {
-    expect(bookingErrorMessage(apiError(409, 'SEATS_NOT_AVAILABLE'))).toMatch(/sold out/i);
+    expect(bookingErrorMessage(apiError(409, 'SEATS_NOT_AVAILABLE'))).toMatch(
+      /sold out/i,
+    );
   });
   test('unknown errors fall back to generic copy', () => {
-    expect(bookingErrorMessage(new Error('boom'))).toMatch(/something went wrong/i);
+    expect(bookingErrorMessage(new Error('boom'))).toMatch(
+      /something went wrong/i,
+    );
   });
 });
 
@@ -159,10 +180,14 @@ describe('createBooking USER_NOT_SYNCED retry', () => {
   });
 
   test('other errors are not retried', async () => {
-    const POST = jest.fn().mockRejectedValue(apiError(409, 'SEATS_NOT_AVAILABLE'));
+    const POST = jest
+      .fn()
+      .mockRejectedValue(apiError(409, 'SEATS_NOT_AVAILABLE'));
     (getApiClient as jest.Mock).mockReturnValue({ POST });
 
-    await expect(createBooking(payload)).rejects.toMatchObject({ code: 'SEATS_NOT_AVAILABLE' });
+    await expect(createBooking(payload)).rejects.toMatchObject({
+      code: 'SEATS_NOT_AVAILABLE',
+    });
     expect(POST).toHaveBeenCalledTimes(1);
   });
 });

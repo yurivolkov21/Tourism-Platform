@@ -22,7 +22,12 @@ const has = (list: string[], name: string) =>
  * Free-form tag editor: removable chips + a text input. Typing filters the existing-tag
  * suggestions (click to add); Enter adds the raw text as a new tag. Caps at `max`.
  */
-export function TagsInput({ value, onChange, suggestions, max = 10 }: TagsInputProps) {
+export function TagsInput({
+  value,
+  onChange,
+  suggestions,
+  max = 10,
+}: TagsInputProps) {
   const [draft, setDraft] = useState('');
   const full = value.length >= max;
 
@@ -71,7 +76,9 @@ export function TagsInput({ value, onChange, suggestions, max = 10 }: TagsInputP
             add(draft);
           }
         }}
-        placeholder={full ? `Maximum ${max} tags` : 'Type a topic and press Enter…'}
+        placeholder={
+          full ? `Maximum ${max} tags` : 'Type a topic and press Enter…'
+        }
         aria-label="Add a tag"
       />
 

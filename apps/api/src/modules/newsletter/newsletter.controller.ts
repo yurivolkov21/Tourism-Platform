@@ -1,5 +1,17 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { Public } from '../../common/decorators/public.decorator';
 import { SubscribeAckDto, SubscribeDto } from './dto/subscribe.dto';
@@ -25,9 +37,13 @@ export class NewsletterController {
 
   @Post('subscribe')
   @Public()
-  @Throttle({ default: { limit: SUBSCRIBE_RATE_LIMIT, ttl: SUBSCRIBE_RATE_TTL_MS } })
+  @Throttle({
+    default: { limit: SUBSCRIBE_RATE_LIMIT, ttl: SUBSCRIBE_RATE_TTL_MS },
+  })
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Subscribe to the newsletter (public, rate-limited)' })
+  @ApiOperation({
+    summary: 'Subscribe to the newsletter (public, rate-limited)',
+  })
   @ApiCreatedResponse({ type: SubscribeAckDto, description: 'Received' })
   @ApiResponse({ status: 429, description: 'Too many submissions' })
   async subscribe(@Body() dto: SubscribeDto): Promise<SubscribeAckDto> {

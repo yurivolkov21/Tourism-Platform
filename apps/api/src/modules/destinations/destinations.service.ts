@@ -56,14 +56,22 @@ export class DestinationsService {
    * Replace-all the destination's media set (admin). Resolves slug→id, syncs in a
    * transaction, returns the new set with built delivery URLs.
    */
-  async setMedia(slug: string, media: MediaInputDto[]): Promise<MediaItemDto[]> {
+  async setMedia(
+    slug: string,
+    media: MediaInputDto[],
+  ): Promise<MediaItemDto[]> {
     const destination = await this.prisma.destination.findUnique({
       where: { slug },
       select: { id: true },
     });
     if (!destination) throw this.notFound(slug);
     await this.prisma.$transaction((tx) =>
-      this.media.syncAssets(tx, MediaOwnerType.DESTINATION, destination.id, media),
+      this.media.syncAssets(
+        tx,
+        MediaOwnerType.DESTINATION,
+        destination.id,
+        media,
+      ),
     );
     const withMedia = await this.media.attachToOwner(
       MediaOwnerType.DESTINATION,
@@ -124,7 +132,10 @@ export class DestinationsService {
     if (!destination) throw this.notFound(slug);
 
     const { tours: joinRows, ...scalar } = destination;
-    const withMedia = await this.media.attachToOwner(MediaOwnerType.DESTINATION, scalar);
+    const withMedia = await this.media.attachToOwner(
+      MediaOwnerType.DESTINATION,
+      scalar,
+    );
     const tours: LinkedDestinationTour[] = joinRows.map((row) => ({
       slug: row.tour.slug,
       title: row.tour.title,
@@ -248,7 +259,10 @@ export class DestinationsService {
       this.prisma.destination.count({ where }),
     ]);
 
-    const withMedia = await this.media.attachToOwners(MediaOwnerType.DESTINATION, items);
+    const withMedia = await this.media.attachToOwners(
+      MediaOwnerType.DESTINATION,
+      items,
+    );
     return {
       items: withMedia.map(({ _count, ...row }) => ({
         ...row,
@@ -295,13 +309,15 @@ export class DestinationsService {
 
   private isUniqueConstraintError(err: unknown): boolean {
     return (
-      err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002'
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === 'P2002'
     );
   }
 
   private isForeignKeyError(err: unknown): boolean {
     return (
-      err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003'
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === 'P2003'
     );
   }
 }

@@ -1,4 +1,8 @@
-import { buildBookingTimeline, formatRelativeTime, stripePaymentUrl } from './detail';
+import {
+  buildBookingTimeline,
+  formatRelativeTime,
+  stripePaymentUrl,
+} from './detail';
 
 const base = {
   status: 'PENDING' as const,
@@ -23,8 +27,18 @@ describe('buildBookingTimeline', () => {
       paidAt: '2026-07-01T10:00:00.000Z',
     });
     expect(steps).toEqual([
-      { key: 'created', label: 'Created', at: '2026-06-30T08:00:00.000Z', done: true },
-      { key: 'paid', label: 'Paid', at: '2026-07-01T10:00:00.000Z', done: true },
+      {
+        key: 'created',
+        label: 'Created',
+        at: '2026-06-30T08:00:00.000Z',
+        done: true,
+      },
+      {
+        key: 'paid',
+        label: 'Paid',
+        at: '2026-07-01T10:00:00.000Z',
+        done: true,
+      },
     ]);
   });
 
@@ -53,22 +67,36 @@ describe('formatRelativeTime', () => {
   const now = new Date('2026-07-10T12:00:00.000Z');
 
   test('under ~45s → "just now"', () => {
-    expect(formatRelativeTime('2026-07-10T11:59:30.000Z', now)).toBe('just now');
+    expect(formatRelativeTime('2026-07-10T11:59:30.000Z', now)).toBe(
+      'just now',
+    );
   });
 
   test('minutes and hours', () => {
-    expect(formatRelativeTime('2026-07-10T11:55:00.000Z', now)).toBe('5 min ago');
-    expect(formatRelativeTime('2026-07-10T09:00:00.000Z', now)).toBe('3 hours ago');
-    expect(formatRelativeTime('2026-07-10T11:00:00.000Z', now)).toBe('1 hour ago');
+    expect(formatRelativeTime('2026-07-10T11:55:00.000Z', now)).toBe(
+      '5 min ago',
+    );
+    expect(formatRelativeTime('2026-07-10T09:00:00.000Z', now)).toBe(
+      '3 hours ago',
+    );
+    expect(formatRelativeTime('2026-07-10T11:00:00.000Z', now)).toBe(
+      '1 hour ago',
+    );
   });
 
   test('days', () => {
-    expect(formatRelativeTime('2026-07-08T12:00:00.000Z', now)).toBe('2 days ago');
-    expect(formatRelativeTime('2026-07-09T12:00:00.000Z', now)).toBe('1 day ago');
+    expect(formatRelativeTime('2026-07-08T12:00:00.000Z', now)).toBe(
+      '2 days ago',
+    );
+    expect(formatRelativeTime('2026-07-09T12:00:00.000Z', now)).toBe(
+      '1 day ago',
+    );
   });
 
   test('older than ~30 days → absolute date', () => {
-    expect(formatRelativeTime('2026-05-01T12:00:00.000Z', now)).toBe('1 May 2026');
+    expect(formatRelativeTime('2026-05-01T12:00:00.000Z', now)).toBe(
+      '1 May 2026',
+    );
   });
 
   test('invalid input → empty string', () => {

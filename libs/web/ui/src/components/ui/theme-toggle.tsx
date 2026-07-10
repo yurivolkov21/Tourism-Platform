@@ -16,7 +16,8 @@ export function ThemeToggle({ className }: { className?: string }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  if (!mounted) return <span className={cn('inline-block', className)} aria-hidden />;
+  if (!mounted)
+    return <span className={cn('inline-block', className)} aria-hidden />;
 
   return (
     <AnimatedThemeToggler

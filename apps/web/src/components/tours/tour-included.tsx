@@ -1,4 +1,11 @@
-import { BackpackIcon, BedDoubleIcon, CarFrontIcon, CheckIcon, UtensilsIcon, XIcon } from 'lucide-react';
+import {
+  BackpackIcon,
+  BedDoubleIcon,
+  CarFrontIcon,
+  CheckIcon,
+  UtensilsIcon,
+  XIcon,
+} from 'lucide-react';
 
 import { messages } from '@tourism/i18n';
 
@@ -23,16 +30,31 @@ export function TourIncluded({
   const labels = t.inclusionLabels;
 
   const specRows = [
-    { icon: <UtensilsIcon className="size-5" />, label: labels.meals, value: meals },
-    { icon: <CarFrontIcon className="size-5" />, label: labels.transport, value: transport },
-    { icon: <BedDoubleIcon className="size-5" />, label: labels.accommodation, value: accommodation },
+    {
+      icon: <UtensilsIcon className="size-5" />,
+      label: labels.meals,
+      value: meals,
+    },
+    {
+      icon: <CarFrontIcon className="size-5" />,
+      label: labels.transport,
+      value: transport,
+    },
+    {
+      icon: <BedDoubleIcon className="size-5" />,
+      label: labels.accommodation,
+      value: accommodation,
+    },
   ];
 
   return (
     <TourSection title={t.included}>
       <div className="divide-border/60 divide-y">
         {specRows.map((row) => (
-          <div key={row.label} className="flex items-start gap-3 py-3 first:pt-0">
+          <div
+            key={row.label}
+            className="flex items-start gap-3 py-3 first:pt-0"
+          >
             <span className="text-primary mt-0.5 shrink-0">{row.icon}</span>
             <div className="min-w-0">
               <div className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
@@ -53,7 +75,10 @@ export function TourIncluded({
             </div>
             <ul className="space-y-2">
               {activities.map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-sm text-pretty">
+                <li
+                  key={item}
+                  className="flex items-start gap-2.5 text-sm text-pretty"
+                >
                   <CheckIcon className="text-success mt-0.5 size-4 shrink-0" />
                   {item}
                 </li>
@@ -65,7 +90,9 @@ export function TourIncluded({
 
       {excluded.length > 0 ? (
         <div className="border-border/60 mt-5 border-t pt-5">
-          <h3 className="font-sans mb-3 text-sm font-semibold">{t.notIncluded}</h3>
+          <h3 className="font-sans mb-3 text-sm font-semibold">
+            {t.notIncluded}
+          </h3>
           <ul className="grid gap-2 sm:grid-cols-2">
             {excluded.map((item) => (
               <li

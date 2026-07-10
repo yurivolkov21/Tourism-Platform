@@ -10,7 +10,8 @@ import type { PostSummaryVM } from '../../lib/blog/post-vm';
 // `fetchPosts` through `app/page.tsx`. After wiring they remain ONLY as the API-error/empty
 // fallback so the home never looks broken. Their slugs resolve to notFound if clicked while
 // the fallback is active — acceptable for a degraded state.
-const cover = (id: string) => `https://images.unsplash.com/${id}?w=800&q=70&auto=format&fit=crop`;
+const cover = (id: string) =>
+  `https://images.unsplash.com/${id}?w=800&q=70&auto=format&fit=crop`;
 
 const fixturePosts: PostSummaryVM[] = [
   {
@@ -26,7 +27,8 @@ const fixturePosts: PostSummaryVM[] = [
   {
     slug: 'two-unhurried-days-in-hoi-an',
     title: 'Two unhurried days in Hội An',
-    excerpt: 'Lanterns, tailors, and riverside mornings — a slow itinerary for the old town.',
+    excerpt:
+      'Lanterns, tailors, and riverside mornings — a slow itinerary for the old town.',
     publishedAt: '2026-04-30',
     coverUrl: cover('photo-1664650440553-ab53804814b3'),
     tags: [],
@@ -35,7 +37,8 @@ const fixturePosts: PostSummaryVM[] = [
   {
     slug: 'morning-at-the-mekong-floating-markets',
     title: 'A morning at the Mekong floating markets',
-    excerpt: 'Dawn on the delta: what to expect, what to eat, and how to find the quieter channels.',
+    excerpt:
+      'Dawn on the delta: what to expect, what to eat, and how to find the quieter channels.',
     publishedAt: '2026-04-12',
     coverUrl: cover('photo-1689760661317-a839f59b1c32'),
     tags: [],
@@ -58,12 +61,19 @@ export function BlogTeaser({ posts }: { posts: PostSummaryVM[] }) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col gap-4 sm:mb-14 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl space-y-3">
-            <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">{t.heading}</h2>
-            <p className="text-muted-foreground text-lg text-pretty">{t.subtitle}</p>
+            <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
+              {t.heading}
+            </h2>
+            <p className="text-muted-foreground text-lg text-pretty">
+              {t.subtitle}
+            </p>
           </div>
           <a
             href="/blog"
-            className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'shrink-0 max-sm:hidden')}
+            className={cn(
+              buttonVariants({ variant: 'outline', size: 'lg' }),
+              'shrink-0 max-sm:hidden',
+            )}
           >
             {t.viewAll}
             <ArrowRightIcon />

@@ -124,8 +124,14 @@ describe('DestinationsService', () => {
       name: 'Hoi An',
       isActive: true,
       tours: [
-        { isPrimary: true, tour: { slug: 't1', title: 'T1', isPublished: true } },
-        { isPrimary: false, tour: { slug: 't2', title: 'T2', isPublished: false } },
+        {
+          isPrimary: true,
+          tour: { slug: 't1', title: 'T1', isPublished: true },
+        },
+        {
+          isPrimary: false,
+          tour: { slug: 't2', title: 'T2', isPublished: false },
+        },
       ],
     });
     const svc = makeService(makePrisma({ findUnique }));
@@ -137,20 +143,24 @@ describe('DestinationsService', () => {
       { slug: 't2', title: 'T2', isPublished: false, isPrimary: false },
     ]);
     expect(res.media).toEqual([]);
-    expect((res.tours[0] as unknown as Record<string, unknown>).tour).toBeUndefined();
+    expect(
+      (res.tours[0] as unknown as Record<string, unknown>).tour,
+    ).toBeUndefined();
     expect(res.toursCount).toBe(2);
   });
 
   it('findDetailForAdmin throws 404 when missing', async () => {
     const findUnique = jest.fn().mockResolvedValue(null);
     const svc = makeService(makePrisma({ findUnique }));
-    await expect(svc.findDetailForAdmin('nope')).rejects.toThrow(NotFoundException);
+    await expect(svc.findDetailForAdmin('nope')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('list maps the tours count onto each row', async () => {
-    const findMany = jest.fn().mockResolvedValue([
-      { id: 'd1', slug: 'hoi-an', _count: { tours: 4 } },
-    ]);
+    const findMany = jest
+      .fn()
+      .mockResolvedValue([{ id: 'd1', slug: 'hoi-an', _count: { tours: 4 } }]);
     const count = jest.fn().mockResolvedValue(1);
     const svc = makeService(makePrisma({ findMany, count }));
 
@@ -160,6 +170,8 @@ describe('DestinationsService', () => {
       _count: { select: { tours: true } },
     });
     expect(res.items[0].toursCount).toBe(4);
-    expect((res.items[0] as unknown as { _count?: unknown })._count).toBeUndefined();
+    expect(
+      (res.items[0] as unknown as { _count?: unknown })._count,
+    ).toBeUndefined();
   });
 });

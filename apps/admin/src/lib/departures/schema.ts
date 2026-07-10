@@ -22,8 +22,14 @@ export const departureSchema = z
       .int('Seats must be a whole number')
       .min(1, 'At least 1 seat')
       .max(1000, 'At most 1000 seats'),
-    priceOverride: z.coerce.number().min(0, 'Price must be 0 or greater').optional(),
-    compareAtPrice: z.coerce.number().min(0, 'Compare-at price must be 0 or greater').optional(),
+    priceOverride: z.coerce
+      .number()
+      .min(0, 'Price must be 0 or greater')
+      .optional(),
+    compareAtPrice: z.coerce
+      .number()
+      .min(0, 'Compare-at price must be 0 or greater')
+      .optional(),
     status: z.enum(DEPARTURE_STATUSES).optional(),
   })
   .refine((v) => v.endDate >= v.startDate, {
@@ -34,14 +40,18 @@ export const departureSchema = z
 export type DepartureInput = z.infer<typeof departureSchema>;
 
 /** Builds the API payload: always sends dates + seats; includes price overrides/status only when set. */
-export function toDeparturePayload(input: DepartureInput): Record<string, unknown> {
+export function toDeparturePayload(
+  input: DepartureInput,
+): Record<string, unknown> {
   const out: Record<string, unknown> = {
     startDate: input.startDate,
     endDate: input.endDate,
     seatsTotal: input.seatsTotal,
   };
-  if (typeof input.priceOverride === 'number') out.priceOverride = input.priceOverride;
-  if (typeof input.compareAtPrice === 'number') out.compareAtPrice = input.compareAtPrice;
+  if (typeof input.priceOverride === 'number')
+    out.priceOverride = input.priceOverride;
+  if (typeof input.compareAtPrice === 'number')
+    out.compareAtPrice = input.compareAtPrice;
   if (input.status) out.status = input.status;
   return out;
 }

@@ -35,7 +35,11 @@ export default async function ToursPage({
 
   return (
     <main>
-      <ContentHero breadcrumb={t.breadcrumb} title={t.title} subtitle={t.subtitle} />
+      <ContentHero
+        breadcrumb={t.breadcrumb}
+        title={t.title}
+        subtitle={t.subtitle}
+      />
       <ToursListing
         tours={tours}
         initialCategory={category ?? null}

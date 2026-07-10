@@ -29,7 +29,10 @@ describe('buildPrivateEnquiryPayload', () => {
   };
 
   it('maps structured fields + composes a readable message', () => {
-    const p = buildPrivateEnquiryPayload({ ...base, requests: 'Vegetarian meals' });
+    const p = buildPrivateEnquiryPayload({
+      ...base,
+      requests: 'Vegetarian meals',
+    });
     expect(p.tourId).toBe('t-1');
     expect(p.travelDate).toBe('2026-09-01');
     expect(p.groupSize).toBe(3);

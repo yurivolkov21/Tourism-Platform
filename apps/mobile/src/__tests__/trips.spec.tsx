@@ -7,10 +7,17 @@ import { fetchMyBookings, type BookingVm } from '../lib/booking';
 const mockRouter = { push: jest.fn(), back: jest.fn() };
 let mockAuthStatus = 'signedIn';
 jest.mock('expo-router', () => ({
-  router: { push: (...a: unknown[]) => mockRouter.push(...a), back: () => mockRouter.back() },
+  router: {
+    push: (...a: unknown[]) => mockRouter.push(...a),
+    back: () => mockRouter.back(),
+  },
 }));
-jest.mock('../lib/auth-context', () => ({ useAuth: () => ({ status: mockAuthStatus }) }));
-jest.mock('../lib/supabase', () => ({ supabase: { auth: { getSession: jest.fn() } } }));
+jest.mock('../lib/auth-context', () => ({
+  useAuth: () => ({ status: mockAuthStatus }),
+}));
+jest.mock('../lib/supabase', () => ({
+  supabase: { auth: { getSession: jest.fn() } },
+}));
 jest.mock('../lib/booking', () => ({
   ...jest.requireActual('../lib/booking'),
   fetchMyBookings: jest.fn(),
@@ -35,7 +42,10 @@ const vm: BookingVm = {
 
 function renderScreen() {
   const client = new QueryClient({
-    defaultOptions: { queries: { retry: false, gcTime: 0 }, mutations: { gcTime: 0 } },
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+      mutations: { gcTime: 0 },
+    },
   });
   return render(
     <ThemeProvider>
@@ -63,13 +73,17 @@ test('renders booking cards and navigates to the detail', async () => {
 test('empty state offers browsing tours', async () => {
   (fetchMyBookings as jest.Mock).mockResolvedValue([]);
   renderScreen();
-  expect(await screen.findByText(/haven.t booked any trips yet/i)).toBeOnTheScreen();
+  expect(
+    await screen.findByText(/haven.t booked any trips yet/i),
+  ).toBeOnTheScreen();
 });
 
 test('error state offers retry', async () => {
   (fetchMyBookings as jest.Mock).mockRejectedValue(new Error('boom'));
   renderScreen();
-  expect(await screen.findByText(/couldn.t load your bookings/i)).toBeOnTheScreen();
+  expect(
+    await screen.findByText(/couldn.t load your bookings/i),
+  ).toBeOnTheScreen();
 });
 
 test('guests see the auth gate', () => {

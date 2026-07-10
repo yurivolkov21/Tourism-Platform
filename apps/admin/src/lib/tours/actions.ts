@@ -21,7 +21,11 @@ export interface TourFormState {
 async function putTourMedia(slug: string, mediaJson: string): Promise<void> {
   try {
     const media = assembleMediaSet(parseMediaField(mediaJson));
-    await apiWrite('PUT', `/api/v1/admin/tours/${encodeURIComponent(slug)}/media`, { media });
+    await apiWrite(
+      'PUT',
+      `/api/v1/admin/tours/${encodeURIComponent(slug)}/media`,
+      { media },
+    );
   } catch {
     // Saved without images; recoverable via edit.
   }
@@ -69,7 +73,9 @@ function parseTourForm(formData: FormData) {
     summary: String(formData.get('summary') ?? ''),
     categorySlug: String(formData.get('categorySlug') ?? ''),
     destinationSlugs: formData.getAll('destinationSlugs').map(String),
-    primaryDestinationSlug: String(formData.get('primaryDestinationSlug') ?? ''),
+    primaryDestinationSlug: String(
+      formData.get('primaryDestinationSlug') ?? '',
+    ),
     durationDays: opt(formData, 'durationDays'),
     maxGroupSize: opt(formData, 'maxGroupSize'),
     meetingPoint: String(formData.get('meetingPoint') ?? ''),
@@ -161,7 +167,9 @@ export interface DeleteTourState {
 export async function deleteTour(slug: string): Promise<DeleteTourState> {
   try {
     const api = await getApiClient();
-    await api.DELETE('/api/v1/admin/tours/{slug}', { params: { path: { slug } } });
+    await api.DELETE('/api/v1/admin/tours/{slug}', {
+      params: { path: { slug } },
+    });
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }

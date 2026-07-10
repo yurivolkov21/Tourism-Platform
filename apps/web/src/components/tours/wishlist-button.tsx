@@ -73,7 +73,9 @@ export function WishlistButton({
       aria-pressed={saved === true}
       className={cn('w-full', className)}
     >
-      <HeartIcon className={cn('size-4', saved && 'fill-current text-primary')} />
+      <HeartIcon
+        className={cn('size-4', saved && 'fill-current text-primary')}
+      />
       {saved ? t.saved : t.save}
     </Button>
   );

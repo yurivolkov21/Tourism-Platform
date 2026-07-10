@@ -9,7 +9,10 @@ import { BlogTeaser } from '../components/marketing/blog-teaser';
 import { EnquiryCta } from '../components/marketing/enquiry-cta';
 import { Reveal } from '../components/marketing/reveal';
 import { fetchTourCards } from '../lib/api/tours';
-import { fetchDestinationTiles, fetchTourDestinationCounts } from '../lib/api/destinations';
+import {
+  fetchDestinationTiles,
+  fetchTourDestinationCounts,
+} from '../lib/api/destinations';
 import { fetchPosts } from '../lib/api/posts';
 import { pickHomeBento } from '../lib/home-bento';
 import { applyTourCounts } from '../lib/destination-counts';

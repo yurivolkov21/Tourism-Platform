@@ -12,7 +12,9 @@ interface NewDeparturePageProps {
   params: Promise<{ slug: string }>;
 }
 
-export default async function NewDeparturePage({ params }: NewDeparturePageProps) {
+export default async function NewDeparturePage({
+  params,
+}: NewDeparturePageProps) {
   const { slug } = await params;
 
   let tour: TourDetail;
@@ -27,7 +29,12 @@ export default async function NewDeparturePage({ params }: NewDeparturePageProps
   return (
     <div className="mx-auto max-w-2xl space-y-6 p-6">
       <div className="space-y-3">
-        <Button variant="ghost" size="sm" nativeButton={false} render={<Link href={`/tours/${slug}/departures`} />}>
+        <Button
+          variant="ghost"
+          size="sm"
+          nativeButton={false}
+          render={<Link href={`/tours/${slug}/departures`} />}
+        >
           <ArrowLeft data-icon="inline-start" />
           Back to departures
         </Button>
@@ -39,7 +46,11 @@ export default async function NewDeparturePage({ params }: NewDeparturePageProps
         </div>
       </div>
 
-      <DepartureForm action={action} slug={slug} submitLabel="Create departure" />
+      <DepartureForm
+        action={action}
+        slug={slug}
+        submitLabel="Create departure"
+      />
     </div>
   );
 }

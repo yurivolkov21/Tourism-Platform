@@ -76,7 +76,8 @@ jest.mock('@gorhom/bottom-sheet', () => {
   );
   return {
     BottomSheetModal: Modal,
-    BottomSheetModalProvider: ({ children }: { children?: unknown }) => children,
+    BottomSheetModalProvider: ({ children }: { children?: unknown }) =>
+      children,
     BottomSheetView: View,
     BottomSheetScrollView: ScrollView,
     BottomSheetTextInput: TextInput,
@@ -89,7 +90,11 @@ jest.mock('@gorhom/bottom-sheet', () => {
 jest.mock('expo-haptics', () => ({
   selectionAsync: jest.fn().mockResolvedValue(undefined),
   notificationAsync: jest.fn().mockResolvedValue(undefined),
-  NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
+  NotificationFeedbackType: {
+    Success: 'success',
+    Warning: 'warning',
+    Error: 'error',
+  },
 }));
 
 if (typeof global.structuredClone === 'undefined') {

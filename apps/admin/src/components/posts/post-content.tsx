@@ -7,21 +7,66 @@ import remarkGfm from 'remark-gfm';
  * authored content can't inject scripts. `h1` renders as an h2 — the page owns the real h1.
  */
 const MD_COMPONENTS: Components = {
-  p: (props) => <p className="text-muted-foreground mb-3 leading-relaxed text-pretty last:mb-0" {...props} />,
-  strong: (props) => <strong className="text-foreground font-semibold" {...props} />,
-  em: (props) => <em className="italic" {...props} />,
-  ul: (props) => <ul className="mb-3 list-disc space-y-1.5 pl-5 last:mb-0" {...props} />,
-  ol: (props) => <ol className="mb-3 list-decimal space-y-1.5 pl-5 last:mb-0" {...props} />,
-  li: (props) => <li className="text-muted-foreground marker:text-primary/60 leading-relaxed text-pretty" {...props} />,
-  h1: ({ children }) => <h2 className="font-heading text-foreground mt-5 mb-2 text-xl font-semibold first:mt-0">{children}</h2>,
-  h2: (props) => <h2 className="font-heading text-foreground mt-5 mb-2 text-xl font-semibold first:mt-0" {...props} />,
-  h3: (props) => <h3 className="font-heading text-foreground mt-4 mb-1.5 text-lg font-semibold first:mt-0" {...props} />,
-  h4: (props) => <h4 className="text-foreground mt-3 mb-1 font-semibold first:mt-0" {...props} />,
-  a: (props) => <a className="text-primary font-medium hover:underline" {...props} />,
-  blockquote: (props) => (
-    <blockquote className="border-primary/30 text-muted-foreground mb-3 border-l-2 pl-4 italic" {...props} />
+  p: (props) => (
+    <p
+      className="text-muted-foreground mb-3 leading-relaxed text-pretty last:mb-0"
+      {...props}
+    />
   ),
-  code: (props) => <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs" {...props} />,
+  strong: (props) => (
+    <strong className="text-foreground font-semibold" {...props} />
+  ),
+  em: (props) => <em className="italic" {...props} />,
+  ul: (props) => (
+    <ul className="mb-3 list-disc space-y-1.5 pl-5 last:mb-0" {...props} />
+  ),
+  ol: (props) => (
+    <ol className="mb-3 list-decimal space-y-1.5 pl-5 last:mb-0" {...props} />
+  ),
+  li: (props) => (
+    <li
+      className="text-muted-foreground marker:text-primary/60 leading-relaxed text-pretty"
+      {...props}
+    />
+  ),
+  h1: ({ children }) => (
+    <h2 className="font-heading text-foreground mt-5 mb-2 text-xl font-semibold first:mt-0">
+      {children}
+    </h2>
+  ),
+  h2: (props) => (
+    <h2
+      className="font-heading text-foreground mt-5 mb-2 text-xl font-semibold first:mt-0"
+      {...props}
+    />
+  ),
+  h3: (props) => (
+    <h3
+      className="font-heading text-foreground mt-4 mb-1.5 text-lg font-semibold first:mt-0"
+      {...props}
+    />
+  ),
+  h4: (props) => (
+    <h4
+      className="text-foreground mt-3 mb-1 font-semibold first:mt-0"
+      {...props}
+    />
+  ),
+  a: (props) => (
+    <a className="text-primary font-medium hover:underline" {...props} />
+  ),
+  blockquote: (props) => (
+    <blockquote
+      className="border-primary/30 text-muted-foreground mb-3 border-l-2 pl-4 italic"
+      {...props}
+    />
+  ),
+  code: (props) => (
+    <code
+      className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs"
+      {...props}
+    />
+  ),
   hr: () => <hr className="border-border/60 my-4" />,
 };
 

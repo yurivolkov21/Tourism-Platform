@@ -41,14 +41,22 @@ function StatusBadge({ status }: { status: AdminOutboxRow['status'] }) {
  * **inline button** (deliberate deviation from RowActions: the queue has exactly one
  * action and the in-flight spinner belongs on the button — spec 2026-07-05).
  */
-export function OutboxView({ rows, meta }: { rows: AdminOutboxRow[]; meta?: PageMeta }) {
+export function OutboxView({
+  rows,
+  meta,
+}: {
+  rows: AdminOutboxRow[];
+  meta?: PageMeta;
+}) {
   const router = useRouter();
   const [, startRetry] = useTransition();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   // A Set, not a single id: overlapping retries on DIFFERENT rows must each keep
   // their own in-flight state — a lone id would clear row A's spinner when row B
   // is clicked, re-enabling A mid-request (duplicate-retry window).
-  const [retryingIds, setRetryingIds] = useState<ReadonlySet<string>>(new Set());
+  const [retryingIds, setRetryingIds] = useState<ReadonlySet<string>>(
+    new Set(),
+  );
 
   const onRetry = (id: string) => {
     setRetryingIds((prev) => new Set(prev).add(id));
@@ -75,7 +83,9 @@ export function OutboxView({ rows, meta }: { rows: AdminOutboxRow[]; meta?: Page
         header: 'Type',
         enableHiding: false,
         meta: { label: 'Type' },
-        cell: ({ row }) => <span className="font-mono text-xs">{row.original.type}</span>,
+        cell: ({ row }) => (
+          <span className="font-mono text-xs">{row.original.type}</span>
+        ),
       },
       {
         id: 'status',
@@ -134,7 +144,11 @@ export function OutboxView({ rows, meta }: { rows: AdminOutboxRow[]; meta?: Page
           if (row.original.status !== 'FAILED') return null;
           const isRetrying = retryingIds.has(row.original.id);
           return (
-            <Button size="sm" onClick={() => onRetry(row.original.id)} disabled={isRetrying}>
+            <Button
+              size="sm"
+              onClick={() => onRetry(row.original.id)}
+              disabled={isRetrying}
+            >
               {isRetrying ? (
                 <>
                   <Spinner />
@@ -171,8 +185,8 @@ export function OutboxView({ rows, meta }: { rows: AdminOutboxRow[]; meta?: Page
           </EmptyMedia>
           <EmptyTitle>No emails in the queue.</EmptyTitle>
           <EmptyDescription>
-            Nothing queued right now — bookings, reviews and enquiries will add rows here as they
-            happen.
+            Nothing queued right now — bookings, reviews and enquiries will add
+            rows here as they happen.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>

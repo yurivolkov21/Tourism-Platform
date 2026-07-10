@@ -2,9 +2,21 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
-import { ChevronLeftIcon, ChevronRightIcon, XIcon, ZoomInIcon, ZoomOutIcon } from 'lucide-react';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  XIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+} from 'lucide-react';
 
-import { Dialog, DialogClose, DialogPortal, DialogTitle, cn } from '@tourism/ui';
+import {
+  Dialog,
+  DialogClose,
+  DialogPortal,
+  DialogTitle,
+  cn,
+} from '@tourism/ui';
 
 export type LightboxImage = { src?: string; alt: string };
 
@@ -89,7 +101,9 @@ export function ImageLightbox({
               </button>
               <button
                 type="button"
-                onClick={() => setZoom((z) => Math.min(ZOOMS.length - 1, z + 1))}
+                onClick={() =>
+                  setZoom((z) => Math.min(ZOOMS.length - 1, z + 1))
+                }
                 disabled={zoom === ZOOMS.length - 1}
                 aria-label="Zoom in"
                 className={CONTROL}
@@ -119,17 +133,29 @@ export function ImageLightbox({
                   type="button"
                   onClick={() => go(-1)}
                   aria-label="Previous"
-                  className={cn(CONTROL, 'absolute left-3 size-11 sm:left-5 sm:size-12')}
+                  className={cn(
+                    CONTROL,
+                    'absolute left-3 size-11 sm:left-5 sm:size-12',
+                  )}
                 >
-                  <ChevronLeftIcon className="size-6 sm:size-7" aria-hidden="true" />
+                  <ChevronLeftIcon
+                    className="size-6 sm:size-7"
+                    aria-hidden="true"
+                  />
                 </button>
                 <button
                   type="button"
                   onClick={() => go(1)}
                   aria-label="Next"
-                  className={cn(CONTROL, 'absolute right-3 size-11 sm:right-5 sm:size-12')}
+                  className={cn(
+                    CONTROL,
+                    'absolute right-3 size-11 sm:right-5 sm:size-12',
+                  )}
                 >
-                  <ChevronRightIcon className="size-6 sm:size-7" aria-hidden="true" />
+                  <ChevronRightIcon
+                    className="size-6 sm:size-7"
+                    aria-hidden="true"
+                  />
                 </button>
               </>
             ) : null}

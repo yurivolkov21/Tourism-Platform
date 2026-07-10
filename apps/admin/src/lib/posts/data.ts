@@ -24,7 +24,9 @@ export const DEFAULT_PAGE_SIZE = 20;
  * Lists posts for the admin table (`GET /admin/posts`, drafts included). The wire format is already
  * `{ data, meta }` (the API's paginated envelope), so the typed body matches.
  */
-export async function listPosts(params: PostListParams = {}): Promise<PostList> {
+export async function listPosts(
+  params: PostListParams = {},
+): Promise<PostList> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/posts', {
     params: {

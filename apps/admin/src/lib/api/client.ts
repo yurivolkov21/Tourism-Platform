@@ -1,8 +1,13 @@
-import { ApiRequestError, createApiClient, type ApiClient } from '@tourism/core';
+import {
+  ApiRequestError,
+  createApiClient,
+  type ApiClient,
+} from '@tourism/core';
 
 import { createClient } from '../supabase/server';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
 
 /**
  * A typed `@tourism/core` API client whose Bearer token is read, per request, from the current
@@ -54,11 +59,15 @@ export async function apiWrite<T = unknown>(
     cache: 'no-store',
   });
 
-  const json = (await res.json().catch(() => null)) as
-    | { data?: T; error?: { code: string; message: string } }
-    | null;
+  const json = (await res.json().catch(() => null)) as {
+    data?: T;
+    error?: { code: string; message: string };
+  } | null;
   if (!res.ok) {
-    throw new ApiRequestError(res.status, json?.error ?? { code: 'UNKNOWN', message: res.statusText });
+    throw new ApiRequestError(
+      res.status,
+      json?.error ?? { code: 'UNKNOWN', message: res.statusText },
+    );
   }
   return json?.data as T;
 }

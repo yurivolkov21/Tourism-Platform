@@ -11,7 +11,12 @@ test('adults + children at the same unit price by default', () => {
   const { total, lines } = computeBookingTotal(100, 2, 1);
   expect(total).toBe(300);
   expect(lines).toHaveLength(2);
-  expect(lines[1]).toEqual({ kind: 'child', unitPrice: 100, quantity: 1, subtotal: 100 });
+  expect(lines[1]).toEqual({
+    kind: 'child',
+    unitPrice: 100,
+    quantity: 1,
+    subtotal: 100,
+  });
 });
 
 test('rounds money half-up to 2 decimals', () => {
@@ -21,11 +26,19 @@ test('rounds money half-up to 2 decimals', () => {
 
 test('child ratio prices children differently', () => {
   const { lines } = computeBookingTotal(100, 1, 2, 0.5);
-  expect(lines[1]).toEqual({ kind: 'child', unitPrice: 50, quantity: 2, subtotal: 100 });
+  expect(lines[1]).toEqual({
+    kind: 'child',
+    unitPrice: 50,
+    quantity: 2,
+    subtotal: 100,
+  });
 });
 
 test('invalid or negative counts collapse to 0', () => {
-  expect(computeBookingTotal(100, -2, Number.NaN)).toEqual({ total: 0, lines: [] });
+  expect(computeBookingTotal(100, -2, Number.NaN)).toEqual({
+    total: 0,
+    lines: [],
+  });
 });
 
 test('fractional counts floor', () => {

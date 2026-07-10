@@ -10,7 +10,13 @@ export interface ScreenProps extends ViewProps {
   scrollProps?: ComponentProps<typeof ScrollView>;
 }
 
-export function Screen({ scroll = true, scrollProps, children, style, ...rest }: ScreenProps) {
+export function Screen({
+  scroll = true,
+  scrollProps,
+  children,
+  style,
+  ...rest
+}: ScreenProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const outer = {
@@ -20,7 +26,10 @@ export function Screen({ scroll = true, scrollProps, children, style, ...rest }:
   };
   if (!scroll) {
     return (
-      <View {...rest} style={[outer, { paddingHorizontal: theme.spacing(4) }, style]}>
+      <View
+        {...rest}
+        style={[outer, { paddingHorizontal: theme.spacing(4) }, style]}
+      >
         {children}
       </View>
     );

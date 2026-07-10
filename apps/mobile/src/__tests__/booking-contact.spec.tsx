@@ -3,7 +3,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { AppText, ThemeProvider } from '@tourism/mobile-ui';
 import BookingContactScreen from '../app/tours/[slug]/book';
-import { BookingDraftProvider, useBookingDraft, type BookingTrip } from '../lib/booking-draft';
+import {
+  BookingDraftProvider,
+  useBookingDraft,
+  type BookingTrip,
+} from '../lib/booking-draft';
 import { fetchProfile } from '../lib/profile';
 
 const mockRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn() };
@@ -22,12 +26,16 @@ jest.mock('expo-router', () => ({
     return React.createElement(Text, { testID: 'redirect' }, href);
   },
 }));
-jest.mock('../lib/auth-context', () => ({ useAuth: () => ({ status: 'signedIn' }) }));
+jest.mock('../lib/auth-context', () => ({
+  useAuth: () => ({ status: 'signedIn' }),
+}));
 jest.mock('../lib/supabase', () => ({
   supabase: {
     auth: {
       getSession: jest.fn(),
-      onAuthStateChange: jest.fn(() => ({ data: { subscription: { unsubscribe: jest.fn() } } })),
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
     },
   },
 }));
@@ -43,7 +51,13 @@ const trip: BookingTrip = {
   children: 0,
 };
 
-function SeedTrip({ children, seed }: { children: ReactNode; seed?: BookingTrip }) {
+function SeedTrip({
+  children,
+  seed,
+}: {
+  children: ReactNode;
+  seed?: BookingTrip;
+}) {
   const { setTrip, draft } = useBookingDraft();
   useEffect(() => {
     if (seed && !draft) setTrip(seed);
@@ -54,7 +68,10 @@ function SeedTrip({ children, seed }: { children: ReactNode; seed?: BookingTrip 
 
 function renderScreen(seed?: BookingTrip) {
   const client = new QueryClient({
-    defaultOptions: { queries: { retry: false, gcTime: 0 }, mutations: { gcTime: 0 } },
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+      mutations: { gcTime: 0 },
+    },
   });
   return render(
     <ThemeProvider>
@@ -80,7 +97,9 @@ beforeEach(() => {
 
 test('without a trip for this tour it redirects back to the tour', () => {
   renderScreen(undefined);
-  expect(screen.getByTestId('redirect')).toHaveTextContent('/tours/hoi-an-walking-tour');
+  expect(screen.getByTestId('redirect')).toHaveTextContent(
+    '/tours/hoi-an-walking-tour',
+  );
 });
 
 test('shows the trip summary and prefills contact from the profile', async () => {
@@ -103,5 +122,7 @@ test('valid contact continues to the payment step', async () => {
   renderScreen(trip);
   await screen.findByDisplayValue('a@example.com');
   fireEvent.press(screen.getByTestId('continue-contact'));
-  expect(mockRouter.push.mock.calls[0][0]).toBe('/tours/hoi-an-walking-tour/book-payment');
+  expect(mockRouter.push.mock.calls[0][0]).toBe(
+    '/tours/hoi-an-walking-tour/book-payment',
+  );
 });

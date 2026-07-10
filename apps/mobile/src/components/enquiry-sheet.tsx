@@ -1,4 +1,10 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation } from '@tanstack/react-query';
@@ -11,7 +17,11 @@ import {
   useTheme,
   type AppSheetRef,
 } from '@tourism/mobile-ui';
-import { submitEnquiry, validateEnquiry, type EnquiryFieldErrors } from '../lib/enquiry';
+import {
+  submitEnquiry,
+  validateEnquiry,
+  type EnquiryFieldErrors,
+} from '../lib/enquiry';
 
 const t = messages.mobile.enquiry;
 
@@ -35,7 +45,9 @@ export const EnquirySheet = forwardRef<
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState<EnquiryFieldErrors>({});
-  const [failure, setFailure] = useState<'generic' | 'rateLimited' | null>(null);
+  const [failure, setFailure] = useState<'generic' | 'rateLimited' | null>(
+    null,
+  );
   const [sent, setSent] = useState(false);
 
   useImperativeHandle(ref, () => ({
@@ -81,10 +93,22 @@ export const EnquirySheet = forwardRef<
 
   return (
     <AppSheet ref={sheetRef} scrollable>
-      <View style={{ paddingHorizontal: theme.spacing(4), gap: theme.spacing(4) }}>
+      <View
+        style={{ paddingHorizontal: theme.spacing(4), gap: theme.spacing(4) }}
+      >
         {sent ? (
-          <View style={{ alignItems: 'center', gap: theme.spacing(3), paddingVertical: theme.spacing(6) }}>
-            <Ionicons name="checkmark-circle" size={56} color={theme.colors['success']} />
+          <View
+            style={{
+              alignItems: 'center',
+              gap: theme.spacing(3),
+              paddingVertical: theme.spacing(6),
+            }}
+          >
+            <Ionicons
+              name="checkmark-circle"
+              size={56}
+              color={theme.colors['success']}
+            />
             <AppText variant="body" style={{ textAlign: 'center' }}>
               {t.success}
             </AppText>
@@ -134,11 +158,20 @@ export const EnquirySheet = forwardRef<
               multiline
             />
             {failure ? (
-              <AppText variant="body" style={{ color: theme.colors['destructive'] }}>
-                {failure === 'rateLimited' ? t.errors.rateLimited : t.errors.generic}
+              <AppText
+                variant="body"
+                style={{ color: theme.colors['destructive'] }}
+              >
+                {failure === 'rateLimited'
+                  ? t.errors.rateLimited
+                  : t.errors.generic}
               </AppText>
             ) : null}
-            <Button label={t.submit} onPress={onSubmit} loading={mutation.isPending} />
+            <Button
+              label={t.submit}
+              onPress={onSubmit}
+              loading={mutation.isPending}
+            />
           </>
         )}
       </View>

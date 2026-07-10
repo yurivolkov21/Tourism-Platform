@@ -61,7 +61,9 @@ describe('WishlistService.add', () => {
   });
 
   it('upserts on the (userId, tourId) composite — idempotent re-add', async () => {
-    const upsert = jest.fn().mockResolvedValue({ userId: 'u-1', tourId: 't-1' });
+    const upsert = jest
+      .fn()
+      .mockResolvedValue({ userId: 'u-1', tourId: 't-1' });
     const svc = new WishlistService(
       makePrisma({
         tourFindFirst: jest.fn().mockResolvedValue({ id: 't-1' }),

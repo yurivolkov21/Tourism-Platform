@@ -1,4 +1,9 @@
-import { extractOutline, isMeaningfullyUpdated, readingStats, slugifyHeading } from './derive';
+import {
+  extractOutline,
+  isMeaningfullyUpdated,
+  readingStats,
+  slugifyHeading,
+} from './derive';
 
 describe('readingStats', () => {
   it('counts words and computes minutes at ~200 wpm', () => {
@@ -28,7 +33,9 @@ describe('slugifyHeading', () => {
   });
 
   it('strips Vietnamese diacritics to stable ASCII ids', () => {
-    expect(slugifyHeading('Một buổi sáng ở Hội An')).toBe('mot-buoi-sang-o-hoi-an');
+    expect(slugifyHeading('Một buổi sáng ở Hội An')).toBe(
+      'mot-buoi-sang-o-hoi-an',
+    );
   });
 
   it('trims leading/trailing separators', () => {
@@ -46,9 +53,9 @@ describe('extractOutline', () => {
   });
 
   it('skips headings inside code fences and ignores h4+', () => {
-    expect(extractOutline('```\n# not a heading\n```\n\n## Real\n\n#### Too deep')).toEqual([
-      { depth: 2, text: 'Real', id: 'real' },
-    ]);
+    expect(
+      extractOutline('```\n# not a heading\n```\n\n## Real\n\n#### Too deep'),
+    ).toEqual([{ depth: 2, text: 'Real', id: 'real' }]);
   });
 
   it('returns empty for heading-less content', () => {
@@ -56,9 +63,9 @@ describe('extractOutline', () => {
   });
 
   it('strips inline markdown so text and id match the rendered heading', () => {
-    expect(extractOutline('## See [Hạ Long](https://example.com/ha-long)')).toEqual([
-      { depth: 2, text: 'See Hạ Long', id: 'see-ha-long' },
-    ]);
+    expect(
+      extractOutline('## See [Hạ Long](https://example.com/ha-long)'),
+    ).toEqual([{ depth: 2, text: 'See Hạ Long', id: 'see-ha-long' }]);
   });
 
   it('unwraps inline code in headings', () => {
@@ -70,11 +77,15 @@ describe('extractOutline', () => {
 
 describe('isMeaningfullyUpdated', () => {
   it('is true when the update lands more than 24h after publish', () => {
-    expect(isMeaningfullyUpdated('2026-07-01T00:00:00Z', '2026-07-02T01:00:00Z')).toBe(true);
+    expect(
+      isMeaningfullyUpdated('2026-07-01T00:00:00Z', '2026-07-02T01:00:00Z'),
+    ).toBe(true);
   });
 
   it('is false for same-day touch-ups within 24h', () => {
-    expect(isMeaningfullyUpdated('2026-07-01T00:00:00Z', '2026-07-01T02:00:00Z')).toBe(false);
+    expect(
+      isMeaningfullyUpdated('2026-07-01T00:00:00Z', '2026-07-01T02:00:00Z'),
+    ).toBe(false);
   });
 
   it('is false when either date is missing', () => {
@@ -83,6 +94,8 @@ describe('isMeaningfullyUpdated', () => {
   });
 
   it('is false on unparsable dates', () => {
-    expect(isMeaningfullyUpdated('not-a-date', '2026-07-02T00:00:00Z')).toBe(false);
+    expect(isMeaningfullyUpdated('not-a-date', '2026-07-02T00:00:00Z')).toBe(
+      false,
+    );
   });
 });

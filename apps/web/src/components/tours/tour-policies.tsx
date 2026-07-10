@@ -20,8 +20,14 @@ function PolicyGroup({ group }: { group: PolicyGroupData }) {
       </h3>
       <ul className="space-y-2">
         {group.items.map((item) => (
-          <li key={item} className="text-muted-foreground flex gap-2.5 text-sm text-pretty">
-            <span className="bg-muted-foreground/40 mt-2 size-1 shrink-0 rounded-full" aria-hidden />
+          <li
+            key={item}
+            className="text-muted-foreground flex gap-2.5 text-sm text-pretty"
+          >
+            <span
+              className="bg-muted-foreground/40 mt-2 size-1 shrink-0 rounded-full"
+              aria-hidden
+            />
             {item}
           </li>
         ))}
@@ -35,14 +41,17 @@ function PolicyGroup({ group }: { group: PolicyGroupData }) {
 export function TourPolicies({ groups }: { groups?: PolicyGroupData[] }) {
   const t = messages.tourDetail.policies;
   const [expanded, setExpanded] = useState(false);
-  const source: readonly PolicyGroupData[] = groups && groups.length > 0 ? groups : t.groups;
+  const source: readonly PolicyGroupData[] =
+    groups && groups.length > 0 ? groups : t.groups;
   const [first, ...rest] = source;
 
   return (
     <TourSection title={t.heading}>
       <div className="space-y-5">
         <PolicyGroup group={first} />
-        {expanded ? rest.map((group) => <PolicyGroup key={group.title} group={group} />) : null}
+        {expanded
+          ? rest.map((group) => <PolicyGroup key={group.title} group={group} />)
+          : null}
       </div>
       {rest.length > 0 ? (
         <button
@@ -51,7 +60,9 @@ export function TourPolicies({ groups }: { groups?: PolicyGroupData[] }) {
           className="text-primary mt-4 inline-flex items-center gap-1 text-sm font-semibold hover:underline"
         >
           {expanded ? t.readLess : t.readMore}
-          <ChevronDownIcon className={`size-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+          <ChevronDownIcon
+            className={`size-4 transition-transform ${expanded ? 'rotate-180' : ''}`}
+          />
         </button>
       ) : null}
     </TourSection>

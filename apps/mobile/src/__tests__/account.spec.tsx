@@ -77,7 +77,11 @@ test('signed-in users see the profile and can save a new name', async () => {
 
 test('sign out fires from the menu', async () => {
   mockStatus = 'signedIn';
-  mockFetch.mockResolvedValueOnce({ fullName: 'Jane', email: 'jane@example.com', initial: 'J' });
+  mockFetch.mockResolvedValueOnce({
+    fullName: 'Jane',
+    email: 'jane@example.com',
+    initial: 'J',
+  });
   renderAccount();
   await screen.findByText('jane@example.com');
   await userEvent.press(screen.getByRole('button', { name: 'Sign out' }));

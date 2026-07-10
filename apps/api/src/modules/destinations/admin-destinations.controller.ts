@@ -59,7 +59,9 @@ export class AdminDestinationsController {
   }
 
   @Get(':slug')
-  @ApiOperation({ summary: 'Admin: get one destination by slug (with the tours that use it)' })
+  @ApiOperation({
+    summary: 'Admin: get one destination by slug (with the tours that use it)',
+  })
   @ApiOkResponse({ type: AdminDestinationDetailDto })
   @ApiResponse({ status: 404, description: 'Not found' })
   detail(@Param('slug') slug: string): Promise<AdminDestinationDetail> {
@@ -90,7 +92,10 @@ export class AdminDestinationsController {
   @Put(':slug/media')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Admin: replace a destination’s media set' })
-  @ApiOkResponse({ type: [MediaItemDto], description: 'New media set with URLs' })
+  @ApiOkResponse({
+    type: [MediaItemDto],
+    description: 'New media set with URLs',
+  })
   @ApiResponse({ status: 404, description: 'Not found' })
   setMedia(
     @Param('slug') slug: string,

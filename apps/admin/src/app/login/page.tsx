@@ -30,8 +30,12 @@ export default async function LoginPage({
           </div>
 
           <div className="mb-6 space-y-1.5 text-center">
-            <h1 className="font-heading text-2xl font-semibold">Sign in to the console</h1>
-            <p className="text-muted-foreground text-sm">Manage tours, bookings, and content.</p>
+            <h1 className="font-heading text-2xl font-semibold">
+              Sign in to the console
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Manage tours, bookings, and content.
+            </p>
           </div>
 
           <LoginForm redirectTo={redirectTo} />

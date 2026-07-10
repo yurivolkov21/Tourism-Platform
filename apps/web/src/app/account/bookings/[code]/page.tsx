@@ -9,7 +9,10 @@ import { messages } from '@tourism/i18n';
 import { BookingActions } from '../../../../components/booking/booking-actions';
 import { formatPrice } from '../../../../components/booking/order-summary';
 import { fetchBooking } from '../../../../lib/api/booking';
-import { bookingStatusTone, formatTripDate } from '../../../../lib/booking/my-bookings';
+import {
+  bookingStatusTone,
+  formatTripDate,
+} from '../../../../lib/booking/my-bookings';
 import { createClient } from '../../../../lib/supabase/server';
 
 export const metadata: Metadata = {
@@ -22,7 +25,9 @@ export const dynamic = 'force-dynamic';
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-muted-foreground text-xs tracking-wide uppercase">{label}</p>
+      <p className="text-muted-foreground text-xs tracking-wide uppercase">
+        {label}
+      </p>
       <p className="mt-0.5 font-medium">{value}</p>
     </div>
   );
@@ -51,7 +56,8 @@ export default async function BookingDetailPage({
       ? `${p.adultsLine(booking.numAdults)} · ${p.childrenLine(booking.numChildren)}`
       : p.adultsLine(booking.numAdults);
   const provider =
-    booking.paymentProvider.charAt(0) + booking.paymentProvider.slice(1).toLowerCase();
+    booking.paymentProvider.charAt(0) +
+    booking.paymentProvider.slice(1).toLowerCase();
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
@@ -69,7 +75,9 @@ export default async function BookingDetailPage({
             <h1 className="font-heading text-2xl font-semibold text-balance sm:text-3xl">
               {booking.tour.title}
             </h1>
-            <Badge className={cn('shrink-0', bookingStatusTone(booking.status))}>
+            <Badge
+              className={cn('shrink-0', bookingStatusTone(booking.status))}
+            >
               {l.status[booking.status] ?? booking.status}
             </Badge>
           </div>
@@ -77,7 +85,10 @@ export default async function BookingDetailPage({
           <Separator />
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            <Field label={l.departureLabel} value={formatTripDate(booking.departure.startDate)} />
+            <Field
+              label={l.departureLabel}
+              value={formatTripDate(booking.departure.startDate)}
+            />
             <Field label={l.travellersLabel} value={travellers} />
             <Field label={l.refLabel} value={booking.code} />
             <Field
@@ -91,7 +102,11 @@ export default async function BookingDetailPage({
 
           <Field
             label={t.contactLabel}
-            value={[booking.contactName, booking.contactEmail, booking.contactPhone]
+            value={[
+              booking.contactName,
+              booking.contactEmail,
+              booking.contactPhone,
+            ]
               .filter(Boolean)
               .join(' · ')}
           />

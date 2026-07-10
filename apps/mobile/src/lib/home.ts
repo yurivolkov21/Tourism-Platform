@@ -8,9 +8,14 @@ const NON_TRIP_STATUSES = new Set(['CANCELLED', 'REFUNDED']);
  * (a YYYY-MM-DD UTC date, passed in for testability) that is still a live
  * booking. Returns null when nothing qualifies.
  */
-export function selectUpcomingTrip(bookings: BookingVm[], todayIso: string): BookingVm | null {
+export function selectUpcomingTrip(
+  bookings: BookingVm[],
+  todayIso: string,
+): BookingVm | null {
   const upcoming = bookings
-    .filter((b) => !NON_TRIP_STATUSES.has(b.status) && b.departureDate >= todayIso)
+    .filter(
+      (b) => !NON_TRIP_STATUSES.has(b.status) && b.departureDate >= todayIso,
+    )
     .sort((a, b) => a.departureDate.localeCompare(b.departureDate));
   return upcoming[0] ?? null;
 }

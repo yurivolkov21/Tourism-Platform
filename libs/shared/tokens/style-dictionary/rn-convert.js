@@ -5,7 +5,9 @@ import { formatHex, formatHex8, parse } from 'culori';
 export function toRnColor(oklchString) {
   const color = parse(oklchString);
   if (!color) {
-    throw new Error(`@tourism/tokens rn-theme: unparseable color "${oklchString}"`);
+    throw new Error(
+      `@tourism/tokens rn-theme: unparseable color "${oklchString}"`,
+    );
   }
   return color.alpha !== undefined && color.alpha < 1
     ? formatHex8(color)
@@ -16,7 +18,9 @@ export function toRnColor(oklchString) {
 export function remToDp(remString) {
   const match = /^(-?\d*\.?\d+)rem$/.exec(remString.trim());
   if (!match) {
-    throw new Error(`@tourism/tokens rn-theme: expected rem value, got "${remString}"`);
+    throw new Error(
+      `@tourism/tokens rn-theme: expected rem value, got "${remString}"`,
+    );
   }
   return Math.round(parseFloat(match[1]) * 16);
 }

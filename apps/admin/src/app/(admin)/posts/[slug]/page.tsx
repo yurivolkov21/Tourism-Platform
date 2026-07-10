@@ -3,7 +3,17 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { ArrowLeft, Pencil } from 'lucide-react';
 
-import { Avatar, AvatarFallback, AvatarImage, Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@tourism/ui';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@tourism/ui';
 
 import { LinkedToursCard } from '../../../../components/crud/linked-tours-card';
 import { DestinationMediaView } from '../../../../components/destinations/destination-media-view';
@@ -22,7 +32,11 @@ function formatDate(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? '—'
-    : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    : d.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
 }
 
 /** Label/value row for the details rail. */
@@ -40,7 +54,9 @@ function When({ iso }: { iso: string }) {
   return (
     <span className="font-normal">
       {formatDate(iso)}
-      <span className="text-muted-foreground ml-1.5 text-xs">{formatRelativeTime(iso)}</span>
+      <span className="text-muted-foreground ml-1.5 text-xs">
+        {formatRelativeTime(iso)}
+      </span>
     </span>
   );
 }
@@ -76,13 +92,23 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-2xl space-y-2">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-heading text-2xl font-bold tracking-tight">{post.title}</h1>
-            <Badge variant={isPublished ? 'default' : 'secondary'} className="gap-1.5">
-              <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+            <h1 className="font-heading text-2xl font-bold tracking-tight">
+              {post.title}
+            </h1>
+            <Badge
+              variant={isPublished ? 'default' : 'secondary'}
+              className="gap-1.5"
+            >
+              <span
+                className="size-1.5 rounded-full bg-current opacity-70"
+                aria-hidden
+              />
               {isPublished ? 'Published' : 'Draft'}
             </Badge>
           </div>
-          {post.excerpt ? <p className="text-muted-foreground text-sm">{post.excerpt}</p> : null}
+          {post.excerpt ? (
+            <p className="text-muted-foreground text-sm">{post.excerpt}</p>
+          ) : null}
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -138,15 +164,25 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             </CardHeader>
             <CardContent>
               <dl className="space-y-3">
-                <Row label="Status" value={isPublished ? 'Published' : 'Draft'} />
-                <Row label="Slug" value={<code className="text-xs">{post.slug}</code>} />
+                <Row
+                  label="Status"
+                  value={isPublished ? 'Published' : 'Draft'}
+                />
+                <Row
+                  label="Slug"
+                  value={<code className="text-xs">{post.slug}</code>}
+                />
                 {(post.tags ?? []).length > 0 ? (
                   <Row
                     label="Tags"
                     value={
                       <span className="flex flex-wrap justify-end gap-1">
                         {(post.tags ?? []).map((t) => (
-                          <Badge key={t.slug} variant="outline" className="text-xs">
+                          <Badge
+                            key={t.slug}
+                            variant="outline"
+                            className="text-xs"
+                          >
                             {t.name}
                           </Badge>
                         ))}
@@ -190,7 +226,9 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                 />
                 <Row
                   label="Published"
-                  value={post.publishedAt ? <When iso={post.publishedAt} /> : '—'}
+                  value={
+                    post.publishedAt ? <When iso={post.publishedAt} /> : '—'
+                  }
                 />
                 <Row label="Created" value={<When iso={post.createdAt} />} />
                 <Row label="Updated" value={<When iso={post.updatedAt} />} />
@@ -212,7 +250,11 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                   {outline.map((h, i) => (
                     <li
                       key={`${h.text}-${i}`}
-                      className={h.depth === 3 ? 'text-muted-foreground pl-4' : 'font-medium'}
+                      className={
+                        h.depth === 3
+                          ? 'text-muted-foreground pl-4'
+                          : 'font-medium'
+                      }
                     >
                       {h.text}
                     </li>

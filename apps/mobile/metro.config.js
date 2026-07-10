@@ -19,7 +19,12 @@ const customConfig = {
   resolver: {
     assetExts: assetExts.filter((ext) => ext !== 'svg'),
     sourceExts: [...sourceExts, 'cjs', 'mjs', 'svg'],
-    unstable_conditionNames: ['@tourism/source', 'react-native', 'require', 'import'],
+    unstable_conditionNames: [
+      '@tourism/source',
+      'react-native',
+      'require',
+      'import',
+    ],
   },
 };
 

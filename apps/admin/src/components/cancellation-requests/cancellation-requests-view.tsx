@@ -20,7 +20,10 @@ import {
 import { ServerTablePagination } from '../crud/server-table-pagination';
 import { formatShortDate } from '../../lib/format-date';
 import { formatRelativeTime } from '../../lib/relative-time';
-import type { CancellationRequest, PageMeta } from '../../lib/cancellation-requests/data';
+import type {
+  CancellationRequest,
+  PageMeta,
+} from '../../lib/cancellation-requests/data';
 
 /** Truncated one-line reason for the queue table — the full text is on the booking detail page. */
 function truncate(text: string, max = 60): string {
@@ -49,7 +52,8 @@ export function CancellationRequestsView({
             </EmptyMedia>
             <EmptyTitle>No cancellation requests</EmptyTitle>
             <EmptyDescription>
-              Customer-initiated cancellations awaiting a decision will appear here.
+              Customer-initiated cancellations awaiting a decision will appear
+              here.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -72,11 +76,16 @@ export function CancellationRequestsView({
                 {rows.map((r) => (
                   <TableRow key={r.id}>
                     <TableCell className="font-medium">
-                      <Link href={`/bookings/${r.booking.code}`} className="hover:underline">
+                      <Link
+                        href={`/bookings/${r.booking.code}`}
+                        className="hover:underline"
+                      >
                         {r.booking.code}
                       </Link>
                     </TableCell>
-                    <TableCell className="max-w-52 truncate">{r.booking.tourTitle}</TableCell>
+                    <TableCell className="max-w-52 truncate">
+                      {r.booking.tourTitle}
+                    </TableCell>
                     <TableCell>
                       <span className="block">{r.booking.customerName}</span>
                       <span className="text-muted-foreground text-xs">

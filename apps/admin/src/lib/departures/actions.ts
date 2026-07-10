@@ -91,7 +91,10 @@ export interface DeleteDepartureState {
 }
 
 /** Deletes a departure (`DELETE …/:id`); 409 when it has bookings (surfaced via `apiErrorMessage`). */
-export async function deleteDeparture(slug: string, id: string): Promise<DeleteDepartureState> {
+export async function deleteDeparture(
+  slug: string,
+  id: string,
+): Promise<DeleteDepartureState> {
   try {
     const api = await getApiClient();
     await api.DELETE('/api/v1/admin/tours/{slug}/departures/{id}', {

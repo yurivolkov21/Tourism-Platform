@@ -23,16 +23,27 @@ export function computeAboutMetrics(
   const totalReviews = tours.reduce((sum, t) => sum + t.reviewCount, 0);
   const rating =
     totalReviews > 0
-      ? Math.round((tours.reduce((sum, t) => sum + t.rating * t.reviewCount, 0) / totalReviews) * 10) / 10
+      ? Math.round(
+          (tours.reduce((sum, t) => sum + t.rating * t.reviewCount, 0) /
+            totalReviews) *
+            10,
+        ) / 10
       : 0;
   const regions = new Set(
     destinations.map((d) => d.region).filter((r): r is string => Boolean(r)),
   ).size;
-  return { tours: tours.length, destinations: destinations.length, regions, rating };
+  return {
+    tours: tours.length,
+    destinations: destinations.length,
+    regions,
+    rating,
+  };
 }
 
 /** Format the metrics into the 4 display strings aligned to `about.metrics.labels`. */
-export function formatAboutMetricValues(m: AboutMetrics): [string, string, string, string] {
+export function formatAboutMetricValues(
+  m: AboutMetrics,
+): [string, string, string, string] {
   return [
     String(m.tours),
     String(m.destinations),

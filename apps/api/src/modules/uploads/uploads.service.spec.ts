@@ -22,8 +22,14 @@ function makeService(): UploadsService {
   return svc;
 }
 
-function body(over: Partial<CreateSignedUploadUrlDto>): CreateSignedUploadUrlDto {
-  return { purpose: UploadPurpose.TOUR_HERO, filename: 'x.jpg', ...over } as CreateSignedUploadUrlDto;
+function body(
+  over: Partial<CreateSignedUploadUrlDto>,
+): CreateSignedUploadUrlDto {
+  return {
+    purpose: UploadPurpose.TOUR_HERO,
+    filename: 'x.jpg',
+    ...over,
+  } as CreateSignedUploadUrlDto;
 }
 
 describe('UploadsService.createSignedUploadParams', () => {
@@ -67,11 +73,16 @@ describe('UploadsService.createSignedUploadParams', () => {
 
   it('signs DESTINATION_GALLERY into the destinations/gallery image folder', () => {
     const res = makeService().createSignedUploadParams(
-      body({ purpose: UploadPurpose.DESTINATION_GALLERY, filename: 'beach.jpg' }),
+      body({
+        purpose: UploadPurpose.DESTINATION_GALLERY,
+        filename: 'beach.jpg',
+      }),
     );
     expect(res.resourceType).toBe('image');
     expect(res.folder).toBe('tourism/destinations/gallery');
-    expect(res.uploadUrl).toBe('https://api.cloudinary.com/v1_1/demo/image/upload');
+    expect(res.uploadUrl).toBe(
+      'https://api.cloudinary.com/v1_1/demo/image/upload',
+    );
   });
 
   it('signs a POST_COVER upload into the posts/cover folder', async () => {

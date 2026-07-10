@@ -12,7 +12,11 @@ export async function changeUserRole(
   role: UserRole,
 ): Promise<{ ok: boolean; error?: string }> {
   try {
-    await apiWrite('PATCH', `/api/v1/admin/users/${encodeURIComponent(id)}/role`, { role });
+    await apiWrite(
+      'PATCH',
+      `/api/v1/admin/users/${encodeURIComponent(id)}/role`,
+      { role },
+    );
     revalidatePath('/users');
     return { ok: true };
   } catch (e) {
@@ -21,7 +25,9 @@ export async function changeUserRole(
 }
 
 /** Deletes a customer account (`DELETE /admin/users/:id`); guards (409): self / admin / bookings / posts. */
-export async function deleteUser(id: string): Promise<{ ok: boolean; error?: string }> {
+export async function deleteUser(
+  id: string,
+): Promise<{ ok: boolean; error?: string }> {
   try {
     const api = await getApiClient();
     const { error } = await api.DELETE('/api/v1/admin/users/{id}', {

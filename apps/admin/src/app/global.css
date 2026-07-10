@@ -1,6 +1,6 @@
 @import 'tailwindcss';
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 @import '@tourism/tokens/tokens.css';
 
 /* Scan the shared @tourism/ui design-system library so Tailwind generates
@@ -28,7 +28,8 @@
   background-image: linear-gradient(
     122deg,
     var(--nx-tone, var(--primary)) 0 51%,
-    color-mix(in oklch, var(--nx-tone, var(--primary)) 50%, transparent) 51% 100%
+    color-mix(in oklch, var(--nx-tone, var(--primary)) 50%, transparent) 51%
+      100%
   );
   -webkit-background-clip: text;
   background-clip: text;

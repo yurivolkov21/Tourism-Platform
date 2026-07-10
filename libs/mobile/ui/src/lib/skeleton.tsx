@@ -9,15 +9,29 @@ export interface SkeletonProps extends ViewProps {
 }
 
 /** Loading placeholder with a soft opacity pulse (native driver — Expo Go safe). */
-export function Skeleton({ width, height, borderRadius, style, ...rest }: SkeletonProps) {
+export function Skeleton({
+  width,
+  height,
+  borderRadius,
+  style,
+  ...rest
+}: SkeletonProps) {
   const theme = useTheme();
   const opacity = useRef(new Animated.Value(0.55)).current;
 
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(opacity, { toValue: 1, duration: 700, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0.55, duration: 700, useNativeDriver: true }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0.55,
+          duration: 700,
+          useNativeDriver: true,
+        }),
       ]),
     );
     loop.start();

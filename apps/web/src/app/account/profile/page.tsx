@@ -23,9 +23,12 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 /** Read the linked sign-in providers from the Supabase user (Google OAuth, email/password, …). */
-function readProviders(appMetadata: Record<string, unknown> | undefined): string[] {
+function readProviders(
+  appMetadata: Record<string, unknown> | undefined,
+): string[] {
   const list = appMetadata?.['providers'];
-  if (Array.isArray(list)) return list.filter((p): p is string => typeof p === 'string');
+  if (Array.isArray(list))
+    return list.filter((p): p is string => typeof p === 'string');
   const single = appMetadata?.['provider'];
   return typeof single === 'string' ? [single] : [];
 }
@@ -79,7 +82,10 @@ export default async function AccountSettingsPage() {
           </div>
         </AccountSection>
 
-        <AccountSection title={t.connectedHeading} description={t.connectedDesc}>
+        <AccountSection
+          title={t.connectedHeading}
+          description={t.connectedDesc}
+        >
           <ConnectedAccounts providers={providers} />
         </AccountSection>
 

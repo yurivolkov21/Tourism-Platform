@@ -9,7 +9,13 @@ import { Alert, AlertDescription } from '@tourism/ui';
  * so every error reads the same across the console. Plain component (no hooks) — safe in server and
  * client files.
  */
-export function ErrorAlert({ children, className }: { children: ReactNode; className?: string }) {
+export function ErrorAlert({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <Alert variant="destructive" className={className}>
       <TriangleAlert />

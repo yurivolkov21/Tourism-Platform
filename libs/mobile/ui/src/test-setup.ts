@@ -57,7 +57,8 @@ jest.mock('@gorhom/bottom-sheet', () => {
   );
   return {
     BottomSheetModal: Modal,
-    BottomSheetModalProvider: ({ children }: { children?: unknown }) => children,
+    BottomSheetModalProvider: ({ children }: { children?: unknown }) =>
+      children,
     BottomSheetView: View,
     BottomSheetScrollView: ScrollView,
     BottomSheetTextInput: TextInput,

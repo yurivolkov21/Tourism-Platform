@@ -41,7 +41,12 @@ describe('MediaService', () => {
 
     const assets: MediaInputDto[] = [
       { publicId: 'a', type: MediaType.IMAGE, role: MediaRole.hero },
-      { publicId: 'b', type: MediaType.IMAGE, role: MediaRole.gallery, sortOrder: 5 },
+      {
+        publicId: 'b',
+        type: MediaType.IMAGE,
+        role: MediaRole.gallery,
+        sortOrder: 5,
+      },
     ];
     await svc.syncAssets(tx, MediaOwnerType.TOUR, 'tour-1', assets);
 
@@ -175,9 +180,14 @@ describe('MediaService', () => {
     const upsert = jest.fn().mockResolvedValue({});
     const svc = makeService({ mediaAsset: { upsert } });
 
-    const res = await svc.registerAsset(MediaOwnerType.POST, 'p1', MediaRole.body, {
-      publicId: 'tourism/posts/body/1717000000000-boat',
-    });
+    const res = await svc.registerAsset(
+      MediaOwnerType.POST,
+      'p1',
+      MediaRole.body,
+      {
+        publicId: 'tourism/posts/body/1717000000000-boat',
+      },
+    );
 
     expect(upsert).toHaveBeenCalledWith({
       where: {
@@ -208,9 +218,14 @@ describe('MediaService', () => {
     const upsert = jest.fn().mockResolvedValue({ id: 'existing-row' });
     const svc = makeService({ mediaAsset: { upsert } });
 
-    const res = await svc.registerAsset(MediaOwnerType.POST, 'p1', MediaRole.body, {
-      publicId: 'already-there',
-    });
+    const res = await svc.registerAsset(
+      MediaOwnerType.POST,
+      'p1',
+      MediaRole.body,
+      {
+        publicId: 'already-there',
+      },
+    );
 
     expect(upsert).toHaveBeenCalledTimes(1);
     expect(upsert.mock.calls[0][0].update).toEqual({});

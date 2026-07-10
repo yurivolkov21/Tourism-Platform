@@ -27,7 +27,13 @@ import { formatShortDate } from '../../lib/format-date';
 import { runMediaCleanup } from '../../lib/media-library/actions';
 import type { MediaGarbageRow, PageMeta } from '../../lib/media-library/data';
 
-export function GarbageView({ rows, meta }: { rows: MediaGarbageRow[]; meta?: PageMeta }) {
+export function GarbageView({
+  rows,
+  meta,
+}: {
+  rows: MediaGarbageRow[];
+  meta?: PageMeta;
+}) {
   const router = useRouter();
   const [running, startRun] = useTransition();
 
@@ -35,7 +41,9 @@ export function GarbageView({ rows, meta }: { rows: MediaGarbageRow[]; meta?: Pa
     startRun(async () => {
       const res = await runMediaCleanup();
       if (res.ok) {
-        toast(`Cleanup ran: ${res.destroyed ?? 0} destroyed, ${res.failed ?? 0} failed.`);
+        toast(
+          `Cleanup ran: ${res.destroyed ?? 0} destroyed, ${res.failed ?? 0} failed.`,
+        );
         router.refresh();
       } else {
         toast.error(res.error ?? 'Cleanup failed.');
@@ -47,8 +55,9 @@ export function GarbageView({ rows, meta }: { rows: MediaGarbageRow[]; meta?: Pa
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-muted-foreground text-sm">
-          {meta?.total ?? rows.length} asset(s) queued for Cloudinary deletion. The daily cron
-          clears this automatically; run it now to purge immediately.
+          {meta?.total ?? rows.length} asset(s) queued for Cloudinary deletion.
+          The daily cron clears this automatically; run it now to purge
+          immediately.
         </p>
         <Button onClick={onRunNow} disabled={running || rows.length === 0}>
           {running ? (
@@ -91,9 +100,13 @@ export function GarbageView({ rows, meta }: { rows: MediaGarbageRow[]; meta?: Pa
                 {rows.map((g) => (
                   <TableRow key={g.id}>
                     <TableCell className="max-w-md">
-                      <span className="block truncate font-mono text-xs">{g.publicId}</span>
+                      <span className="block truncate font-mono text-xs">
+                        {g.publicId}
+                      </span>
                     </TableCell>
-                    <TableCell className="capitalize">{g.resourceType}</TableCell>
+                    <TableCell className="capitalize">
+                      {g.resourceType}
+                    </TableCell>
                     <TableCell>
                       {g.attempts > 0 ? (
                         <Badge variant="destructive">{g.attempts}</Badge>

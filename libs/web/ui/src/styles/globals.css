@@ -9,44 +9,45 @@
 
 /* StarBorder (React Bits) — register the moving-star animation utilities. */
 @theme {
-    --animate-star-movement-top: star-movement-top linear infinite alternate;
-    --animate-star-movement-bottom: star-movement-bottom linear infinite alternate;
+  --animate-star-movement-top: star-movement-top linear infinite alternate;
+  --animate-star-movement-bottom: star-movement-bottom linear infinite alternate;
 }
 
 @keyframes star-movement-top {
-    0% {
-        transform: translate(0%, 0%);
-        opacity: 1;
-    }
+  0% {
+    transform: translate(0%, 0%);
+    opacity: 1;
+  }
 
-    100% {
-        transform: translate(100%, 0%);
-        opacity: 0;
-    }
+  100% {
+    transform: translate(100%, 0%);
+    opacity: 0;
+  }
 }
 
 @keyframes star-movement-bottom {
-    0% {
-        transform: translate(0%, 0%);
-        opacity: 1;
-    }
+  0% {
+    transform: translate(0%, 0%);
+    opacity: 1;
+  }
 
-    100% {
-        transform: translate(-100%, 0%);
-        opacity: 0;
-    }
+  100% {
+    transform: translate(-100%, 0%);
+    opacity: 0;
+  }
 }
 
-::view-transition-old(root), ::view-transition-new(root) {
-    animation: none;
-    mix-blend-mode: normal;
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
 @layer base {
   .maplibregl-popup-content {
     @apply bg-transparent! shadow-none! p-0! rounded-none!;
-    }
+  }
   .maplibregl-popup-tip {
     @apply hidden!;
-    }
+  }
 }

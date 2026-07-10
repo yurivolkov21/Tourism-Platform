@@ -1,5 +1,9 @@
 import type { TourCardData } from '../components/tours/tour-card';
-import { parseMealsLine, parseTransportLine, pickRelated } from './tour-detail-derive';
+import {
+  parseMealsLine,
+  parseTransportLine,
+  pickRelated,
+} from './tour-detail-derive';
 
 function card(slug: string): TourCardData {
   return {
@@ -17,16 +21,23 @@ function card(slug: string): TourCardData {
 
 describe('parseMealsLine', () => {
   it('extracts the meal-count line from included', () => {
-    const included = ['4 breakfasts, 3 lunches, 2 dinners', 'Private car & cruise transfers'];
+    const included = [
+      '4 breakfasts, 3 lunches, 2 dinners',
+      'Private car & cruise transfers',
+    ];
     expect(parseMealsLine(included)).toBe('4 breakfasts, 3 lunches, 2 dinners');
   });
 
   it('matches a singular count', () => {
-    expect(parseMealsLine(['1 breakfast on the cruise'])).toBe('1 breakfast on the cruise');
+    expect(parseMealsLine(['1 breakfast on the cruise'])).toBe(
+      '1 breakfast on the cruise',
+    );
   });
 
   it('does not match prose meals without a count (e.g. "Buffet lunch")', () => {
-    expect(parseMealsLine(['Buffet lunch', 'English-speaking guide'])).toBeUndefined();
+    expect(
+      parseMealsLine(['Buffet lunch', 'English-speaking guide']),
+    ).toBeUndefined();
   });
 
   it('returns undefined when no meal line is present', () => {
@@ -36,9 +47,9 @@ describe('parseMealsLine', () => {
 
 describe('parseTransportLine', () => {
   it('finds a transport line', () => {
-    expect(parseTransportLine(['English guide', 'Private car & cruise transfers'])).toBe(
-      'Private car & cruise transfers',
-    );
+    expect(
+      parseTransportLine(['English guide', 'Private car & cruise transfers']),
+    ).toBe('Private car & cruise transfers');
   });
 
   it('returns undefined when none match', () => {

@@ -38,10 +38,13 @@ export function parseMediaField(json: string): MediaInput[] {
     (m): m is MediaInput =>
       !!m &&
       typeof (m as MediaInput).publicId === 'string' &&
-      ((m as MediaInput).role === 'hero' || (m as MediaInput).role === 'gallery'),
+      ((m as MediaInput).role === 'hero' ||
+        (m as MediaInput).role === 'gallery'),
   );
   const hero = valid.filter((m) => m.role === 'hero').slice(0, 1);
-  const gallery = valid.filter((m) => m.role === 'gallery').slice(0, MAX_GALLERY);
+  const gallery = valid
+    .filter((m) => m.role === 'gallery')
+    .slice(0, MAX_GALLERY);
   return [...hero, ...gallery];
 }
 
@@ -61,7 +64,11 @@ export function assembleMediaSet(items: MediaInput[]): MediaPayload[] {
 }
 
 /** Cloudinary delivery URL for a just-uploaded image (preview before the BE read provides one). */
-export function cloudinaryUrl(cloudName: string, publicId: string, format?: string): string {
+export function cloudinaryUrl(
+  cloudName: string,
+  publicId: string,
+  format?: string,
+): string {
   const base = `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}`;
   return format ? `${base}.${format}` : base;
 }

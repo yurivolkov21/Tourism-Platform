@@ -30,7 +30,11 @@ function GoogleIcon() {
 }
 
 /** "Continue with Google" → browser OAuth. The callback exchanges the code + mirrors the user. */
-export function OAuthButtons({ redirectTo = '/account' }: { redirectTo?: string }) {
+export function OAuthButtons({
+  redirectTo = '/account',
+}: {
+  redirectTo?: string;
+}) {
   const t = messages.auth.oauth;
 
   async function signInWithGoogle() {

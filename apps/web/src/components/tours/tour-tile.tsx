@@ -61,12 +61,17 @@ export function TourTile({ tour }: { tour: TourCardData }) {
 
         <div className="border-primary-foreground/15 mt-1 flex items-center justify-between gap-2 border-t pt-3">
           <span className="inline-flex items-center gap-1.5 text-sm">
-            <StarIcon className="text-rating fill-rating size-4" aria-hidden="true" />
+            <StarIcon
+              className="text-rating fill-rating size-4"
+              aria-hidden="true"
+            />
             <span className="font-semibold">{tour.rating.toFixed(1)}</span>
             <span className="text-on-media/70">({tour.reviewCount})</span>
           </span>
           <span className="flex items-baseline gap-1.5">
-            <span className="text-lg font-bold">{formatPrice(tour.currency, tour.basePrice)}</span>
+            <span className="text-lg font-bold">
+              {formatPrice(tour.currency, tour.basePrice)}
+            </span>
             {tour.compareAtPrice ? (
               <span className="text-on-media/60 text-sm line-through">
                 {formatPrice(tour.currency, tour.compareAtPrice)}

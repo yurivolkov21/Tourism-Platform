@@ -10,11 +10,7 @@
     "travelDate": "2026-10-29",
     "groupSize": 4,
     "budgetTier": "Comfort",
-    "interests": [
-      "Culture",
-      "Food",
-      "Beaches"
-    ],
+    "interests": ["Culture", "Food", "Beaches"],
     "status": "NEW",
     "createdAt": "2026-06-30T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -30,10 +26,7 @@
     "travelDate": "2026-09-29",
     "groupSize": 2,
     "budgetTier": "Budget",
-    "interests": [
-      "Adventure",
-      "Motorbiking"
-    ],
+    "interests": ["Adventure", "Motorbiking"],
     "status": "CONTACTED",
     "createdAt": "2026-06-29T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -49,11 +42,7 @@
     "travelDate": "2026-12-08",
     "groupSize": 2,
     "budgetTier": "Luxury",
-    "interests": [
-      "Honeymoon",
-      "Beaches",
-      "Spa"
-    ],
+    "interests": ["Honeymoon", "Beaches", "Spa"],
     "status": "QUOTED",
     "createdAt": "2026-06-28T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -69,10 +58,7 @@
     "travelDate": "2026-09-14",
     "groupSize": 8,
     "budgetTier": "Comfort",
-    "interests": [
-      "Trekking",
-      "Homestay"
-    ],
+    "interests": ["Trekking", "Homestay"],
     "status": "WON",
     "createdAt": "2026-06-27T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -88,9 +74,7 @@
     "travelDate": "2027-01-17",
     "groupSize": 2,
     "budgetTier": "Comfort",
-    "interests": [
-      "Culture"
-    ],
+    "interests": ["Culture"],
     "status": "LOST",
     "createdAt": "2026-06-26T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -106,10 +90,7 @@
     "travelDate": null,
     "groupSize": 7,
     "budgetTier": "Luxury",
-    "interests": [
-      "Culture",
-      "Family"
-    ],
+    "interests": ["Culture", "Family"],
     "status": "NEW",
     "createdAt": "2026-06-25T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -125,10 +106,7 @@
     "travelDate": null,
     "groupSize": null,
     "budgetTier": "Budget",
-    "interests": [
-      "Photography",
-      "Trekking"
-    ],
+    "interests": ["Photography", "Trekking"],
     "status": "CONTACTED",
     "createdAt": "2026-06-24T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -144,9 +122,7 @@
     "travelDate": null,
     "groupSize": 2,
     "budgetTier": "Comfort",
-    "interests": [
-      "Food"
-    ],
+    "interests": ["Food"],
     "status": "QUOTED",
     "createdAt": "2026-06-23T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -162,10 +138,7 @@
     "travelDate": "2026-08-15",
     "groupSize": 12,
     "budgetTier": "Luxury",
-    "interests": [
-      "Business",
-      "Culture"
-    ],
+    "interests": ["Business", "Culture"],
     "status": "WON",
     "createdAt": "2026-06-22T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -181,11 +154,7 @@
     "travelDate": "2026-11-08",
     "groupSize": 2,
     "budgetTier": "Luxury",
-    "interests": [
-      "Honeymoon",
-      "Culture",
-      "Food"
-    ],
+    "interests": ["Honeymoon", "Culture", "Food"],
     "status": "NEW",
     "createdAt": "2026-06-21T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -201,10 +170,7 @@
     "travelDate": "2026-08-10",
     "groupSize": 2,
     "budgetTier": "Budget",
-    "interests": [
-      "Culture",
-      "Food"
-    ],
+    "interests": ["Culture", "Food"],
     "status": "NEW",
     "createdAt": "2026-06-11T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -220,10 +186,7 @@
     "travelDate": "2026-08-15",
     "groupSize": 3,
     "budgetTier": "Comfort",
-    "interests": [
-      "Accessibility",
-      "Culture"
-    ],
+    "interests": ["Accessibility", "Culture"],
     "status": "CONTACTED",
     "createdAt": "2026-06-12T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -239,9 +202,7 @@
     "travelDate": "2026-08-20",
     "groupSize": 4,
     "budgetTier": "Luxury",
-    "interests": [
-      "Nature"
-    ],
+    "interests": ["Nature"],
     "status": "QUOTED",
     "createdAt": "2026-06-13T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -257,9 +218,7 @@
     "travelDate": "2026-08-25",
     "groupSize": 5,
     "budgetTier": "Budget",
-    "interests": [
-      "Family"
-    ],
+    "interests": ["Family"],
     "status": "WON",
     "createdAt": "2026-06-14T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -275,10 +234,7 @@
     "travelDate": "2026-08-30",
     "groupSize": 2,
     "budgetTier": "Comfort",
-    "interests": [
-      "Nature",
-      "Adventure"
-    ],
+    "interests": ["Nature", "Adventure"],
     "status": "LOST",
     "createdAt": "2026-06-15T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -294,9 +250,7 @@
     "travelDate": "2026-09-04",
     "groupSize": 3,
     "budgetTier": "Luxury",
-    "interests": [
-      "Business"
-    ],
+    "interests": ["Business"],
     "status": "NEW",
     "createdAt": "2026-06-16T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -312,10 +266,7 @@
     "travelDate": "2026-09-09",
     "groupSize": 4,
     "budgetTier": "Budget",
-    "interests": [
-      "Family",
-      "Culture"
-    ],
+    "interests": ["Family", "Culture"],
     "status": "CONTACTED",
     "createdAt": "2026-06-17T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -331,10 +282,7 @@
     "travelDate": "2026-09-14",
     "groupSize": 5,
     "budgetTier": "Comfort",
-    "interests": [
-      "Food",
-      "Nature"
-    ],
+    "interests": ["Food", "Nature"],
     "status": "QUOTED",
     "createdAt": "2026-06-18T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -350,9 +298,7 @@
     "travelDate": "2026-09-19",
     "groupSize": 2,
     "budgetTier": "Luxury",
-    "interests": [
-      "Planning"
-    ],
+    "interests": ["Planning"],
     "status": "WON",
     "createdAt": "2026-06-19T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -368,10 +314,7 @@
     "travelDate": "2026-09-24",
     "groupSize": 3,
     "budgetTier": "Budget",
-    "interests": [
-      "Photography",
-      "Solo"
-    ],
+    "interests": ["Photography", "Solo"],
     "status": "LOST",
     "createdAt": "2026-06-20T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -387,9 +330,7 @@
     "travelDate": "2026-09-29",
     "groupSize": 4,
     "budgetTier": "Comfort",
-    "interests": [
-      "Beaches"
-    ],
+    "interests": ["Beaches"],
     "status": "NEW",
     "createdAt": "2026-06-21T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -405,10 +346,7 @@
     "travelDate": "2026-10-04",
     "groupSize": 5,
     "budgetTier": "Luxury",
-    "interests": [
-      "Food",
-      "Culture"
-    ],
+    "interests": ["Food", "Culture"],
     "status": "CONTACTED",
     "createdAt": "2026-06-22T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -424,9 +362,7 @@
     "travelDate": "2026-10-09",
     "groupSize": 2,
     "budgetTier": "Budget",
-    "interests": [
-      "History"
-    ],
+    "interests": ["History"],
     "status": "QUOTED",
     "createdAt": "2026-06-23T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -442,10 +378,7 @@
     "travelDate": "2026-10-14",
     "groupSize": 3,
     "budgetTier": "Comfort",
-    "interests": [
-      "Family",
-      "Nature"
-    ],
+    "interests": ["Family", "Nature"],
     "status": "WON",
     "createdAt": "2026-06-24T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"
@@ -461,10 +394,7 @@
     "travelDate": "2026-10-19",
     "groupSize": 4,
     "budgetTier": "Luxury",
-    "interests": [
-      "Luxury",
-      "Nature"
-    ],
+    "interests": ["Luxury", "Nature"],
     "status": "LOST",
     "createdAt": "2026-06-25T09:00:00.000Z",
     "updatedAt": "2026-06-30T09:00:00.000Z"

@@ -11,7 +11,10 @@ describe('AppController', () => {
   beforeAll(async () => {
     app = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService, { provide: PrismaService, useValue: { $queryRaw: queryRaw } }],
+      providers: [
+        AppService,
+        { provide: PrismaService, useValue: { $queryRaw: queryRaw } },
+      ],
     }).compile();
   });
 

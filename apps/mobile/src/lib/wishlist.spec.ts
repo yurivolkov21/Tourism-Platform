@@ -11,8 +11,18 @@ const dto = {
     basePrice: '450.00',
     currency: 'USD',
     media: [
-      { publicId: 'g', url: 'https://img.test/g.jpg', type: 'IMAGE', role: 'gallery' },
-      { publicId: 'h', url: 'https://img.test/h.jpg', type: 'IMAGE', role: 'hero' },
+      {
+        publicId: 'g',
+        url: 'https://img.test/g.jpg',
+        type: 'IMAGE',
+        role: 'gallery',
+      },
+      {
+        publicId: 'h',
+        url: 'https://img.test/h.jpg',
+        type: 'IMAGE',
+        role: 'hero',
+      },
     ],
   },
 } as unknown as WishlistItemDto;
@@ -34,6 +44,9 @@ test('falls back to the first media, then undefined', () => {
     tour: { ...dto.tour, media: [dto.tour.media[0]] },
   } as unknown as WishlistItemDto;
   expect(toSavedTourVm(noHero).image).toBe('https://img.test/g.jpg');
-  const noMedia = { ...dto, tour: { ...dto.tour, media: [] } } as unknown as WishlistItemDto;
+  const noMedia = {
+    ...dto,
+    tour: { ...dto.tour, media: [] },
+  } as unknown as WishlistItemDto;
   expect(toSavedTourVm(noMedia).image).toBeUndefined();
 });

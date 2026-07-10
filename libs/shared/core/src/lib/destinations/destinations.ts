@@ -29,7 +29,8 @@ export function groupByRegion<T extends { region: string | null }>(
 ): { region: string; items: T[] }[] {
   const buckets = new Map<string, T[]>();
   for (const item of items) {
-    const key = item.region && order.includes(item.region) ? item.region : OTHER_REGION;
+    const key =
+      item.region && order.includes(item.region) ? item.region : OTHER_REGION;
     const bucket = buckets.get(key);
     if (bucket) bucket.push(item);
     else buckets.set(key, [item]);

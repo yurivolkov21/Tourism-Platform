@@ -5,7 +5,13 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { BookingStatus, DepartureStatus, MediaOwnerType, Prisma, Tour } from '@prisma/client';
+import {
+  BookingStatus,
+  DepartureStatus,
+  MediaOwnerType,
+  Prisma,
+  Tour,
+} from '@prisma/client';
 import { slugify } from '../../common/slugify';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MediaItemDto, MediaInputDto } from '../media/dto/media.dto';
@@ -16,7 +22,10 @@ import { TourFaqInput } from './dto/nested/tour-faq.input';
 import { TourItineraryDayInput } from './dto/nested/tour-itinerary-day.input';
 import { TourPolicyInput } from './dto/nested/tour-policy.input';
 import { UpdateTourDto } from './dto/update-tour.dto';
-import { nextDepartureInfo, type NextDepartureInfo } from './next-departure.util';
+import {
+  nextDepartureInfo,
+  type NextDepartureInfo,
+} from './next-departure.util';
 
 /** Lean relations for list rows — category + destination links (with primary flag). */
 const LIST_INCLUDE: Prisma.TourInclude = {
@@ -92,7 +101,10 @@ export class ToursService {
    * transaction (admin, low-concurrency → pooler-safe), and returns the new set
    * with built delivery URLs.
    */
-  async setMedia(slug: string, media: MediaInputDto[]): Promise<MediaItemDto[]> {
+  async setMedia(
+    slug: string,
+    media: MediaInputDto[],
+  ): Promise<MediaItemDto[]> {
     const tour = await this.prisma.tour.findUnique({
       where: { slug },
       select: { id: true },
@@ -121,7 +133,9 @@ export class ToursService {
     });
     if (!tour) throw this.notFound(slug);
     const withMedia = await this.media.attachToOwner(MediaOwnerType.TOUR, tour);
-    return (await this.attachNextDeparture(await this.attachRatings([withMedia])))[0];
+    return (
+      await this.attachNextDeparture(await this.attachRatings([withMedia]))
+    )[0];
   }
 
   /**
@@ -135,8 +149,13 @@ export class ToursService {
       where: { id: { in: ids }, isPublished: true },
       include: LIST_INCLUDE,
     });
-    const withMedia = await this.media.attachToOwners(MediaOwnerType.TOUR, items);
-    const enriched = await this.attachNextDeparture(await this.attachRatings(withMedia));
+    const withMedia = await this.media.attachToOwners(
+      MediaOwnerType.TOUR,
+      items,
+    );
+    const enriched = await this.attachNextDeparture(
+      await this.attachRatings(withMedia),
+    );
     const byId = new Map(enriched.map((t) => [t.id, t]));
     return ids
       .map((id) => byId.get(id))
@@ -156,29 +175,40 @@ export class ToursService {
     });
     if (!tour) throw this.notFound(slug);
     const withMedia = await this.media.attachToOwner(MediaOwnerType.TOUR, tour);
-    return (await this.attachNextDeparture(await this.attachRatings([withMedia])))[0];
+    return (
+      await this.attachNextDeparture(await this.attachRatings([withMedia]))
+    )[0];
   }
 
   /** Admin detail: the enriched tour + commercial ops aggregates. Public reads stay ops-free. */
   async findDetailForAdmin(slug: string): Promise<AdminTourDetail> {
     const tour = await this.findBySlug(slug);
-    const [bookingsTotal, bookingsPaid, revenueAgg, wishlistCount, enquiriesCount] =
-      await Promise.all([
-        this.prisma.booking.count({ where: { tourId: tour.id } }),
-        this.prisma.booking.count({ where: { tourId: tour.id, status: BookingStatus.PAID } }),
-        this.prisma.booking.aggregate({
-          where: { tourId: tour.id, status: BookingStatus.PAID },
-          _sum: { totalAmount: true },
-        }),
-        this.prisma.wishlist.count({ where: { tourId: tour.id } }),
-        this.prisma.enquiry.count({ where: { tourId: tour.id } }),
-      ]);
+    const [
+      bookingsTotal,
+      bookingsPaid,
+      revenueAgg,
+      wishlistCount,
+      enquiriesCount,
+    ] = await Promise.all([
+      this.prisma.booking.count({ where: { tourId: tour.id } }),
+      this.prisma.booking.count({
+        where: { tourId: tour.id, status: BookingStatus.PAID },
+      }),
+      this.prisma.booking.aggregate({
+        where: { tourId: tour.id, status: BookingStatus.PAID },
+        _sum: { totalAmount: true },
+      }),
+      this.prisma.wishlist.count({ where: { tourId: tour.id } }),
+      this.prisma.enquiry.count({ where: { tourId: tour.id } }),
+    ]);
     return {
       ...tour,
       ops: {
         bookingsTotal,
         bookingsPaid,
-        revenue: (revenueAgg._sum.totalAmount ?? new Prisma.Decimal(0)).toString(),
+        revenue: (
+          revenueAgg._sum.totalAmount ?? new Prisma.Decimal(0)
+        ).toString(),
         wishlistCount,
         enquiriesCount,
       },
@@ -231,13 +261,21 @@ export class ToursService {
         startDate: { gte: today },
       },
       orderBy: { startDate: 'asc' },
-      select: { tourId: true, startDate: true, seatsTotal: true, seatsBooked: true },
+      select: {
+        tourId: true,
+        startDate: true,
+        seatsTotal: true,
+        seatsBooked: true,
+      },
     });
     const soonestByTour = new Map<string, (typeof departures)[number]>();
     for (const d of departures) {
       if (!soonestByTour.has(d.tourId)) soonestByTour.set(d.tourId, d);
     }
-    return rows.map((r) => ({ ...r, ...nextDepartureInfo(soonestByTour.get(r.id)) }));
+    return rows.map((r) => ({
+      ...r,
+      ...nextDepartureInfo(soonestByTour.get(r.id)),
+    }));
   }
 
   /** Create. Resolves refs (400 on bad ones), slugifies, nested-writes children. */
@@ -316,7 +354,8 @@ export class ToursService {
     if (body.compareAtPrice !== undefined) {
       data.compareAtPrice = new Prisma.Decimal(body.compareAtPrice);
     }
-    if (body.currency !== undefined) data.currency = body.currency.toUpperCase();
+    if (body.currency !== undefined)
+      data.currency = body.currency.toUpperCase();
     if (body.difficulty !== undefined) data.difficulty = body.difficulty;
     if (body.isPublished !== undefined) data.isPublished = body.isPublished;
     if (body.isFeatured !== undefined) data.isFeatured = body.isFeatured;
@@ -422,7 +461,9 @@ export class ToursService {
     const search = query.search?.trim();
 
     const categoryId = await this.resolveCategoryFilter(query.category);
-    const destinationId = await this.resolveDestinationFilter(query.destination);
+    const destinationId = await this.resolveDestinationFilter(
+      query.destination,
+    );
     if (
       (query.category && categoryId === null) ||
       (query.destination && destinationId === null)
@@ -453,9 +494,14 @@ export class ToursService {
       this.prisma.tour.count({ where }),
     ]);
 
-    const withMedia = await this.media.attachToOwners(MediaOwnerType.TOUR, items);
+    const withMedia = await this.media.attachToOwners(
+      MediaOwnerType.TOUR,
+      items,
+    );
     return {
-      items: await this.attachNextDeparture(await this.attachRatings(withMedia)),
+      items: await this.attachNextDeparture(
+        await this.attachRatings(withMedia),
+      ),
       meta: {
         page,
         pageSize,
@@ -581,13 +627,15 @@ export class ToursService {
 
   private isUniqueConstraintError(err: unknown): boolean {
     return (
-      err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002'
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === 'P2002'
     );
   }
 
   private isForeignKeyError(err: unknown): boolean {
     return (
-      err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003'
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === 'P2003'
     );
   }
 }
@@ -604,9 +652,7 @@ function mapItinerary(
   }));
 }
 
-function mapFaqs(
-  faqs: TourFaqInput[],
-): Prisma.TourFaqCreateWithoutTourInput[] {
+function mapFaqs(faqs: TourFaqInput[]): Prisma.TourFaqCreateWithoutTourInput[] {
   return faqs.map((f) => ({
     question: f.question,
     answer: f.answer,

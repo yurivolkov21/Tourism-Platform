@@ -11,13 +11,20 @@ import { ResendConfirmation } from './resend-confirmation';
 
 export function RegisterForm() {
   const t = messages.auth.register;
-  const [state, formAction, pending] = useActionState<SignUpState, FormData>(signUp, {});
+  const [state, formAction, pending] = useActionState<SignUpState, FormData>(
+    signUp,
+    {},
+  );
 
   if (state.sent) {
     return (
       <div className="space-y-2 text-center" role="status">
-        <h2 className="font-heading text-xl font-semibold">{t.checkInboxTitle}</h2>
-        <p className="text-muted-foreground text-sm text-pretty">{t.checkInboxBody}</p>
+        <h2 className="font-heading text-xl font-semibold">
+          {t.checkInboxTitle}
+        </h2>
+        <p className="text-muted-foreground text-sm text-pretty">
+          {t.checkInboxBody}
+        </p>
         {state.email ? (
           <div className="pt-2">
             <ResendConfirmation email={state.email} />
@@ -25,7 +32,10 @@ export function RegisterForm() {
         ) : null}
         <p className="text-muted-foreground pt-2 text-sm">
           {t.haveAccount}{' '}
-          <Link href="/login" className="text-primary font-medium hover:underline">
+          <Link
+            href="/login"
+            className="text-primary font-medium hover:underline"
+          >
             {t.loginCta}
           </Link>
         </p>
@@ -37,7 +47,13 @@ export function RegisterForm() {
     <form action={formAction} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="fullName">{t.fullNameLabel}</Label>
-        <Input id="fullName" name="fullName" autoComplete="name" required placeholder="Nguyen Van A" />
+        <Input
+          id="fullName"
+          name="fullName"
+          autoComplete="name"
+          required
+          placeholder="Nguyen Van A"
+        />
       </div>
 
       <div className="space-y-1.5">
@@ -54,12 +70,24 @@ export function RegisterForm() {
 
       <div className="space-y-1.5">
         <Label htmlFor="password">{t.passwordLabel}</Label>
-        <Input id="password" name="password" type="password" autoComplete="new-password" required />
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="new-password"
+          required
+        />
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="confirm">{t.confirmLabel}</Label>
-        <Input id="confirm" name="confirm" type="password" autoComplete="new-password" required />
+        <Input
+          id="confirm"
+          name="confirm"
+          type="password"
+          autoComplete="new-password"
+          required
+        />
       </div>
 
       {state.error ? (
@@ -74,7 +102,10 @@ export function RegisterForm() {
 
       <p className="text-muted-foreground text-center text-sm">
         {t.haveAccount}{' '}
-        <Link href="/login" className="text-primary font-medium hover:underline">
+        <Link
+          href="/login"
+          className="text-primary font-medium hover:underline"
+        >
           {t.loginCta}
         </Link>
       </p>

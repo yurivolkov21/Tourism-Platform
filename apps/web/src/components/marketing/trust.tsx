@@ -14,11 +14,19 @@ export function Trust() {
 
   return (
     <section className="relative isolate overflow-hidden py-20 sm:py-24 lg:py-28">
-      <Image src={TRUST_IMAGE} alt="" fill sizes="100vw" className="-z-10 object-cover" />
+      <Image
+        src={TRUST_IMAGE}
+        alt=""
+        fill
+        sizes="100vw"
+        className="-z-10 object-cover"
+      />
       <div className="bg-overlay/70 absolute inset-0 -z-10" />
 
       <div className="text-on-media mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-semibold text-balance md:text-4xl">{t.heading}</h2>
+        <h2 className="text-3xl font-semibold text-balance md:text-4xl">
+          {t.heading}
+        </h2>
         <p className="text-on-media/80 mx-auto mt-4 max-w-2xl text-lg text-pretty">
           {t.subtitle}
         </p>

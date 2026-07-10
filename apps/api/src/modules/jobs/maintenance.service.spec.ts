@@ -18,7 +18,10 @@ describe('MaintenanceService.cancelAbandonedBookings', () => {
   it('cancels stale PENDING bookings and returns the count', async () => {
     const updateMany = jest.fn().mockResolvedValue({ count: 3 });
     const prisma = { booking: { updateMany } };
-    const svc = new MaintenanceService(prisma as never, makeCloudinary() as never);
+    const svc = new MaintenanceService(
+      prisma as never,
+      makeCloudinary() as never,
+    );
 
     const count = await svc.cancelAbandonedBookings(30);
 
@@ -52,7 +55,12 @@ describe('MaintenanceService.cancelAbandonedBookings', () => {
 
 describe('MaintenanceService.reconcileMedia', () => {
   const garbage = [
-    { id: 'g-1', publicId: 'tourism/old-hero', resourceType: 'image', attempts: 0 },
+    {
+      id: 'g-1',
+      publicId: 'tourism/old-hero',
+      resourceType: 'image',
+      attempts: 0,
+    },
     { id: 'g-2', publicId: 'tourism/clip', resourceType: 'video', attempts: 0 },
   ];
 
@@ -67,7 +75,10 @@ describe('MaintenanceService.reconcileMedia', () => {
         update,
       },
     };
-    const svc = new MaintenanceService(prisma as never, makeCloudinary(destroy) as never);
+    const svc = new MaintenanceService(
+      prisma as never,
+      makeCloudinary(destroy) as never,
+    );
 
     const result = await svc.reconcileMedia();
 
@@ -92,13 +103,19 @@ describe('MaintenanceService.reconcileMedia', () => {
         update,
       },
     };
-    const svc = new MaintenanceService(prisma as never, makeCloudinary(destroy) as never);
+    const svc = new MaintenanceService(
+      prisma as never,
+      makeCloudinary(destroy) as never,
+    );
 
     const result = await svc.reconcileMedia();
 
     expect(result).toEqual({ destroyed: 1, failed: 1 });
     expect(del).toHaveBeenCalledTimes(1);
-    type UpdCall = { where: { id: string }; data: { attempts: number; lastError: string } };
+    type UpdCall = {
+      where: { id: string };
+      data: { attempts: number; lastError: string };
+    };
     const calls = update.mock.calls as unknown as UpdCall[][];
     expect(calls[0][0].where.id).toBe('g-2');
     expect(calls[0][0].data.attempts).toBe(1);
@@ -108,9 +125,16 @@ describe('MaintenanceService.reconcileMedia', () => {
   it('is a no-op when there is no garbage', async () => {
     const destroy = jest.fn();
     const prisma = {
-      mediaGarbage: { findMany: jest.fn().mockResolvedValue([]), delete: jest.fn(), update: jest.fn() },
+      mediaGarbage: {
+        findMany: jest.fn().mockResolvedValue([]),
+        delete: jest.fn(),
+        update: jest.fn(),
+      },
     };
-    const svc = new MaintenanceService(prisma as never, makeCloudinary(destroy) as never);
+    const svc = new MaintenanceService(
+      prisma as never,
+      makeCloudinary(destroy) as never,
+    );
 
     const result = await svc.reconcileMedia();
 

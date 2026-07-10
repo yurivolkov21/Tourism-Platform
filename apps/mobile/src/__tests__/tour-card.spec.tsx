@@ -54,14 +54,19 @@ test('list variant shows the 2-line summary; shelf does not', () => {
   expect(screen.getByText('Two days among the karsts.')).toBeOnTheScreen();
   screen.unmount();
   renderCard('shelf');
-  expect(screen.queryByText('Two days among the karsts.')).not.toBeOnTheScreen();
+  expect(
+    screen.queryByText('Two days among the karsts.'),
+  ).not.toBeOnTheScreen();
 });
 
 test('rating row always renders (locked card height), even with zero reviews', () => {
   render(
     <SafeAreaProvider>
       <ThemeProvider>
-        <TourCard tour={{ ...vm, rating: 0, reviewCount: 0 }} onPress={jest.fn()} />
+        <TourCard
+          tour={{ ...vm, rating: 0, reviewCount: 0 }}
+          onPress={jest.fn()}
+        />
       </ThemeProvider>
     </SafeAreaProvider>,
   );

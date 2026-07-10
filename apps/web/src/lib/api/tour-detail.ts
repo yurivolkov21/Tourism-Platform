@@ -2,9 +2,16 @@ import { cache } from 'react';
 
 import type { components } from '@tourism/core';
 
-import type { TourBadgeKey, TourCardData } from '../../components/tours/tour-card';
+import type {
+  TourBadgeKey,
+  TourCardData,
+} from '../../components/tours/tour-card';
 import type { ItineraryDay, TourDetailVM, TourReview } from '../tours';
-import { parseMealsLine, parseTransportLine, pickRelated } from '../tour-detail-derive';
+import {
+  parseMealsLine,
+  parseTransportLine,
+  pickRelated,
+} from '../tour-detail-derive';
 import { getApiClient } from './client';
 import { fetchTourCards } from './tours';
 
@@ -28,7 +35,9 @@ function buildAccommodation(durationDays: number): string {
 
 /** Hero status chip: a merchandising badge reads as "Best seller"; otherwise none. */
 function deriveBadge(badges: readonly string[]): TourDetailVM['badge'] {
-  return badges.includes('POPULAR') || badges.includes('BEST_VALUE') ? 'bestSeller' : undefined;
+  return badges.includes('POPULAR') || badges.includes('BEST_VALUE')
+    ? 'bestSeller'
+    : undefined;
 }
 
 function toTourReview(dto: PublicReviewDto): TourReview {
@@ -47,7 +56,8 @@ function toTourDetail(
   reviews: TourReview[],
   related: TourCardData[],
 ): TourDetailVM {
-  const primary = dto.destinations.find((d) => d.isPrimary) ?? dto.destinations[0];
+  const primary =
+    dto.destinations.find((d) => d.isPrimary) ?? dto.destinations[0];
   const hero = dto.media.find((m) => m.role === 'hero') ?? dto.media[0];
   const included = dto.included ?? [];
   const itinerary: ItineraryDay[] = dto.itinerary.map((d) => ({
@@ -87,7 +97,11 @@ function toTourDetail(
     departureFrequency: 'Flexible dates',
     reviews,
     faqs: dto.faqs.map((f) => ({ question: f.question, answer: f.answer })),
-    policies: dto.policies.map((p) => ({ kind: p.kind, title: p.title, body: p.body })),
+    policies: dto.policies.map((p) => ({
+      kind: p.kind,
+      title: p.title,
+      body: p.body,
+    })),
   };
 }
 

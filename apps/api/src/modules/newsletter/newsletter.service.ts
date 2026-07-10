@@ -34,7 +34,9 @@ export class NewsletterService {
   }
 
   /** Admin list — paginated, newest-first, optional email search (insensitive). */
-  async findAllForAdmin(query: ListSubscribersQueryDto): Promise<PaginatedSubscribers> {
+  async findAllForAdmin(
+    query: ListSubscribersQueryDto,
+  ): Promise<PaginatedSubscribers> {
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? 20;
     const search = query.search?.trim();

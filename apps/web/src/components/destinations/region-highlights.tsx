@@ -1,4 +1,9 @@
-import { CompassIcon, MapPinIcon, SparklesIcon, type LucideIcon } from 'lucide-react';
+import {
+  CompassIcon,
+  MapPinIcon,
+  SparklesIcon,
+  type LucideIcon,
+} from 'lucide-react';
 
 import { cn } from '@tourism/ui';
 
@@ -37,8 +42,12 @@ export function RegionHighlights({
                 >
                   <Icon className="size-6" />
                 </span>
-                <h3 className="font-heading text-xl font-semibold">{item.title}</h3>
-                <p className="text-muted-foreground mt-2 text-pretty">{item.body}</p>
+                <h3 className="font-heading text-xl font-semibold">
+                  {item.title}
+                </h3>
+                <p className="text-muted-foreground mt-2 text-pretty">
+                  {item.body}
+                </p>
               </div>
             );
           })}

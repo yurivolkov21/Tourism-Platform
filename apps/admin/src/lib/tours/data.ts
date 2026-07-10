@@ -8,7 +8,10 @@ export type TourSummary = components['schemas']['TourSummaryDto'];
  * the API and FE can deploy out of order (Render lag), so the FE must tolerate a response from an
  * older API build that doesn't carry `ops` yet.
  */
-export type TourDetail = Omit<components['schemas']['AdminTourDetailDto'], 'ops'> & {
+export type TourDetail = Omit<
+  components['schemas']['AdminTourDetailDto'],
+  'ops'
+> & {
   ops?: components['schemas']['TourOpsDto'];
 };
 export type PageMeta = components['schemas']['PageMetaDto'];
@@ -32,7 +35,9 @@ export const DEFAULT_PAGE_SIZE = 20;
  * Lists tours for the admin table (`GET /admin/tours`, drafts included). The wire format is already
  * `{ data, meta }` (the API's paginated envelope), so the typed body matches.
  */
-export async function listTours(params: TourListParams = {}): Promise<TourList> {
+export async function listTours(
+  params: TourListParams = {},
+): Promise<TourList> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/tours', {
     params: {

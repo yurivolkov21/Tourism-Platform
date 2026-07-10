@@ -24,7 +24,11 @@ import {
 import { ErrorAlert } from '../crud/error-alert';
 import { refundBooking } from '../../lib/bookings/actions';
 import { validateRefundAmount } from '../../lib/bookings/refund';
-import { canRefund, formatMoney, type BookingStatus } from '../../lib/bookings/format';
+import {
+  canRefund,
+  formatMoney,
+  type BookingStatus,
+} from '../../lib/bookings/format';
 
 /**
  * Refund control for a booking's detail page. Enabled only when the booking is PAID (`canRefund`);
@@ -57,7 +61,11 @@ export function RefundBooking({
 
   if (!canRefund(status)) {
     return (
-      <Button variant="outline" disabled title="Only a paid booking can be refunded">
+      <Button
+        variant="outline"
+        disabled
+        title="Only a paid booking can be refunded"
+      >
         <RotateCcw data-icon="inline-start" />
         Refund
       </Button>
@@ -70,14 +78,20 @@ export function RefundBooking({
 
   const confirm = () => {
     setError(null);
-    const { amount: parsedAmount, error: amountError } = validateRefundAmount(amount, totalAmount);
+    const { amount: parsedAmount, error: amountError } = validateRefundAmount(
+      amount,
+      totalAmount,
+    );
     if (amountError) {
       setError(amountError);
       return;
     }
     const isFull = parsedAmount === Number(totalAmount);
     startTransition(async () => {
-      const result = await refundBooking(code, isFull ? { reason } : { reason, amount: parsedAmount });
+      const result = await refundBooking(
+        code,
+        isFull ? { reason } : { reason, amount: parsedAmount },
+      );
       if (result.error) {
         setError(result.error);
         toast.error(result.error);
@@ -110,16 +124,19 @@ export function RefundBooking({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Refund {formatMoney(totalAmount, currency)}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Refund {formatMoney(totalAmount, currency)}?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This refunds the traveller through Stripe and releases their seats back to the
-              departure. It can&apos;t be undone.
+              This refunds the traveller through Stripe and releases their seats
+              back to the departure. It can&apos;t be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           {requireSafeguard ? (
             <ErrorAlert>
-              No cancellation request on file — you&apos;re refunding proactively.
+              No cancellation request on file — you&apos;re refunding
+              proactively.
             </ErrorAlert>
           ) : null}
 
@@ -157,7 +174,10 @@ export function RefundBooking({
                 onCheckedChange={(c) => setConfirmed(c === true)}
                 className="mt-0.5"
               />
-              <FieldLabel htmlFor="refund-confirm" className="text-sm font-normal">
+              <FieldLabel
+                htmlFor="refund-confirm"
+                className="text-sm font-normal"
+              >
                 I confirm this proactive refund is intentional.
               </FieldLabel>
             </div>
@@ -170,7 +190,9 @@ export function RefundBooking({
           ) : null}
 
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={pending}>Keep booking</AlertDialogCancel>
+            <AlertDialogCancel disabled={pending}>
+              Keep booking
+            </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={confirm}

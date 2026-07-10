@@ -39,5 +39,5 @@
 
   // MD024 no-duplicate-heading — only flag duplicates under the SAME parent;
   // repeated "Deps"/"Notes" sub-sections across different sections are fine.
-  "MD024": { "siblings_only": true }
+  "MD024": { "siblings_only": true },
 }

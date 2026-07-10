@@ -1,7 +1,12 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef, ReactNode } from 'react';
-import { motion, useMotionValue, useAnimationFrame, useTransform } from 'motion/react';
+import {
+  motion,
+  useMotionValue,
+  useAnimationFrame,
+  useTransform,
+} from 'motion/react';
 
 export interface GradientTextProps {
   children: ReactNode;
@@ -18,7 +23,11 @@ export const GradientText = ({
   children,
   className = '',
   // On-brand "Emerald Heritage" sweep — emerald → gold → teal (theme tokens, not hex).
-  colors = ['var(--color-primary)', 'var(--color-chart-2)', 'var(--color-chart-3)'],
+  colors = [
+    'var(--color-primary)',
+    'var(--color-chart-2)',
+    'var(--color-chart-3)',
+  ],
   animationSpeed = 8,
   showBorder = false,
   direction = 'horizontal',
@@ -54,7 +63,9 @@ export const GradientText = ({
       if (cycleTime < animationDuration) {
         progress.set((cycleTime / animationDuration) * 100);
       } else {
-        progress.set(100 - ((cycleTime - animationDuration) / animationDuration) * 100);
+        progress.set(
+          100 - ((cycleTime - animationDuration) / animationDuration) * 100,
+        );
       }
     } else {
       // Continuously increase position for seamless looping
@@ -84,13 +95,22 @@ export const GradientText = ({
   }, [pauseOnHover]);
 
   const gradientAngle =
-    direction === 'horizontal' ? 'to right' : direction === 'vertical' ? 'to bottom' : 'to bottom right';
+    direction === 'horizontal'
+      ? 'to right'
+      : direction === 'vertical'
+        ? 'to bottom'
+        : 'to bottom right';
   // Duplicate first color at the end for seamless looping
   const gradientColors = [...colors, colors[0]].join(', ');
 
   const gradientStyle = {
     backgroundImage: `linear-gradient(${gradientAngle}, ${gradientColors})`,
-    backgroundSize: direction === 'horizontal' ? '300% 100%' : direction === 'vertical' ? '100% 300%' : '300% 300%',
+    backgroundSize:
+      direction === 'horizontal'
+        ? '300% 100%'
+        : direction === 'vertical'
+          ? '100% 300%'
+          : '300% 300%',
     backgroundRepeat: 'repeat',
   };
 
@@ -119,7 +139,11 @@ export const GradientText = ({
       )}
       <motion.div
         className="relative z-2 inline-block bg-clip-text text-transparent"
-        style={{ ...gradientStyle, backgroundPosition, WebkitBackgroundClip: 'text' }}
+        style={{
+          ...gradientStyle,
+          backgroundPosition,
+          WebkitBackgroundClip: 'text',
+        }}
       >
         {children}
       </motion.div>

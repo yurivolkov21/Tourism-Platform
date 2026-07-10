@@ -45,7 +45,13 @@ const BOOKING_INCLUDE: Prisma.BookingInclude = {
   tour: { select: { slug: true, title: true } },
   departure: { select: { startDate: true, endDate: true } },
   cancellationRequest: {
-    select: { status: true, reason: true, createdAt: true, decisionNote: true, decidedAt: true },
+    select: {
+      status: true,
+      reason: true,
+      createdAt: true,
+      decisionNote: true,
+      decidedAt: true,
+    },
   },
 };
 
@@ -53,7 +59,12 @@ const BOOKING_INCLUDE: Prisma.BookingInclude = {
 const BOOKING_DETAIL_INCLUDE = {
   tour: { select: { slug: true, title: true } },
   departure: {
-    select: { startDate: true, endDate: true, seatsTotal: true, seatsBooked: true },
+    select: {
+      startDate: true,
+      endDate: true,
+      seatsTotal: true,
+      seatsBooked: true,
+    },
   },
   refundedBy: { select: { fullName: true, email: true } },
   user: { select: { id: true, fullName: true, email: true, createdAt: true } },
@@ -69,7 +80,9 @@ const BOOKING_DETAIL_INCLUDE = {
   },
 } satisfies Prisma.BookingInclude;
 
-type BookingWithDetail = Prisma.BookingGetPayload<{ include: typeof BOOKING_DETAIL_INCLUDE }>;
+type BookingWithDetail = Prisma.BookingGetPayload<{
+  include: typeof BOOKING_DETAIL_INCLUDE;
+}>;
 
 /** Another booking by the same customer — detail mini-list row. */
 export interface OtherBookingItem {
@@ -124,9 +137,19 @@ export interface AdminBookingDetail {
   contactPhone: string | null;
   specialRequests: string | null;
   tour: { slug: string; title: string };
-  departure: { startDate: string; endDate: string; seatsTotal: number; seatsBooked: number };
+  departure: {
+    startDate: string;
+    endDate: string;
+    seatsTotal: number;
+    seatsBooked: number;
+  };
   providerSessionId: string | null;
-  customer: { id: string; fullName: string | null; email: string; createdAt: string };
+  customer: {
+    id: string;
+    fullName: string | null;
+    email: string;
+    createdAt: string;
+  };
   otherBookings: { total: number; items: OtherBookingItem[] };
   paymentEvents: PaymentEventSummary[];
   paidAt: string | null;
@@ -243,10 +266,19 @@ export class BookingsService {
    * and stores the chosen `paymentProvider`. The checkout session is minted
    * later (P1.5b/c).
    */
-  async create(customerUserId: string, body: CreateBookingDto): Promise<Booking> {
+  async create(
+    customerUserId: string,
+    body: CreateBookingDto,
+  ): Promise<Booking> {
     const tour = await this.prisma.tour.findFirst({
       where: { slug: body.tourSlug, isPublished: true },
-      select: { id: true, slug: true, title: true, currency: true, basePrice: true },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        currency: true,
+        basePrice: true,
+      },
     });
     if (!tour) {
       throw new NotFoundException({
@@ -476,10 +508,12 @@ export class BookingsService {
     if (outcome === 'overbooked') {
       // Won payment but lost the seat race — refund and surface a clear 409.
       if (capture.captureId) {
-        await this.paypal.refundCapture(capture.captureId).catch((err: unknown) => {
-          const m = err instanceof Error ? err.message : 'unknown';
-          this.logger.error(`Auto-refund failed for ${booking.code}: ${m}`);
-        });
+        await this.paypal
+          .refundCapture(capture.captureId)
+          .catch((err: unknown) => {
+            const m = err instanceof Error ? err.message : 'unknown';
+            this.logger.error(`Auto-refund failed for ${booking.code}: ${m}`);
+          });
       }
       await this.prisma.booking.update({
         where: { id: booking.id },
@@ -563,7 +597,10 @@ export class BookingsService {
       });
     }
 
-    const { partial, amount } = classifyRefund(booking.totalAmount, args.amount);
+    const { partial, amount } = classifyRefund(
+      booking.totalAmount,
+      args.amount,
+    );
 
     // Deterministic per-booking key: two concurrent refund attempts for the same
     // booking dedupe at the provider, so neither can double-charge the gateway.
@@ -577,13 +614,18 @@ export class BookingsService {
           paymentIntentId: booking.providerPaymentId,
           reason: args.reason ?? 'requested_by_customer',
           idempotencyKey,
-          ...(partial ? { amountMinorUnits: toStripeMinorUnits(amount, booking.currency) } : {}),
+          ...(partial
+            ? { amountMinorUnits: toStripeMinorUnits(amount, booking.currency) }
+            : {}),
         });
       } else {
         await this.paypal.refundCapture(
           booking.providerPaymentId,
           partial
-            ? { value: toPayPalAmount(amount, booking.currency), currencyCode: booking.currency }
+            ? {
+                value: toPayPalAmount(amount, booking.currency),
+                currencyCode: booking.currency,
+              }
             : undefined,
           idempotencyKey,
         );
@@ -727,7 +769,9 @@ export class BookingsService {
    * Admin management list — paginated, newest first, optional `status` filter and
    * a case-insensitive `search` across code / contact email / contact name.
    */
-  async findAllForAdmin(query: ListAdminBookingsQueryDto): Promise<PaginatedBookings> {
+  async findAllForAdmin(
+    query: ListAdminBookingsQueryDto,
+  ): Promise<PaginatedBookings> {
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? 20;
     const search = query.search?.trim();

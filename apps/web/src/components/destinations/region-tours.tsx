@@ -17,7 +17,8 @@ import { TourTile } from '../tours/tour-tile';
 import type { TourCardData } from '../tours/tour-card';
 import { pageNumbers, pageView } from '../../lib/paginate';
 
-const CHIP = 'rounded-full border px-4 py-1.5 text-sm font-medium transition-colors';
+const CHIP =
+  'rounded-full border px-4 py-1.5 text-sm font-medium transition-colors';
 const CHIP_OFF =
   'border-border bg-background text-muted-foreground hover:text-foreground hover:border-foreground/30';
 const CHIP_ON_DEFAULT = 'border-primary bg-primary text-primary-foreground';
@@ -48,12 +49,18 @@ export function RegionTours({
   }, [destinations]);
 
   const filtered = useMemo(
-    () => (active === 'all' ? tours : tours.filter((tr) => tr.destination === active)),
+    () =>
+      active === 'all'
+        ? tours
+        : tours.filter((tr) => tr.destination === active),
     [active, tours],
   );
 
   const view = pageView(filtered.length, page, REGION_PAGE_SIZE);
-  const visible = filtered.slice((view.page - 1) * REGION_PAGE_SIZE, view.page * REGION_PAGE_SIZE);
+  const visible = filtered.slice(
+    (view.page - 1) * REGION_PAGE_SIZE,
+    view.page * REGION_PAGE_SIZE,
+  );
 
   // Keep local state in sync with the clamped page (e.g. after the result set shrinks).
   useEffect(() => {
@@ -68,7 +75,8 @@ export function RegionTours({
 
   const go = (target: number) => (event: React.MouseEvent) => {
     event.preventDefault();
-    if (target >= 1 && target <= view.totalPages && target !== view.page) setPage(target);
+    if (target >= 1 && target <= view.totalPages && target !== view.page)
+      setPage(target);
   };
   const isFirst = view.page <= 1;
   const isLast = view.page >= view.totalPages;

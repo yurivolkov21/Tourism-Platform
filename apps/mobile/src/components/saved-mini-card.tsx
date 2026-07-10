@@ -6,7 +6,13 @@ import type { SavedTourVm } from '../lib/wishlist';
 
 const tf = messages.featuredTours;
 
-export function SavedMiniCard({ tour, onPress }: { tour: SavedTourVm; onPress: () => void }) {
+export function SavedMiniCard({
+  tour,
+  onPress,
+}: {
+  tour: SavedTourVm;
+  onPress: () => void;
+}) {
   const theme = useTheme();
   return (
     <Pressable

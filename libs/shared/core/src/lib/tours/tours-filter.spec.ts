@@ -12,11 +12,61 @@ import {
 type Row = FilterableTour & { slug: string };
 
 const tours: Row[] = [
-  { slug: 'a', destination: 'Hạ Long Bay', durationDays: 2, basePrice: 320, rating: 4.8, reviewCount: 124, category: 'cruises', travelStyles: ['couples', 'luxury'], themes: ['cruise', 'nature'] },
-  { slug: 'b', destination: 'Sa Pa', durationDays: 2, basePrice: 210, rating: 4.7, reviewCount: 64, category: 'trekking', travelStyles: ['adventure', 'group'], themes: ['trekking', 'nature', 'cultural'] },
-  { slug: 'c', destination: 'Hội An', durationDays: 1, basePrice: 95, rating: 4.9, reviewCount: 210, category: 'cultural', travelStyles: ['family', 'couples'], themes: ['cultural', 'culinary'] },
-  { slug: 'd', destination: 'Hà Giang', durationDays: 3, basePrice: 295, rating: 4.9, reviewCount: 71, category: 'trekking', travelStyles: ['adventure', 'group'], themes: ['trekking', 'nature', 'cultural'] },
-  { slug: 'e', destination: 'Phú Quốc', durationDays: 5, basePrice: 450, rating: 4.6, reviewCount: 30, category: 'beach', travelStyles: ['couples', 'luxury'], themes: ['beach'] },
+  {
+    slug: 'a',
+    destination: 'Hạ Long Bay',
+    durationDays: 2,
+    basePrice: 320,
+    rating: 4.8,
+    reviewCount: 124,
+    category: 'cruises',
+    travelStyles: ['couples', 'luxury'],
+    themes: ['cruise', 'nature'],
+  },
+  {
+    slug: 'b',
+    destination: 'Sa Pa',
+    durationDays: 2,
+    basePrice: 210,
+    rating: 4.7,
+    reviewCount: 64,
+    category: 'trekking',
+    travelStyles: ['adventure', 'group'],
+    themes: ['trekking', 'nature', 'cultural'],
+  },
+  {
+    slug: 'c',
+    destination: 'Hội An',
+    durationDays: 1,
+    basePrice: 95,
+    rating: 4.9,
+    reviewCount: 210,
+    category: 'cultural',
+    travelStyles: ['family', 'couples'],
+    themes: ['cultural', 'culinary'],
+  },
+  {
+    slug: 'd',
+    destination: 'Hà Giang',
+    durationDays: 3,
+    basePrice: 295,
+    rating: 4.9,
+    reviewCount: 71,
+    category: 'trekking',
+    travelStyles: ['adventure', 'group'],
+    themes: ['trekking', 'nature', 'cultural'],
+  },
+  {
+    slug: 'e',
+    destination: 'Phú Quốc',
+    durationDays: 5,
+    basePrice: 450,
+    rating: 4.6,
+    reviewCount: 30,
+    category: 'beach',
+    travelStyles: ['couples', 'luxury'],
+    themes: ['beach'],
+  },
 ];
 
 const slugs = (rows: Row[]) => rows.map((r) => r.slug);
@@ -49,20 +99,38 @@ describe('filterTours', () => {
   });
 
   it('filters by a single destination', () => {
-    expect(slugs(filterTours(tours, { destinations: ['Sa Pa'] }))).toEqual(['b']);
+    expect(slugs(filterTours(tours, { destinations: ['Sa Pa'] }))).toEqual([
+      'b',
+    ]);
   });
 
   it('treats multiple values within a facet as OR', () => {
-    expect(slugs(filterTours(tours, { destinations: ['Sa Pa', 'Hội An'] }))).toEqual(['b', 'c']);
+    expect(
+      slugs(filterTours(tours, { destinations: ['Sa Pa', 'Hội An'] })),
+    ).toEqual(['b', 'c']);
   });
 
   it('filters by category slug (OR within the facet)', () => {
-    expect(slugs(filterTours(tours, { categories: ['trekking'] }))).toEqual(['b', 'd']);
-    expect(slugs(filterTours(tours, { categories: ['cruises', 'beach'] }))).toEqual(['a', 'e']);
+    expect(slugs(filterTours(tours, { categories: ['trekking'] }))).toEqual([
+      'b',
+      'd',
+    ]);
+    expect(
+      slugs(filterTours(tours, { categories: ['cruises', 'beach'] })),
+    ).toEqual(['a', 'e']);
   });
 
   it('excludes tours with no category when a category filter is active', () => {
-    const rows: Row[] = [{ slug: 'x', destination: 'X', durationDays: 1, basePrice: 50, rating: 4, reviewCount: 1 }];
+    const rows: Row[] = [
+      {
+        slug: 'x',
+        destination: 'X',
+        durationDays: 1,
+        basePrice: 50,
+        rating: 4,
+        reviewCount: 1,
+      },
+    ];
     expect(slugs(filterTours(rows, { categories: ['cruises'] }))).toEqual([]);
   });
 
@@ -72,24 +140,44 @@ describe('filterTours', () => {
   });
 
   it('filters by travel style (any match)', () => {
-    expect(slugs(filterTours(tours, { styles: ['adventure'] }))).toEqual(['b', 'd']);
+    expect(slugs(filterTours(tours, { styles: ['adventure'] }))).toEqual([
+      'b',
+      'd',
+    ]);
   });
 
   it('filters by theme (any match)', () => {
     expect(slugs(filterTours(tours, { themes: ['beach'] }))).toEqual(['e']);
-    expect(slugs(filterTours(tours, { themes: ['cultural'] }))).toEqual(['b', 'c', 'd']);
+    expect(slugs(filterTours(tours, { themes: ['cultural'] }))).toEqual([
+      'b',
+      'c',
+      'd',
+    ]);
   });
 
   it('filters by price bucket (any match)', () => {
     expect(slugs(filterTours(tours, { prices: ['<100'] }))).toEqual(['c']);
-    expect(slugs(filterTours(tours, { prices: ['100-300'] }))).toEqual(['b', 'd']);
+    expect(slugs(filterTours(tours, { prices: ['100-300'] }))).toEqual([
+      'b',
+      'd',
+    ]);
     expect(slugs(filterTours(tours, { prices: ['300+'] }))).toEqual(['a', 'e']);
-    expect(slugs(filterTours(tours, { prices: ['<100', '300+'] }))).toEqual(['a', 'c', 'e']);
+    expect(slugs(filterTours(tours, { prices: ['<100', '300+'] }))).toEqual([
+      'a',
+      'c',
+      'e',
+    ]);
   });
 
   it('combines facets with AND', () => {
-    expect(slugs(filterTours(tours, { styles: ['adventure'], destinations: ['Sa Pa'] }))).toEqual(['b']);
-    expect(slugs(filterTours(tours, { prices: ['100-300'], styles: ['adventure'] }))).toEqual(['b', 'd']);
+    expect(
+      slugs(
+        filterTours(tours, { styles: ['adventure'], destinations: ['Sa Pa'] }),
+      ),
+    ).toEqual(['b']);
+    expect(
+      slugs(filterTours(tours, { prices: ['100-300'], styles: ['adventure'] })),
+    ).toEqual(['b', 'd']);
   });
 
   it('returns empty when nothing matches', () => {
@@ -97,7 +185,11 @@ describe('filterTours', () => {
   });
 
   it('preserves input order', () => {
-    expect(slugs(filterTours(tours, { themes: ['cultural'] }))).toEqual(['b', 'c', 'd']);
+    expect(slugs(filterTours(tours, { themes: ['cultural'] }))).toEqual([
+      'b',
+      'c',
+      'd',
+    ]);
   });
 });
 
@@ -116,10 +208,30 @@ describe('normalizeText', () => {
 describe('searchTours', () => {
   type SRow = SearchableTour & { slug: string };
   const rows: SRow[] = [
-    { slug: 'a', title: 'Hạ Long Bay Overnight Cruise', destination: 'Hạ Long Bay', categoryName: 'Cruises' },
-    { slug: 'b', title: 'Sa Pa Hill-Tribe Trek', destination: 'Sa Pa', categoryName: 'Trekking' },
-    { slug: 'c', title: 'Old Quarter Walk', destination: 'Hà Nội', categoryName: 'Cultural' },
-    { slug: 'd', title: 'Central Coast Beach Escape', destination: 'Đà Nẵng', categoryName: 'Beach' },
+    {
+      slug: 'a',
+      title: 'Hạ Long Bay Overnight Cruise',
+      destination: 'Hạ Long Bay',
+      categoryName: 'Cruises',
+    },
+    {
+      slug: 'b',
+      title: 'Sa Pa Hill-Tribe Trek',
+      destination: 'Sa Pa',
+      categoryName: 'Trekking',
+    },
+    {
+      slug: 'c',
+      title: 'Old Quarter Walk',
+      destination: 'Hà Nội',
+      categoryName: 'Cultural',
+    },
+    {
+      slug: 'd',
+      title: 'Central Coast Beach Escape',
+      destination: 'Đà Nẵng',
+      categoryName: 'Beach',
+    },
   ];
   const srch = (q: string) => searchTours(rows, q).map((r) => r.slug);
 
@@ -156,16 +268,40 @@ describe('searchTours', () => {
 
 describe('sortTours', () => {
   it('sorts by price ascending / descending', () => {
-    expect(slugs(sortTours(tours, 'price-asc'))).toEqual(['c', 'b', 'd', 'a', 'e']);
-    expect(slugs(sortTours(tours, 'price-desc'))).toEqual(['e', 'a', 'd', 'b', 'c']);
+    expect(slugs(sortTours(tours, 'price-asc'))).toEqual([
+      'c',
+      'b',
+      'd',
+      'a',
+      'e',
+    ]);
+    expect(slugs(sortTours(tours, 'price-desc'))).toEqual([
+      'e',
+      'a',
+      'd',
+      'b',
+      'c',
+    ]);
   });
 
   it('sorts by rating (reviewCount as tiebreak)', () => {
-    expect(slugs(sortTours(tours, 'rating'))).toEqual(['c', 'd', 'a', 'b', 'e']);
+    expect(slugs(sortTours(tours, 'rating'))).toEqual([
+      'c',
+      'd',
+      'a',
+      'b',
+      'e',
+    ]);
   });
 
   it('sorts by popularity (reviewCount)', () => {
-    expect(slugs(sortTours(tours, 'popular'))).toEqual(['c', 'a', 'd', 'b', 'e']);
+    expect(slugs(sortTours(tours, 'popular'))).toEqual([
+      'c',
+      'a',
+      'd',
+      'b',
+      'e',
+    ]);
   });
 
   it('does not mutate the input array', () => {

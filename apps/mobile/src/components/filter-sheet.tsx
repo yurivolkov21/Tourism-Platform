@@ -38,7 +38,13 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <View style={{ gap: theme.spacing(2) }}>
       <AppText variant="title">{title}</AppText>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing(2) }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: theme.spacing(2),
+        }}
+      >
         {children}
       </View>
     </View>
@@ -70,7 +76,9 @@ export const FilterSheet = forwardRef<
 
   return (
     <AppSheet ref={sheetRef} scrollable>
-      <View style={{ paddingHorizontal: theme.spacing(4), gap: theme.spacing(4) }}>
+      <View
+        style={{ paddingHorizontal: theme.spacing(4), gap: theme.spacing(4) }}
+      >
         <Section title={t.durationTitle}>
           {DURATIONS.map((d) => (
             <Chip
@@ -79,7 +87,10 @@ export const FilterSheet = forwardRef<
               label={t.duration[d]}
               selected={draft.durations.includes(d)}
               onPress={() =>
-                setDraft((s) => ({ ...s, durations: toggleBucket(s.durations, d) }))
+                setDraft((s) => ({
+                  ...s,
+                  durations: toggleBucket(s.durations, d),
+                }))
               }
             />
           ))}
@@ -91,7 +102,9 @@ export const FilterSheet = forwardRef<
               testID={`price-${p}`}
               label={t.price[p]}
               selected={draft.prices.includes(p)}
-              onPress={() => setDraft((s) => ({ ...s, prices: toggleBucket(s.prices, p) }))}
+              onPress={() =>
+                setDraft((s) => ({ ...s, prices: toggleBucket(s.prices, p) }))
+              }
             />
           ))}
         </Section>

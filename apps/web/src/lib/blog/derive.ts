@@ -16,8 +16,11 @@ export interface ReadingStats {
 
 /** Word count + reading minutes (~200 wpm, floored at 1 for any non-empty post). */
 export function readingStats(content: string): ReadingStats {
-  const words = stripMarkdownSyntax(content).split(/\s+/).filter(Boolean).length;
-  const minutes = words === 0 ? 0 : Math.max(1, Math.round(words / WORDS_PER_MINUTE));
+  const words = stripMarkdownSyntax(content)
+    .split(/\s+/)
+    .filter(Boolean).length;
+  const minutes =
+    words === 0 ? 0 : Math.max(1, Math.round(words / WORDS_PER_MINUTE));
   return { words, minutes };
 }
 
@@ -71,7 +74,11 @@ export function extractOutline(content: string): OutlineItem[] {
     // Strip inline markdown so text + id match the RENDERED heading (whose id is built
     // from react-markdown's flattened children — a link contributes only its text).
     const text = stripInlineMarkdown(m[2].trim());
-    out.push({ depth: m[1].length >= 3 ? 3 : 2, text, id: slugifyHeading(text) });
+    out.push({
+      depth: m[1].length >= 3 ? 3 : 2,
+      text,
+      id: slugifyHeading(text),
+    });
     if (out.length >= MAX_OUTLINE) break;
   }
   return out;

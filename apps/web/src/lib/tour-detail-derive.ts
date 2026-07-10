@@ -5,13 +5,19 @@ import type { TourCardData } from '../components/tours/tour-card';
  * "N breakfasts, N lunches, N dinners" line in `included`. Pull it out for the
  * meals spec row; day tours (no such line) fall back to a neutral label.
  */
-export function parseMealsLine(included: readonly string[]): string | undefined {
+export function parseMealsLine(
+  included: readonly string[],
+): string | undefined {
   return included.find((item) => /\d+\s*(breakfast|lunch|dinner)/i.test(item));
 }
 
 /** First `included` line that reads like transport (car / transfer / cruise / coach). */
-export function parseTransportLine(included: readonly string[]): string | undefined {
-  return included.find((item) => /transfer|car|cruise|coach|transport|van/i.test(item));
+export function parseTransportLine(
+  included: readonly string[],
+): string | undefined {
+  return included.find((item) =>
+    /transfer|car|cruise|coach|transport|van/i.test(item),
+  );
 }
 
 /** Cross-sell: other tours (current excluded), capped at 4. */

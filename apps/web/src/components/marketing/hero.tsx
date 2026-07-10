@@ -36,15 +36,23 @@ export function Hero() {
           {t.titleLead} {t.titleAccent} {t.titleTail}
         </h1>
 
-        <p className="text-on-media/85 max-w-xl text-lg text-pretty">{t.subtitle}</p>
+        <p className="text-on-media/85 max-w-xl text-lg text-pretty">
+          {t.subtitle}
+        </p>
 
         {/* Search affordance — navigates to the tours listing (real filtering wired later) */}
         <form
           action="/tours"
           className="bg-background shadow-dropdown mt-2 flex w-full max-w-xl items-center gap-2 rounded-full p-2"
         >
-          <label htmlFor="hero-destination" className="flex flex-1 items-center gap-2 pl-3">
-            <MapPinIcon className="text-muted-foreground size-4 shrink-0" aria-hidden="true" />
+          <label
+            htmlFor="hero-destination"
+            className="flex flex-1 items-center gap-2 pl-3"
+          >
+            <MapPinIcon
+              className="text-muted-foreground size-4 shrink-0"
+              aria-hidden="true"
+            />
             <span className="sr-only">{t.searchLabel}</span>
             {/* Bare-styled Input so the surrounding pill owns the chrome (border/shadow/radius). */}
             <Input

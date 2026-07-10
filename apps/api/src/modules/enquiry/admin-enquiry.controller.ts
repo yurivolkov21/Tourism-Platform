@@ -38,7 +38,10 @@ export class AdminEnquiryController {
   @Get()
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'List enquiries (paginated, filter by status)' })
-  @ApiOkResponse({ type: PaginatedEnquiriesDto, description: 'Paginated enquiries' })
+  @ApiOkResponse({
+    type: PaginatedEnquiriesDto,
+    description: 'Paginated enquiries',
+  })
   @ApiResponse({ status: 401, description: 'Missing/invalid token' })
   @ApiResponse({ status: 403, description: 'Caller is not an admin' })
   list(@Query() query: ListEnquiriesQueryDto): Promise<PaginatedEnquiries> {

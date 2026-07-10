@@ -22,7 +22,9 @@ test('rating tone keeps foreground text (web parity)', () => {
     </ThemeProvider>,
   );
   const text = screen.getByText('Popular');
-  expect(StyleSheet.flatten(text.props.style).color).toBe(tokens.colors.light['foreground']);
+  expect(StyleSheet.flatten(text.props.style).color).toBe(
+    tokens.colors.light['foreground'],
+  );
 });
 
 test('muted tone renders the muted pair (booking CANCELLED)', () => {

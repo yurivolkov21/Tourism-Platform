@@ -22,10 +22,18 @@ export function TourReviews({
     <section className="py-12 sm:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2">
-          <span className="bg-primary h-6 w-1.5 shrink-0 rounded-full" aria-hidden />
-          <h2 className="font-heading text-2xl font-semibold sm:text-3xl">{t.heading}</h2>
+          <span
+            className="bg-primary h-6 w-1.5 shrink-0 rounded-full"
+            aria-hidden
+          />
+          <h2 className="font-heading text-2xl font-semibold sm:text-3xl">
+            {t.heading}
+          </h2>
           <span className="inline-flex items-center gap-1.5 text-sm">
-            <StarIcon className="fill-rating text-rating size-4" aria-hidden="true" />
+            <StarIcon
+              className="fill-rating text-rating size-4"
+              aria-hidden="true"
+            />
             <span className="font-semibold">{rating.toFixed(1)}</span>
             <span className="text-muted-foreground">({reviewCount})</span>
           </span>
@@ -35,12 +43,21 @@ export function TourReviews({
           {reviews.map((review) => (
             <Card key={review.id} className="h-full">
               <CardContent className="flex h-full flex-col gap-3 p-6">
-                <div className="flex gap-0.5" role="img" aria-label={`${review.rating} out of 5`}>
+                <div
+                  className="flex gap-0.5"
+                  role="img"
+                  aria-label={`${review.rating} out of 5`}
+                >
                   {Array.from({ length: 5 }, (_, i) => (
                     <StarIcon
                       key={i}
                       aria-hidden="true"
-                      className={cn('size-4', i < review.rating ? 'fill-rating text-rating' : 'text-muted-foreground/30')}
+                      className={cn(
+                        'size-4',
+                        i < review.rating
+                          ? 'fill-rating text-rating'
+                          : 'text-muted-foreground/30',
+                      )}
                     />
                   ))}
                 </div>

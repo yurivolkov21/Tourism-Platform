@@ -17,7 +17,10 @@ import {
   Textarea,
 } from '@tourism/ui';
 
-import { createCurated, type CuratedFormState } from '../../lib/reviews/actions';
+import {
+  createCurated,
+  type CuratedFormState,
+} from '../../lib/reviews/actions';
 import { ErrorAlert } from '../crud/error-alert';
 
 const INITIAL: CuratedFormState = {};
@@ -36,7 +39,9 @@ export function CuratedForm() {
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
           <FieldLegend className="mb-1.5 font-semibold">Traveller</FieldLegend>
-          <FieldDescription>Who the testimonial is from and the trip it refers to.</FieldDescription>
+          <FieldDescription>
+            Who the testimonial is from and the trip it refers to.
+          </FieldDescription>
         </div>
         <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
           <Field data-invalid={Boolean(errors.authorName)}>
@@ -48,18 +53,30 @@ export function CuratedForm() {
               placeholder="Emily Carter"
               aria-invalid={Boolean(errors.authorName)}
             />
-            {errors.authorName ? <FieldError>{errors.authorName}</FieldError> : null}
+            {errors.authorName ? (
+              <FieldError>{errors.authorName}</FieldError>
+            ) : null}
           </Field>
           <div className="grid gap-6 sm:grid-cols-2">
             <Field>
               <FieldLabel htmlFor="authorLocation">Location</FieldLabel>
-              <Input id="authorLocation" name="authorLocation" placeholder="Sydney, Australia" />
+              <Input
+                id="authorLocation"
+                name="authorLocation"
+                placeholder="Sydney, Australia"
+              />
               <FieldDescription>Optional.</FieldDescription>
             </Field>
             <Field>
               <FieldLabel htmlFor="tripLabel">Trip</FieldLabel>
-              <Input id="tripLabel" name="tripLabel" placeholder="Hạ Long Bay Cruise" />
-              <FieldDescription>Optional — shown under the name.</FieldDescription>
+              <Input
+                id="tripLabel"
+                name="tripLabel"
+                placeholder="Hạ Long Bay Cruise"
+              />
+              <FieldDescription>
+                Optional — shown under the name.
+              </FieldDescription>
             </Field>
           </div>
         </FieldGroup>
@@ -70,8 +87,12 @@ export function CuratedForm() {
       {/* Testimonial */}
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
-          <FieldLegend className="mb-1.5 font-semibold">Testimonial</FieldLegend>
-          <FieldDescription>Published approved + featured on the homepage carousel.</FieldDescription>
+          <FieldLegend className="mb-1.5 font-semibold">
+            Testimonial
+          </FieldLegend>
+          <FieldDescription>
+            Published approved + featured on the homepage carousel.
+          </FieldDescription>
         </div>
         <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
           <Field data-invalid={Boolean(errors.rating)}>
@@ -111,7 +132,12 @@ export function CuratedForm() {
       ) : null}
 
       <div className="mt-8 flex items-center justify-end gap-3">
-        <Button type="button" variant="outline" nativeButton={false} render={<Link href="/reviews" />}>
+        <Button
+          type="button"
+          variant="outline"
+          nativeButton={false}
+          render={<Link href="/reviews" />}
+        >
           Cancel
         </Button>
         <Button type="submit" disabled={pending}>

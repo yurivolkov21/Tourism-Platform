@@ -29,19 +29,45 @@ import type { ItineraryDay } from '../../lib/tours';
  * content can't inject scripts.
  */
 const MD_COMPONENTS: Components = {
-  p: (props) => <p className="text-muted-foreground mb-3 leading-relaxed text-pretty last:mb-0" {...props} />,
-  strong: (props) => <strong className="text-foreground font-semibold" {...props} />,
+  p: (props) => (
+    <p
+      className="text-muted-foreground mb-3 leading-relaxed text-pretty last:mb-0"
+      {...props}
+    />
+  ),
+  strong: (props) => (
+    <strong className="text-foreground font-semibold" {...props} />
+  ),
   em: (props) => <em className="italic" {...props} />,
-  ul: (props) => <ul className="mb-3 list-disc space-y-1.5 pl-5 last:mb-0" {...props} />,
-  ol: (props) => <ol className="mb-3 list-decimal space-y-1.5 pl-5 last:mb-0" {...props} />,
+  ul: (props) => (
+    <ul className="mb-3 list-disc space-y-1.5 pl-5 last:mb-0" {...props} />
+  ),
+  ol: (props) => (
+    <ol className="mb-3 list-decimal space-y-1.5 pl-5 last:mb-0" {...props} />
+  ),
   li: ({ children, ...props }: ComponentPropsWithoutRef<'li'>) => (
-    <li className="text-muted-foreground marker:text-primary/60 leading-relaxed text-pretty" {...props}>
+    <li
+      className="text-muted-foreground marker:text-primary/60 leading-relaxed text-pretty"
+      {...props}
+    >
       {children}
     </li>
   ),
-  h3: (props) => <h3 className="font-heading text-foreground mt-4 mb-1.5 text-lg font-semibold first:mt-0" {...props} />,
-  h4: (props) => <h4 className="text-foreground mt-3 mb-1 font-semibold first:mt-0" {...props} />,
-  a: (props) => <a className="text-primary font-medium hover:underline" {...props} />,
+  h3: (props) => (
+    <h3
+      className="font-heading text-foreground mt-4 mb-1.5 text-lg font-semibold first:mt-0"
+      {...props}
+    />
+  ),
+  h4: (props) => (
+    <h4
+      className="text-foreground mt-3 mb-1 font-semibold first:mt-0"
+      {...props}
+    />
+  ),
+  a: (props) => (
+    <a className="text-primary font-medium hover:underline" {...props} />
+  ),
   hr: () => <hr className="border-border/60 my-4" />,
 };
 
@@ -58,7 +84,8 @@ export function TourItinerary({ days }: { days: ItineraryDay[] }) {
 
   const [current, setCurrent] = useState(steps[0]?.id ?? '');
   const currentIndex = steps.findIndex((s) => s.id === current);
-  const goNext = () => setCurrent(steps[Math.min(currentIndex + 1, steps.length - 1)].id);
+  const goNext = () =>
+    setCurrent(steps[Math.min(currentIndex + 1, steps.length - 1)].id);
   const goBack = () => setCurrent(steps[Math.max(currentIndex - 1, 0)].id);
 
   return (
@@ -72,7 +99,11 @@ export function TourItinerary({ days }: { days: ItineraryDay[] }) {
       >
         <StepperNav className="w-60 shrink-0">
           {steps.map((step, index) => (
-            <StepperItem key={step.id} stepId={step.id} className="relative items-start">
+            <StepperItem
+              key={step.id}
+              stepId={step.id}
+              className="relative items-start"
+            >
               <StepperTrigger className="items-start gap-2.5 pb-15 last:pb-0">
                 <StepperIndicator>{index + 1}</StepperIndicator>
                 <div className="text-left">
@@ -98,7 +129,10 @@ export function TourItinerary({ days }: { days: ItineraryDay[] }) {
                   {step.description}
                 </h3>
                 <div className="min-w-0 text-sm">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={MD_COMPONENTS}
+                  >
                     {days[index]?.body ?? ''}
                   </ReactMarkdown>
                 </div>
@@ -115,7 +149,11 @@ export function TourItinerary({ days }: { days: ItineraryDay[] }) {
                   <Button
                     onClick={goNext}
                     disabled={currentIndex === steps.length - 1}
-                    variant={currentIndex === steps.length - 1 ? 'secondary' : 'default'}
+                    variant={
+                      currentIndex === steps.length - 1
+                        ? 'secondary'
+                        : 'default'
+                    }
                   >
                     {t.stepNext} <ArrowRightIcon className="size-4" />
                   </Button>

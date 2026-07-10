@@ -3,10 +3,20 @@
 import { useRef, useState, type ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Avatar, AvatarFallback, AvatarImage, Button, toast } from '@tourism/ui';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Button,
+  toast,
+} from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-import { removeAvatar, requestAvatarUpload, saveAvatar } from '../../lib/account/actions';
+import {
+  removeAvatar,
+  requestAvatarUpload,
+  saveAvatar,
+} from '../../lib/account/actions';
 import { createClient } from '../../lib/supabase/client';
 
 function initialsOf(name: string): string {
@@ -20,7 +30,13 @@ function initialsOf(name: string): string {
  * then attach by publicId (`PUT /users/me/avatar`). Mirrors the URL into Supabase metadata so the
  * navbar avatar updates live.
  */
-export function AvatarUploader({ initialUrl, name }: { initialUrl: string | null; name: string }) {
+export function AvatarUploader({
+  initialUrl,
+  name,
+}: {
+  initialUrl: string | null;
+  name: string;
+}) {
   const t = messages.auth.account.profile.avatar;
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -41,7 +57,8 @@ export function AvatarUploader({ initialUrl, name }: { initialUrl: string | null
     setBusy(true);
     try {
       const signed = await requestAvatarUpload(file.name, file.type);
-      if (signed.error || !signed.params) throw new Error(signed.error ?? 'sign failed');
+      if (signed.error || !signed.params)
+        throw new Error(signed.error ?? 'sign failed');
       const p = signed.params;
 
       const fd = new FormData();
@@ -53,9 +70,17 @@ export function AvatarUploader({ initialUrl, name }: { initialUrl: string | null
       fd.append('public_id', p.publicId);
       const res = await fetch(p.uploadUrl, { method: 'POST', body: fd });
       if (!res.ok) throw new Error('upload failed');
-      const uploaded = (await res.json()) as { public_id: string; format?: string; width?: number };
+      const uploaded = (await res.json()) as {
+        public_id: string;
+        format?: string;
+        width?: number;
+      };
 
-      const saved = await saveAvatar(uploaded.public_id, uploaded.format, uploaded.width);
+      const saved = await saveAvatar(
+        uploaded.public_id,
+        uploaded.format,
+        uploaded.width,
+      );
       if (saved.error) throw new Error(saved.error);
 
       setUrl(saved.avatarUrl ?? null);
@@ -112,7 +137,13 @@ export function AvatarUploader({ initialUrl, name }: { initialUrl: string | null
             {busy ? t.uploading : t.change}
           </Button>
           {url ? (
-            <Button type="button" variant="ghost" size="sm" onClick={() => void onRemove()} disabled={busy}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => void onRemove()}
+              disabled={busy}
+            >
               {t.remove}
             </Button>
           ) : null}

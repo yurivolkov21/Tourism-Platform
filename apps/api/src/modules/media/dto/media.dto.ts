@@ -76,7 +76,11 @@ export class MediaInputDto {
   @MaxLength(300)
   posterId?: string;
 
-  @ApiPropertyOptional({ example: 0, description: 'Display order.', minimum: 0 })
+  @ApiPropertyOptional({
+    example: 0,
+    description: 'Display order.',
+    minimum: 0,
+  })
   @IsOptional()
   @IsInt()
   @Min(0)
@@ -90,7 +94,8 @@ export class MediaInputDto {
 export class MediaItemDto {
   @ApiProperty({
     example: 'tourism/destinations/hero/1717000000000-hoi-an',
-    description: 'Cloudinary public_id — lets the admin re-submit an unchanged item.',
+    description:
+      'Cloudinary public_id — lets the admin re-submit an unchanged item.',
   })
   publicId!: string;
 

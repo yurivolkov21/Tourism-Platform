@@ -14,10 +14,17 @@ import { destinationSchema, toDestinationPayload } from './schema';
  * The destination is already saved at this point, so a failure here is swallowed — images can be
  * re-attached from the edit form (the Cloudinary upload already succeeded).
  */
-async function putDestinationMedia(slug: string, mediaJson: string): Promise<void> {
+async function putDestinationMedia(
+  slug: string,
+  mediaJson: string,
+): Promise<void> {
   try {
     const media = assembleMediaSet(parseMediaField(mediaJson));
-    await apiWrite('PUT', `/api/v1/admin/destinations/${encodeURIComponent(slug)}/media`, { media });
+    await apiWrite(
+      'PUT',
+      `/api/v1/admin/destinations/${encodeURIComponent(slug)}/media`,
+      { media },
+    );
   } catch {
     // Saved without images; recoverable via edit.
   }
@@ -109,7 +116,9 @@ export interface DeleteDestinationState {
  * active or still has tours attached; `apiErrorMessage` surfaces that reason so the user knows to
  * deactivate or detach first.
  */
-export async function deleteDestination(slug: string): Promise<DeleteDestinationState> {
+export async function deleteDestination(
+  slug: string,
+): Promise<DeleteDestinationState> {
   try {
     const api = await getApiClient();
     await api.DELETE('/api/v1/admin/destinations/{slug}', {

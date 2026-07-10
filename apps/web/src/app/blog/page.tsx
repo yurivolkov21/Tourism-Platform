@@ -2,7 +2,12 @@ import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { AlertCircleIcon, ChevronLeftIcon, ChevronRightIcon, SearchIcon } from 'lucide-react';
+import {
+  AlertCircleIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  SearchIcon,
+} from 'lucide-react';
 
 import {
   Button,
@@ -71,7 +76,8 @@ export default async function BlogIndexPage({
   const failed = !listResult.ok;
 
   // Past-the-end page (stale link) → clamp back to page 1.
-  if (result && page > 1 && result.posts.length === 0 && result.meta.total > 0) redirect(blogHref(tag, q));
+  if (result && page > 1 && result.posts.length === 0 && result.meta.total > 0)
+    redirect(blogHref(tag, q));
 
   const posts = result?.posts ?? [];
   const meta = result?.meta;
@@ -93,18 +99,27 @@ export default async function BlogIndexPage({
             <h1 className="font-heading text-3xl font-bold text-balance md:text-4xl">
               {t.heading}
             </h1>
-            <p className="text-muted-foreground text-lg text-pretty">{t.subtitle}</p>
+            <p className="text-muted-foreground text-lg text-pretty">
+              {t.subtitle}
+            </p>
           </div>
 
           {/* Search stays available even on a tag-less blog; only the chip row is conditional. */}
           <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             {tagOptions.length > 0 ? (
-              <div className="flex flex-wrap items-center gap-2" aria-label={t.topicsLabel}>
+              <div
+                className="flex flex-wrap items-center gap-2"
+                aria-label={t.topicsLabel}
+              >
                 <TagChip href={blogHref(undefined, q)} active={!tag}>
                   {t.allTag}
                 </TagChip>
                 {tagOptions.map((tg) => (
-                  <TagChip key={tg.slug} href={blogHref(tg.slug, q)} active={tag === tg.slug}>
+                  <TagChip
+                    key={tg.slug}
+                    href={blogHref(tg.slug, q)}
+                    active={tag === tg.slug}
+                  >
                     {tg.name}
                   </TagChip>
                 ))}
@@ -112,7 +127,10 @@ export default async function BlogIndexPage({
             ) : (
               <span />
             )}
-            <form action="/blog" className="flex w-full items-center gap-2 lg:max-w-xs">
+            <form
+              action="/blog"
+              className="flex w-full items-center gap-2 lg:max-w-xs"
+            >
               {tag ? <input type="hidden" name="tag" value={tag} /> : null}
               <Input
                 type="search"
@@ -121,7 +139,12 @@ export default async function BlogIndexPage({
                 placeholder={t.searchPlaceholder}
                 aria-label={t.searchLabel}
               />
-              <Button type="submit" variant="outline" size="icon" aria-label={t.searchLabel}>
+              <Button
+                type="submit"
+                variant="outline"
+                size="icon"
+                aria-label={t.searchLabel}
+              >
                 <SearchIcon className="size-4" />
               </Button>
             </form>
@@ -130,12 +153,17 @@ export default async function BlogIndexPage({
           <div className="mt-10 sm:mt-14">
             {failed ? (
               <div className="border-border/60 bg-muted/40 text-muted-foreground flex items-start gap-3 rounded-xl border p-6 text-sm">
-                <AlertCircleIcon className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+                <AlertCircleIcon
+                  className="mt-0.5 size-5 shrink-0"
+                  aria-hidden="true"
+                />
                 <p>{t.loadError}</p>
               </div>
             ) : posts.length === 0 ? (
               <div className="border-border/60 bg-muted/40 rounded-xl border p-10 text-center">
-                <h2 className="font-heading text-xl font-semibold">{t.emptyTitle}</h2>
+                <h2 className="font-heading text-xl font-semibold">
+                  {t.emptyTitle}
+                </h2>
                 <p className="text-muted-foreground mt-2 text-pretty">
                   {filtered ? t.emptyFilteredBody : t.emptyBody}
                 </p>
@@ -161,11 +189,18 @@ export default async function BlogIndexPage({
                       ))}
                     </>
                   ) : (
-                    posts.map((post) => <PostCard key={post.slug} post={post} />)
+                    posts.map((post) => (
+                      <PostCard key={post.slug} post={post} />
+                    ))
                   )}
                 </div>
                 {meta && meta.totalPages > 1 ? (
-                  <BlogPagination page={meta.page} totalPages={meta.totalPages} tag={tag} q={q} />
+                  <BlogPagination
+                    page={meta.page}
+                    totalPages={meta.totalPages}
+                    tag={tag}
+                    q={q}
+                  />
                 ) : null}
               </>
             )}
@@ -240,7 +275,11 @@ function BlogPagination({
             </PaginationItem>
           ) : (
             <PaginationItem key={p}>
-              <PaginationLink href={blogHref(tag, q, p)} isActive={p === page} className="rounded-full">
+              <PaginationLink
+                href={blogHref(tag, q, p)}
+                isActive={p === page}
+                className="rounded-full"
+              >
                 {p}
               </PaginationLink>
             </PaginationItem>

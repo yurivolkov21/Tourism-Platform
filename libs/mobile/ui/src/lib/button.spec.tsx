@@ -18,7 +18,13 @@ test('disabled blocks presses', async () => {
   const onPress = jest.fn();
   render(
     <ThemeProvider>
-      <Button label="Book now" onPress={onPress} disabled loading testID="btn" />
+      <Button
+        label="Book now"
+        onPress={onPress}
+        disabled
+        loading
+        testID="btn"
+      />
     </ThemeProvider>,
   );
   await userEvent.press(screen.getByTestId('btn'));
@@ -32,7 +38,12 @@ test('disabled blocks presses', async () => {
 test('merges caller style with the themed style', () => {
   render(
     <ThemeProvider>
-      <Button label="Book now" onPress={jest.fn()} style={{ marginTop: 24 }} testID="btn" />
+      <Button
+        label="Book now"
+        onPress={jest.fn()}
+        style={{ marginTop: 24 }}
+        testID="btn"
+      />
     </ThemeProvider>,
   );
   const flattened = StyleSheet.flatten(screen.getByTestId('btn').props.style);

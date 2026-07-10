@@ -24,7 +24,11 @@ import {
 } from '@tourism/ui';
 
 import type { DashboardStats } from '../../lib/dashboard/stats';
-import { formatDay, sliceDailyTrend, type DailyRange } from '../../lib/dashboard/transforms';
+import {
+  formatDay,
+  sliceDailyTrend,
+  type DailyRange,
+} from '../../lib/dashboard/transforms';
 
 // Revenue and bookings live on different scales (single digits vs $ hundreds), so they are never
 // stacked — the toggle shows ONE metric at a time instead.
@@ -46,7 +50,11 @@ const RANGE_LABEL: Record<DailyRange, string> = {
   '7d': 'Last 7 days',
 };
 
-export function ChartAreaInteractive({ daily }: { daily: DashboardStats['dailyTrend'] }) {
+export function ChartAreaInteractive({
+  daily,
+}: {
+  daily: DashboardStats['dailyTrend'];
+}) {
   const [range, setRange] = useState<DailyRange>('90d');
   const [metric, setMetric] = useState<Metric>('revenue');
   const data = sliceDailyTrend(daily, range).map((d) => ({
@@ -73,8 +81,12 @@ export function ChartAreaInteractive({ daily }: { daily: DashboardStats['dailyTr
               }}
               variant="outline"
             >
-              <ToggleGroupItem value="revenue" className="px-3">Revenue</ToggleGroupItem>
-              <ToggleGroupItem value="bookings" className="px-3">Bookings</ToggleGroupItem>
+              <ToggleGroupItem value="revenue" className="px-3">
+                Revenue
+              </ToggleGroupItem>
+              <ToggleGroupItem value="bookings" className="px-3">
+                Bookings
+              </ToggleGroupItem>
             </ToggleGroup>
             <ToggleGroup
               value={[range]}
@@ -85,30 +97,60 @@ export function ChartAreaInteractive({ daily }: { daily: DashboardStats['dailyTr
               variant="outline"
               className="hidden @[767px]/card:flex"
             >
-              <ToggleGroupItem value="90d" className="px-4">Last 3 months</ToggleGroupItem>
-              <ToggleGroupItem value="30d" className="px-4">Last 30 days</ToggleGroupItem>
-              <ToggleGroupItem value="7d" className="px-4">Last 7 days</ToggleGroupItem>
+              <ToggleGroupItem value="90d" className="px-4">
+                Last 3 months
+              </ToggleGroupItem>
+              <ToggleGroupItem value="30d" className="px-4">
+                Last 30 days
+              </ToggleGroupItem>
+              <ToggleGroupItem value="7d" className="px-4">
+                Last 7 days
+              </ToggleGroupItem>
             </ToggleGroup>
-            <Select value={range} onValueChange={(v) => setRange(v as DailyRange)}>
-              <SelectTrigger className="flex w-40 @[767px]/card:hidden" size="sm" aria-label="Select a time range">
+            <Select
+              value={range}
+              onValueChange={(v) => setRange(v as DailyRange)}
+            >
+              <SelectTrigger
+                className="flex w-40 @[767px]/card:hidden"
+                size="sm"
+                aria-label="Select a time range"
+              >
                 <SelectValue placeholder="Last 3 months" />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
-                <SelectItem value="90d" className="rounded-lg">Last 3 months</SelectItem>
-                <SelectItem value="30d" className="rounded-lg">Last 30 days</SelectItem>
-                <SelectItem value="7d" className="rounded-lg">Last 7 days</SelectItem>
+                <SelectItem value="90d" className="rounded-lg">
+                  Last 3 months
+                </SelectItem>
+                <SelectItem value="30d" className="rounded-lg">
+                  Last 30 days
+                </SelectItem>
+                <SelectItem value="7d" className="rounded-lg">
+                  Last 7 days
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
         </CardAction>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-        <ChartContainer config={chartConfig} className="aspect-auto h-62.5 w-full">
+        <ChartContainer
+          config={chartConfig}
+          className="aspect-auto h-62.5 w-full"
+        >
           <AreaChart data={data}>
             <defs>
               <linearGradient id={`fill-${metric}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={`var(--color-${metric})`} stopOpacity={1.0} />
-                <stop offset="95%" stopColor={`var(--color-${metric})`} stopOpacity={0.1} />
+                <stop
+                  offset="5%"
+                  stopColor={`var(--color-${metric})`}
+                  stopOpacity={1.0}
+                />
+                <stop
+                  offset="95%"
+                  stopColor={`var(--color-${metric})`}
+                  stopOpacity={0.1}
+                />
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} />
@@ -124,7 +166,12 @@ export function ChartAreaInteractive({ daily }: { daily: DashboardStats['dailyTr
             <YAxis domain={[0, 'auto']} hide />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent labelFormatter={(value) => formatDay(String(value))} indicator="dot" />}
+              content={
+                <ChartTooltipContent
+                  labelFormatter={(value) => formatDay(String(value))}
+                  indicator="dot"
+                />
+              }
             />
             {/* `monotone` (shape-preserving cubic) stays smooth but never overshoots — so spiky daily
                 revenue doesn't dip below 0 or round off its peaks, unlike `natural`. */}

@@ -26,7 +26,12 @@ export interface RelatedToursPickerProps {
  * Hand-pick up to `max` tours for a post ("tours in this story"). Checkbox dropdown (the
  * admin facet pattern) + ordered chips; order = pick order (drives the article's display).
  */
-export function RelatedToursPicker({ value, onChange, options, max = 3 }: RelatedToursPickerProps) {
+export function RelatedToursPicker({
+  value,
+  onChange,
+  options,
+  max = 3,
+}: RelatedToursPickerProps) {
   const full = value.length >= max;
   const titleBySlug = new Map(options.map((o) => [o.slug, o.title]));
 
@@ -39,14 +44,25 @@ export function RelatedToursPicker({ value, onChange, options, max = 3 }: Relate
     <div className="flex flex-col gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={<Button type="button" variant="outline" className="w-full max-w-xs justify-between" />}
+          render={
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full max-w-xs justify-between"
+            />
+          }
         >
           <span className="truncate">
-            {value.length === 0 ? 'Select tours…' : `${value.length} of ${max} selected`}
+            {value.length === 0
+              ? 'Select tours…'
+              : `${value.length} of ${max} selected`}
           </span>
           <ChevronDown className="text-muted-foreground size-4 shrink-0" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="max-h-80 w-72 overflow-y-auto">
+        <DropdownMenuContent
+          align="start"
+          className="max-h-80 w-72 overflow-y-auto"
+        >
           <DropdownMenuGroup>
             <DropdownMenuLabel>Published tours</DropdownMenuLabel>
             {options.map((o) => {
@@ -71,8 +87,12 @@ export function RelatedToursPicker({ value, onChange, options, max = 3 }: Relate
         <ol className="flex flex-col gap-1.5">
           {value.map((slug, i) => (
             <li key={slug} className="flex items-center gap-2">
-              <Badge variant="outline" className="tabular-nums">{i + 1}</Badge>
-              <span className="truncate text-sm">{titleBySlug.get(slug) ?? slug}</span>
+              <Badge variant="outline" className="tabular-nums">
+                {i + 1}
+              </Badge>
+              <span className="truncate text-sm">
+                {titleBySlug.get(slug) ?? slug}
+              </span>
               <button
                 type="button"
                 aria-label={`Remove ${titleBySlug.get(slug) ?? slug}`}

@@ -55,21 +55,33 @@ const categoryColumns: ColumnDef<Category>[] = [
     id: 'order',
     header: 'Order',
     meta: { label: 'Order', align: 'right' },
-    cell: ({ row }) => <span className="text-muted-foreground tabular-nums">{row.original.order}</span>,
+    cell: ({ row }) => (
+      <span className="text-muted-foreground tabular-nums">
+        {row.original.order}
+      </span>
+    ),
   },
   {
     id: 'toursCount',
     header: 'Tours',
     meta: { label: 'Tours', align: 'right' },
-    cell: ({ row }) => <span className="tabular-nums">{row.original.toursCount ?? '—'}</span>,
+    cell: ({ row }) => (
+      <span className="tabular-nums">{row.original.toursCount ?? '—'}</span>
+    ),
   },
   {
     id: 'status',
     header: 'Status',
     meta: { label: 'Status' },
     cell: ({ row }) => (
-      <Badge variant={row.original.isActive ? 'default' : 'secondary'} className="gap-1.5">
-        <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+      <Badge
+        variant={row.original.isActive ? 'default' : 'secondary'}
+        className="gap-1.5"
+      >
+        <span
+          className="size-1.5 rounded-full bg-current opacity-70"
+          aria-hidden
+        />
         {row.original.isActive ? 'Active' : 'Draft'}
       </Badge>
     ),
@@ -158,7 +170,9 @@ export function CategoriesTable({ rows }: { rows: Category[] }) {
                 onClick={() => setTab(t.value)}
                 className={cn(
                   'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                  isActive ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+                  isActive
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'hover:text-foreground',
                 )}
               >
                 {t.label}
@@ -193,7 +207,9 @@ export function CategoriesTable({ rows }: { rows: Category[] }) {
               <Tags />
             </EmptyMedia>
             <EmptyTitle>No categories match your filters</EmptyTitle>
-            <EmptyDescription>Try a different name or clear the filters to see them all.</EmptyDescription>
+            <EmptyDescription>
+              Try a different name or clear the filters to see them all.
+            </EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : (

@@ -34,11 +34,15 @@ export async function signUpload(
   contentType: string,
 ): Promise<{ params?: SignParams; error?: string }> {
   try {
-    const data = await apiWrite<SignParams>('POST', '/api/v1/admin/uploads/signed-url', {
-      purpose,
-      filename,
-      contentType,
-    });
+    const data = await apiWrite<SignParams>(
+      'POST',
+      '/api/v1/admin/uploads/signed-url',
+      {
+        purpose,
+        filename,
+        contentType,
+      },
+    );
     return { params: data };
   } catch (e) {
     return { error: apiErrorMessage(e) };

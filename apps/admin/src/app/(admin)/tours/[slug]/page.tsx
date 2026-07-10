@@ -3,13 +3,24 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { ArrowLeft, CalendarRange, Check, Pencil, Star, X } from 'lucide-react';
 
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Separator } from '@tourism/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Separator,
+} from '@tourism/ui';
 
 import { RowActions } from '../../../../components/crud/row-actions';
 import { DestinationMediaView } from '../../../../components/destinations/destination-media-view';
 import { deleteTour } from '../../../../lib/tours/actions';
 import { getTour, type TourDetail } from '../../../../lib/tours/data';
-import { listDepartures, type Departure } from '../../../../lib/departures/data';
+import {
+  listDepartures,
+  type Departure,
+} from '../../../../lib/departures/data';
 import { isDeparturePast } from '../../../../lib/departures/format';
 import { formatRelativeTime } from '../../../../lib/relative-time';
 
@@ -19,7 +30,9 @@ interface TourDetailPageProps {
 
 function money(value: string, currency: string): string {
   const n = Number(value);
-  const body = Number.isFinite(n) ? n.toLocaleString('en-US', { minimumFractionDigits: 2 }) : value;
+  const body = Number.isFinite(n)
+    ? n.toLocaleString('en-US', { minimumFractionDigits: 2 })
+    : value;
   return currency === 'USD' ? `$${body}` : `${currency} ${body}`;
 }
 
@@ -27,7 +40,11 @@ function formatDate(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? '—'
-    : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    : d.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
 }
 
 /** `BEST_VALUE` → `Best value`. */
@@ -50,13 +67,19 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
   let tour: TourDetail;
   let departures: Departure[];
   try {
-    [tour, departures] = await Promise.all([getTour(slug), listDepartures(slug).catch(() => [])]);
+    [tour, departures] = await Promise.all([
+      getTour(slug),
+      listDepartures(slug).catch(() => []),
+    ]);
   } catch {
     notFound();
   }
 
-  const primary = tour.destinations.find((d) => d.isPrimary) ?? tour.destinations[0];
-  const upcoming = departures.filter((d) => d.status === 'OPEN' && !isDeparturePast(d.startDate));
+  const primary =
+    tour.destinations.find((d) => d.isPrimary) ?? tour.destinations[0];
+  const upcoming = departures.filter(
+    (d) => d.status === 'OPEN' && !isDeparturePast(d.startDate),
+  );
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 lg:px-6">
@@ -72,15 +95,18 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="font-heading text-2xl font-bold tracking-tight">{tour.title}</h1>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">
+              {tour.title}
+            </h1>
             <Badge variant={tour.isPublished ? 'default' : 'secondary'}>
               {tour.isPublished ? 'Published' : 'Draft'}
             </Badge>
             {tour.isFeatured ? <Badge variant="outline">Featured</Badge> : null}
           </div>
           <p className="text-muted-foreground text-sm">
-            {tour.category.name} · {primary?.destination.name ?? '—'} · {tour.durationDays}{' '}
-            {tour.durationDays === 1 ? 'day' : 'days'} · {money(tour.basePrice, tour.currency)}
+            {tour.category.name} · {primary?.destination.name ?? '—'} ·{' '}
+            {tour.durationDays} {tour.durationDays === 1 ? 'day' : 'days'} ·{' '}
+            {money(tour.basePrice, tour.currency)}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -119,7 +145,10 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
               <CardTitle className="text-base">Images</CardTitle>
             </CardHeader>
             <CardContent>
-              <DestinationMediaView media={tour.media} emptyText="No images for this tour yet." />
+              <DestinationMediaView
+                media={tour.media}
+                emptyText="No images for this tour yet."
+              />
             </CardContent>
           </Card>
 
@@ -147,11 +176,16 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {tour.included.length ? (
                     <div className="space-y-2">
-                      <p className="text-sm font-medium">What&apos;s included</p>
+                      <p className="text-sm font-medium">
+                        What&apos;s included
+                      </p>
                       <ul className="space-y-1 text-sm">
                         {tour.included.map((item, i) => (
                           <li key={i} className="flex items-start gap-2">
-                            <Check className="mt-0.5 size-3.5 shrink-0 text-emerald-600" aria-hidden />
+                            <Check
+                              className="mt-0.5 size-3.5 shrink-0 text-emerald-600"
+                              aria-hidden
+                            />
                             <span>{item}</span>
                           </li>
                         ))}
@@ -160,11 +194,19 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                   ) : null}
                   {tour.excluded.length ? (
                     <div className="space-y-2">
-                      <p className="text-sm font-medium">What&apos;s excluded</p>
+                      <p className="text-sm font-medium">
+                        What&apos;s excluded
+                      </p>
                       <ul className="space-y-1 text-sm">
                         {tour.excluded.map((item, i) => (
-                          <li key={i} className="text-muted-foreground flex items-start gap-2">
-                            <X className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+                          <li
+                            key={i}
+                            className="text-muted-foreground flex items-start gap-2"
+                          >
+                            <X
+                              className="mt-0.5 size-3.5 shrink-0"
+                              aria-hidden
+                            />
                             <span>{item}</span>
                           </li>
                         ))}
@@ -211,7 +253,10 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
               <CardContent>
                 <dl className="divide-y">
                   {tour.faqs.map((faq) => (
-                    <div key={faq.id} className="space-y-1 py-3 first:pt-0 last:pb-0">
+                    <div
+                      key={faq.id}
+                      className="space-y-1 py-3 first:pt-0 last:pb-0"
+                    >
                       <dt className="text-sm font-medium">{faq.question}</dt>
                       <dd className="text-muted-foreground text-sm whitespace-pre-line">
                         {faq.answer}
@@ -263,11 +308,17 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                     value={
                       <span className="tabular-nums">
                         {tour.ops.bookingsPaid}
-                        <span className="text-muted-foreground"> paid / {tour.ops.bookingsTotal}</span>
+                        <span className="text-muted-foreground">
+                          {' '}
+                          paid / {tour.ops.bookingsTotal}
+                        </span>
                       </span>
                     }
                   />
-                  <Row label="Revenue" value={money(tour.ops.revenue, tour.currency)} />
+                  <Row
+                    label="Revenue"
+                    value={money(tour.ops.revenue, tour.currency)}
+                  />
                   <Row label="Wishlist saves" value={tour.ops.wishlistCount} />
                   <Row label="Enquiries" value={tour.ops.enquiriesCount} />
                 </dl>
@@ -287,7 +338,9 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
               ) : (
                 upcoming.slice(0, 3).map((d) => {
                   const pct =
-                    d.seatsTotal > 0 ? Math.round((d.seatsBooked / d.seatsTotal) * 100) : 0;
+                    d.seatsTotal > 0
+                      ? Math.round((d.seatsBooked / d.seatsTotal) * 100)
+                      : 0;
                   return (
                     <Link
                       key={d.id}
@@ -295,13 +348,18 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                       className="hover:bg-muted/60 block space-y-1.5 rounded-lg border p-2.5 transition-colors"
                     >
                       <span className="flex items-center justify-between text-sm">
-                        <span className="font-medium">{formatDate(d.startDate)}</span>
+                        <span className="font-medium">
+                          {formatDate(d.startDate)}
+                        </span>
                         <span className="text-muted-foreground tabular-nums">
                           {d.seatsBooked}/{d.seatsTotal} seats
                         </span>
                       </span>
                       <span className="bg-muted block h-1 overflow-hidden rounded-full">
-                        <span className="bg-primary block h-full rounded-full" style={{ width: `${pct}%` }} />
+                        <span
+                          className="bg-primary block h-full rounded-full"
+                          style={{ width: `${pct}%` }}
+                        />
                       </span>
                     </Link>
                   );
@@ -343,7 +401,9 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                   value={`${tour.durationDays} ${tour.durationDays === 1 ? 'day' : 'days'}`}
                 />
                 <Row label="Max group" value={tour.maxGroupSize} />
-                {tour.difficulty ? <Row label="Difficulty" value={labelize(tour.difficulty)} /> : null}
+                {tour.difficulty ? (
+                  <Row label="Difficulty" value={labelize(tour.difficulty)} />
+                ) : null}
                 <Row
                   label="Rating"
                   value={
@@ -352,9 +412,14 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                         href="/reviews"
                         className="hover:text-primary inline-flex items-center gap-1 hover:underline"
                       >
-                        <Star className="size-3.5 fill-amber-400 text-amber-400" aria-hidden />
+                        <Star
+                          className="size-3.5 fill-amber-400 text-amber-400"
+                          aria-hidden
+                        />
                         {tour.averageRating.toFixed(1)}
-                        <span className="text-muted-foreground text-xs">({tour.reviewsCount})</span>
+                        <span className="text-muted-foreground text-xs">
+                          ({tour.reviewsCount})
+                        </span>
                       </Link>
                     ) : (
                       <span className="text-muted-foreground">No reviews</span>
@@ -374,12 +439,19 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                         ) : null}
                       </span>
                     ) : (
-                      <span className="text-muted-foreground">None scheduled</span>
+                      <span className="text-muted-foreground">
+                        None scheduled
+                      </span>
                     )
                   }
                 />
-                {tour.meetingPoint ? <Row label="Meeting point" value={tour.meetingPoint} /> : null}
-                <Row label="Slug" value={<code className="text-xs">{tour.slug}</code>} />
+                {tour.meetingPoint ? (
+                  <Row label="Meeting point" value={tour.meetingPoint} />
+                ) : null}
+                <Row
+                  label="Slug"
+                  value={<code className="text-xs">{tour.slug}</code>}
+                />
                 <Row
                   label="Created"
                   value={
@@ -408,7 +480,9 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Category &amp; destinations</CardTitle>
+              <CardTitle className="text-base">
+                Category &amp; destinations
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1">
@@ -425,7 +499,10 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
                 <p className="text-muted-foreground text-xs">Destinations</p>
                 <ul className="space-y-1.5">
                   {tour.destinations.map((d) => (
-                    <li key={d.destination.slug} className="flex items-center justify-between gap-2">
+                    <li
+                      key={d.destination.slug}
+                      className="flex items-center justify-between gap-2"
+                    >
                       <Link
                         href={`/destinations/${d.destination.slug}`}
                         className="hover:text-primary text-sm hover:underline"
@@ -452,7 +529,9 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
               <CardContent className="space-y-4">
                 {tour.suitableFor.length ? (
                   <div className="space-y-1.5">
-                    <p className="text-muted-foreground text-xs">Suitable for</p>
+                    <p className="text-muted-foreground text-xs">
+                      Suitable for
+                    </p>
                     <div className="flex flex-wrap gap-1.5">
                       {tour.suitableFor.map((t) => (
                         <Badge key={t} variant="secondary" className="text-xs">

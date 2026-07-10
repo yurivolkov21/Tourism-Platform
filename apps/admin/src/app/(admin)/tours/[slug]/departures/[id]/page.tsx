@@ -24,8 +24,15 @@ import { apiErrorMessage } from '../../../../../../lib/api/error';
 import { deleteDeparture } from '../../../../../../lib/departures/actions';
 import { findDeparture } from '../../../../../../lib/departures/data';
 import { isDeparturePast } from '../../../../../../lib/departures/format';
-import { listBookings, type Booking } from '../../../../../../lib/bookings/data';
-import { bookingStatusMeta, formatGuests, formatMoney } from '../../../../../../lib/bookings/format';
+import {
+  listBookings,
+  type Booking,
+} from '../../../../../../lib/bookings/data';
+import {
+  bookingStatusMeta,
+  formatGuests,
+  formatMoney,
+} from '../../../../../../lib/bookings/format';
 import { formatRelativeTime } from '../../../../../../lib/relative-time';
 import { getTour } from '../../../../../../lib/tours/data';
 
@@ -37,7 +44,11 @@ function formatDate(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? '—'
-    : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    : d.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
 }
 
 /** Label/value row for the details rail. */
@@ -50,13 +61,16 @@ function Row({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
-const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive'> = {
-  OPEN: 'default',
-  CLOSED: 'secondary',
-  CANCELLED: 'destructive',
-};
+const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive'> =
+  {
+    OPEN: 'default',
+    CLOSED: 'secondary',
+    CANCELLED: 'destructive',
+  };
 
-export default async function DepartureDetailPage({ params }: DepartureDetailPageProps) {
+export default async function DepartureDetailPage({
+  params,
+}: DepartureDetailPageProps) {
   const { slug, id } = await params;
 
   const [departure, tour] = await Promise.all([
@@ -77,7 +91,9 @@ export default async function DepartureDetailPage({ params }: DepartureDetailPag
 
   const past = isDeparturePast(departure.startDate);
   const pct =
-    departure.seatsTotal > 0 ? Math.round((departure.seatsBooked / departure.seatsTotal) * 100) : 0;
+    departure.seatsTotal > 0
+      ? Math.round((departure.seatsBooked / departure.seatsTotal) * 100)
+      : 0;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 lg:px-6">
@@ -96,21 +112,30 @@ export default async function DepartureDetailPage({ params }: DepartureDetailPag
             <h1 className="font-heading text-2xl font-bold tracking-tight">
               Departure — {formatDate(departure.startDate)}
             </h1>
-            <Badge variant={STATUS_VARIANT[departure.status] ?? 'secondary'} className="gap-1.5">
-              <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+            <Badge
+              variant={STATUS_VARIANT[departure.status] ?? 'secondary'}
+              className="gap-1.5"
+            >
+              <span
+                className="size-1.5 rounded-full bg-current opacity-70"
+                aria-hidden
+              />
               {departure.status}
             </Badge>
             {past ? <Badge variant="outline">Departed</Badge> : null}
           </div>
           <p className="text-muted-foreground text-sm">
-            {formatDate(departure.startDate)} → {formatDate(departure.endDate)} · {tour.title}
+            {formatDate(departure.startDate)} → {formatDate(departure.endDate)}{' '}
+            · {tour.title}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             nativeButton={false}
-            render={<Link href={`/tours/${slug}/departures/${departure.id}/edit`} />}
+            render={
+              <Link href={`/tours/${slug}/departures/${departure.id}/edit`} />
+            }
           >
             <Pencil data-icon="inline-start" />
             Edit
@@ -135,7 +160,9 @@ export default async function DepartureDetailPage({ params }: DepartureDetailPag
             </CardHeader>
             <CardContent>
               {bookingsError ? (
-                <ErrorAlert>Couldn&apos;t load bookings: {bookingsError}.</ErrorAlert>
+                <ErrorAlert>
+                  Couldn&apos;t load bookings: {bookingsError}.
+                </ErrorAlert>
               ) : rows.length === 0 ? (
                 <p className="text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm">
                   No bookings on this departure yet.
@@ -167,7 +194,9 @@ export default async function DepartureDetailPage({ params }: DepartureDetailPag
                             </TableCell>
                             <TableCell>
                               <span className="block">{b.contactName}</span>
-                              <span className="text-muted-foreground text-xs">{b.contactEmail}</span>
+                              <span className="text-muted-foreground text-xs">
+                                {b.contactEmail}
+                              </span>
                             </TableCell>
                             <TableCell className="text-muted-foreground">
                               {formatGuests(b.numAdults, b.numChildren)}
@@ -177,7 +206,10 @@ export default async function DepartureDetailPage({ params }: DepartureDetailPag
                             </TableCell>
                             <TableCell>
                               <Badge variant={meta.variant} className="gap-1.5">
-                                <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+                                <span
+                                  className="size-1.5 rounded-full bg-current opacity-70"
+                                  aria-hidden
+                                />
                                 {meta.label}
                               </Badge>
                             </TableCell>
@@ -207,7 +239,10 @@ export default async function DepartureDetailPage({ params }: DepartureDetailPag
                 </span>
               </p>
               <div className="bg-muted h-1.5 overflow-hidden rounded-full">
-                <div className="bg-primary h-full rounded-full" style={{ width: `${pct}%` }} />
+                <div
+                  className="bg-primary h-full rounded-full"
+                  style={{ width: `${pct}%` }}
+                />
               </div>
               <p className="text-muted-foreground text-xs">{pct}% booked</p>
             </CardContent>

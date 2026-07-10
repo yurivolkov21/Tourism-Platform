@@ -27,10 +27,7 @@ import { FeatureReviewDto } from './dto/feature-review.dto';
 import { ListAdminReviewsQueryDto } from './dto/list-admin-reviews-query.dto';
 import { ModerateReviewDto } from './dto/moderate-review.dto';
 import { ReviewDto } from './dto/review.dto';
-import {
-  PaginatedAdminReviews,
-  ReviewsService,
-} from './reviews.service';
+import { PaginatedAdminReviews, ReviewsService } from './reviews.service';
 
 /**
  * Admin review surface mounted at `/admin/reviews` — moderation queue (list with
@@ -46,8 +43,13 @@ export class AdminReviewsController {
 
   @Get()
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'List reviews for moderation (paginated, filterable)' })
-  @ApiOkResponse({ type: PaginatedAdminReviewsDto, description: 'Paginated reviews' })
+  @ApiOperation({
+    summary: 'List reviews for moderation (paginated, filterable)',
+  })
+  @ApiOkResponse({
+    type: PaginatedAdminReviewsDto,
+    description: 'Paginated reviews',
+  })
   @ApiResponse({ status: 401, description: 'Missing/invalid token' })
   @ApiResponse({ status: 403, description: 'Caller is not an admin' })
   list(
@@ -87,7 +89,9 @@ export class AdminReviewsController {
   @Delete(':id')
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete a curated testimonial (verified reviews are protected)' })
+  @ApiOperation({
+    summary: 'Delete a curated testimonial (verified reviews are protected)',
+  })
   @ApiOkResponse({ type: ReviewDto, description: 'Deleted (echo)' })
   @ApiResponse({ status: 404, description: 'Review not found' })
   @ApiResponse({ status: 409, description: 'Not a curated review' })
@@ -99,7 +103,10 @@ export class AdminReviewsController {
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a curated testimonial (no booking)' })
-  @ApiCreatedResponse({ type: ReviewDto, description: 'Created (approved + featured)' })
+  @ApiCreatedResponse({
+    type: ReviewDto,
+    description: 'Created (approved + featured)',
+  })
   createCurated(@Body() body: CreateCuratedReviewDto): Promise<Review> {
     return this.reviewsService.createCurated(body);
   }

@@ -28,7 +28,8 @@ export function StorySpine() {
 
     const ol = el.parentElement;
     if (!ol) return;
-    const scroller = document.getElementById('snap-main-container') || undefined;
+    const scroller =
+      document.getElementById('snap-main-container') || undefined;
 
     gsap.set(el, { scaleY: 0, transformOrigin: 'top center' });
     const st = ScrollTrigger.create({
@@ -46,7 +47,11 @@ export function StorySpine() {
   return (
     <>
       <span aria-hidden className={`${SPINE_BASE} bg-primary/15`} />
-      <span ref={fillRef} aria-hidden className={`${SPINE_BASE} from-primary/60 to-primary/30 bg-linear-to-b`} />
+      <span
+        ref={fillRef}
+        aria-hidden
+        className={`${SPINE_BASE} from-primary/60 to-primary/30 bg-linear-to-b`}
+      />
     </>
   );
 }

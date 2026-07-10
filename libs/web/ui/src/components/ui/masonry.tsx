@@ -3,15 +3,23 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 
-const useMedia = (queries: string[], values: number[], defaultValue: number): number => {
-  const get = () => values[queries.findIndex((q) => matchMedia(q).matches)] ?? defaultValue;
+const useMedia = (
+  queries: string[],
+  values: number[],
+  defaultValue: number,
+): number => {
+  const get = () =>
+    values[queries.findIndex((q) => matchMedia(q).matches)] ?? defaultValue;
 
   const [value, setValue] = useState<number>(get);
 
   useEffect(() => {
     const handler = () => setValue(get);
     queries.forEach((q) => matchMedia(q).addEventListener('change', handler));
-    return () => queries.forEach((q) => matchMedia(q).removeEventListener('change', handler));
+    return () =>
+      queries.forEach((q) =>
+        matchMedia(q).removeEventListener('change', handler),
+      );
   }, [queries]);
 
   return value;
@@ -42,8 +50,8 @@ const preloadImages = async (urls: string[]): Promise<void> => {
           const img = new Image();
           img.src = src;
           img.onload = img.onerror = () => resolve();
-        })
-    )
+        }),
+    ),
   );
 };
 
@@ -85,9 +93,14 @@ export const Masonry = ({
   colorShiftOnHover = false,
 }: MasonryProps) => {
   const columns = useMedia(
-    ['(min-width:1500px)', '(min-width:1000px)', '(min-width:600px)', '(min-width:400px)'],
+    [
+      '(min-width:1500px)',
+      '(min-width:1000px)',
+      '(min-width:600px)',
+      '(min-width:400px)',
+    ],
     [5, 4, 3, 2],
-    1
+    1,
   );
 
   const [containerRef, { width }] = useMeasure<HTMLDivElement>();
@@ -100,7 +113,9 @@ export const Masonry = ({
     let direction = animateFrom;
     if (animateFrom === 'random') {
       const dirs = ['top', 'bottom', 'left', 'right'];
-      direction = dirs[Math.floor(Math.random() * dirs.length)] as typeof animateFrom;
+      direction = dirs[
+        Math.floor(Math.random() * dirs.length)
+      ] as typeof animateFrom;
     }
 
     switch (direction) {
@@ -172,7 +187,7 @@ export const Masonry = ({
             duration: 0.8,
             ease: 'power3.out',
             delay: index * stagger,
-          }
+          },
         );
       } else {
         gsap.to(selector, {

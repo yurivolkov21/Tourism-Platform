@@ -1,13 +1,17 @@
 import type { components } from '@tourism/core';
 
-import type { TourBadgeKey, TourCardData } from '../../components/tours/tour-card';
+import type {
+  TourBadgeKey,
+  TourCardData,
+} from '../../components/tours/tour-card';
 import { getApiClient } from './client';
 
 type TourSummaryDto = components['schemas']['TourSummaryDto'];
 
 /** Adapts an API tour summary → the card view-model the UI renders. */
 export function toTourCard(dto: TourSummaryDto): TourCardData {
-  const primary = dto.destinations.find((d) => d.isPrimary) ?? dto.destinations[0];
+  const primary =
+    dto.destinations.find((d) => d.isPrimary) ?? dto.destinations[0];
   const hero = dto.media.find((m) => m.role === 'hero') ?? dto.media[0];
   return {
     slug: dto.slug,
@@ -39,7 +43,9 @@ export async function fetchTourCards(
 ): Promise<TourCardData[]> {
   const api = getApiClient();
   const { data } = await api.GET('/api/v1/tours', {
-    params: { query: { pageSize: params.pageSize ?? 100, featured: params.featured } },
+    params: {
+      query: { pageSize: params.pageSize ?? 100, featured: params.featured },
+    },
   });
   const list = (data as unknown as { data: TourSummaryDto[] }).data ?? [];
   return list.map(toTourCard);

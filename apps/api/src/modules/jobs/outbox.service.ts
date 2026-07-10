@@ -132,7 +132,10 @@ export class OutboxService {
       endDate: booking.departure.endDate,
     };
     if (kind === 'confirmation') {
-      await this.email.sendBookingConfirmation({ to: booking.contactEmail, vars });
+      await this.email.sendBookingConfirmation({
+        to: booking.contactEmail,
+        vars,
+      });
     } else {
       await this.email.sendBookingRefunded({ to: booking.contactEmail, vars });
     }

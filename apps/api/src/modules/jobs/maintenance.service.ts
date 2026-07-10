@@ -80,7 +80,9 @@ export class MaintenanceService {
     }
 
     if (destroyed || failed) {
-      this.logger.log(`Media reconcile: ${destroyed} destroyed, ${failed} failed`);
+      this.logger.log(
+        `Media reconcile: ${destroyed} destroyed, ${failed} failed`,
+      );
     }
     return { destroyed, failed };
   }

@@ -8,14 +8,23 @@ export interface AppTextProps extends TextProps {
   muted?: boolean;
 }
 
-export function AppText({ variant = 'body', muted, style, ...rest }: AppTextProps) {
+export function AppText({
+  variant = 'body',
+  muted,
+  style,
+  ...rest
+}: AppTextProps) {
   const theme = useTheme();
   return (
     <Text
       {...rest}
       style={[
         theme.typography[variant],
-        { color: muted ? theme.colors['muted-foreground'] : theme.colors['foreground'] },
+        {
+          color: muted
+            ? theme.colors['muted-foreground']
+            : theme.colors['foreground'],
+        },
         style,
       ]}
     />

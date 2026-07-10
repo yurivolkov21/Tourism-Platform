@@ -88,7 +88,10 @@ export function RowActions({
           <MoreHorizontal className="size-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-36">
-          <DropdownMenuItem render={<Link href={editHref} />} nativeButton={false}>
+          <DropdownMenuItem
+            render={<Link href={editHref} />}
+            nativeButton={false}
+          >
             <Pencil className="size-4" />
             Edit
           </DropdownMenuItem>
@@ -132,7 +135,11 @@ export function RowActions({
           ) : null}
           <AlertDialogFooter>
             <AlertDialogCancel disabled={pending}>Cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={confirm} disabled={pending}>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={confirm}
+              disabled={pending}
+            >
               {pending ? 'Deleting…' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>

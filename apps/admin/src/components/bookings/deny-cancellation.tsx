@@ -27,7 +27,13 @@ import { denyCancellation } from '../../lib/bookings/actions';
  * was declined). Calls the `denyCancellation` server action — a failure keeps the dialog open and
  * shows the reason; success closes it and the server re-renders the booking.
  */
-export function DenyCancellation({ requestId, code }: { requestId: string; code: string }) {
+export function DenyCancellation({
+  requestId,
+  code,
+}: {
+  requestId: string;
+  code: string;
+}) {
   const [open, setOpen] = useState(false);
   const [decisionNote, setDecisionNote] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -66,13 +72,15 @@ export function DenyCancellation({ requestId, code }: { requestId: string; code:
           <AlertDialogHeader>
             <AlertDialogTitle>Deny this cancellation request?</AlertDialogTitle>
             <AlertDialogDescription>
-              The booking stays as-is — no refund is issued and no seats are released. The traveller
-              can see the decision note below.
+              The booking stays as-is — no refund is issued and no seats are
+              released. The traveller can see the decision note below.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           <Field className="gap-2">
-            <FieldLabel htmlFor="deny-decision-note">Decision note (optional)</FieldLabel>
+            <FieldLabel htmlFor="deny-decision-note">
+              Decision note (optional)
+            </FieldLabel>
             <Textarea
               id="deny-decision-note"
               rows={3}
@@ -90,8 +98,14 @@ export function DenyCancellation({ requestId, code }: { requestId: string; code:
           ) : null}
 
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={pending}>Keep request</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={confirm} disabled={pending}>
+            <AlertDialogCancel disabled={pending}>
+              Keep request
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={confirm}
+              disabled={pending}
+            >
               {pending ? 'Denying…' : 'Deny request'}
             </AlertDialogAction>
           </AlertDialogFooter>

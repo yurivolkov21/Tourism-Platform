@@ -9,7 +9,11 @@ import { regionSlugs } from '../lib/regions';
 export const revalidate = 300;
 
 // Public, indexable static routes (account / auth / checkout are excluded — see robots.ts).
-const STATIC_PATHS: { path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] }[] = [
+const STATIC_PATHS: {
+  path: string;
+  priority: number;
+  changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'];
+}[] = [
   { path: '/', priority: 1, changeFrequency: 'daily' },
   { path: '/tours', priority: 0.9, changeFrequency: 'daily' },
   { path: '/destinations', priority: 0.8, changeFrequency: 'weekly' },

@@ -10,9 +10,13 @@ export function hapticSelect(): void {
 }
 
 export function hapticSuccess(): void {
-  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
+  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
+    () => undefined,
+  );
 }
 
 export function hapticWarning(): void {
-  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => undefined);
+  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(
+    () => undefined,
+  );
 }

@@ -13,6 +13,7 @@ export function validateRefundAmount(
   const amount = Number(trimmed);
   const max = Number(total);
   if (amount <= 0) return { error: 'Amount must be greater than 0.' };
-  if (Number.isFinite(max) && amount > max) return { error: `Amount cannot exceed the total (${total}).` };
+  if (Number.isFinite(max) && amount > max)
+    return { error: `Amount cannot exceed the total (${total}).` };
   return { amount };
 }

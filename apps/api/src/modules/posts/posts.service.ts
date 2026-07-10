@@ -5,7 +5,14 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { MediaOwnerType, MediaRole, Post, PostStatus, PostTag, Prisma } from '@prisma/client';
+import {
+  MediaOwnerType,
+  MediaRole,
+  Post,
+  PostStatus,
+  PostTag,
+  Prisma,
+} from '@prisma/client';
 import { slugify } from '../../common/slugify';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MediaService } from '../media/media.service';
@@ -20,10 +27,16 @@ import { UpdatePostDto } from './dto/update-post.dto';
 export type PostWithMedia = Post & { media: MediaItemDto[] };
 
 export type PostTagFlat = { slug: string; name: string };
-export type PostAuthorPublic = { fullName: string | null; avatarUrl: string | null };
+export type PostAuthorPublic = {
+  fullName: string | null;
+  avatarUrl: string | null;
+};
 
 /** Read-path post row: media + flattened tags + public author (no email). */
-export type PostListItem = PostWithMedia & { tags: PostTagFlat[]; author: PostAuthorPublic };
+export type PostListItem = PostWithMedia & {
+  tags: PostTagFlat[];
+  author: PostAuthorPublic;
+};
 
 /** Public detail = list row + published related-tour summaries (pick order). */
 export type PublicPostDetail = PostListItem & { relatedTours: TourWithStats[] };
@@ -79,12 +92,20 @@ export class PostsService {
   // ── Public reads ──────────────────────────────────────────────────────────
 
   findPublicList(query: ListPostsQueryDto): Promise<PaginatedPosts> {
-    return this.list({ ...query, status: PostStatus.PUBLISHED, publishedOnly: true });
+    return this.list({
+      ...query,
+      status: PostStatus.PUBLISHED,
+      publishedOnly: true,
+    });
   }
 
   async findPublicBySlug(slug: string): Promise<PublicPostDetail> {
     const post = await this.prisma.post.findFirst({
-      where: { slug, status: PostStatus.PUBLISHED, publishedAt: { lte: new Date() } },
+      where: {
+        slug,
+        status: PostStatus.PUBLISHED,
+        publishedAt: { lte: new Date() },
+      },
       include: {
         ...PostsService.READ_INCLUDE,
         relatedTours: { orderBy: { order: 'asc' }, select: { tourId: true } },
@@ -93,12 +114,16 @@ export class PostsService {
     if (!post) throw this.notFound(slug);
     const { relatedTours: links, ...row } = post;
     const hydrated = await this.hydrate(row);
-    const relatedTours = await this.tours.findSummariesByIds(links.map((l) => l.tourId));
+    const relatedTours = await this.tours.findSummariesByIds(
+      links.map((l) => l.tourId),
+    );
     return { ...hydrated, relatedTours };
   }
 
   /** Tags carrying ≥1 published post, with that count, name-ordered (public filter chips). */
-  async findPublicTags(): Promise<{ slug: string; name: string; count: number }[]> {
+  async findPublicTags(): Promise<
+    { slug: string; name: string; count: number }[]
+  > {
     const tags = await this.prisma.postTag.findMany({
       orderBy: { name: 'asc' },
       select: {
@@ -108,7 +133,10 @@ export class PostsService {
           select: {
             posts: {
               where: {
-                post: { status: PostStatus.PUBLISHED, publishedAt: { lte: new Date() } },
+                post: {
+                  status: PostStatus.PUBLISHED,
+                  publishedAt: { lte: new Date() },
+                },
               },
             },
           },
@@ -141,7 +169,9 @@ export class PostsService {
         tags: { include: { tag: true } },
         relatedTours: {
           orderBy: { order: 'asc' },
-          include: { tour: { select: { slug: true, title: true, isPublished: true } } },
+          include: {
+            tour: { select: { slug: true, title: true, isPublished: true } },
+          },
         },
       },
     });
@@ -149,7 +179,10 @@ export class PostsService {
     const { author, tags, relatedTours, ...row } = post;
     const withMedia = await this.media.attachToOwner(MediaOwnerType.POST, row);
     // A USER owner has at most one media asset (the avatar) → first url, or null.
-    const authorWithAvatar = await this.media.attachToOwner(MediaOwnerType.USER, { id: author.id });
+    const authorWithAvatar = await this.media.attachToOwner(
+      MediaOwnerType.USER,
+      { id: author.id },
+    );
     return {
       ...withMedia,
       tags: tags.map((l) => ({ slug: l.tag.slug, name: l.tag.name })),
@@ -163,19 +196,26 @@ export class PostsService {
   }
 
   /** All tags with their total post count (drafts included) — admin form suggestions. */
-  async findAdminTags(): Promise<{ slug: string; name: string; count: number }[]> {
+  async findAdminTags(): Promise<
+    { slug: string; name: string; count: number }[]
+  > {
     const tags = await this.prisma.postTag.findMany({
       orderBy: { name: 'asc' },
       select: { slug: true, name: true, _count: { select: { posts: true } } },
     });
-    return tags.map((t) => ({ slug: t.slug, name: t.name, count: t._count.posts }));
+    return tags.map((t) => ({
+      slug: t.slug,
+      name: t.name,
+      count: t._count.posts,
+    }));
   }
 
   /** Create. Slug from input (or `title`); duplicate → 409. `publishedAt` set when created PUBLISHED. */
   async create(body: CreatePostDto, authorId: string): Promise<PostListItem> {
     const slug = this.normalizeSlug(body.slug, body.title);
     const status = body.status ?? PostStatus.DRAFT;
-    const tagRows = body.tags !== undefined ? this.normalizeTags(body.tags) : [];
+    const tagRows =
+      body.tags !== undefined ? this.normalizeTags(body.tags) : [];
     const relatedIds =
       body.relatedTourSlugs !== undefined
         ? await this.resolveRelatedTours(body.relatedTourSlugs)
@@ -190,7 +230,9 @@ export class PostsService {
           status,
           publishedAt: status === PostStatus.PUBLISHED ? new Date() : null,
           authorId,
-          ...(tagRows.length > 0 ? { tags: { create: this.tagLinksCreate(tagRows) } } : {}),
+          ...(tagRows.length > 0
+            ? { tags: { create: this.tagLinksCreate(tagRows) } }
+            : {}),
           ...(relatedIds.length > 0
             ? { relatedTours: { create: this.tourLinksCreate(relatedIds) } }
             : {}),
@@ -240,7 +282,9 @@ export class PostsService {
       const relatedIds = await this.resolveRelatedTours(body.relatedTourSlugs);
       data.relatedTours = {
         deleteMany: {},
-        ...(relatedIds.length > 0 ? { create: this.tourLinksCreate(relatedIds) } : {}),
+        ...(relatedIds.length > 0
+          ? { create: this.tourLinksCreate(relatedIds) }
+          : {}),
       };
     }
 
@@ -263,24 +307,43 @@ export class PostsService {
    * Replace-all the post's media set (admin). Resolves slug→id, syncs in a transaction,
    * returns the new set with built delivery URLs. Mirrors destinations/tours.
    */
-  async setMedia(slug: string, media: MediaInputDto[]): Promise<MediaItemDto[]> {
-    const post = await this.prisma.post.findUnique({ where: { slug }, select: { id: true } });
+  async setMedia(
+    slug: string,
+    media: MediaInputDto[],
+  ): Promise<MediaItemDto[]> {
+    const post = await this.prisma.post.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
     if (!post) throw this.notFound(slug);
     await this.prisma.$transaction((tx) =>
       this.media.syncAssets(tx, MediaOwnerType.POST, post.id, media, {
         preserveRoles: [MediaRole.body],
       }),
     );
-    const withMedia = await this.media.attachToOwner(MediaOwnerType.POST, { id: post.id });
+    const withMedia = await this.media.attachToOwner(MediaOwnerType.POST, {
+      id: post.id,
+    });
     this.logger.log(`Set ${media.length} media on post ${slug}`);
     return withMedia.media;
   }
 
   /** Registers an uploaded body image on the post (insert-image flow). 404 before write. */
-  async addBodyImage(slug: string, input: RegisterBodyImageDto): Promise<{ url: string }> {
-    const post = await this.prisma.post.findUnique({ where: { slug }, select: { id: true } });
+  async addBodyImage(
+    slug: string,
+    input: RegisterBodyImageDto,
+  ): Promise<{ url: string }> {
+    const post = await this.prisma.post.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
     if (!post) throw this.notFound(slug);
-    return this.media.registerAsset(MediaOwnerType.POST, post.id, MediaRole.body, input);
+    return this.media.registerAsset(
+      MediaOwnerType.POST,
+      post.id,
+      MediaRole.body,
+      input,
+    );
   }
 
   /** Hard delete (404 if missing). Media has no FK cascade — delete it in the same tx. */
@@ -301,7 +364,9 @@ export class PostsService {
     const bySlug = new Map<string, string>();
     for (const raw of names) {
       const name = raw.trim().slice(0, PostsService.TAG_MAX);
-      const slug = slugify(name).slice(0, PostsService.TAG_MAX).replace(/-+$/, '');
+      const slug = slugify(name)
+        .slice(0, PostsService.TAG_MAX)
+        .replace(/-+$/, '');
       if (!slug) {
         throw new BadRequestException({
           code: 'INVALID_TAG',
@@ -347,9 +412,17 @@ export class PostsService {
   /** Flattens join rows + attaches media and each author's public avatar (batched). */
   private async hydrateMany(rows: RawPostRow[]): Promise<PostListItem[]> {
     if (rows.length === 0) return [];
-    const withMedia = await this.media.attachToOwners(MediaOwnerType.POST, rows);
-    const uniqueAuthors = [...new Map(rows.map((r) => [r.author.id, r.author])).values()];
-    const withAvatars = await this.media.attachToOwners(MediaOwnerType.USER, uniqueAuthors);
+    const withMedia = await this.media.attachToOwners(
+      MediaOwnerType.POST,
+      rows,
+    );
+    const uniqueAuthors = [
+      ...new Map(rows.map((r) => [r.author.id, r.author])).values(),
+    ];
+    const withAvatars = await this.media.attachToOwners(
+      MediaOwnerType.USER,
+      uniqueAuthors,
+    );
     const avatarByAuthor = new Map(
       withAvatars.map((a) => [a.id, a.media[0]?.url ?? null]),
     );
@@ -403,14 +476,24 @@ export class PostsService {
 
     return {
       items: await this.hydrateMany(items),
-      meta: { page, pageSize, total, totalPages: Math.max(1, Math.ceil(total / pageSize)) },
+      meta: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / pageSize)),
+      },
     };
   }
 
   /** Normalize/generate the slug (cap 80 = DB VarChar(80)); empty → 400. */
-  private normalizeSlug(provided: string | undefined, fallback?: string): string {
+  private normalizeSlug(
+    provided: string | undefined,
+    fallback?: string,
+  ): string {
     const source = provided?.trim() ? provided : (fallback ?? '');
-    const normalized = slugify(source).slice(0, PostsService.SLUG_MAX).replace(/-+$/, '');
+    const normalized = slugify(source)
+      .slice(0, PostsService.SLUG_MAX)
+      .replace(/-+$/, '');
     if (!normalized) {
       throw new BadRequestException({
         code: 'INVALID_SLUG',
@@ -435,6 +518,9 @@ export class PostsService {
   }
 
   private isUniqueConstraintError(err: unknown): boolean {
-    return err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002';
+    return (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === 'P2002'
+    );
   }
 }

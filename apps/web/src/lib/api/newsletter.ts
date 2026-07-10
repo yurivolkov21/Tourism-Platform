@@ -1,6 +1,8 @@
 import { getApiClient } from './client';
 
-export type SubscribeResult = { ok: true } | { ok: false; rateLimited: boolean };
+export type SubscribeResult =
+  | { ok: true }
+  | { ok: false; rateLimited: boolean };
 
 /**
  * Subscribe an email to the newsletter via the public

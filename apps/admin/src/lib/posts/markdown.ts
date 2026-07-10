@@ -12,8 +12,19 @@ export function insertSnippet(
   const before = content.slice(0, at);
   const after = content.slice(at);
 
-  const pre = before.length === 0 ? '' : before.endsWith('\n\n') ? '' : before.endsWith('\n') ? '\n' : '\n\n';
-  const post = after.startsWith('\n\n') ? '' : after.startsWith('\n') ? '\n' : '\n\n';
+  const pre =
+    before.length === 0
+      ? ''
+      : before.endsWith('\n\n')
+        ? ''
+        : before.endsWith('\n')
+          ? '\n'
+          : '\n\n';
+  const post = after.startsWith('\n\n')
+    ? ''
+    : after.startsWith('\n')
+      ? '\n'
+      : '\n\n';
 
   const block = `${pre}${snippet}${post}`;
   const next = `${before}${block}${after}`;

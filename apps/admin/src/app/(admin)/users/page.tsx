@@ -2,7 +2,11 @@ import { apiErrorMessage } from '../../../lib/api/error';
 import { AdminListHeader } from '../../../components/crud/list-header';
 import { UsersFilters } from '../../../components/users/users-filters';
 import { UsersTable } from '../../../components/users/users-table';
-import { listUsers, type UserList, type UserRole } from '../../../lib/users/data';
+import {
+  listUsers,
+  type UserList,
+  type UserRole,
+} from '../../../lib/users/data';
 import { ErrorAlert } from '../../../components/crud/error-alert';
 import { ServerTablePagination } from '../../../components/crud/server-table-pagination';
 import { parsePageSize } from '../../../lib/pagination';
@@ -39,7 +43,12 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
   let result: UserList | undefined;
   let error: string | null = null;
   try {
-    result = await listUsers({ page, pageSize, role, search: search || undefined });
+    result = await listUsers({
+      page,
+      pageSize,
+      role,
+      search: search || undefined,
+    });
   } catch (e) {
     error = apiErrorMessage(e);
   }
@@ -59,8 +68,8 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
           <>
             <UsersFilters role={role ?? 'all'} search={search} />
             <ErrorAlert>
-              Couldn&apos;t load users: {error}. Check that the API is running and your admin session
-              is valid.
+              Couldn&apos;t load users: {error}. Check that the API is running
+              and your admin session is valid.
             </ErrorAlert>
           </>
         ) : (

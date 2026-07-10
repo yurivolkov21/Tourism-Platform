@@ -55,7 +55,9 @@ export function RegionSignatureDelta({
                 <p className="text-on-media/80 text-xs font-semibold tracking-widest uppercase">
                   {card.caption}
                 </p>
-                <h3 className="font-heading text-xl font-semibold text-balance">{card.title}</h3>
+                <h3 className="font-heading text-xl font-semibold text-balance">
+                  {card.title}
+                </h3>
               </figcaption>
             </figure>
           ))}

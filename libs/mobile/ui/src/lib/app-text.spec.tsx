@@ -24,7 +24,9 @@ test('renders with the muted-foreground color when muted', () => {
   const node = screen.getByText('Muted copy');
   expect(node.props.style).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ color: tokens.colors.light['muted-foreground'] }),
+      expect.objectContaining({
+        color: tokens.colors.light['muted-foreground'],
+      }),
     ]),
   );
 });

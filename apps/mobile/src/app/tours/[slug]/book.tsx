@@ -48,12 +48,18 @@ export default function BookingContactScreen() {
     }
   }, [profile]);
 
-  if (status === 'signedOut') return <Redirect href="/auth/sign-in?reason=booking" />;
+  if (status === 'signedOut')
+    return <Redirect href="/auth/sign-in?reason=booking" />;
   // No trip for THIS tour → the flow wasn't started here (deep link / stale
   // draft) — send the user to the tour to start over.
-  if (!draft || draft.tourSlug !== slug) return <Redirect href={`/tours/${slug}`} />;
+  if (!draft || draft.tourSlug !== slug)
+    return <Redirect href={`/tours/${slug}`} />;
 
-  const total = computeBookingTotal(draft.unitPrice, draft.adults, draft.children).total;
+  const total = computeBookingTotal(
+    draft.unitPrice,
+    draft.adults,
+    draft.children,
+  ).total;
 
   const onContinue = () => {
     setError(null);
@@ -108,7 +114,11 @@ export default function BookingContactScreen() {
           }}
         >
           <View
-            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
           >
             <AppText variant="title">{tm.tripHeading}</AppText>
             <Button
@@ -174,7 +184,11 @@ export default function BookingContactScreen() {
           </AppText>
         ) : null}
 
-        <Button testID="continue-contact" label={tm.continueCta} onPress={onContinue} />
+        <Button
+          testID="continue-contact"
+          label={tm.continueCta}
+          onPress={onContinue}
+        />
       </ScrollView>
     </KeyboardAvoidingView>
   );

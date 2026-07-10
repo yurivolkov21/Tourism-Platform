@@ -22,7 +22,8 @@ const socials = [
 ];
 
 // Hà Nội office (VTC Online building, Tam Trinh) — matches the Information column + contact page.
-const MAP_LINK = 'https://www.google.com/maps?q=18+Tam+Trinh,+Tuong+Mai,+Ha+Noi';
+const MAP_LINK =
+  'https://www.google.com/maps?q=18+Tam+Trinh,+Tuong+Mai,+Ha+Noi';
 
 export async function SiteFooter() {
   const f = messages.footer;
@@ -53,7 +54,9 @@ export async function SiteFooter() {
             <h3 className="font-sans text-sm font-semibold tracking-wide uppercase">
               {f.newsletterHeading}
             </h3>
-            <p className="text-background/80 text-sm text-pretty">{f.newsletterText}</p>
+            <p className="text-background/80 text-sm text-pretty">
+              {f.newsletterText}
+            </p>
             <NewsletterForm />
           </div>
         </div>
@@ -71,7 +74,10 @@ export async function SiteFooter() {
               {contact.map((item, i) => {
                 const Icon = infoIcons[i];
                 return (
-                  <li key={item.title} className="text-background/80 flex gap-2.5 text-sm">
+                  <li
+                    key={item.title}
+                    className="text-background/80 flex gap-2.5 text-sm"
+                  >
                     <Icon className="mt-0.5 size-4 shrink-0" />
                     <span>
                       {item.lines.map((line) => (
@@ -104,7 +110,11 @@ export async function SiteFooter() {
             <ul className="space-y-2.5">
               <FooterLink href="/tours" label={f.allTours} />
               {categories.map((c) => (
-                <FooterLink key={c.slug} href={`/tours?category=${c.slug}`} label={c.name} />
+                <FooterLink
+                  key={c.slug}
+                  href={`/tours?category=${c.slug}`}
+                  label={c.name}
+                />
               ))}
             </ul>
           </div>
@@ -138,7 +148,9 @@ export async function SiteFooter() {
                 </a>
               ))}
             </div>
-            <p className="text-background/70 text-sm text-pretty">{f.tagline}</p>
+            <p className="text-background/70 text-sm text-pretty">
+              {f.tagline}
+            </p>
           </div>
         </div>
 

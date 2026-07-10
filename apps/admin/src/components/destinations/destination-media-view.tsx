@@ -41,7 +41,11 @@ export function DestinationMediaView({
           className="bg-muted block w-full max-w-2xl cursor-zoom-in overflow-hidden rounded-xl border"
           aria-label="View hero image"
         >
-          <img src={hero.url} alt="" className="aspect-video w-full object-cover" />
+          <img
+            src={hero.url}
+            alt=""
+            className="aspect-video w-full object-cover"
+          />
         </button>
       ) : null}
 

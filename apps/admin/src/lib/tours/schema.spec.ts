@@ -19,16 +19,25 @@ describe('tourSchema', () => {
   });
 
   it('requires at least one destination', () => {
-    expect(tourSchema.safeParse({ ...base, destinationSlugs: [] }).success).toBe(false);
+    expect(
+      tourSchema.safeParse({ ...base, destinationSlugs: [] }).success,
+    ).toBe(false);
   });
 
   it('rejects a primary destination not in the selected list', () => {
-    const r = tourSchema.safeParse({ ...base, primaryDestinationSlug: 'sa-pa' });
+    const r = tourSchema.safeParse({
+      ...base,
+      primaryDestinationSlug: 'sa-pa',
+    });
     expect(r.success).toBe(false);
   });
 
   it('coerces numeric-string duration and price', () => {
-    const r = tourSchema.safeParse({ ...base, durationDays: '3', basePrice: '120.50' });
+    const r = tourSchema.safeParse({
+      ...base,
+      durationDays: '3',
+      basePrice: '120.50',
+    });
     expect(r.success).toBe(true);
     if (r.success) {
       expect(r.data.durationDays).toBe(3);
@@ -37,21 +46,33 @@ describe('tourSchema', () => {
   });
 
   it('rejects duration out of range', () => {
-    expect(tourSchema.safeParse({ ...base, durationDays: 0 }).success).toBe(false);
-    expect(tourSchema.safeParse({ ...base, durationDays: 61 }).success).toBe(false);
+    expect(tourSchema.safeParse({ ...base, durationDays: 0 }).success).toBe(
+      false,
+    );
+    expect(tourSchema.safeParse({ ...base, durationDays: 61 }).success).toBe(
+      false,
+    );
   });
 
   it('rejects a negative price', () => {
-    expect(tourSchema.safeParse({ ...base, basePrice: -1 }).success).toBe(false);
+    expect(tourSchema.safeParse({ ...base, basePrice: -1 }).success).toBe(
+      false,
+    );
   });
 
   it('rejects a bad currency code', () => {
-    expect(tourSchema.safeParse({ ...base, currency: 'dollars' }).success).toBe(false);
+    expect(tourSchema.safeParse({ ...base, currency: 'dollars' }).success).toBe(
+      false,
+    );
   });
 
   it('rejects an unknown traveller type / badge', () => {
-    expect(tourSchema.safeParse({ ...base, suitableFor: ['ALIEN'] }).success).toBe(false);
-    expect(tourSchema.safeParse({ ...base, badges: ['SHINY'] }).success).toBe(false);
+    expect(
+      tourSchema.safeParse({ ...base, suitableFor: ['ALIEN'] }).success,
+    ).toBe(false);
+    expect(tourSchema.safeParse({ ...base, badges: ['SHINY'] }).success).toBe(
+      false,
+    );
   });
 
   it('accepts valid enum arrays and content arrays', () => {
@@ -67,18 +88,31 @@ describe('tourSchema', () => {
   it('accepts valid itinerary / FAQs / policies', () => {
     const r = tourSchema.safeParse({
       ...base,
-      itinerary: [{ title: 'Day one', description: 'Arrive' }, { title: 'Day two' }],
+      itinerary: [
+        { title: 'Day one', description: 'Arrive' },
+        { title: 'Day two' },
+      ],
       faqs: [{ question: 'Pickup?', answer: 'Yes' }],
-      policies: [{ kind: 'CANCELLATION', title: 'Free cancel', body: 'Up to 24h' }],
+      policies: [
+        { kind: 'CANCELLATION', title: 'Free cancel', body: 'Up to 24h' },
+      ],
     });
     expect(r.success).toBe(true);
   });
 
   it('rejects an itinerary day / FAQ / policy missing a required field', () => {
-    expect(tourSchema.safeParse({ ...base, itinerary: [{ title: '' }] }).success).toBe(false);
-    expect(tourSchema.safeParse({ ...base, faqs: [{ question: 'Q', answer: '' }] }).success).toBe(false);
     expect(
-      tourSchema.safeParse({ ...base, policies: [{ kind: 'NOPE', title: 'T', body: 'B' }] }).success,
+      tourSchema.safeParse({ ...base, itinerary: [{ title: '' }] }).success,
+    ).toBe(false);
+    expect(
+      tourSchema.safeParse({ ...base, faqs: [{ question: 'Q', answer: '' }] })
+        .success,
+    ).toBe(false);
+    expect(
+      tourSchema.safeParse({
+        ...base,
+        policies: [{ kind: 'NOPE', title: 'T', body: 'B' }],
+      }).success,
     ).toBe(false);
   });
 });
@@ -119,7 +153,10 @@ describe('toTourPayload', () => {
     const input = tourSchema.parse({
       ...base,
       itinerary: [{ title: 'One', description: 'D1' }, { title: 'Two' }],
-      faqs: [{ question: 'Q1', answer: 'A1' }, { question: 'Q2', answer: 'A2' }],
+      faqs: [
+        { question: 'Q1', answer: 'A1' },
+        { question: 'Q2', answer: 'A2' },
+      ],
       policies: [{ kind: 'CANCELLATION', title: 'C', body: 'cb' }],
     }) as TourInput;
     const out = toTourPayload(input);
@@ -131,11 +168,18 @@ describe('toTourPayload', () => {
       { question: 'Q1', answer: 'A1', order: 0 },
       { question: 'Q2', answer: 'A2', order: 1 },
     ]);
-    expect(out.policies).toEqual([{ kind: 'CANCELLATION', title: 'C', body: 'cb', order: 0 }]);
+    expect(out.policies).toEqual([
+      { kind: 'CANCELLATION', title: 'C', body: 'cb', order: 0 },
+    ]);
   });
 
   it('omits empty nested lists (API leaves them untouched)', () => {
-    const input = tourSchema.parse({ ...base, itinerary: [], faqs: [], policies: [] }) as TourInput;
+    const input = tourSchema.parse({
+      ...base,
+      itinerary: [],
+      faqs: [],
+      policies: [],
+    }) as TourInput;
     const out = toTourPayload(input);
     expect(out.itinerary).toBeUndefined();
     expect(out.faqs).toBeUndefined();

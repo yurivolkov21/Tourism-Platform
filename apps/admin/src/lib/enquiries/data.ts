@@ -24,7 +24,9 @@ export const DEFAULT_PAGE_SIZE = 20;
  * Lists enquiries for the admin CRM table (`GET /admin/enquiries`). Status filter, pagination, and
  * search are **server-side** (the API supports them all). The wire format is already the `{ data, meta }` envelope.
  */
-export async function listEnquiries(params: EnquiryListParams = {}): Promise<EnquiryList> {
+export async function listEnquiries(
+  params: EnquiryListParams = {},
+): Promise<EnquiryList> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/enquiries', {
     params: {

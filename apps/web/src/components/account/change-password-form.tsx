@@ -7,7 +7,11 @@ import { Button, Input, Label, cn, toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { authErrorMessage } from '../../lib/auth/auth-error';
-import { passwordStrengthTone, scorePassword, validatePasswordPair } from '../../lib/auth/password';
+import {
+  passwordStrengthTone,
+  scorePassword,
+  validatePasswordPair,
+} from '../../lib/auth/password';
 import { createClient } from '../../lib/supabase/client';
 
 /** Change password while signed in (browser `updateUser`). */
@@ -37,7 +41,9 @@ export function ChangePasswordForm() {
       return;
     }
 
-    const { error: updateError } = await createClient().auth.updateUser({ password });
+    const { error: updateError } = await createClient().auth.updateUser({
+      password,
+    });
     if (updateError) {
       toast.error(authErrorMessage(updateError));
       setPending(false);
@@ -77,7 +83,11 @@ export function ChangePasswordForm() {
             className="text-muted-foreground absolute top-1/2 right-1 -translate-y-1/2"
             aria-label={show ? t.hide : t.show}
           >
-            {show ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
+            {show ? (
+              <EyeOffIcon className="size-4" />
+            ) : (
+              <EyeIcon className="size-4" />
+            )}
           </Button>
         </div>
         {pw ? (
@@ -88,7 +98,9 @@ export function ChangePasswordForm() {
                   key={i}
                   className={cn(
                     'h-full flex-1 rounded-full transition-colors',
-                    i < strength.score ? passwordStrengthTone(strength.score) : 'bg-border',
+                    i < strength.score
+                      ? passwordStrengthTone(strength.score)
+                      : 'bg-border',
                   )}
                 />
               ))}
@@ -104,7 +116,9 @@ export function ChangePasswordForm() {
                   ) : (
                     <XIcon className="text-muted-foreground size-3.5" />
                   )}
-                  <span className={r.met ? 'text-success' : 'text-muted-foreground'}>
+                  <span
+                    className={r.met ? 'text-success' : 'text-muted-foreground'}
+                  >
                     {rules[r.key]}
                   </span>
                 </li>

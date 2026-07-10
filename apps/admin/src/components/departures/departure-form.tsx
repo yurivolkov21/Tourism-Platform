@@ -29,7 +29,10 @@ import { ErrorAlert } from '../crud/error-alert';
 
 interface DepartureFormProps {
   /** Bound server action (create with slug, or update with slug + id). */
-  action: (prev: DepartureFormState, formData: FormData) => Promise<DepartureFormState>;
+  action: (
+    prev: DepartureFormState,
+    formData: FormData,
+  ) => Promise<DepartureFormState>;
   /** Existing row when editing; omitted when creating. */
   departure?: Departure;
   /** Tour slug for the Cancel link. */
@@ -45,8 +48,16 @@ const labelize = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
  * (controlled + a hidden input to post the value), never a native `<select>`. Shared by create + edit;
  * field names / schema / server actions are unchanged.
  */
-export function DepartureForm({ action, departure, slug, submitLabel }: DepartureFormProps) {
-  const [state, formAction, pending] = useActionState<DepartureFormState, FormData>(action, {});
+export function DepartureForm({
+  action,
+  departure,
+  slug,
+  submitLabel,
+}: DepartureFormProps) {
+  const [state, formAction, pending] = useActionState<
+    DepartureFormState,
+    FormData
+  >(action, {});
   const [status, setStatus] = useState<string>(departure?.status ?? 'OPEN');
   const errors = state.fieldErrors ?? {};
 
@@ -55,7 +66,9 @@ export function DepartureForm({ action, departure, slug, submitLabel }: Departur
       {/* Schedule & capacity */}
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
-          <FieldLegend className="mb-1.5 font-semibold">Schedule &amp; capacity</FieldLegend>
+          <FieldLegend className="mb-1.5 font-semibold">
+            Schedule &amp; capacity
+          </FieldLegend>
           <FieldDescription>
             When this departure runs and how many seats it holds.
           </FieldDescription>
@@ -72,7 +85,9 @@ export function DepartureForm({ action, departure, slug, submitLabel }: Departur
               defaultValue={departure ? toDateOnly(departure.startDate) : ''}
               aria-invalid={Boolean(errors.startDate)}
             />
-            {errors.startDate ? <FieldError>{errors.startDate}</FieldError> : null}
+            {errors.startDate ? (
+              <FieldError>{errors.startDate}</FieldError>
+            ) : null}
           </Field>
 
           <Field className="gap-2" data-invalid={Boolean(errors.endDate)}>
@@ -88,7 +103,10 @@ export function DepartureForm({ action, departure, slug, submitLabel }: Departur
             {errors.endDate ? <FieldError>{errors.endDate}</FieldError> : null}
           </Field>
 
-          <Field className="gap-2 sm:col-span-2" data-invalid={Boolean(errors.seatsTotal)}>
+          <Field
+            className="gap-2 sm:col-span-2"
+            data-invalid={Boolean(errors.seatsTotal)}
+          >
             <FieldLabel htmlFor="seatsTotal">Total seats</FieldLabel>
             <Input
               id="seatsTotal"
@@ -109,7 +127,9 @@ export function DepartureForm({ action, departure, slug, submitLabel }: Departur
                 {departure.seatsBooked} booked — can&apos;t set below that.
               </FieldDescription>
             ) : null}
-            {errors.seatsTotal ? <FieldError>{errors.seatsTotal}</FieldError> : null}
+            {errors.seatsTotal ? (
+              <FieldError>{errors.seatsTotal}</FieldError>
+            ) : null}
           </Field>
         </FieldGroup>
       </FieldSet>
@@ -119,9 +139,12 @@ export function DepartureForm({ action, departure, slug, submitLabel }: Departur
       {/* Pricing & visibility */}
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
-          <FieldLegend className="mb-1.5 font-semibold">Pricing &amp; visibility</FieldLegend>
+          <FieldLegend className="mb-1.5 font-semibold">
+            Pricing &amp; visibility
+          </FieldLegend>
           <FieldDescription>
-            Optional per-departure price anchors, and whether it&apos;s open for booking.
+            Optional per-departure price anchors, and whether it&apos;s open for
+            booking.
           </FieldDescription>
         </div>
 
@@ -142,10 +165,15 @@ export function DepartureForm({ action, departure, slug, submitLabel }: Departur
             <FieldDescription className="text-xs">
               Leave blank to use the tour&apos;s base price.
             </FieldDescription>
-            {errors.priceOverride ? <FieldError>{errors.priceOverride}</FieldError> : null}
+            {errors.priceOverride ? (
+              <FieldError>{errors.priceOverride}</FieldError>
+            ) : null}
           </Field>
 
-          <Field className="gap-2" data-invalid={Boolean(errors.compareAtPrice)}>
+          <Field
+            className="gap-2"
+            data-invalid={Boolean(errors.compareAtPrice)}
+          >
             <FieldLabel htmlFor="compareAtPrice">Compare-at price</FieldLabel>
             <Input
               id="compareAtPrice"
@@ -161,12 +189,17 @@ export function DepartureForm({ action, departure, slug, submitLabel }: Departur
             <FieldDescription className="text-xs">
               Shown struck-through next to the price.
             </FieldDescription>
-            {errors.compareAtPrice ? <FieldError>{errors.compareAtPrice}</FieldError> : null}
+            {errors.compareAtPrice ? (
+              <FieldError>{errors.compareAtPrice}</FieldError>
+            ) : null}
           </Field>
 
           <Field className="gap-2 sm:col-span-2">
             <FieldLabel htmlFor="status">Status</FieldLabel>
-            <Select value={status} onValueChange={(v) => setStatus(v ?? 'OPEN')}>
+            <Select
+              value={status}
+              onValueChange={(v) => setStatus(v ?? 'OPEN')}
+            >
               <SelectTrigger id="status" className="w-full max-w-xs">
                 <SelectValue />
               </SelectTrigger>
@@ -180,14 +213,16 @@ export function DepartureForm({ action, departure, slug, submitLabel }: Departur
             </Select>
             <input type="hidden" name="status" value={status} />
             <FieldDescription className="text-xs">
-              Only <strong>Open</strong> departures can be booked. Past dates can&apos;t be booked
-              regardless of status.
+              Only <strong>Open</strong> departures can be booked. Past dates
+              can&apos;t be booked regardless of status.
             </FieldDescription>
           </Field>
         </FieldGroup>
       </FieldSet>
 
-      {state.error ? <ErrorAlert className="mt-6">{state.error}</ErrorAlert> : null}
+      {state.error ? (
+        <ErrorAlert className="mt-6">{state.error}</ErrorAlert>
+      ) : null}
 
       <Separator className="my-8" />
 

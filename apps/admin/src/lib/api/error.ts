@@ -29,15 +29,19 @@ const FRIENDLY_409: Record<string, string> = {
     'This category is still active. Turn off “Active” (set it to Draft) first, then you can delete it.',
   CATEGORY_HAS_TOURS:
     'This category still has tours in it. Move those tours to another category first, then you can delete it.',
-  TOUR_IS_PUBLISHED: 'This tour is still published. Unpublish it first, then you can delete it.',
+  TOUR_IS_PUBLISHED:
+    'This tour is still published. Unpublish it first, then you can delete it.',
   TOUR_HAS_BOOKINGS: 'This tour has bookings, so it can’t be deleted.',
-  DEPARTURE_HAS_BOOKINGS: 'This departure has bookings, so it can’t be deleted.',
+  DEPARTURE_HAS_BOOKINGS:
+    'This departure has bookings, so it can’t be deleted.',
   DESTINATION_SLUG_EXISTS:
     'That URL slug is already used by another destination. Please choose a different one.',
   CATEGORY_SLUG_EXISTS:
     'That URL slug is already used by another category. Please choose a different one.',
-  TOUR_SLUG_EXISTS: 'That URL slug is already used by another tour. Please choose a different one.',
-  POST_SLUG_EXISTS: 'That URL slug is already used by another post. Please choose a different one.',
+  TOUR_SLUG_EXISTS:
+    'That URL slug is already used by another tour. Please choose a different one.',
+  POST_SLUG_EXISTS:
+    'That URL slug is already used by another post. Please choose a different one.',
 };
 
 /**
@@ -60,10 +64,13 @@ const FRIENDLY_BY_CODE: Record<string, string> = {
   ROLE_ENV_ADMIN:
     'This admin is on the ADMIN_EMAILS bootstrap list — edit the env to change it.',
   ROLE_LAST_ADMIN: 'Cannot demote the last remaining admin.',
-  USER_SELF_DELETE: 'You cannot delete your own account from the admin console.',
+  USER_SELF_DELETE:
+    'You cannot delete your own account from the admin console.',
   USER_IS_ADMIN: 'Demote this admin to customer before deleting the account.',
-  USER_HAS_POSTS: 'This user authored blog posts — reassign or delete those posts first.',
-  ACCOUNT_HAS_BOOKINGS: 'This account has bookings on record and cannot be deleted.',
+  USER_HAS_POSTS:
+    'This user authored blog posts — reassign or delete those posts first.',
+  ACCOUNT_HAS_BOOKINGS:
+    'This account has bookings on record and cannot be deleted.',
   INVALID_REFUND_AMOUNT: 'That refund amount is not valid for this booking.',
   CANCELLATION_REQUEST_NOT_FOUND: 'That cancellation request no longer exists.',
   CANCELLATION_NOT_PENDING: 'This request has already been resolved.',
@@ -84,12 +91,18 @@ export function apiErrorMessage(error: unknown): string {
       case 404:
         return 'That record no longer exists.';
       case 409:
-        return FRIENDLY_409[error.code] || error.message || 'That conflicts with an existing record.';
+        return (
+          FRIENDLY_409[error.code] ||
+          error.message ||
+          'That conflicts with an existing record.'
+        );
       default:
         return error.message || 'The request failed. Please try again.';
     }
   }
-  return error instanceof Error ? error.message : 'The request failed. Please try again.';
+  return error instanceof Error
+    ? error.message
+    : 'The request failed. Please try again.';
 }
 
 export default apiErrorMessage;

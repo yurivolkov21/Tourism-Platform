@@ -24,7 +24,10 @@ export function LoginBackdrop() {
   }, []);
 
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden bg-background">
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 overflow-hidden bg-background"
+    >
       {/* Static emerald wash — also the reduced-motion fallback. */}
       <div
         className="absolute inset-0"

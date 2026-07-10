@@ -70,7 +70,10 @@ describe('createApiClient — error middleware', () => {
         404,
       ),
     );
-    const client = createApiClient({ baseUrl: 'http://api.test', fetch: cap.fetch });
+    const client = createApiClient({
+      baseUrl: 'http://api.test',
+      fetch: cap.fetch,
+    });
 
     await expect(client.GET('/api/v1/destinations')).rejects.toMatchObject({
       name: 'ApiRequestError',

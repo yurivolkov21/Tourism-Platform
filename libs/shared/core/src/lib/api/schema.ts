@@ -4,6497 +4,6581 @@
  */
 
 export interface paths {
-    "/api/v1": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Liveness check */
-        get: operations["AppController_getData"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Readiness check (verifies DB connectivity) */
-        get: operations["AppController_health"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/sync": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Sync the JWT-bearing user into local DB as CUSTOMER
-         * @description Idempotent. First call creates a `User` keyed by the Supabase `sub`; later calls refresh profile fields. Call once after sign-in/up.
-         */
-        post: operations["AuthController_syncCustomer"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/admin/sync": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Sync the JWT-bearing user as ADMIN (allowlist gated)
-         * @description Elevates to ADMIN; caller email must be in `ADMIN_EMAILS`, else 403. Idempotent.
-         */
-        post: operations["AuthController_syncAdmin"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/me/avatar/sign": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Sign a Cloudinary avatar upload for the caller */
-        post: operations["UsersController_signAvatar"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Return the current user profile */
-        get: operations["UsersController_getMe"];
-        put?: never;
-        post?: never;
-        /** Delete the current account */
-        delete: operations["UsersController_deleteMe"];
-        options?: never;
-        head?: never;
-        /** Update the current user profile */
-        patch: operations["UsersController_updateMe"];
-        trace?: never;
-    };
-    "/api/v1/users/me/avatar": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Set the caller's avatar from a Cloudinary upload */
-        put: operations["UsersController_setAvatar"];
-        post?: never;
-        /** Clear the caller's avatar */
-        delete: operations["UsersController_clearAvatar"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: list users (paginated, filter by role, search name/email) */
-        get: operations["AdminUsersController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/users/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: the caller's own user detail */
-        get: operations["AdminUsersController_me"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/users/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: one user with footprint counts + action flags */
-        get: operations["AdminUsersController_detail"];
-        put?: never;
-        post?: never;
-        /** Admin: delete a customer account (bookings/posts-free only) */
-        delete: operations["AdminUsersController_remove"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/users/{id}/role": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Admin: change a user's role (guards: self / env-admin / last admin) */
-        patch: operations["AdminUsersController_changeRole"];
-        trace?: never;
-    };
-    "/api/v1/admin/uploads/signed-url": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Admin: sign a Cloudinary direct upload */
-        post: operations["AdminUploadsController_sign"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/destinations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List active destinations */
-        get: operations["DestinationsController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/destinations/{slug}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get one active destination by slug */
-        get: operations["DestinationsController_detail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/destinations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: list all destinations (incl. drafts) */
-        get: operations["AdminDestinationsController_list"];
-        put?: never;
-        /** Admin: create a destination */
-        post: operations["AdminDestinationsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/destinations/{slug}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: get one destination by slug (with the tours that use it) */
-        get: operations["AdminDestinationsController_detail"];
-        put?: never;
-        post?: never;
-        /** Admin: delete a (deactivated) destination */
-        delete: operations["AdminDestinationsController_remove"];
-        options?: never;
-        head?: never;
-        /** Admin: partial update a destination */
-        patch: operations["AdminDestinationsController_update"];
-        trace?: never;
-    };
-    "/api/v1/admin/destinations/{slug}/media": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Admin: replace a destination’s media set */
-        put: operations["AdminDestinationsController_setMedia"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/tour-categories": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List active tour categories */
-        get: operations["TourCategoriesController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/tour-categories/{slug}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get one active tour category by slug */
-        get: operations["TourCategoriesController_detail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/tour-categories": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: list all tour categories (incl. inactive) */
-        get: operations["AdminTourCategoriesController_list"];
-        put?: never;
-        /** Admin: create a tour category */
-        post: operations["AdminTourCategoriesController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/tour-categories/{slug}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: get one tour category by slug (with its tours) */
-        get: operations["AdminTourCategoriesController_detail"];
-        put?: never;
-        post?: never;
-        /** Admin: delete a (deactivated) tour category */
-        delete: operations["AdminTourCategoriesController_remove"];
-        options?: never;
-        head?: never;
-        /** Admin: partial update a tour category */
-        patch: operations["AdminTourCategoriesController_update"];
-        trace?: never;
-    };
-    "/api/v1/tours": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List published tours (paginated, filterable) */
-        get: operations["ToursController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/tours/{slug}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get one published tour by slug (enriched) */
-        get: operations["ToursController_detail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/tours": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: list all tours (incl. drafts) */
-        get: operations["AdminToursController_list"];
-        put?: never;
-        /** Admin: create a tour */
-        post: operations["AdminToursController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/tours/{slug}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: get one tour by slug (enriched + ops) */
-        get: operations["AdminToursController_detail"];
-        put?: never;
-        post?: never;
-        /** Admin: delete an (unpublished) tour */
-        delete: operations["AdminToursController_remove"];
-        options?: never;
-        head?: never;
-        /** Admin: partial update a tour */
-        patch: operations["AdminToursController_update"];
-        trace?: never;
-    };
-    "/api/v1/admin/tours/{slug}/media": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Admin: replace a tour’s media set */
-        put: operations["AdminToursController_setMedia"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/tours/{slug}/departures": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List upcoming open departures for a tour */
-        get: operations["DeparturesController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/tours/{slug}/departures": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: list departures (full history) */
-        get: operations["AdminDeparturesController_list"];
-        put?: never;
-        /** Admin: create a departure */
-        post: operations["AdminDeparturesController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/tours/{slug}/departures/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Admin: delete a departure (no booked seats) */
-        delete: operations["AdminDeparturesController_remove"];
-        options?: never;
-        head?: never;
-        /** Admin: partial update a departure */
-        patch: operations["AdminDeparturesController_update"];
-        trace?: never;
-    };
-    "/api/v1/bookings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create a PENDING booking (payment minted in P1.5b) */
-        post: operations["BookingsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/bookings/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Caller's bookings (newest first, top 50) */
-        get: operations["BookingsController_listOwn"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/bookings/{code}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Cancel your own PENDING booking */
-        post: operations["BookingsController_cancel"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/bookings/{code}/checkout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Start a Stripe Checkout session for a PENDING booking */
-        post: operations["BookingsController_checkout"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/bookings/{code}/capture": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Capture an approved PayPal order (on buyer return) */
-        post: operations["BookingsController_capture"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/bookings/{code}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get one booking by code (owner or admin) */
-        get: operations["BookingsController_detail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/bookings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: list all bookings (paginated, filter by status/search) */
-        get: operations["AdminBookingsController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/bookings/{code}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: get one booking by code (with lifecycle + refund audit) */
-        get: operations["AdminBookingsController_detail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/bookings/{code}/refund": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Admin: refund a PAID booking (full or partial) + release seats on full */
-        post: operations["AdminBookingsController_refund"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/payments/stripe/webhook": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Stripe webhook receiver (signature-verified) */
-        post: operations["PaymentsController_handleStripe"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/payments/paypal/webhook": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** PayPal webhook receiver (signature-verified) */
-        post: operations["PaymentsController_handlePayPal"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/bookings/{code}/cancellation-request": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Request cancellation/refund of your own PAID booking */
-        post: operations["CancellationsController_request"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/cancellation-requests": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: list cancellation requests (default REQUESTED) */
-        get: operations["AdminCancellationsController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/cancellation-requests/{id}/deny": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Admin: deny a cancellation request (booking stays PAID) */
-        post: operations["AdminCancellationsController_deny"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/reviews/featured": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Featured testimonials for the homepage */
-        get: operations["ReviewsController_featured"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/reviews": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create a review for one of caller's PAID bookings */
-        post: operations["ReviewsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/tours/{slug}/reviews": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List approved reviews for a tour (paginated) */
-        get: operations["PublicReviewsController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/reviews": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List reviews for moderation (paginated, filterable) */
-        get: operations["AdminReviewsController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/reviews/{id}/moderation": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Approve or re-draft a review (admin) */
-        patch: operations["AdminReviewsController_moderate"];
-        trace?: never;
-    };
-    "/api/v1/admin/reviews/{id}/feature": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Pin/unpin a review on the homepage carousel */
-        patch: operations["AdminReviewsController_feature"];
-        trace?: never;
-    };
-    "/api/v1/admin/reviews/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete a curated testimonial (verified reviews are protected) */
-        delete: operations["AdminReviewsController_remove"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/reviews/curated": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create a curated testimonial (no booking) */
-        post: operations["AdminReviewsController_createCurated"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/wishlist/{tourId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Add a tour to caller's wishlist (idempotent) */
-        post: operations["WishlistController_add"];
-        /** Remove a tour from caller's wishlist (idempotent) */
-        delete: operations["WishlistController_remove"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/wishlist/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Caller's wishlist with joined tour previews */
-        get: operations["WishlistController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/enquiries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Submit a tour enquiry (public, rate-limited) */
-        post: operations["EnquiryController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/enquiries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List enquiries (paginated, filter by status) */
-        get: operations["AdminEnquiryController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/enquiries/{id}/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update an enquiry CRM status (admin) */
-        patch: operations["AdminEnquiryController_updateStatus"];
-        trace?: never;
-    };
-    "/api/v1/newsletter/subscribe": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Subscribe to the newsletter (public, rate-limited) */
-        post: operations["NewsletterController_subscribe"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/newsletter/subscribers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List newsletter subscribers (paginated, email search) */
-        get: operations["AdminNewsletterController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/stats/dashboard": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Dashboard aggregates (revenue, top tours, trend) */
-        get: operations["AdminStatsController_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/posts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List published posts */
-        get: operations["PostsController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/posts/tags": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List tags in use by published posts */
-        get: operations["PostsController_tags"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/posts/{slug}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get one published post by slug (with related tours) */
-        get: operations["PostsController_detail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/posts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: list all posts (incl. drafts) */
-        get: operations["AdminPostsController_list"];
-        put?: never;
-        /** Admin: create a post */
-        post: operations["AdminPostsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/posts/tags": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: list all tags with post counts (form suggestions) */
-        get: operations["AdminPostsController_tags"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/posts/{slug}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: get one post by slug (with its author) */
-        get: operations["AdminPostsController_detail"];
-        put?: never;
-        post?: never;
-        /** Admin: delete a post */
-        delete: operations["AdminPostsController_remove"];
-        options?: never;
-        head?: never;
-        /** Admin: partial update a post */
-        patch: operations["AdminPostsController_update"];
-        trace?: never;
-    };
-    "/api/v1/admin/posts/{slug}/media": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Admin: replace a post's media set (cover) */
-        put: operations["AdminPostsController_setMedia"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/posts/{slug}/body-images": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Admin: register an uploaded body image (markdown insert) */
-        post: operations["AdminPostsController_addBodyImage"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/outbox": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: list outbox rows (paginated, filter by status, newest first) */
-        get: operations["AdminOutboxController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/outbox/{id}/retry": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Admin: retry a FAILED outbox row (resets to PENDING for the next drain tick) */
-        post: operations["AdminOutboxController_retry"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/media": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: list media assets (paginated, filter/search, owner resolved) */
-        get: operations["AdminMediaController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/media/garbage": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin: list the deferred Cloudinary-destroy queue (oldest first) */
-        get: operations["AdminMediaController_listGarbage"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/media/garbage/reconcile": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Admin: run one Cloudinary cleanup batch now (same as the daily cron) */
-        post: operations["AdminMediaController_reconcile"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/media/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Admin: detach one asset from its owner + queue Cloudinary destroy */
-        delete: operations["AdminMediaController_remove"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+  '/api/v1': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Liveness check */
+    get: operations['AppController_getData'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/health': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Readiness check (verifies DB connectivity) */
+    get: operations['AppController_health'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/auth/sync': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Sync the JWT-bearing user into local DB as CUSTOMER
+     * @description Idempotent. First call creates a `User` keyed by the Supabase `sub`; later calls refresh profile fields. Call once after sign-in/up.
+     */
+    post: operations['AuthController_syncCustomer'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/auth/admin/sync': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Sync the JWT-bearing user as ADMIN (allowlist gated)
+     * @description Elevates to ADMIN; caller email must be in `ADMIN_EMAILS`, else 403. Idempotent.
+     */
+    post: operations['AuthController_syncAdmin'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/users/me/avatar/sign': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Sign a Cloudinary avatar upload for the caller */
+    post: operations['UsersController_signAvatar'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/users/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Return the current user profile */
+    get: operations['UsersController_getMe'];
+    put?: never;
+    post?: never;
+    /** Delete the current account */
+    delete: operations['UsersController_deleteMe'];
+    options?: never;
+    head?: never;
+    /** Update the current user profile */
+    patch: operations['UsersController_updateMe'];
+    trace?: never;
+  };
+  '/api/v1/users/me/avatar': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Set the caller's avatar from a Cloudinary upload */
+    put: operations['UsersController_setAvatar'];
+    post?: never;
+    /** Clear the caller's avatar */
+    delete: operations['UsersController_clearAvatar'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/users': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: list users (paginated, filter by role, search name/email) */
+    get: operations['AdminUsersController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/users/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: the caller's own user detail */
+    get: operations['AdminUsersController_me'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/users/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: one user with footprint counts + action flags */
+    get: operations['AdminUsersController_detail'];
+    put?: never;
+    post?: never;
+    /** Admin: delete a customer account (bookings/posts-free only) */
+    delete: operations['AdminUsersController_remove'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/users/{id}/role': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Admin: change a user's role (guards: self / env-admin / last admin) */
+    patch: operations['AdminUsersController_changeRole'];
+    trace?: never;
+  };
+  '/api/v1/admin/uploads/signed-url': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Admin: sign a Cloudinary direct upload */
+    post: operations['AdminUploadsController_sign'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/destinations': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List active destinations */
+    get: operations['DestinationsController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/destinations/{slug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get one active destination by slug */
+    get: operations['DestinationsController_detail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/destinations': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: list all destinations (incl. drafts) */
+    get: operations['AdminDestinationsController_list'];
+    put?: never;
+    /** Admin: create a destination */
+    post: operations['AdminDestinationsController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/destinations/{slug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: get one destination by slug (with the tours that use it) */
+    get: operations['AdminDestinationsController_detail'];
+    put?: never;
+    post?: never;
+    /** Admin: delete a (deactivated) destination */
+    delete: operations['AdminDestinationsController_remove'];
+    options?: never;
+    head?: never;
+    /** Admin: partial update a destination */
+    patch: operations['AdminDestinationsController_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/destinations/{slug}/media': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Admin: replace a destination’s media set */
+    put: operations['AdminDestinationsController_setMedia'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/tour-categories': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List active tour categories */
+    get: operations['TourCategoriesController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/tour-categories/{slug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get one active tour category by slug */
+    get: operations['TourCategoriesController_detail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/tour-categories': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: list all tour categories (incl. inactive) */
+    get: operations['AdminTourCategoriesController_list'];
+    put?: never;
+    /** Admin: create a tour category */
+    post: operations['AdminTourCategoriesController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/tour-categories/{slug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: get one tour category by slug (with its tours) */
+    get: operations['AdminTourCategoriesController_detail'];
+    put?: never;
+    post?: never;
+    /** Admin: delete a (deactivated) tour category */
+    delete: operations['AdminTourCategoriesController_remove'];
+    options?: never;
+    head?: never;
+    /** Admin: partial update a tour category */
+    patch: operations['AdminTourCategoriesController_update'];
+    trace?: never;
+  };
+  '/api/v1/tours': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List published tours (paginated, filterable) */
+    get: operations['ToursController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/tours/{slug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get one published tour by slug (enriched) */
+    get: operations['ToursController_detail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/tours': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: list all tours (incl. drafts) */
+    get: operations['AdminToursController_list'];
+    put?: never;
+    /** Admin: create a tour */
+    post: operations['AdminToursController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/tours/{slug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: get one tour by slug (enriched + ops) */
+    get: operations['AdminToursController_detail'];
+    put?: never;
+    post?: never;
+    /** Admin: delete an (unpublished) tour */
+    delete: operations['AdminToursController_remove'];
+    options?: never;
+    head?: never;
+    /** Admin: partial update a tour */
+    patch: operations['AdminToursController_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/tours/{slug}/media': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Admin: replace a tour’s media set */
+    put: operations['AdminToursController_setMedia'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/tours/{slug}/departures': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List upcoming open departures for a tour */
+    get: operations['DeparturesController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/tours/{slug}/departures': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: list departures (full history) */
+    get: operations['AdminDeparturesController_list'];
+    put?: never;
+    /** Admin: create a departure */
+    post: operations['AdminDeparturesController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/tours/{slug}/departures/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Admin: delete a departure (no booked seats) */
+    delete: operations['AdminDeparturesController_remove'];
+    options?: never;
+    head?: never;
+    /** Admin: partial update a departure */
+    patch: operations['AdminDeparturesController_update'];
+    trace?: never;
+  };
+  '/api/v1/bookings': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create a PENDING booking (payment minted in P1.5b) */
+    post: operations['BookingsController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/bookings/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Caller's bookings (newest first, top 50) */
+    get: operations['BookingsController_listOwn'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/bookings/{code}/cancel': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Cancel your own PENDING booking */
+    post: operations['BookingsController_cancel'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/bookings/{code}/checkout': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Start a Stripe Checkout session for a PENDING booking */
+    post: operations['BookingsController_checkout'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/bookings/{code}/capture': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Capture an approved PayPal order (on buyer return) */
+    post: operations['BookingsController_capture'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/bookings/{code}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get one booking by code (owner or admin) */
+    get: operations['BookingsController_detail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/bookings': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: list all bookings (paginated, filter by status/search) */
+    get: operations['AdminBookingsController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/bookings/{code}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: get one booking by code (with lifecycle + refund audit) */
+    get: operations['AdminBookingsController_detail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/bookings/{code}/refund': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Admin: refund a PAID booking (full or partial) + release seats on full */
+    post: operations['AdminBookingsController_refund'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/payments/stripe/webhook': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Stripe webhook receiver (signature-verified) */
+    post: operations['PaymentsController_handleStripe'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/payments/paypal/webhook': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** PayPal webhook receiver (signature-verified) */
+    post: operations['PaymentsController_handlePayPal'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/bookings/{code}/cancellation-request': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Request cancellation/refund of your own PAID booking */
+    post: operations['CancellationsController_request'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/cancellation-requests': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: list cancellation requests (default REQUESTED) */
+    get: operations['AdminCancellationsController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/cancellation-requests/{id}/deny': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Admin: deny a cancellation request (booking stays PAID) */
+    post: operations['AdminCancellationsController_deny'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/reviews/featured': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Featured testimonials for the homepage */
+    get: operations['ReviewsController_featured'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/reviews': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create a review for one of caller's PAID bookings */
+    post: operations['ReviewsController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/tours/{slug}/reviews': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List approved reviews for a tour (paginated) */
+    get: operations['PublicReviewsController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/reviews': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List reviews for moderation (paginated, filterable) */
+    get: operations['AdminReviewsController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/reviews/{id}/moderation': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Approve or re-draft a review (admin) */
+    patch: operations['AdminReviewsController_moderate'];
+    trace?: never;
+  };
+  '/api/v1/admin/reviews/{id}/feature': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Pin/unpin a review on the homepage carousel */
+    patch: operations['AdminReviewsController_feature'];
+    trace?: never;
+  };
+  '/api/v1/admin/reviews/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete a curated testimonial (verified reviews are protected) */
+    delete: operations['AdminReviewsController_remove'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/reviews/curated': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create a curated testimonial (no booking) */
+    post: operations['AdminReviewsController_createCurated'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/wishlist/{tourId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Add a tour to caller's wishlist (idempotent) */
+    post: operations['WishlistController_add'];
+    /** Remove a tour from caller's wishlist (idempotent) */
+    delete: operations['WishlistController_remove'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/wishlist/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Caller's wishlist with joined tour previews */
+    get: operations['WishlistController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/enquiries': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Submit a tour enquiry (public, rate-limited) */
+    post: operations['EnquiryController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/enquiries': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List enquiries (paginated, filter by status) */
+    get: operations['AdminEnquiryController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/enquiries/{id}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update an enquiry CRM status (admin) */
+    patch: operations['AdminEnquiryController_updateStatus'];
+    trace?: never;
+  };
+  '/api/v1/newsletter/subscribe': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Subscribe to the newsletter (public, rate-limited) */
+    post: operations['NewsletterController_subscribe'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/newsletter/subscribers': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List newsletter subscribers (paginated, email search) */
+    get: operations['AdminNewsletterController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/stats/dashboard': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Dashboard aggregates (revenue, top tours, trend) */
+    get: operations['AdminStatsController_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/posts': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List published posts */
+    get: operations['PostsController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/posts/tags': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List tags in use by published posts */
+    get: operations['PostsController_tags'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/posts/{slug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get one published post by slug (with related tours) */
+    get: operations['PostsController_detail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/posts': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: list all posts (incl. drafts) */
+    get: operations['AdminPostsController_list'];
+    put?: never;
+    /** Admin: create a post */
+    post: operations['AdminPostsController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/posts/tags': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: list all tags with post counts (form suggestions) */
+    get: operations['AdminPostsController_tags'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/posts/{slug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: get one post by slug (with its author) */
+    get: operations['AdminPostsController_detail'];
+    put?: never;
+    post?: never;
+    /** Admin: delete a post */
+    delete: operations['AdminPostsController_remove'];
+    options?: never;
+    head?: never;
+    /** Admin: partial update a post */
+    patch: operations['AdminPostsController_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/posts/{slug}/media': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Admin: replace a post's media set (cover) */
+    put: operations['AdminPostsController_setMedia'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/posts/{slug}/body-images': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Admin: register an uploaded body image (markdown insert) */
+    post: operations['AdminPostsController_addBodyImage'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/outbox': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: list outbox rows (paginated, filter by status, newest first) */
+    get: operations['AdminOutboxController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/outbox/{id}/retry': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Admin: retry a FAILED outbox row (resets to PENDING for the next drain tick) */
+    post: operations['AdminOutboxController_retry'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/media': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: list media assets (paginated, filter/search, owner resolved) */
+    get: operations['AdminMediaController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/media/garbage': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: list the deferred Cloudinary-destroy queue (oldest first) */
+    get: operations['AdminMediaController_listGarbage'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/media/garbage/reconcile': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Admin: run one Cloudinary cleanup batch now (same as the daily cron) */
+    post: operations['AdminMediaController_reconcile'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/media/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Admin: detach one asset from its owner + queue Cloudinary destroy */
+    delete: operations['AdminMediaController_remove'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        SyncUserDto: {
-            /** @example Nguyen Van A */
-            fullName?: string;
-            /** @example +84901234567 */
-            phone?: string;
-        };
-        UserDto: {
-            /** Format: uuid */
-            id: string;
-            /**
-             * Format: uuid
-             * @description Supabase auth.users.id
-             */
-            supabaseId: string;
-            /** Format: email */
-            email: string;
-            fullName: string | null;
-            phone: string | null;
-            /**
-             * @description EN-only for now (ADR-0005)
-             * @example en
-             */
-            locale: string;
-            /**
-             * @example CUSTOMER
-             * @enum {string}
-             */
-            role: "CUSTOMER" | "ADMIN";
-            /**
-             * Format: uri
-             * @description Cloudinary avatar delivery URL (null if none set)
-             */
-            avatarUrl: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        SignAvatarDto: {
-            /**
-             * @description Original filename (single extension).
-             * @example me.jpg
-             */
-            filename: string;
-            /** @example image/jpeg */
-            contentType?: string;
-        };
-        UpdateMeDto: {
-            /** @example Nguyen Van A */
-            fullName?: string;
-            /** @example +84901234567 */
-            phone?: string;
-        };
-        SetAvatarDto: {
-            /**
-             * @description Cloudinary public_id (no extension).
-             * @example tourism/users/avatar/1717000000000-jane
-             */
-            publicId: string;
-            /** @example jpg */
-            format?: string;
-            /** @example 512 */
-            width?: number;
-            /** @example 512 */
-            height?: number;
-        };
-        AdminUserListItemDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example jane@example.com */
-            email: string;
-            /** @example Jane Doe */
-            fullName: string | null;
-            /** @example +84901234567 */
-            phone: string | null;
-            /** @enum {string} */
-            role: "CUSTOMER" | "ADMIN";
-            /** Format: date-time */
-            createdAt: string;
-            /** @example 3 */
-            bookingsCount: number;
-        };
-        PageMetaDto: {
-            /** @example 1 */
-            page: number;
-            /** @example 20 */
-            pageSize: number;
-            /** @example 42 */
-            total: number;
-            /** @example 3 */
-            totalPages: number;
-        };
-        PaginatedAdminUsersDto: {
-            data: components["schemas"]["AdminUserListItemDto"][];
-            meta: components["schemas"]["PageMetaDto"];
-        };
-        AdminUserCountsDto: {
-            /** @example 4 */
-            bookings: number;
-            /** @example 2 */
-            reviews: number;
-            /** @example 5 */
-            wishlist: number;
-        };
-        AdminUserDetailDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example jane@example.com */
-            email: string;
-            /** @example Jane Doe */
-            fullName: string | null;
-            /** @example +84901234567 */
-            phone: string | null;
-            /** @enum {string} */
-            role: "CUSTOMER" | "ADMIN";
-            /** Format: date-time */
-            createdAt: string;
-            /** @example 3 */
-            bookingsCount: number;
-            /** @example en */
-            locale: string;
-            /** Format: date-time */
-            updatedAt: string;
-            /** Format: uri */
-            avatarUrl: string | null;
-            counts: components["schemas"]["AdminUserCountsDto"];
-            /** @description Email is on the ADMIN_EMAILS bootstrap allowlist — demote is blocked in the UI. */
-            isEnvAdmin: boolean;
-            /** @description Target is the caller — self-directed actions are blocked. */
-            isSelf: boolean;
-        };
-        ChangeUserRoleDto: {
-            /** @enum {string} */
-            role: "CUSTOMER" | "ADMIN";
-        };
-        DeletedUserDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example jane@example.com */
-            email: string;
-        };
-        CreateSignedUploadUrlDto: {
-            /**
-             * @description Upload classification — determines the storage folder.
-             * @enum {string}
-             */
-            purpose: "TOUR_HERO" | "TOUR_GALLERY" | "TOUR_VIDEO" | "DESTINATION_HERO" | "DESTINATION_GALLERY" | "DESTINATION_VIDEO" | "USER_AVATAR" | "POST_COVER" | "POST_BODY";
-            /**
-             * @description Original filename (single extension). The backend sanitizes + timestamps it.
-             * @example hero-shot.jpg
-             */
-            filename: string;
-            /** @example image/jpeg */
-            contentType?: string;
-        };
-        MediaItemDto: {
-            /**
-             * @description Cloudinary public_id — lets the admin re-submit an unchanged item.
-             * @example tourism/destinations/hero/1717000000000-hoi-an
-             */
-            publicId: string;
-            /** Format: uri */
-            url: string;
-            /** @enum {string} */
-            type: "IMAGE" | "VIDEO";
-            /**
-             * @example gallery
-             * @enum {string}
-             */
-            role: "hero" | "gallery" | "avatar" | "body";
-            /**
-             * Format: uri
-             * @description Video poster URL.
-             */
-            posterUrl?: string;
-            width?: number | null;
-            height?: number | null;
-            durationSec?: number | null;
-            /** @example 0 */
-            sortOrder: number;
-        };
-        DestinationDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example hoi-an */
-            slug: string;
-            /** @example Hoi An */
-            name: string;
-            /** @example Vietnam */
-            country: string;
-            region: string | null;
-            description: string | null;
-            isActive: boolean;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            media: components["schemas"]["MediaItemDto"][];
-            /**
-             * @description Number of tours using this destination
-             * @example 4
-             */
-            toursCount: number;
-        };
-        PaginatedDestinationsDto: {
-            data: components["schemas"]["DestinationDto"][];
-            meta: components["schemas"]["PageMetaDto"];
-        };
-        DestinationTourDto: {
-            /** @example hoi-an-walking-tour */
-            slug: string;
-            /** @example Hoi An Ancient Town Walking Tour */
-            title: string;
-            /** @example true */
-            isPublished: boolean;
-            /**
-             * @description Whether this destination is the tour’s primary one.
-             * @example true
-             */
-            isPrimary: boolean;
-        };
-        AdminDestinationDetailDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example hoi-an */
-            slug: string;
-            /** @example Hoi An */
-            name: string;
-            /** @example Vietnam */
-            country: string;
-            region: string | null;
-            description: string | null;
-            isActive: boolean;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            media: components["schemas"]["MediaItemDto"][];
-            /**
-             * @description Number of tours using this destination
-             * @example 4
-             */
-            toursCount: number;
-            tours: components["schemas"]["DestinationTourDto"][];
-        };
-        CreateDestinationDto: {
-            /** @example Hoi An */
-            name: string;
-            /**
-             * @description kebab slug; generated from `name` when omitted
-             * @example hoi-an
-             */
-            slug?: string;
-            /**
-             * @default Vietnam
-             * @example Vietnam
-             */
-            country: string;
-            /** @example Central Vietnam */
-            region?: string;
-            description?: string;
-            /** @default true */
-            isActive: boolean;
-        };
-        UpdateDestinationDto: {
-            /** @example Hoi An */
-            name?: string;
-            /**
-             * @description kebab slug; generated from `name` when omitted
-             * @example hoi-an
-             */
-            slug?: string;
-            /**
-             * @default Vietnam
-             * @example Vietnam
-             */
-            country: string;
-            /** @example Central Vietnam */
-            region?: string;
-            description?: string;
-            /** @default true */
-            isActive: boolean;
-        };
-        MediaInputDto: {
-            /**
-             * @description Cloudinary public_id (no extension).
-             * @example tourism/tours/hero/1717000000000-hoi-an
-             */
-            publicId: string;
-            /**
-             * @example IMAGE
-             * @enum {string}
-             */
-            type: "IMAGE" | "VIDEO";
-            /**
-             * @example gallery
-             * @enum {string}
-             */
-            role: "hero" | "gallery" | "avatar" | "body";
-            /** @example jpg */
-            format?: string;
-            /** @example 1920 */
-            width?: number;
-            /** @example 1080 */
-            height?: number;
-            /**
-             * @description Video duration in seconds (video only).
-             * @example 12.5
-             */
-            durationSec?: number;
-            /**
-             * @description Dedicated poster image public_id (video only).
-             * @example tourism/tours/video/1717000000000-poster
-             */
-            posterId?: string;
-            /**
-             * @description Display order.
-             * @example 0
-             */
-            sortOrder?: number;
-        };
-        SetMediaDto: {
-            media: components["schemas"]["MediaInputDto"][];
-        };
-        TourCategoryDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example adventure-tours */
-            slug: string;
-            /** @example Adventure Tours */
-            name: string;
-            description: string | null;
-            /** @example 0 */
-            order: number;
-            isActive: boolean;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            /**
-             * @description Number of tours in this category
-             * @example 7
-             */
-            toursCount: number;
-        };
-        PaginatedTourCategoriesDto: {
-            data: components["schemas"]["TourCategoryDto"][];
-            meta: components["schemas"]["PageMetaDto"];
-        };
-        CategoryTourDto: {
-            /** @example hoi-an-walking-tour */
-            slug: string;
-            /** @example Hoi An Ancient Town Walking Tour */
-            title: string;
-            /** @example true */
-            isPublished: boolean;
-        };
-        AdminTourCategoryDetailDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example adventure-tours */
-            slug: string;
-            /** @example Adventure Tours */
-            name: string;
-            description: string | null;
-            /** @example 0 */
-            order: number;
-            isActive: boolean;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            /**
-             * @description Number of tours in this category
-             * @example 7
-             */
-            toursCount: number;
-            tours: components["schemas"]["CategoryTourDto"][];
-        };
-        CreateTourCategoryDto: {
-            /** @example Adventure Tours */
-            name: string;
-            /**
-             * @description kebab slug; generated from `name` when omitted
-             * @example adventure-tours
-             */
-            slug?: string;
-            description?: string;
-            /**
-             * @default 0
-             * @example 0
-             */
-            order: number;
-            /** @default true */
-            isActive: boolean;
-        };
-        UpdateTourCategoryDto: {
-            /** @example Adventure Tours */
-            name?: string;
-            /**
-             * @description kebab slug; generated from `name` when omitted
-             * @example adventure-tours
-             */
-            slug?: string;
-            description?: string;
-            /**
-             * @default 0
-             * @example 0
-             */
-            order: number;
-            /** @default true */
-            isActive: boolean;
-        };
-        TourCategoryRefDto: {
-            /** @example day-tours */
-            slug: string;
-            /** @example Day Tours */
-            name: string;
-        };
-        TourDestinationRefDto: {
-            /** @example hoi-an */
-            slug: string;
-            /** @example Hoi An */
-            name: string;
-        };
-        TourDestinationLinkDto: {
-            isPrimary: boolean;
-            destination: components["schemas"]["TourDestinationRefDto"];
-        };
-        TourSummaryDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example hoi-an-walking-tour */
-            slug: string;
-            /** @example Hoi An Ancient Town Walking Tour */
-            title: string;
-            summary: string | null;
-            /** @example 1 */
-            durationDays: number;
-            /** @example 20 */
-            maxGroupSize: number;
-            /** @example 49.50 */
-            basePrice: string;
-            /** @example 69.00 */
-            compareAtPrice: string | null;
-            /** @example USD */
-            currency: string;
-            /** @example easy */
-            difficulty: string | null;
-            isPublished: boolean;
-            isFeatured: boolean;
-            /**
-             * @example [
-             *       "Lantern-lit old town"
-             *     ]
-             */
-            highlights: string[];
-            /**
-             * @example [
-             *       "FAMILY"
-             *     ]
-             */
-            suitableFor: ("FAMILY" | "COUPLE" | "FRIENDS" | "SOLO" | "BUSINESS")[];
-            /**
-             * @example [
-             *       "BEST_VALUE"
-             *     ]
-             */
-            badges: ("BEST_VALUE" | "LIMITED_OFFER" | "EXCLUSIVE" | "NEW" | "POPULAR")[];
-            /**
-             * @description Average of approved reviews (1-dp); 0 if none
-             * @example 4.8
-             */
-            averageRating: number;
-            /**
-             * @description Count of approved reviews
-             * @example 214
-             */
-            reviewsCount: number;
-            /**
-             * Format: date
-             * @description Soonest open upcoming departure date; null if none scheduled
-             * @example 2026-08-15
-             */
-            nextDepartureDate: string | null;
-            /**
-             * @description Seats left on the soonest open upcoming departure; null if none
-             * @example 6
-             */
-            nextDepartureSeatsLeft: number | null;
-            category: components["schemas"]["TourCategoryRefDto"];
-            destinations: components["schemas"]["TourDestinationLinkDto"][];
-            media: components["schemas"]["MediaItemDto"][];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        PaginatedToursDto: {
-            data: components["schemas"]["TourSummaryDto"][];
-            meta: components["schemas"]["PageMetaDto"];
-        };
-        TourItineraryDayDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 1 */
-            dayNumber: number;
-            /** @example Arrival & old town walk */
-            title: string;
-            description: string | null;
-        };
-        TourFaqDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example Is hotel pickup included? */
-            question: string;
-            /** @example Yes, within the old town. */
-            answer: string;
-            /** @example 0 */
-            order: number;
-        };
-        TourPolicyDto: {
-            /** Format: uuid */
-            id: string;
-            /**
-             * @example CANCELLATION
-             * @enum {string}
-             */
-            kind: "CANCELLATION" | "BOOKING" | "GENERAL";
-            /** @example Free cancellation up to 24h */
-            title: string;
-            /** @example Full refund if cancelled 24h before departure. */
-            body: string;
-            /** @example 0 */
-            order: number;
-        };
-        TourDetailDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example hoi-an-walking-tour */
-            slug: string;
-            /** @example Hoi An Ancient Town Walking Tour */
-            title: string;
-            summary: string | null;
-            /** @example 1 */
-            durationDays: number;
-            /** @example 20 */
-            maxGroupSize: number;
-            /** @example 49.50 */
-            basePrice: string;
-            /** @example 69.00 */
-            compareAtPrice: string | null;
-            /** @example USD */
-            currency: string;
-            /** @example easy */
-            difficulty: string | null;
-            isPublished: boolean;
-            isFeatured: boolean;
-            /**
-             * @example [
-             *       "Lantern-lit old town"
-             *     ]
-             */
-            highlights: string[];
-            /**
-             * @example [
-             *       "FAMILY"
-             *     ]
-             */
-            suitableFor: ("FAMILY" | "COUPLE" | "FRIENDS" | "SOLO" | "BUSINESS")[];
-            /**
-             * @example [
-             *       "BEST_VALUE"
-             *     ]
-             */
-            badges: ("BEST_VALUE" | "LIMITED_OFFER" | "EXCLUSIVE" | "NEW" | "POPULAR")[];
-            /**
-             * @description Average of approved reviews (1-dp); 0 if none
-             * @example 4.8
-             */
-            averageRating: number;
-            /**
-             * @description Count of approved reviews
-             * @example 214
-             */
-            reviewsCount: number;
-            /**
-             * Format: date
-             * @description Soonest open upcoming departure date; null if none scheduled
-             * @example 2026-08-15
-             */
-            nextDepartureDate: string | null;
-            /**
-             * @description Seats left on the soonest open upcoming departure; null if none
-             * @example 6
-             */
-            nextDepartureSeatsLeft: number | null;
-            category: components["schemas"]["TourCategoryRefDto"];
-            destinations: components["schemas"]["TourDestinationLinkDto"][];
-            media: components["schemas"]["MediaItemDto"][];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            /**
-             * @example [
-             *       "Local guide",
-             *       "Lunch"
-             *     ]
-             */
-            included: string[];
-            /**
-             * @example [
-             *       "Tips"
-             *     ]
-             */
-            excluded: string[];
-            /** @example Meet at 78 Le Loi street */
-            meetingPoint: string | null;
-            itinerary: components["schemas"]["TourItineraryDayDto"][];
-            faqs: components["schemas"]["TourFaqDto"][];
-            policies: components["schemas"]["TourPolicyDto"][];
-        };
-        TourOpsDto: {
-            /**
-             * @description All bookings ever, any status
-             * @example 30
-             */
-            bookingsTotal: number;
-            /** @example 24 */
-            bookingsPaid: number;
-            /**
-             * @description Sum of PAID totals (string Decimal)
-             * @example 4500.00
-             */
-            revenue: string;
-            /** @example 42 */
-            wishlistCount: number;
-            /** @example 7 */
-            enquiriesCount: number;
-        };
-        AdminTourDetailDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example hoi-an-walking-tour */
-            slug: string;
-            /** @example Hoi An Ancient Town Walking Tour */
-            title: string;
-            summary: string | null;
-            /** @example 1 */
-            durationDays: number;
-            /** @example 20 */
-            maxGroupSize: number;
-            /** @example 49.50 */
-            basePrice: string;
-            /** @example 69.00 */
-            compareAtPrice: string | null;
-            /** @example USD */
-            currency: string;
-            /** @example easy */
-            difficulty: string | null;
-            isPublished: boolean;
-            isFeatured: boolean;
-            /**
-             * @example [
-             *       "Lantern-lit old town"
-             *     ]
-             */
-            highlights: string[];
-            /**
-             * @example [
-             *       "FAMILY"
-             *     ]
-             */
-            suitableFor: ("FAMILY" | "COUPLE" | "FRIENDS" | "SOLO" | "BUSINESS")[];
-            /**
-             * @example [
-             *       "BEST_VALUE"
-             *     ]
-             */
-            badges: ("BEST_VALUE" | "LIMITED_OFFER" | "EXCLUSIVE" | "NEW" | "POPULAR")[];
-            /**
-             * @description Average of approved reviews (1-dp); 0 if none
-             * @example 4.8
-             */
-            averageRating: number;
-            /**
-             * @description Count of approved reviews
-             * @example 214
-             */
-            reviewsCount: number;
-            /**
-             * Format: date
-             * @description Soonest open upcoming departure date; null if none scheduled
-             * @example 2026-08-15
-             */
-            nextDepartureDate: string | null;
-            /**
-             * @description Seats left on the soonest open upcoming departure; null if none
-             * @example 6
-             */
-            nextDepartureSeatsLeft: number | null;
-            category: components["schemas"]["TourCategoryRefDto"];
-            destinations: components["schemas"]["TourDestinationLinkDto"][];
-            media: components["schemas"]["MediaItemDto"][];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            /**
-             * @example [
-             *       "Local guide",
-             *       "Lunch"
-             *     ]
-             */
-            included: string[];
-            /**
-             * @example [
-             *       "Tips"
-             *     ]
-             */
-            excluded: string[];
-            /** @example Meet at 78 Le Loi street */
-            meetingPoint: string | null;
-            itinerary: components["schemas"]["TourItineraryDayDto"][];
-            faqs: components["schemas"]["TourFaqDto"][];
-            policies: components["schemas"]["TourPolicyDto"][];
-            ops: components["schemas"]["TourOpsDto"];
-        };
-        TourItineraryDayInput: {
-            /** @example 1 */
-            dayNumber: number;
-            /** @example Arrival & old town walk */
-            title: string;
-            description?: string;
-        };
-        TourFaqInput: {
-            /** @example Is hotel pickup included? */
-            question: string;
-            /** @example Yes, within the old town. */
-            answer: string;
-            /**
-             * @default 0
-             * @example 0
-             */
-            order: number;
-        };
-        TourPolicyInput: {
-            /**
-             * @example CANCELLATION
-             * @enum {string}
-             */
-            kind: "CANCELLATION" | "BOOKING" | "GENERAL";
-            /** @example Free cancellation up to 24h */
-            title: string;
-            /** @example Full refund if cancelled 24h before departure. */
-            body: string;
-            /**
-             * @default 0
-             * @example 0
-             */
-            order: number;
-        };
-        CreateTourDto: {
-            /**
-             * @description Any format — normalized server-side to kebab-case (max 120). Omit to generate from title.
-             * @example hoi-an-walking-tour
-             */
-            slug?: string;
-            /** @example Hoi An Ancient Town Walking Tour */
-            title: string;
-            /** @example Half-day stroll through lantern-lit alleys. */
-            summary?: string;
-            /**
-             * @description Existing tour-category slug
-             * @example day-tours
-             */
-            categorySlug: string;
-            /**
-             * @description Slugs of existing destinations (>=1). `primaryDestinationSlug` must be one of these.
-             * @example [
-             *       "hoi-an",
-             *       "da-nang"
-             *     ]
-             */
-            destinationSlugs: string[];
-            /**
-             * @description Primary destination slug (∈ destinationSlugs)
-             * @example hoi-an
-             */
-            primaryDestinationSlug: string;
-            /** @example 1 */
-            durationDays: number;
-            /**
-             * @default 20
-             * @example 20
-             */
-            maxGroupSize: number;
-            /** @example Hoi An tourist info centre, 78 Le Loi street */
-            meetingPoint?: string;
-            /**
-             * @description Decimal(12,2)
-             * @example 49.5
-             */
-            basePrice: number;
-            /**
-             * @description Decimal(12,2) compare-at anchor
-             * @example 69
-             */
-            compareAtPrice?: number;
-            /**
-             * @default USD
-             * @example USD
-             */
-            currency: string;
-            /** @example easy */
-            difficulty?: string;
-            /**
-             * @default false
-             * @example false
-             */
-            isPublished: boolean;
-            /**
-             * @default false
-             * @example false
-             */
-            isFeatured: boolean;
-            /**
-             * @description Traveller types this tour suits.
-             * @example [
-             *       "FAMILY",
-             *       "COUPLE"
-             *     ]
-             */
-            suitableFor?: ("FAMILY" | "COUPLE" | "FRIENDS" | "SOLO" | "BUSINESS")[];
-            /**
-             * @description Merchandising badges on the tour card.
-             * @example [
-             *       "BEST_VALUE"
-             *     ]
-             */
-            badges?: ("BEST_VALUE" | "LIMITED_OFFER" | "EXCLUSIVE" | "NEW" | "POPULAR")[];
-            /**
-             * @example [
-             *       "Local guide",
-             *       "Bottled water",
-             *       "Lunch"
-             *     ]
-             */
-            included?: string[];
-            /**
-             * @example [
-             *       "Personal expenses",
-             *       "Tips"
-             *     ]
-             */
-            excluded?: string[];
-            /**
-             * @example [
-             *       "Lantern-lit old town",
-             *       "Hands-on cooking class"
-             *     ]
-             */
-            highlights?: string[];
-            itinerary?: components["schemas"]["TourItineraryDayInput"][];
-            faqs?: components["schemas"]["TourFaqInput"][];
-            policies?: components["schemas"]["TourPolicyInput"][];
-        };
-        UpdateTourDto: {
-            /**
-             * @description Any format — normalized server-side to kebab-case (max 120). Omit to generate from title.
-             * @example hoi-an-walking-tour
-             */
-            slug?: string;
-            /** @example Hoi An Ancient Town Walking Tour */
-            title?: string;
-            /** @example Half-day stroll through lantern-lit alleys. */
-            summary?: string;
-            /**
-             * @description Existing tour-category slug
-             * @example day-tours
-             */
-            categorySlug?: string;
-            /**
-             * @description Slugs of existing destinations (>=1). `primaryDestinationSlug` must be one of these.
-             * @example [
-             *       "hoi-an",
-             *       "da-nang"
-             *     ]
-             */
-            destinationSlugs?: string[];
-            /**
-             * @description Primary destination slug (∈ destinationSlugs)
-             * @example hoi-an
-             */
-            primaryDestinationSlug?: string;
-            /** @example 1 */
-            durationDays?: number;
-            /**
-             * @default 20
-             * @example 20
-             */
-            maxGroupSize: number;
-            /** @example Hoi An tourist info centre, 78 Le Loi street */
-            meetingPoint?: string;
-            /**
-             * @description Decimal(12,2)
-             * @example 49.5
-             */
-            basePrice?: number;
-            /**
-             * @description Decimal(12,2) compare-at anchor
-             * @example 69
-             */
-            compareAtPrice?: number;
-            /**
-             * @default USD
-             * @example USD
-             */
-            currency: string;
-            /** @example easy */
-            difficulty?: string;
-            /**
-             * @default false
-             * @example false
-             */
-            isPublished: boolean;
-            /**
-             * @default false
-             * @example false
-             */
-            isFeatured: boolean;
-            /**
-             * @description Traveller types this tour suits.
-             * @example [
-             *       "FAMILY",
-             *       "COUPLE"
-             *     ]
-             */
-            suitableFor?: ("FAMILY" | "COUPLE" | "FRIENDS" | "SOLO" | "BUSINESS")[];
-            /**
-             * @description Merchandising badges on the tour card.
-             * @example [
-             *       "BEST_VALUE"
-             *     ]
-             */
-            badges?: ("BEST_VALUE" | "LIMITED_OFFER" | "EXCLUSIVE" | "NEW" | "POPULAR")[];
-            /**
-             * @example [
-             *       "Local guide",
-             *       "Bottled water",
-             *       "Lunch"
-             *     ]
-             */
-            included?: string[];
-            /**
-             * @example [
-             *       "Personal expenses",
-             *       "Tips"
-             *     ]
-             */
-            excluded?: string[];
-            /**
-             * @example [
-             *       "Lantern-lit old town",
-             *       "Hands-on cooking class"
-             *     ]
-             */
-            highlights?: string[];
-            itinerary?: components["schemas"]["TourItineraryDayInput"][];
-            faqs?: components["schemas"]["TourFaqInput"][];
-            policies?: components["schemas"]["TourPolicyInput"][];
-        };
-        DepartureDto: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            tourId: string;
-            /**
-             * Format: date
-             * @example 2026-08-15
-             */
-            startDate: string;
-            /**
-             * Format: date
-             * @example 2026-08-18
-             */
-            endDate: string;
-            /**
-             * @description Decimal string; null = use tour basePrice
-             * @example 59.00
-             */
-            priceOverride: string | null;
-            /**
-             * @description Decimal string compare-at anchor; null = none
-             * @example 79.00
-             */
-            compareAtPrice: string | null;
-            /** @example 15 */
-            seatsTotal: number;
-            /** @example 0 */
-            seatsBooked: number;
-            /**
-             * @example OPEN
-             * @enum {string}
-             */
-            status: "OPEN" | "CLOSED" | "CANCELLED";
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        CreateDepartureDto: {
-            /**
-             * @description ISO 8601 date
-             * @example 2026-08-15
-             */
-            startDate: string;
-            /**
-             * @description ISO 8601 date
-             * @example 2026-08-18
-             */
-            endDate: string;
-            /** @example 15 */
-            seatsTotal: number;
-            /** @example 59 */
-            priceOverride?: Record<string, never> | null;
-            /** @example 79 */
-            compareAtPrice?: Record<string, never> | null;
-            /**
-             * @default OPEN
-             * @enum {string}
-             */
-            status: "OPEN" | "CLOSED" | "CANCELLED";
-        };
-        UpdateDepartureDto: {
-            /**
-             * @description ISO 8601 date
-             * @example 2026-08-15
-             */
-            startDate?: string;
-            /**
-             * @description ISO 8601 date
-             * @example 2026-08-18
-             */
-            endDate?: string;
-            /** @example 15 */
-            seatsTotal?: number;
-            /** @example 59 */
-            priceOverride?: Record<string, never> | null;
-            /** @example 79 */
-            compareAtPrice?: Record<string, never> | null;
-            /**
-             * @default OPEN
-             * @enum {string}
-             */
-            status: "OPEN" | "CLOSED" | "CANCELLED";
-        };
-        CreateBookingDto: {
-            /**
-             * @description Slug of an existing published tour (kebab-case).
-             * @example hoi-an-walking-tour
-             */
-            tourSlug: string;
-            /**
-             * @description UUID of a departure under the tour. Must be OPEN.
-             * @example 3fa85f64-5717-4562-b3fc-2c963f66afa6
-             */
-            departureId: string;
-            /** @example 2 */
-            numAdults: number;
-            /**
-             * @default 0
-             * @example 1
-             */
-            numChildren: number;
-            /**
-             * @example STRIPE
-             * @enum {string}
-             */
-            paymentProvider: "STRIPE" | "PAYPAL";
-            /** @example Nguyen Van A */
-            contactName: string;
-            /** @example guest@example.com */
-            contactEmail: string;
-            /** @example +84901234567 */
-            contactPhone?: string;
-            /** @example Vegetarian meals for one adult. */
-            specialRequests?: string;
-        };
-        BookingTourRefDto: {
-            /** @example hoi-an-walking-tour */
-            slug: string;
-            /** @example Hoi An Ancient Town Walking Tour */
-            title: string;
-        };
-        BookingDepartureRefDto: {
-            /**
-             * Format: date
-             * @example 2026-08-15
-             */
-            startDate: string;
-            /**
-             * Format: date
-             * @example 2026-08-18
-             */
-            endDate: string;
-        };
-        CancellationRequestSummaryDto: {
-            /**
-             * @example REQUESTED
-             * @enum {string}
-             */
-            status: "REQUESTED" | "REFUNDED" | "DENIED";
-            /** @example Change of travel plans */
-            reason: string;
-            /** Format: date-time */
-            createdAt: string;
-            decisionNote: string | null;
-            /** Format: date-time */
-            decidedAt: string | null;
-        };
-        BookingDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example BK-7Q2KX9AB */
-            code: string;
-            /**
-             * @example PENDING
-             * @enum {string}
-             */
-            status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
-            /** @example 2 */
-            numAdults: number;
-            /** @example 1 */
-            numChildren: number;
-            /** @example 99.00 */
-            totalAmount: string;
-            /** @example USD */
-            currency: string;
-            /**
-             * @example STRIPE
-             * @enum {string}
-             */
-            paymentProvider: "STRIPE" | "PAYPAL";
-            /** @example Nguyen Van A */
-            contactName: string;
-            /** @example guest@example.com */
-            contactEmail: string;
-            /** @example +84901234567 */
-            contactPhone: string | null;
-            specialRequests: string | null;
-            tour: components["schemas"]["BookingTourRefDto"];
-            departure: components["schemas"]["BookingDepartureRefDto"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            /** @example 30.00 */
-            refundedAmount: string | null;
-            cancellationRequest: components["schemas"]["CancellationRequestSummaryDto"] | null;
-        };
-        CheckoutSessionDto: {
-            /** @example https://checkout.stripe.com/c/pay/cs_test_... */
-            checkoutUrl: string;
-            /** @example BK-7Q2KX9AB */
-            bookingCode: string;
-            /**
-             * @example PENDING
-             * @enum {string}
-             */
-            status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
-        };
-        PaginatedBookingsDto: {
-            data: components["schemas"]["BookingDto"][];
-            meta: components["schemas"]["PageMetaDto"];
-        };
-        AdminBookingDepartureRefDto: {
-            /**
-             * Format: date
-             * @example 2026-08-15
-             */
-            startDate: string;
-            /**
-             * Format: date
-             * @example 2026-08-18
-             */
-            endDate: string;
-            /** @example 12 */
-            seatsTotal: number;
-            /** @example 7 */
-            seatsBooked: number;
-        };
-        AdminCancellationRequestSummaryDto: {
-            /**
-             * @example REQUESTED
-             * @enum {string}
-             */
-            status: "REQUESTED" | "REFUNDED" | "DENIED";
-            /** @example Change of travel plans */
-            reason: string;
-            /** Format: date-time */
-            createdAt: string;
-            decisionNote: string | null;
-            /** Format: date-time */
-            decidedAt: string | null;
-            /** Format: uuid */
-            id: string;
-        };
-        RefundedByDto: {
-            /** @example Jane Admin */
-            fullName: string | null;
-            /** @example admin@example.com */
-            email: string;
-        };
-        BookingCustomerDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example Jane Doe */
-            fullName: string | null;
-            /** @example jane@example.com */
-            email: string;
-            /**
-             * Format: date-time
-             * @description Account created — "customer since".
-             */
-            createdAt: string;
-        };
-        OtherBookingItemDto: {
-            /** @example BK-7Q2KX9AB */
-            code: string;
-            /** @enum {string} */
-            status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
-            /** Format: date-time */
-            createdAt: string;
-            /** @example Mekong Delta Day Trip */
-            tourTitle: string;
-            /** @example 150.00 */
-            totalAmount: string;
-            /** @example USD */
-            currency: string;
-        };
-        OtherBookingsDto: {
-            /**
-             * @description Total OTHER bookings (current one excluded).
-             * @example 7
-             */
-            total: number;
-            /** @description Newest first, at most 5. */
-            items: components["schemas"]["OtherBookingItemDto"][];
-        };
-        PaymentEventSummaryDto: {
-            /** Format: uuid */
-            id: string;
-            /** @enum {string} */
-            provider: "STRIPE" | "PAYPAL";
-            /** @example checkout.session.completed */
-            type: string;
-            /**
-             * @description Provider-side event id.
-             * @example evt_1PabcXYZ
-             */
-            eventId: string;
-            /** Format: date-time */
-            receivedAt: string;
-            /** Format: date-time */
-            processedAt: string | null;
-        };
-        AdminBookingDetailDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example BK-7Q2KX9AB */
-            code: string;
-            /**
-             * @example PENDING
-             * @enum {string}
-             */
-            status: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
-            /** @example 2 */
-            numAdults: number;
-            /** @example 1 */
-            numChildren: number;
-            /** @example 99.00 */
-            totalAmount: string;
-            /** @example USD */
-            currency: string;
-            /**
-             * @example STRIPE
-             * @enum {string}
-             */
-            paymentProvider: "STRIPE" | "PAYPAL";
-            /** @example Nguyen Van A */
-            contactName: string;
-            /** @example guest@example.com */
-            contactEmail: string;
-            /** @example +84901234567 */
-            contactPhone: string | null;
-            specialRequests: string | null;
-            tour: components["schemas"]["BookingTourRefDto"];
-            departure: components["schemas"]["AdminBookingDepartureRefDto"];
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            /** @example 30.00 */
-            refundedAmount: string | null;
-            cancellationRequest: components["schemas"]["AdminCancellationRequestSummaryDto"] | null;
-            /** Format: date-time */
-            paidAt: string | null;
-            /** Format: date-time */
-            cancelledAt: string | null;
-            /**
-             * @description Captured charge/order id at the payment gateway (Stripe PaymentIntent / PayPal capture).
-             * @example pi_3QabcXYZ
-             */
-            providerPaymentId: string | null;
-            /**
-             * @description Checkout session / PayPal order id minted at checkout start (pre-capture reference).
-             * @example cs_test_a1B2c3
-             */
-            providerSessionId: string | null;
-            /** @example Customer cancelled within the free window */
-            refundReason: string | null;
-            refundedBy: components["schemas"]["RefundedByDto"] | null;
-            /** Format: date-time */
-            refundedAt: string | null;
-            customer: components["schemas"]["BookingCustomerDto"];
-            otherBookings: components["schemas"]["OtherBookingsDto"];
-            paymentEvents: components["schemas"]["PaymentEventSummaryDto"][];
-        };
-        RefundBookingDto: {
-            /** @example Customer cancelled within the free window */
-            reason?: string;
-            /**
-             * @description Partial refund amount in the booking currency; omit for a full refund
-             * @example 30
-             */
-            amount?: number;
-        };
-        CreateCancellationRequestDto: {
-            /** @example Change of travel plans */
-            reason?: string;
-        };
-        AdminCancellationBookingRefDto: {
-            /** @example BK-7Q2KX9AB */
-            code: string;
-            /** @example Hoi An Walking Tour */
-            tourTitle: string;
-            /**
-             * Format: date
-             * @example 2026-08-15
-             */
-            departureStartDate: string;
-            /** @example Nguyen Van A */
-            customerName: string;
-            /** @example guest@example.com */
-            customerEmail: string;
-        };
-        AdminCancellationRequestDto: {
-            /** Format: uuid */
-            id: string;
-            /** @enum {string} */
-            status: "REQUESTED" | "REFUNDED" | "DENIED";
-            /** @example Change of travel plans */
-            reason: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            decidedAt: string | null;
-            decisionNote: string | null;
-            booking: components["schemas"]["AdminCancellationBookingRefDto"];
-        };
-        PaginatedCancellationRequestsDto: {
-            data: components["schemas"]["AdminCancellationRequestDto"][];
-            meta: components["schemas"]["PageMetaDto"];
-        };
-        DenyCancellationRequestDto: {
-            /** @example Outside the free-cancellation window */
-            decisionNote?: string;
-        };
-        FeaturedReviewDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 5 */
-            rating: number;
-            title: string | null;
-            body: string;
-            /** @example Emily Carter */
-            authorName: string;
-            /** @example Sydney, Australia */
-            authorLocation: string | null;
-            /** @example Hạ Long Bay Cruise */
-            tripLabel: string | null;
-            /** Format: date-time */
-            createdAt: string;
-        };
-        FeaturedReviewsDto: {
-            data: components["schemas"]["FeaturedReviewDto"][];
-        };
-        CreateReviewDto: {
-            /**
-             * @description Booking code this review is attached to (must be PAID).
-             * @example BK-ABCDEFGH
-             */
-            bookingCode: string;
-            /**
-             * @description 1–5 stars
-             * @example 5
-             */
-            rating: number;
-            /** @example Unforgettable trip */
-            title?: string;
-            /**
-             * @description Review body — 10 to 2000 chars.
-             * @example Guide was excellent and the itinerary was well paced...
-             */
-            body: string;
-        };
-        ReviewDto: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            tourId: string;
-            /** Format: uuid */
-            userId: string;
-            /** Format: uuid */
-            bookingId: string;
-            /** @example 5 */
-            rating: number;
-            title: string | null;
-            body: string;
-            isApproved: boolean;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        ReviewerDto: {
-            /**
-             * @description Display name (or "Anonymous")
-             * @example Alice N.
-             */
-            fullName: string;
-        };
-        PublicReviewDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example 5 */
-            rating: number;
-            title: string | null;
-            body: string;
-            /** Format: date-time */
-            createdAt: string;
-            reviewer: components["schemas"]["ReviewerDto"];
-        };
-        ReviewPageMetaDto: {
-            /** @example 1 */
-            page: number;
-            /** @example 20 */
-            pageSize: number;
-            /** @example 42 */
-            total: number;
-            /** @example 3 */
-            totalPages: number;
-            /**
-             * @description Mean rating across approved reviews; null when none yet.
-             * @example 4.5
-             */
-            averageRating: number | null;
-        };
-        PaginatedPublicReviewsDto: {
-            data: components["schemas"]["PublicReviewDto"][];
-            meta: components["schemas"]["ReviewPageMetaDto"];
-        };
-        AdminReviewDto: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            tourId: string | null;
-            /** @example hoi-an-walking-tour */
-            tourSlug: string | null;
-            /** @example Hoi An Ancient Town Walking Tour */
-            tourTitle: string | null;
-            /** Format: uuid */
-            userId: string | null;
-            /**
-             * @description Snapshot display name
-             * @example Alice Nguyen
-             */
-            authorName: string;
-            /** @example Sydney, Australia */
-            authorLocation: string | null;
-            /** Format: uuid */
-            bookingId: string | null;
-            /**
-             * @example VERIFIED
-             * @enum {string}
-             */
-            source: "VERIFIED" | "CURATED";
-            /** @example false */
-            isFeatured: boolean;
-            /** @example 5 */
-            rating: number;
-            title: string | null;
-            /**
-             * @description Trip label shown on curated testimonials.
-             * @example Hạ Long Bay Cruise
-             */
-            tripLabel: string | null;
-            body: string;
-            isApproved: boolean;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        PaginatedAdminReviewsDto: {
-            data: components["schemas"]["AdminReviewDto"][];
-            meta: components["schemas"]["PageMetaDto"];
-        };
-        ModerateReviewDto: {
-            /**
-             * @description true to approve and publish; false to revert to draft.
-             * @example true
-             */
-            isApproved: boolean;
-        };
-        FeatureReviewDto: {
-            /**
-             * @description true to pin to the homepage testimonials; false to unpin.
-             * @example true
-             */
-            isFeatured: boolean;
-        };
-        CreateCuratedReviewDto: {
-            /** @example Emily Carter */
-            authorName: string;
-            /** @example Sydney, Australia */
-            authorLocation?: string;
-            /** @example Hạ Long Bay Cruise */
-            tripLabel?: string;
-            /** @example 5 */
-            rating: number;
-            title?: string;
-            body: string;
-        };
-        WishlistTourPreviewDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example hoi-an-walking-tour */
-            slug: string;
-            /** @example Hoi An Old Town Walking Tour */
-            title: string;
-            summary: string | null;
-            /**
-             * @description Decimal serialized as string
-             * @example 149.00
-             */
-            basePrice: string;
-            /** @example USD */
-            currency: string;
-            /** @example 3 */
-            durationDays: number;
-            /** @example true */
-            isPublished: boolean;
-            media: components["schemas"]["MediaItemDto"][];
-        };
-        WishlistItemDto: {
-            /** Format: uuid */
-            userId: string;
-            /** Format: uuid */
-            tourId: string;
-            /** Format: date-time */
-            createdAt: string;
-            tour: components["schemas"]["WishlistTourPreviewDto"];
-        };
-        CreateEnquiryDto: {
-            /** @example Jane Traveller */
-            name: string;
-            /** @example jane@example.com */
-            email: string;
-            /** @example +44 7700 900123 */
-            phone?: string;
-            /** @example Is the Hoi An tour available in July for 2 adults? */
-            message: string;
-            /**
-             * Format: uuid
-             * @description Tour this enquiry is about (must be published).
-             */
-            tourId?: string;
-            /** @example United Kingdom */
-            nationality?: string;
-            /**
-             * Format: date
-             * @description Preferred arrival / travel date.
-             * @example 2026-08-01
-             */
-            travelDate?: string;
-            /**
-             * @description Party size.
-             * @example 4
-             */
-            groupSize?: number;
-            /**
-             * @description Budget tier as shown in the form.
-             * @example $1000–$2000
-             */
-            budgetTier?: string;
-            /**
-             * @description Trip interests / preferences (multi-select).
-             * @example [
-             *       "culture",
-             *       "food"
-             *     ]
-             */
-            interests?: string[];
-            /** @description Anti-spam honeypot — must stay empty. */
-            website?: string;
-        };
-        EnquiryAckDto: {
-            /** @example true */
-            received: boolean;
-        };
-        EnquiryDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example Jane Traveller */
-            name: string;
-            /** @example jane@example.com */
-            email: string;
-            phone: string | null;
-            message: string;
-            /** Format: uuid */
-            tourId: string | null;
-            /** @example ha-long-bay-cruise */
-            tourSlug: string | null;
-            /** @example Hạ Long Bay Cruise 2D1N */
-            tourTitle: string | null;
-            /** @example United Kingdom */
-            nationality: string | null;
-            /** Format: date-time */
-            travelDate: string | null;
-            /** @example 4 */
-            groupSize: number | null;
-            /** @example $1000–$2000 */
-            budgetTier: string | null;
-            /**
-             * @example [
-             *       "culture",
-             *       "food"
-             *     ]
-             */
-            interests: string[];
-            /** @enum {string} */
-            status: "NEW" | "CONTACTED" | "QUOTED" | "WON" | "LOST";
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        PaginatedEnquiriesDto: {
-            data: components["schemas"]["EnquiryDto"][];
-            meta: components["schemas"]["PageMetaDto"];
-        };
-        UpdateEnquiryStatusDto: {
-            /**
-             * @example CONTACTED
-             * @enum {string}
-             */
-            status: "NEW" | "CONTACTED" | "QUOTED" | "WON" | "LOST";
-        };
-        SubscribeDto: {
-            /** @example jane@example.com */
-            email: string;
-            /**
-             * @description Where the signup came from.
-             * @example footer
-             */
-            source?: string;
-            /** @description Anti-spam honeypot — must stay empty. */
-            website?: string;
-        };
-        SubscribeAckDto: {
-            /** @example true */
-            received: boolean;
-        };
-        SubscriberDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example jane@example.com */
-            email: string;
-            /** @example footer */
-            source: string | null;
-            /** Format: date-time */
-            subscribedAt: string;
-        };
-        PaginatedSubscribersDto: {
-            data: components["schemas"]["SubscriberDto"][];
-            meta: components["schemas"]["PageMetaDto"];
-        };
-        StatsOverviewDto: {
-            /**
-             * @description Sum of PAID totals (string Decimal)
-             * @example 12450.00
-             */
-            totalRevenue: string;
-            /** @example USD */
-            currency: string;
-            /** @example 87 */
-            totalBookings: number;
-            /** @example 61 */
-            paidBookings: number;
-            /**
-             * @description paid / total (0 when no bookings)
-             * @example 0.7
-             */
-            conversionRate: number;
-            /**
-             * @description Last vs prior month revenue; null if <2 months
-             * @example 0.18
-             */
-            monthOverMonthGrowth: number | null;
-        };
-        TopTourByRevenueDto: {
-            /** Format: uuid */
-            tourId: string;
-            /** @example hoi-an-walking-tour */
-            slug: string;
-            /** @example Hoi An Old Town Walking Tour */
-            title: string;
-            /** @example 4500.00 */
-            revenue: string;
-            /** @example 30 */
-            bookingsCount: number;
-        };
-        TopTourByRatingDto: {
-            /** Format: uuid */
-            tourId: string;
-            /** @example hoi-an-walking-tour */
-            slug: string;
-            /** @example Hoi An Old Town Walking Tour */
-            title: string;
-            /** @example 4.8 */
-            averageRating: number;
-            /** @example 24 */
-            reviewsCount: number;
-        };
-        TopTourByWishlistDto: {
-            /** Format: uuid */
-            tourId: string;
-            /** @example hoi-an-walking-tour */
-            slug: string;
-            /** @example Hoi An Old Town Walking Tour */
-            title: string;
-            /** @example 42 */
-            wishlistCount: number;
-        };
-        MonthlyTrendPointDto: {
-            /** @example 2026-05 */
-            month: string;
-            /** @example 18 */
-            bookings: number;
-            /** @example 12 */
-            paidBookings: number;
-            /** @example 2700.00 */
-            revenue: string;
-        };
-        DailyTrendPointDto: {
-            /** @example 2026-06-30 */
-            date: string;
-            /** @example 3 */
-            bookings: number;
-            /** @example 450.00 */
-            revenue: string;
-        };
-        PendingCountsDto: {
-            /**
-             * @description Reviews awaiting approval
-             * @example 3
-             */
-            reviews: number;
-            /**
-             * @description Enquiries still in the NEW pipeline stage
-             * @example 5
-             */
-            enquiries: number;
-        };
-        AdminStatsResponseDto: {
-            overview: components["schemas"]["StatsOverviewDto"];
-            /**
-             * @description Booking count keyed by status
-             * @example {
-             *       "PENDING": 12,
-             *       "PAID": 61,
-             *       "CANCELLED": 9,
-             *       "REFUNDED": 5
-             *     }
-             */
-            bookingsByStatus: Record<string, never>;
-            topToursByRevenue: components["schemas"]["TopTourByRevenueDto"][];
-            topToursByRating: components["schemas"]["TopTourByRatingDto"][];
-            topToursByWishlist: components["schemas"]["TopTourByWishlistDto"][];
-            monthlyTrend: components["schemas"]["MonthlyTrendPointDto"][];
-            dailyTrend: components["schemas"]["DailyTrendPointDto"][];
-            pendingCounts: components["schemas"]["PendingCountsDto"];
-        };
-        PostTagDto: {
-            /** @example ha-long */
-            slug: string;
-            /** @example Hạ Long */
-            name: string;
-        };
-        PublicPostAuthorDto: {
-            /** @example Ana Admin */
-            fullName: string | null;
-            /** @description Avatar delivery URL, when set. */
-            avatarUrl: string | null;
-        };
-        PostDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example three-perfect-days-in-hoi-an */
-            slug: string;
-            /** @example Three perfect days in Hội An */
-            title: string;
-            excerpt: string | null;
-            /** @description Markdown body */
-            content: string;
-            /** @enum {string} */
-            status: "DRAFT" | "PUBLISHED";
-            /** Format: date-time */
-            publishedAt: string | null;
-            /** Format: uuid */
-            authorId: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            /** @description Attached media; the cover is role `hero`. */
-            media: components["schemas"]["MediaItemDto"][];
-            /** @description Free-form topics (empty when untagged). */
-            tags: components["schemas"]["PostTagDto"][];
-            author: components["schemas"]["PublicPostAuthorDto"];
-        };
-        PaginatedPostsDto: {
-            data: components["schemas"]["PostDto"][];
-            meta: components["schemas"]["PageMetaDto"];
-        };
-        PostTagWithCountDto: {
-            /** @example ha-long */
-            slug: string;
-            /** @example Hạ Long */
-            name: string;
-            /** @example 4 */
-            count: number;
-        };
-        PostDetailDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example three-perfect-days-in-hoi-an */
-            slug: string;
-            /** @example Three perfect days in Hội An */
-            title: string;
-            excerpt: string | null;
-            /** @description Markdown body */
-            content: string;
-            /** @enum {string} */
-            status: "DRAFT" | "PUBLISHED";
-            /** Format: date-time */
-            publishedAt: string | null;
-            /** Format: uuid */
-            authorId: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            /** @description Attached media; the cover is role `hero`. */
-            media: components["schemas"]["MediaItemDto"][];
-            /** @description Free-form topics (empty when untagged). */
-            tags: components["schemas"]["PostTagDto"][];
-            author: components["schemas"]["PublicPostAuthorDto"];
-            /** @description Published related tours, pick order. */
-            relatedTours: components["schemas"]["TourSummaryDto"][];
-        };
-        PostAuthorDto: {
-            /** @example Ana Admin */
-            fullName: string | null;
-            /** @example ana@nexora.travel */
-            email: string;
-            /** @description Avatar delivery URL, when set. */
-            avatarUrl: string | null;
-        };
-        AdminRelatedTourDto: {
-            /** @example halong-heritage-cruise */
-            slug: string;
-            /** @example Hạ Long heritage cruise */
-            title: string;
-            isPublished: boolean;
-        };
-        AdminPostDetailDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example three-perfect-days-in-hoi-an */
-            slug: string;
-            /** @example Three perfect days in Hội An */
-            title: string;
-            excerpt: string | null;
-            /** @description Markdown body */
-            content: string;
-            /** @enum {string} */
-            status: "DRAFT" | "PUBLISHED";
-            /** Format: date-time */
-            publishedAt: string | null;
-            /** Format: uuid */
-            authorId: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            /** @description Attached media; the cover is role `hero`. */
-            media: components["schemas"]["MediaItemDto"][];
-            /** @description Free-form topics (empty when untagged). */
-            tags: components["schemas"]["PostTagDto"][];
-            author: components["schemas"]["PostAuthorDto"];
-            /** @description Admin-picked tours, pick order. */
-            relatedTours: components["schemas"]["AdminRelatedTourDto"][];
-        };
-        CreatePostDto: {
-            /** @example Three perfect days in Hội An */
-            title: string;
-            /**
-             * @description kebab slug; generated from `title` when omitted
-             * @example three-perfect-days-in-hoi-an
-             */
-            slug?: string;
-            excerpt?: string;
-            /**
-             * @description Markdown body
-             * @example ## Day 1\n...
-             */
-            content: string;
-            /**
-             * @default DRAFT
-             * @enum {string}
-             */
-            status: "DRAFT" | "PUBLISHED";
-            /**
-             * @description Tag display names (upserted by slug); replace-all when provided.
-             * @example [
-             *       "Hạ Long",
-             *       "Cruises"
-             *     ]
-             */
-            tags?: string[];
-            /**
-             * @description Related tour slugs (max 3, order = array order); replace-all when provided.
-             * @example [
-             *       "halong-heritage-cruise"
-             *     ]
-             */
-            relatedTourSlugs?: string[];
-        };
-        UpdatePostDto: {
-            /** @example Three perfect days in Hội An */
-            title?: string;
-            /**
-             * @description kebab slug; generated from `title` when omitted
-             * @example three-perfect-days-in-hoi-an
-             */
-            slug?: string;
-            excerpt?: string;
-            /**
-             * @description Markdown body
-             * @example ## Day 1\n...
-             */
-            content?: string;
-            /**
-             * @default DRAFT
-             * @enum {string}
-             */
-            status: "DRAFT" | "PUBLISHED";
-            /**
-             * @description Tag display names (upserted by slug); replace-all when provided.
-             * @example [
-             *       "Hạ Long",
-             *       "Cruises"
-             *     ]
-             */
-            tags?: string[];
-            /**
-             * @description Related tour slugs (max 3, order = array order); replace-all when provided.
-             * @example [
-             *       "halong-heritage-cruise"
-             *     ]
-             */
-            relatedTourSlugs?: string[];
-        };
-        RegisterBodyImageDto: {
-            /** @example tourism/posts/body/1717000000000-boat */
-            publicId: string;
-            /** @example 1600 */
-            width?: number;
-            /** @example 900 */
-            height?: number;
-            /** @example jpg */
-            format?: string;
-        };
-        BodyImageUrlDto: {
-            /** Format: uri */
-            url: string;
-        };
-        AdminOutboxRowDto: {
-            /** Format: uuid */
-            id: string;
-            /** @enum {string} */
-            type: "BOOKING_CONFIRMATION" | "BOOKING_REFUNDED" | "REVIEW_APPROVED" | "ENQUIRY_RECEIVED" | "CANCELLATION_REQUESTED" | "CANCELLATION_DENIED";
-            /** @enum {string} */
-            status: "PENDING" | "SENT" | "FAILED";
-            /** @example 0 */
-            attempts: number;
-            lastError: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            processedAt: string | null;
-        };
-        PaginatedAdminOutboxDto: {
-            data: components["schemas"]["AdminOutboxRowDto"][];
-            meta: components["schemas"]["PageMetaDto"];
-        };
-        AdminMediaAssetDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example tourism/tours/hero/1717000000000-hoi-an */
-            publicId: string;
-            /** Format: uri */
-            url: string;
-            /**
-             * Format: uri
-             * @description Video poster URL.
-             */
-            posterUrl: string | null;
-            /** @enum {string} */
-            type: "IMAGE" | "VIDEO";
-            /** @enum {string} */
-            role: "hero" | "gallery" | "avatar" | "body";
-            /** @example jpg */
-            format: string | null;
-            /** @example 1920 */
-            width: number | null;
-            /** @example 1080 */
-            height: number | null;
-            /** @example 245000 */
-            bytes: number | null;
-            durationSec: number | null;
-            /** @example 0 */
-            sortOrder: number;
-            /** Format: date-time */
-            createdAt: string;
-            /** @enum {string} */
-            ownerType: "TOUR" | "DESTINATION" | "USER" | "POST";
-            /** Format: uuid */
-            ownerId: string;
-            /**
-             * @description Owning record title/name — null when the owner row no longer exists.
-             * @example Hoi An Walking Tour
-             */
-            ownerTitle: string | null;
-            /**
-             * @description Owner page slug (tour/destination/post); null for USER owners.
-             * @example hoi-an-walking-tour
-             */
-            ownerSlug: string | null;
-        };
-        PaginatedAdminMediaDto: {
-            data: components["schemas"]["AdminMediaAssetDto"][];
-            meta: components["schemas"]["PageMetaDto"];
-        };
-        MediaGarbageRowDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example tourism/destinations/gallery/1717000000000-old */
-            publicId: string;
-            /**
-             * @description Cloudinary resource_type ('image' | 'video').
-             * @example image
-             */
-            resourceType: string;
-            /** @example 0 */
-            attempts: number;
-            lastError: string | null;
-            /** Format: date-time */
-            createdAt: string;
-        };
-        PaginatedMediaGarbageDto: {
-            data: components["schemas"]["MediaGarbageRowDto"][];
-            meta: components["schemas"]["PageMetaDto"];
-        };
-        MediaReconcileResultDto: {
-            /** @example 9 */
-            destroyed: number;
-            /** @example 0 */
-            failed: number;
-        };
-        DeletedMediaAssetDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example tourism/tours/hero/1717000000000-hoi-an */
-            publicId: string;
-        };
+  schemas: {
+    SyncUserDto: {
+      /** @example Nguyen Van A */
+      fullName?: string;
+      /** @example +84901234567 */
+      phone?: string;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    UserDto: {
+      /** Format: uuid */
+      id: string;
+      /**
+       * Format: uuid
+       * @description Supabase auth.users.id
+       */
+      supabaseId: string;
+      /** Format: email */
+      email: string;
+      fullName: string | null;
+      phone: string | null;
+      /**
+       * @description EN-only for now (ADR-0005)
+       * @example en
+       */
+      locale: string;
+      /**
+       * @example CUSTOMER
+       * @enum {string}
+       */
+      role: 'CUSTOMER' | 'ADMIN';
+      /**
+       * Format: uri
+       * @description Cloudinary avatar delivery URL (null if none set)
+       */
+      avatarUrl: string | null;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    SignAvatarDto: {
+      /**
+       * @description Original filename (single extension).
+       * @example me.jpg
+       */
+      filename: string;
+      /** @example image/jpeg */
+      contentType?: string;
+    };
+    UpdateMeDto: {
+      /** @example Nguyen Van A */
+      fullName?: string;
+      /** @example +84901234567 */
+      phone?: string;
+    };
+    SetAvatarDto: {
+      /**
+       * @description Cloudinary public_id (no extension).
+       * @example tourism/users/avatar/1717000000000-jane
+       */
+      publicId: string;
+      /** @example jpg */
+      format?: string;
+      /** @example 512 */
+      width?: number;
+      /** @example 512 */
+      height?: number;
+    };
+    AdminUserListItemDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example jane@example.com */
+      email: string;
+      /** @example Jane Doe */
+      fullName: string | null;
+      /** @example +84901234567 */
+      phone: string | null;
+      /** @enum {string} */
+      role: 'CUSTOMER' | 'ADMIN';
+      /** Format: date-time */
+      createdAt: string;
+      /** @example 3 */
+      bookingsCount: number;
+    };
+    PageMetaDto: {
+      /** @example 1 */
+      page: number;
+      /** @example 20 */
+      pageSize: number;
+      /** @example 42 */
+      total: number;
+      /** @example 3 */
+      totalPages: number;
+    };
+    PaginatedAdminUsersDto: {
+      data: components['schemas']['AdminUserListItemDto'][];
+      meta: components['schemas']['PageMetaDto'];
+    };
+    AdminUserCountsDto: {
+      /** @example 4 */
+      bookings: number;
+      /** @example 2 */
+      reviews: number;
+      /** @example 5 */
+      wishlist: number;
+    };
+    AdminUserDetailDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example jane@example.com */
+      email: string;
+      /** @example Jane Doe */
+      fullName: string | null;
+      /** @example +84901234567 */
+      phone: string | null;
+      /** @enum {string} */
+      role: 'CUSTOMER' | 'ADMIN';
+      /** Format: date-time */
+      createdAt: string;
+      /** @example 3 */
+      bookingsCount: number;
+      /** @example en */
+      locale: string;
+      /** Format: date-time */
+      updatedAt: string;
+      /** Format: uri */
+      avatarUrl: string | null;
+      counts: components['schemas']['AdminUserCountsDto'];
+      /** @description Email is on the ADMIN_EMAILS bootstrap allowlist — demote is blocked in the UI. */
+      isEnvAdmin: boolean;
+      /** @description Target is the caller — self-directed actions are blocked. */
+      isSelf: boolean;
+    };
+    ChangeUserRoleDto: {
+      /** @enum {string} */
+      role: 'CUSTOMER' | 'ADMIN';
+    };
+    DeletedUserDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example jane@example.com */
+      email: string;
+    };
+    CreateSignedUploadUrlDto: {
+      /**
+       * @description Upload classification — determines the storage folder.
+       * @enum {string}
+       */
+      purpose:
+        | 'TOUR_HERO'
+        | 'TOUR_GALLERY'
+        | 'TOUR_VIDEO'
+        | 'DESTINATION_HERO'
+        | 'DESTINATION_GALLERY'
+        | 'DESTINATION_VIDEO'
+        | 'USER_AVATAR'
+        | 'POST_COVER'
+        | 'POST_BODY';
+      /**
+       * @description Original filename (single extension). The backend sanitizes + timestamps it.
+       * @example hero-shot.jpg
+       */
+      filename: string;
+      /** @example image/jpeg */
+      contentType?: string;
+    };
+    MediaItemDto: {
+      /**
+       * @description Cloudinary public_id — lets the admin re-submit an unchanged item.
+       * @example tourism/destinations/hero/1717000000000-hoi-an
+       */
+      publicId: string;
+      /** Format: uri */
+      url: string;
+      /** @enum {string} */
+      type: 'IMAGE' | 'VIDEO';
+      /**
+       * @example gallery
+       * @enum {string}
+       */
+      role: 'hero' | 'gallery' | 'avatar' | 'body';
+      /**
+       * Format: uri
+       * @description Video poster URL.
+       */
+      posterUrl?: string;
+      width?: number | null;
+      height?: number | null;
+      durationSec?: number | null;
+      /** @example 0 */
+      sortOrder: number;
+    };
+    DestinationDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example hoi-an */
+      slug: string;
+      /** @example Hoi An */
+      name: string;
+      /** @example Vietnam */
+      country: string;
+      region: string | null;
+      description: string | null;
+      isActive: boolean;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      media: components['schemas']['MediaItemDto'][];
+      /**
+       * @description Number of tours using this destination
+       * @example 4
+       */
+      toursCount: number;
+    };
+    PaginatedDestinationsDto: {
+      data: components['schemas']['DestinationDto'][];
+      meta: components['schemas']['PageMetaDto'];
+    };
+    DestinationTourDto: {
+      /** @example hoi-an-walking-tour */
+      slug: string;
+      /** @example Hoi An Ancient Town Walking Tour */
+      title: string;
+      /** @example true */
+      isPublished: boolean;
+      /**
+       * @description Whether this destination is the tour’s primary one.
+       * @example true
+       */
+      isPrimary: boolean;
+    };
+    AdminDestinationDetailDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example hoi-an */
+      slug: string;
+      /** @example Hoi An */
+      name: string;
+      /** @example Vietnam */
+      country: string;
+      region: string | null;
+      description: string | null;
+      isActive: boolean;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      media: components['schemas']['MediaItemDto'][];
+      /**
+       * @description Number of tours using this destination
+       * @example 4
+       */
+      toursCount: number;
+      tours: components['schemas']['DestinationTourDto'][];
+    };
+    CreateDestinationDto: {
+      /** @example Hoi An */
+      name: string;
+      /**
+       * @description kebab slug; generated from `name` when omitted
+       * @example hoi-an
+       */
+      slug?: string;
+      /**
+       * @default Vietnam
+       * @example Vietnam
+       */
+      country: string;
+      /** @example Central Vietnam */
+      region?: string;
+      description?: string;
+      /** @default true */
+      isActive: boolean;
+    };
+    UpdateDestinationDto: {
+      /** @example Hoi An */
+      name?: string;
+      /**
+       * @description kebab slug; generated from `name` when omitted
+       * @example hoi-an
+       */
+      slug?: string;
+      /**
+       * @default Vietnam
+       * @example Vietnam
+       */
+      country: string;
+      /** @example Central Vietnam */
+      region?: string;
+      description?: string;
+      /** @default true */
+      isActive: boolean;
+    };
+    MediaInputDto: {
+      /**
+       * @description Cloudinary public_id (no extension).
+       * @example tourism/tours/hero/1717000000000-hoi-an
+       */
+      publicId: string;
+      /**
+       * @example IMAGE
+       * @enum {string}
+       */
+      type: 'IMAGE' | 'VIDEO';
+      /**
+       * @example gallery
+       * @enum {string}
+       */
+      role: 'hero' | 'gallery' | 'avatar' | 'body';
+      /** @example jpg */
+      format?: string;
+      /** @example 1920 */
+      width?: number;
+      /** @example 1080 */
+      height?: number;
+      /**
+       * @description Video duration in seconds (video only).
+       * @example 12.5
+       */
+      durationSec?: number;
+      /**
+       * @description Dedicated poster image public_id (video only).
+       * @example tourism/tours/video/1717000000000-poster
+       */
+      posterId?: string;
+      /**
+       * @description Display order.
+       * @example 0
+       */
+      sortOrder?: number;
+    };
+    SetMediaDto: {
+      media: components['schemas']['MediaInputDto'][];
+    };
+    TourCategoryDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example adventure-tours */
+      slug: string;
+      /** @example Adventure Tours */
+      name: string;
+      description: string | null;
+      /** @example 0 */
+      order: number;
+      isActive: boolean;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      /**
+       * @description Number of tours in this category
+       * @example 7
+       */
+      toursCount: number;
+    };
+    PaginatedTourCategoriesDto: {
+      data: components['schemas']['TourCategoryDto'][];
+      meta: components['schemas']['PageMetaDto'];
+    };
+    CategoryTourDto: {
+      /** @example hoi-an-walking-tour */
+      slug: string;
+      /** @example Hoi An Ancient Town Walking Tour */
+      title: string;
+      /** @example true */
+      isPublished: boolean;
+    };
+    AdminTourCategoryDetailDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example adventure-tours */
+      slug: string;
+      /** @example Adventure Tours */
+      name: string;
+      description: string | null;
+      /** @example 0 */
+      order: number;
+      isActive: boolean;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      /**
+       * @description Number of tours in this category
+       * @example 7
+       */
+      toursCount: number;
+      tours: components['schemas']['CategoryTourDto'][];
+    };
+    CreateTourCategoryDto: {
+      /** @example Adventure Tours */
+      name: string;
+      /**
+       * @description kebab slug; generated from `name` when omitted
+       * @example adventure-tours
+       */
+      slug?: string;
+      description?: string;
+      /**
+       * @default 0
+       * @example 0
+       */
+      order: number;
+      /** @default true */
+      isActive: boolean;
+    };
+    UpdateTourCategoryDto: {
+      /** @example Adventure Tours */
+      name?: string;
+      /**
+       * @description kebab slug; generated from `name` when omitted
+       * @example adventure-tours
+       */
+      slug?: string;
+      description?: string;
+      /**
+       * @default 0
+       * @example 0
+       */
+      order: number;
+      /** @default true */
+      isActive: boolean;
+    };
+    TourCategoryRefDto: {
+      /** @example day-tours */
+      slug: string;
+      /** @example Day Tours */
+      name: string;
+    };
+    TourDestinationRefDto: {
+      /** @example hoi-an */
+      slug: string;
+      /** @example Hoi An */
+      name: string;
+    };
+    TourDestinationLinkDto: {
+      isPrimary: boolean;
+      destination: components['schemas']['TourDestinationRefDto'];
+    };
+    TourSummaryDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example hoi-an-walking-tour */
+      slug: string;
+      /** @example Hoi An Ancient Town Walking Tour */
+      title: string;
+      summary: string | null;
+      /** @example 1 */
+      durationDays: number;
+      /** @example 20 */
+      maxGroupSize: number;
+      /** @example 49.50 */
+      basePrice: string;
+      /** @example 69.00 */
+      compareAtPrice: string | null;
+      /** @example USD */
+      currency: string;
+      /** @example easy */
+      difficulty: string | null;
+      isPublished: boolean;
+      isFeatured: boolean;
+      /**
+       * @example [
+       *       "Lantern-lit old town"
+       *     ]
+       */
+      highlights: string[];
+      /**
+       * @example [
+       *       "FAMILY"
+       *     ]
+       */
+      suitableFor: ('FAMILY' | 'COUPLE' | 'FRIENDS' | 'SOLO' | 'BUSINESS')[];
+      /**
+       * @example [
+       *       "BEST_VALUE"
+       *     ]
+       */
+      badges: (
+        | 'BEST_VALUE'
+        | 'LIMITED_OFFER'
+        | 'EXCLUSIVE'
+        | 'NEW'
+        | 'POPULAR'
+      )[];
+      /**
+       * @description Average of approved reviews (1-dp); 0 if none
+       * @example 4.8
+       */
+      averageRating: number;
+      /**
+       * @description Count of approved reviews
+       * @example 214
+       */
+      reviewsCount: number;
+      /**
+       * Format: date
+       * @description Soonest open upcoming departure date; null if none scheduled
+       * @example 2026-08-15
+       */
+      nextDepartureDate: string | null;
+      /**
+       * @description Seats left on the soonest open upcoming departure; null if none
+       * @example 6
+       */
+      nextDepartureSeatsLeft: number | null;
+      category: components['schemas']['TourCategoryRefDto'];
+      destinations: components['schemas']['TourDestinationLinkDto'][];
+      media: components['schemas']['MediaItemDto'][];
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    PaginatedToursDto: {
+      data: components['schemas']['TourSummaryDto'][];
+      meta: components['schemas']['PageMetaDto'];
+    };
+    TourItineraryDayDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 1 */
+      dayNumber: number;
+      /** @example Arrival & old town walk */
+      title: string;
+      description: string | null;
+    };
+    TourFaqDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example Is hotel pickup included? */
+      question: string;
+      /** @example Yes, within the old town. */
+      answer: string;
+      /** @example 0 */
+      order: number;
+    };
+    TourPolicyDto: {
+      /** Format: uuid */
+      id: string;
+      /**
+       * @example CANCELLATION
+       * @enum {string}
+       */
+      kind: 'CANCELLATION' | 'BOOKING' | 'GENERAL';
+      /** @example Free cancellation up to 24h */
+      title: string;
+      /** @example Full refund if cancelled 24h before departure. */
+      body: string;
+      /** @example 0 */
+      order: number;
+    };
+    TourDetailDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example hoi-an-walking-tour */
+      slug: string;
+      /** @example Hoi An Ancient Town Walking Tour */
+      title: string;
+      summary: string | null;
+      /** @example 1 */
+      durationDays: number;
+      /** @example 20 */
+      maxGroupSize: number;
+      /** @example 49.50 */
+      basePrice: string;
+      /** @example 69.00 */
+      compareAtPrice: string | null;
+      /** @example USD */
+      currency: string;
+      /** @example easy */
+      difficulty: string | null;
+      isPublished: boolean;
+      isFeatured: boolean;
+      /**
+       * @example [
+       *       "Lantern-lit old town"
+       *     ]
+       */
+      highlights: string[];
+      /**
+       * @example [
+       *       "FAMILY"
+       *     ]
+       */
+      suitableFor: ('FAMILY' | 'COUPLE' | 'FRIENDS' | 'SOLO' | 'BUSINESS')[];
+      /**
+       * @example [
+       *       "BEST_VALUE"
+       *     ]
+       */
+      badges: (
+        | 'BEST_VALUE'
+        | 'LIMITED_OFFER'
+        | 'EXCLUSIVE'
+        | 'NEW'
+        | 'POPULAR'
+      )[];
+      /**
+       * @description Average of approved reviews (1-dp); 0 if none
+       * @example 4.8
+       */
+      averageRating: number;
+      /**
+       * @description Count of approved reviews
+       * @example 214
+       */
+      reviewsCount: number;
+      /**
+       * Format: date
+       * @description Soonest open upcoming departure date; null if none scheduled
+       * @example 2026-08-15
+       */
+      nextDepartureDate: string | null;
+      /**
+       * @description Seats left on the soonest open upcoming departure; null if none
+       * @example 6
+       */
+      nextDepartureSeatsLeft: number | null;
+      category: components['schemas']['TourCategoryRefDto'];
+      destinations: components['schemas']['TourDestinationLinkDto'][];
+      media: components['schemas']['MediaItemDto'][];
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      /**
+       * @example [
+       *       "Local guide",
+       *       "Lunch"
+       *     ]
+       */
+      included: string[];
+      /**
+       * @example [
+       *       "Tips"
+       *     ]
+       */
+      excluded: string[];
+      /** @example Meet at 78 Le Loi street */
+      meetingPoint: string | null;
+      itinerary: components['schemas']['TourItineraryDayDto'][];
+      faqs: components['schemas']['TourFaqDto'][];
+      policies: components['schemas']['TourPolicyDto'][];
+    };
+    TourOpsDto: {
+      /**
+       * @description All bookings ever, any status
+       * @example 30
+       */
+      bookingsTotal: number;
+      /** @example 24 */
+      bookingsPaid: number;
+      /**
+       * @description Sum of PAID totals (string Decimal)
+       * @example 4500.00
+       */
+      revenue: string;
+      /** @example 42 */
+      wishlistCount: number;
+      /** @example 7 */
+      enquiriesCount: number;
+    };
+    AdminTourDetailDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example hoi-an-walking-tour */
+      slug: string;
+      /** @example Hoi An Ancient Town Walking Tour */
+      title: string;
+      summary: string | null;
+      /** @example 1 */
+      durationDays: number;
+      /** @example 20 */
+      maxGroupSize: number;
+      /** @example 49.50 */
+      basePrice: string;
+      /** @example 69.00 */
+      compareAtPrice: string | null;
+      /** @example USD */
+      currency: string;
+      /** @example easy */
+      difficulty: string | null;
+      isPublished: boolean;
+      isFeatured: boolean;
+      /**
+       * @example [
+       *       "Lantern-lit old town"
+       *     ]
+       */
+      highlights: string[];
+      /**
+       * @example [
+       *       "FAMILY"
+       *     ]
+       */
+      suitableFor: ('FAMILY' | 'COUPLE' | 'FRIENDS' | 'SOLO' | 'BUSINESS')[];
+      /**
+       * @example [
+       *       "BEST_VALUE"
+       *     ]
+       */
+      badges: (
+        | 'BEST_VALUE'
+        | 'LIMITED_OFFER'
+        | 'EXCLUSIVE'
+        | 'NEW'
+        | 'POPULAR'
+      )[];
+      /**
+       * @description Average of approved reviews (1-dp); 0 if none
+       * @example 4.8
+       */
+      averageRating: number;
+      /**
+       * @description Count of approved reviews
+       * @example 214
+       */
+      reviewsCount: number;
+      /**
+       * Format: date
+       * @description Soonest open upcoming departure date; null if none scheduled
+       * @example 2026-08-15
+       */
+      nextDepartureDate: string | null;
+      /**
+       * @description Seats left on the soonest open upcoming departure; null if none
+       * @example 6
+       */
+      nextDepartureSeatsLeft: number | null;
+      category: components['schemas']['TourCategoryRefDto'];
+      destinations: components['schemas']['TourDestinationLinkDto'][];
+      media: components['schemas']['MediaItemDto'][];
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      /**
+       * @example [
+       *       "Local guide",
+       *       "Lunch"
+       *     ]
+       */
+      included: string[];
+      /**
+       * @example [
+       *       "Tips"
+       *     ]
+       */
+      excluded: string[];
+      /** @example Meet at 78 Le Loi street */
+      meetingPoint: string | null;
+      itinerary: components['schemas']['TourItineraryDayDto'][];
+      faqs: components['schemas']['TourFaqDto'][];
+      policies: components['schemas']['TourPolicyDto'][];
+      ops: components['schemas']['TourOpsDto'];
+    };
+    TourItineraryDayInput: {
+      /** @example 1 */
+      dayNumber: number;
+      /** @example Arrival & old town walk */
+      title: string;
+      description?: string;
+    };
+    TourFaqInput: {
+      /** @example Is hotel pickup included? */
+      question: string;
+      /** @example Yes, within the old town. */
+      answer: string;
+      /**
+       * @default 0
+       * @example 0
+       */
+      order: number;
+    };
+    TourPolicyInput: {
+      /**
+       * @example CANCELLATION
+       * @enum {string}
+       */
+      kind: 'CANCELLATION' | 'BOOKING' | 'GENERAL';
+      /** @example Free cancellation up to 24h */
+      title: string;
+      /** @example Full refund if cancelled 24h before departure. */
+      body: string;
+      /**
+       * @default 0
+       * @example 0
+       */
+      order: number;
+    };
+    CreateTourDto: {
+      /**
+       * @description Any format — normalized server-side to kebab-case (max 120). Omit to generate from title.
+       * @example hoi-an-walking-tour
+       */
+      slug?: string;
+      /** @example Hoi An Ancient Town Walking Tour */
+      title: string;
+      /** @example Half-day stroll through lantern-lit alleys. */
+      summary?: string;
+      /**
+       * @description Existing tour-category slug
+       * @example day-tours
+       */
+      categorySlug: string;
+      /**
+       * @description Slugs of existing destinations (>=1). `primaryDestinationSlug` must be one of these.
+       * @example [
+       *       "hoi-an",
+       *       "da-nang"
+       *     ]
+       */
+      destinationSlugs: string[];
+      /**
+       * @description Primary destination slug (∈ destinationSlugs)
+       * @example hoi-an
+       */
+      primaryDestinationSlug: string;
+      /** @example 1 */
+      durationDays: number;
+      /**
+       * @default 20
+       * @example 20
+       */
+      maxGroupSize: number;
+      /** @example Hoi An tourist info centre, 78 Le Loi street */
+      meetingPoint?: string;
+      /**
+       * @description Decimal(12,2)
+       * @example 49.5
+       */
+      basePrice: number;
+      /**
+       * @description Decimal(12,2) compare-at anchor
+       * @example 69
+       */
+      compareAtPrice?: number;
+      /**
+       * @default USD
+       * @example USD
+       */
+      currency: string;
+      /** @example easy */
+      difficulty?: string;
+      /**
+       * @default false
+       * @example false
+       */
+      isPublished: boolean;
+      /**
+       * @default false
+       * @example false
+       */
+      isFeatured: boolean;
+      /**
+       * @description Traveller types this tour suits.
+       * @example [
+       *       "FAMILY",
+       *       "COUPLE"
+       *     ]
+       */
+      suitableFor?: ('FAMILY' | 'COUPLE' | 'FRIENDS' | 'SOLO' | 'BUSINESS')[];
+      /**
+       * @description Merchandising badges on the tour card.
+       * @example [
+       *       "BEST_VALUE"
+       *     ]
+       */
+      badges?: (
+        | 'BEST_VALUE'
+        | 'LIMITED_OFFER'
+        | 'EXCLUSIVE'
+        | 'NEW'
+        | 'POPULAR'
+      )[];
+      /**
+       * @example [
+       *       "Local guide",
+       *       "Bottled water",
+       *       "Lunch"
+       *     ]
+       */
+      included?: string[];
+      /**
+       * @example [
+       *       "Personal expenses",
+       *       "Tips"
+       *     ]
+       */
+      excluded?: string[];
+      /**
+       * @example [
+       *       "Lantern-lit old town",
+       *       "Hands-on cooking class"
+       *     ]
+       */
+      highlights?: string[];
+      itinerary?: components['schemas']['TourItineraryDayInput'][];
+      faqs?: components['schemas']['TourFaqInput'][];
+      policies?: components['schemas']['TourPolicyInput'][];
+    };
+    UpdateTourDto: {
+      /**
+       * @description Any format — normalized server-side to kebab-case (max 120). Omit to generate from title.
+       * @example hoi-an-walking-tour
+       */
+      slug?: string;
+      /** @example Hoi An Ancient Town Walking Tour */
+      title?: string;
+      /** @example Half-day stroll through lantern-lit alleys. */
+      summary?: string;
+      /**
+       * @description Existing tour-category slug
+       * @example day-tours
+       */
+      categorySlug?: string;
+      /**
+       * @description Slugs of existing destinations (>=1). `primaryDestinationSlug` must be one of these.
+       * @example [
+       *       "hoi-an",
+       *       "da-nang"
+       *     ]
+       */
+      destinationSlugs?: string[];
+      /**
+       * @description Primary destination slug (∈ destinationSlugs)
+       * @example hoi-an
+       */
+      primaryDestinationSlug?: string;
+      /** @example 1 */
+      durationDays?: number;
+      /**
+       * @default 20
+       * @example 20
+       */
+      maxGroupSize: number;
+      /** @example Hoi An tourist info centre, 78 Le Loi street */
+      meetingPoint?: string;
+      /**
+       * @description Decimal(12,2)
+       * @example 49.5
+       */
+      basePrice?: number;
+      /**
+       * @description Decimal(12,2) compare-at anchor
+       * @example 69
+       */
+      compareAtPrice?: number;
+      /**
+       * @default USD
+       * @example USD
+       */
+      currency: string;
+      /** @example easy */
+      difficulty?: string;
+      /**
+       * @default false
+       * @example false
+       */
+      isPublished: boolean;
+      /**
+       * @default false
+       * @example false
+       */
+      isFeatured: boolean;
+      /**
+       * @description Traveller types this tour suits.
+       * @example [
+       *       "FAMILY",
+       *       "COUPLE"
+       *     ]
+       */
+      suitableFor?: ('FAMILY' | 'COUPLE' | 'FRIENDS' | 'SOLO' | 'BUSINESS')[];
+      /**
+       * @description Merchandising badges on the tour card.
+       * @example [
+       *       "BEST_VALUE"
+       *     ]
+       */
+      badges?: (
+        | 'BEST_VALUE'
+        | 'LIMITED_OFFER'
+        | 'EXCLUSIVE'
+        | 'NEW'
+        | 'POPULAR'
+      )[];
+      /**
+       * @example [
+       *       "Local guide",
+       *       "Bottled water",
+       *       "Lunch"
+       *     ]
+       */
+      included?: string[];
+      /**
+       * @example [
+       *       "Personal expenses",
+       *       "Tips"
+       *     ]
+       */
+      excluded?: string[];
+      /**
+       * @example [
+       *       "Lantern-lit old town",
+       *       "Hands-on cooking class"
+       *     ]
+       */
+      highlights?: string[];
+      itinerary?: components['schemas']['TourItineraryDayInput'][];
+      faqs?: components['schemas']['TourFaqInput'][];
+      policies?: components['schemas']['TourPolicyInput'][];
+    };
+    DepartureDto: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      tourId: string;
+      /**
+       * Format: date
+       * @example 2026-08-15
+       */
+      startDate: string;
+      /**
+       * Format: date
+       * @example 2026-08-18
+       */
+      endDate: string;
+      /**
+       * @description Decimal string; null = use tour basePrice
+       * @example 59.00
+       */
+      priceOverride: string | null;
+      /**
+       * @description Decimal string compare-at anchor; null = none
+       * @example 79.00
+       */
+      compareAtPrice: string | null;
+      /** @example 15 */
+      seatsTotal: number;
+      /** @example 0 */
+      seatsBooked: number;
+      /**
+       * @example OPEN
+       * @enum {string}
+       */
+      status: 'OPEN' | 'CLOSED' | 'CANCELLED';
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    CreateDepartureDto: {
+      /**
+       * @description ISO 8601 date
+       * @example 2026-08-15
+       */
+      startDate: string;
+      /**
+       * @description ISO 8601 date
+       * @example 2026-08-18
+       */
+      endDate: string;
+      /** @example 15 */
+      seatsTotal: number;
+      /** @example 59 */
+      priceOverride?: Record<string, never> | null;
+      /** @example 79 */
+      compareAtPrice?: Record<string, never> | null;
+      /**
+       * @default OPEN
+       * @enum {string}
+       */
+      status: 'OPEN' | 'CLOSED' | 'CANCELLED';
+    };
+    UpdateDepartureDto: {
+      /**
+       * @description ISO 8601 date
+       * @example 2026-08-15
+       */
+      startDate?: string;
+      /**
+       * @description ISO 8601 date
+       * @example 2026-08-18
+       */
+      endDate?: string;
+      /** @example 15 */
+      seatsTotal?: number;
+      /** @example 59 */
+      priceOverride?: Record<string, never> | null;
+      /** @example 79 */
+      compareAtPrice?: Record<string, never> | null;
+      /**
+       * @default OPEN
+       * @enum {string}
+       */
+      status: 'OPEN' | 'CLOSED' | 'CANCELLED';
+    };
+    CreateBookingDto: {
+      /**
+       * @description Slug of an existing published tour (kebab-case).
+       * @example hoi-an-walking-tour
+       */
+      tourSlug: string;
+      /**
+       * @description UUID of a departure under the tour. Must be OPEN.
+       * @example 3fa85f64-5717-4562-b3fc-2c963f66afa6
+       */
+      departureId: string;
+      /** @example 2 */
+      numAdults: number;
+      /**
+       * @default 0
+       * @example 1
+       */
+      numChildren: number;
+      /**
+       * @example STRIPE
+       * @enum {string}
+       */
+      paymentProvider: 'STRIPE' | 'PAYPAL';
+      /** @example Nguyen Van A */
+      contactName: string;
+      /** @example guest@example.com */
+      contactEmail: string;
+      /** @example +84901234567 */
+      contactPhone?: string;
+      /** @example Vegetarian meals for one adult. */
+      specialRequests?: string;
+    };
+    BookingTourRefDto: {
+      /** @example hoi-an-walking-tour */
+      slug: string;
+      /** @example Hoi An Ancient Town Walking Tour */
+      title: string;
+    };
+    BookingDepartureRefDto: {
+      /**
+       * Format: date
+       * @example 2026-08-15
+       */
+      startDate: string;
+      /**
+       * Format: date
+       * @example 2026-08-18
+       */
+      endDate: string;
+    };
+    CancellationRequestSummaryDto: {
+      /**
+       * @example REQUESTED
+       * @enum {string}
+       */
+      status: 'REQUESTED' | 'REFUNDED' | 'DENIED';
+      /** @example Change of travel plans */
+      reason: string;
+      /** Format: date-time */
+      createdAt: string;
+      decisionNote: string | null;
+      /** Format: date-time */
+      decidedAt: string | null;
+    };
+    BookingDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example BK-7Q2KX9AB */
+      code: string;
+      /**
+       * @example PENDING
+       * @enum {string}
+       */
+      status:
+        | 'PENDING'
+        | 'PAID'
+        | 'CANCELLED'
+        | 'REFUNDED'
+        | 'PARTIALLY_REFUNDED';
+      /** @example 2 */
+      numAdults: number;
+      /** @example 1 */
+      numChildren: number;
+      /** @example 99.00 */
+      totalAmount: string;
+      /** @example USD */
+      currency: string;
+      /**
+       * @example STRIPE
+       * @enum {string}
+       */
+      paymentProvider: 'STRIPE' | 'PAYPAL';
+      /** @example Nguyen Van A */
+      contactName: string;
+      /** @example guest@example.com */
+      contactEmail: string;
+      /** @example +84901234567 */
+      contactPhone: string | null;
+      specialRequests: string | null;
+      tour: components['schemas']['BookingTourRefDto'];
+      departure: components['schemas']['BookingDepartureRefDto'];
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      /** @example 30.00 */
+      refundedAmount: string | null;
+      cancellationRequest:
+        | components['schemas']['CancellationRequestSummaryDto']
+        | null;
+    };
+    CheckoutSessionDto: {
+      /** @example https://checkout.stripe.com/c/pay/cs_test_... */
+      checkoutUrl: string;
+      /** @example BK-7Q2KX9AB */
+      bookingCode: string;
+      /**
+       * @example PENDING
+       * @enum {string}
+       */
+      status:
+        | 'PENDING'
+        | 'PAID'
+        | 'CANCELLED'
+        | 'REFUNDED'
+        | 'PARTIALLY_REFUNDED';
+    };
+    PaginatedBookingsDto: {
+      data: components['schemas']['BookingDto'][];
+      meta: components['schemas']['PageMetaDto'];
+    };
+    AdminBookingDepartureRefDto: {
+      /**
+       * Format: date
+       * @example 2026-08-15
+       */
+      startDate: string;
+      /**
+       * Format: date
+       * @example 2026-08-18
+       */
+      endDate: string;
+      /** @example 12 */
+      seatsTotal: number;
+      /** @example 7 */
+      seatsBooked: number;
+    };
+    AdminCancellationRequestSummaryDto: {
+      /**
+       * @example REQUESTED
+       * @enum {string}
+       */
+      status: 'REQUESTED' | 'REFUNDED' | 'DENIED';
+      /** @example Change of travel plans */
+      reason: string;
+      /** Format: date-time */
+      createdAt: string;
+      decisionNote: string | null;
+      /** Format: date-time */
+      decidedAt: string | null;
+      /** Format: uuid */
+      id: string;
+    };
+    RefundedByDto: {
+      /** @example Jane Admin */
+      fullName: string | null;
+      /** @example admin@example.com */
+      email: string;
+    };
+    BookingCustomerDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example Jane Doe */
+      fullName: string | null;
+      /** @example jane@example.com */
+      email: string;
+      /**
+       * Format: date-time
+       * @description Account created — "customer since".
+       */
+      createdAt: string;
+    };
+    OtherBookingItemDto: {
+      /** @example BK-7Q2KX9AB */
+      code: string;
+      /** @enum {string} */
+      status:
+        | 'PENDING'
+        | 'PAID'
+        | 'CANCELLED'
+        | 'REFUNDED'
+        | 'PARTIALLY_REFUNDED';
+      /** Format: date-time */
+      createdAt: string;
+      /** @example Mekong Delta Day Trip */
+      tourTitle: string;
+      /** @example 150.00 */
+      totalAmount: string;
+      /** @example USD */
+      currency: string;
+    };
+    OtherBookingsDto: {
+      /**
+       * @description Total OTHER bookings (current one excluded).
+       * @example 7
+       */
+      total: number;
+      /** @description Newest first, at most 5. */
+      items: components['schemas']['OtherBookingItemDto'][];
+    };
+    PaymentEventSummaryDto: {
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      provider: 'STRIPE' | 'PAYPAL';
+      /** @example checkout.session.completed */
+      type: string;
+      /**
+       * @description Provider-side event id.
+       * @example evt_1PabcXYZ
+       */
+      eventId: string;
+      /** Format: date-time */
+      receivedAt: string;
+      /** Format: date-time */
+      processedAt: string | null;
+    };
+    AdminBookingDetailDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example BK-7Q2KX9AB */
+      code: string;
+      /**
+       * @example PENDING
+       * @enum {string}
+       */
+      status:
+        | 'PENDING'
+        | 'PAID'
+        | 'CANCELLED'
+        | 'REFUNDED'
+        | 'PARTIALLY_REFUNDED';
+      /** @example 2 */
+      numAdults: number;
+      /** @example 1 */
+      numChildren: number;
+      /** @example 99.00 */
+      totalAmount: string;
+      /** @example USD */
+      currency: string;
+      /**
+       * @example STRIPE
+       * @enum {string}
+       */
+      paymentProvider: 'STRIPE' | 'PAYPAL';
+      /** @example Nguyen Van A */
+      contactName: string;
+      /** @example guest@example.com */
+      contactEmail: string;
+      /** @example +84901234567 */
+      contactPhone: string | null;
+      specialRequests: string | null;
+      tour: components['schemas']['BookingTourRefDto'];
+      departure: components['schemas']['AdminBookingDepartureRefDto'];
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      /** @example 30.00 */
+      refundedAmount: string | null;
+      cancellationRequest:
+        | components['schemas']['AdminCancellationRequestSummaryDto']
+        | null;
+      /** Format: date-time */
+      paidAt: string | null;
+      /** Format: date-time */
+      cancelledAt: string | null;
+      /**
+       * @description Captured charge/order id at the payment gateway (Stripe PaymentIntent / PayPal capture).
+       * @example pi_3QabcXYZ
+       */
+      providerPaymentId: string | null;
+      /**
+       * @description Checkout session / PayPal order id minted at checkout start (pre-capture reference).
+       * @example cs_test_a1B2c3
+       */
+      providerSessionId: string | null;
+      /** @example Customer cancelled within the free window */
+      refundReason: string | null;
+      refundedBy: components['schemas']['RefundedByDto'] | null;
+      /** Format: date-time */
+      refundedAt: string | null;
+      customer: components['schemas']['BookingCustomerDto'];
+      otherBookings: components['schemas']['OtherBookingsDto'];
+      paymentEvents: components['schemas']['PaymentEventSummaryDto'][];
+    };
+    RefundBookingDto: {
+      /** @example Customer cancelled within the free window */
+      reason?: string;
+      /**
+       * @description Partial refund amount in the booking currency; omit for a full refund
+       * @example 30
+       */
+      amount?: number;
+    };
+    CreateCancellationRequestDto: {
+      /** @example Change of travel plans */
+      reason?: string;
+    };
+    AdminCancellationBookingRefDto: {
+      /** @example BK-7Q2KX9AB */
+      code: string;
+      /** @example Hoi An Walking Tour */
+      tourTitle: string;
+      /**
+       * Format: date
+       * @example 2026-08-15
+       */
+      departureStartDate: string;
+      /** @example Nguyen Van A */
+      customerName: string;
+      /** @example guest@example.com */
+      customerEmail: string;
+    };
+    AdminCancellationRequestDto: {
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      status: 'REQUESTED' | 'REFUNDED' | 'DENIED';
+      /** @example Change of travel plans */
+      reason: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      decidedAt: string | null;
+      decisionNote: string | null;
+      booking: components['schemas']['AdminCancellationBookingRefDto'];
+    };
+    PaginatedCancellationRequestsDto: {
+      data: components['schemas']['AdminCancellationRequestDto'][];
+      meta: components['schemas']['PageMetaDto'];
+    };
+    DenyCancellationRequestDto: {
+      /** @example Outside the free-cancellation window */
+      decisionNote?: string;
+    };
+    FeaturedReviewDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 5 */
+      rating: number;
+      title: string | null;
+      body: string;
+      /** @example Emily Carter */
+      authorName: string;
+      /** @example Sydney, Australia */
+      authorLocation: string | null;
+      /** @example Hạ Long Bay Cruise */
+      tripLabel: string | null;
+      /** Format: date-time */
+      createdAt: string;
+    };
+    FeaturedReviewsDto: {
+      data: components['schemas']['FeaturedReviewDto'][];
+    };
+    CreateReviewDto: {
+      /**
+       * @description Booking code this review is attached to (must be PAID).
+       * @example BK-ABCDEFGH
+       */
+      bookingCode: string;
+      /**
+       * @description 1–5 stars
+       * @example 5
+       */
+      rating: number;
+      /** @example Unforgettable trip */
+      title?: string;
+      /**
+       * @description Review body — 10 to 2000 chars.
+       * @example Guide was excellent and the itinerary was well paced...
+       */
+      body: string;
+    };
+    ReviewDto: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      tourId: string;
+      /** Format: uuid */
+      userId: string;
+      /** Format: uuid */
+      bookingId: string;
+      /** @example 5 */
+      rating: number;
+      title: string | null;
+      body: string;
+      isApproved: boolean;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    ReviewerDto: {
+      /**
+       * @description Display name (or "Anonymous")
+       * @example Alice N.
+       */
+      fullName: string;
+    };
+    PublicReviewDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 5 */
+      rating: number;
+      title: string | null;
+      body: string;
+      /** Format: date-time */
+      createdAt: string;
+      reviewer: components['schemas']['ReviewerDto'];
+    };
+    ReviewPageMetaDto: {
+      /** @example 1 */
+      page: number;
+      /** @example 20 */
+      pageSize: number;
+      /** @example 42 */
+      total: number;
+      /** @example 3 */
+      totalPages: number;
+      /**
+       * @description Mean rating across approved reviews; null when none yet.
+       * @example 4.5
+       */
+      averageRating: number | null;
+    };
+    PaginatedPublicReviewsDto: {
+      data: components['schemas']['PublicReviewDto'][];
+      meta: components['schemas']['ReviewPageMetaDto'];
+    };
+    AdminReviewDto: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      tourId: string | null;
+      /** @example hoi-an-walking-tour */
+      tourSlug: string | null;
+      /** @example Hoi An Ancient Town Walking Tour */
+      tourTitle: string | null;
+      /** Format: uuid */
+      userId: string | null;
+      /**
+       * @description Snapshot display name
+       * @example Alice Nguyen
+       */
+      authorName: string;
+      /** @example Sydney, Australia */
+      authorLocation: string | null;
+      /** Format: uuid */
+      bookingId: string | null;
+      /**
+       * @example VERIFIED
+       * @enum {string}
+       */
+      source: 'VERIFIED' | 'CURATED';
+      /** @example false */
+      isFeatured: boolean;
+      /** @example 5 */
+      rating: number;
+      title: string | null;
+      /**
+       * @description Trip label shown on curated testimonials.
+       * @example Hạ Long Bay Cruise
+       */
+      tripLabel: string | null;
+      body: string;
+      isApproved: boolean;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    PaginatedAdminReviewsDto: {
+      data: components['schemas']['AdminReviewDto'][];
+      meta: components['schemas']['PageMetaDto'];
+    };
+    ModerateReviewDto: {
+      /**
+       * @description true to approve and publish; false to revert to draft.
+       * @example true
+       */
+      isApproved: boolean;
+    };
+    FeatureReviewDto: {
+      /**
+       * @description true to pin to the homepage testimonials; false to unpin.
+       * @example true
+       */
+      isFeatured: boolean;
+    };
+    CreateCuratedReviewDto: {
+      /** @example Emily Carter */
+      authorName: string;
+      /** @example Sydney, Australia */
+      authorLocation?: string;
+      /** @example Hạ Long Bay Cruise */
+      tripLabel?: string;
+      /** @example 5 */
+      rating: number;
+      title?: string;
+      body: string;
+    };
+    WishlistTourPreviewDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example hoi-an-walking-tour */
+      slug: string;
+      /** @example Hoi An Old Town Walking Tour */
+      title: string;
+      summary: string | null;
+      /**
+       * @description Decimal serialized as string
+       * @example 149.00
+       */
+      basePrice: string;
+      /** @example USD */
+      currency: string;
+      /** @example 3 */
+      durationDays: number;
+      /** @example true */
+      isPublished: boolean;
+      media: components['schemas']['MediaItemDto'][];
+    };
+    WishlistItemDto: {
+      /** Format: uuid */
+      userId: string;
+      /** Format: uuid */
+      tourId: string;
+      /** Format: date-time */
+      createdAt: string;
+      tour: components['schemas']['WishlistTourPreviewDto'];
+    };
+    CreateEnquiryDto: {
+      /** @example Jane Traveller */
+      name: string;
+      /** @example jane@example.com */
+      email: string;
+      /** @example +44 7700 900123 */
+      phone?: string;
+      /** @example Is the Hoi An tour available in July for 2 adults? */
+      message: string;
+      /**
+       * Format: uuid
+       * @description Tour this enquiry is about (must be published).
+       */
+      tourId?: string;
+      /** @example United Kingdom */
+      nationality?: string;
+      /**
+       * Format: date
+       * @description Preferred arrival / travel date.
+       * @example 2026-08-01
+       */
+      travelDate?: string;
+      /**
+       * @description Party size.
+       * @example 4
+       */
+      groupSize?: number;
+      /**
+       * @description Budget tier as shown in the form.
+       * @example $1000–$2000
+       */
+      budgetTier?: string;
+      /**
+       * @description Trip interests / preferences (multi-select).
+       * @example [
+       *       "culture",
+       *       "food"
+       *     ]
+       */
+      interests?: string[];
+      /** @description Anti-spam honeypot — must stay empty. */
+      website?: string;
+    };
+    EnquiryAckDto: {
+      /** @example true */
+      received: boolean;
+    };
+    EnquiryDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example Jane Traveller */
+      name: string;
+      /** @example jane@example.com */
+      email: string;
+      phone: string | null;
+      message: string;
+      /** Format: uuid */
+      tourId: string | null;
+      /** @example ha-long-bay-cruise */
+      tourSlug: string | null;
+      /** @example Hạ Long Bay Cruise 2D1N */
+      tourTitle: string | null;
+      /** @example United Kingdom */
+      nationality: string | null;
+      /** Format: date-time */
+      travelDate: string | null;
+      /** @example 4 */
+      groupSize: number | null;
+      /** @example $1000–$2000 */
+      budgetTier: string | null;
+      /**
+       * @example [
+       *       "culture",
+       *       "food"
+       *     ]
+       */
+      interests: string[];
+      /** @enum {string} */
+      status: 'NEW' | 'CONTACTED' | 'QUOTED' | 'WON' | 'LOST';
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    PaginatedEnquiriesDto: {
+      data: components['schemas']['EnquiryDto'][];
+      meta: components['schemas']['PageMetaDto'];
+    };
+    UpdateEnquiryStatusDto: {
+      /**
+       * @example CONTACTED
+       * @enum {string}
+       */
+      status: 'NEW' | 'CONTACTED' | 'QUOTED' | 'WON' | 'LOST';
+    };
+    SubscribeDto: {
+      /** @example jane@example.com */
+      email: string;
+      /**
+       * @description Where the signup came from.
+       * @example footer
+       */
+      source?: string;
+      /** @description Anti-spam honeypot — must stay empty. */
+      website?: string;
+    };
+    SubscribeAckDto: {
+      /** @example true */
+      received: boolean;
+    };
+    SubscriberDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example jane@example.com */
+      email: string;
+      /** @example footer */
+      source: string | null;
+      /** Format: date-time */
+      subscribedAt: string;
+    };
+    PaginatedSubscribersDto: {
+      data: components['schemas']['SubscriberDto'][];
+      meta: components['schemas']['PageMetaDto'];
+    };
+    StatsOverviewDto: {
+      /**
+       * @description Sum of PAID totals (string Decimal)
+       * @example 12450.00
+       */
+      totalRevenue: string;
+      /** @example USD */
+      currency: string;
+      /** @example 87 */
+      totalBookings: number;
+      /** @example 61 */
+      paidBookings: number;
+      /**
+       * @description paid / total (0 when no bookings)
+       * @example 0.7
+       */
+      conversionRate: number;
+      /**
+       * @description Last vs prior month revenue; null if <2 months
+       * @example 0.18
+       */
+      monthOverMonthGrowth: number | null;
+    };
+    TopTourByRevenueDto: {
+      /** Format: uuid */
+      tourId: string;
+      /** @example hoi-an-walking-tour */
+      slug: string;
+      /** @example Hoi An Old Town Walking Tour */
+      title: string;
+      /** @example 4500.00 */
+      revenue: string;
+      /** @example 30 */
+      bookingsCount: number;
+    };
+    TopTourByRatingDto: {
+      /** Format: uuid */
+      tourId: string;
+      /** @example hoi-an-walking-tour */
+      slug: string;
+      /** @example Hoi An Old Town Walking Tour */
+      title: string;
+      /** @example 4.8 */
+      averageRating: number;
+      /** @example 24 */
+      reviewsCount: number;
+    };
+    TopTourByWishlistDto: {
+      /** Format: uuid */
+      tourId: string;
+      /** @example hoi-an-walking-tour */
+      slug: string;
+      /** @example Hoi An Old Town Walking Tour */
+      title: string;
+      /** @example 42 */
+      wishlistCount: number;
+    };
+    MonthlyTrendPointDto: {
+      /** @example 2026-05 */
+      month: string;
+      /** @example 18 */
+      bookings: number;
+      /** @example 12 */
+      paidBookings: number;
+      /** @example 2700.00 */
+      revenue: string;
+    };
+    DailyTrendPointDto: {
+      /** @example 2026-06-30 */
+      date: string;
+      /** @example 3 */
+      bookings: number;
+      /** @example 450.00 */
+      revenue: string;
+    };
+    PendingCountsDto: {
+      /**
+       * @description Reviews awaiting approval
+       * @example 3
+       */
+      reviews: number;
+      /**
+       * @description Enquiries still in the NEW pipeline stage
+       * @example 5
+       */
+      enquiries: number;
+    };
+    AdminStatsResponseDto: {
+      overview: components['schemas']['StatsOverviewDto'];
+      /**
+       * @description Booking count keyed by status
+       * @example {
+       *       "PENDING": 12,
+       *       "PAID": 61,
+       *       "CANCELLED": 9,
+       *       "REFUNDED": 5
+       *     }
+       */
+      bookingsByStatus: Record<string, never>;
+      topToursByRevenue: components['schemas']['TopTourByRevenueDto'][];
+      topToursByRating: components['schemas']['TopTourByRatingDto'][];
+      topToursByWishlist: components['schemas']['TopTourByWishlistDto'][];
+      monthlyTrend: components['schemas']['MonthlyTrendPointDto'][];
+      dailyTrend: components['schemas']['DailyTrendPointDto'][];
+      pendingCounts: components['schemas']['PendingCountsDto'];
+    };
+    PostTagDto: {
+      /** @example ha-long */
+      slug: string;
+      /** @example Hạ Long */
+      name: string;
+    };
+    PublicPostAuthorDto: {
+      /** @example Ana Admin */
+      fullName: string | null;
+      /** @description Avatar delivery URL, when set. */
+      avatarUrl: string | null;
+    };
+    PostDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example three-perfect-days-in-hoi-an */
+      slug: string;
+      /** @example Three perfect days in Hội An */
+      title: string;
+      excerpt: string | null;
+      /** @description Markdown body */
+      content: string;
+      /** @enum {string} */
+      status: 'DRAFT' | 'PUBLISHED';
+      /** Format: date-time */
+      publishedAt: string | null;
+      /** Format: uuid */
+      authorId: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      /** @description Attached media; the cover is role `hero`. */
+      media: components['schemas']['MediaItemDto'][];
+      /** @description Free-form topics (empty when untagged). */
+      tags: components['schemas']['PostTagDto'][];
+      author: components['schemas']['PublicPostAuthorDto'];
+    };
+    PaginatedPostsDto: {
+      data: components['schemas']['PostDto'][];
+      meta: components['schemas']['PageMetaDto'];
+    };
+    PostTagWithCountDto: {
+      /** @example ha-long */
+      slug: string;
+      /** @example Hạ Long */
+      name: string;
+      /** @example 4 */
+      count: number;
+    };
+    PostDetailDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example three-perfect-days-in-hoi-an */
+      slug: string;
+      /** @example Three perfect days in Hội An */
+      title: string;
+      excerpt: string | null;
+      /** @description Markdown body */
+      content: string;
+      /** @enum {string} */
+      status: 'DRAFT' | 'PUBLISHED';
+      /** Format: date-time */
+      publishedAt: string | null;
+      /** Format: uuid */
+      authorId: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      /** @description Attached media; the cover is role `hero`. */
+      media: components['schemas']['MediaItemDto'][];
+      /** @description Free-form topics (empty when untagged). */
+      tags: components['schemas']['PostTagDto'][];
+      author: components['schemas']['PublicPostAuthorDto'];
+      /** @description Published related tours, pick order. */
+      relatedTours: components['schemas']['TourSummaryDto'][];
+    };
+    PostAuthorDto: {
+      /** @example Ana Admin */
+      fullName: string | null;
+      /** @example ana@nexora.travel */
+      email: string;
+      /** @description Avatar delivery URL, when set. */
+      avatarUrl: string | null;
+    };
+    AdminRelatedTourDto: {
+      /** @example halong-heritage-cruise */
+      slug: string;
+      /** @example Hạ Long heritage cruise */
+      title: string;
+      isPublished: boolean;
+    };
+    AdminPostDetailDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example three-perfect-days-in-hoi-an */
+      slug: string;
+      /** @example Three perfect days in Hội An */
+      title: string;
+      excerpt: string | null;
+      /** @description Markdown body */
+      content: string;
+      /** @enum {string} */
+      status: 'DRAFT' | 'PUBLISHED';
+      /** Format: date-time */
+      publishedAt: string | null;
+      /** Format: uuid */
+      authorId: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      /** @description Attached media; the cover is role `hero`. */
+      media: components['schemas']['MediaItemDto'][];
+      /** @description Free-form topics (empty when untagged). */
+      tags: components['schemas']['PostTagDto'][];
+      author: components['schemas']['PostAuthorDto'];
+      /** @description Admin-picked tours, pick order. */
+      relatedTours: components['schemas']['AdminRelatedTourDto'][];
+    };
+    CreatePostDto: {
+      /** @example Three perfect days in Hội An */
+      title: string;
+      /**
+       * @description kebab slug; generated from `title` when omitted
+       * @example three-perfect-days-in-hoi-an
+       */
+      slug?: string;
+      excerpt?: string;
+      /**
+       * @description Markdown body
+       * @example ## Day 1\n...
+       */
+      content: string;
+      /**
+       * @default DRAFT
+       * @enum {string}
+       */
+      status: 'DRAFT' | 'PUBLISHED';
+      /**
+       * @description Tag display names (upserted by slug); replace-all when provided.
+       * @example [
+       *       "Hạ Long",
+       *       "Cruises"
+       *     ]
+       */
+      tags?: string[];
+      /**
+       * @description Related tour slugs (max 3, order = array order); replace-all when provided.
+       * @example [
+       *       "halong-heritage-cruise"
+       *     ]
+       */
+      relatedTourSlugs?: string[];
+    };
+    UpdatePostDto: {
+      /** @example Three perfect days in Hội An */
+      title?: string;
+      /**
+       * @description kebab slug; generated from `title` when omitted
+       * @example three-perfect-days-in-hoi-an
+       */
+      slug?: string;
+      excerpt?: string;
+      /**
+       * @description Markdown body
+       * @example ## Day 1\n...
+       */
+      content?: string;
+      /**
+       * @default DRAFT
+       * @enum {string}
+       */
+      status: 'DRAFT' | 'PUBLISHED';
+      /**
+       * @description Tag display names (upserted by slug); replace-all when provided.
+       * @example [
+       *       "Hạ Long",
+       *       "Cruises"
+       *     ]
+       */
+      tags?: string[];
+      /**
+       * @description Related tour slugs (max 3, order = array order); replace-all when provided.
+       * @example [
+       *       "halong-heritage-cruise"
+       *     ]
+       */
+      relatedTourSlugs?: string[];
+    };
+    RegisterBodyImageDto: {
+      /** @example tourism/posts/body/1717000000000-boat */
+      publicId: string;
+      /** @example 1600 */
+      width?: number;
+      /** @example 900 */
+      height?: number;
+      /** @example jpg */
+      format?: string;
+    };
+    BodyImageUrlDto: {
+      /** Format: uri */
+      url: string;
+    };
+    AdminOutboxRowDto: {
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      type:
+        | 'BOOKING_CONFIRMATION'
+        | 'BOOKING_REFUNDED'
+        | 'REVIEW_APPROVED'
+        | 'ENQUIRY_RECEIVED'
+        | 'CANCELLATION_REQUESTED'
+        | 'CANCELLATION_DENIED';
+      /** @enum {string} */
+      status: 'PENDING' | 'SENT' | 'FAILED';
+      /** @example 0 */
+      attempts: number;
+      lastError: string | null;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      processedAt: string | null;
+    };
+    PaginatedAdminOutboxDto: {
+      data: components['schemas']['AdminOutboxRowDto'][];
+      meta: components['schemas']['PageMetaDto'];
+    };
+    AdminMediaAssetDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example tourism/tours/hero/1717000000000-hoi-an */
+      publicId: string;
+      /** Format: uri */
+      url: string;
+      /**
+       * Format: uri
+       * @description Video poster URL.
+       */
+      posterUrl: string | null;
+      /** @enum {string} */
+      type: 'IMAGE' | 'VIDEO';
+      /** @enum {string} */
+      role: 'hero' | 'gallery' | 'avatar' | 'body';
+      /** @example jpg */
+      format: string | null;
+      /** @example 1920 */
+      width: number | null;
+      /** @example 1080 */
+      height: number | null;
+      /** @example 245000 */
+      bytes: number | null;
+      durationSec: number | null;
+      /** @example 0 */
+      sortOrder: number;
+      /** Format: date-time */
+      createdAt: string;
+      /** @enum {string} */
+      ownerType: 'TOUR' | 'DESTINATION' | 'USER' | 'POST';
+      /** Format: uuid */
+      ownerId: string;
+      /**
+       * @description Owning record title/name — null when the owner row no longer exists.
+       * @example Hoi An Walking Tour
+       */
+      ownerTitle: string | null;
+      /**
+       * @description Owner page slug (tour/destination/post); null for USER owners.
+       * @example hoi-an-walking-tour
+       */
+      ownerSlug: string | null;
+    };
+    PaginatedAdminMediaDto: {
+      data: components['schemas']['AdminMediaAssetDto'][];
+      meta: components['schemas']['PageMetaDto'];
+    };
+    MediaGarbageRowDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example tourism/destinations/gallery/1717000000000-old */
+      publicId: string;
+      /**
+       * @description Cloudinary resource_type ('image' | 'video').
+       * @example image
+       */
+      resourceType: string;
+      /** @example 0 */
+      attempts: number;
+      lastError: string | null;
+      /** Format: date-time */
+      createdAt: string;
+    };
+    PaginatedMediaGarbageDto: {
+      data: components['schemas']['MediaGarbageRowDto'][];
+      meta: components['schemas']['PageMetaDto'];
+    };
+    MediaReconcileResultDto: {
+      /** @example 9 */
+      destroyed: number;
+      /** @example 0 */
+      failed: number;
+    };
+    DeletedMediaAssetDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example tourism/tours/hero/1717000000000-hoi-an */
+      publicId: string;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    AppController_getData: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AppController_health: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Database unavailable */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_syncCustomer: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SyncUserDto"];
-            };
-        };
-        responses: {
-            /** @description User upserted */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserDto"];
-                };
-            };
-            /** @description Missing or invalid JWT */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_syncAdmin: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SyncUserDto"];
-            };
-        };
-        responses: {
-            /** @description User upserted as ADMIN */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserDto"];
-                };
-            };
-            /** @description Missing or invalid JWT */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Email not on admin allowlist */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_signAvatar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SignAvatarDto"];
-            };
-        };
-        responses: {
-            /** @description Signed upload params (purpose pinned to USER_AVATAR) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing/invalid JWT or not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_getMe: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Profile */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserDto"];
-                };
-            };
-            /** @description Missing/invalid JWT or not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_deleteMe: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Account deleted */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing/invalid JWT or not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Account still has bookings */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_updateMe: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateMeDto"];
-            };
-        };
-        responses: {
-            /** @description Updated profile */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserDto"];
-                };
-            };
-            /** @description Missing/invalid JWT or not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_setAvatar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SetAvatarDto"];
-            };
-        };
-        responses: {
-            /** @description Profile with new avatarUrl */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserDto"];
-                };
-            };
-            /** @description Missing/invalid JWT or not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_clearAvatar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Profile with avatarUrl null */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserDto"];
-                };
-            };
-            /** @description Missing/invalid JWT or not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminUsersController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                role?: "CUSTOMER" | "ADMIN";
-                search?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedAdminUsersDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminUsersController_me: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminUserDetailDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminUsersController_detail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminUserDetailDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminUsersController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DeletedUserDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Self, admin target, has bookings, or authored posts */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminUsersController_changeRole: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ChangeUserRoleDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminUserListItemDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Self-change, env-admin demote, or last-admin demote */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminUploadsController_sign: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateSignedUploadUrlDto"];
-            };
-        };
-        responses: {
-            /** @description Signed upload params envelope */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Format rejected for the purpose */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DestinationsController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                search?: string;
-                isActive?: boolean;
-                sortBy?: "createdAt" | "updatedAt" | "name";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedDestinationsDto"];
-                };
-            };
-        };
-    };
-    DestinationsController_detail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DestinationDto"];
-                };
-            };
-            /** @description Not found or inactive */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminDestinationsController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                search?: string;
-                isActive?: boolean;
-                sortBy?: "createdAt" | "updatedAt" | "name";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedDestinationsDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminDestinationsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateDestinationDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DestinationDto"];
-                };
-            };
-            /** @description Slug already exists */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminDestinationsController_detail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminDestinationDetailDto"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminDestinationsController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Deleted (echo) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DestinationDto"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Still active, or has tours */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminDestinationsController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDestinationDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DestinationDto"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description New slug already exists */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminDestinationsController_setMedia: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SetMediaDto"];
-            };
-        };
-        responses: {
-            /** @description New media set with URLs */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MediaItemDto"][];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TourCategoriesController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                search?: string;
-                isActive?: boolean;
-                sortBy?: "order" | "name" | "createdAt" | "updatedAt";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedTourCategoriesDto"];
-                };
-            };
-        };
-    };
-    TourCategoriesController_detail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TourCategoryDto"];
-                };
-            };
-            /** @description Not found or inactive */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminTourCategoriesController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                search?: string;
-                isActive?: boolean;
-                sortBy?: "order" | "name" | "createdAt" | "updatedAt";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedTourCategoriesDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminTourCategoriesController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateTourCategoryDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TourCategoryDto"];
-                };
-            };
-            /** @description Slug already exists */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminTourCategoriesController_detail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminTourCategoryDetailDto"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminTourCategoriesController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Deleted (echo) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TourCategoryDto"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Still active, or has tours */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminTourCategoriesController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateTourCategoryDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TourCategoryDto"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description New slug already exists */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ToursController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                /** @description Tour-category slug */
-                category?: string;
-                /** @description Destination slug */
-                destination?: string;
-                featured?: boolean;
-                isPublished?: boolean;
-                search?: string;
-                sortBy?: "createdAt" | "updatedAt" | "basePrice" | "durationDays" | "title";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedToursDto"];
-                };
-            };
-        };
-    };
-    ToursController_detail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TourDetailDto"];
-                };
-            };
-            /** @description Not found or unpublished */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminToursController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                /** @description Tour-category slug */
-                category?: string;
-                /** @description Destination slug */
-                destination?: string;
-                featured?: boolean;
-                isPublished?: boolean;
-                search?: string;
-                sortBy?: "createdAt" | "updatedAt" | "basePrice" | "durationDays" | "title";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedToursDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminToursController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateTourDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TourDetailDto"];
-                };
-            };
-            /** @description Invalid category / destination ref */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Slug already exists */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminToursController_detail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminTourDetailDto"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminToursController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Deleted (echo) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TourDetailDto"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Still published, or has bookings */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminToursController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateTourDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TourDetailDto"];
-                };
-            };
-            /** @description Invalid category / destination ref */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description New slug already exists */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminToursController_setMedia: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SetMediaDto"];
-            };
-        };
-        responses: {
-            /** @description New media set with URLs */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MediaItemDto"][];
-                };
-            };
-            /** @description Tour not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DeparturesController_list: {
-        parameters: {
-            query?: {
-                /** @description ISO 8601 date */
-                from?: string;
-                /** @description ISO 8601 date */
-                to?: string;
-                status?: "OPEN" | "CLOSED" | "CANCELLED";
-            };
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Ordered by startDate asc */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DepartureDto"][];
-                };
-            };
-            /** @description Tour not found or unpublished */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminDeparturesController_list: {
-        parameters: {
-            query?: {
-                /** @description ISO 8601 date */
-                from?: string;
-                /** @description ISO 8601 date */
-                to?: string;
-                status?: "OPEN" | "CLOSED" | "CANCELLED";
-            };
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Ordered by startDate asc */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DepartureDto"][];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Tour not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminDeparturesController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateDepartureDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DepartureDto"];
-                };
-            };
-            /** @description Invalid date range / past start */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Tour not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminDeparturesController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Deleted (echo) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DepartureDto"];
-                };
-            };
-            /** @description Tour or departure not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Departure has bookings */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminDeparturesController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDepartureDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DepartureDto"];
-                };
-            };
-            /** @description Invalid date range / seatsTotal below booked */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Tour or departure not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BookingsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateBookingDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BookingDto"];
-                };
-            };
-            /** @description Departure not OPEN / departed */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description User not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Tour or departure not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description No seats available */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BookingsController_listOwn: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BookingDto"][];
-                };
-            };
-            /** @description User not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BookingsController_cancel: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                code: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BookingDto"];
-                };
-            };
-            /** @description User not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Booking not found or not owned */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not a PENDING booking */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BookingsController_checkout: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                code: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CheckoutSessionDto"];
-                };
-            };
-            /** @description Payment provider not available */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description User not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Booking not found or not owned */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Booking not PENDING */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Checkout could not be started */
-            502: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BookingsController_capture: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                code: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Booking confirmed PAID */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BookingDto"];
-                };
-            };
-            /** @description Not a PayPal booking / no order */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description User not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Booking not found or not owned */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not capturable, or seats sold out (refunded) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BookingsController_detail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                code: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BookingDto"];
-                };
-            };
-            /** @description User not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Booking not found or not owned */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminBookingsController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                status?: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED" | "PARTIALLY_REFUNDED";
-                search?: string;
-                tourId?: string;
-                departureId?: string;
-                userId?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedBookingsDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminBookingsController_detail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                code: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminBookingDetailDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Booking not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminBookingsController_refund: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                code: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RefundBookingDto"];
-            };
-        };
-        responses: {
-            /** @description Refunded booking */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BookingDto"];
-                };
-            };
-            /** @description Not refundable, or Stripe refund failed */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Booking not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PaymentsController_handleStripe: {
-        parameters: {
-            query?: never;
-            header: {
-                "stripe-signature": string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Event processed or ignored */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Signature verification failed */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PaymentsController_handlePayPal: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Event processed or ignored */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Signature verification failed */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CancellationsController_request: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                code: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateCancellationRequestDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CancellationRequestSummaryDto"];
-                };
-            };
-            /** @description User not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Booking not found or not owned */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not PAID / departure started / already requested */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminCancellationsController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                /** @description Defaults to REQUESTED */
-                status?: "REQUESTED" | "REFUNDED" | "DENIED";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedCancellationRequestsDto"];
-                };
-            };
-        };
-    };
-    AdminCancellationsController_deny: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DenyCancellationRequestDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminCancellationRequestDto"];
-                };
-            };
-            /** @description Request not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Request is not open */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ReviewsController_featured: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Approved + featured reviews */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FeaturedReviewsDto"];
-                };
-            };
-        };
-    };
-    ReviewsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateReviewDto"];
-            };
-        };
-        responses: {
-            /** @description Created (pending approval) */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReviewDto"];
-                };
-            };
-            /** @description Booking not PAID */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description User not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not the owner of the booking */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Booking not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Booking already has a review */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PublicReviewsController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-            };
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Paginated approved reviews + average rating */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedPublicReviewsDto"];
-                };
-            };
-            /** @description Tour slug not found or unpublished */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminReviewsController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                /** @description true = approved only, false = pending only, omit = all */
-                isApproved?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Paginated reviews */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedAdminReviewsDto"];
-                };
-            };
-            /** @description Missing/invalid token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Caller is not an admin */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminReviewsController_moderate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ModerateReviewDto"];
-            };
-        };
-        responses: {
-            /** @description Updated review row */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReviewDto"];
-                };
-            };
-            /** @description Missing/invalid token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Caller is not an admin */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Review not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminReviewsController_feature: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FeatureReviewDto"];
-            };
-        };
-        responses: {
-            /** @description Updated review row */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReviewDto"];
-                };
-            };
-            /** @description Review not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminReviewsController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Deleted (echo) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReviewDto"];
-                };
-            };
-            /** @description Review not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not a curated review */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminReviewsController_createCurated: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateCuratedReviewDto"];
-            };
-        };
-        responses: {
-            /** @description Created (approved + featured) */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReviewDto"];
-                };
-            };
-        };
-    };
-    WishlistController_add: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                tourId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Wishlist row (created or existing) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WishlistItemDto"];
-                };
-            };
-            /** @description User not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Tour not found or unpublished */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WishlistController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                tourId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Removed (or already absent) */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description User not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WishlistController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Wishlist rows + tour */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WishlistItemDto"][];
-                };
-            };
-            /** @description User not synced */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    EnquiryController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateEnquiryDto"];
-            };
-        };
-        responses: {
-            /** @description Received */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EnquiryAckDto"];
-                };
-            };
-            /** @description Referenced tour not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Too many submissions */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminEnquiryController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                status?: "NEW" | "CONTACTED" | "QUOTED" | "WON" | "LOST";
-                search?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Paginated enquiries */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedEnquiriesDto"];
-                };
-            };
-            /** @description Missing/invalid token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Caller is not an admin */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminEnquiryController_updateStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateEnquiryStatusDto"];
-            };
-        };
-        responses: {
-            /** @description Updated enquiry */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EnquiryDto"];
-                };
-            };
-            /** @description Missing/invalid token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Caller is not an admin */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Enquiry not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    NewsletterController_subscribe: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SubscribeDto"];
-            };
-        };
-        responses: {
-            /** @description Received */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SubscribeAckDto"];
-                };
-            };
-            /** @description Too many submissions */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminNewsletterController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                search?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Paginated subscribers */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedSubscribersDto"];
-                };
-            };
-            /** @description Missing/invalid token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Caller is not an admin */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminStatsController_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Aggregated stats */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminStatsResponseDto"];
-                };
-            };
-            /** @description Missing/invalid token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Caller is not an admin */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PostsController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                search?: string;
-                status?: "DRAFT" | "PUBLISHED";
-                sortBy?: "publishedAt" | "createdAt" | "updatedAt" | "title";
-                sortOrder?: "asc" | "desc";
-                tag?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedPostsDto"];
-                };
-            };
-        };
-    };
-    PostsController_tags: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PostTagWithCountDto"][];
-                };
-            };
-        };
-    };
-    PostsController_detail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PostDetailDto"];
-                };
-            };
-            /** @description Not found or not published */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminPostsController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                search?: string;
-                status?: "DRAFT" | "PUBLISHED";
-                sortBy?: "publishedAt" | "createdAt" | "updatedAt" | "title";
-                sortOrder?: "asc" | "desc";
-                tag?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedPostsDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminPostsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreatePostDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PostDto"];
-                };
-            };
-            /** @description Slug already exists */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminPostsController_tags: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PostTagWithCountDto"][];
-                };
-            };
-        };
-    };
-    AdminPostsController_detail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminPostDetailDto"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminPostsController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Deleted (echo) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PostDto"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminPostsController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdatePostDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PostDto"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description New slug already exists */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminPostsController_setMedia: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SetMediaDto"];
-            };
-        };
-        responses: {
-            /** @description New media set with URLs */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MediaItemDto"][];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminPostsController_addBodyImage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RegisterBodyImageDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BodyImageUrlDto"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminOutboxController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                status?: "PENDING" | "SENT" | "FAILED";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedAdminOutboxDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminOutboxController_retry: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminOutboxRowDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Outbox row not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Row is not FAILED */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminMediaController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                ownerType?: "TOUR" | "DESTINATION" | "USER" | "POST";
-                role?: "hero" | "gallery" | "avatar" | "body";
-                type?: "IMAGE" | "VIDEO";
-                search?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedAdminMediaDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminMediaController_listGarbage: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedMediaGarbageDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminMediaController_reconcile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MediaReconcileResultDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AdminMediaController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DeletedMediaAssetDto"];
-                };
-            };
-            /** @description Not an ADMIN */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Asset not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description USER-owned asset (customer avatar) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
+  AppController_getData: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AppController_health: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Database unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuthController_syncCustomer: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SyncUserDto'];
+      };
+    };
+    responses: {
+      /** @description User upserted */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserDto'];
+        };
+      };
+      /** @description Missing or invalid JWT */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuthController_syncAdmin: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SyncUserDto'];
+      };
+    };
+    responses: {
+      /** @description User upserted as ADMIN */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserDto'];
+        };
+      };
+      /** @description Missing or invalid JWT */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Email not on admin allowlist */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_signAvatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SignAvatarDto'];
+      };
+    };
+    responses: {
+      /** @description Signed upload params (purpose pinned to USER_AVATAR) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Missing/invalid JWT or not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_getMe: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Profile */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserDto'];
+        };
+      };
+      /** @description Missing/invalid JWT or not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_deleteMe: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Account deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Missing/invalid JWT or not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Account still has bookings */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_updateMe: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateMeDto'];
+      };
+    };
+    responses: {
+      /** @description Updated profile */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserDto'];
+        };
+      };
+      /** @description Missing/invalid JWT or not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_setAvatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SetAvatarDto'];
+      };
+    };
+    responses: {
+      /** @description Profile with new avatarUrl */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserDto'];
+        };
+      };
+      /** @description Missing/invalid JWT or not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_clearAvatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Profile with avatarUrl null */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserDto'];
+        };
+      };
+      /** @description Missing/invalid JWT or not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminUsersController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        role?: 'CUSTOMER' | 'ADMIN';
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedAdminUsersDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminUsersController_me: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminUserDetailDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminUsersController_detail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminUserDetailDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description User not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminUsersController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeletedUserDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description User not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Self, admin target, has bookings, or authored posts */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminUsersController_changeRole: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ChangeUserRoleDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminUserListItemDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description User not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Self-change, env-admin demote, or last-admin demote */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminUploadsController_sign: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateSignedUploadUrlDto'];
+      };
+    };
+    responses: {
+      /** @description Signed upload params envelope */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Format rejected for the purpose */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DestinationsController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        isActive?: boolean;
+        sortBy?: 'createdAt' | 'updatedAt' | 'name';
+        sortOrder?: 'asc' | 'desc';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedDestinationsDto'];
+        };
+      };
+    };
+  };
+  DestinationsController_detail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DestinationDto'];
+        };
+      };
+      /** @description Not found or inactive */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminDestinationsController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        isActive?: boolean;
+        sortBy?: 'createdAt' | 'updatedAt' | 'name';
+        sortOrder?: 'asc' | 'desc';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedDestinationsDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminDestinationsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDestinationDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DestinationDto'];
+        };
+      };
+      /** @description Slug already exists */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminDestinationsController_detail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminDestinationDetailDto'];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminDestinationsController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deleted (echo) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DestinationDto'];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Still active, or has tours */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminDestinationsController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateDestinationDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DestinationDto'];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description New slug already exists */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminDestinationsController_setMedia: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SetMediaDto'];
+      };
+    };
+    responses: {
+      /** @description New media set with URLs */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MediaItemDto'][];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TourCategoriesController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        isActive?: boolean;
+        sortBy?: 'order' | 'name' | 'createdAt' | 'updatedAt';
+        sortOrder?: 'asc' | 'desc';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedTourCategoriesDto'];
+        };
+      };
+    };
+  };
+  TourCategoriesController_detail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TourCategoryDto'];
+        };
+      };
+      /** @description Not found or inactive */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminTourCategoriesController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        isActive?: boolean;
+        sortBy?: 'order' | 'name' | 'createdAt' | 'updatedAt';
+        sortOrder?: 'asc' | 'desc';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedTourCategoriesDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminTourCategoriesController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateTourCategoryDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TourCategoryDto'];
+        };
+      };
+      /** @description Slug already exists */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminTourCategoriesController_detail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminTourCategoryDetailDto'];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminTourCategoriesController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deleted (echo) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TourCategoryDto'];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Still active, or has tours */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminTourCategoriesController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateTourCategoryDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TourCategoryDto'];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description New slug already exists */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ToursController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        /** @description Tour-category slug */
+        category?: string;
+        /** @description Destination slug */
+        destination?: string;
+        featured?: boolean;
+        isPublished?: boolean;
+        search?: string;
+        sortBy?:
+          | 'createdAt'
+          | 'updatedAt'
+          | 'basePrice'
+          | 'durationDays'
+          | 'title';
+        sortOrder?: 'asc' | 'desc';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedToursDto'];
+        };
+      };
+    };
+  };
+  ToursController_detail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TourDetailDto'];
+        };
+      };
+      /** @description Not found or unpublished */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminToursController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        /** @description Tour-category slug */
+        category?: string;
+        /** @description Destination slug */
+        destination?: string;
+        featured?: boolean;
+        isPublished?: boolean;
+        search?: string;
+        sortBy?:
+          | 'createdAt'
+          | 'updatedAt'
+          | 'basePrice'
+          | 'durationDays'
+          | 'title';
+        sortOrder?: 'asc' | 'desc';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedToursDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminToursController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateTourDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TourDetailDto'];
+        };
+      };
+      /** @description Invalid category / destination ref */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Slug already exists */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminToursController_detail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminTourDetailDto'];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminToursController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deleted (echo) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TourDetailDto'];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Still published, or has bookings */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminToursController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateTourDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TourDetailDto'];
+        };
+      };
+      /** @description Invalid category / destination ref */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description New slug already exists */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminToursController_setMedia: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SetMediaDto'];
+      };
+    };
+    responses: {
+      /** @description New media set with URLs */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MediaItemDto'][];
+        };
+      };
+      /** @description Tour not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DeparturesController_list: {
+    parameters: {
+      query?: {
+        /** @description ISO 8601 date */
+        from?: string;
+        /** @description ISO 8601 date */
+        to?: string;
+        status?: 'OPEN' | 'CLOSED' | 'CANCELLED';
+      };
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Ordered by startDate asc */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DepartureDto'][];
+        };
+      };
+      /** @description Tour not found or unpublished */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminDeparturesController_list: {
+    parameters: {
+      query?: {
+        /** @description ISO 8601 date */
+        from?: string;
+        /** @description ISO 8601 date */
+        to?: string;
+        status?: 'OPEN' | 'CLOSED' | 'CANCELLED';
+      };
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Ordered by startDate asc */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DepartureDto'][];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Tour not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminDeparturesController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDepartureDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DepartureDto'];
+        };
+      };
+      /** @description Invalid date range / past start */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Tour not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminDeparturesController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deleted (echo) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DepartureDto'];
+        };
+      };
+      /** @description Tour or departure not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Departure has bookings */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminDeparturesController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateDepartureDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DepartureDto'];
+        };
+      };
+      /** @description Invalid date range / seatsTotal below booked */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Tour or departure not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BookingsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateBookingDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BookingDto'];
+        };
+      };
+      /** @description Departure not OPEN / departed */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description User not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Tour or departure not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No seats available */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BookingsController_listOwn: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BookingDto'][];
+        };
+      };
+      /** @description User not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BookingsController_cancel: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        code: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BookingDto'];
+        };
+      };
+      /** @description User not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Booking not found or not owned */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not a PENDING booking */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BookingsController_checkout: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        code: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CheckoutSessionDto'];
+        };
+      };
+      /** @description Payment provider not available */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description User not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Booking not found or not owned */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Booking not PENDING */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Checkout could not be started */
+      502: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BookingsController_capture: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        code: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Booking confirmed PAID */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BookingDto'];
+        };
+      };
+      /** @description Not a PayPal booking / no order */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description User not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Booking not found or not owned */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not capturable, or seats sold out (refunded) */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BookingsController_detail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        code: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BookingDto'];
+        };
+      };
+      /** @description User not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Booking not found or not owned */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminBookingsController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        status?:
+          | 'PENDING'
+          | 'PAID'
+          | 'CANCELLED'
+          | 'REFUNDED'
+          | 'PARTIALLY_REFUNDED';
+        search?: string;
+        tourId?: string;
+        departureId?: string;
+        userId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedBookingsDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminBookingsController_detail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        code: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminBookingDetailDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Booking not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminBookingsController_refund: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        code: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RefundBookingDto'];
+      };
+    };
+    responses: {
+      /** @description Refunded booking */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BookingDto'];
+        };
+      };
+      /** @description Not refundable, or Stripe refund failed */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Booking not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PaymentsController_handleStripe: {
+    parameters: {
+      query?: never;
+      header: {
+        'stripe-signature': string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Event processed or ignored */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Signature verification failed */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PaymentsController_handlePayPal: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Event processed or ignored */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Signature verification failed */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CancellationsController_request: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        code: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateCancellationRequestDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CancellationRequestSummaryDto'];
+        };
+      };
+      /** @description User not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Booking not found or not owned */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not PAID / departure started / already requested */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminCancellationsController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        /** @description Defaults to REQUESTED */
+        status?: 'REQUESTED' | 'REFUNDED' | 'DENIED';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCancellationRequestsDto'];
+        };
+      };
+    };
+  };
+  AdminCancellationsController_deny: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DenyCancellationRequestDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminCancellationRequestDto'];
+        };
+      };
+      /** @description Request not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Request is not open */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ReviewsController_featured: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Approved + featured reviews */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FeaturedReviewsDto'];
+        };
+      };
+    };
+  };
+  ReviewsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateReviewDto'];
+      };
+    };
+    responses: {
+      /** @description Created (pending approval) */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReviewDto'];
+        };
+      };
+      /** @description Booking not PAID */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description User not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not the owner of the booking */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Booking not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Booking already has a review */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PublicReviewsController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+      };
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Paginated approved reviews + average rating */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedPublicReviewsDto'];
+        };
+      };
+      /** @description Tour slug not found or unpublished */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminReviewsController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        /** @description true = approved only, false = pending only, omit = all */
+        isApproved?: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Paginated reviews */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedAdminReviewsDto'];
+        };
+      };
+      /** @description Missing/invalid token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Caller is not an admin */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminReviewsController_moderate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ModerateReviewDto'];
+      };
+    };
+    responses: {
+      /** @description Updated review row */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReviewDto'];
+        };
+      };
+      /** @description Missing/invalid token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Caller is not an admin */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Review not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminReviewsController_feature: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FeatureReviewDto'];
+      };
+    };
+    responses: {
+      /** @description Updated review row */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReviewDto'];
+        };
+      };
+      /** @description Review not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminReviewsController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deleted (echo) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReviewDto'];
+        };
+      };
+      /** @description Review not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not a curated review */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminReviewsController_createCurated: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateCuratedReviewDto'];
+      };
+    };
+    responses: {
+      /** @description Created (approved + featured) */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReviewDto'];
+        };
+      };
+    };
+  };
+  WishlistController_add: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        tourId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Wishlist row (created or existing) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['WishlistItemDto'];
+        };
+      };
+      /** @description User not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Tour not found or unpublished */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WishlistController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        tourId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Removed (or already absent) */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description User not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WishlistController_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Wishlist rows + tour */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['WishlistItemDto'][];
+        };
+      };
+      /** @description User not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  EnquiryController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateEnquiryDto'];
+      };
+    };
+    responses: {
+      /** @description Received */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['EnquiryAckDto'];
+        };
+      };
+      /** @description Referenced tour not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Too many submissions */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminEnquiryController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        status?: 'NEW' | 'CONTACTED' | 'QUOTED' | 'WON' | 'LOST';
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Paginated enquiries */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedEnquiriesDto'];
+        };
+      };
+      /** @description Missing/invalid token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Caller is not an admin */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminEnquiryController_updateStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateEnquiryStatusDto'];
+      };
+    };
+    responses: {
+      /** @description Updated enquiry */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['EnquiryDto'];
+        };
+      };
+      /** @description Missing/invalid token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Caller is not an admin */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Enquiry not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NewsletterController_subscribe: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SubscribeDto'];
+      };
+    };
+    responses: {
+      /** @description Received */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SubscribeAckDto'];
+        };
+      };
+      /** @description Too many submissions */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminNewsletterController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Paginated subscribers */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedSubscribersDto'];
+        };
+      };
+      /** @description Missing/invalid token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Caller is not an admin */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminStatsController_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Aggregated stats */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminStatsResponseDto'];
+        };
+      };
+      /** @description Missing/invalid token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Caller is not an admin */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PostsController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        status?: 'DRAFT' | 'PUBLISHED';
+        sortBy?: 'publishedAt' | 'createdAt' | 'updatedAt' | 'title';
+        sortOrder?: 'asc' | 'desc';
+        tag?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedPostsDto'];
+        };
+      };
+    };
+  };
+  PostsController_tags: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PostTagWithCountDto'][];
+        };
+      };
+    };
+  };
+  PostsController_detail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PostDetailDto'];
+        };
+      };
+      /** @description Not found or not published */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminPostsController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        status?: 'DRAFT' | 'PUBLISHED';
+        sortBy?: 'publishedAt' | 'createdAt' | 'updatedAt' | 'title';
+        sortOrder?: 'asc' | 'desc';
+        tag?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedPostsDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminPostsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreatePostDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PostDto'];
+        };
+      };
+      /** @description Slug already exists */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminPostsController_tags: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PostTagWithCountDto'][];
+        };
+      };
+    };
+  };
+  AdminPostsController_detail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminPostDetailDto'];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminPostsController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deleted (echo) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PostDto'];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminPostsController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdatePostDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PostDto'];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description New slug already exists */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminPostsController_setMedia: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SetMediaDto'];
+      };
+    };
+    responses: {
+      /** @description New media set with URLs */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MediaItemDto'][];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminPostsController_addBodyImage: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RegisterBodyImageDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BodyImageUrlDto'];
+        };
+      };
+      /** @description Not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminOutboxController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        status?: 'PENDING' | 'SENT' | 'FAILED';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedAdminOutboxDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminOutboxController_retry: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminOutboxRowDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Outbox row not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Row is not FAILED */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminMediaController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        ownerType?: 'TOUR' | 'DESTINATION' | 'USER' | 'POST';
+        role?: 'hero' | 'gallery' | 'avatar' | 'body';
+        type?: 'IMAGE' | 'VIDEO';
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedAdminMediaDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminMediaController_listGarbage: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedMediaGarbageDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminMediaController_reconcile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MediaReconcileResultDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminMediaController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeletedMediaAssetDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Asset not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description USER-owned asset (customer avatar) */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
 }

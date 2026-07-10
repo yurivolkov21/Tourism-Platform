@@ -425,11 +425,13 @@ export const messages = {
       requestSent: 'Request sent — our team will follow up shortly.',
       requestError: 'Couldn’t send your request. Please try again.',
       policyLink: 'Read our cancellation & refund policy',
-      requestPending: 'Cancellation requested — we’ll email you about a refund.',
+      requestPending:
+        'Cancellation requested — we’ll email you about a refund.',
       requestDenied: 'Your cancellation request was declined.',
       requestResubmit: 'Request cancellation again',
       refundedNote: (amount: string) => `Refunded ${amount}.`,
-      partiallyRefundedNote: (amount: string) => `Partially refunded ${amount}.`,
+      partiallyRefundedNote: (amount: string) =>
+        `Partially refunded ${amount}.`,
     },
   },
   common: {
@@ -1658,14 +1660,16 @@ export const messages = {
     backToBlog: 'Back to the journal',
     emptyTitle: 'No stories yet',
     emptyBody: 'We are writing our first guides now - check back soon.',
-    loadError: 'The journal could not be loaded right now. Please try again in a moment.',
+    loadError:
+      'The journal could not be loaded right now. Please try again in a moment.',
     bylineNamed: (name: string) => `By ${name}`,
     toursHeading: 'Tours in this story',
     topicsLabel: 'Topics',
     allTag: 'All',
     searchPlaceholder: 'Search the journal…',
     searchLabel: 'Search articles',
-    emptyFilteredBody: 'Nothing matches that filter yet - clear it to see every story.',
+    emptyFilteredBody:
+      'Nothing matches that filter yet - clear it to see every story.',
     clearFilters: 'Clear filters',
     updatedOn: (date: string) => `Updated ${date}`,
     shareLabel: 'Share this story',
@@ -1740,7 +1744,8 @@ export const messages = {
         afternoon: 'Good afternoon',
         evening: 'Good evening',
       },
-      greetingWithName: (greeting: string, name: string) => `${greeting}, ${name}`,
+      greetingWithName: (greeting: string, name: string) =>
+        `${greeting}, ${name}`,
       tagline: 'Where to next?',
       searchPlaceholder: 'Search tours & destinations',
       upcomingTitle: 'Your next trip',
@@ -1772,7 +1777,11 @@ export const messages = {
       retry: 'Try again',
       slowServer: 'Waking the server — the first load can take up to a minute…',
       duration: { '1': '1 day', '2-3': '2–3 days', '4+': '4+ days' },
-      price: { '<100': 'Under $100', '100-300': '$100–300', '300+': 'Over $300' },
+      price: {
+        '<100': 'Under $100',
+        '100-300': '$100–300',
+        '300+': 'Over $300',
+      },
       sort: {
         popular: 'Popular',
         'price-asc': 'Price: low first',
@@ -1851,7 +1860,8 @@ export const messages = {
       wishlistReason: 'Sign in to save tours you love.',
       bookingReason: 'Sign in to book this tour.',
       savedGateTitle: 'Save tours you love',
-      savedGateBody: 'Sign in to keep a wishlist of tours and find them here anytime.',
+      savedGateBody:
+        'Sign in to keep a wishlist of tours and find them here anytime.',
       accountGateTitle: 'Your account',
       accountGateBody: 'Sign in to manage your profile and saved tours.',
       signIn: 'Sign in',

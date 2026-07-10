@@ -1,7 +1,11 @@
 import type { BookingVm } from '../lib/booking';
 import { firstName, selectUpcomingTrip, timeGreetingKey } from '../lib/home';
 
-function mk(code: string, status: BookingVm['status'], departureDate: string): BookingVm {
+function mk(
+  code: string,
+  status: BookingVm['status'],
+  departureDate: string,
+): BookingVm {
   return {
     code,
     status,
@@ -40,7 +44,10 @@ describe('selectUpcomingTrip', () => {
   });
 
   test('a departure exactly today still counts', () => {
-    expect(selectUpcomingTrip([mk('today', 'PAID', '2026-07-09')], '2026-07-09')?.code).toBe('today');
+    expect(
+      selectUpcomingTrip([mk('today', 'PAID', '2026-07-09')], '2026-07-09')
+        ?.code,
+    ).toBe('today');
   });
 });
 

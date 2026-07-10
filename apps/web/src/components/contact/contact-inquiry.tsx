@@ -29,7 +29,11 @@ import {
   LEAD_SELECT_CLASS,
   LEAD_TEXTAREA_CLASS,
 } from '../../lib/form-field';
-import { EnquiryStatus, EnquirySuccess, type EnquiryFormStatus } from '../marketing/enquiry-status';
+import {
+  EnquiryStatus,
+  EnquirySuccess,
+  type EnquiryFormStatus,
+} from '../marketing/enquiry-status';
 import { Reveal } from '../marketing/reveal';
 import { TechMarquee } from '../marketing/tech-marquee';
 
@@ -59,7 +63,14 @@ export function ContactInquiry({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const payload = buildContactPayload({ firstName, lastName, email, interest, message, website });
+    const payload = buildContactPayload({
+      firstName,
+      lastName,
+      email,
+      interest,
+      message,
+      website,
+    });
     if (!isValidEnquiry(payload) || !terms) {
       setStatus('invalid');
       return;
@@ -69,7 +80,11 @@ export function ContactInquiry({
     if (res.ok) {
       setStatus('success');
     } else {
-      toast.error(res.rateLimited ? messages.enquiryForm.rateLimited : messages.enquiryForm.errorGeneric);
+      toast.error(
+        res.rateLimited
+          ? messages.enquiryForm.rateLimited
+          : messages.enquiryForm.errorGeneric,
+      );
       setStatus('idle');
     }
   }
@@ -83,20 +98,29 @@ export function ContactInquiry({
             <div className="flex flex-col gap-10">
               <div className="flex flex-col gap-5">
                 <span className="text-muted-foreground inline-flex items-center gap-2.5 text-base">
-                  <span className="bg-primary size-2 rounded-full" aria-hidden />
+                  <span
+                    className="bg-primary size-2 rounded-full"
+                    aria-hidden
+                  />
                   {t.eyebrow}
                 </span>
                 <h2 className="text-3xl font-semibold tracking-tight text-balance md:text-4xl">
                   {t.heading}
                 </h2>
-                <p className="text-muted-foreground text-lg text-pretty">{t.body}</p>
+                <p className="text-muted-foreground text-lg text-pretty">
+                  {t.body}
+                </p>
               </div>
 
               <div className="flex flex-wrap gap-x-12 gap-y-6">
                 {t.details.map((d) => (
                   <div key={d.label} className="flex flex-col gap-1">
-                    <span className="text-muted-foreground text-sm">{d.label}</span>
-                    <span className="text-primary text-base font-medium">{d.value}</span>
+                    <span className="text-muted-foreground text-sm">
+                      {d.label}
+                    </span>
+                    <span className="text-primary text-base font-medium">
+                      {d.value}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -104,7 +128,9 @@ export function ContactInquiry({
               <Separator />
 
               <div className="flex flex-col gap-5">
-                <span className="text-muted-foreground text-base">{t.trustedByLabel}</span>
+                <span className="text-muted-foreground text-base">
+                  {t.trustedByLabel}
+                </span>
                 <TechMarquee />
               </div>
             </div>
@@ -114,7 +140,9 @@ export function ContactInquiry({
           <Reveal>
             <Card className="rounded-2xl p-8">
               <CardHeader className="p-0">
-                <CardTitle className="text-primary text-2xl font-semibold">{f.title}</CardTitle>
+                <CardTitle className="text-primary text-2xl font-semibold">
+                  {f.title}
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-0 pt-6">
                 {status === 'success' ? (
@@ -134,7 +162,9 @@ export function ContactInquiry({
                     />
                     <div className="grid gap-5 sm:grid-cols-2">
                       <div className="space-y-1.5">
-                        <Label htmlFor="contact-firstName">{f.firstNameLabel}</Label>
+                        <Label htmlFor="contact-firstName">
+                          {f.firstNameLabel}
+                        </Label>
                         <Input
                           id="contact-firstName"
                           autoComplete="given-name"
@@ -146,7 +176,9 @@ export function ContactInquiry({
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <Label htmlFor="contact-lastName">{f.lastNameLabel}</Label>
+                        <Label htmlFor="contact-lastName">
+                          {f.lastNameLabel}
+                        </Label>
                         <Input
                           id="contact-lastName"
                           autoComplete="family-name"
@@ -172,9 +204,17 @@ export function ContactInquiry({
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="contact-interest">{f.interestLabel}</Label>
-                      <Select value={interest} onValueChange={(v) => setInterest(v ?? '')}>
-                        <SelectTrigger id="contact-interest" className={LEAD_SELECT_CLASS}>
+                      <Label htmlFor="contact-interest">
+                        {f.interestLabel}
+                      </Label>
+                      <Select
+                        value={interest}
+                        onValueChange={(v) => setInterest(v ?? '')}
+                      >
+                        <SelectTrigger
+                          id="contact-interest"
+                          className={LEAD_SELECT_CLASS}
+                        >
                           <SelectValue placeholder={f.interestPlaceholder} />
                         </SelectTrigger>
                         <SelectContent>
@@ -218,7 +258,9 @@ export function ContactInquiry({
                       disabled={status === 'submitting'}
                       className="w-full disabled:opacity-70"
                     >
-                      {status === 'submitting' ? messages.enquiryForm.submitting : f.submit}
+                      {status === 'submitting'
+                        ? messages.enquiryForm.submitting
+                        : f.submit}
                     </Button>
                   </form>
                 )}

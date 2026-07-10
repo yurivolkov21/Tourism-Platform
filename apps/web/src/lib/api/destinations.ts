@@ -72,9 +72,13 @@ export async function fetchRegionBookables(
  * summaries (which carry the full `destinations[]`, unlike the card VM) and
  * tallies. Empty on error so callers can default counts to 0.
  */
-export async function fetchTourDestinationCounts(): Promise<Record<string, number>> {
+export async function fetchTourDestinationCounts(): Promise<
+  Record<string, number>
+> {
   const api = getApiClient();
-  const { data } = await api.GET('/api/v1/tours', { params: { query: { pageSize: 100 } } });
+  const { data } = await api.GET('/api/v1/tours', {
+    params: { query: { pageSize: 100 } },
+  });
   const list = (data as unknown as { data: TourSummaryDto[] }).data ?? [];
   return tallyToursByDestination(list);
 }

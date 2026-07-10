@@ -7,6 +7,9 @@ import { PostDto } from './post.dto';
  * tours as full catalog summaries (published only, pick order), ready for tour cards.
  */
 export class PostDetailDto extends PostDto {
-  @ApiProperty({ type: [TourSummaryDto], description: 'Published related tours, pick order.' })
+  @ApiProperty({
+    type: [TourSummaryDto],
+    description: 'Published related tours, pick order.',
+  })
   relatedTours!: TourSummaryDto[];
 }

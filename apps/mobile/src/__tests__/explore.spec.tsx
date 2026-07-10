@@ -27,11 +27,17 @@ jest.mock('../lib/destinations', () => ({
 }));
 
 jest.mock('../lib/wishlist', () => ({
-  useWishlist: () => ({ isGuest: true, isSaved: () => false, toggle: jest.fn() }),
+  useWishlist: () => ({
+    isGuest: true,
+    isSaved: () => false,
+    toggle: jest.fn(),
+  }),
 }));
 
 const mockTours = fetchAllTours as jest.MockedFunction<typeof fetchAllTours>;
-const mockDests = fetchDestinations as jest.MockedFunction<typeof fetchDestinations>;
+const mockDests = fetchDestinations as jest.MockedFunction<
+  typeof fetchDestinations
+>;
 
 const tour = (over: Partial<TourCardVm>): TourCardVm => ({
   id: 'x',
@@ -48,12 +54,26 @@ const tour = (over: Partial<TourCardVm>): TourCardVm => ({
 });
 
 const tours = [
-  tour({ slug: 'a', title: 'Ha Long Bay Cruise', destination: 'Ha Long', durationDays: 3, basePrice: 450 }),
-  tour({ slug: 'b', title: 'Hanoi Street Food', destination: 'Hanoi', durationDays: 1, basePrice: 49 }),
+  tour({
+    slug: 'a',
+    title: 'Ha Long Bay Cruise',
+    destination: 'Ha Long',
+    durationDays: 3,
+    basePrice: 450,
+  }),
+  tour({
+    slug: 'b',
+    title: 'Hanoi Street Food',
+    destination: 'Hanoi',
+    durationDays: 1,
+    basePrice: 49,
+  }),
 ];
 
 function renderExplore() {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: 0 } },
+  });
   return render(
     <SafeAreaProvider>
       <ThemeProvider>
@@ -67,7 +87,9 @@ function renderExplore() {
 
 test('renders all tours on success', async () => {
   mockTours.mockResolvedValueOnce(tours);
-  mockDests.mockResolvedValueOnce([{ slug: 'ha-long', name: 'Ha Long', toursCount: 3 }]);
+  mockDests.mockResolvedValueOnce([
+    { slug: 'ha-long', name: 'Ha Long', toursCount: 3 },
+  ]);
   renderExplore();
   expect(await screen.findByText('Ha Long Bay Cruise')).toBeOnTheScreen();
   expect(screen.getByText('Hanoi Street Food')).toBeOnTheScreen();
@@ -79,7 +101,10 @@ test('typing in search narrows the list', async () => {
   mockDests.mockResolvedValueOnce([]);
   renderExplore();
   await screen.findByText('Ha Long Bay Cruise');
-  await userEvent.type(screen.getByLabelText('Search tours or destinations'), 'street food');
+  await userEvent.type(
+    screen.getByLabelText('Search tours or destinations'),
+    'street food',
+  );
   expect(screen.queryByText('Ha Long Bay Cruise')).not.toBeOnTheScreen();
   expect(screen.getByText('Hanoi Street Food')).toBeOnTheScreen();
 });
@@ -101,7 +126,9 @@ test('filter sheet: chips edit a draft, Show results applies, clear restores', a
   await userEvent.press(screen.getByTestId('duration-4+'));
   await userEvent.press(screen.getByTestId('duration-1'));
   await userEvent.press(screen.getByTestId('apply-filters'));
-  expect(await screen.findByText('No tours match your search.')).toBeOnTheScreen();
+  expect(
+    await screen.findByText('No tours match your search.'),
+  ).toBeOnTheScreen();
   await userEvent.press(screen.getByRole('button', { name: 'Clear filters' }));
   expect(await screen.findByText('Ha Long Bay Cruise')).toBeOnTheScreen();
 });

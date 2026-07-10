@@ -20,7 +20,10 @@ import {
 import { User } from '@prisma/client';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UploadPurpose } from '../uploads/dto/create-signed-upload-url.dto';
-import { type SignedUploadParams, UploadsService } from '../uploads/uploads.service';
+import {
+  type SignedUploadParams,
+  UploadsService,
+} from '../uploads/uploads.service';
 import { SetAvatarDto } from './dto/set-avatar.dto';
 import { SignAvatarDto } from './dto/sign-avatar.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
@@ -50,9 +53,14 @@ export class UsersController {
    */
   @Post('me/avatar/sign')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: "Sign a Cloudinary avatar upload for the caller" })
-  @ApiOkResponse({ description: 'Signed upload params (purpose pinned to USER_AVATAR)' })
-  @ApiResponse({ status: 401, description: 'Missing/invalid JWT or not synced' })
+  @ApiOperation({ summary: 'Sign a Cloudinary avatar upload for the caller' })
+  @ApiOkResponse({
+    description: 'Signed upload params (purpose pinned to USER_AVATAR)',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing/invalid JWT or not synced',
+  })
   signAvatar(
     @CurrentUser() user: User | null,
     @Body() body: SignAvatarDto,
@@ -69,7 +77,10 @@ export class UsersController {
   @Get('me')
   @ApiOperation({ summary: 'Return the current user profile' })
   @ApiOkResponse({ type: UserDto, description: 'Profile' })
-  @ApiResponse({ status: 401, description: 'Missing/invalid JWT or not synced' })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing/invalid JWT or not synced',
+  })
   getMe(@CurrentUser() user: User | null): Promise<UserWithAvatar> {
     return this.usersService.getMe(this.requireUser(user).id);
   }
@@ -78,7 +89,10 @@ export class UsersController {
   @Patch('me')
   @ApiOperation({ summary: 'Update the current user profile' })
   @ApiOkResponse({ type: UserDto, description: 'Updated profile' })
-  @ApiResponse({ status: 401, description: 'Missing/invalid JWT or not synced' })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing/invalid JWT or not synced',
+  })
   updateMe(
     @CurrentUser() user: User | null,
     @Body() body: UpdateMeDto,
@@ -91,7 +105,10 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Set the caller's avatar from a Cloudinary upload" })
   @ApiOkResponse({ type: UserDto, description: 'Profile with new avatarUrl' })
-  @ApiResponse({ status: 401, description: 'Missing/invalid JWT or not synced' })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing/invalid JWT or not synced',
+  })
   setAvatar(
     @CurrentUser() user: User | null,
     @Body() body: SetAvatarDto,
@@ -104,7 +121,10 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Clear the caller's avatar" })
   @ApiOkResponse({ type: UserDto, description: 'Profile with avatarUrl null' })
-  @ApiResponse({ status: 401, description: 'Missing/invalid JWT or not synced' })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing/invalid JWT or not synced',
+  })
   clearAvatar(@CurrentUser() user: User | null): Promise<UserWithAvatar> {
     return this.usersService.clearAvatar(this.requireUser(user).id);
   }
@@ -114,11 +134,17 @@ export class UsersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete the current account' })
   @ApiResponse({ status: 204, description: 'Account deleted' })
-  @ApiResponse({ status: 401, description: 'Missing/invalid JWT or not synced' })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing/invalid JWT or not synced',
+  })
   @ApiResponse({ status: 409, description: 'Account still has bookings' })
   async deleteMe(@CurrentUser() user: User | null): Promise<void> {
     const caller = this.requireUser(user);
-    await this.usersService.deleteMe({ id: caller.id, supabaseId: caller.supabaseId });
+    await this.usersService.deleteMe({
+      id: caller.id,
+      supabaseId: caller.supabaseId,
+    });
   }
 
   /** Narrow `User | null` → `User`, raising the synced-row 401 otherwise. */

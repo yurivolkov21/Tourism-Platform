@@ -40,13 +40,20 @@ export class CreateEnquiryDto {
   @MaxLength(30)
   phone?: string;
 
-  @ApiProperty({ minLength: 10, maxLength: 2000, example: 'Is the Hoi An tour available in July for 2 adults?' })
+  @ApiProperty({
+    minLength: 10,
+    maxLength: 2000,
+    example: 'Is the Hoi An tour available in July for 2 adults?',
+  })
   @IsString()
   @MinLength(10)
   @MaxLength(2000)
   message!: string;
 
-  @ApiPropertyOptional({ format: 'uuid', description: 'Tour this enquiry is about (must be published).' })
+  @ApiPropertyOptional({
+    format: 'uuid',
+    description: 'Tour this enquiry is about (must be published).',
+  })
   @IsOptional()
   @IsUUID()
   tourId?: string;
@@ -59,25 +66,42 @@ export class CreateEnquiryDto {
   @MaxLength(80)
   nationality?: string;
 
-  @ApiPropertyOptional({ format: 'date', example: '2026-08-01', description: 'Preferred arrival / travel date.' })
+  @ApiPropertyOptional({
+    format: 'date',
+    example: '2026-08-01',
+    description: 'Preferred arrival / travel date.',
+  })
   @IsOptional()
   @IsDateString()
   travelDate?: string;
 
-  @ApiPropertyOptional({ minimum: 1, maximum: 100, example: 4, description: 'Party size.' })
+  @ApiPropertyOptional({
+    minimum: 1,
+    maximum: 100,
+    example: 4,
+    description: 'Party size.',
+  })
   @IsOptional()
   @IsInt()
   @Min(1)
   @Max(100)
   groupSize?: number;
 
-  @ApiPropertyOptional({ maxLength: 40, example: '$1000–$2000', description: 'Budget tier as shown in the form.' })
+  @ApiPropertyOptional({
+    maxLength: 40,
+    example: '$1000–$2000',
+    description: 'Budget tier as shown in the form.',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(40)
   budgetTier?: string;
 
-  @ApiPropertyOptional({ type: [String], example: ['culture', 'food'], description: 'Trip interests / preferences (multi-select).' })
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['culture', 'food'],
+    description: 'Trip interests / preferences (multi-select).',
+  })
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(20)

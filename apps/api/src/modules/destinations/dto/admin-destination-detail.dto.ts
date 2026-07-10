@@ -12,7 +12,10 @@ export class DestinationTourDto {
   @ApiProperty({ example: true })
   isPublished!: boolean;
 
-  @ApiProperty({ example: true, description: 'Whether this destination is the tour’s primary one.' })
+  @ApiProperty({
+    example: true,
+    description: 'Whether this destination is the tour’s primary one.',
+  })
   isPrimary!: boolean;
 }
 

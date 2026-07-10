@@ -3,7 +3,10 @@ import { ErrorAlert } from '../../../components/crud/error-alert';
 import { SubscribersView } from '../../../components/subscribers/subscribers-view';
 import { apiErrorMessage } from '../../../lib/api/error';
 import { parsePageSize } from '../../../lib/pagination';
-import { listSubscribers, type SubscriberList } from '../../../lib/subscribers/data';
+import {
+  listSubscribers,
+  type SubscriberList,
+} from '../../../lib/subscribers/data';
 
 function parsePage(raw?: string): number {
   const n = Number(raw);
@@ -14,7 +17,9 @@ interface SubscribersPageProps {
   searchParams: Promise<{ page?: string; pageSize?: string; q?: string }>;
 }
 
-export default async function SubscribersPage({ searchParams }: SubscribersPageProps) {
+export default async function SubscribersPage({
+  searchParams,
+}: SubscribersPageProps) {
   const sp = await searchParams;
   const page = parsePage(sp.page);
   const pageSize = parsePageSize(sp.pageSize);
@@ -23,7 +28,11 @@ export default async function SubscribersPage({ searchParams }: SubscribersPageP
   let result: SubscriberList | undefined;
   let error: string | null = null;
   try {
-    result = await listSubscribers({ page, pageSize, search: search || undefined });
+    result = await listSubscribers({
+      page,
+      pageSize,
+      search: search || undefined,
+    });
   } catch (e) {
     error = apiErrorMessage(e);
   }
@@ -37,11 +46,15 @@ export default async function SubscribersPage({ searchParams }: SubscribersPageP
 
       {error ? (
         <ErrorAlert>
-          Couldn&apos;t load subscribers: {error}. Check that the API is running and your admin
-          session is valid.
+          Couldn&apos;t load subscribers: {error}. Check that the API is running
+          and your admin session is valid.
         </ErrorAlert>
       ) : (
-        <SubscribersView rows={result?.data ?? []} meta={result?.meta} search={search} />
+        <SubscribersView
+          rows={result?.data ?? []}
+          meta={result?.meta}
+          search={search}
+        />
       )}
     </div>
   );

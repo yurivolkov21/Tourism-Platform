@@ -2,17 +2,17 @@
 # UNVERIFIED (see README).
 appId: host.exp.exponent
 ---
-- tapOn: "Explore"
+- tapOn: 'Explore'
 - tapOn:
-    id: "open-filters"
+    id: 'open-filters'
 # Filter sheet is open — its Duration section is visible.
-- assertVisible: "Duration"
+- assertVisible: 'Duration'
 - tapOn:
-    id: "duration-1"
+    id: 'duration-1'
 - tapOn:
-    id: "apply-filters"
+    id: 'apply-filters'
 # Sheet dismissed; the Filters button now carries the active-count badge.
-- assertVisible: "Filters (1)"
+- assertVisible: 'Filters (1)'
 # Clear it again.
-- tapOn: "Clear all"
-- assertVisible: "Filters"
+- tapOn: 'Clear all'
+- assertVisible: 'Filters'

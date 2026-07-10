@@ -31,7 +31,9 @@ export default async function CheckoutCancelPage({
           <XCircleIcon className="text-muted-foreground mx-auto size-10" />
           <div className="space-y-1.5">
             <h1 className="font-heading text-2xl font-semibold">{t.title}</h1>
-            <p className="text-muted-foreground text-sm text-pretty">{t.body}</p>
+            <p className="text-muted-foreground text-sm text-pretty">
+              {t.body}
+            </p>
           </div>
           {code ? (
             <div className="flex flex-col gap-3">
@@ -43,13 +45,19 @@ export default async function CheckoutCancelPage({
               </Link>
               <Link
                 href="/tours"
-                className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'w-full')}
+                className={cn(
+                  buttonVariants({ variant: 'outline', size: 'lg' }),
+                  'w-full',
+                )}
               >
                 {t.backToTours}
               </Link>
             </div>
           ) : (
-            <Link href="/tours" className={cn(buttonVariants({ size: 'lg' }), 'w-full')}>
+            <Link
+              href="/tours"
+              className={cn(buttonVariants({ size: 'lg' }), 'w-full')}
+            >
               {t.backToTours}
             </Link>
           )}

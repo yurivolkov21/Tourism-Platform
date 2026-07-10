@@ -1,14 +1,16 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import {
-  MediaOwnerType,
-  MediaRole,
-  MediaType,
-  Prisma,
-} from '@prisma/client';
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { MediaOwnerType, MediaRole, MediaType, Prisma } from '@prisma/client';
 import { buildCloudinaryUrl } from '../../lib/cloudinary-url';
 import { PrismaService } from '../../prisma/prisma.service';
-import { MaintenanceService, ReconcileResult } from '../jobs/maintenance.service';
+import {
+  MaintenanceService,
+  ReconcileResult,
+} from '../jobs/maintenance.service';
 import { ListAdminMediaQueryDto } from './dto/list-admin-media-query.dto';
 import { ListMediaGarbageQueryDto } from './dto/list-media-garbage-query.dto';
 
@@ -151,9 +153,18 @@ export class AdminMediaService {
   ): Promise<Prisma.MediaAssetWhereInput[]> {
     const contains = { contains: search, mode: 'insensitive' as const };
     const [tours, destinations, posts, users] = await Promise.all([
-      this.prisma.tour.findMany({ where: { title: contains }, select: { id: true } }),
-      this.prisma.destination.findMany({ where: { name: contains }, select: { id: true } }),
-      this.prisma.post.findMany({ where: { title: contains }, select: { id: true } }),
+      this.prisma.tour.findMany({
+        where: { title: contains },
+        select: { id: true },
+      }),
+      this.prisma.destination.findMany({
+        where: { name: contains },
+        select: { id: true },
+      }),
+      this.prisma.post.findMany({
+        where: { title: contains },
+        select: { id: true },
+      }),
       this.prisma.user.findMany({
         where: { OR: [{ fullName: contains }, { email: contains }] },
         select: { id: true },
@@ -198,7 +209,8 @@ export class AdminMediaService {
             select: { id: true, title: true, slug: true },
           })
           .then((rs) => {
-            for (const r of rs) map.set(`TOUR:${r.id}`, { title: r.title, slug: r.slug });
+            for (const r of rs)
+              map.set(`TOUR:${r.id}`, { title: r.title, slug: r.slug });
           }),
       );
     }
@@ -211,7 +223,8 @@ export class AdminMediaService {
             select: { id: true, name: true, slug: true },
           })
           .then((rs) => {
-            for (const r of rs) map.set(`DESTINATION:${r.id}`, { title: r.name, slug: r.slug });
+            for (const r of rs)
+              map.set(`DESTINATION:${r.id}`, { title: r.name, slug: r.slug });
           }),
       );
     }
@@ -224,7 +237,8 @@ export class AdminMediaService {
             select: { id: true, title: true, slug: true },
           })
           .then((rs) => {
-            for (const r of rs) map.set(`POST:${r.id}`, { title: r.title, slug: r.slug });
+            for (const r of rs)
+              map.set(`POST:${r.id}`, { title: r.title, slug: r.slug });
           }),
       );
     }
@@ -238,7 +252,10 @@ export class AdminMediaService {
           })
           .then((rs) => {
             for (const r of rs) {
-              map.set(`USER:${r.id}`, { title: r.fullName ?? r.email, slug: null });
+              map.set(`USER:${r.id}`, {
+                title: r.fullName ?? r.email,
+                slug: null,
+              });
             }
           }),
       );
@@ -282,7 +299,10 @@ export class AdminMediaService {
     }
 
     await this.prisma.$transaction([
-      this.prisma.mediaGarbage.createMany({ data: garbage, skipDuplicates: true }),
+      this.prisma.mediaGarbage.createMany({
+        data: garbage,
+        skipDuplicates: true,
+      }),
       this.prisma.mediaAsset.delete({ where: { id } }),
     ]);
 

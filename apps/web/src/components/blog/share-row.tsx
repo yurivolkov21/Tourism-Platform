@@ -43,9 +43,21 @@ export function ShareRow({ url, title }: { url: string; title: string }) {
 
   return (
     <div className="mt-10 flex flex-wrap items-center gap-3">
-      <span className="text-muted-foreground text-sm font-medium">{t.shareLabel}</span>
-      <Button type="button" variant="outline" size="sm" onClick={copy} className="cursor-pointer">
-        {copied ? <CheckIcon className="size-4" /> : <LinkIcon className="size-4" />}
+      <span className="text-muted-foreground text-sm font-medium">
+        {t.shareLabel}
+      </span>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={copy}
+        className="cursor-pointer"
+      >
+        {copied ? (
+          <CheckIcon className="size-4" />
+        ) : (
+          <LinkIcon className="size-4" />
+        )}
         <span aria-live="polite">{copied ? t.linkCopied : t.copyLink}</span>
       </Button>
       <Button
@@ -53,7 +65,12 @@ export function ShareRow({ url, title }: { url: string; title: string }) {
         size="sm"
         nativeButton={false}
         render={
-          <a href={facebookHref} target="_blank" rel="noopener noreferrer" aria-label={t.shareOnFacebook} />
+          <a
+            href={facebookHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t.shareOnFacebook}
+          />
         }
       >
         <FacebookIcon className="size-4" />
@@ -63,7 +80,14 @@ export function ShareRow({ url, title }: { url: string; title: string }) {
         variant="outline"
         size="sm"
         nativeButton={false}
-        render={<a href={xHref} target="_blank" rel="noopener noreferrer" aria-label={t.shareOnX} />}
+        render={
+          <a
+            href={xHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t.shareOnX}
+          />
+        }
       >
         <TwitterIcon className="size-4" />X
       </Button>

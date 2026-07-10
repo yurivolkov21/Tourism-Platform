@@ -42,12 +42,10 @@ function makePrisma(m: PrismaMocks = {}): PrismaService {
       ...m.tourCategory,
     },
     destination: {
-      findMany: jest
-        .fn()
-        .mockResolvedValue([
-          { id: 'd-1', slug: 'hoi-an' },
-          { id: 'd-2', slug: 'da-nang' },
-        ]),
+      findMany: jest.fn().mockResolvedValue([
+        { id: 'd-1', slug: 'hoi-an' },
+        { id: 'd-2', slug: 'da-nang' },
+      ]),
       ...m.destination,
     },
     review: {
@@ -117,7 +115,9 @@ describe('ToursService', () => {
   it('create resolves refs, generates slug, and flags the primary destination', async () => {
     const create = jest
       .fn()
-      .mockImplementation(({ data }) => Promise.resolve({ id: 't-1', ...data }));
+      .mockImplementation(({ data }) =>
+        Promise.resolve({ id: 't-1', ...data }),
+      );
     const svc = makeService(makePrisma({ tour: { create } }));
 
     await svc.create(body());
@@ -127,16 +127,26 @@ describe('ToursService', () => {
     expect(data.category.connect.id).toBe('cat-1');
     const links = data.destinations.create;
     expect(links).toHaveLength(2);
-    expect(links.find((l: { isPrimary: boolean; destination: { connect: { id: string } } }) =>
-      l.destination.connect.id === 'd-1').isPrimary).toBe(true);
-    expect(links.find((l: { isPrimary: boolean; destination: { connect: { id: string } } }) =>
-      l.destination.connect.id === 'd-2').isPrimary).toBe(false);
+    expect(
+      links.find(
+        (l: { isPrimary: boolean; destination: { connect: { id: string } } }) =>
+          l.destination.connect.id === 'd-1',
+      ).isPrimary,
+    ).toBe(true);
+    expect(
+      links.find(
+        (l: { isPrimary: boolean; destination: { connect: { id: string } } }) =>
+          l.destination.connect.id === 'd-2',
+      ).isPrimary,
+    ).toBe(false);
   });
 
   it('create maps merchandising fields (suitableFor / badges), defaulting to []', async () => {
     const create = jest
       .fn()
-      .mockImplementation(({ data }) => Promise.resolve({ id: 't-1', ...data }));
+      .mockImplementation(({ data }) =>
+        Promise.resolve({ id: 't-1', ...data }),
+      );
     const svc = makeService(makePrisma({ tour: { create } }));
 
     // defaults when omitted
@@ -145,14 +155,21 @@ describe('ToursService', () => {
     expect(create.mock.calls[0][0].data.badges).toEqual([]);
 
     // passed through when provided
-    await svc.create(body({ suitableFor: ['FAMILY', 'COUPLE'], badges: ['BEST_VALUE'] }));
-    expect(create.mock.calls[1][0].data.suitableFor).toEqual(['FAMILY', 'COUPLE']);
+    await svc.create(
+      body({ suitableFor: ['FAMILY', 'COUPLE'], badges: ['BEST_VALUE'] }),
+    );
+    expect(create.mock.calls[1][0].data.suitableFor).toEqual([
+      'FAMILY',
+      'COUPLE',
+    ]);
     expect(create.mock.calls[1][0].data.badges).toEqual(['BEST_VALUE']);
   });
 
   it('create rejects an unknown category slug (400)', async () => {
     const svc = makeService(
-      makePrisma({ tourCategory: { findUnique: jest.fn().mockResolvedValue(null) } }),
+      makePrisma({
+        tourCategory: { findUnique: jest.fn().mockResolvedValue(null) },
+      }),
     );
     await expect(svc.create(body())).rejects.toThrow(BadRequestException);
   });
@@ -161,7 +178,9 @@ describe('ToursService', () => {
     const svc = makeService(
       makePrisma({
         destination: {
-          findMany: jest.fn().mockResolvedValue([{ id: 'd-1', slug: 'hoi-an' }]),
+          findMany: jest
+            .fn()
+            .mockResolvedValue([{ id: 'd-1', slug: 'hoi-an' }]),
         },
       }),
     );
@@ -250,9 +269,7 @@ describe('ToursService', () => {
       .fn()
       .mockResolvedValue({ id: 't-1', slug: 'x', isPublished: false });
     const del = jest.fn().mockRejectedValue(knownError('P2003'));
-    const svc = makeService(
-      makePrisma({ tour: { findUnique, delete: del } }),
-    );
+    const svc = makeService(makePrisma({ tour: { findUnique, delete: del } }));
     await expect(svc.remove('x')).rejects.toThrow(ConflictException);
   });
 
@@ -266,9 +283,16 @@ describe('ToursService', () => {
 
   it('findBySlug (admin) attaches media; 404 when missing', async () => {
     const ok = makeService(
-      makePrisma({ tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }) } }),
+      makePrisma({
+        tour: {
+          findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }),
+        },
+      }),
     );
-    await expect(ok.findBySlug('x')).resolves.toMatchObject({ slug: 'x', media: [] });
+    await expect(ok.findBySlug('x')).resolves.toMatchObject({
+      slug: 'x',
+      media: [],
+    });
 
     const missing = makeService(
       makePrisma({ tour: { findUnique: jest.fn().mockResolvedValue(null) } }),
@@ -292,7 +316,9 @@ describe('ToursService', () => {
         .mockResolvedValue({ id: 't-1', media: [{ url: 'u', role: 'hero' }] }),
     });
     const svc = makeService(
-      makePrisma({ tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-1' }) } }),
+      makePrisma({
+        tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-1' }) },
+      }),
       media,
     );
     const out = await svc.setMedia('x', []);
@@ -302,12 +328,16 @@ describe('ToursService', () => {
     const missing = makeService(
       makePrisma({ tour: { findUnique: jest.fn().mockResolvedValue(null) } }),
     );
-    await expect(missing.setMedia('nope', [])).rejects.toThrow(NotFoundException);
+    await expect(missing.setMedia('nope', [])).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('update applies a partial change and re-attaches media', async () => {
     const findUnique = jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' });
-    const update = jest.fn().mockResolvedValue({ id: 't-1', slug: 'x', title: 'New' });
+    const update = jest
+      .fn()
+      .mockResolvedValue({ id: 't-1', slug: 'x', title: 'New' });
     const svc = makeService(makePrisma({ tour: { findUnique, update } }));
     const res = await svc.update('x', { title: 'New' });
     expect(res).toMatchObject({ slug: 'x', media: [] });
@@ -317,7 +347,11 @@ describe('ToursService', () => {
 
   it('update rejects replacing destinations without a primary (400)', async () => {
     const svc = makeService(
-      makePrisma({ tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }) } }),
+      makePrisma({
+        tour: {
+          findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }),
+        },
+      }),
     );
     await expect(
       svc.update('x', { destinationSlugs: ['hoi-an'] }),
@@ -352,13 +386,17 @@ describe('ToursService', () => {
     it('attaches ops aggregates', async () => {
       const svc = makeService(
         makePrisma({
-          tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }) },
+          tour: {
+            findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }),
+          },
           booking: {
             count: jest
               .fn()
               .mockResolvedValueOnce(30) // bookingsTotal
               .mockResolvedValueOnce(24), // bookingsPaid
-            aggregate: jest.fn().mockResolvedValue({ _sum: { totalAmount: new Prisma.Decimal(4500) } }),
+            aggregate: jest.fn().mockResolvedValue({
+              _sum: { totalAmount: new Prisma.Decimal(4500) },
+            }),
           },
           wishlist: { count: jest.fn().mockResolvedValue(42) },
           enquiry: { count: jest.fn().mockResolvedValue(7) },
@@ -379,7 +417,9 @@ describe('ToursService', () => {
     it('ops are zero-safe (no bookings)', async () => {
       const svc = makeService(
         makePrisma({
-          tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }) },
+          tour: {
+            findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }),
+          },
         }),
       );
 
@@ -399,11 +439,17 @@ describe('ToursService', () => {
     it('attaches averageRating (1-dp) + reviewsCount from approved reviews', async () => {
       const svc = makeService(
         makePrisma({
-          tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }) },
+          tour: {
+            findUnique: jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' }),
+          },
           review: {
-            groupBy: jest
-              .fn()
-              .mockResolvedValue([{ tourId: 't-1', _avg: { rating: 4.6667 }, _count: { _all: 3 } }]),
+            groupBy: jest.fn().mockResolvedValue([
+              {
+                tourId: 't-1',
+                _avg: { rating: 4.6667 },
+                _count: { _all: 3 },
+              },
+            ]),
           },
         }),
       );
@@ -414,7 +460,11 @@ describe('ToursService', () => {
 
     it('defaults to 0 / 0 when a tour has no approved reviews', async () => {
       const svc = makeService(
-        makePrisma({ tour: { findUnique: jest.fn().mockResolvedValue({ id: 't-2', slug: 'y' }) } }),
+        makePrisma({
+          tour: {
+            findUnique: jest.fn().mockResolvedValue({ id: 't-2', slug: 'y' }),
+          },
+        }),
       );
       const r = await svc.findBySlug('y');
       expect(r.averageRating).toBe(0);

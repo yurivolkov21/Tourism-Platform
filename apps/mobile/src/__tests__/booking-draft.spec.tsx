@@ -34,12 +34,23 @@ test('setTrip seeds the draft, setContact enriches it, reset clears', () => {
   expect(result.current.draft).toBeNull();
 
   act(() => result.current.setTrip(trip));
-  expect(result.current.draft).toMatchObject({ tourSlug: 'hoi-an-walking-tour', adults: 2 });
+  expect(result.current.draft).toMatchObject({
+    tourSlug: 'hoi-an-walking-tour',
+    adults: 2,
+  });
 
   act(() =>
-    result.current.setContact({ name: 'Nguyen Van A', email: 'a@x.com', phone: '', requests: '' }),
+    result.current.setContact({
+      name: 'Nguyen Van A',
+      email: 'a@x.com',
+      phone: '',
+      requests: '',
+    }),
   );
-  expect(result.current.draft).toMatchObject({ name: 'Nguyen Van A', email: 'a@x.com' });
+  expect(result.current.draft).toMatchObject({
+    name: 'Nguyen Van A',
+    email: 'a@x.com',
+  });
 
   act(() => result.current.reset());
   expect(result.current.draft).toBeNull();
@@ -49,9 +60,20 @@ test('setTrip starts a FRESH draft (no contact leakage across trips)', () => {
   const { result } = renderHook(() => useBookingDraft(), { wrapper });
   act(() => result.current.setTrip(trip));
   act(() =>
-    result.current.setContact({ name: 'Nguyen Van A', email: 'a@x.com', phone: '', requests: '' }),
+    result.current.setContact({
+      name: 'Nguyen Van A',
+      email: 'a@x.com',
+      phone: '',
+      requests: '',
+    }),
   );
-  act(() => result.current.setTrip({ ...trip, tourSlug: 'sapa-trek', departureId: 'dep-9' }));
+  act(() =>
+    result.current.setTrip({
+      ...trip,
+      tourSlug: 'sapa-trek',
+      departureId: 'dep-9',
+    }),
+  );
   expect(result.current.draft?.tourSlug).toBe('sapa-trek');
   expect(result.current.draft?.name).toBeUndefined();
 });
@@ -59,7 +81,12 @@ test('setTrip starts a FRESH draft (no contact leakage across trips)', () => {
 test('setContact without a trip is a no-op', () => {
   const { result } = renderHook(() => useBookingDraft(), { wrapper });
   act(() =>
-    result.current.setContact({ name: 'A', email: 'a@x.com', phone: '', requests: '' }),
+    result.current.setContact({
+      name: 'A',
+      email: 'a@x.com',
+      phone: '',
+      requests: '',
+    }),
   );
   expect(result.current.draft).toBeNull();
 });
@@ -68,7 +95,12 @@ test('signing out clears the draft (contact PII must not survive an account swit
   const { result } = renderHook(() => useBookingDraft(), { wrapper });
   act(() => result.current.setTrip(trip));
   act(() =>
-    result.current.setContact({ name: 'Nguyen Van A', email: 'a@x.com', phone: '', requests: '' }),
+    result.current.setContact({
+      name: 'Nguyen Van A',
+      email: 'a@x.com',
+      phone: '',
+      requests: '',
+    }),
   );
   expect(result.current.draft).not.toBeNull();
   act(() => mockAuthCallback?.('SIGNED_OUT', null));

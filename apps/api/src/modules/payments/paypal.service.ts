@@ -139,7 +139,9 @@ export class PayPalService implements OnModuleInit {
       return this.extractCapture(result as OrderLike);
     } catch (err) {
       if (!this.isAlreadyCaptured(err)) throw err;
-      this.logger.warn(`Order ${orderId} already captured — reading existing capture`);
+      this.logger.warn(
+        `Order ${orderId} already captured — reading existing capture`,
+      );
       const { result } = await this.orders.getOrder({ id: orderId });
       return this.extractCapture(result as OrderLike);
     }
@@ -163,7 +165,9 @@ export class PayPalService implements OnModuleInit {
         ? { amount: { value: amount.value, currencyCode: amount.currencyCode } }
         : undefined,
     });
-    this.logger.log(`Refunded PayPal capture ${captureId} (status=${result.status})`);
+    this.logger.log(
+      `Refunded PayPal capture ${captureId} (status=${result.status})`,
+    );
     return { id: result.id ?? '', status: result.status ?? null };
   }
 

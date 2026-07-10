@@ -10,7 +10,12 @@ function JsonLd({ data }: { data: Record<string, unknown> }) {
   const json = JSON.stringify(data).replace(/</g, '\\u003c');
   // dangerouslySetInnerHTML is required for a JSON-LD <script>; the `<` escape above neutralises any
   // `</script>` breakout, and the data is our own (brand / catalogue), not user-supplied HTML.
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: json }} />;
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: json }}
+    />
+  );
 }
 
 /** Site-wide organisation card (rendered once in the root layout). */
@@ -116,7 +121,14 @@ export type ArticleJsonLdProps = {
 };
 
 /** Article schema for a journal post. Public posts carry no personal author → brand byline. */
-export function ArticleJsonLd({ title, description, image, slug, datePublished, authorName }: ArticleJsonLdProps) {
+export function ArticleJsonLd({
+  title,
+  description,
+  image,
+  slug,
+  datePublished,
+  authorName,
+}: ArticleJsonLdProps) {
   return (
     <JsonLd
       data={{
@@ -129,7 +141,11 @@ export function ArticleJsonLd({ title, description, image, slug, datePublished, 
         ...(datePublished ? { datePublished } : {}),
         author: authorName
           ? { '@type': 'Person', name: authorName }
-          : { '@type': 'Organization', name: messages.brand.name, url: SITE_URL },
+          : {
+              '@type': 'Organization',
+              name: messages.brand.name,
+              url: SITE_URL,
+            },
         publisher: {
           '@type': 'Organization',
           name: messages.brand.name,

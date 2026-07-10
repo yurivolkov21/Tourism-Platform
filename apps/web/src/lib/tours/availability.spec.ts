@@ -1,4 +1,8 @@
-import { tourAvailability, formatShortDate, LOW_SEATS_THRESHOLD } from './availability';
+import {
+  tourAvailability,
+  formatShortDate,
+  LOW_SEATS_THRESHOLD,
+} from './availability';
 
 describe('tourAvailability', () => {
   it('is "onRequest" when there is no upcoming departure', () => {
@@ -7,7 +11,10 @@ describe('tourAvailability', () => {
   });
 
   it('is "low" when seats are 1..threshold', () => {
-    expect(tourAvailability('2026-08-15', 1)).toEqual({ kind: 'low', seatsLeft: 1 });
+    expect(tourAvailability('2026-08-15', 1)).toEqual({
+      kind: 'low',
+      seatsLeft: 1,
+    });
     expect(tourAvailability('2026-08-15', LOW_SEATS_THRESHOLD)).toEqual({
       kind: 'low',
       seatsLeft: LOW_SEATS_THRESHOLD,
@@ -22,13 +29,25 @@ describe('tourAvailability', () => {
   });
 
   it('never renders "sold out": a 0-seat nearest departure falls back to the date', () => {
-    expect(tourAvailability('2026-08-15', 0)).toEqual({ kind: 'next', date: '2026-08-15' });
-    expect(tourAvailability('2026-08-15', null)).toEqual({ kind: 'next', date: '2026-08-15' });
+    expect(tourAvailability('2026-08-15', 0)).toEqual({
+      kind: 'next',
+      date: '2026-08-15',
+    });
+    expect(tourAvailability('2026-08-15', null)).toEqual({
+      kind: 'next',
+      date: '2026-08-15',
+    });
   });
 
   it('respects a custom threshold', () => {
-    expect(tourAvailability('2026-08-15', 3, 2)).toEqual({ kind: 'next', date: '2026-08-15' });
-    expect(tourAvailability('2026-08-15', 2, 2)).toEqual({ kind: 'low', seatsLeft: 2 });
+    expect(tourAvailability('2026-08-15', 3, 2)).toEqual({
+      kind: 'next',
+      date: '2026-08-15',
+    });
+    expect(tourAvailability('2026-08-15', 2, 2)).toEqual({
+      kind: 'low',
+      seatsLeft: 2,
+    });
   });
 });
 

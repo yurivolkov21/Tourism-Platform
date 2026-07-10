@@ -44,20 +44,34 @@ export function UpcomingTripCard({
           backgroundColor: theme.colors['secondary'],
         }}
       >
-        <Ionicons name="airplane-outline" size={24} color={theme.colors['primary']} />
+        <Ionicons
+          name="airplane-outline"
+          size={24}
+          color={theme.colors['primary']}
+        />
       </View>
       <View style={{ flex: 1, gap: theme.spacing(1) }}>
-        <AppText numberOfLines={1} style={{ fontFamily: theme.fontFamilies.sansSemiBold }}>
+        <AppText
+          numberOfLines={1}
+          style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+        >
           {booking.tourTitle}
         </AppText>
         <AppText variant="caption" muted numberOfLines={1}>
           {t.departureLabel}: {booking.departureLabel}
         </AppText>
         <View style={{ flexDirection: 'row' }}>
-          <Badge tone={booking.statusMeta.tone} label={booking.statusMeta.label} />
+          <Badge
+            tone={booking.statusMeta.tone}
+            label={booking.statusMeta.label}
+          />
         </View>
       </View>
-      <Ionicons name="chevron-forward" size={18} color={theme.colors['muted-foreground']} />
+      <Ionicons
+        name="chevron-forward"
+        size={18}
+        color={theme.colors['muted-foreground']}
+      />
     </Pressable>
   );
 }

@@ -31,7 +31,11 @@ test('builds a trimmed payload from valid fields', () => {
 });
 
 test('coerces string counts to ints', () => {
-  const result = buildCreateBookingPayload({ ...valid, numAdults: '3', numChildren: '0' });
+  const result = buildCreateBookingPayload({
+    ...valid,
+    numAdults: '3',
+    numChildren: '0',
+  });
   expect(result.ok && result.payload.numAdults).toBe(3);
   expect(result.ok && result.payload.numChildren).toBeUndefined();
 });

@@ -38,7 +38,9 @@ import { insertSnippet } from '../../lib/posts/markdown';
 
 interface PostFormProps {
   action: (prev: PostFormState, formData: FormData) => Promise<PostFormState>;
-  post?: Post & { relatedTours?: { slug: string; title: string; isPublished: boolean }[] };
+  post?: Post & {
+    relatedTours?: { slug: string; title: string; isPublished: boolean }[];
+  };
   submitLabel: string;
   /** Existing tags for suggestions (admin tag list). */
   tagSuggestions?: PostTagOption[];
@@ -54,8 +56,17 @@ const labelize = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
  * beside the fields), matching the other admin forms. Field names are unchanged, so the zod schema
  * + server actions stay as-is.
  */
-export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourOptions = [] }: PostFormProps) {
-  const [state, formAction, pending] = useActionState<PostFormState, FormData>(action, {});
+export function PostForm({
+  action,
+  post,
+  submitLabel,
+  tagSuggestions = [],
+  tourOptions = [],
+}: PostFormProps) {
+  const [state, formAction, pending] = useActionState<PostFormState, FormData>(
+    action,
+    {},
+  );
   const errors = state.fieldErrors ?? {};
 
   const [title, setTitle] = useState(post?.title ?? '');
@@ -77,7 +88,9 @@ export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourO
     }));
   const [media, setMedia] = useState<MediaInput[]>(initialMedia);
 
-  const [tags, setTags] = useState<string[]>((post?.tags ?? []).map((t) => t.name));
+  const [tags, setTags] = useState<string[]>(
+    (post?.tags ?? []).map((t) => t.name),
+  );
   const [relatedSlugs, setRelatedSlugs] = useState<string[]>(
     (post?.relatedTours ?? []).map((t) => t.slug),
   );
@@ -106,7 +119,9 @@ export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourO
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
           <FieldLegend className="mb-1.5 font-semibold">Basics</FieldLegend>
-          <FieldDescription>The public title, its URL slug, and the card teaser.</FieldDescription>
+          <FieldDescription>
+            The public title, its URL slug, and the card teaser.
+          </FieldDescription>
         </div>
         <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
           <Field data-invalid={Boolean(errors.title)}>
@@ -141,8 +156,8 @@ export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourO
               aria-invalid={Boolean(errors.slug)}
             />
             <FieldDescription>
-              Auto-generated from the title. Edit it only for a custom URL — lowercase, words
-              separated by hyphens.
+              Auto-generated from the title. Edit it only for a custom URL —
+              lowercase, words separated by hyphens.
             </FieldDescription>
             {errors.slug ? <FieldError>{errors.slug}</FieldError> : null}
           </Field>
@@ -176,7 +191,11 @@ export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourO
       <input type="hidden" name="media" value={JSON.stringify(media)} />
 
       <input type="hidden" name="tags" value={JSON.stringify(tags)} />
-      <input type="hidden" name="relatedTourSlugs" value={JSON.stringify(relatedSlugs)} />
+      <input
+        type="hidden"
+        name="relatedTourSlugs"
+        value={JSON.stringify(relatedSlugs)}
+      />
 
       <Separator className="my-8" />
 
@@ -184,7 +203,9 @@ export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourO
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
           <FieldLegend className="mb-1.5 font-semibold">Content</FieldLegend>
-          <FieldDescription>The post body in Markdown — headings, bold, lists, links.</FieldDescription>
+          <FieldDescription>
+            The post body in Markdown — headings, bold, lists, links.
+          </FieldDescription>
         </div>
         <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
           <Field data-invalid={Boolean(errors.content)}>
@@ -203,14 +224,19 @@ export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourO
                     onClick={() => setEditorTab(tab)}
                     className={cn(
                       'inline-flex h-7 cursor-pointer items-center rounded-md px-3 text-sm font-medium capitalize transition-colors',
-                      editorTab === tab ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+                      editorTab === tab
+                        ? 'bg-background text-foreground shadow-sm'
+                        : 'hover:text-foreground',
                     )}
                   >
                     {tab}
                   </button>
                 ))}
               </div>
-              <InsertImageButton slug={post?.slug} onInsert={handleInsertImage} />
+              <InsertImageButton
+                slug={post?.slug}
+                onInsert={handleInsertImage}
+              />
             </div>
             {editorTab === 'write' ? (
               <Textarea
@@ -230,7 +256,9 @@ export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourO
               </div>
             )}
             <input type="hidden" name="content" value={content} />
-            <FieldDescription>Markdown — rendered (sanitized) on the public site.</FieldDescription>
+            <FieldDescription>
+              Markdown — rendered (sanitized) on the public site.
+            </FieldDescription>
             {errors.content ? <FieldError>{errors.content}</FieldError> : null}
           </Field>
         </FieldGroup>
@@ -241,15 +269,22 @@ export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourO
       {/* Topics & related tours */}
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
-          <FieldLegend className="mb-1.5 font-semibold">Topics &amp; tours</FieldLegend>
+          <FieldLegend className="mb-1.5 font-semibold">
+            Topics &amp; tours
+          </FieldLegend>
           <FieldDescription>
-            Tags group stories on the journal; related tours appear under the article.
+            Tags group stories on the journal; related tours appear under the
+            article.
           </FieldDescription>
         </div>
         <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
           <Field data-invalid={Boolean(errors.tags)}>
             <FieldLabel>Tags</FieldLabel>
-            <TagsInput value={tags} onChange={setTags} suggestions={tagSuggestions} />
+            <TagsInput
+              value={tags}
+              onChange={setTags}
+              suggestions={tagSuggestions}
+            />
             <FieldDescription>
               Up to 10 — pick existing topics or type a new one and press Enter.
             </FieldDescription>
@@ -257,9 +292,17 @@ export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourO
           </Field>
           <Field data-invalid={Boolean(errors.relatedTourSlugs)}>
             <FieldLabel>Related tours</FieldLabel>
-            <RelatedToursPicker value={relatedSlugs} onChange={setRelatedSlugs} options={tourOptions} />
-            <FieldDescription>Up to 3 tours to feature under this story.</FieldDescription>
-            {errors.relatedTourSlugs ? <FieldError>{errors.relatedTourSlugs}</FieldError> : null}
+            <RelatedToursPicker
+              value={relatedSlugs}
+              onChange={setRelatedSlugs}
+              options={tourOptions}
+            />
+            <FieldDescription>
+              Up to 3 tours to feature under this story.
+            </FieldDescription>
+            {errors.relatedTourSlugs ? (
+              <FieldError>{errors.relatedTourSlugs}</FieldError>
+            ) : null}
           </Field>
         </FieldGroup>
       </FieldSet>
@@ -270,12 +313,17 @@ export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourO
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
           <FieldLegend className="mb-1.5 font-semibold">Publishing</FieldLegend>
-          <FieldDescription>Only published posts appear on the site.</FieldDescription>
+          <FieldDescription>
+            Only published posts appear on the site.
+          </FieldDescription>
         </div>
         <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
           <Field>
             <FieldLabel htmlFor="status">Status</FieldLabel>
-            <Select value={status} onValueChange={(v) => setStatus(v ?? 'DRAFT')}>
+            <Select
+              value={status}
+              onValueChange={(v) => setStatus(v ?? 'DRAFT')}
+            >
               <SelectTrigger id="status" className="w-full max-w-xs">
                 <SelectValue />
               </SelectTrigger>
@@ -289,7 +337,8 @@ export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourO
             </Select>
             <input type="hidden" name="status" value={status} />
             <FieldDescription>
-              Publishing stamps the publish date; only published posts are public.
+              Publishing stamps the publish date; only published posts are
+              public.
             </FieldDescription>
           </Field>
         </FieldGroup>
@@ -302,7 +351,12 @@ export function PostForm({ action, post, submitLabel, tagSuggestions = [], tourO
       ) : null}
 
       <div className="mt-8 flex items-center justify-end gap-3">
-        <Button type="button" variant="outline" nativeButton={false} render={<Link href="/posts" />}>
+        <Button
+          type="button"
+          variant="outline"
+          nativeButton={false}
+          render={<Link href="/posts" />}
+        >
           Cancel
         </Button>
         <Button type="submit" disabled={pending}>

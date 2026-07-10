@@ -53,7 +53,11 @@ function makeConfig(overrides: Record<string, string> = {}) {
 describe('UsersService.getMe', () => {
   it('attaches avatarUrl from the USER media owner', async () => {
     const media = makeMedia('https://cdn/avatar.jpg');
-    const svc = new UsersService(makePrisma({}) as never, media as never, makeConfig() as never);
+    const svc = new UsersService(
+      makePrisma({}) as never,
+      media as never,
+      makeConfig() as never,
+    );
 
     const result = await svc.getMe('u-1');
 
@@ -80,19 +84,32 @@ describe('UsersService.getMe', () => {
       makeMedia(null) as never,
       makeConfig() as never,
     );
-    await expect(svc.getMe('missing')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(svc.getMe('missing')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
   });
 });
 
 describe('UsersService.setAvatar', () => {
   it('syncs a single IMAGE/avatar asset (replace-all) and returns the url', async () => {
     const media = makeMedia('https://cdn/new.jpg');
-    const svc = new UsersService(makePrisma({}) as never, media as never, makeConfig() as never);
+    const svc = new UsersService(
+      makePrisma({}) as never,
+      media as never,
+      makeConfig() as never,
+    );
 
-    const result = await svc.setAvatar('u-1', { publicId: 'tourism/users/avatar/x' });
+    const result = await svc.setAvatar('u-1', {
+      publicId: 'tourism/users/avatar/x',
+    });
 
     expect(result.avatarUrl).toBe('https://cdn/new.jpg');
-    type SyncCall = [unknown, MediaOwnerType, string, Array<{ type: MediaType; role: MediaRole }>];
+    type SyncCall = [
+      unknown,
+      MediaOwnerType,
+      string,
+      Array<{ type: MediaType; role: MediaRole }>,
+    ];
     const calls = media.syncAssets.mock.calls as unknown as SyncCall[];
     expect(calls[0][1]).toBe(MediaOwnerType.USER);
     expect(calls[0][2]).toBe('u-1');
@@ -123,8 +140,14 @@ describe('UsersService.deleteMe', () => {
       booking: { count: jest.fn().mockResolvedValue(2) },
       user: { delete: jest.fn() },
     };
-    const svc = new UsersService(prisma as never, makeMedia(null) as never, makeConfig() as never);
-    await expect(svc.deleteMe(caller)).rejects.toBeInstanceOf(ConflictException);
+    const svc = new UsersService(
+      prisma as never,
+      makeMedia(null) as never,
+      makeConfig() as never,
+    );
+    await expect(svc.deleteMe(caller)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
     expect(prisma.user.delete).not.toHaveBeenCalled();
   });
 
@@ -141,7 +164,11 @@ describe('UsersService.deleteMe', () => {
     const fetchSpy = jest
       .spyOn(global, 'fetch')
       .mockResolvedValue({ ok: true } as Response);
-    const svc = new UsersService(prisma as never, media as never, makeConfig() as never);
+    const svc = new UsersService(
+      prisma as never,
+      media as never,
+      makeConfig() as never,
+    );
 
     await svc.deleteMe(caller);
 
@@ -162,7 +189,11 @@ describe('UsersService.deleteMe', () => {
 describe('UsersService.clearAvatar', () => {
   it('syncs the empty set and returns avatarUrl null', async () => {
     const media = makeMedia(null);
-    const svc = new UsersService(makePrisma({}) as never, media as never, makeConfig() as never);
+    const svc = new UsersService(
+      makePrisma({}) as never,
+      media as never,
+      makeConfig() as never,
+    );
 
     const result = await svc.clearAvatar('u-1');
 

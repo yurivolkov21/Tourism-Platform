@@ -30,21 +30,32 @@ describe('computeAboutMetrics', () => {
   });
 
   it('returns rating 0 when there are no reviews', () => {
-    expect(computeAboutMetrics([{ rating: 0, reviewCount: 0 }], []).rating).toBe(0);
+    expect(
+      computeAboutMetrics([{ rating: 0, reviewCount: 0 }], []).rating,
+    ).toBe(0);
   });
 });
 
 describe('formatAboutMetricValues', () => {
   it('formats counts and a starred rating', () => {
-    expect(formatAboutMetricValues({ tours: 15, destinations: 13, regions: 3, rating: 4.7 })).toEqual([
-      '15',
-      '13',
-      '3',
-      '4.7★',
-    ]);
+    expect(
+      formatAboutMetricValues({
+        tours: 15,
+        destinations: 13,
+        regions: 3,
+        rating: 4.7,
+      }),
+    ).toEqual(['15', '13', '3', '4.7★']);
   });
 
   it('shows a dash when there is no rating', () => {
-    expect(formatAboutMetricValues({ tours: 1, destinations: 1, regions: 1, rating: 0 })[3]).toBe('—');
+    expect(
+      formatAboutMetricValues({
+        tours: 1,
+        destinations: 1,
+        regions: 1,
+        rating: 0,
+      })[3],
+    ).toBe('—');
   });
 });

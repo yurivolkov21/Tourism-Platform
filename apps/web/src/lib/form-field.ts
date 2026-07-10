@@ -14,7 +14,8 @@ export const LEAD_FIELD_CLASS = 'bg-background h-10 shadow-xs';
  * Select trigger: same look, but the height must override the component's `data-[size=default]:h-8`
  * variant (matching the variant lets tailwind-merge win cleanly — no `!important`).
  */
-export const LEAD_SELECT_CLASS = 'bg-background w-full shadow-xs data-[size=default]:h-10';
+export const LEAD_SELECT_CLASS =
+  'bg-background w-full shadow-xs data-[size=default]:h-10';
 
 /** Textarea: card background + subtle shadow; height is driven by `rows`, not fixed. */
 export const LEAD_TEXTAREA_CLASS = 'bg-background shadow-xs';

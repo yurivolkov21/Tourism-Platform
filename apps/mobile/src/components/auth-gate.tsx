@@ -19,9 +19,18 @@ export function AuthGate({
   const theme = useTheme();
   return (
     <View
-      style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: theme.spacing(3) }}
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: theme.spacing(3),
+      }}
     >
-      <Ionicons name={icon} size={48} color={theme.colors['muted-foreground']} />
+      <Ionicons
+        name={icon}
+        size={48}
+        color={theme.colors['muted-foreground']}
+      />
       <AppText variant="title">{title}</AppText>
       <AppText variant="body" muted style={{ textAlign: 'center' }}>
         {body}

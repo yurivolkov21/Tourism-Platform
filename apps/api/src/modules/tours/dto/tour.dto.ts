@@ -17,7 +17,11 @@ export class TourDetailDto extends TourSummaryDto {
   @ApiProperty({ type: [String], example: ['Tips'] })
   excluded!: string[];
 
-  @ApiProperty({ nullable: true, type: String, example: 'Meet at 78 Le Loi street' })
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    example: 'Meet at 78 Le Loi street',
+  })
   meetingPoint!: string | null;
 
   @ApiProperty({ type: [TourItineraryDayDto] })

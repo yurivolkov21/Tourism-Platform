@@ -19,11 +19,15 @@ describe('apiErrorMessage', () => {
   });
 
   it('surfaces the server message on 409 conflict', () => {
-    expect(apiErrorMessage(apiError(409, 'Slug already exists'))).toBe('Slug already exists');
+    expect(apiErrorMessage(apiError(409, 'Slug already exists'))).toBe(
+      'Slug already exists',
+    );
   });
 
   it('maps 404', () => {
-    expect(apiErrorMessage(apiError(404))).toBe('That record no longer exists.');
+    expect(apiErrorMessage(apiError(404))).toBe(
+      'That record no longer exists.',
+    );
   });
 
   it('falls back to the raw message for plain errors', () => {
@@ -31,6 +35,8 @@ describe('apiErrorMessage', () => {
   });
 
   it('falls back for unknown values', () => {
-    expect(apiErrorMessage(undefined)).toBe('The request failed. Please try again.');
+    expect(apiErrorMessage(undefined)).toBe(
+      'The request failed. Please try again.',
+    );
   });
 });

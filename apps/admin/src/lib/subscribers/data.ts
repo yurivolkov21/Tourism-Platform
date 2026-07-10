@@ -17,7 +17,9 @@ export interface SubscriberList {
 }
 
 /** Lists newsletter subscribers (`GET /admin/newsletter/subscribers`) — server-side search + pagination. */
-export async function listSubscribers(params: SubscriberListParams = {}): Promise<SubscriberList> {
+export async function listSubscribers(
+  params: SubscriberListParams = {},
+): Promise<SubscriberList> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/newsletter/subscribers', {
     params: {

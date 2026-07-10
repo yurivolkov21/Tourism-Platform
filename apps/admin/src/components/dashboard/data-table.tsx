@@ -17,16 +17,27 @@ import { Badge, Tabs, TabsList, TabsTrigger } from '@tourism/ui';
 import { AdminTableShell } from '../crud/admin-table-shell';
 import { ClientTablePagination } from '../crud/client-table-pagination';
 import { ColumnsMenu } from '../crud/columns-menu';
-import type { AdminBookingRow, BookingRowStatus } from '../../lib/dashboard/bookings-table';
+import type {
+  AdminBookingRow,
+  BookingRowStatus,
+} from '../../lib/dashboard/bookings-table';
 import { formatDay } from '../../lib/dashboard/transforms';
 
-const STATUS_VARIANT: Record<BookingRowStatus, 'default' | 'outline' | 'secondary' | 'destructive'> = {
+const STATUS_VARIANT: Record<
+  BookingRowStatus,
+  'default' | 'outline' | 'secondary' | 'destructive'
+> = {
   PAID: 'default',
   PENDING: 'outline',
   CANCELLED: 'secondary',
   REFUNDED: 'destructive',
 };
-const STATUSES: BookingRowStatus[] = ['PAID', 'PENDING', 'CANCELLED', 'REFUNDED'];
+const STATUSES: BookingRowStatus[] = [
+  'PAID',
+  'PENDING',
+  'CANCELLED',
+  'REFUNDED',
+];
 
 /**
  * Recent-bookings widget for the dashboard, rendered through the shared admin table
@@ -45,7 +56,10 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
         header: 'Code',
         meta: { label: 'Code' },
         cell: ({ row }) => (
-          <Link href={`/bookings/${row.original.code}`} className="hover:text-primary font-medium hover:underline">
+          <Link
+            href={`/bookings/${row.original.code}`}
+            className="hover:text-primary font-medium hover:underline"
+          >
             {row.original.code}
           </Link>
         ),
@@ -55,7 +69,10 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
         header: 'Tour',
         meta: { label: 'Tour' },
         cell: ({ row }) => (
-          <span className="block max-w-88 truncate" title={row.original.tourTitle}>
+          <span
+            className="block max-w-88 truncate"
+            title={row.original.tourTitle}
+          >
             {row.original.tourTitle}
           </span>
         ),
@@ -65,29 +82,44 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
         header: 'Status',
         meta: { label: 'Status' },
         cell: ({ row }) => (
-          <Badge variant={STATUS_VARIANT[row.original.status]} className="capitalize">
+          <Badge
+            variant={STATUS_VARIANT[row.original.status]}
+            className="capitalize"
+          >
             {row.original.status.toLowerCase()}
           </Badge>
         ),
       },
-      { accessorKey: 'contactName', header: 'Customer', meta: { label: 'Customer' } },
+      {
+        accessorKey: 'contactName',
+        header: 'Customer',
+        meta: { label: 'Customer' },
+      },
       {
         accessorKey: 'travellers',
         header: 'Travellers',
         meta: { label: 'Travellers' },
-        cell: ({ row }) => <span className="tabular-nums">{row.original.travellers}</span>,
+        cell: ({ row }) => (
+          <span className="tabular-nums">{row.original.travellers}</span>
+        ),
       },
       {
         accessorKey: 'totalAmount',
         header: 'Amount',
         meta: { label: 'Amount' },
-        cell: ({ row }) => <span className="tabular-nums">{row.original.totalAmount}</span>,
+        cell: ({ row }) => (
+          <span className="tabular-nums">{row.original.totalAmount}</span>
+        ),
       },
       {
         accessorKey: 'createdAt',
         header: 'Created',
         meta: { label: 'Created' },
-        cell: ({ row }) => <span className="text-muted-foreground">{formatDay(row.original.createdAt)}</span>,
+        cell: ({ row }) => (
+          <span className="text-muted-foreground">
+            {formatDay(row.original.createdAt)}
+          </span>
+        ),
       },
     ],
     [],
@@ -123,11 +155,17 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
         <Tabs value={statusTab} onValueChange={onTab}>
           <TabsList>
             <TabsTrigger value="all">
-              All <Badge variant="secondary" className="ml-1.5">{rows.length}</Badge>
+              All{' '}
+              <Badge variant="secondary" className="ml-1.5">
+                {rows.length}
+              </Badge>
             </TabsTrigger>
             {STATUSES.map((s) => (
               <TabsTrigger key={s} value={s} className="capitalize">
-                {s.toLowerCase()} <Badge variant="secondary" className="ml-1.5">{counts[s]}</Badge>
+                {s.toLowerCase()}{' '}
+                <Badge variant="secondary" className="ml-1.5">
+                  {counts[s]}
+                </Badge>
               </TabsTrigger>
             ))}
           </TabsList>

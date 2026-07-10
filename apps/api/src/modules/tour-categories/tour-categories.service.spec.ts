@@ -124,13 +124,17 @@ describe('TourCategoriesService', () => {
   it('findDetailForAdmin throws 404 when missing', async () => {
     const findUnique = jest.fn().mockResolvedValue(null);
     const svc = new TourCategoriesService(makePrisma({ findUnique }));
-    await expect(svc.findDetailForAdmin('nope')).rejects.toThrow(NotFoundException);
+    await expect(svc.findDetailForAdmin('nope')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('list maps the tours count onto each row', async () => {
-    const findMany = jest.fn().mockResolvedValue([
-      { id: 'c1', slug: 'day-trips', _count: { tours: 7 } },
-    ]);
+    const findMany = jest
+      .fn()
+      .mockResolvedValue([
+        { id: 'c1', slug: 'day-trips', _count: { tours: 7 } },
+      ]);
     const count = jest.fn().mockResolvedValue(1);
     const svc = new TourCategoriesService(makePrisma({ findMany, count }));
 

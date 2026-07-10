@@ -78,7 +78,9 @@ export class UsersService {
         );
       }
     } catch (e) {
-      this.logger.warn(`Supabase auth user delete failed for ${supabaseId}: ${String(e)}`);
+      this.logger.warn(
+        `Supabase auth user delete failed for ${supabaseId}: ${String(e)}`,
+      );
     }
   }
 

@@ -1,7 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { CircleUserRoundIcon, LogOutIcon, TicketIcon, UserIcon } from 'lucide-react';
+import {
+  CircleUserRoundIcon,
+  LogOutIcon,
+  TicketIcon,
+  UserIcon,
+} from 'lucide-react';
 
 import {
   Avatar,
@@ -28,9 +33,13 @@ export function UserMenu({ linkClassName }: { linkClassName?: string }) {
   const signOut = useSignOut();
   const t = messages.auth.menu;
   const fullName =
-    user && typeof user.user_metadata?.full_name === 'string' ? user.user_metadata.full_name : '';
+    user && typeof user.user_metadata?.full_name === 'string'
+      ? user.user_metadata.full_name
+      : '';
   const avatarUrl =
-    user && typeof user.user_metadata?.avatar_url === 'string' ? user.user_metadata.avatar_url : '';
+    user && typeof user.user_metadata?.avatar_url === 'string'
+      ? user.user_metadata.avatar_url
+      : '';
 
   if (loading || !user) {
     return (
@@ -66,15 +75,23 @@ export function UserMenu({ linkClassName }: { linkClassName?: string }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <div className="px-2 py-1.5">
-          {fullName ? <p className="truncate text-sm font-medium">{fullName}</p> : null}
+          {fullName ? (
+            <p className="truncate text-sm font-medium">{fullName}</p>
+          ) : null}
           <p className="text-muted-foreground truncate text-xs">{user.email}</p>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link href="/account" />} nativeButton={false}>
+        <DropdownMenuItem
+          render={<Link href="/account" />}
+          nativeButton={false}
+        >
           <UserIcon className="size-4" />
           {t.account}
         </DropdownMenuItem>
-        <DropdownMenuItem render={<Link href="/account/bookings" />} nativeButton={false}>
+        <DropdownMenuItem
+          render={<Link href="/account/bookings" />}
+          nativeButton={false}
+        >
           <TicketIcon className="size-4" />
           {messages.booking.list.menuLink}
         </DropdownMenuItem>

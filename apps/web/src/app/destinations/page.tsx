@@ -8,7 +8,10 @@ import { RegionGroup } from '../../components/destinations/region-group';
 import { BestTime } from '../../components/destinations/best-time';
 import { PopularTours } from '../../components/destinations/popular-tours';
 import { TravelTips } from '../../components/destinations/travel-tips';
-import { Gallery, type GallerySection } from '../../components/marketing/gallery';
+import {
+  Gallery,
+  type GallerySection,
+} from '../../components/marketing/gallery';
 import { Testimonials } from '../../components/marketing/testimonials';
 import { EnquiryCta } from '../../components/marketing/enquiry-cta';
 import { fetchDestinationTiles } from '../../lib/api/destinations';
@@ -32,7 +35,8 @@ const galleryFrames: GallerySection[] = [
 
 export const metadata: Metadata = {
   title: 'Vietnam destinations',
-  description: 'Explore Vietnam by destination — from the misty north to the Mekong south.',
+  description:
+    'Explore Vietnam by destination — from the misty north to the Mekong south.',
 };
 
 // ISR: serve real destinations/tours without per-request API hits; fall back to empty on API error.

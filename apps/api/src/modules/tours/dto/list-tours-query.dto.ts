@@ -37,7 +37,10 @@ export class ListToursQueryDto {
   @Max(100)
   pageSize?: number = 20;
 
-  @ApiPropertyOptional({ example: 'day-tours', description: 'Tour-category slug' })
+  @ApiPropertyOptional({
+    example: 'day-tours',
+    description: 'Tour-category slug',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(60)

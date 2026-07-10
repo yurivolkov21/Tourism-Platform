@@ -4,7 +4,8 @@ import { getApiClient } from '../api/client';
 
 export type Category = components['schemas']['TourCategoryDto'];
 /** Admin detail shape — the category plus its tours (superset of {@link Category}). */
-export type CategoryDetail = components['schemas']['AdminTourCategoryDetailDto'];
+export type CategoryDetail =
+  components['schemas']['AdminTourCategoryDetailDto'];
 export type CategoryTour = components['schemas']['CategoryTourDto'];
 export type PageMeta = components['schemas']['PageMetaDto'];
 
@@ -25,7 +26,9 @@ export const DEFAULT_PAGE_SIZE = 20;
  * Lists tour categories for the admin table (`GET /admin/tour-categories`, inactive included). The
  * wire format is already `{ data, meta }` (the API's paginated envelope), so the typed body matches.
  */
-export async function listCategories(params: CategoryListParams = {}): Promise<CategoryList> {
+export async function listCategories(
+  params: CategoryListParams = {},
+): Promise<CategoryList> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/tour-categories', {
     params: {

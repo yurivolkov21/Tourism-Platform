@@ -55,7 +55,9 @@ export function DangerZone() {
       <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h3 className="text-sm font-medium">{t.deleteTitle}</h3>
-          <p className="text-muted-foreground text-sm text-pretty">{t.deleteDesc}</p>
+          <p className="text-muted-foreground text-sm text-pretty">
+            {t.deleteDesc}
+          </p>
         </div>
         <AlertDialog open={open} onOpenChange={setOpen}>
           <AlertDialogTrigger
@@ -75,7 +77,9 @@ export function DangerZone() {
               <AlertDialogDescription>{t.confirmBody}</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={pending}>{t.cancel}</AlertDialogCancel>
+              <AlertDialogCancel disabled={pending}>
+                {t.cancel}
+              </AlertDialogCancel>
               <AlertDialogAction
                 variant="destructive"
                 onClick={() => void confirmDelete()}

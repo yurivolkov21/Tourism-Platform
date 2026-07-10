@@ -3,13 +3,23 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { ArrowLeft, Pencil } from 'lucide-react';
 
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@tourism/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@tourism/ui';
 
 import { LinkedToursCard } from '../../../../components/crud/linked-tours-card';
 import { RowActions } from '../../../../components/crud/row-actions';
 import { DestinationMediaView } from '../../../../components/destinations/destination-media-view';
 import { deleteDestination } from '../../../../lib/destinations/actions';
-import { getDestination, type DestinationDetail } from '../../../../lib/destinations/data';
+import {
+  getDestination,
+  type DestinationDetail,
+} from '../../../../lib/destinations/data';
 import { formatRelativeTime } from '../../../../lib/relative-time';
 
 interface DestinationDetailPageProps {
@@ -20,7 +30,11 @@ function formatDate(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? '—'
-    : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    : d.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
 }
 
 /** Label/value row for the details rail. */
@@ -33,7 +47,9 @@ function Row({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
-export default async function DestinationDetailPage({ params }: DestinationDetailPageProps) {
+export default async function DestinationDetailPage({
+  params,
+}: DestinationDetailPageProps) {
   const { slug } = await params;
 
   let destination: DestinationDetail;
@@ -57,9 +73,17 @@ export default async function DestinationDetailPage({ params }: DestinationDetai
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-heading text-2xl font-bold tracking-tight">{destination.name}</h1>
-            <Badge variant={destination.isActive ? 'default' : 'secondary'} className="gap-1.5">
-              <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+            <h1 className="font-heading text-2xl font-bold tracking-tight">
+              {destination.name}
+            </h1>
+            <Badge
+              variant={destination.isActive ? 'default' : 'secondary'}
+              className="gap-1.5"
+            >
+              <span
+                className="size-1.5 rounded-full bg-current opacity-70"
+                aria-hidden
+              />
               {destination.isActive ? 'Active' : 'Draft'}
             </Badge>
           </div>
@@ -121,8 +145,14 @@ export default async function DestinationDetailPage({ params }: DestinationDetai
               <dl className="space-y-3">
                 <Row label="Region" value={destination.region ?? '—'} />
                 <Row label="Country" value={destination.country} />
-                <Row label="Slug" value={<code className="text-xs">{destination.slug}</code>} />
-                <Row label="Status" value={destination.isActive ? 'Active' : 'Draft'} />
+                <Row
+                  label="Slug"
+                  value={<code className="text-xs">{destination.slug}</code>}
+                />
+                <Row
+                  label="Status"
+                  value={destination.isActive ? 'Active' : 'Draft'}
+                />
                 <Row
                   label="Created"
                   value={

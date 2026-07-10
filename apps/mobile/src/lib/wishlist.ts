@@ -16,7 +16,8 @@ export interface SavedTourVm {
 }
 
 export function toSavedTourVm(dto: WishlistItemDto): SavedTourVm {
-  const hero = dto.tour.media.find((m) => m.role === 'hero') ?? dto.tour.media[0];
+  const hero =
+    dto.tour.media.find((m) => m.role === 'hero') ?? dto.tour.media[0];
   return {
     tourId: dto.tourId,
     slug: dto.tour.slug,
@@ -40,11 +41,15 @@ export async function fetchSavedTourIds(): Promise<string[]> {
 }
 
 export async function addToWishlist(tourId: string): Promise<void> {
-  await getApiClient().POST('/api/v1/wishlist/{tourId}', { params: { path: { tourId } } });
+  await getApiClient().POST('/api/v1/wishlist/{tourId}', {
+    params: { path: { tourId } },
+  });
 }
 
 export async function removeFromWishlist(tourId: string): Promise<void> {
-  await getApiClient().DELETE('/api/v1/wishlist/{tourId}', { params: { path: { tourId } } });
+  await getApiClient().DELETE('/api/v1/wishlist/{tourId}', {
+    params: { path: { tourId } },
+  });
 }
 
 /** Wishlist state + optimistic toggle. Guests get `isGuest: true` and no queries. */
@@ -66,13 +71,17 @@ export function useWishlist() {
     onMutate: async ({ tourId, saved }) => {
       await queryClient.cancelQueries({ queryKey: ['wishlist'] });
       const prevIds = queryClient.getQueryData<string[]>(['wishlist', 'ids']);
-      const prevList = queryClient.getQueryData<SavedTourVm[]>(['wishlist', 'list']);
+      const prevList = queryClient.getQueryData<SavedTourVm[]>([
+        'wishlist',
+        'list',
+      ]);
       queryClient.setQueryData<string[]>(['wishlist', 'ids'], (old = []) =>
         saved ? old.filter((id) => id !== tourId) : [...old, tourId],
       );
       if (saved) {
-        queryClient.setQueryData<SavedTourVm[]>(['wishlist', 'list'], (old = []) =>
-          old.filter((item) => item.tourId !== tourId),
+        queryClient.setQueryData<SavedTourVm[]>(
+          ['wishlist', 'list'],
+          (old = []) => old.filter((item) => item.tourId !== tourId),
         );
       }
       return { prevIds, prevList };

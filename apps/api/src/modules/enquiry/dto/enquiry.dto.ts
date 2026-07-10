@@ -31,7 +31,11 @@ export class EnquiryDto {
   @ApiProperty({ nullable: true, type: String, example: 'ha-long-bay-cruise' })
   tourSlug!: string | null;
 
-  @ApiProperty({ nullable: true, type: String, example: 'Hạ Long Bay Cruise 2D1N' })
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    example: 'Hạ Long Bay Cruise 2D1N',
+  })
   tourTitle!: string | null;
 
   @ApiProperty({ nullable: true, type: String, example: 'United Kingdom' })

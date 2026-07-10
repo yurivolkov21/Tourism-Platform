@@ -9,7 +9,11 @@ export class PostAuthorDto {
   @ApiProperty({ example: 'ana@nexora.travel' })
   email!: string;
 
-  @ApiProperty({ nullable: true, type: String, description: 'Avatar delivery URL, when set.' })
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    description: 'Avatar delivery URL, when set.',
+  })
   avatarUrl!: string | null;
 }
 
@@ -34,6 +38,9 @@ export class AdminPostDetailDto extends PostDto {
   @ApiProperty({ type: PostAuthorDto })
   override author!: PostAuthorDto;
 
-  @ApiProperty({ type: [AdminRelatedTourDto], description: 'Admin-picked tours, pick order.' })
+  @ApiProperty({
+    type: [AdminRelatedTourDto],
+    description: 'Admin-picked tours, pick order.',
+  })
   relatedTours!: AdminRelatedTourDto[];
 }

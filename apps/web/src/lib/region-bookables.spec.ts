@@ -1,7 +1,12 @@
 import type { TourCardData } from '../components/tours/tour-card';
 import { selectRegionBookables, type RegionTile } from './region-bookables';
 
-const tile = (name: string, slug: string, region: string, gallery: string[] = []): RegionTile => ({ name, slug, region, gallery });
+const tile = (
+  name: string,
+  slug: string,
+  region: string,
+  gallery: string[] = [],
+): RegionTile => ({ name, slug, region, gallery });
 
 const tour = (slug: string, destination: string): TourCardData => ({
   slug,
@@ -31,7 +36,11 @@ const tours: TourCardData[] = [
 
 describe('selectRegionBookables', () => {
   it('returns the destinations within the region (name + slug), in order', () => {
-    const { destinations } = selectRegionBookables(tiles, tours, 'Northern Vietnam');
+    const { destinations } = selectRegionBookables(
+      tiles,
+      tours,
+      'Northern Vietnam',
+    );
     expect(destinations).toEqual([
       { name: 'Sa Pa', slug: 'sa-pa', gallery: ['sapa-1.jpg'] },
       { name: 'Hạ Long Bay', slug: 'ha-long-bay', gallery: ['halong-1.jpg'] },
@@ -39,12 +48,20 @@ describe('selectRegionBookables', () => {
   });
 
   it('keeps only tours whose destination is in the region', () => {
-    const { tours: result } = selectRegionBookables(tiles, tours, 'Northern Vietnam');
+    const { tours: result } = selectRegionBookables(
+      tiles,
+      tours,
+      'Northern Vietnam',
+    );
     expect(result.map((t) => t.slug)).toEqual(['sa-pa-trek', 'ha-long-cruise']);
   });
 
   it('excludes tours whose destination is not in the catalogue / region', () => {
-    const { tours: result } = selectRegionBookables(tiles, tours, 'Central Vietnam');
+    const { tours: result } = selectRegionBookables(
+      tiles,
+      tours,
+      'Central Vietnam',
+    );
     expect(result.map((t) => t.slug)).toEqual(['hoi-an-walk']);
   });
 

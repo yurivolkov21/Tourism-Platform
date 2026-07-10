@@ -1,4 +1,10 @@
-import { sliceDailyTrend, computeCardModels, formatMoney, formatPct, bookingsPipeline } from './transforms';
+import {
+  sliceDailyTrend,
+  computeCardModels,
+  formatMoney,
+  formatPct,
+  bookingsPipeline,
+} from './transforms';
 
 const daily = Array.from({ length: 90 }, (_, i) => ({
   date: `2026-${String(1 + Math.floor(i / 30)).padStart(2, '0')}-${String((i % 30) + 1).padStart(2, '0')}`,
@@ -32,7 +38,7 @@ test('computeCardModels: real month-over-month deltas for all four cards', () =>
   expect(byKey.revenue.delta).toBeCloseTo(0.25); // 1000 / 800 - 1
   expect(byKey.bookings.delta).toBeCloseTo(0.5); // 30 / 20 - 1
   expect(byKey.conversion.delta).toBeCloseTo(0.6); // (24/30) / (10/20) - 1
-  expect(byKey.aov.delta).toBeCloseTo((1000 / 24 / (800 / 10)) - 1);
+  expect(byKey.aov.delta).toBeCloseTo(1000 / 24 / (800 / 10) - 1);
   expect(byKey.aov.value).toBe(formatMoney(25, 'USD')); // 1000 / 40
 });
 
@@ -61,13 +67,33 @@ test('formatPct / formatMoney', () => {
 
 describe('bookingsPipeline', () => {
   it('returns the four statuses in fixed order with shares of the total', () => {
-    const rows = bookingsPipeline({ PENDING: 1, PAID: 3, CANCELLED: 0, REFUNDED: 0 });
-    expect(rows.map((r) => r.status)).toEqual(['PENDING', 'PAID', 'CANCELLED', 'REFUNDED']);
-    expect(rows[1]).toEqual({ status: 'PAID', label: 'Paid', count: 3, pct: 0.75 });
+    const rows = bookingsPipeline({
+      PENDING: 1,
+      PAID: 3,
+      CANCELLED: 0,
+      REFUNDED: 0,
+    });
+    expect(rows.map((r) => r.status)).toEqual([
+      'PENDING',
+      'PAID',
+      'CANCELLED',
+      'REFUNDED',
+    ]);
+    expect(rows[1]).toEqual({
+      status: 'PAID',
+      label: 'Paid',
+      count: 3,
+      pct: 0.75,
+    });
   });
 
   it('is zero-safe when there are no bookings', () => {
-    const rows = bookingsPipeline({ PENDING: 0, PAID: 0, CANCELLED: 0, REFUNDED: 0 });
+    const rows = bookingsPipeline({
+      PENDING: 0,
+      PAID: 0,
+      CANCELLED: 0,
+      REFUNDED: 0,
+    });
     expect(rows.every((r) => r.count === 0 && r.pct === 0)).toBe(true);
   });
 });

@@ -33,7 +33,10 @@ import { ClientTablePagination } from '../crud/client-table-pagination';
 
 type Tab = 'all' | 'OPEN' | 'CLOSED' | 'CANCELLED';
 
-const STATUS_VARIANT: Record<Departure['status'], 'default' | 'secondary' | 'destructive'> = {
+const STATUS_VARIANT: Record<
+  Departure['status'],
+  'default' | 'secondary' | 'destructive'
+> = {
   OPEN: 'default',
   CLOSED: 'secondary',
   CANCELLED: 'destructive',
@@ -43,7 +46,9 @@ const STATUS_VARIANT: Record<Departure['status'], 'default' | 'secondary' | 'des
 function price(value: string | null | undefined, currency: string): string {
   if (!value) return 'Tour base';
   const n = Number(value);
-  const body = Number.isFinite(n) ? n.toLocaleString('en-US', { maximumFractionDigits: 0 }) : value;
+  const body = Number.isFinite(n)
+    ? n.toLocaleString('en-US', { maximumFractionDigits: 0 })
+    : value;
   return currency === 'USD' ? `$${body}` : `${currency} ${body}`;
 }
 
@@ -92,7 +97,8 @@ export function DeparturesTable({
             href={`/tours/${slug}/departures/${row.original.id}`}
             className={cn(
               'hover:text-primary font-medium tabular-nums hover:underline',
-              isDeparturePast(row.original.startDate) && 'text-muted-foreground',
+              isDeparturePast(row.original.startDate) &&
+                'text-muted-foreground',
             )}
           >
             {toDateOnly(row.original.startDate)}
@@ -107,7 +113,8 @@ export function DeparturesTable({
           <span
             className={cn(
               'tabular-nums',
-              isDeparturePast(row.original.startDate) && 'text-muted-foreground',
+              isDeparturePast(row.original.startDate) &&
+                'text-muted-foreground',
             )}
           >
             {toDateOnly(row.original.endDate)}
@@ -130,7 +137,13 @@ export function DeparturesTable({
         meta: { label: 'Price', align: 'right' },
         cell: ({ row }) => (
           <>
-            <span className={row.original.priceOverride ? 'font-medium tabular-nums' : 'text-muted-foreground'}>
+            <span
+              className={
+                row.original.priceOverride
+                  ? 'font-medium tabular-nums'
+                  : 'text-muted-foreground'
+              }
+            >
               {price(row.original.priceOverride, currency)}
             </span>
             {row.original.compareAtPrice ? (
@@ -147,7 +160,9 @@ export function DeparturesTable({
         meta: { label: 'Status' },
         cell: ({ row }) => (
           <div className="flex flex-wrap items-center gap-1.5">
-            <Badge variant={STATUS_VARIANT[row.original.status]}>{row.original.status}</Badge>
+            <Badge variant={STATUS_VARIANT[row.original.status]}>
+              {row.original.status}
+            </Badge>
             {isDeparturePast(row.original.startDate) ? (
               <Badge variant="outline" className="text-muted-foreground gap-1">
                 <CalendarRange className="size-3" aria-hidden />
@@ -213,7 +228,9 @@ export function DeparturesTable({
                 onClick={() => setTab(t.value)}
                 className={cn(
                   'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                  isActive ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+                  isActive
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'hover:text-foreground',
                 )}
               >
                 {t.label}
@@ -235,7 +252,9 @@ export function DeparturesTable({
               <CalendarRange />
             </EmptyMedia>
             <EmptyTitle>No departures with this status</EmptyTitle>
-            <EmptyDescription>Try a different tab, or add a departure date.</EmptyDescription>
+            <EmptyDescription>
+              Try a different tab, or add a departure date.
+            </EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : (

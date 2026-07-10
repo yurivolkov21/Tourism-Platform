@@ -2,7 +2,13 @@ import { useRef, useState } from 'react';
 import { Pressable, View, type TextInput } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { messages } from '@tourism/i18n';
-import { AppText, Button, Screen, TextField, useTheme } from '@tourism/mobile-ui';
+import {
+  AppText,
+  Button,
+  Screen,
+  TextField,
+  useTheme,
+} from '@tourism/mobile-ui';
 import { validateSignIn, type SignInErrors } from '../../lib/auth';
 import { useAuth } from '../../lib/auth-context';
 
@@ -38,7 +44,9 @@ export default function SignInScreen() {
 
   return (
     <Screen scrollProps={{ keyboardShouldPersistTaps: 'handled' }}>
-      <View style={{ gap: theme.spacing(4), paddingVertical: theme.spacing(4) }}>
+      <View
+        style={{ gap: theme.spacing(4), paddingVertical: theme.spacing(4) }}
+      >
         <View style={{ gap: theme.spacing(1) }}>
           <AppText variant="title">{t.title}</AppText>
           <AppText variant="body" muted>
@@ -75,7 +83,10 @@ export default function SignInScreen() {
           onSubmitEditing={() => void onSubmit()}
         />
         {banner ? (
-          <AppText variant="body" style={{ color: theme.colors['destructive'] }}>
+          <AppText
+            variant="body"
+            style={{ color: theme.colors['destructive'] }}
+          >
             {banner}
           </AppText>
         ) : null}
@@ -90,7 +101,10 @@ export default function SignInScreen() {
             onPress={() => router.replace('/auth/forgot')}
             hitSlop={8}
           >
-            <AppText variant="caption" style={{ color: theme.colors['primary'] }}>
+            <AppText
+              variant="caption"
+              style={{ color: theme.colors['primary'] }}
+            >
               {t.forgotCta}
             </AppText>
           </Pressable>
@@ -99,7 +113,10 @@ export default function SignInScreen() {
             onPress={() => router.replace('/auth/sign-up')}
             hitSlop={8}
           >
-            <AppText variant="caption" style={{ color: theme.colors['primary'] }}>
+            <AppText
+              variant="caption"
+              style={{ color: theme.colors['primary'] }}
+            >
               {t.noAccount} {t.registerCta}
             </AppText>
           </Pressable>

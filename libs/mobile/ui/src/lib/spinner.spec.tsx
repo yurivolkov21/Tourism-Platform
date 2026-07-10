@@ -18,5 +18,7 @@ test('colors the activity indicator with the theme primary color', () => {
       <Spinner testID="spinner" />
     </ThemeProvider>,
   );
-  expect(screen.getByTestId('spinner').props.color).toBe(tokens.colors.light.primary);
+  expect(screen.getByTestId('spinner').props.color).toBe(
+    tokens.colors.light.primary,
+  );
 });

@@ -1,6 +1,11 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from 'lucide-react';
 
 import {
   Button,
@@ -54,8 +59,15 @@ export function DataTablePagination({
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">Rows per page</span>
-          <Select value={String(pageSize)} onValueChange={(v) => onPageSizeChange(Number(v))}>
-            <SelectTrigger size="sm" className="w-16" aria-label="Rows per page">
+          <Select
+            value={String(pageSize)}
+            onValueChange={(v) => onPageSizeChange(Number(v))}
+          >
+            <SelectTrigger
+              size="sm"
+              className="w-16"
+              aria-label="Rows per page"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

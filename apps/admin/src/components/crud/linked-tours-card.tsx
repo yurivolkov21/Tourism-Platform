@@ -29,7 +29,9 @@ export function LinkedToursCard({
       <CardHeader>
         <CardTitle className="text-base">
           {title}{' '}
-          <span className="text-muted-foreground font-normal tabular-nums">({tours.length})</span>
+          <span className="text-muted-foreground font-normal tabular-nums">
+            ({tours.length})
+          </span>
         </CardTitle>
       </CardHeader>
       <CardContent>

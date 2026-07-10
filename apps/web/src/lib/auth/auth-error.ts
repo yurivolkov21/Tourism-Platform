@@ -14,7 +14,10 @@ export function authErrorMessage(error: unknown): string {
   if (hay.includes('email_not_confirmed') || hay.includes('not confirmed')) {
     return 'Please confirm your email before signing in.';
   }
-  if (hay.includes('user_already_exists') || hay.includes('already registered')) {
+  if (
+    hay.includes('user_already_exists') ||
+    hay.includes('already registered')
+  ) {
     return 'That email is already registered.';
   }
   if (hay.includes('weak_password') || hay.includes('password should be')) {

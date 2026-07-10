@@ -14,12 +14,18 @@ export type EnquiryFormStatus =
 export function EnquirySuccess() {
   const t = messages.enquiryForm;
   return (
-    <div className="flex flex-col items-center gap-3 py-8 text-center" role="status" aria-live="polite">
+    <div
+      className="flex flex-col items-center gap-3 py-8 text-center"
+      role="status"
+      aria-live="polite"
+    >
       <span className="bg-success/15 text-success flex size-12 items-center justify-center rounded-full">
         <CheckIcon className="size-6" />
       </span>
       <h3 className="font-heading text-xl font-semibold">{t.success}</h3>
-      <p className="text-muted-foreground max-w-sm text-pretty">{t.successBody}</p>
+      <p className="text-muted-foreground max-w-sm text-pretty">
+        {t.successBody}
+      </p>
     </div>
   );
 }

@@ -27,7 +27,9 @@ function Probe() {
 }
 
 function renderProbe() {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: 0 } },
+  });
   return render(
     <QueryClientProvider client={client}>
       <AuthProvider>
@@ -48,5 +50,7 @@ test('resolves signedIn with the user when a session exists', async () => {
     data: { session: { user: { id: 'u1', email: 'jane@example.com' } } },
   });
   renderProbe();
-  expect(await screen.findByText('signedIn:jane@example.com')).toBeOnTheScreen();
+  expect(
+    await screen.findByText('signedIn:jane@example.com'),
+  ).toBeOnTheScreen();
 });

@@ -13,7 +13,12 @@ export class AdminMediaAssetDto {
   @ApiProperty({ format: 'uri' })
   url!: string;
 
-  @ApiProperty({ nullable: true, type: String, format: 'uri', description: 'Video poster URL.' })
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    format: 'uri',
+    description: 'Video poster URL.',
+  })
   posterUrl!: string | null;
 
   @ApiProperty({ enum: MediaType })
@@ -53,7 +58,8 @@ export class AdminMediaAssetDto {
     nullable: true,
     type: String,
     example: 'Hoi An Walking Tour',
-    description: 'Owning record title/name — null when the owner row no longer exists.',
+    description:
+      'Owning record title/name — null when the owner row no longer exists.',
   })
   ownerTitle!: string | null;
 
@@ -61,7 +67,8 @@ export class AdminMediaAssetDto {
     nullable: true,
     type: String,
     example: 'hoi-an-walking-tour',
-    description: 'Owner page slug (tour/destination/post); null for USER owners.',
+    description:
+      'Owner page slug (tour/destination/post); null for USER owners.',
   })
   ownerSlug!: string | null;
 }
@@ -83,7 +90,10 @@ export class MediaGarbageRowDto {
   @ApiProperty({ example: 'tourism/destinations/gallery/1717000000000-old' })
   publicId!: string;
 
-  @ApiProperty({ example: 'image', description: "Cloudinary resource_type ('image' | 'video')." })
+  @ApiProperty({
+    example: 'image',
+    description: "Cloudinary resource_type ('image' | 'video').",
+  })
   resourceType!: string;
 
   @ApiProperty({ example: 0 })

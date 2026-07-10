@@ -1,6 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { fireEvent, render, screen, userEvent } from '@testing-library/react-native';
+import {
+  fireEvent,
+  render,
+  screen,
+  userEvent,
+} from '@testing-library/react-native';
 import { ThemeProvider } from '@tourism/mobile-ui';
 import HomeScreen from '../app/(tabs)/index';
 import { fetchMyBookings, type BookingVm } from '../lib/booking';
@@ -10,8 +15,12 @@ import { fetchFeaturedTours } from '../lib/tours';
 import { fetchSavedTours } from '../lib/wishlist';
 
 let mockStatus = 'signedOut';
-jest.mock('../lib/auth-context', () => ({ useAuth: () => ({ status: mockStatus }) }));
-jest.mock('expo-router', () => ({ router: { push: jest.fn(), back: jest.fn() } }));
+jest.mock('../lib/auth-context', () => ({
+  useAuth: () => ({ status: mockStatus }),
+}));
+jest.mock('expo-router', () => ({
+  router: { push: jest.fn(), back: jest.fn() },
+}));
 jest.mock('../lib/tours', () => ({
   ...jest.requireActual('../lib/tours'),
   fetchFeaturedTours: jest.fn(),
@@ -31,15 +40,27 @@ jest.mock('../lib/booking', () => ({
 jest.mock('../lib/wishlist', () => ({
   ...jest.requireActual('../lib/wishlist'),
   fetchSavedTours: jest.fn(),
-  useWishlist: () => ({ isGuest: true, isSaved: () => false, toggle: jest.fn() }),
+  useWishlist: () => ({
+    isGuest: true,
+    isSaved: () => false,
+    toggle: jest.fn(),
+  }),
 }));
 
 import { router } from 'expo-router';
 
-const mockFeatured = fetchFeaturedTours as jest.MockedFunction<typeof fetchFeaturedTours>;
-const mockDests = fetchDestinations as jest.MockedFunction<typeof fetchDestinations>;
-const mockBookings = fetchMyBookings as jest.MockedFunction<typeof fetchMyBookings>;
-const mockSaved = fetchSavedTours as jest.MockedFunction<typeof fetchSavedTours>;
+const mockFeatured = fetchFeaturedTours as jest.MockedFunction<
+  typeof fetchFeaturedTours
+>;
+const mockDests = fetchDestinations as jest.MockedFunction<
+  typeof fetchDestinations
+>;
+const mockBookings = fetchMyBookings as jest.MockedFunction<
+  typeof fetchMyBookings
+>;
+const mockSaved = fetchSavedTours as jest.MockedFunction<
+  typeof fetchSavedTours
+>;
 const mockProfile = fetchProfile as jest.MockedFunction<typeof fetchProfile>;
 
 const tourVm = {
@@ -83,7 +104,9 @@ const savedVm = {
 };
 
 function renderHome() {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: 0 } },
+  });
   return render(
     <SafeAreaProvider>
       <ThemeProvider>
@@ -101,7 +124,11 @@ beforeEach(() => {
   mockDests.mockResolvedValue([]);
   mockBookings.mockResolvedValue([]);
   mockSaved.mockResolvedValue([]);
-  mockProfile.mockResolvedValue({ fullName: 'Yuri Volkov', email: 'y@e.com', initial: 'Y' });
+  mockProfile.mockResolvedValue({
+    fullName: 'Yuri Volkov',
+    email: 'y@e.com',
+    initial: 'Y',
+  });
 });
 
 test('guest home shows the tagline, search and featured tours', async () => {
@@ -115,7 +142,9 @@ test('search pill routes to Explore with focusSearch', async () => {
   mockFeatured.mockResolvedValueOnce([tourVm]);
   renderHome();
   await screen.findByText('Ha Long Bay Cruise');
-  await userEvent.press(screen.getByRole('button', { name: /search tours & destinations/i }));
+  await userEvent.press(
+    screen.getByRole('button', { name: /search tours & destinations/i }),
+  );
   expect(router.push).toHaveBeenCalledWith('/explore?focusSearch=1');
 });
 

@@ -11,7 +11,16 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/account', '/checkout', '/login', '/register', '/forgot-password', '/reset-password', '/api/', '/ui-check'],
+      disallow: [
+        '/account',
+        '/checkout',
+        '/login',
+        '/register',
+        '/forgot-password',
+        '/reset-password',
+        '/api/',
+        '/ui-check',
+      ],
     },
     sitemap: absoluteUrl('/sitemap.xml'),
     host: SITE_URL,

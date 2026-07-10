@@ -79,7 +79,10 @@ const postColumns: ColumnDef<Post>[] = [
         variant={row.original.status === 'PUBLISHED' ? 'default' : 'secondary'}
         className="gap-1.5"
       >
-        <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+        <span
+          className="size-1.5 rounded-full bg-current opacity-70"
+          aria-hidden
+        />
         {row.original.status === 'PUBLISHED' ? 'Published' : 'Draft'}
       </Badge>
     ),
@@ -90,7 +93,8 @@ const postColumns: ColumnDef<Post>[] = [
     meta: { label: 'Tags' },
     cell: ({ row }) => {
       const tags = row.original.tags ?? [];
-      if (tags.length === 0) return <span className="text-muted-foreground">—</span>;
+      if (tags.length === 0)
+        return <span className="text-muted-foreground">—</span>;
       return (
         <span className="flex flex-wrap items-center gap-1">
           {tags.slice(0, 2).map((t) => (
@@ -99,7 +103,9 @@ const postColumns: ColumnDef<Post>[] = [
             </Badge>
           ))}
           {tags.length > 2 ? (
-            <span className="text-muted-foreground text-xs">+{tags.length - 2}</span>
+            <span className="text-muted-foreground text-xs">
+              +{tags.length - 2}
+            </span>
           ) : null}
         </span>
       );
@@ -120,7 +126,9 @@ const postColumns: ColumnDef<Post>[] = [
     header: 'Updated',
     meta: { label: 'Updated' },
     cell: ({ row }) => (
-      <span className="text-muted-foreground">{formatRelativeTime(row.original.updatedAt)}</span>
+      <span className="text-muted-foreground">
+        {formatRelativeTime(row.original.updatedAt)}
+      </span>
     ),
   },
   {
@@ -195,7 +203,9 @@ export function PostsTable({ rows }: { rows: Post[] }) {
             <FileText />
           </EmptyMedia>
           <EmptyTitle>No posts yet</EmptyTitle>
-          <EmptyDescription>Write your first post to start the journal.</EmptyDescription>
+          <EmptyDescription>
+            Write your first post to start the journal.
+          </EmptyDescription>
         </EmptyHeader>
         <Button nativeButton={false} render={<Link href="/posts/new" />}>
           <Plus data-icon="inline-start" />
@@ -224,7 +234,9 @@ export function PostsTable({ rows }: { rows: Post[] }) {
                 onClick={() => setTab(t.value)}
                 className={cn(
                   'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                  isActive ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+                  isActive
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'hover:text-foreground',
                 )}
               >
                 {t.label}
@@ -259,7 +271,9 @@ export function PostsTable({ rows }: { rows: Post[] }) {
               <FileText />
             </EmptyMedia>
             <EmptyTitle>No posts match your filters</EmptyTitle>
-            <EmptyDescription>Try different filters or clear them to see them all.</EmptyDescription>
+            <EmptyDescription>
+              Try different filters or clear them to see them all.
+            </EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : (

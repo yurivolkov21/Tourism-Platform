@@ -53,7 +53,9 @@ function makePrisma(m: Mocks = {}): PrismaService {
       count: jest.fn().mockResolvedValue(0),
       create: jest
         .fn()
-        .mockImplementation(({ data }) => Promise.resolve({ id: 'bk-1', ...data })),
+        .mockImplementation(({ data }) =>
+          Promise.resolve({ id: 'bk-1', ...data }),
+        ),
       update: jest.fn(),
       ...m.booking,
     },
@@ -78,7 +80,9 @@ function makeStripe(over: Record<string, unknown> = {}) {
     createCheckoutSession: jest
       .fn()
       .mockResolvedValue({ id: 'cs_1', url: 'https://stripe.test/cs_1' }),
-    createRefund: jest.fn().mockResolvedValue({ id: 're_1', status: 'succeeded' }),
+    createRefund: jest
+      .fn()
+      .mockResolvedValue({ id: 're_1', status: 'succeeded' }),
     ...over,
   } as unknown as import('../payments/stripe.service').StripeService;
 }
@@ -98,7 +102,9 @@ function makePayPal(over: Record<string, unknown> = {}) {
     captureOrder: jest
       .fn()
       .mockResolvedValue({ captureId: 'cap_1', status: 'COMPLETED' }),
-    refundCapture: jest.fn().mockResolvedValue({ id: 'rf_1', status: 'COMPLETED' }),
+    refundCapture: jest
+      .fn()
+      .mockResolvedValue({ id: 'rf_1', status: 'COMPLETED' }),
     ...over,
   } as unknown as import('../payments/paypal.service').PayPalService;
 }
@@ -124,7 +130,9 @@ describe('BookingsService', () => {
   it('create computes totalAmount, mints a code, and stores PENDING + provider', async () => {
     const create = jest
       .fn()
-      .mockImplementation(({ data }) => Promise.resolve({ id: 'bk-1', ...data }));
+      .mockImplementation(({ data }) =>
+        Promise.resolve({ id: 'bk-1', ...data }),
+      );
     const svc = svcWith(makePrisma({ booking: { create } }));
 
     await svc.create('user-1', body({ numAdults: 2, numChildren: 1 }));
@@ -141,7 +149,9 @@ describe('BookingsService', () => {
   it('create uses departure.priceOverride when present', async () => {
     const create = jest
       .fn()
-      .mockImplementation(({ data }) => Promise.resolve({ id: 'bk-1', ...data }));
+      .mockImplementation(({ data }) =>
+        Promise.resolve({ id: 'bk-1', ...data }),
+      );
     const svc = svcWith(
       makePrisma({
         tourDeparture: {
@@ -160,21 +170,29 @@ describe('BookingsService', () => {
     );
 
     await svc.create('user-1', body({ numAdults: 2 }));
-    expect(new Prisma.Decimal(create.mock.calls[0][0].data.totalAmount).toString()).toBe('80');
+    expect(
+      new Prisma.Decimal(create.mock.calls[0][0].data.totalAmount).toString(),
+    ).toBe('80');
   });
 
   it('create throws 404 when the tour is missing/unpublished', async () => {
     const svc = svcWith(
       makePrisma({ tour: { findFirst: jest.fn().mockResolvedValue(null) } }),
     );
-    await expect(svc.create('user-1', body())).rejects.toThrow(NotFoundException);
+    await expect(svc.create('user-1', body())).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('create throws 404 when the departure is missing under the tour', async () => {
     const svc = svcWith(
-      makePrisma({ tourDeparture: { findFirst: jest.fn().mockResolvedValue(null) } }),
+      makePrisma({
+        tourDeparture: { findFirst: jest.fn().mockResolvedValue(null) },
+      }),
     );
-    await expect(svc.create('user-1', body())).rejects.toThrow(NotFoundException);
+    await expect(svc.create('user-1', body())).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('create rejects a non-OPEN departure (400)', async () => {
@@ -193,7 +211,9 @@ describe('BookingsService', () => {
         },
       }),
     );
-    await expect(svc.create('user-1', body())).rejects.toThrow(BadRequestException);
+    await expect(svc.create('user-1', body())).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('create rejects a departed (past) departure (400)', async () => {
@@ -212,7 +232,9 @@ describe('BookingsService', () => {
         },
       }),
     );
-    await expect(svc.create('user-1', body())).rejects.toThrow(BadRequestException);
+    await expect(svc.create('user-1', body())).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('create rejects when not enough seats remain (409)', async () => {
@@ -261,7 +283,10 @@ describe('BookingsService', () => {
       .mockResolvedValue({ code: 'BK-1', userId: 'someone-else' });
     const svc = svcWith(makePrisma({ booking: { findUnique } }));
     await expect(
-      svc.findByCodeForCaller('BK-1', { id: 'user-1', role: UserRole.CUSTOMER }),
+      svc.findByCodeForCaller('BK-1', {
+        id: 'user-1',
+        role: UserRole.CUSTOMER,
+      }),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -278,21 +303,32 @@ describe('BookingsService', () => {
   });
 
   it('cancelOwnPending flips a PENDING booking to CANCELLED', async () => {
-    const findUnique = jest
+    const findUnique = jest.fn().mockResolvedValue({
+      id: 'bk-1',
+      code: 'BK-1',
+      userId: 'user-1',
+      status: BookingStatus.PENDING,
+    });
+    const update = jest
       .fn()
-      .mockResolvedValue({ id: 'bk-1', code: 'BK-1', userId: 'user-1', status: BookingStatus.PENDING });
-    const update = jest.fn().mockResolvedValue({ id: 'bk-1', status: BookingStatus.CANCELLED });
+      .mockResolvedValue({ id: 'bk-1', status: BookingStatus.CANCELLED });
     const svc = svcWith(makePrisma({ booking: { findUnique, update } }));
 
-    await svc.cancelOwnPending('BK-1', { id: 'user-1', role: UserRole.CUSTOMER });
+    await svc.cancelOwnPending('BK-1', {
+      id: 'user-1',
+      role: UserRole.CUSTOMER,
+    });
 
     expect(update.mock.calls[0][0].data.status).toBe(BookingStatus.CANCELLED);
   });
 
   it('cancelOwnPending refuses a non-PENDING booking (409)', async () => {
-    const findUnique = jest
-      .fn()
-      .mockResolvedValue({ id: 'bk-1', code: 'BK-1', userId: 'user-1', status: BookingStatus.PAID });
+    const findUnique = jest.fn().mockResolvedValue({
+      id: 'bk-1',
+      code: 'BK-1',
+      userId: 'user-1',
+      status: BookingStatus.PAID,
+    });
     const svc = svcWith(makePrisma({ booking: { findUnique } }));
     await expect(
       svc.cancelOwnPending('BK-1', { id: 'user-1', role: UserRole.CUSTOMER }),
@@ -339,7 +375,8 @@ describe('BookingsService', () => {
     // knows which booking to confirm even before the webhook lands (inc-2).
     expect(stripe.createCheckoutSession).toHaveBeenCalledWith(
       expect.objectContaining({
-        successUrl: 'https://app.test/checkout/success?session_id={CHECKOUT_SESSION_ID}&code=BK-1',
+        successUrl:
+          'https://app.test/checkout/success?session_id={CHECKOUT_SESSION_ID}&code=BK-1',
       }),
     );
     expect(update.mock.calls[0][0].data.providerSessionId).toBe('cs_1');
@@ -364,9 +401,10 @@ describe('BookingsService', () => {
     const svc = svcWith(
       makePrisma({
         booking: {
-          findUnique: jest
-            .fn()
-            .mockResolvedValue({ ...pendingForCheckout, status: BookingStatus.PAID }),
+          findUnique: jest.fn().mockResolvedValue({
+            ...pendingForCheckout,
+            status: BookingStatus.PAID,
+          }),
         },
       }),
     );
@@ -399,7 +437,10 @@ describe('BookingsService', () => {
           findUnique: jest
             .fn()
             .mockResolvedValueOnce(paidBooking)
-            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.REFUNDED }),
+            .mockResolvedValueOnce({
+              ...paidBooking,
+              status: BookingStatus.REFUNDED,
+            }),
         },
         $queryRaw: queryRaw,
       }),
@@ -411,7 +452,9 @@ describe('BookingsService', () => {
     expect(stripe.createRefund).toHaveBeenCalledTimes(1);
     expect(queryRaw).toHaveBeenCalledTimes(1);
     // The refund email is enqueued atomically in the same CTE (ADR-0007).
-    const sql = (queryRaw.mock.calls[0][0] as { strings: string[] }).strings.join('');
+    const sql = (
+      queryRaw.mock.calls[0][0] as { strings: string[] }
+    ).strings.join('');
     expect(sql).toContain('INSERT INTO outbox');
     expect(sql).toContain('BOOKING_REFUNDED');
   });
@@ -420,9 +463,10 @@ describe('BookingsService', () => {
     const svc = svcWith(
       makePrisma({
         booking: {
-          findUnique: jest
-            .fn()
-            .mockResolvedValue({ ...paidBooking, status: BookingStatus.PENDING }),
+          findUnique: jest.fn().mockResolvedValue({
+            ...paidBooking,
+            status: BookingStatus.PENDING,
+          }),
         },
       }),
     );
@@ -459,7 +503,10 @@ describe('BookingsService', () => {
           findUnique: jest
             .fn()
             .mockResolvedValueOnce(paidBooking)
-            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.REFUNDED }),
+            .mockResolvedValueOnce({
+              ...paidBooking,
+              status: BookingStatus.REFUNDED,
+            }),
         },
         $queryRaw: queryRaw,
       }),
@@ -494,8 +541,14 @@ describe('BookingsService', () => {
         booking: {
           findUnique: jest
             .fn()
-            .mockResolvedValueOnce({ ...paidBooking, paymentProvider: PaymentProvider.PAYPAL })
-            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.REFUNDED }),
+            .mockResolvedValueOnce({
+              ...paidBooking,
+              paymentProvider: PaymentProvider.PAYPAL,
+            })
+            .mockResolvedValueOnce({
+              ...paidBooking,
+              status: BookingStatus.REFUNDED,
+            }),
         },
         $queryRaw: jest.fn().mockResolvedValue([{ id: 'bk-1' }]),
       }),
@@ -504,7 +557,11 @@ describe('BookingsService', () => {
     );
 
     await svc.refundByAdmin({ code: 'BK-1', adminUserId: 'admin-1' });
-    expect(paypal.refundCapture).toHaveBeenCalledWith('pi_1', undefined, expect.anything());
+    expect(paypal.refundCapture).toHaveBeenCalledWith(
+      'pi_1',
+      undefined,
+      expect.anything(),
+    );
   });
 
   it('rejects an amount above the booking total with INVALID_REFUND_AMOUNT', async () => {
@@ -530,14 +587,21 @@ describe('BookingsService', () => {
           findUnique: jest
             .fn()
             .mockResolvedValueOnce(paidBooking)
-            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.REFUNDED }),
+            .mockResolvedValueOnce({
+              ...paidBooking,
+              status: BookingStatus.REFUNDED,
+            }),
         },
         $queryRaw: jest.fn().mockResolvedValue([{ id: 'bk-1' }]),
       }),
       stripe,
     );
 
-    await svc.refundByAdmin({ code: 'BK-1', reason: 'x', adminUserId: 'admin-1' });
+    await svc.refundByAdmin({
+      code: 'BK-1',
+      reason: 'x',
+      adminUserId: 'admin-1',
+    });
     expect(stripe.createRefund).toHaveBeenCalledWith(
       expect.objectContaining({ paymentIntentId: 'pi_1' }),
     );
@@ -555,14 +619,21 @@ describe('BookingsService', () => {
           findUnique: jest
             .fn()
             .mockResolvedValueOnce(paidBooking)
-            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.REFUNDED }),
+            .mockResolvedValueOnce({
+              ...paidBooking,
+              status: BookingStatus.REFUNDED,
+            }),
         },
         $queryRaw: jest.fn().mockResolvedValue([{ id: 'bk-1' }]),
       }),
       stripe,
     );
 
-    await svc.refundByAdmin({ code: 'BK-1', amount: 99, adminUserId: 'admin-1' });
+    await svc.refundByAdmin({
+      code: 'BK-1',
+      amount: 99,
+      adminUserId: 'admin-1',
+    });
     expect(stripe.createRefund).toHaveBeenCalledWith(
       expect.not.objectContaining({ amountMinorUnits: expect.anything() }),
     );
@@ -577,20 +648,29 @@ describe('BookingsService', () => {
           findUnique: jest
             .fn()
             .mockResolvedValueOnce(paidBooking)
-            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.PARTIALLY_REFUNDED }),
+            .mockResolvedValueOnce({
+              ...paidBooking,
+              status: BookingStatus.PARTIALLY_REFUNDED,
+            }),
         },
         $queryRaw: queryRaw,
       }),
       stripe,
     );
 
-    await svc.refundByAdmin({ code: 'BK-1', amount: 30, adminUserId: 'admin-1' });
+    await svc.refundByAdmin({
+      code: 'BK-1',
+      amount: 30,
+      adminUserId: 'admin-1',
+    });
 
     expect(stripe.createRefund).toHaveBeenCalledWith(
       expect.objectContaining({ amountMinorUnits: 3000 }), // 30.00 USD → cents
     );
     // Assert the partial CTE ran (status arg PARTIALLY_REFUNDED, no seats decrement).
-    const sql = (queryRaw.mock.calls[0][0] as { strings: string[] }).strings.join('');
+    const sql = (
+      queryRaw.mock.calls[0][0] as { strings: string[] }
+    ).strings.join('');
     expect(sql).toContain('PARTIALLY_REFUNDED');
     expect(sql).not.toContain('seats_booked = GREATEST');
   });
@@ -609,7 +689,10 @@ describe('BookingsService', () => {
               providerPaymentId: 'cap_1',
               totalAmount: new Prisma.Decimal('99.00'),
             })
-            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.PARTIALLY_REFUNDED }),
+            .mockResolvedValueOnce({
+              ...paidBooking,
+              status: BookingStatus.PARTIALLY_REFUNDED,
+            }),
         },
         $queryRaw: jest.fn().mockResolvedValue([{ id: 'bk-1' }]),
       }),
@@ -617,7 +700,11 @@ describe('BookingsService', () => {
       paypal,
     );
 
-    await svc.refundByAdmin({ code: 'BK-PP', amount: 40, adminUserId: 'admin-1' });
+    await svc.refundByAdmin({
+      code: 'BK-PP',
+      amount: 40,
+      adminUserId: 'admin-1',
+    });
     expect(paypal.refundCapture).toHaveBeenCalledWith(
       'cap_1',
       expect.objectContaining({ value: '40.00', currencyCode: 'USD' }),
@@ -633,17 +720,26 @@ describe('BookingsService', () => {
           findUnique: jest
             .fn()
             .mockResolvedValueOnce(paidBooking)
-            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.PARTIALLY_REFUNDED }),
+            .mockResolvedValueOnce({
+              ...paidBooking,
+              status: BookingStatus.PARTIALLY_REFUNDED,
+            }),
         },
         $queryRaw: jest.fn().mockResolvedValue([{ id: 'bk-1' }]),
       }),
       stripe,
     );
 
-    await svc.refundByAdmin({ code: 'BK-1', amount: 30, adminUserId: 'admin-1' });
+    await svc.refundByAdmin({
+      code: 'BK-1',
+      amount: 30,
+      adminUserId: 'admin-1',
+    });
 
     expect(stripe.createRefund).toHaveBeenCalledWith(
-      expect.objectContaining({ idempotencyKey: expect.stringMatching(/^booking-refund:/) }),
+      expect.objectContaining({
+        idempotencyKey: expect.stringMatching(/^booking-refund:/),
+      }),
     );
   });
 
@@ -660,7 +756,10 @@ describe('BookingsService', () => {
               paymentProvider: PaymentProvider.PAYPAL,
               providerPaymentId: 'cap_1',
             })
-            .mockResolvedValueOnce({ ...paidBooking, status: BookingStatus.PARTIALLY_REFUNDED }),
+            .mockResolvedValueOnce({
+              ...paidBooking,
+              status: BookingStatus.PARTIALLY_REFUNDED,
+            }),
         },
         $queryRaw: jest.fn().mockResolvedValue([{ id: 'bk-1' }]),
       }),
@@ -668,7 +767,11 @@ describe('BookingsService', () => {
       paypal,
     );
 
-    await svc.refundByAdmin({ code: 'BK-PP', amount: 40, adminUserId: 'admin-1' });
+    await svc.refundByAdmin({
+      code: 'BK-PP',
+      amount: 40,
+      adminUserId: 'admin-1',
+    });
 
     expect(paypal.refundCapture).toHaveBeenCalledWith(
       'cap_1',
@@ -786,7 +889,10 @@ describe('BookingsService', () => {
         booking: {
           findUnique: jest
             .fn()
-            .mockResolvedValueOnce({ ...paypalPending, status: BookingStatus.PAID })
+            .mockResolvedValueOnce({
+              ...paypalPending,
+              status: BookingStatus.PAID,
+            })
             .mockResolvedValueOnce({ code: 'BK-1', userId: 'user-1' }),
         },
       }),
@@ -802,13 +908,23 @@ describe('BookingsService', () => {
     it('returns paginated items + meta', async () => {
       const prisma = makePrisma({
         booking: {
-          findMany: jest.fn().mockResolvedValue([{ id: 'bk-1' }, { id: 'bk-2' }]),
+          findMany: jest
+            .fn()
+            .mockResolvedValue([{ id: 'bk-1' }, { id: 'bk-2' }]),
           count: jest.fn().mockResolvedValue(2),
         },
       });
-      const result = await svcWith(prisma).findAllForAdmin({ page: 1, pageSize: 20 });
+      const result = await svcWith(prisma).findAllForAdmin({
+        page: 1,
+        pageSize: 20,
+      });
       expect(result.items).toHaveLength(2);
-      expect(result.meta).toEqual({ page: 1, pageSize: 20, total: 2, totalPages: 1 });
+      expect(result.meta).toEqual({
+        page: 1,
+        pageSize: 20,
+        total: 2,
+        totalPages: 1,
+      });
     });
 
     it('applies status filter + case-insensitive search to the where clause', async () => {
@@ -816,13 +932,20 @@ describe('BookingsService', () => {
       const prisma = makePrisma({
         booking: { findMany, count: jest.fn().mockResolvedValue(0) },
       });
-      await svcWith(prisma).findAllForAdmin({ status: BookingStatus.PAID, search: 'hoi' });
+      await svcWith(prisma).findAllForAdmin({
+        status: BookingStatus.PAID,
+        search: 'hoi',
+      });
       const where = findMany.mock.calls[0][0].where;
       expect(where.status).toBe(BookingStatus.PAID);
       expect(where.OR).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ code: { contains: 'hoi', mode: 'insensitive' } }),
-          expect.objectContaining({ contactEmail: { contains: 'hoi', mode: 'insensitive' } }),
+          expect.objectContaining({
+            code: { contains: 'hoi', mode: 'insensitive' },
+          }),
+          expect.objectContaining({
+            contactEmail: { contains: 'hoi', mode: 'insensitive' },
+          }),
         ]),
       );
     });
@@ -864,7 +987,10 @@ describe('BookingsService', () => {
           count: jest.fn().mockResolvedValue(45),
         },
       });
-      const result = await svcWith(prisma).findAllForAdmin({ page: 2, pageSize: 20 });
+      const result = await svcWith(prisma).findAllForAdmin({
+        page: 2,
+        pageSize: 20,
+      });
       expect(result.meta.totalPages).toBe(3);
     });
   });
@@ -921,7 +1047,10 @@ describe('BookingsService', () => {
       expect(result.paidAt).toBe('2026-07-01T10:00:00.000Z');
       expect(result.providerPaymentId).toBe('pi_123');
       expect(result.refundReason).toBe('Customer request');
-      expect(result.refundedBy).toEqual({ fullName: 'Admin One', email: 'admin@example.com' });
+      expect(result.refundedBy).toEqual({
+        fullName: 'Admin One',
+        email: 'admin@example.com',
+      });
     });
 
     it('maps refundedBy to null when the booking was never refunded', async () => {
@@ -978,9 +1107,9 @@ describe('BookingsService', () => {
       const prisma = makePrisma({
         booking: { findUnique: jest.fn().mockResolvedValue(null) },
       });
-      await expect(svcWith(prisma).findByCodeForAdmin('BK-NOPE')).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        svcWith(prisma).findByCodeForAdmin('BK-NOPE'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
 
     it('maps customer, seats, session id, other bookings and payment events', async () => {
@@ -1086,7 +1215,10 @@ describe('BookingsService', () => {
       ]);
       // Other-bookings query excludes the current booking + caps at 5, newest first.
       const otherArgs = findMany.mock.calls[0][0];
-      expect(otherArgs.where).toEqual({ userId: 'user-1', id: { not: 'bk-1' } });
+      expect(otherArgs.where).toEqual({
+        userId: 'user-1',
+        id: { not: 'bk-1' },
+      });
       expect(otherArgs.take).toBe(5);
       expect(otherArgs.orderBy).toEqual({ createdAt: 'desc' });
     });

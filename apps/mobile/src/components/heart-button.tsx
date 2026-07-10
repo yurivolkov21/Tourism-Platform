@@ -9,7 +9,13 @@ import { useWishlist } from '../lib/wishlist';
 const t = messages.mobile.saved;
 
 /** Circular wishlist heart. Guests are routed to sign-in with the wishlist reason. */
-export function HeartButton({ tourId, size = 32 }: { tourId: string; size?: number }) {
+export function HeartButton({
+  tourId,
+  size = 32,
+}: {
+  tourId: string;
+  size?: number;
+}) {
   const theme = useTheme();
   const { isGuest, isSaved, toggle } = useWishlist();
   const saved = !isGuest && isSaved(tourId);

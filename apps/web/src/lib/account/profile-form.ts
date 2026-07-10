@@ -11,7 +11,9 @@ export interface UpdateProfilePayload {
 }
 
 /** Trim + include only non-empty fields (set-only: a blank field is omitted, not cleared). */
-export function buildUpdateProfilePayload(raw: ProfileFormRaw): UpdateProfilePayload {
+export function buildUpdateProfilePayload(
+  raw: ProfileFormRaw,
+): UpdateProfilePayload {
   const payload: UpdateProfilePayload = {};
   const fullName = raw.fullName?.trim();
   const phone = raw.phone?.trim();

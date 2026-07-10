@@ -6,7 +6,12 @@ import { usePathname } from 'next/navigation';
 import { ScrollToTop } from './scroll-to-top';
 
 // Routes that render as a bare, focused screen — no header, footer or floating contact.
-const BARE_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
+const BARE_ROUTES = [
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+];
 
 /**
  * Chooses the page frame by route. Auth screens render bare (just the page) so the login flow stays

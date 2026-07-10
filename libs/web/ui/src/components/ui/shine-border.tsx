@@ -40,16 +40,19 @@ export function ShineBorder({
           background:
             'linear-gradient(110deg, transparent 35%, color-mix(in oklab, var(--color-primary) 55%, transparent) 50%, color-mix(in oklab, var(--color-chart-2) 45%, transparent) 60%, transparent 75%)',
           backgroundSize: '250% 100%',
-          WebkitMask: 'linear-gradient(white 0 0) content-box, linear-gradient(white 0 0)',
+          WebkitMask:
+            'linear-gradient(white 0 0) content-box, linear-gradient(white 0 0)',
           WebkitMaskComposite: 'xor',
           maskComposite: 'exclude',
           animation: `shine-border-sweep ${duration}s linear infinite`,
         }}
       />
       {children}
-      <style>{
-        '@keyframes shine-border-sweep{from{background-position:150% 0}to{background-position:-150% 0}}'
-      }</style>
+      <style>
+        {
+          '@keyframes shine-border-sweep{from{background-position:150% 0}to{background-position:-150% 0}}'
+        }
+      </style>
     </div>
   );
 }

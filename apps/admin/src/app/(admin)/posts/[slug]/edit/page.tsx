@@ -6,7 +6,11 @@ import { Button } from '@tourism/ui';
 
 import { PostForm } from '../../../../../components/posts/post-form';
 import { updatePost } from '../../../../../lib/posts/actions';
-import { getPost, type Post, listPostTags } from '../../../../../lib/posts/data';
+import {
+  getPost,
+  type Post,
+  listPostTags,
+} from '../../../../../lib/posts/data';
 import { listTours } from '../../../../../lib/tours/data';
 
 interface EditPostPageProps {
@@ -36,7 +40,12 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 lg:px-6">
       <div className="space-y-3">
-        <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/posts" />}>
+        <Button
+          variant="ghost"
+          size="sm"
+          nativeButton={false}
+          render={<Link href="/posts" />}
+        >
           <ArrowLeft data-icon="inline-start" />
           Back to posts
         </Button>
@@ -46,7 +55,13 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
         </div>
       </div>
 
-      <PostForm action={action} post={post} submitLabel="Save changes" tagSuggestions={tagSuggestions} tourOptions={tourOptions} />
+      <PostForm
+        action={action}
+        post={post}
+        submitLabel="Save changes"
+        tagSuggestions={tagSuggestions}
+        tourOptions={tourOptions}
+      />
     </div>
   );
 }

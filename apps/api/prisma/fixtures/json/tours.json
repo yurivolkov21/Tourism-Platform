@@ -13,25 +13,15 @@
     "difficulty": "easy",
     "isPublished": true,
     "isFeatured": true,
-    "suitableFor": [
-      "COUPLE",
-      "FAMILY",
-      "SOLO"
-    ],
-    "badges": [
-      "POPULAR"
-    ],
+    "suitableFor": ["COUPLE", "FAMILY", "SOLO"],
+    "badges": ["POPULAR"],
     "included": [
       "Local English-speaking guide",
       "Heritage-site entrance tickets",
       "Paper lantern",
       "Bottled water"
     ],
-    "excluded": [
-      "Lunch",
-      "Personal expenses",
-      "Tips"
-    ],
+    "excluded": ["Lunch", "Personal expenses", "Tips"],
     "highlights": [
       "Wander 200-year-old merchant houses and the Japanese Covered Bridge",
       "Watch silk lanterns light the old town at dusk",
@@ -56,15 +46,8 @@
     "difficulty": "easy",
     "isPublished": true,
     "isFeatured": true,
-    "suitableFor": [
-      "FAMILY",
-      "COUPLE",
-      "FRIENDS"
-    ],
-    "badges": [
-      "POPULAR",
-      "BEST_VALUE"
-    ],
+    "suitableFor": ["FAMILY", "COUPLE", "FRIENDS"],
+    "badges": ["POPULAR", "BEST_VALUE"],
     "included": [
       "Hotel pickup & drop-off in Đà Nẵng",
       "Cable car tickets",
@@ -102,11 +85,7 @@
     "difficulty": "easy",
     "isPublished": true,
     "isFeatured": false,
-    "suitableFor": [
-      "COUPLE",
-      "SOLO",
-      "FAMILY"
-    ],
+    "suitableFor": ["COUPLE", "SOLO", "FAMILY"],
     "badges": [],
     "included": [
       "English-speaking guide",
@@ -115,11 +94,7 @@
       "Lunch",
       "Bottled water"
     ],
-    "excluded": [
-      "Drinks",
-      "Personal expenses",
-      "Tips"
-    ],
+    "excluded": ["Drinks", "Personal expenses", "Tips"],
     "highlights": [
       "The Imperial Citadel and the Forbidden Purple City",
       "Royal tombs of Tự Đức and Khải Định",
@@ -143,14 +118,8 @@
     "difficulty": "moderate",
     "isPublished": true,
     "isFeatured": false,
-    "suitableFor": [
-      "FRIENDS",
-      "COUPLE",
-      "SOLO"
-    ],
-    "badges": [
-      "BEST_VALUE"
-    ],
+    "suitableFor": ["FRIENDS", "COUPLE", "SOLO"],
+    "badges": ["BEST_VALUE"],
     "included": [
       "Round-trip transfer from Hà Nội",
       "English-speaking guide",
@@ -159,11 +128,7 @@
       "Bicycle hire",
       "Entrance fees"
     ],
-    "excluded": [
-      "Drinks",
-      "Boat-rower tips",
-      "Personal expenses"
-    ],
+    "excluded": ["Drinks", "Boat-rower tips", "Personal expenses"],
     "highlights": [
       "The 10th-century temples of Hoa Lư",
       "A bamboo boat ride through the Tam Cốc caves",
@@ -188,11 +153,7 @@
     "difficulty": "easy",
     "isPublished": true,
     "isFeatured": false,
-    "suitableFor": [
-      "SOLO",
-      "FRIENDS",
-      "FAMILY"
-    ],
+    "suitableFor": ["SOLO", "FRIENDS", "FAMILY"],
     "badges": [],
     "included": [
       "Round-trip transfer from Hồ Chí Minh City",
@@ -200,11 +161,7 @@
       "Tunnel entrance fee",
       "Bottled water"
     ],
-    "excluded": [
-      "Lunch",
-      "Shooting range",
-      "Tips"
-    ],
+    "excluded": ["Lunch", "Shooting range", "Tips"],
     "highlights": [
       "Crawl through a widened section of the tunnels",
       "See the trap, kitchen and ventilation systems",
@@ -228,11 +185,7 @@
     "difficulty": "easy",
     "isPublished": true,
     "isFeatured": false,
-    "suitableFor": [
-      "FAMILY",
-      "COUPLE",
-      "SOLO"
-    ],
+    "suitableFor": ["FAMILY", "COUPLE", "SOLO"],
     "badges": [],
     "included": [
       "Transfer from Hồ Chí Minh City",
@@ -241,11 +194,7 @@
       "Lunch",
       "Seasonal fruit tasting"
     ],
-    "excluded": [
-      "Drinks",
-      "Personal expenses",
-      "Tips"
-    ],
+    "excluded": ["Drinks", "Personal expenses", "Tips"],
     "highlights": [
       "The Cái Răng floating market at first light",
       "A sampan ride into quiet orchard channels",
@@ -269,14 +218,8 @@
     "difficulty": "easy",
     "isPublished": true,
     "isFeatured": true,
-    "suitableFor": [
-      "FRIENDS",
-      "COUPLE",
-      "FAMILY"
-    ],
-    "badges": [
-      "POPULAR"
-    ],
+    "suitableFor": ["FRIENDS", "COUPLE", "FAMILY"],
+    "badges": ["POPULAR"],
     "included": [
       "Speedboat cruise",
       "Snorkel gear",
@@ -284,11 +227,7 @@
       "English-speaking guide",
       "Insurance"
     ],
-    "excluded": [
-      "Cable car ticket",
-      "Drinks",
-      "Fishing gear hire"
-    ],
+    "excluded": ["Cable car ticket", "Drinks", "Fishing gear hire"],
     "highlights": [
       "Snorkel two coral reefs in the clearest water in Vietnam",
       "Island-hop the An Thới archipelago by speedboat",
@@ -313,11 +252,7 @@
     "difficulty": "moderate",
     "isPublished": true,
     "isFeatured": false,
-    "suitableFor": [
-      "FRIENDS",
-      "SOLO",
-      "COUPLE"
-    ],
+    "suitableFor": ["FRIENDS", "SOLO", "COUPLE"],
     "badges": [],
     "included": [
       "Transfer from Đồng Hới / Phong Nha town",
@@ -326,11 +261,7 @@
       "Cave entrance fees",
       "Lunch"
     ],
-    "excluded": [
-      "Drinks",
-      "Personal expenses",
-      "Tips"
-    ],
+    "excluded": ["Drinks", "Personal expenses", "Tips"],
     "highlights": [
       "A river-boat ride into the Phong Nha cave system",
       "The cathedral-scale chambers of Paradise Cave",
@@ -354,24 +285,15 @@
     "difficulty": "easy",
     "isPublished": false,
     "isFeatured": false,
-    "suitableFor": [
-      "SOLO",
-      "FRIENDS",
-      "COUPLE"
-    ],
-    "badges": [
-      "NEW"
-    ],
+    "suitableFor": ["SOLO", "FRIENDS", "COUPLE"],
+    "badges": ["NEW"],
     "included": [
       "All food tastings",
       "Egg coffee",
       "Local foodie guide",
       "Bottled water"
     ],
-    "excluded": [
-      "Alcoholic drinks",
-      "Tips"
-    ],
+    "excluded": ["Alcoholic drinks", "Tips"],
     "highlights": [
       "Eight tastings across the maze of the Old Quarter",
       "Hà Nội classics: phở, bún chả, nem and bánh mì",
@@ -395,11 +317,7 @@
     "difficulty": "easy",
     "isPublished": true,
     "isFeatured": false,
-    "suitableFor": [
-      "FAMILY",
-      "COUPLE",
-      "FRIENDS"
-    ],
+    "suitableFor": ["FAMILY", "COUPLE", "FRIENDS"],
     "badges": [],
     "included": [
       "Hotel pickup & drop-off in Mũi Né",
@@ -407,11 +325,7 @@
       "English-speaking guide",
       "Bottled water"
     ],
-    "excluded": [
-      "Quad-bike / sand-sled hire",
-      "Breakfast",
-      "Tips"
-    ],
+    "excluded": ["Quad-bike / sand-sled hire", "Breakfast", "Tips"],
     "highlights": [
       "Sunrise over the sweeping White Sand Dunes",
       "The glowing Red Sand Dunes and optional sand-sledding",
@@ -436,14 +350,8 @@
     "difficulty": "easy",
     "isPublished": true,
     "isFeatured": true,
-    "suitableFor": [
-      "COUPLE",
-      "FAMILY",
-      "FRIENDS"
-    ],
-    "badges": [
-      "POPULAR"
-    ],
+    "suitableFor": ["COUPLE", "FAMILY", "FRIENDS"],
+    "badges": ["POPULAR"],
     "included": [
       "Round-trip transfer from Hà Nội",
       "One night aboard the cruise",
@@ -451,11 +359,7 @@
       "Kayak & cave entrance",
       "English-speaking guide"
     ],
-    "excluded": [
-      "Drinks",
-      "Tips",
-      "Travel insurance"
-    ],
+    "excluded": ["Drinks", "Tips", "Travel insurance"],
     "highlights": [
       "A night aboard a boutique junk among the karsts",
       "Kayaking and swimming from Titop Island",
@@ -480,13 +384,8 @@
     "difficulty": "easy",
     "isPublished": true,
     "isFeatured": false,
-    "suitableFor": [
-      "COUPLE",
-      "FRIENDS"
-    ],
-    "badges": [
-      "EXCLUSIVE"
-    ],
+    "suitableFor": ["COUPLE", "FRIENDS"],
+    "badges": ["EXCLUSIVE"],
     "included": [
       "Round-trip transfer from Hà Nội",
       "Two nights aboard the cruise",
@@ -494,11 +393,7 @@
       "Kayaks & activities",
       "English-speaking guide"
     ],
-    "excluded": [
-      "Drinks",
-      "Tips",
-      "Travel insurance"
-    ],
+    "excluded": ["Drinks", "Tips", "Travel insurance"],
     "highlights": [
       "Two nights aboard a boutique junk in Lan Hạ Bay",
       "Kayaking into hidden lagoons and karst archways",
@@ -523,14 +418,8 @@
     "difficulty": "moderate",
     "isPublished": true,
     "isFeatured": true,
-    "suitableFor": [
-      "FRIENDS",
-      "SOLO",
-      "COUPLE"
-    ],
-    "badges": [
-      "BEST_VALUE"
-    ],
+    "suitableFor": ["FRIENDS", "SOLO", "COUPLE"],
+    "badges": ["BEST_VALUE"],
     "included": [
       "Transfers to/from Sa Pa",
       "Local trekking guide",
@@ -538,11 +427,7 @@
       "Two homestay nights",
       "Water & local rice wine"
     ],
-    "excluded": [
-      "Additional drinks",
-      "Personal trekking gear",
-      "Tips"
-    ],
+    "excluded": ["Additional drinks", "Personal trekking gear", "Tips"],
     "highlights": [
       "Trek 13–16 km a day through terraced valleys",
       "Meet Hmong, Red Dao and Tày communities",
@@ -567,13 +452,8 @@
     "difficulty": "challenging",
     "isPublished": true,
     "isFeatured": false,
-    "suitableFor": [
-      "FRIENDS",
-      "SOLO"
-    ],
-    "badges": [
-      "NEW"
-    ],
+    "suitableFor": ["FRIENDS", "SOLO"],
+    "badges": ["NEW"],
     "included": [
       "Motorbike or easy-rider driver",
       "Fuel",
@@ -581,11 +461,7 @@
       "Two nights in homestays",
       "All meals on the loop"
     ],
-    "excluded": [
-      "Personal travel insurance",
-      "Drinks",
-      "Tips"
-    ],
+    "excluded": ["Personal travel insurance", "Drinks", "Tips"],
     "highlights": [
       "The legendary Mã Pí Lèng pass above the Nho Quế river",
       "The Đồng Văn karst plateau geopark",
@@ -610,10 +486,7 @@
     "difficulty": "moderate",
     "isPublished": true,
     "isFeatured": false,
-    "suitableFor": [
-      "FRIENDS",
-      "SOLO"
-    ],
+    "suitableFor": ["FRIENDS", "SOLO"],
     "badges": [],
     "included": [
       "National park entrance",
@@ -621,11 +494,7 @@
       "Packed lunch",
       "Bottled water"
     ],
-    "excluded": [
-      "Transfers to the island",
-      "Drinks",
-      "Tips"
-    ],
+    "excluded": ["Transfers to the island", "Drinks", "Tips"],
     "highlights": [
       "Trek the forested ridge of Cát Bà National Park",
       "Look out for the endangered golden-headed langur",
@@ -650,15 +519,8 @@
     "difficulty": "easy",
     "isPublished": true,
     "isFeatured": true,
-    "suitableFor": [
-      "COUPLE",
-      "FAMILY",
-      "FRIENDS"
-    ],
-    "badges": [
-      "BEST_VALUE",
-      "POPULAR"
-    ],
+    "suitableFor": ["COUPLE", "FAMILY", "FRIENDS"],
+    "badges": ["BEST_VALUE", "POPULAR"],
     "included": [
       "4 breakfasts, 3 lunches, 2 dinners",
       "Private car & cruise transfers",
@@ -698,14 +560,8 @@
     "difficulty": "moderate",
     "isPublished": true,
     "isFeatured": true,
-    "suitableFor": [
-      "COUPLE",
-      "FAMILY",
-      "FRIENDS"
-    ],
-    "badges": [
-      "NEW"
-    ],
+    "suitableFor": ["COUPLE", "FAMILY", "FRIENDS"],
+    "badges": ["NEW"],
     "included": [
       "5 breakfasts, 4 lunches, 2 dinners",
       "Private car & internal transfers",
@@ -744,15 +600,8 @@
     "difficulty": "moderate",
     "isPublished": true,
     "isFeatured": true,
-    "suitableFor": [
-      "COUPLE",
-      "FRIENDS",
-      "SOLO"
-    ],
-    "badges": [
-      "EXCLUSIVE",
-      "BEST_VALUE"
-    ],
+    "suitableFor": ["COUPLE", "FRIENDS", "SOLO"],
+    "badges": ["EXCLUSIVE", "BEST_VALUE"],
     "included": [
       "13 breakfasts, 9 lunches, 5 dinners",
       "All internal flights & transfers",
@@ -792,12 +641,8 @@
     "difficulty": "easy",
     "isPublished": true,
     "isFeatured": true,
-    "suitableFor": [
-      "COUPLE"
-    ],
-    "badges": [
-      "EXCLUSIVE"
-    ],
+    "suitableFor": ["COUPLE"],
+    "badges": ["EXCLUSIVE"],
     "included": [
       "9 breakfasts, 6 lunches, 2 dinners",
       "Private car, cruise & internal transfers",
@@ -837,12 +682,8 @@
     "difficulty": "easy",
     "isPublished": true,
     "isFeatured": false,
-    "suitableFor": [
-      "COUPLE"
-    ],
-    "badges": [
-      "LIMITED_OFFER"
-    ],
+    "suitableFor": ["COUPLE"],
+    "badges": ["LIMITED_OFFER"],
     "included": [
       "4 breakfasts, 1 dinner",
       "Airport transfers",
@@ -880,11 +721,7 @@
     "difficulty": "moderate",
     "isPublished": true,
     "isFeatured": false,
-    "suitableFor": [
-      "COUPLE",
-      "FRIENDS",
-      "FAMILY"
-    ],
+    "suitableFor": ["COUPLE", "FRIENDS", "FAMILY"],
     "badges": [],
     "included": [
       "2 breakfasts, 1 lunch",
@@ -893,11 +730,7 @@
       "Coffee-farm visit & entrance fees",
       "English-speaking guide"
     ],
-    "excluded": [
-      "Canyoning add-on",
-      "Drinks",
-      "Tips"
-    ],
+    "excluded": ["Canyoning add-on", "Drinks", "Tips"],
     "highlights": [
       "French-era villas and the old railway station",
       "A working highland coffee farm",
@@ -922,12 +755,7 @@
     "difficulty": "easy",
     "isPublished": true,
     "isFeatured": false,
-    "suitableFor": [
-      "SOLO",
-      "FRIENDS",
-      "FAMILY",
-      "BUSINESS"
-    ],
+    "suitableFor": ["SOLO", "FRIENDS", "FAMILY", "BUSINESS"],
     "badges": [],
     "included": [
       "Hotel pickup in District 1",
@@ -935,11 +763,7 @@
       "Entrance fees",
       "Bottled water"
     ],
-    "excluded": [
-      "Lunch",
-      "Personal expenses",
-      "Tips"
-    ],
+    "excluded": ["Lunch", "Personal expenses", "Tips"],
     "highlights": [
       "The colonial Notre-Dame Basilica and Post Office",
       "Reunification Palace",
@@ -964,25 +788,15 @@
     "difficulty": "easy",
     "isPublished": true,
     "isFeatured": false,
-    "suitableFor": [
-      "BUSINESS",
-      "SOLO",
-      "COUPLE"
-    ],
-    "badges": [
-      "LIMITED_OFFER"
-    ],
+    "suitableFor": ["BUSINESS", "SOLO", "COUPLE"],
+    "badges": ["LIMITED_OFFER"],
     "included": [
       "Private car & driver",
       "English-speaking guide",
       "Entrance fees",
       "Bottled water"
     ],
-    "excluded": [
-      "Lunch",
-      "Evening use",
-      "Tips"
-    ],
+    "excluded": ["Lunch", "Evening use", "Tips"],
     "highlights": [
       "A private car and guide for the full day",
       "The Old Quarter, the Temple of Literature and Hoàn Kiếm Lake",

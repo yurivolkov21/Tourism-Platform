@@ -37,7 +37,11 @@ export function selectRegionBookables(
   const inRegion = tiles.filter((tile) => tile.region === regionName);
   const names = new Set(inRegion.map((d) => d.name));
   return {
-    destinations: inRegion.map((d) => ({ name: d.name, slug: d.slug, gallery: d.gallery })),
+    destinations: inRegion.map((d) => ({
+      name: d.name,
+      slug: d.slug,
+      gallery: d.gallery,
+    })),
     tours: tours.filter((tour) => names.has(tour.destination)),
   };
 }

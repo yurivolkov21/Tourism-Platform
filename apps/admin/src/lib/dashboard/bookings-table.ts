@@ -31,7 +31,9 @@ interface ApiBooking {
  * Recent bookings for the dashboard table. The admin list endpoint returns the paginated
  * `{ data: BookingDto[], meta }` envelope (matches the typed body), so rows are at `.data`.
  */
-export async function getRecentBookings(limit = 50): Promise<AdminBookingRow[]> {
+export async function getRecentBookings(
+  limit = 50,
+): Promise<AdminBookingRow[]> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/bookings', {
     params: { query: { page: 1, pageSize: limit } },

@@ -28,7 +28,11 @@ export class CreateDestinationDto {
   @MaxLength(80)
   slug?: string;
 
-  @ApiPropertyOptional({ example: 'Vietnam', default: 'Vietnam', maxLength: 60 })
+  @ApiPropertyOptional({
+    example: 'Vietnam',
+    default: 'Vietnam',
+    maxLength: 60,
+  })
   @IsOptional()
   @IsString()
   @MaxLength(60)

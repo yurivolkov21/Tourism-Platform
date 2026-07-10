@@ -103,7 +103,9 @@ export class AdminOutboxService {
       attempts: updated.attempts,
       lastError: updated.lastError,
       createdAt: updated.createdAt.toISOString(),
-      processedAt: updated.processedAt ? updated.processedAt.toISOString() : null,
+      processedAt: updated.processedAt
+        ? updated.processedAt.toISOString()
+        : null,
     };
   }
 }

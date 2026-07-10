@@ -21,9 +21,23 @@ export function RegionHero({
   scrimClass?: string;
 }) {
   return (
-    <section className={cn('relative isolate flex items-end overflow-hidden', heightClass)}>
-      <Image src={image} alt={name} fill priority sizes="100vw" className="-z-10 object-cover" />
-      <div className={cn('absolute inset-0 -z-10 bg-linear-to-t', scrimClass)} />
+    <section
+      className={cn(
+        'relative isolate flex items-end overflow-hidden',
+        heightClass,
+      )}
+    >
+      <Image
+        src={image}
+        alt={name}
+        fill
+        priority
+        sizes="100vw"
+        className="-z-10 object-cover"
+      />
+      <div
+        className={cn('absolute inset-0 -z-10 bg-linear-to-t', scrimClass)}
+      />
 
       <div className="text-on-media mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <nav
@@ -43,7 +57,9 @@ export function RegionHero({
         <h1 className="text-4xl leading-tight font-bold text-balance sm:text-5xl lg:text-6xl">
           {name}
         </h1>
-        <p className="text-on-media/85 mt-3 max-w-xl text-lg text-pretty">{tagline}</p>
+        <p className="text-on-media/85 mt-3 max-w-xl text-lg text-pretty">
+          {tagline}
+        </p>
       </div>
     </section>
   );

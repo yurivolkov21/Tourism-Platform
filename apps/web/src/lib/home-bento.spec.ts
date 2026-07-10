@@ -21,7 +21,11 @@ function tile(slug: string): DestinationTileVM {
 describe('pickHomeBento', () => {
   it('returns tiles in config order regardless of input order', () => {
     const tiles = [tile('hoi-an'), tile('ha-long-bay'), tile('sa-pa')];
-    const config = [{ slug: 'ha-long-bay' }, { slug: 'sa-pa' }, { slug: 'hoi-an' }];
+    const config = [
+      { slug: 'ha-long-bay' },
+      { slug: 'sa-pa' },
+      { slug: 'hoi-an' },
+    ];
 
     expect(pickHomeBento(tiles, config).map((t) => t.slug)).toEqual([
       'ha-long-bay',
@@ -32,7 +36,11 @@ describe('pickHomeBento', () => {
 
   it('skips configured slugs that are not in the tile list', () => {
     const tiles = [tile('ha-long-bay'), tile('hoi-an')];
-    const config = [{ slug: 'ha-long-bay' }, { slug: 'missing' }, { slug: 'hoi-an' }];
+    const config = [
+      { slug: 'ha-long-bay' },
+      { slug: 'missing' },
+      { slug: 'hoi-an' },
+    ];
 
     expect(pickHomeBento(tiles, config).map((t) => t.slug)).toEqual([
       'ha-long-bay',
@@ -42,9 +50,13 @@ describe('pickHomeBento', () => {
 
   it('applies the span from the config slot', () => {
     const tiles = [tile('ha-long-bay')];
-    const config = [{ slug: 'ha-long-bay', span: 'lg:col-span-2 lg:row-span-2' }];
+    const config = [
+      { slug: 'ha-long-bay', span: 'lg:col-span-2 lg:row-span-2' },
+    ];
 
-    expect(pickHomeBento(tiles, config)[0].span).toBe('lg:col-span-2 lg:row-span-2');
+    expect(pickHomeBento(tiles, config)[0].span).toBe(
+      'lg:col-span-2 lg:row-span-2',
+    );
   });
 
   it('does not mutate the source tile', () => {

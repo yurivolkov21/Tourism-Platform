@@ -147,16 +147,29 @@ function buildItinerary(destination: string, days: number): ItineraryDay[] {
 }
 
 /** "13 breakfasts · 9 lunches · 1 dinner" from meal totals (omits zero courses). */
-function formatMeals(totals: { breakfast: number; lunch: number; dinner: number }): string {
+function formatMeals(totals: {
+  breakfast: number;
+  lunch: number;
+  dinner: number;
+}): string {
   const parts: string[] = [];
-  if (totals.breakfast) parts.push(`${totals.breakfast} breakfast${totals.breakfast > 1 ? 's' : ''}`);
-  if (totals.lunch) parts.push(`${totals.lunch} lunch${totals.lunch > 1 ? 'es' : ''}`);
-  if (totals.dinner) parts.push(`${totals.dinner} dinner${totals.dinner > 1 ? 's' : ''}`);
+  if (totals.breakfast)
+    parts.push(
+      `${totals.breakfast} breakfast${totals.breakfast > 1 ? 's' : ''}`,
+    );
+  if (totals.lunch)
+    parts.push(`${totals.lunch} lunch${totals.lunch > 1 ? 'es' : ''}`);
+  if (totals.dinner)
+    parts.push(`${totals.dinner} dinner${totals.dinner > 1 ? 's' : ''}`);
   return parts.length ? parts.join(' · ') : 'Meals as listed';
 }
 
 /** Tally how many breakfasts / lunches / dinners the itinerary's meal codes add up to. */
-function computeMealTotals(itinerary: ItineraryDay[]): { breakfast: number; lunch: number; dinner: number } {
+function computeMealTotals(itinerary: ItineraryDay[]): {
+  breakfast: number;
+  lunch: number;
+  dinner: number;
+} {
   return itinerary.reduce(
     (acc, day) => {
       if (day.meals?.includes('B')) acc.breakfast += 1;
@@ -183,12 +196,48 @@ function buildAccommodation(days: number): string {
 
 // Placeholder traveller-review pool — picked deterministically per slug until the Review API lands.
 const REVIEW_POOL: readonly Omit<TourReview, 'id'>[] = [
-  { author: 'Charlotte P.', date: 'May 2024', rating: 5, quote: 'Everything was perfect from the moment we started planning. Our guide was warm, knowledgeable and endlessly patient with the kids.' },
-  { author: 'Mansoor A.', date: 'Apr 2024', rating: 5, quote: 'My first trip to Vietnam and I couldn’t have asked for a smoother experience — every transfer on time, every hotel a lovely surprise.' },
-  { author: 'Christine H.', date: 'Mar 2024', rating: 5, quote: 'We booked our whole North Vietnam trip with them. A few changes along the way, no problem at all — and the hotels were superb.' },
-  { author: 'Daniel & Mai', date: 'Mar 2024', rating: 5, quote: 'Very lovely staff, always quick to answer questions. A genuinely relaxing, well-run trip from start to finish.' },
-  { author: 'Priya B.', date: 'Feb 2024', rating: 5, quote: 'Spectacular. Eleven days, ten nights and not a single dull moment. Huge thanks to the whole team.' },
-  { author: 'Tom R.', date: 'Feb 2024', rating: 4, quote: 'Outstanding support and service throughout. From the very first message we felt genuinely looked after.' },
+  {
+    author: 'Charlotte P.',
+    date: 'May 2024',
+    rating: 5,
+    quote:
+      'Everything was perfect from the moment we started planning. Our guide was warm, knowledgeable and endlessly patient with the kids.',
+  },
+  {
+    author: 'Mansoor A.',
+    date: 'Apr 2024',
+    rating: 5,
+    quote:
+      'My first trip to Vietnam and I couldn’t have asked for a smoother experience — every transfer on time, every hotel a lovely surprise.',
+  },
+  {
+    author: 'Christine H.',
+    date: 'Mar 2024',
+    rating: 5,
+    quote:
+      'We booked our whole North Vietnam trip with them. A few changes along the way, no problem at all — and the hotels were superb.',
+  },
+  {
+    author: 'Daniel & Mai',
+    date: 'Mar 2024',
+    rating: 5,
+    quote:
+      'Very lovely staff, always quick to answer questions. A genuinely relaxing, well-run trip from start to finish.',
+  },
+  {
+    author: 'Priya B.',
+    date: 'Feb 2024',
+    rating: 5,
+    quote:
+      'Spectacular. Eleven days, ten nights and not a single dull moment. Huge thanks to the whole team.',
+  },
+  {
+    author: 'Tom R.',
+    date: 'Feb 2024',
+    rating: 4,
+    quote:
+      'Outstanding support and service throughout. From the very first message we felt genuinely looked after.',
+  },
 ];
 
 function buildReviews(slug: string): TourReview[] {
@@ -213,9 +262,15 @@ function relatedTours(slug: string, region: string): TourCardData[] {
 
 /** Hero status chip: a strong rating + review count reads "Best seller"; low remaining seats reads
  * "Likely to sell out". Otherwise no chip. Placeholder heuristic until real signals land from the API. */
-function deriveBadge(tour: TourCardData, departures: Departure[]): TourBadge | undefined {
+function deriveBadge(
+  tour: TourCardData,
+  departures: Departure[],
+): TourBadge | undefined {
   if (tour.rating >= 4.7 && tour.reviewCount >= 40) return 'bestSeller';
-  const minSeats = departures.length > 0 ? Math.min(...departures.map((d) => d.seatsLeft)) : Infinity;
+  const minSeats =
+    departures.length > 0
+      ? Math.min(...departures.map((d) => d.seatsLeft))
+      : Infinity;
   if (minSeats <= 4) return 'sellingFast';
   return undefined;
 }
@@ -228,7 +283,11 @@ function buildDepartures(slug: string): Departure[] {
     date.setDate(now.getDate() + offset);
     return {
       id: `${slug}-${i}`,
-      date: date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      date: date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }),
       seatsLeft: seats[i],
     };
   });

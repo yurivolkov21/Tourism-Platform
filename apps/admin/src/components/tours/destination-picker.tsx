@@ -21,13 +21,21 @@ interface DestinationPickerProps {
  * Searchable multi-select for destinations: filter box + toggle list + removable chips. Renders one
  * hidden `destinationSlugs` input per selection → `formData.getAll('destinationSlugs')`.
  */
-export function DestinationPicker({ options, value, onChange }: DestinationPickerProps) {
+export function DestinationPicker({
+  options,
+  value,
+  onChange,
+}: DestinationPickerProps) {
   const [query, setQuery] = useState('');
-  const filtered = options.filter((o) => o.name.toLowerCase().includes(query.trim().toLowerCase()));
+  const filtered = options.filter((o) =>
+    o.name.toLowerCase().includes(query.trim().toLowerCase()),
+  );
   const selected = options.filter((o) => value.includes(o.slug));
 
   function toggle(slug: string) {
-    onChange(value.includes(slug) ? value.filter((s) => s !== slug) : [...value, slug]);
+    onChange(
+      value.includes(slug) ? value.filter((s) => s !== slug) : [...value, slug],
+    );
   }
 
   return (
@@ -68,7 +76,9 @@ export function DestinationPicker({ options, value, onChange }: DestinationPicke
 
       <div className="max-h-48 overflow-y-auto rounded-lg border">
         {filtered.length === 0 ? (
-          <p className="text-muted-foreground p-3 text-center text-sm">No destinations found.</p>
+          <p className="text-muted-foreground p-3 text-center text-sm">
+            No destinations found.
+          </p>
         ) : (
           filtered.map((o) => {
             const isSelected = value.includes(o.slug);

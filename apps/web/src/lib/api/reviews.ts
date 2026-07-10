@@ -1,7 +1,8 @@
 // Public reviews reads for the marketing site. The typed OpenAPI client doesn't carry the freshly
 // added `/reviews/featured` route yet, so this uses a plain fetch against the same API origin.
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
 
 export interface FeaturedReview {
   id: string;

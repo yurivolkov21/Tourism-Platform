@@ -42,7 +42,9 @@ export function AuthShell({
 
         <div className="relative flex h-full flex-col justify-between p-6 lg:p-10">
           <span className="inline-flex items-baseline gap-2 text-white">
-            <span className="font-sans text-2xl font-extrabold tracking-[-0.045em]">NEX</span>
+            <span className="font-sans text-2xl font-extrabold tracking-[-0.045em]">
+              NEX
+            </span>
             <span className="font-heading text-lg font-semibold">Nexora</span>
           </span>
 
@@ -55,7 +57,8 @@ export function AuthShell({
               Heritage journeys, thoughtfully planned.
             </h2>
             <p className="max-w-sm text-sm text-pretty text-white/80">
-              Your account keeps your trips, bookings and saved destinations across Vietnam in one place.
+              Your account keeps your trips, bookings and saved destinations
+              across Vietnam in one place.
             </p>
           </div>
         </div>
@@ -79,8 +82,12 @@ export function AuthShell({
               {messages.auth.backHome}
             </Link>
             <div className="mb-6 space-y-1">
-              <h1 className="font-heading text-2xl font-semibold sm:text-3xl">{title}</h1>
-              <p className="text-muted-foreground text-sm text-pretty">{subtitle}</p>
+              <h1 className="font-heading text-2xl font-semibold sm:text-3xl">
+                {title}
+              </h1>
+              <p className="text-muted-foreground text-sm text-pretty">
+                {subtitle}
+              </p>
             </div>
             {children}
           </CardContent>

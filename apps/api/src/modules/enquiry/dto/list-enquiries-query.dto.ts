@@ -1,7 +1,15 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { EnquiryStatus } from '@prisma/client';
-import { IsEnum, IsInt, IsOptional, Max, Min, IsString, MaxLength } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsOptional,
+  Max,
+  Min,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 /**
  * Query string for `GET /admin/enquiries`. Pagination + optional CRM `status`

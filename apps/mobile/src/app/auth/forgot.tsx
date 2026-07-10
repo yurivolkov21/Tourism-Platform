@@ -3,7 +3,13 @@ import { Pressable, View } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { messages } from '@tourism/i18n';
-import { AppText, Button, Screen, TextField, useTheme } from '@tourism/mobile-ui';
+import {
+  AppText,
+  Button,
+  Screen,
+  TextField,
+  useTheme,
+} from '@tourism/mobile-ui';
 import { validateForgot } from '../../lib/auth';
 import { useAuth } from '../../lib/auth-context';
 
@@ -39,9 +45,18 @@ export default function ForgotScreen() {
     return (
       <Screen scroll={false}>
         <View
-          style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: theme.spacing(3) }}
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: theme.spacing(3),
+          }}
         >
-          <Ionicons name="mail-unread-outline" size={48} color={theme.colors['primary']} />
+          <Ionicons
+            name="mail-unread-outline"
+            size={48}
+            color={theme.colors['primary']}
+          />
           <AppText variant="title">{t.sentTitle}</AppText>
           <AppText variant="body" muted style={{ textAlign: 'center' }}>
             {t.sentBody}
@@ -49,7 +64,10 @@ export default function ForgotScreen() {
           <AppText variant="caption" muted style={{ textAlign: 'center' }}>
             {tp.resetSentHint}
           </AppText>
-          <Button label={t.backToLogin} onPress={() => router.replace('/auth/sign-in')} />
+          <Button
+            label={t.backToLogin}
+            onPress={() => router.replace('/auth/sign-in')}
+          />
         </View>
       </Screen>
     );
@@ -57,7 +75,9 @@ export default function ForgotScreen() {
 
   return (
     <Screen scrollProps={{ keyboardShouldPersistTaps: 'handled' }}>
-      <View style={{ gap: theme.spacing(4), paddingVertical: theme.spacing(4) }}>
+      <View
+        style={{ gap: theme.spacing(4), paddingVertical: theme.spacing(4) }}
+      >
         <View style={{ gap: theme.spacing(1) }}>
           <AppText variant="title">{t.title}</AppText>
           <AppText variant="body" muted>
@@ -78,7 +98,10 @@ export default function ForgotScreen() {
           onSubmitEditing={() => void onSubmit()}
         />
         {banner ? (
-          <AppText variant="body" style={{ color: theme.colors['destructive'] }}>
+          <AppText
+            variant="body"
+            style={{ color: theme.colors['destructive'] }}
+          >
             {banner}
           </AppText>
         ) : null}

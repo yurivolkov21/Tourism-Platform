@@ -5,18 +5,34 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
-import { AppText, Button, Screen, Skeleton, useTheme } from '@tourism/mobile-ui';
+import {
+  AppText,
+  Button,
+  Screen,
+  Skeleton,
+  useTheme,
+} from '@tourism/mobile-ui';
 import { AuthGate } from '../../components/auth-gate';
 import { SectionHeading } from '../../components/section-heading';
 import { useAuth } from '../../lib/auth-context';
 import { hapticSelect } from '../../lib/haptics';
-import { fetchSavedTours, useWishlist, type SavedTourVm } from '../../lib/wishlist';
+import {
+  fetchSavedTours,
+  useWishlist,
+  type SavedTourVm,
+} from '../../lib/wishlist';
 
 const t = messages.mobile.saved;
 const tp = messages.mobile.authPrompts;
 const tf = messages.featuredTours;
 
-function SavedRow({ tour, onRemove }: { tour: SavedTourVm; onRemove: () => void }) {
+function SavedRow({
+  tour,
+  onRemove,
+}: {
+  tour: SavedTourVm;
+  onRemove: () => void;
+}) {
   const theme = useTheme();
   return (
     <Pressable
@@ -73,7 +89,11 @@ function SavedRow({ tour, onRemove }: { tour: SavedTourVm; onRemove: () => void 
           opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.6 : 1,
         })}
       >
-        <Ionicons name="heart-dislike-outline" size={20} color={theme.colors['destructive']} />
+        <Ionicons
+          name="heart-dislike-outline"
+          size={20}
+          color={theme.colors['destructive']}
+        />
       </Pressable>
     </Pressable>
   );
@@ -92,7 +112,11 @@ export default function SavedScreen() {
   if (status !== 'signedIn') {
     return (
       <Screen scroll={false}>
-        <AuthGate icon="heart-outline" title={tp.savedGateTitle} body={tp.savedGateBody} />
+        <AuthGate
+          icon="heart-outline"
+          title={tp.savedGateTitle}
+          body={tp.savedGateBody}
+        />
       </Screen>
     );
   }
@@ -113,7 +137,9 @@ export default function SavedScreen() {
             />
           </Animated.View>
         )}
-        ItemSeparatorComponent={() => <View style={{ height: theme.spacing(4) }} />}
+        ItemSeparatorComponent={() => (
+          <View style={{ height: theme.spacing(4) }} />
+        )}
         ListHeaderComponent={
           <View style={{ paddingVertical: theme.spacing(4) }}>
             <SectionHeading title={t.title} />
@@ -161,7 +187,11 @@ export default function SavedScreen() {
               <AppText variant="body" muted style={{ textAlign: 'center' }}>
                 {t.empty}
               </AppText>
-              <Button label={t.browse} variant="outline" onPress={() => router.push('/explore')} />
+              <Button
+                label={t.browse}
+                variant="outline"
+                onPress={() => router.push('/explore')}
+              />
             </View>
           )
         }

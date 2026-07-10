@@ -12,7 +12,10 @@ export interface DashboardStats {
     conversionRate: number;
     monthOverMonthGrowth: number | null;
   };
-  bookingsByStatus: Record<'PENDING' | 'PAID' | 'CANCELLED' | 'REFUNDED', number>;
+  bookingsByStatus: Record<
+    'PENDING' | 'PAID' | 'CANCELLED' | 'REFUNDED',
+    number
+  >;
   topToursByRevenue: {
     tourId: string;
     slug: string;
@@ -27,8 +30,18 @@ export interface DashboardStats {
     averageRating: number;
     reviewsCount: number;
   }[];
-  topToursByWishlist: { tourId: string; slug: string; title: string; wishlistCount: number }[];
-  monthlyTrend: { month: string; bookings: number; paidBookings: number; revenue: string }[];
+  topToursByWishlist: {
+    tourId: string;
+    slug: string;
+    title: string;
+    wishlistCount: number;
+  }[];
+  monthlyTrend: {
+    month: string;
+    bookings: number;
+    paidBookings: number;
+    revenue: string;
+  }[];
   dailyTrend: { date: string; bookings: number; revenue: string }[];
   pendingCounts: { reviews: number; enquiries: number } | null;
 }

@@ -34,7 +34,13 @@ export interface BookingDraft {
 
 export type BookingTrip = Pick<
   BookingDraft,
-  'tourSlug' | 'departureId' | 'departureLabel' | 'unitPrice' | 'currency' | 'adults' | 'children'
+  | 'tourSlug'
+  | 'departureId'
+  | 'departureLabel'
+  | 'unitPrice'
+  | 'currency'
+  | 'adults'
+  | 'children'
 >;
 
 export interface BookingContact {
@@ -78,11 +84,18 @@ export function BookingDraftProvider({ children }: { children: ReactNode }) {
     () => ({ draft, setTrip, setContact, reset }),
     [draft, setTrip, setContact, reset],
   );
-  return <BookingDraftContext.Provider value={value}>{children}</BookingDraftContext.Provider>;
+  return (
+    <BookingDraftContext.Provider value={value}>
+      {children}
+    </BookingDraftContext.Provider>
+  );
 }
 
 export function useBookingDraft(): BookingDraftValue {
   const value = useContext(BookingDraftContext);
-  if (!value) throw new Error('useBookingDraft must be used inside <BookingDraftProvider>');
+  if (!value)
+    throw new Error(
+      'useBookingDraft must be used inside <BookingDraftProvider>',
+    );
   return value;
 }

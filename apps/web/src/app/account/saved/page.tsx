@@ -29,7 +29,9 @@ export default async function SavedToursPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
       <header className="mb-8">
-        <h1 className="font-heading text-3xl font-semibold sm:text-4xl">{t.title}</h1>
+        <h1 className="font-heading text-3xl font-semibold sm:text-4xl">
+          {t.title}
+        </h1>
         <p className="text-muted-foreground mt-2">{t.subtitle}</p>
       </header>
 
@@ -38,7 +40,10 @@ export default async function SavedToursPage() {
       ) : (
         <div className="rounded-xl border p-8 text-center">
           <p className="text-muted-foreground">{t.empty}</p>
-          <Link href="/tours" className={cn(buttonVariants({ size: 'lg' }), 'mt-6')}>
+          <Link
+            href="/tours"
+            className={cn(buttonVariants({ size: 'lg' }), 'mt-6')}
+          >
             {t.browse}
           </Link>
         </div>

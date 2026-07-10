@@ -10,7 +10,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     () => buildTheme(scheme === 'dark' ? 'dark' : 'light'),
     [scheme],
   );
-  return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
+  );
 }
 
 export function useTheme(): Theme {

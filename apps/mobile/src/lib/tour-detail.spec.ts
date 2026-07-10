@@ -27,11 +27,25 @@ const dto = {
   included: ['All meals'],
   excluded: ['Drinks'],
   faqs: [{ question: 'Wifi?', answer: 'Yes.' }],
-  policies: [{ kind: 'CANCELLATION', title: 'Cancellation', body: 'Free until 7 days.' }],
-  destinations: [{ isPrimary: true, destination: { slug: 'ha-long', name: 'Ha Long' } }],
+  policies: [
+    { kind: 'CANCELLATION', title: 'Cancellation', body: 'Free until 7 days.' },
+  ],
+  destinations: [
+    { isPrimary: true, destination: { slug: 'ha-long', name: 'Ha Long' } },
+  ],
   media: [
-    { publicId: 'h', url: 'https://img.test/hero.jpg', type: 'IMAGE', role: 'hero' },
-    { publicId: 'g', url: 'https://img.test/g1.jpg', type: 'IMAGE', role: 'gallery' },
+    {
+      publicId: 'h',
+      url: 'https://img.test/hero.jpg',
+      type: 'IMAGE',
+      role: 'hero',
+    },
+    {
+      publicId: 'g',
+      url: 'https://img.test/g1.jpg',
+      type: 'IMAGE',
+      role: 'gallery',
+    },
   ],
 } as unknown as TourDetailDto;
 
@@ -57,7 +71,13 @@ test('maps the full detail VM', () => {
     included: ['All meals'],
     excluded: ['Drinks'],
     faqs: [{ question: 'Wifi?', answer: 'Yes.' }],
-    policies: [{ kind: 'CANCELLATION', title: 'Cancellation', body: 'Free until 7 days.' }],
+    policies: [
+      {
+        kind: 'CANCELLATION',
+        title: 'Cancellation',
+        body: 'Free until 7 days.',
+      },
+    ],
   });
 });
 

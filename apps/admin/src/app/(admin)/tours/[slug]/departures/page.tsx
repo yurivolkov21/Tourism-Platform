@@ -14,7 +14,10 @@ import {
 import { apiErrorMessage } from '../../../../../lib/api/error';
 import { AdminListHeader } from '../../../../../components/crud/list-header';
 import { DeparturesTable } from '../../../../../components/departures/departures-table';
-import { listDepartures, type Departure } from '../../../../../lib/departures/data';
+import {
+  listDepartures,
+  type Departure,
+} from '../../../../../lib/departures/data';
 import { getTour, type TourDetail } from '../../../../../lib/tours/data';
 import { ErrorAlert } from '../../../../../components/crud/error-alert';
 
@@ -58,7 +61,10 @@ export default async function DeparturesPage({ params }: DeparturesPageProps) {
         title="Departures"
         description={`Scheduled dates for ${tour.title}. Past dates are marked “Departed” and can’t be booked.`}
         action={
-          <Button nativeButton={false} render={<Link href={`/tours/${slug}/departures/new`} />}>
+          <Button
+            nativeButton={false}
+            render={<Link href={`/tours/${slug}/departures/new`} />}
+          >
             <Plus data-icon="inline-start" />
             New departure
           </Button>
@@ -74,9 +80,14 @@ export default async function DeparturesPage({ params }: DeparturesPageProps) {
               <CalendarRange />
             </EmptyMedia>
             <EmptyTitle>No departures yet</EmptyTitle>
-            <EmptyDescription>Add a departure date so customers can book this tour.</EmptyDescription>
+            <EmptyDescription>
+              Add a departure date so customers can book this tour.
+            </EmptyDescription>
           </EmptyHeader>
-          <Button nativeButton={false} render={<Link href={`/tours/${slug}/departures/new`} />}>
+          <Button
+            nativeButton={false}
+            render={<Link href={`/tours/${slug}/departures/new`} />}
+          >
             <Plus data-icon="inline-start" />
             New departure
           </Button>

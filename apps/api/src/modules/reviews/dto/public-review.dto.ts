@@ -3,7 +3,10 @@ import { PageMetaDto } from '../../../common/dto/page-meta.dto';
 
 /** Public-safe reviewer projection — display name only (no id/email/booking). */
 export class ReviewerDto {
-  @ApiProperty({ example: 'Alice N.', description: 'Display name (or "Anonymous")' })
+  @ApiProperty({
+    example: 'Alice N.',
+    description: 'Display name (or "Anonymous")',
+  })
   fullName!: string;
 }
 

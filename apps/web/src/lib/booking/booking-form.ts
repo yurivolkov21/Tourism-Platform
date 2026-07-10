@@ -62,7 +62,9 @@ function isValidEmail(email: string): boolean {
   return /^\S+@\S+\.\S+$/.test(email);
 }
 
-export function buildCreateBookingPayload(raw: BookingFormRaw): BuildBookingResult {
+export function buildCreateBookingPayload(
+  raw: BookingFormRaw,
+): BuildBookingResult {
   const tourSlug = raw.tourSlug?.trim() ?? '';
   if (!tourSlug) return { ok: false, error: 'MISSING_TOUR' };
 
@@ -70,11 +72,16 @@ export function buildCreateBookingPayload(raw: BookingFormRaw): BuildBookingResu
   if (!departureId) return { ok: false, error: 'MISSING_DEPARTURE' };
 
   const numAdults = asInt(raw.numAdults);
-  const numChildren = raw.numChildren === undefined ? 0 : asInt(raw.numChildren);
-  const adultsOk = Number.isInteger(numAdults) && numAdults >= 1 && numAdults <= MAX_PARTY;
+  const numChildren =
+    raw.numChildren === undefined ? 0 : asInt(raw.numChildren);
+  const adultsOk =
+    Number.isInteger(numAdults) && numAdults >= 1 && numAdults <= MAX_PARTY;
   const childrenOk =
-    Number.isInteger(numChildren) && numChildren >= 0 && numChildren <= MAX_PARTY;
-  if (!adultsOk || !childrenOk) return { ok: false, error: 'INVALID_PARTY_SIZE' };
+    Number.isInteger(numChildren) &&
+    numChildren >= 0 &&
+    numChildren <= MAX_PARTY;
+  if (!adultsOk || !childrenOk)
+    return { ok: false, error: 'INVALID_PARTY_SIZE' };
 
   if (raw.paymentProvider !== 'STRIPE' && raw.paymentProvider !== 'PAYPAL') {
     return { ok: false, error: 'INVALID_PROVIDER' };

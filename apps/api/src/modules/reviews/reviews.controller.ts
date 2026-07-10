@@ -36,7 +36,10 @@ export class ReviewsController {
   @Public()
   @Get('featured')
   @ApiOperation({ summary: 'Featured testimonials for the homepage' })
-  @ApiOkResponse({ type: FeaturedReviewsDto, description: 'Approved + featured reviews' })
+  @ApiOkResponse({
+    type: FeaturedReviewsDto,
+    description: 'Approved + featured reviews',
+  })
   featured(): Promise<FeaturedReview[]> {
     // Plain array → the transform interceptor envelopes it as `{ data: [...], error: null }`.
     return this.reviewsService.findFeatured();
@@ -44,8 +47,13 @@ export class ReviewsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: "Create a review for one of caller's PAID bookings" })
-  @ApiCreatedResponse({ type: ReviewDto, description: 'Created (pending approval)' })
+  @ApiOperation({
+    summary: "Create a review for one of caller's PAID bookings",
+  })
+  @ApiCreatedResponse({
+    type: ReviewDto,
+    description: 'Created (pending approval)',
+  })
   @ApiResponse({ status: 400, description: 'Booking not PAID' })
   @ApiResponse({ status: 401, description: 'User not synced' })
   @ApiResponse({ status: 403, description: 'Not the owner of the booking' })

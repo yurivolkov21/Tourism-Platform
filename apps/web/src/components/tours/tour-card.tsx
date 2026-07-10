@@ -75,7 +75,10 @@ export function TourCard({ tour }: { tour: TourCardData }) {
         {tour.badges.length > 0 && (
           <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
             {tour.badges.map((b) => (
-              <Badge key={b} className={cn('border-transparent', badgeClass[b])}>
+              <Badge
+                key={b}
+                className={cn('border-transparent', badgeClass[b])}
+              >
                 {t.badges[b]}
               </Badge>
             ))}
@@ -103,7 +106,10 @@ export function TourCard({ tour }: { tour: TourCardData }) {
 
         <div className="flex items-center justify-between gap-2 text-sm">
           <span className="flex items-center gap-1.5">
-            <StarIcon className="text-rating fill-rating size-4" aria-hidden="true" />
+            <StarIcon
+              className="text-rating fill-rating size-4"
+              aria-hidden="true"
+            />
             <span className="font-medium">{tour.rating.toFixed(1)}</span>
             <span className="text-muted-foreground">
               ({tour.reviewCount} {t.reviewsLabel})
@@ -129,7 +135,11 @@ export function TourCard({ tour }: { tour: TourCardData }) {
               ) : null}
             </div>
           </div>
-          <Button size="sm" render={<a href={`/tours/${tour.slug}`} />} nativeButton={false}>
+          <Button
+            size="sm"
+            render={<a href={`/tours/${tour.slug}`} />}
+            nativeButton={false}
+          >
             {t.view}
           </Button>
         </div>

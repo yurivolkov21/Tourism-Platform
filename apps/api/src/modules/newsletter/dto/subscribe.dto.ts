@@ -15,7 +15,11 @@ export class SubscribeDto {
   @MaxLength(200)
   email!: string;
 
-  @ApiPropertyOptional({ maxLength: 40, example: 'footer', description: 'Where the signup came from.' })
+  @ApiPropertyOptional({
+    maxLength: 40,
+    example: 'footer',
+    description: 'Where the signup came from.',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(40)

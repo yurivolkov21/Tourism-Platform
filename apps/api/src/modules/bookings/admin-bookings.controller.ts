@@ -19,7 +19,11 @@ import {
 import { Booking, User, UserRole } from '@prisma/client';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { AdminBookingDetail, BookingsService, PaginatedBookings } from './bookings.service';
+import {
+  AdminBookingDetail,
+  BookingsService,
+  PaginatedBookings,
+} from './bookings.service';
 import { AdminBookingDetailDto } from './dto/admin-booking-detail.dto';
 import { BookingDto } from './dto/booking.dto';
 import { ListAdminBookingsQueryDto } from './dto/list-admin-bookings-query.dto';
@@ -38,7 +42,9 @@ export class AdminBookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Admin: list all bookings (paginated, filter by status/search)' })
+  @ApiOperation({
+    summary: 'Admin: list all bookings (paginated, filter by status/search)',
+  })
   @ApiOkResponse({ type: PaginatedBookingsDto })
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   list(@Query() query: ListAdminBookingsQueryDto): Promise<PaginatedBookings> {
@@ -46,7 +52,9 @@ export class AdminBookingsController {
   }
 
   @Get(':code')
-  @ApiOperation({ summary: 'Admin: get one booking by code (with lifecycle + refund audit)' })
+  @ApiOperation({
+    summary: 'Admin: get one booking by code (with lifecycle + refund audit)',
+  })
   @ApiOkResponse({ type: AdminBookingDetailDto })
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   @ApiResponse({ status: 404, description: 'Booking not found' })
@@ -56,9 +64,15 @@ export class AdminBookingsController {
 
   @Post(':code/refund')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Admin: refund a PAID booking (full or partial) + release seats on full' })
+  @ApiOperation({
+    summary:
+      'Admin: refund a PAID booking (full or partial) + release seats on full',
+  })
   @ApiOkResponse({ type: BookingDto, description: 'Refunded booking' })
-  @ApiResponse({ status: 400, description: 'Not refundable, or Stripe refund failed' })
+  @ApiResponse({
+    status: 400,
+    description: 'Not refundable, or Stripe refund failed',
+  })
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   @ApiResponse({ status: 404, description: 'Booking not found' })
   refund(

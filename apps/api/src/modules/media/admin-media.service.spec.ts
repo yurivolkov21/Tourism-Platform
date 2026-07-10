@@ -30,7 +30,10 @@ function makePrisma(m: Mocks = {}): PrismaService {
       ...m.mediaGarbage,
     },
     tour: { findMany: jest.fn().mockResolvedValue([]), ...m.tour },
-    destination: { findMany: jest.fn().mockResolvedValue([]), ...m.destination },
+    destination: {
+      findMany: jest.fn().mockResolvedValue([]),
+      ...m.destination,
+    },
     post: { findMany: jest.fn().mockResolvedValue([]), ...m.post },
     user: { findMany: jest.fn().mockResolvedValue([]), ...m.user },
     $transaction: m.$transaction ?? jest.fn().mockResolvedValue([]),
@@ -50,7 +53,10 @@ function makeMaintenance(over: Record<string, unknown> = {}) {
   } as unknown as MaintenanceService;
 }
 
-function svcWith(prisma: PrismaService, maintenance = makeMaintenance()): AdminMediaService {
+function svcWith(
+  prisma: PrismaService,
+  maintenance = makeMaintenance(),
+): AdminMediaService {
   return new AdminMediaService(prisma, makeConfig(), maintenance);
 }
 
@@ -79,7 +85,9 @@ describe('AdminMediaService', () => {
       const count = jest.fn().mockResolvedValue(1);
       const tourFindMany = jest
         .fn()
-        .mockResolvedValue([{ id: 'tour-1', title: 'Hoi An Walking Tour', slug: 'hoi-an' }]);
+        .mockResolvedValue([
+          { id: 'tour-1', title: 'Hoi An Walking Tour', slug: 'hoi-an' },
+        ]);
       const prisma = makePrisma({
         mediaAsset: { findMany, count },
         tour: { findMany: tourFindMany },
@@ -121,11 +129,16 @@ describe('AdminMediaService', () => {
         role: MediaRole.avatar,
       };
       const prisma = makePrisma({
-        mediaAsset: { findMany: jest.fn().mockResolvedValue([row]), count: jest.fn().mockResolvedValue(1) },
+        mediaAsset: {
+          findMany: jest.fn().mockResolvedValue([row]),
+          count: jest.fn().mockResolvedValue(1),
+        },
         user: {
           findMany: jest
             .fn()
-            .mockResolvedValue([{ id: 'user-1', fullName: null, email: 'jane@example.com' }]),
+            .mockResolvedValue([
+              { id: 'user-1', fullName: null, email: 'jane@example.com' },
+            ]),
         },
       });
 
@@ -137,7 +150,9 @@ describe('AdminMediaService', () => {
 
     it('AND-composes ownerType/role/type filters', async () => {
       const findMany = jest.fn().mockResolvedValue([]);
-      const prisma = makePrisma({ mediaAsset: { findMany, count: jest.fn().mockResolvedValue(0) } });
+      const prisma = makePrisma({
+        mediaAsset: { findMany, count: jest.fn().mockResolvedValue(0) },
+      });
 
       await svcWith(prisma).list({
         ownerType: MediaOwnerType.DESTINATION,
@@ -167,7 +182,9 @@ describe('AdminMediaService', () => {
         mode: 'insensitive',
       });
       const or = findMany.mock.calls[0][0].where.OR;
-      expect(or[0]).toEqual({ publicId: { contains: 'hoi an', mode: 'insensitive' } });
+      expect(or[0]).toEqual({
+        publicId: { contains: 'hoi an', mode: 'insensitive' },
+      });
       expect(or).toContainEqual({
         ownerType: MediaOwnerType.TOUR,
         ownerId: { in: ['tour-9'] },
@@ -190,14 +207,20 @@ describe('AdminMediaService', () => {
       const del = jest.fn();
       const $transaction = jest.fn().mockResolvedValue([]);
       const prisma = makePrisma({
-        mediaAsset: { findUnique: jest.fn().mockResolvedValue(videoRow), delete: del },
+        mediaAsset: {
+          findUnique: jest.fn().mockResolvedValue(videoRow),
+          delete: del,
+        },
         mediaGarbage: { createMany },
         $transaction,
       });
 
       const res = await svcWith(prisma).deleteAsset('asset-3');
 
-      expect(res).toEqual({ id: 'asset-3', publicId: 'tourism/tours/video/123-clip' });
+      expect(res).toEqual({
+        id: 'asset-3',
+        publicId: 'tourism/tours/video/123-clip',
+      });
       expect(createMany.mock.calls[0][0]).toEqual({
         data: [
           { publicId: 'tourism/tours/video/123-clip', resourceType: 'video' },
@@ -211,20 +234,24 @@ describe('AdminMediaService', () => {
     });
 
     it('rejects USER-owned assets with 409', async () => {
-      const avatar = { ...IMAGE_ROW, id: 'asset-4', ownerType: MediaOwnerType.USER };
+      const avatar = {
+        ...IMAGE_ROW,
+        id: 'asset-4',
+        ownerType: MediaOwnerType.USER,
+      };
       const prisma = makePrisma({
         mediaAsset: { findUnique: jest.fn().mockResolvedValue(avatar) },
       });
-      await expect(svcWith(prisma).deleteAsset('asset-4')).rejects.toBeInstanceOf(
-        ConflictException,
-      );
+      await expect(
+        svcWith(prisma).deleteAsset('asset-4'),
+      ).rejects.toBeInstanceOf(ConflictException);
     });
 
     it('404s on an unknown id', async () => {
       const prisma = makePrisma();
-      await expect(svcWith(prisma).deleteAsset('asset-nope')).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        svcWith(prisma).deleteAsset('asset-nope'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 
@@ -256,9 +283,12 @@ describe('AdminMediaService', () => {
         lastError: 'boom',
         createdAt: '2026-07-02T12:00:00.000Z',
       });
-      const prismaGarbage = (prisma as unknown as { mediaGarbage: { findMany: jest.Mock } })
-        .mediaGarbage;
-      expect(prismaGarbage.findMany.mock.calls[0][0].orderBy).toEqual({ createdAt: 'asc' });
+      const prismaGarbage = (
+        prisma as unknown as { mediaGarbage: { findMany: jest.Mock } }
+      ).mediaGarbage;
+      expect(prismaGarbage.findMany.mock.calls[0][0].orderBy).toEqual({
+        createdAt: 'asc',
+      });
     });
 
     it('runReconcile passes through to MaintenanceService', async () => {
@@ -266,7 +296,8 @@ describe('AdminMediaService', () => {
       const res = await svcWith(makePrisma(), maintenance).runReconcile();
       expect(res).toEqual({ destroyed: 2, failed: 1 });
       expect(
-        (maintenance as unknown as { reconcileMedia: jest.Mock }).reconcileMedia,
+        (maintenance as unknown as { reconcileMedia: jest.Mock })
+          .reconcileMedia,
       ).toHaveBeenCalledTimes(1);
     });
   });

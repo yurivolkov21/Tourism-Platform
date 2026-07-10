@@ -25,10 +25,13 @@ export function ColumnsMenu<T>({ table }: { table: Table<T> }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={<Button variant="outline" size="sm" className="cursor-pointer" />}
+        render={
+          <Button variant="outline" size="sm" className="cursor-pointer" />
+        }
         aria-label="Toggle columns"
       >
-        <Columns3 className="size-4" /> Columns <ChevronDown className="text-muted-foreground size-4" />
+        <Columns3 className="size-4" /> Columns{' '}
+        <ChevronDown className="text-muted-foreground size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44">
         {columns.map((c) => (

@@ -22,9 +22,7 @@ import {
 @ApiTags('Tour Categories')
 @Controller('tour-categories')
 export class TourCategoriesController {
-  constructor(
-    private readonly tourCategoriesService: TourCategoriesService,
-  ) {}
+  constructor(private readonly tourCategoriesService: TourCategoriesService) {}
 
   @Public()
   @Get()

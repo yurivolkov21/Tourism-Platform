@@ -6,7 +6,10 @@ import {
 } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
-import { Fraunces_600SemiBold, Fraunces_700Bold } from '@expo-google-fonts/fraunces';
+import {
+  Fraunces_600SemiBold,
+  Fraunces_700Bold,
+} from '@expo-google-fonts/fraunces';
 import {
   Geist_400Regular,
   Geist_500Medium,
@@ -76,7 +79,10 @@ function ThemedStack() {
           // Brand-styled native header for the screens that opt in below.
           headerStyle: { backgroundColor: theme.colors['background'] },
           headerTintColor: theme.colors['foreground'],
-          headerTitleStyle: { fontFamily: theme.fontFamilies.heading, fontSize: 18 },
+          headerTitleStyle: {
+            fontFamily: theme.fontFamilies.heading,
+            fontSize: 18,
+          },
           headerShadowVisible: false,
           headerBackButtonDisplayMode: 'minimal',
         }}
@@ -89,19 +95,31 @@ function ThemedStack() {
         />
         <Stack.Screen
           name="tours/[slug]/book-payment"
-          options={{ headerShown: true, title: messages.booking.form.paymentHeading }}
+          options={{
+            headerShown: true,
+            title: messages.booking.form.paymentHeading,
+          }}
         />
         <Stack.Screen
           name="tours/[slug]/itinerary"
-          options={{ headerShown: true, title: messages.mobile.tourDetail.itineraryTitle }}
+          options={{
+            headerShown: true,
+            title: messages.mobile.tourDetail.itineraryTitle,
+          }}
         />
         <Stack.Screen
           name="tours/[slug]/faqs"
-          options={{ headerShown: true, title: messages.mobile.tourDetail.faqsTitle }}
+          options={{
+            headerShown: true,
+            title: messages.mobile.tourDetail.faqsTitle,
+          }}
         />
         <Stack.Screen
           name="tours/[slug]/reviews"
-          options={{ headerShown: true, title: messages.mobile.tourDetail.reviewsTitle }}
+          options={{
+            headerShown: true,
+            title: messages.mobile.tourDetail.reviewsTitle,
+          }}
         />
         <Stack.Screen
           name="bookings/[code]/index"

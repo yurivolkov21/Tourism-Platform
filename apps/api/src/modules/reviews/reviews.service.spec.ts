@@ -46,7 +46,9 @@ function makePrisma(overrides: {
 describe('ReviewsService.createForCustomer', () => {
   it('throws BOOKING_NOT_FOUND when code missing', async () => {
     const svc = new ReviewsService(
-      makePrisma({ bookingFindUnique: jest.fn().mockResolvedValue(null) }) as never,
+      makePrisma({
+        bookingFindUnique: jest.fn().mockResolvedValue(null),
+      }) as never,
     );
     await expect(
       svc.createForCustomer('u-customer', baseDto),
@@ -145,7 +147,9 @@ describe('ReviewsService.findApprovedForTour', () => {
       tour: {
         findFirst: jest
           .fn()
-          .mockResolvedValue(opts.tour === undefined ? { id: 't-1' } : opts.tour),
+          .mockResolvedValue(
+            opts.tour === undefined ? { id: 't-1' } : opts.tour,
+          ),
       },
       review: {
         findMany: jest.fn().mockResolvedValue(opts.rows ?? []),
@@ -353,8 +357,9 @@ describe('ReviewsService.moderateById', () => {
       review,
       outbox,
       $transaction: jest.fn(
-        (cb: (tx: { review: typeof review; outbox: typeof outbox }) => unknown) =>
-          cb({ review, outbox }),
+        (
+          cb: (tx: { review: typeof review; outbox: typeof outbox }) => unknown,
+        ) => cb({ review, outbox }),
       ),
     };
     return { prisma, update, outboxCreateMany };
@@ -402,17 +407,25 @@ describe('ReviewsService.moderateById', () => {
 describe('ReviewsService.setFeatured', () => {
   it('throws REVIEW_NOT_FOUND when the id is missing', async () => {
     const prisma = {
-      review: { findUnique: jest.fn().mockResolvedValue(null), update: jest.fn() },
+      review: {
+        findUnique: jest.fn().mockResolvedValue(null),
+        update: jest.fn(),
+      },
     };
     const svc = new ReviewsService(prisma as never);
-    await expect(svc.setFeatured('missing', true)).rejects.toBeInstanceOf(NotFoundException);
+    await expect(svc.setFeatured('missing', true)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
     expect(prisma.review.update).not.toHaveBeenCalled();
   });
 
   it('updates isFeatured when the review exists', async () => {
     const update = jest.fn().mockResolvedValue({ id: 'r-1', isFeatured: true });
     const prisma = {
-      review: { findUnique: jest.fn().mockResolvedValue({ id: 'r-1' }), update },
+      review: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'r-1' }),
+        update,
+      },
     };
     const svc = new ReviewsService(prisma as never);
     await svc.setFeatured('r-1', true);
@@ -487,9 +500,13 @@ describe('ReviewsService — admin surfacing + curated delete', () => {
   });
 
   it('deleteCuratedById deletes a curated review', async () => {
-    const findUnique = jest.fn().mockResolvedValue({ id: 'r1', source: ReviewSource.CURATED });
+    const findUnique = jest
+      .fn()
+      .mockResolvedValue({ id: 'r1', source: ReviewSource.CURATED });
     const del = jest.fn().mockResolvedValue({ id: 'r1' });
-    const svc = new ReviewsService({ review: { findUnique, delete: del } } as never);
+    const svc = new ReviewsService({
+      review: { findUnique, delete: del },
+    } as never);
 
     await svc.deleteCuratedById('r1');
 
@@ -497,23 +514,27 @@ describe('ReviewsService — admin surfacing + curated delete', () => {
   });
 
   it('deleteCuratedById 404s when the review is missing', async () => {
-    const svc = new ReviewsService(
-      { review: { findUnique: jest.fn().mockResolvedValue(null) } } as never,
+    const svc = new ReviewsService({
+      review: { findUnique: jest.fn().mockResolvedValue(null) },
+    } as never);
+    await expect(svc.deleteCuratedById('nope')).rejects.toBeInstanceOf(
+      NotFoundException,
     );
-    await expect(svc.deleteCuratedById('nope')).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('deleteCuratedById 409s for a verified review (audit trail protected)', async () => {
     const del = jest.fn();
-    const svc = new ReviewsService(
-      {
-        review: {
-          findUnique: jest.fn().mockResolvedValue({ id: 'r1', source: ReviewSource.VERIFIED }),
-          delete: del,
-        },
-      } as never,
+    const svc = new ReviewsService({
+      review: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ id: 'r1', source: ReviewSource.VERIFIED }),
+        delete: del,
+      },
+    } as never);
+    await expect(svc.deleteCuratedById('r1')).rejects.toBeInstanceOf(
+      ConflictException,
     );
-    await expect(svc.deleteCuratedById('r1')).rejects.toBeInstanceOf(ConflictException);
     expect(del).not.toHaveBeenCalled();
   });
 });

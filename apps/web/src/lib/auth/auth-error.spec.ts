@@ -2,13 +2,15 @@ import { authErrorMessage } from './auth-error';
 
 describe('authErrorMessage', () => {
   it('maps invalid credentials (by message)', () => {
-    expect(authErrorMessage(new Error('Invalid login credentials'))).toBe('Incorrect email or password.');
+    expect(authErrorMessage(new Error('Invalid login credentials'))).toBe(
+      'Incorrect email or password.',
+    );
   });
 
   it('maps invalid credentials (by code)', () => {
-    expect(authErrorMessage({ code: 'invalid_credentials', message: 'x' })).toBe(
-      'Incorrect email or password.',
-    );
+    expect(
+      authErrorMessage({ code: 'invalid_credentials', message: 'x' }),
+    ).toBe('Incorrect email or password.');
   });
 
   it('maps unconfirmed email', () => {
@@ -40,6 +42,8 @@ describe('authErrorMessage', () => {
   });
 
   it('falls back for non-errors', () => {
-    expect(authErrorMessage(null)).toBe('Something went wrong. Please try again.');
+    expect(authErrorMessage(null)).toBe(
+      'Something went wrong. Please try again.',
+    );
   });
 });

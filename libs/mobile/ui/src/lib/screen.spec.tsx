@@ -42,7 +42,9 @@ test('hides the vertical scroll indicator by default', () => {
       </ThemeProvider>
     </SafeAreaProvider>,
   );
-  expect(screen.UNSAFE_getByType(ScrollView).props.showsVerticalScrollIndicator).toBe(false);
+  expect(
+    screen.UNSAFE_getByType(ScrollView).props.showsVerticalScrollIndicator,
+  ).toBe(false);
 });
 
 test('renders a plain View with no ScrollView when scroll={false}', () => {
@@ -71,7 +73,9 @@ test('applies the light theme background color to the root container', () => {
   const root = screen.getByTestId('screen');
   expect(root.props.style).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ backgroundColor: tokens.colors.light.background }),
+      expect.objectContaining({
+        backgroundColor: tokens.colors.light.background,
+      }),
     ]),
   );
 });

@@ -69,7 +69,9 @@ export default async function OutboxPage({ searchParams }: OutboxPageProps) {
               aria-selected={active}
               className={cn(
                 'inline-flex h-7 items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                active ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+                active
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'hover:text-foreground',
               )}
             >
               {t.label}
@@ -80,8 +82,8 @@ export default async function OutboxPage({ searchParams }: OutboxPageProps) {
 
       {error ? (
         <ErrorAlert>
-          Couldn&apos;t load the email queue: {error}. Check that the API is running and your admin
-          session is valid.
+          Couldn&apos;t load the email queue: {error}. Check that the API is
+          running and your admin session is valid.
         </ErrorAlert>
       ) : (
         <OutboxView rows={result?.data ?? []} meta={result?.meta} />

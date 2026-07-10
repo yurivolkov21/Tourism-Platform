@@ -10,7 +10,13 @@ import {
   ZoomOutIcon,
 } from 'lucide-react';
 
-import { Dialog, DialogClose, DialogPortal, DialogTitle, cn } from '@tourism/ui';
+import {
+  Dialog,
+  DialogClose,
+  DialogPortal,
+  DialogTitle,
+  cn,
+} from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 export type LightboxImage = { src?: string; alt: string };
@@ -103,7 +109,9 @@ export function Lightbox({
               </button>
               <button
                 type="button"
-                onClick={() => setZoom((z) => Math.min(ZOOMS.length - 1, z + 1))}
+                onClick={() =>
+                  setZoom((z) => Math.min(ZOOMS.length - 1, z + 1))
+                }
                 disabled={zoom === ZOOMS.length - 1}
                 aria-label={t.zoomIn}
                 className={CONTROL}
@@ -131,17 +139,29 @@ export function Lightbox({
               type="button"
               onClick={() => go(-1)}
               aria-label={t.previous}
-              className={cn(CONTROL, 'absolute left-3 size-11 sm:left-5 sm:size-12')}
+              className={cn(
+                CONTROL,
+                'absolute left-3 size-11 sm:left-5 sm:size-12',
+              )}
             >
-              <ChevronLeftIcon className="size-6 sm:size-7" aria-hidden="true" />
+              <ChevronLeftIcon
+                className="size-6 sm:size-7"
+                aria-hidden="true"
+              />
             </button>
             <button
               type="button"
               onClick={() => go(1)}
               aria-label={t.next}
-              className={cn(CONTROL, 'absolute right-3 size-11 sm:right-5 sm:size-12')}
+              className={cn(
+                CONTROL,
+                'absolute right-3 size-11 sm:right-5 sm:size-12',
+              )}
             >
-              <ChevronRightIcon className="size-6 sm:size-7" aria-hidden="true" />
+              <ChevronRightIcon
+                className="size-6 sm:size-7"
+                aria-hidden="true"
+              />
             </button>
           </div>
         </DialogPrimitive.Popup>

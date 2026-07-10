@@ -5,7 +5,14 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
-import { AppText, Button, Screen, Skeleton, TextField, useTheme } from '@tourism/mobile-ui';
+import {
+  AppText,
+  Button,
+  Screen,
+  Skeleton,
+  TextField,
+  useTheme,
+} from '@tourism/mobile-ui';
 import { AuthGate } from '../../components/auth-gate';
 import { SectionHeading } from '../../components/section-heading';
 import { useAuth } from '../../lib/auth-context';
@@ -27,7 +34,9 @@ function MenuRow({
   destructive?: boolean;
 }) {
   const theme = useTheme();
-  const color = destructive ? theme.colors['destructive'] : theme.colors['foreground'];
+  const color = destructive
+    ? theme.colors['destructive']
+    : theme.colors['foreground'];
   return (
     <Pressable
       accessibilityRole="button"
@@ -47,7 +56,11 @@ function MenuRow({
         {label}
       </AppText>
       {!destructive ? (
-        <Ionicons name="chevron-forward" size={16} color={theme.colors['muted-foreground']} />
+        <Ionicons
+          name="chevron-forward"
+          size={16}
+          color={theme.colors['muted-foreground']}
+        />
       ) : null}
     </Pressable>
   );
@@ -71,7 +84,13 @@ function Profile({ profile }: { profile: ProfileVm }) {
 
   return (
     <View style={{ gap: theme.spacing(5), paddingVertical: theme.spacing(4) }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing(3) }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: theme.spacing(3),
+        }}
+      >
         <View
           style={{
             width: 56,
@@ -97,7 +116,11 @@ function Profile({ profile }: { profile: ProfileVm }) {
       </View>
 
       <View style={{ gap: theme.spacing(2) }}>
-        <TextField label={t.editNameLabel} value={name} onChangeText={setName} />
+        <TextField
+          label={t.editNameLabel}
+          value={name}
+          onChangeText={setName}
+        />
         <Button
           label={saveM.isPending ? t.editNameSaving : t.editNameSave}
           loading={saveM.isPending}
@@ -112,7 +135,10 @@ function Profile({ profile }: { profile: ProfileVm }) {
             {t.editNameSaved}
           </AppText>
         ) : feedback === 'error' ? (
-          <AppText variant="caption" style={{ color: theme.colors['destructive'] }}>
+          <AppText
+            variant="caption"
+            style={{ color: theme.colors['destructive'] }}
+          >
             {t.editNameError}
           </AppText>
         ) : null}
@@ -124,7 +150,11 @@ function Profile({ profile }: { profile: ProfileVm }) {
           label={messages.booking.list.menuLink}
           onPress={() => router.push('/trips')}
         />
-        <MenuRow icon="heart-outline" label={t.menuSaved} onPress={() => router.push('/saved')} />
+        <MenuRow
+          icon="heart-outline"
+          label={t.menuSaved}
+          onPress={() => router.push('/saved')}
+        />
         <MenuRow
           icon="shield-checkmark-outline"
           label={t.menuPrivacy}
@@ -135,7 +165,12 @@ function Profile({ profile }: { profile: ProfileVm }) {
           label={t.menuTerms}
           onPress={() => Linking.openURL(`${WEB_URL}/terms`)}
         />
-        <MenuRow icon="log-out-outline" label={t.signOut} destructive onPress={() => signOut()} />
+        <MenuRow
+          icon="log-out-outline"
+          label={t.signOut}
+          destructive
+          onPress={() => signOut()}
+        />
       </View>
     </View>
   );
@@ -175,7 +210,11 @@ export default function AccountScreen() {
         </View>
       ) : profileQ.isError || !profileQ.data ? (
         <View
-          style={{ alignItems: 'center', gap: theme.spacing(3), paddingVertical: theme.spacing(6) }}
+          style={{
+            alignItems: 'center',
+            gap: theme.spacing(3),
+            paddingVertical: theme.spacing(6),
+          }}
         >
           <AppText variant="body" style={{ textAlign: 'center' }}>
             {t.loadError}

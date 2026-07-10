@@ -1,11 +1,21 @@
-import { CreditCardIcon, LockIcon, ShieldCheckIcon, WalletIcon } from 'lucide-react';
+import {
+  CreditCardIcon,
+  LockIcon,
+  ShieldCheckIcon,
+  WalletIcon,
+} from 'lucide-react';
 
 import { Card, CardContent } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 // Icons align by index to messages.paymentTrust.items. These reflect real, truthful claims:
 // the platform processes payments through Stripe + PayPal over encrypted checkout.
-const trustIcons = [ShieldCheckIcon, LockIcon, CreditCardIcon, WalletIcon] as const;
+const trustIcons = [
+  ShieldCheckIcon,
+  LockIcon,
+  CreditCardIcon,
+  WalletIcon,
+] as const;
 
 // Repurposed from a "logo cloud" — instead of fabricating partner/press logos, this surfaces
 // genuine payment & security assurances (Stripe/PayPal integrations).
@@ -19,7 +29,9 @@ export function PaymentTrust() {
           <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
             {t.heading}
           </h2>
-          <p className="text-muted-foreground text-lg text-pretty">{t.subtitle}</p>
+          <p className="text-muted-foreground text-lg text-pretty">
+            {t.subtitle}
+          </p>
         </div>
 
         <Card className="shadow-card">
@@ -27,7 +39,10 @@ export function PaymentTrust() {
             {t.items.map((item, i) => {
               const Icon = trustIcons[i];
               return (
-                <span key={item.label} className="inline-flex items-center gap-2 font-medium">
+                <span
+                  key={item.label}
+                  className="inline-flex items-center gap-2 font-medium"
+                >
                   <Icon className="text-primary size-5" />
                   {item.label}
                 </span>

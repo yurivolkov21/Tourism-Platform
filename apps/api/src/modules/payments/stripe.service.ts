@@ -123,7 +123,11 @@ export class StripeService implements OnModuleInit {
       signature,
       webhookSecret,
     );
-    return { id: event.id, type: event.type, data: { object: event.data.object } };
+    return {
+      id: event.id,
+      type: event.type,
+      data: { object: event.data.object },
+    };
   }
 
   /**
@@ -145,7 +149,9 @@ export class StripeService implements OnModuleInit {
     const refund = await this.stripe.refunds.create(
       {
         payment_intent: args.paymentIntentId,
-        ...(args.amountMinorUnits !== undefined ? { amount: args.amountMinorUnits } : {}),
+        ...(args.amountMinorUnits !== undefined
+          ? { amount: args.amountMinorUnits }
+          : {}),
         ...reasonField,
       },
       args.idempotencyKey ? { idempotencyKey: args.idempotencyKey } : undefined,
@@ -158,7 +164,10 @@ export class StripeService implements OnModuleInit {
 }
 
 /** Stripe's accepted `reason` values for a refund (closed enum). */
-type DocumentedRefundReason = 'duplicate' | 'fraudulent' | 'requested_by_customer';
+type DocumentedRefundReason =
+  | 'duplicate'
+  | 'fraudulent'
+  | 'requested_by_customer';
 
 function isDocumentedRefundReason(
   reason: string,

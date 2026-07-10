@@ -18,7 +18,12 @@ export interface NumberTickerProps extends React.HTMLAttributes<HTMLSpanElement>
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
-function format(value: number, decimals: number, prefix: string, suffix: string): string {
+function format(
+  value: number,
+  decimals: number,
+  prefix: string,
+  suffix: string,
+): string {
   const body = value.toLocaleString('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
@@ -37,7 +42,9 @@ export function NumberTicker({
 }: NumberTickerProps) {
   const ref = useRef<HTMLSpanElement>(null);
   // Initial paint shows the final value — keeps it correct without JS and for crawlers.
-  const [display, setDisplay] = useState<string>(() => format(value, decimals, prefix, suffix));
+  const [display, setDisplay] = useState<string>(() =>
+    format(value, decimals, prefix, suffix),
+  );
 
   useEffect(() => {
     const el = ref.current;

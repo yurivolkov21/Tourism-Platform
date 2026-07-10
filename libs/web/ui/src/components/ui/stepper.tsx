@@ -1,7 +1,15 @@
 'use client';
 
 import type { HTMLAttributes } from 'react';
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { cn } from '../../lib/utils';
 
@@ -53,9 +61,13 @@ interface StepItemContextValue {
   isLoading: boolean;
 }
 
-const StepperContext = createContext<StepperContextValue | undefined>(undefined);
+const StepperContext = createContext<StepperContextValue | undefined>(
+  undefined,
+);
 
-const StepItemContext = createContext<StepItemContextValue | undefined>(undefined);
+const StepItemContext = createContext<StepItemContextValue | undefined>(
+  undefined,
+);
 
 function useStepper() {
   const ctx = useContext(StepperContext);
@@ -95,7 +107,9 @@ function Stepper({
   onValueChange,
   ...props
 }: StepperProps) {
-  const [currentId, setCurrentId] = useState<string>(defaultValue ?? steps[0]?.id ?? '');
+  const [currentId, setCurrentId] = useState<string>(
+    defaultValue ?? steps[0]?.id ?? '',
+  );
 
   const stepper = useMemo<StepperApi>(
     () => ({
@@ -103,7 +117,7 @@ function Stepper({
       navigation: { goTo: (id: string) => setCurrentId(id) },
       lookup: { getIndex: (id: string) => steps.findIndex((s) => s.id === id) },
     }),
-    [currentId, steps]
+    [currentId, steps],
   );
 
   const [triggerNodes, setTriggerNodes] = useState<HTMLButtonElement[]>([]);
@@ -111,7 +125,9 @@ function Stepper({
   // Track viewport breakpoint (tailwind md = 768px). If `responsive` is true and the configured
   // orientation is horizontal, switch to vertical below md.
   const [isMdUp, setIsMdUp] = useState<boolean>(() =>
-    typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : true
+    typeof window !== 'undefined'
+      ? window.matchMedia('(min-width: 768px)').matches
+      : true,
   );
 
   useEffect(() => {
@@ -125,30 +141,43 @@ function Stepper({
   }, [responsive]);
 
   // Register/unregister triggers
-  const registerTrigger = useCallback((node: HTMLButtonElement | null, remove = false) => {
-    setTriggerNodes((prev) => {
-      if (!node) return prev;
+  const registerTrigger = useCallback(
+    (node: HTMLButtonElement | null, remove = false) => {
+      setTriggerNodes((prev) => {
+        if (!node) return prev;
 
-      if (remove) return prev.filter((n) => n !== node);
+        if (remove) return prev.filter((n) => n !== node);
 
-      return prev.includes(node) ? prev : [...prev, node];
-    });
-  }, []);
+        return prev.includes(node) ? prev : [...prev, node];
+      });
+    },
+    [],
+  );
 
   // Keyboard navigation logic
   const focusNext = useCallback(
-    (currentIdx: number) => triggerNodes[(currentIdx + 1) % triggerNodes.length]?.focus(),
-    [triggerNodes]
+    (currentIdx: number) =>
+      triggerNodes[(currentIdx + 1) % triggerNodes.length]?.focus(),
+    [triggerNodes],
   );
 
   const focusPrev = useCallback(
-    (currentIdx: number) => triggerNodes[(currentIdx - 1 + triggerNodes.length) % triggerNodes.length]?.focus(),
-    [triggerNodes]
+    (currentIdx: number) =>
+      triggerNodes[
+        (currentIdx - 1 + triggerNodes.length) % triggerNodes.length
+      ]?.focus(),
+    [triggerNodes],
   );
 
-  const focusFirst = useCallback(() => triggerNodes[0]?.focus(), [triggerNodes]);
+  const focusFirst = useCallback(
+    () => triggerNodes[0]?.focus(),
+    [triggerNodes],
+  );
 
-  const focusLast = useCallback(() => triggerNodes[triggerNodes.length - 1]?.focus(), [triggerNodes]);
+  const focusLast = useCallback(
+    () => triggerNodes[triggerNodes.length - 1]?.focus(),
+    [triggerNodes],
+  );
 
   // Determine effective orientation when responsive behavior is enabled.
   const effectiveOrientation: StepperOrientation = useMemo(() => {
@@ -188,7 +217,7 @@ function Stepper({
       focusLast,
       triggerNodes,
       indicators,
-    ]
+    ],
   );
 
   // Controlled behavior: if `value` is provided, navigate to it when it changes.
@@ -243,19 +272,25 @@ function StepperItem({
   const currentIndex = stepper.lookup.getIndex(stepper.state.current.data.id);
 
   const state: StepState =
-    completed || stepIndex < currentIndex ? 'completed' : currentIndex === stepIndex ? 'active' : 'inactive';
+    completed || stepIndex < currentIndex
+      ? 'completed'
+      : currentIndex === stepIndex
+        ? 'active'
+        : 'inactive';
 
   const isLoading = loading && currentIndex === stepIndex;
 
   if (!step) return null;
 
   return (
-    <StepItemContext.Provider value={{ step, index: stepIndex, state, isDisabled: disabled, isLoading }}>
+    <StepItemContext.Provider
+      value={{ step, index: stepIndex, state, isDisabled: disabled, isLoading }}
+    >
       <div
         data-slot="stepper-item"
         className={cn(
           'group/step flex items-center justify-center not-last:flex-1 group-data-[orientation=horizontal]/stepper-nav:flex-row group-data-[orientation=vertical]/stepper-nav:flex-col',
-          className
+          className,
         )}
         data-state={state}
         {...(isLoading ? { 'data-loading': true } : {})}
@@ -271,9 +306,23 @@ interface StepperTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonEleme
   asChild?: boolean;
 }
 
-function StepperTrigger({ asChild = false, className, children, tabIndex, ...props }: StepperTriggerProps) {
+function StepperTrigger({
+  asChild = false,
+  className,
+  children,
+  tabIndex,
+  ...props
+}: StepperTriggerProps) {
   const { state, isLoading } = useStepItem();
-  const { stepper, registerTrigger, triggerNodes, focusNext, focusPrev, focusFirst, focusLast } = useStepper();
+  const {
+    stepper,
+    registerTrigger,
+    triggerNodes,
+    focusNext,
+    focusPrev,
+    focusFirst,
+    focusLast,
+  } = useStepper();
 
   const { step, isDisabled } = useStepItem();
   const isSelected = stepper.state.current.data.id === step.id;
@@ -293,11 +342,14 @@ function StepperTrigger({ asChild = false, className, children, tabIndex, ...pro
         btnRef.current = null;
       }
     },
-    [registerTrigger]
+    [registerTrigger],
   );
 
   // Find our index among triggers for navigation
-  const myIdx = useMemo(() => triggerNodes.findIndex((n) => n === btnRef.current), [triggerNodes]);
+  const myIdx = useMemo(
+    () => triggerNodes.findIndex((n) => n === btnRef.current),
+    [triggerNodes],
+  );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     switch (e.key) {
@@ -329,7 +381,11 @@ function StepperTrigger({ asChild = false, className, children, tabIndex, ...pro
 
   if (asChild) {
     return (
-      <span data-slot="stepper-trigger" data-state={state} className={className}>
+      <span
+        data-slot="stepper-trigger"
+        data-state={state}
+        className={className}
+      >
         {children}
       </span>
     );
@@ -349,7 +405,7 @@ function StepperTrigger({ asChild = false, className, children, tabIndex, ...pro
       className={cn(
         'inline-flex cursor-pointer items-center outline-none disabled:pointer-events-none disabled:opacity-60',
         'gap-2.5 rounded-full',
-        className
+        className,
       )}
       onClick={() => stepper.navigation.goTo(step.id)}
       onKeyDown={handleKeyDown}
@@ -365,7 +421,11 @@ interface StepperIndicatorProps extends React.ComponentProps<'div'> {
   variant?: 'default' | 'outline';
 }
 
-function StepperIndicator({ children, className, variant = 'default' }: StepperIndicatorProps) {
+function StepperIndicator({
+  children,
+  className,
+  variant = 'default',
+}: StepperIndicatorProps) {
   const { state, isLoading, step } = useStepItem();
   const { indicators } = useStepper();
 
@@ -374,21 +434,29 @@ function StepperIndicator({ children, className, variant = 'default' }: StepperI
 
   const defaultClasses = cn(
     'border-background bg-muted data-[state=completed]:bg-primary data-[state=completed]:text-primary-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ring-offset-background group-data-[state=active]/step:ring-primary/30 group-data-[state=active]/step:ring-2 group-data-[state=active]/step:ring-offset-3',
-    base
+    base,
   );
 
   const outlineClasses = cn(
     'bg-transparent border border-primary/20 text-muted-foreground data-[state=completed]:border-foreground data-[state=completed]:text-foreground data-[state=active]:border-primary data-[state=active]:text-foreground',
-    base
+    base,
   );
 
   const classes = variant === 'outline' ? outlineClasses : defaultClasses;
 
   return (
-    <div data-slot="stepper-indicator" data-state={state} className={cn(classes, className)}>
+    <div
+      data-slot="stepper-indicator"
+      data-state={state}
+      className={cn(classes, className)}
+    >
       <div className="absolute">
         {(isLoading ? indicators?.loading : indicators?.[state]) ??
-          (step?.icon ? <span className="*:[svg]:size-4">{step.icon}</span> : children)}
+          (step?.icon ? (
+            <span className="*:[svg]:size-4">{step.icon}</span>
+          ) : (
+            children
+          ))}
       </div>
     </div>
   );
@@ -403,7 +471,7 @@ function StepperSeparator({ className }: React.ComponentProps<'div'>) {
       data-state={state}
       className={cn(
         'bg-muted group-data-[state=completed]/step:bg-primary m-2 rounded-sm transition-colors duration-500 group-data-[orientation=horizontal]/stepper-nav:h-0.5 group-data-[orientation=horizontal]/stepper-nav:flex-1 group-data-[orientation=vertical]/stepper-nav:h-12 group-data-[orientation=vertical]/stepper-nav:w-0.5',
-        className
+        className,
       )}
     />
   );
@@ -413,13 +481,20 @@ function StepperTitle({ children, className }: React.ComponentProps<'h3'>) {
   const { state } = useStepItem();
 
   return (
-    <h3 data-slot="stepper-title" data-state={state} className={cn('text-sm font-medium', className)}>
+    <h3
+      data-slot="stepper-title"
+      data-state={state}
+      className={cn('text-sm font-medium', className)}
+    >
       {children}
     </h3>
   );
 }
 
-function StepperDescription({ children, className }: React.ComponentProps<'div'>) {
+function StepperDescription({
+  children,
+  className,
+}: React.ComponentProps<'div'>) {
   const { state } = useStepItem();
 
   return (
@@ -436,7 +511,10 @@ function StepperDescription({ children, className }: React.ComponentProps<'div'>
 function StepperNav({ children, className }: React.ComponentProps<'nav'>) {
   const { stepper, orientation, configOrientation, responsive } = useStepper();
 
-  const responsiveNavClasses = responsive && configOrientation === 'horizontal' ? 'flex-col md:flex-row md:w-full' : '';
+  const responsiveNavClasses =
+    responsive && configOrientation === 'horizontal'
+      ? 'flex-col md:flex-row md:w-full'
+      : '';
 
   return (
     <nav
@@ -446,7 +524,7 @@ function StepperNav({ children, className }: React.ComponentProps<'nav'>) {
       className={cn(
         'group/stepper-nav inline-flex data-[orientation=horizontal]:w-full data-[orientation=horizontal]:flex-row data-[orientation=vertical]:flex-col',
         responsiveNavClasses,
-        className
+        className,
       )}
     >
       {children}
@@ -458,7 +536,11 @@ function StepperPanel({ children, className }: React.ComponentProps<'div'>) {
   const { stepper } = useStepper();
 
   return (
-    <div data-slot="stepper-panel" data-state={stepper.state.current.data.id} className={cn('w-full', className)}>
+    <div
+      data-slot="stepper-panel"
+      data-state={stepper.state.current.data.id}
+      className={cn('w-full', className)}
+    >
       {children}
     </div>
   );
@@ -469,7 +551,12 @@ interface StepperContentProps extends React.ComponentProps<'div'> {
   forceMount?: boolean;
 }
 
-function StepperContent({ value, forceMount, children, className }: StepperContentProps) {
+function StepperContent({
+  value,
+  forceMount,
+  children,
+  className,
+}: StepperContentProps) {
   const { stepper } = useStepper();
   const isActive = value === stepper.state.current.data.id;
 

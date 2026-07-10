@@ -12,7 +12,11 @@ export interface ProfileVm {
 export function toProfileVm(dto: UserDto): ProfileVm {
   const fullName = dto.fullName ?? '';
   const source = fullName || dto.email;
-  return { fullName, email: dto.email, initial: (source[0] ?? '?').toUpperCase() };
+  return {
+    fullName,
+    email: dto.email,
+    initial: (source[0] ?? '?').toUpperCase(),
+  };
 }
 
 export async function fetchProfile(): Promise<ProfileVm> {

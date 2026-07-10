@@ -11,10 +11,22 @@ import {
   useSensors,
   type DragEndEvent,
 } from '@dnd-kit/core';
-import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { Button, FieldDescription, FieldLegend, FieldSet, Spinner, cn } from '@tourism/ui';
+import {
+  Button,
+  FieldDescription,
+  FieldLegend,
+  FieldSet,
+  Spinner,
+  cn,
+} from '@tourism/ui';
 
 import { ErrorAlert } from './error-alert';
 import { ImageLightbox, type LightboxImage } from './image-lightbox';
@@ -51,8 +63,11 @@ export async function uploadFile(
   }
   if (!res.ok) {
     const detail = await res.json().catch(() => null);
-    const msg = (detail as { error?: { message?: string } } | null)?.error?.message;
-    return { error: `Cloudinary rejected the upload${msg ? `: ${msg}` : ` (HTTP ${res.status})`}.` };
+    const msg = (detail as { error?: { message?: string } } | null)?.error
+      ?.message;
+    return {
+      error: `Cloudinary rejected the upload${msg ? `: ${msg}` : ` (HTTP ${res.status})`}.`,
+    };
   }
   const up = (await res.json()) as {
     public_id: string;
@@ -81,7 +96,14 @@ function GalleryTile({
   onRemove: () => void;
   onView: () => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: item.publicId,
   });
   return (
@@ -93,7 +115,12 @@ function GalleryTile({
         isDragging && 'z-10 opacity-70',
       )}
     >
-      <button type="button" onClick={onView} className="block size-full cursor-zoom-in" aria-label="View image">
+      <button
+        type="button"
+        onClick={onView}
+        className="block size-full cursor-zoom-in"
+        aria-label="View image"
+      >
         <img src={item.url} alt="" className="size-full object-cover" />
       </button>
       <button
@@ -147,7 +174,10 @@ export function MediaField({
   const [viewIndex, setViewIndex] = useState<number | null>(null);
   const heroInput = useRef<HTMLInputElement>(null);
   const galleryInput = useRef<HTMLInputElement>(null);
-  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor),
+  );
 
   useEffect(() => {
     onChange(items);
@@ -159,7 +189,10 @@ export function MediaField({
 
   // Lightbox list in display order (hero first), so a tile maps to its viewer index.
   const viewList = hero ? [hero, ...gallery] : gallery;
-  const viewImages: LightboxImage[] = viewList.map((m) => ({ src: m.url ?? '', alt: '' }));
+  const viewImages: LightboxImage[] = viewList.map((m) => ({
+    src: m.url ?? '',
+    alt: '',
+  }));
   const galleryOffset = hero ? 1 : 0;
 
   async function onHeroPick(e: ChangeEvent<HTMLInputElement>) {
@@ -182,7 +215,9 @@ export function MediaField({
     const toUpload = files.slice(0, MAX_GALLERY - gallery.length);
     setBusy(true);
     setError(null);
-    const results = await Promise.all(toUpload.map((f) => uploadFile(f, 'gallery', galleryPurpose)));
+    const results = await Promise.all(
+      toUpload.map((f) => uploadFile(f, 'gallery', galleryPurpose)),
+    );
     const ok = results.flatMap((r) => ('item' in r ? [r.item] : []));
     const firstErr = results.find((r): r is { error: string } => 'error' in r);
     if (firstErr) setError(firstErr.error);
@@ -209,7 +244,8 @@ export function MediaField({
         <div>
           <FieldLegend className="mb-1.5 font-semibold">{legend}</FieldLegend>
           <FieldDescription>
-            {description ?? `A hero photo and up to ${MAX_GALLERY} gallery images. Drag gallery tiles to reorder.`}
+            {description ??
+              `A hero photo and up to ${MAX_GALLERY} gallery images. Drag gallery tiles to reorder.`}
           </FieldDescription>
         </div>
 
@@ -225,13 +261,19 @@ export function MediaField({
                   className="block size-full cursor-zoom-in"
                   aria-label="View hero image"
                 >
-                  <img src={hero.url} alt="" className="size-full object-cover" />
+                  <img
+                    src={hero.url}
+                    alt=""
+                    className="size-full object-cover"
+                  />
                 </button>
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
-                  onClick={() => setItems((prev) => prev.filter((x) => x.role !== 'hero'))}
+                  onClick={() =>
+                    setItems((prev) => prev.filter((x) => x.role !== 'hero'))
+                  }
                   className="absolute top-2 right-2 cursor-pointer"
                 >
                   Remove
@@ -251,7 +293,13 @@ export function MediaField({
                 </Button>
               </div>
             )}
-            <input ref={heroInput} type="file" accept={ACCEPT} className="sr-only" onChange={onHeroPick} />
+            <input
+              ref={heroInput}
+              type="file"
+              accept={ACCEPT}
+              className="sr-only"
+              onChange={onHeroPick}
+            />
           </div>
 
           {galleryPurpose ? (
@@ -260,7 +308,10 @@ export function MediaField({
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm font-medium">
-                    Gallery <span className="text-muted-foreground">({gallery.length}/{MAX_GALLERY})</span>
+                    Gallery{' '}
+                    <span className="text-muted-foreground">
+                      ({gallery.length}/{MAX_GALLERY})
+                    </span>
                   </span>
                   <Button
                     type="button"
@@ -284,14 +335,25 @@ export function MediaField({
                 </div>
 
                 {gallery.length ? (
-                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-                    <SortableContext items={gallery.map((g) => g.publicId)} strategy={rectSortingStrategy}>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={onDragEnd}
+                  >
+                    <SortableContext
+                      items={gallery.map((g) => g.publicId)}
+                      strategy={rectSortingStrategy}
+                    >
                       <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
                         {gallery.map((g, i) => (
                           <GalleryTile
                             key={g.publicId}
                             item={g}
-                            onRemove={() => setItems((prev) => prev.filter((x) => x.publicId !== g.publicId))}
+                            onRemove={() =>
+                              setItems((prev) =>
+                                prev.filter((x) => x.publicId !== g.publicId),
+                              )
+                            }
                             onView={() => setViewIndex(galleryOffset + i)}
                           />
                         ))}
@@ -304,7 +366,9 @@ export function MediaField({
                   </p>
                 )}
                 {galleryFull ? (
-                  <p className="text-muted-foreground text-xs">Maximum {MAX_GALLERY} gallery images reached.</p>
+                  <p className="text-muted-foreground text-xs">
+                    Maximum {MAX_GALLERY} gallery images reached.
+                  </p>
                 ) : null}
               </div>
             </>

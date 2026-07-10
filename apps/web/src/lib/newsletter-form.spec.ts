@@ -13,6 +13,8 @@ describe('isValidNewsletterEmail', () => {
     expect(isValidNewsletterEmail('')).toBe(false);
     expect(isValidNewsletterEmail('jane.example.com')).toBe(false);
     expect(isValidNewsletterEmail('jane@example')).toBe(false);
-    expect(isValidNewsletterEmail(`${'a'.repeat(200)}@example.com`)).toBe(false);
+    expect(isValidNewsletterEmail(`${'a'.repeat(200)}@example.com`)).toBe(
+      false,
+    );
   });
 });

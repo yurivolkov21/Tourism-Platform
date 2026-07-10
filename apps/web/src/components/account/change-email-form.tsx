@@ -21,10 +21,14 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
     if (pending) return;
     setPending(true);
 
-    const email = String(new FormData(event.currentTarget).get('email') ?? '').trim();
+    const email = String(
+      new FormData(event.currentTarget).get('email') ?? '',
+    ).trim();
     const { error: updateError } = await createClient().auth.updateUser(
       { email },
-      { emailRedirectTo: `${window.location.origin}/auth/callback?redirect=/account` },
+      {
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirect=/account`,
+      },
     );
     if (updateError) {
       toast.error(authErrorMessage(updateError));
@@ -41,11 +45,23 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
       <h3 className="text-sm font-medium">{t.heading}</h3>
       <div className="space-y-1.5">
         <Label htmlFor="current-email">{t.currentLabel}</Label>
-        <Input id="current-email" type="email" value={currentEmail} disabled readOnly />
+        <Input
+          id="current-email"
+          type="email"
+          value={currentEmail}
+          disabled
+          readOnly
+        />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="new-email">{t.newLabel}</Label>
-        <Input id="new-email" name="email" type="email" autoComplete="email" required />
+        <Input
+          id="new-email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+        />
       </div>
       <Button type="submit" disabled={pending}>
         {pending ? t.submitting : t.submit}

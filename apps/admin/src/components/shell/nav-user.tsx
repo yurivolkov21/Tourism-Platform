@@ -45,31 +45,51 @@ export function NavUser({ email }: { email: string }) {
             }
           >
             <Avatar className="size-8 rounded-lg">
-              <AvatarFallback className="rounded-lg text-xs">{initials}</AvatarFallback>
+              <AvatarFallback className="rounded-lg text-xs">
+                {initials}
+              </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 leading-tight">
-              <span className="truncate text-sm font-medium">Administrator</span>
-              <span className="text-muted-foreground truncate text-xs">{email}</span>
+              <span className="truncate text-sm font-medium">
+                Administrator
+              </span>
+              <span className="text-muted-foreground truncate text-xs">
+                {email}
+              </span>
             </div>
             <ChevronsUpDown className="text-muted-foreground ml-auto size-4 shrink-0" />
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent align="end" side="right" sideOffset={8} className="w-56 rounded-lg">
+          <DropdownMenuContent
+            align="end"
+            side="right"
+            sideOffset={8}
+            className="w-56 rounded-lg"
+          >
             {/* Header is a plain div — DropdownMenuLabel requires a Group ancestor. */}
             <div className="flex items-center gap-2 px-1 py-1.5 text-left">
               <Avatar className="size-8 rounded-lg">
-                <AvatarFallback className="rounded-lg text-xs">{initials}</AvatarFallback>
+                <AvatarFallback className="rounded-lg text-xs">
+                  {initials}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 leading-tight">
-                <span className="truncate text-sm font-medium">Administrator</span>
-                <span className="text-muted-foreground truncate text-xs">{email}</span>
+                <span className="truncate text-sm font-medium">
+                  Administrator
+                </span>
+                <span className="text-muted-foreground truncate text-xs">
+                  {email}
+                </span>
               </div>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               {/* Account → the caller's own user detail page (`/users/me`). Notifications dropped —
                   dashboard-01 parity isn't worth a permanently-disabled dead item. */}
-              <DropdownMenuItem render={<Link href="/users/me" />} nativeButton={false}>
+              <DropdownMenuItem
+                render={<Link href="/users/me" />}
+                nativeButton={false}
+              >
                 <CircleUser className="size-4" />
                 Account
               </DropdownMenuItem>

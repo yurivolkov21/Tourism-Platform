@@ -1,4 +1,11 @@
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@tourism/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@tourism/ui';
 
 export const metadata = { title: '@tourism/ui smoke check' };
 

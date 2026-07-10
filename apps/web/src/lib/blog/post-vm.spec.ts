@@ -29,7 +29,14 @@ const tourSummary = (slug: string): TourSummaryDto =>
     suitableFor: [],
     category: { slug: 'cruises', name: 'Cruises' },
     destinations: [],
-    media: [{ publicId: 'p', url: 'https://cdn/hero.jpg', type: 'IMAGE', role: 'hero' }],
+    media: [
+      {
+        publicId: 'p',
+        url: 'https://cdn/hero.jpg',
+        type: 'IMAGE',
+        role: 'hero',
+      },
+    ],
     averageRating: 4.5,
     reviewsCount: 10,
     nextDepartureDate: null,
@@ -54,12 +61,17 @@ const base: PostDto = {
 
 describe('toPostSummary', () => {
   it('picks the hero-role cover over other roles', () => {
-    const vm = toPostSummary({ ...base, media: [media('gallery', 'g.jpg'), media('hero', 'h.jpg')] });
+    const vm = toPostSummary({
+      ...base,
+      media: [media('gallery', 'g.jpg'), media('hero', 'h.jpg')],
+    });
     expect(vm.coverUrl).toBe('h.jpg');
   });
 
   it('falls back to the first attachment, then null', () => {
-    expect(toPostSummary({ ...base, media: [media('gallery', 'g.jpg')] }).coverUrl).toBe('g.jpg');
+    expect(
+      toPostSummary({ ...base, media: [media('gallery', 'g.jpg')] }).coverUrl,
+    ).toBe('g.jpg');
     expect(toPostSummary(base).coverUrl).toBeNull();
   });
 
@@ -68,13 +80,19 @@ describe('toPostSummary', () => {
   });
 
   it('derives a plain-text excerpt when the stored one is missing or blank', () => {
-    expect(toPostSummary({ ...base, excerpt: null }).excerpt).toBe('Day 1 Riverside mornings.');
-    expect(toPostSummary({ ...base, excerpt: '   ' }).excerpt).toBe('Day 1 Riverside mornings.');
+    expect(toPostSummary({ ...base, excerpt: null }).excerpt).toBe(
+      'Day 1 Riverside mornings.',
+    );
+    expect(toPostSummary({ ...base, excerpt: '   ' }).excerpt).toBe(
+      'Day 1 Riverside mornings.',
+    );
   });
 
   it('passes publishedAt through (null stays null)', () => {
     expect(toPostSummary(base).publishedAt).toBe('2026-06-01T00:00:00.000Z');
-    expect(toPostSummary({ ...base, publishedAt: null }).publishedAt).toBeNull();
+    expect(
+      toPostSummary({ ...base, publishedAt: null }).publishedAt,
+    ).toBeNull();
   });
 });
 
@@ -90,13 +108,17 @@ describe('toPostDetail', () => {
     expect(toPostDetail(base).updatedAt).toBe('2026-05-02T00:00:00.000Z');
     const legacy = { ...base } as Record<string, unknown>;
     delete legacy.updatedAt;
-    expect(toPostDetail(legacy as unknown as PostDetailDto).updatedAt).toBeNull();
+    expect(
+      toPostDetail(legacy as unknown as PostDetailDto).updatedAt,
+    ).toBeNull();
   });
 });
 
 describe('fallbackExcerpt', () => {
   it('strips markdown syntax, links, and collapses whitespace', () => {
-    expect(fallbackExcerpt('## Title\n\n**bold** [link](https://x.com)')).toBe('Title bold link');
+    expect(fallbackExcerpt('## Title\n\n**bold** [link](https://x.com)')).toBe(
+      'Title bold link',
+    );
   });
 
   it('clamps long content on a word boundary with an ellipsis', () => {
@@ -120,7 +142,10 @@ describe('tags + author on summaries', () => {
       author: { fullName: 'Ana', avatarUrl: 'https://cdn/a.jpg' },
     });
     expect(vm.tags).toEqual([{ slug: 'ha-long', name: 'Hạ Long' }]);
-    expect(vm.author).toEqual({ fullName: 'Ana', avatarUrl: 'https://cdn/a.jpg' });
+    expect(vm.author).toEqual({
+      fullName: 'Ana',
+      avatarUrl: 'https://cdn/a.jpg',
+    });
   });
 
   it('defaults tags/author when an older API omits them (deploy-lag)', () => {

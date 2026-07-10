@@ -25,8 +25,12 @@ export function Destinations({ tiles }: DestinationsProps) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Centred header + intro (Lily-style) */}
         <div className="mx-auto mb-10 max-w-2xl space-y-3 text-center sm:mb-14">
-          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">{t.heading}</h2>
-          <p className="text-muted-foreground text-lg text-pretty">{t.subtitle}</p>
+          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
+            {t.heading}
+          </h2>
+          <p className="text-muted-foreground text-lg text-pretty">
+            {t.subtitle}
+          </p>
         </div>
 
         {/* Bento grid */}
@@ -38,7 +42,10 @@ export function Destinations({ tiles }: DestinationsProps) {
 
         {/* View all */}
         <div className="mt-10 flex justify-center">
-          <Link href="/destinations" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }))}>
+          <Link
+            href="/destinations"
+            className={cn(buttonVariants({ variant: 'outline', size: 'lg' }))}
+          >
             {t.viewAll}
             <ArrowRightIcon />
           </Link>

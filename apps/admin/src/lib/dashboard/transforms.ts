@@ -49,7 +49,12 @@ export function formatDay(iso: string): string {
     : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-export const PIPELINE_ORDER = ['PENDING', 'PAID', 'CANCELLED', 'REFUNDED'] as const;
+export const PIPELINE_ORDER = [
+  'PENDING',
+  'PAID',
+  'CANCELLED',
+  'REFUNDED',
+] as const;
 export type PipelineStatus = (typeof PIPELINE_ORDER)[number];
 
 export interface PipelineRow {
@@ -68,7 +73,9 @@ const PIPELINE_LABEL: Record<PipelineStatus, string> = {
 };
 
 /** Fixed-order status breakdown with each status's share of the total (zero-safe). */
-export function bookingsPipeline(byStatus: Record<PipelineStatus, number>): PipelineRow[] {
+export function bookingsPipeline(
+  byStatus: Record<PipelineStatus, number>,
+): PipelineRow[] {
   const total = PIPELINE_ORDER.reduce((sum, s) => sum + (byStatus[s] ?? 0), 0);
   return PIPELINE_ORDER.map((status) => {
     const count = byStatus[status] ?? 0;
@@ -84,23 +91,38 @@ export function bookingsPipeline(byStatus: Record<PipelineStatus, number>): Pipe
 /** The four KPI cards. Deltas are real month-over-month (last vs prior month) when both exist. */
 export function computeCardModels(
   overview: Overview,
-  monthly: { month: string; bookings: number; paidBookings: number; revenue: string }[],
+  monthly: {
+    month: string;
+    bookings: number;
+    paidBookings: number;
+    revenue: string;
+  }[],
 ): CardModel[] {
   const last = monthly.length >= 2 ? monthly[monthly.length - 1] : null;
   const prev = monthly.length >= 2 ? monthly[monthly.length - 2] : null;
 
-  const revenueDelta = last && prev ? rel(Number(last.revenue), Number(prev.revenue)) : null;
+  const revenueDelta =
+    last && prev ? rel(Number(last.revenue), Number(prev.revenue)) : null;
   const bookingsDelta = last && prev ? rel(last.bookings, prev.bookings) : null;
   const conversionDelta =
     last && prev && last.bookings > 0 && prev.bookings > 0
-      ? rel(last.paidBookings / last.bookings, prev.paidBookings / prev.bookings)
+      ? rel(
+          last.paidBookings / last.bookings,
+          prev.paidBookings / prev.bookings,
+        )
       : null;
   const aovDelta =
     last && prev && last.paidBookings > 0 && prev.paidBookings > 0
-      ? rel(Number(last.revenue) / last.paidBookings, Number(prev.revenue) / prev.paidBookings)
+      ? rel(
+          Number(last.revenue) / last.paidBookings,
+          Number(prev.revenue) / prev.paidBookings,
+        )
       : null;
 
-  const aov = overview.paidBookings > 0 ? Number(overview.totalRevenue) / overview.paidBookings : 0;
+  const aov =
+    overview.paidBookings > 0
+      ? Number(overview.totalRevenue) / overview.paidBookings
+      : 0;
 
   return [
     {

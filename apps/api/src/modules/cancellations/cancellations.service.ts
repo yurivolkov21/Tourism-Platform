@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CancellationRequestStatus, Prisma, UserRole } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCancellationRequestDto } from './dto/create-cancellation-request.dto';
@@ -43,7 +48,10 @@ export class CancellationsService {
     });
     // Owner-or-404 (never leak existence to a non-owner). Admins don't use this route.
     if (!booking || booking.userId !== caller.id) {
-      throw new NotFoundException({ code: 'BOOKING_NOT_FOUND', message: `Booking "${code}" not found` });
+      throw new NotFoundException({
+        code: 'BOOKING_NOT_FOUND',
+        message: `Booking "${code}" not found`,
+      });
     }
     if (booking.status !== 'PAID') {
       throw new ConflictException({
@@ -57,7 +65,10 @@ export class CancellationsService {
         message: 'This departure has already started; contact support directly',
       });
     }
-    if (booking.cancellationRequest?.status === CancellationRequestStatus.REQUESTED) {
+    if (
+      booking.cancellationRequest?.status ===
+      CancellationRequestStatus.REQUESTED
+    ) {
       throw new ConflictException({
         code: 'CANCELLATION_ALREADY_REQUESTED',
         message: 'A cancellation request is already open for this booking',
@@ -68,20 +79,41 @@ export class CancellationsService {
     const [request] = await this.prisma.$transaction([
       this.prisma.cancellationRequest.upsert({
         where: { bookingId: booking.id },
-        create: { bookingId: booking.id, userId: caller.id, reason, status: CancellationRequestStatus.REQUESTED },
-        update: { reason, status: CancellationRequestStatus.REQUESTED, decisionNote: null, decidedById: null, decidedAt: null },
-        select: { status: true, reason: true, createdAt: true, decisionNote: true, decidedAt: true },
+        create: {
+          bookingId: booking.id,
+          userId: caller.id,
+          reason,
+          status: CancellationRequestStatus.REQUESTED,
+        },
+        update: {
+          reason,
+          status: CancellationRequestStatus.REQUESTED,
+          decisionNote: null,
+          decidedById: null,
+          decidedAt: null,
+        },
+        select: {
+          status: true,
+          reason: true,
+          createdAt: true,
+          decisionNote: true,
+          decidedAt: true,
+        },
       }),
       this.prisma.outbox.createMany({
-        data: [{
-          type: 'CANCELLATION_REQUESTED',
-          payload: { bookingId: booking.id } as Prisma.InputJsonValue,
-          dedupeKey: `cancellation-requested:${booking.id}`,
-        }],
+        data: [
+          {
+            type: 'CANCELLATION_REQUESTED',
+            payload: { bookingId: booking.id } as Prisma.InputJsonValue,
+            dedupeKey: `cancellation-requested:${booking.id}`,
+          },
+        ],
         skipDuplicates: true,
       }),
     ]);
-    this.logger.log(`Cancellation requested for booking ${code} (by ${caller.id})`);
+    this.logger.log(
+      `Cancellation requested for booking ${code} (by ${caller.id})`,
+    );
     return {
       status: request.status,
       reason: request.reason,
@@ -111,10 +143,17 @@ export class CancellationsService {
         skip: (page - 1) * pageSize,
         take: pageSize,
         select: {
-          id: true, status: true, reason: true, createdAt: true, decidedAt: true, decisionNote: true,
+          id: true,
+          status: true,
+          reason: true,
+          createdAt: true,
+          decidedAt: true,
+          decisionNote: true,
           booking: {
             select: {
-              code: true, contactName: true, contactEmail: true,
+              code: true,
+              contactName: true,
+              contactEmail: true,
               tour: { select: { title: true } },
               departure: { select: { startDate: true } },
             },
@@ -134,12 +173,19 @@ export class CancellationsService {
         booking: {
           code: r.booking.code,
           tourTitle: r.booking.tour.title,
-          departureStartDate: r.booking.departure.startDate.toISOString().slice(0, 10),
+          departureStartDate: r.booking.departure.startDate
+            .toISOString()
+            .slice(0, 10),
           customerName: r.booking.contactName,
           customerEmail: r.booking.contactEmail,
         },
       })),
-      meta: { page, pageSize, total, totalPages: Math.max(1, Math.ceil(total / pageSize)) },
+      meta: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / pageSize)),
+      },
     };
   }
 
@@ -168,10 +214,14 @@ export class CancellationsService {
     if (claim.count === 0) {
       // Distinguish a missing request (404) from one already resolved (409).
       const exists = await this.prisma.cancellationRequest.findUnique({
-        where: { id }, select: { status: true },
+        where: { id },
+        select: { status: true },
       });
       if (!exists) {
-        throw new NotFoundException({ code: 'CANCELLATION_REQUEST_NOT_FOUND', message: `Request "${id}" not found` });
+        throw new NotFoundException({
+          code: 'CANCELLATION_REQUEST_NOT_FOUND',
+          message: `Request "${id}" not found`,
+        });
       }
       throw new ConflictException({
         code: 'CANCELLATION_NOT_PENDING',
@@ -180,20 +230,29 @@ export class CancellationsService {
     }
     // Claim won — enqueue the denial email (idempotent) and read back for the response.
     await this.prisma.outbox.createMany({
-      data: [{
-        type: 'CANCELLATION_DENIED',
-        payload: { requestId: id } as Prisma.InputJsonValue,
-        dedupeKey: `cancellation-denied:${id}`,
-      }],
+      data: [
+        {
+          type: 'CANCELLATION_DENIED',
+          payload: { requestId: id } as Prisma.InputJsonValue,
+          dedupeKey: `cancellation-denied:${id}`,
+        },
+      ],
       skipDuplicates: true,
     });
     const updated = await this.prisma.cancellationRequest.findUnique({
       where: { id },
       select: {
-        id: true, status: true, reason: true, createdAt: true, decidedAt: true, decisionNote: true,
+        id: true,
+        status: true,
+        reason: true,
+        createdAt: true,
+        decidedAt: true,
+        decisionNote: true,
         booking: {
           select: {
-            code: true, contactName: true, contactEmail: true,
+            code: true,
+            contactName: true,
+            contactEmail: true,
             tour: { select: { title: true } },
             departure: { select: { startDate: true } },
           },
@@ -201,18 +260,25 @@ export class CancellationsService {
       },
     });
     if (!updated) {
-      throw new NotFoundException({ code: 'CANCELLATION_REQUEST_NOT_FOUND', message: `Request "${id}" not found` });
+      throw new NotFoundException({
+        code: 'CANCELLATION_REQUEST_NOT_FOUND',
+        message: `Request "${id}" not found`,
+      });
     }
     this.logger.log(`Cancellation request ${id} denied (by ${adminUserId})`);
     return {
-      id: updated.id, status: updated.status, reason: updated.reason,
+      id: updated.id,
+      status: updated.status,
+      reason: updated.reason,
       createdAt: updated.createdAt.toISOString(),
       decidedAt: updated.decidedAt ? updated.decidedAt.toISOString() : null,
       decisionNote: updated.decisionNote,
       booking: {
         code: updated.booking.code,
         tourTitle: updated.booking.tour.title,
-        departureStartDate: updated.booking.departure.startDate.toISOString().slice(0, 10),
+        departureStartDate: updated.booking.departure.startDate
+          .toISOString()
+          .slice(0, 10),
         customerName: updated.booking.contactName,
         customerEmail: updated.booking.contactEmail,
       },

@@ -21,13 +21,19 @@ export async function listDepartures(
 ): Promise<Departure[]> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/tours/{slug}/departures', {
-    params: { path: { slug }, query: { status: params.status, from: params.from, to: params.to } },
+    params: {
+      path: { slug },
+      query: { status: params.status, from: params.from, to: params.to },
+    },
   });
   return (data as unknown as { data: Departure[] }).data;
 }
 
 /** Finds one departure within a tour's list by id (the API has no GET-one) — for the edit form. */
-export async function findDeparture(slug: string, id: string): Promise<Departure | undefined> {
+export async function findDeparture(
+  slug: string,
+  id: string,
+): Promise<Departure | undefined> {
   const departures = await listDepartures(slug);
   return departures.find((d) => d.id === id);
 }

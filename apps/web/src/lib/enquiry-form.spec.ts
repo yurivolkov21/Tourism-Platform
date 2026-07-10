@@ -25,12 +25,17 @@ describe('parseGroupSize', () => {
 
 describe('composePlanTripMessage', () => {
   it('keeps the note and appends a duration line', () => {
-    const out = composePlanTripMessage('We want a relaxed honeymoon.', 'About a week');
+    const out = composePlanTripMessage(
+      'We want a relaxed honeymoon.',
+      'About a week',
+    );
     expect(out).toContain('We want a relaxed honeymoon.');
     expect(out).toContain('Preferred duration: About a week.');
   });
   it('uses the duration line alone when there is no note', () => {
-    expect(composePlanTripMessage('', '2+ weeks')).toBe('Preferred duration: 2+ weeks.');
+    expect(composePlanTripMessage('', '2+ weeks')).toBe(
+      'Preferred duration: 2+ weeks.',
+    );
   });
   it('falls back when nothing usable is provided', () => {
     expect(composePlanTripMessage('hi', null)).toBe(ENQUIRY_FALLBACK_MESSAGE);
@@ -40,7 +45,9 @@ describe('composePlanTripMessage', () => {
 
 describe('composeEnquiryMessage', () => {
   it('derives a message from the destination', () => {
-    expect(composeEnquiryMessage('Hạ Long Bay')).toBe("I'd like to enquire about: Hạ Long Bay.");
+    expect(composeEnquiryMessage('Hạ Long Bay')).toBe(
+      "I'd like to enquire about: Hạ Long Bay.",
+    );
   });
   it('falls back when destination is empty', () => {
     expect(composeEnquiryMessage('   ')).toBe(ENQUIRY_FALLBACK_MESSAGE);
@@ -74,7 +81,13 @@ describe('buildPlanTripPayload', () => {
   });
 
   it('drops empty optionals (phone/website) and empty interests', () => {
-    const p = buildPlanTripPayload({ ...base, phone: '', website: '', interests: [], budget: null });
+    const p = buildPlanTripPayload({
+      ...base,
+      phone: '',
+      website: '',
+      interests: [],
+      budget: null,
+    });
     expect(p.phone).toBeUndefined();
     expect(p.website).toBeUndefined();
     expect(p.interests).toBeUndefined();
@@ -84,7 +97,11 @@ describe('buildPlanTripPayload', () => {
 
 describe('buildEnquiryCtaPayload', () => {
   it('builds name/email/message from the compact form', () => {
-    const p = buildEnquiryCtaPayload({ name: ' Sam ', email: 'sam@x.io', destination: 'Sa Pa' });
+    const p = buildEnquiryCtaPayload({
+      name: ' Sam ',
+      email: 'sam@x.io',
+      destination: 'Sa Pa',
+    });
     expect(p).toEqual({
       name: 'Sam',
       email: 'sam@x.io',

@@ -2,7 +2,10 @@ import { createRef } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, userEvent } from '@testing-library/react-native';
 import { ThemeProvider } from '@tourism/mobile-ui';
-import { EnquirySheet, type EnquirySheetRef } from '../components/enquiry-sheet';
+import {
+  EnquirySheet,
+  type EnquirySheetRef,
+} from '../components/enquiry-sheet';
 import { submitEnquiry } from '../lib/enquiry';
 
 jest.mock('../lib/enquiry', () => ({
@@ -23,7 +26,11 @@ function renderSheet() {
   render(
     <ThemeProvider>
       <QueryClientProvider client={client}>
-        <EnquirySheet ref={ref} tourId="uuid-1" tourTitle="Ha Long Bay Cruise" />
+        <EnquirySheet
+          ref={ref}
+          tourId="uuid-1"
+          tourTitle="Ha Long Bay Cruise"
+        />
       </QueryClientProvider>
     </ThemeProvider>,
   );
@@ -36,7 +43,9 @@ test('shows field errors on empty submit and does not call the API', async () =>
   renderSheet();
   await userEvent.press(screen.getByRole('button', { name: 'Send enquiry' }));
   expect(screen.getByText('Please enter your name.')).toBeOnTheScreen();
-  expect(screen.getByText('Please enter a valid email address.')).toBeOnTheScreen();
+  expect(
+    screen.getByText('Please enter a valid email address.'),
+  ).toBeOnTheScreen();
   expect(screen.getByText('Please write a short message.')).toBeOnTheScreen();
   expect(mockSubmit).not.toHaveBeenCalled();
 });

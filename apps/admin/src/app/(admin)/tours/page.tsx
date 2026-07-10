@@ -43,8 +43,8 @@ export default async function ToursPage() {
 
       {error ? (
         <ErrorAlert>
-          Couldn&apos;t load tours: {error}. Check that the API is running and your admin session is
-          valid.
+          Couldn&apos;t load tours: {error}. Check that the API is running and
+          your admin session is valid.
         </ErrorAlert>
       ) : rows.length === 0 ? (
         <Empty className="border">
@@ -53,7 +53,9 @@ export default async function ToursPage() {
               <Compass />
             </EmptyMedia>
             <EmptyTitle>No tours yet</EmptyTitle>
-            <EmptyDescription>Create your first tour to start building the catalog.</EmptyDescription>
+            <EmptyDescription>
+              Create your first tour to start building the catalog.
+            </EmptyDescription>
           </EmptyHeader>
           <Button nativeButton={false} render={<Link href="/tours/new" />}>
             <Plus data-icon="inline-start" />

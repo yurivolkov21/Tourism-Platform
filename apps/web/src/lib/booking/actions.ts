@@ -14,7 +14,10 @@ import {
   startCheckout,
   type BookingDto,
 } from '../api/booking';
-import { buildCreateBookingPayload, type BookingFormError } from './booking-form';
+import {
+  buildCreateBookingPayload,
+  type BookingFormError,
+} from './booking-form';
 import type { CreateBookingPayload } from './booking-form';
 import { buildCancellationRequestBody } from './cancellation-request';
 
@@ -34,11 +37,16 @@ function errorMessage(code: BookingFormError | string): string {
  * yet (`USER_NOT_SYNCED`), mirror the user (`/auth/sync`) and retry once. This covers a signed-in
  * session whose sign-in sync hadn't landed, so the buyer never has to sign out and back in.
  */
-async function createBookingWithSync(payload: CreateBookingPayload): Promise<BookingDto> {
+async function createBookingWithSync(
+  payload: CreateBookingPayload,
+): Promise<BookingDto> {
   try {
     return await createBooking(payload);
   } catch (e) {
-    if (e instanceof ApiRequestError && (e.code === 'USER_NOT_SYNCED' || e.status === 401)) {
+    if (
+      e instanceof ApiRequestError &&
+      (e.code === 'USER_NOT_SYNCED' || e.status === 401)
+    ) {
       // First-booking race: the sign-in mirror hadn't landed. Mirror now, retry once.
       const synced = await syncUser();
       if (synced) return await createBooking(payload);
@@ -82,7 +90,9 @@ export async function createAndCheckout(
     const session = await startCheckout(booking.code);
     checkoutUrl = session?.checkoutUrl;
     if (!checkoutUrl) {
-      console.error('[booking] checkout returned no url', { code: booking.code });
+      console.error('[booking] checkout returned no url', {
+        code: booking.code,
+      });
       return { error: errors.CHECKOUT_FAILED };
     }
   } catch (e) {
@@ -119,7 +129,11 @@ export async function cancelBookingAction(
     return { ok: true };
   } catch (e) {
     if (e instanceof ApiRequestError) {
-      console.error('[booking] cancel failed', { code, apiCode: e.code, status: e.status });
+      console.error('[booking] cancel failed', {
+        code,
+        apiCode: e.code,
+        status: e.status,
+      });
       return { ok: false, error: errorMessage(e.code) };
     }
     console.error('[booking] cancel unexpected error', e);
@@ -133,13 +147,20 @@ export async function requestCancellationAction(
   reason: string,
 ): Promise<{ ok: boolean; error?: string }> {
   try {
-    await requestBookingCancellation(code, buildCancellationRequestBody(reason));
+    await requestBookingCancellation(
+      code,
+      buildCancellationRequestBody(reason),
+    );
     revalidatePath(`/account/bookings/${code}`);
     revalidatePath('/account/bookings');
     return { ok: true };
   } catch (e) {
     if (e instanceof ApiRequestError) {
-      console.error('[booking] cancellation request failed', { code, apiCode: e.code, status: e.status });
+      console.error('[booking] cancellation request failed', {
+        code,
+        apiCode: e.code,
+        status: e.status,
+      });
       return { ok: false, error: errorMessage(e.code) };
     }
     console.error('[booking] cancellation request unexpected error', e);
@@ -156,7 +177,11 @@ export async function payNowAction(code: string): Promise<BookingActionState> {
     if (!checkoutUrl) return { error: errors.CHECKOUT_FAILED };
   } catch (e) {
     if (e instanceof ApiRequestError) {
-      console.error('[booking] payNow failed', { code, apiCode: e.code, status: e.status });
+      console.error('[booking] payNow failed', {
+        code,
+        apiCode: e.code,
+        status: e.status,
+      });
       return { error: errorMessage(e.code) };
     }
     console.error('[booking] payNow unexpected error', e);
@@ -172,7 +197,9 @@ export async function captureBooking(code: string): Promise<boolean> {
   } catch (e) {
     console.error('[booking] capture failed', {
       code,
-      ...(e instanceof ApiRequestError ? { apiCode: e.code, status: e.status } : {}),
+      ...(e instanceof ApiRequestError
+        ? { apiCode: e.code, status: e.status }
+        : {}),
     });
     return false;
   }

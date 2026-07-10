@@ -18,7 +18,9 @@ describe('bookingStatusTone', () => {
     expect(bookingStatusTone('PENDING')).toContain('text-warning');
     expect(bookingStatusTone('CANCELLED')).toContain('text-muted-foreground');
     expect(bookingStatusTone('REFUNDED')).toContain('text-destructive');
-    expect(bookingStatusTone('PARTIALLY_REFUNDED')).toContain('text-destructive');
+    expect(bookingStatusTone('PARTIALLY_REFUNDED')).toContain(
+      'text-destructive',
+    );
   });
 
   it('falls back to the muted tone for an unknown status', () => {

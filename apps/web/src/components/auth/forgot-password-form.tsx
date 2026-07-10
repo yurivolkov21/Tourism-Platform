@@ -23,7 +23,9 @@ export function ForgotPasswordForm() {
     if (pending) return;
     setPending(true);
 
-    const email = String(new FormData(event.currentTarget).get('email') ?? '').trim();
+    const email = String(
+      new FormData(event.currentTarget).get('email') ?? '',
+    ).trim();
     const supabase = createClient();
     await supabase.auth
       .resetPasswordForEmail(email, {
@@ -41,9 +43,14 @@ export function ForgotPasswordForm() {
     return (
       <div className="space-y-2 text-center" role="status">
         <h2 className="font-heading text-xl font-semibold">{t.sentTitle}</h2>
-        <p className="text-muted-foreground text-sm text-pretty">{t.sentBody}</p>
+        <p className="text-muted-foreground text-sm text-pretty">
+          {t.sentBody}
+        </p>
         <p className="pt-2 text-sm">
-          <Link href="/login" className="text-primary font-medium hover:underline">
+          <Link
+            href="/login"
+            className="text-primary font-medium hover:underline"
+          >
             {t.backToLogin}
           </Link>
         </p>
@@ -70,7 +77,10 @@ export function ForgotPasswordForm() {
       </Button>
 
       <p className="text-muted-foreground text-center text-sm">
-        <Link href="/login" className="text-primary font-medium hover:underline">
+        <Link
+          href="/login"
+          className="text-primary font-medium hover:underline"
+        >
           {t.backToLogin}
         </Link>
       </p>

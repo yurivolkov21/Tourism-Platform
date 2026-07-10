@@ -2,7 +2,8 @@ import type { components } from '@tourism/core';
 
 import { getApiClient } from '../api/client';
 
-export type CancellationRequest = components['schemas']['AdminCancellationRequestDto'];
+export type CancellationRequest =
+  components['schemas']['AdminCancellationRequestDto'];
 export type PageMeta = components['schemas']['PageMetaDto'];
 
 export interface CancellationRequestListParams {

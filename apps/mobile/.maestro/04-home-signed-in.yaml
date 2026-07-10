@@ -4,29 +4,29 @@
 # apps/mobile/src/app/auth/sign-in.tsx. Start with the app open in Expo Go.
 appId: host.exp.exponent
 ---
-- tapOn: "Account"
-- tapOn: "Sign in"
+- tapOn: 'Account'
+- tapOn: 'Sign in'
 # --- auth modal: adjust these three selectors to the real field labels ---
-- tapOn: "Email"
+- tapOn: 'Email'
 - inputText: ${EMAIL}
-- tapOn: "Password"
+- tapOn: 'Password'
 - inputText: ${PASSWORD}
 - tapOn:
-    text: "Sign in"
+    text: 'Sign in'
     index: 1
 # ------------------------------------------------------------------------
-- tapOn: "Home"
-- assertVisible: "Featured tours"
+- tapOn: 'Home'
+- assertVisible: 'Featured tours'
 # Context rows are data-dependent: assert them only when present.
 - runFlow:
     when:
-      visible: "Your next trip"
+      visible: 'Your next trip'
     commands:
       - tapOn:
-          text: "Your next trip"
+          text: 'Your next trip'
       - back
 - runFlow:
     when:
-      visible: "Recently saved"
+      visible: 'Recently saved'
     commands:
-      - assertVisible: "See all"
+      - assertVisible: 'See all'

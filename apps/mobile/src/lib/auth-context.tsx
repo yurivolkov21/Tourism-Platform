@@ -57,7 +57,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback<AuthContextValue['signIn']>(
     async (email, password) => {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       if (error) return { error: mapAuthError(error) };
       await syncUser();
       queryClient.invalidateQueries({ queryKey: ['wishlist'] });
@@ -86,10 +89,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [queryClient],
   );
 
-  const sendReset = useCallback<AuthContextValue['sendReset']>(async (email) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    return error ? { error: mapAuthError(error) } : {};
-  }, []);
+  const sendReset = useCallback<AuthContextValue['sendReset']>(
+    async (email) => {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      return error ? { error: mapAuthError(error) } : {};
+    },
+    [],
+  );
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();

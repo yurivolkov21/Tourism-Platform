@@ -14,7 +14,12 @@ import {
   ChevronLastIcon,
 } from 'lucide-react';
 
-import { filterTours, searchTours, sortTours, type TourSort } from '@tourism/core';
+import {
+  filterTours,
+  searchTours,
+  sortTours,
+  type TourSort,
+} from '@tourism/core';
 import {
   Button,
   Input,
@@ -39,7 +44,11 @@ import { messages } from '@tourism/i18n';
 
 import type { TourCardData } from './tour-card';
 import { TourListCard } from './tour-list-card';
-import { ToursFilters, type FacetKey, type ToursFilterState } from './tours-filters';
+import {
+  ToursFilters,
+  type FacetKey,
+  type ToursFilterState,
+} from './tours-filters';
 import { pageNumbers, pageView, type PageView } from '../../lib/paginate';
 
 const PAGE_SIZES = [10, 15, 25] as const;
@@ -116,16 +125,43 @@ export function ToursListing({
   }, [filters, query, sort, pageSize]);
 
   const view = pageView(results.length, page, pageSize);
-  const visible = results.slice((view.page - 1) * pageSize, view.page * pageSize);
+  const visible = results.slice(
+    (view.page - 1) * pageSize,
+    view.page * pageSize,
+  );
 
   // Active selections flattened into removable chips (label resolved per facet).
   const activeChips: { facet: FacetKey; value: string; label: string }[] = [
-    ...filters.destinations.map((v) => ({ facet: 'destinations' as const, value: v, label: v })),
-    ...filters.categories.map((v) => ({ facet: 'categories' as const, value: v, label: categoryLabel(v) })),
-    ...filters.durations.map((v) => ({ facet: 'durations' as const, value: v, label: t.durationLabels[v] })),
-    ...filters.styles.map((v) => ({ facet: 'styles' as const, value: v, label: t.styleLabels[v] })),
-    ...filters.themes.map((v) => ({ facet: 'themes' as const, value: v, label: t.themeLabels[v] })),
-    ...filters.prices.map((v) => ({ facet: 'prices' as const, value: v, label: t.priceLabels[v] })),
+    ...filters.destinations.map((v) => ({
+      facet: 'destinations' as const,
+      value: v,
+      label: v,
+    })),
+    ...filters.categories.map((v) => ({
+      facet: 'categories' as const,
+      value: v,
+      label: categoryLabel(v),
+    })),
+    ...filters.durations.map((v) => ({
+      facet: 'durations' as const,
+      value: v,
+      label: t.durationLabels[v],
+    })),
+    ...filters.styles.map((v) => ({
+      facet: 'styles' as const,
+      value: v,
+      label: t.styleLabels[v],
+    })),
+    ...filters.themes.map((v) => ({
+      facet: 'themes' as const,
+      value: v,
+      label: t.themeLabels[v],
+    })),
+    ...filters.prices.map((v) => ({
+      facet: 'prices' as const,
+      value: v,
+      label: t.priceLabels[v],
+    })),
   ];
 
   const toggle = (facet: FacetKey, optionValue: string) =>
@@ -170,7 +206,9 @@ export function ToursListing({
           )}
         >
           {/* Sidebar (desktop, collapsible) */}
-          <aside className={cn(sidebarCollapsed ? 'hidden' : 'hidden lg:block')}>
+          <aside
+            className={cn(sidebarCollapsed ? 'hidden' : 'hidden lg:block')}
+          >
             <div className="lg:sticky lg:top-24">{filtersNode}</div>
           </aside>
 
@@ -226,12 +264,19 @@ export function ToursListing({
                     </span>
                   ) : null}
                 </Button>
-                <p className="text-muted-foreground text-sm">{t.resultCount(results.length)}</p>
+                <p className="text-muted-foreground text-sm">
+                  {t.resultCount(results.length)}
+                </p>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground hidden text-sm sm:inline">{t.sortLabel}</span>
-                <Select value={sort} onValueChange={(value) => setSort(value as TourSort)}>
+                <span className="text-muted-foreground hidden text-sm sm:inline">
+                  {t.sortLabel}
+                </span>
+                <Select
+                  value={sort}
+                  onValueChange={(value) => setSort(value as TourSort)}
+                >
                   <SelectTrigger className="w-44" aria-label={t.sortLabel}>
                     <SelectValue />
                   </SelectTrigger>
@@ -260,7 +305,11 @@ export function ToursListing({
                     <XIcon className="size-3.5" aria-hidden="true" />
                   </button>
                 ))}
-                <Button variant="link" onClick={clearAll} className="ml-1 h-auto p-0">
+                <Button
+                  variant="link"
+                  onClick={clearAll}
+                  className="ml-1 h-auto p-0"
+                >
                   {t.clearAll}
                 </Button>
               </div>
@@ -287,8 +336,12 @@ export function ToursListing({
                   <SearchXIcon className="size-7" />
                 </span>
                 <div className="space-y-1">
-                  <h3 className="font-sans text-lg font-semibold">{t.empty.title}</h3>
-                  <p className="text-muted-foreground text-pretty">{t.empty.body}</p>
+                  <h3 className="font-sans text-lg font-semibold">
+                    {t.empty.title}
+                  </h3>
+                  <p className="text-muted-foreground text-pretty">
+                    {t.empty.body}
+                  </p>
                 </div>
                 <Button variant="outline" onClick={clearAll}>
                   {t.empty.cta}
@@ -301,7 +354,10 @@ export function ToursListing({
 
       {/* Mobile filter drawer */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <SheetContent side="left" className="w-80 max-w-[85vw] overflow-y-auto p-6">
+        <SheetContent
+          side="left"
+          className="w-80 max-w-[85vw] overflow-y-auto p-6"
+        >
           <SheetHeader className="sr-only">
             <SheetTitle>{t.filtersLabel}</SheetTitle>
           </SheetHeader>
@@ -334,7 +390,8 @@ function PaginationBar({
 
   const go = (target: number) => (event: React.MouseEvent) => {
     event.preventDefault();
-    if (target >= 1 && target <= totalPages && target !== page) onPageChange(target);
+    if (target >= 1 && target <= totalPages && target !== page)
+      onPageChange(target);
   };
   const edge = 'rounded-full';
   const disabled = 'pointer-events-none opacity-40';
@@ -347,13 +404,19 @@ function PaginationBar({
   return (
     <div className="mt-8 flex w-full flex-wrap items-center justify-between gap-4 max-sm:justify-center">
       <div className="flex shrink-0 items-center gap-2.5">
-        <Label htmlFor="tours-page-size" className="text-muted-foreground text-sm">
+        <Label
+          htmlFor="tours-page-size"
+          className="text-muted-foreground text-sm"
+        >
           {t.perPage}
         </Label>
         <Select
           value={String(pageSize)}
           onValueChange={(v) => onPageSizeChange(Number(v))}
-          items={PAGE_SIZES.map((s) => ({ value: String(s), label: String(s) }))}
+          items={PAGE_SIZES.map((s) => ({
+            value: String(s),
+            label: String(s),
+          }))}
         >
           <SelectTrigger id="tours-page-size" className="w-fit">
             <SelectValue />
@@ -368,7 +431,10 @@ function PaginationBar({
         </Select>
       </div>
 
-      <p className="text-muted-foreground text-sm whitespace-nowrap" aria-live="polite">
+      <p
+        className="text-muted-foreground text-sm whitespace-nowrap"
+        aria-live="polite"
+      >
         {t.showing(start, end, total)}
       </p>
 

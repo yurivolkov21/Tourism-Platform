@@ -19,7 +19,9 @@ function field(value: string): string {
 export function toCsv(rows: CsvSubscriber[]): string {
   const lines = [
     ['email', 'source', 'subscribed_at'].map(field).join(','),
-    ...rows.map((r) => [r.email, r.source ?? '', r.subscribedAt].map(field).join(',')),
+    ...rows.map((r) =>
+      [r.email, r.source ?? '', r.subscribedAt].map(field).join(','),
+    ),
   ];
   return `${lines.join('\r\n')}\r\n`;
 }

@@ -12,7 +12,10 @@ export interface AdjacentPosts {
  * 100-post window `generateStaticParams` uses). Absent slug → both null (beyond the
  * window, or a deploy edge) — the nav simply doesn't render.
  */
-export function pickAdjacentPosts(posts: PostSummaryVM[], slug: string): AdjacentPosts {
+export function pickAdjacentPosts(
+  posts: PostSummaryVM[],
+  slug: string,
+): AdjacentPosts {
   const i = posts.findIndex((p) => p.slug === slug);
   if (i < 0) return { newer: null, older: null };
   return {

@@ -57,7 +57,9 @@ export class SupabaseJwtGuard implements CanActivate {
     });
 
     const hsSecret = this.config.get<string>('supabase.jwtSecret') ?? '';
-    this.hsKey = hsSecret ? new Uint8Array(Buffer.from(hsSecret, 'utf8')) : null;
+    this.hsKey = hsSecret
+      ? new Uint8Array(Buffer.from(hsSecret, 'utf8'))
+      : null;
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -85,7 +87,9 @@ export class SupabaseJwtGuard implements CanActivate {
     const identity: SupabaseAuthIdentity = {
       sub: typeof subClaim === 'string' ? subClaim : '',
       email: typeof emailClaim === 'string' ? emailClaim : '',
-      emailVerified: Boolean(claims.email_verified ?? claims.email_confirmed_at),
+      emailVerified: Boolean(
+        claims.email_verified ?? claims.email_confirmed_at,
+      ),
       raw: claims,
     };
 

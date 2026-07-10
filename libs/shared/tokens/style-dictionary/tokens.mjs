@@ -53,9 +53,15 @@ export default {
     sidebar: c('oklch(0.97 0.008 110)', 'oklch(0.19 0.013 160)'),
     'sidebar-foreground': c('oklch(0.23 0.012 155)', 'oklch(0.95 0.008 95)'),
     'sidebar-primary': c('oklch(0.42 0.08 155)', 'oklch(0.72 0.1 155)'),
-    'sidebar-primary-foreground': c('oklch(0.98 0.01 95)', 'oklch(0.18 0.02 155)'),
+    'sidebar-primary-foreground': c(
+      'oklch(0.98 0.01 95)',
+      'oklch(0.18 0.02 155)',
+    ),
     'sidebar-accent': c('oklch(0.93 0.014 130)', 'oklch(0.3 0.018 160)'),
-    'sidebar-accent-foreground': c('oklch(0.3 0.02 155)', 'oklch(0.95 0.008 95)'),
+    'sidebar-accent-foreground': c(
+      'oklch(0.3 0.02 155)',
+      'oklch(0.95 0.008 95)',
+    ),
     'sidebar-border': c('oklch(0.9 0.01 120)', 'oklch(1 0 0 / 10%)'),
     'sidebar-ring': c('oklch(0.55 0.07 155)', 'oklch(0.6 0.08 155)'),
   },
@@ -85,28 +91,48 @@ export const fonts = {
 // tracking-*, leading-*, shadow-*, ease-*). Ordered [cssVar, value].
 export const themeExtras = [
   // Type scale (size + paired line-height)
-  ['--text-xs', '0.75rem'], ['--text-xs--line-height', 'calc(1 / 0.75)'],
-  ['--text-sm', '0.875rem'], ['--text-sm--line-height', 'calc(1.25 / 0.875)'],
-  ['--text-base', '1rem'], ['--text-base--line-height', 'calc(1.5 / 1)'],
-  ['--text-lg', '1.125rem'], ['--text-lg--line-height', 'calc(1.75 / 1.125)'],
-  ['--text-xl', '1.25rem'], ['--text-xl--line-height', 'calc(1.75 / 1.25)'],
-  ['--text-2xl', '1.5rem'], ['--text-2xl--line-height', 'calc(2 / 1.5)'],
-  ['--text-3xl', '1.875rem'], ['--text-3xl--line-height', 'calc(2.25 / 1.875)'],
-  ['--text-4xl', '2.25rem'], ['--text-4xl--line-height', 'calc(2.5 / 2.25)'],
-  ['--text-5xl', '3rem'], ['--text-5xl--line-height', '1'],
-  ['--text-6xl', '3.75rem'], ['--text-6xl--line-height', '1'],
-  ['--text-7xl', '4.5rem'], ['--text-7xl--line-height', '1'],
+  ['--text-xs', '0.75rem'],
+  ['--text-xs--line-height', 'calc(1 / 0.75)'],
+  ['--text-sm', '0.875rem'],
+  ['--text-sm--line-height', 'calc(1.25 / 0.875)'],
+  ['--text-base', '1rem'],
+  ['--text-base--line-height', 'calc(1.5 / 1)'],
+  ['--text-lg', '1.125rem'],
+  ['--text-lg--line-height', 'calc(1.75 / 1.125)'],
+  ['--text-xl', '1.25rem'],
+  ['--text-xl--line-height', 'calc(1.75 / 1.25)'],
+  ['--text-2xl', '1.5rem'],
+  ['--text-2xl--line-height', 'calc(2 / 1.5)'],
+  ['--text-3xl', '1.875rem'],
+  ['--text-3xl--line-height', 'calc(2.25 / 1.875)'],
+  ['--text-4xl', '2.25rem'],
+  ['--text-4xl--line-height', 'calc(2.5 / 2.25)'],
+  ['--text-5xl', '3rem'],
+  ['--text-5xl--line-height', '1'],
+  ['--text-6xl', '3.75rem'],
+  ['--text-6xl--line-height', '1'],
+  ['--text-7xl', '4.5rem'],
+  ['--text-7xl--line-height', '1'],
   // Font weights
-  ['--font-weight-normal', '400'], ['--font-weight-medium', '500'],
-  ['--font-weight-semibold', '600'], ['--font-weight-bold', '700'],
+  ['--font-weight-normal', '400'],
+  ['--font-weight-medium', '500'],
+  ['--font-weight-semibold', '600'],
+  ['--font-weight-bold', '700'],
   // Letter spacing
-  ['--tracking-tighter', '-0.05em'], ['--tracking-tight', '-0.025em'],
-  ['--tracking-normal', '0em'], ['--tracking-wide', '0.025em'],
+  ['--tracking-tighter', '-0.05em'],
+  ['--tracking-tight', '-0.025em'],
+  ['--tracking-normal', '0em'],
+  ['--tracking-wide', '0.025em'],
   // Line-height scale
-  ['--leading-tight', '1.25'], ['--leading-snug', '1.375'],
-  ['--leading-normal', '1.5'], ['--leading-relaxed', '1.625'],
+  ['--leading-tight', '1.25'],
+  ['--leading-snug', '1.375'],
+  ['--leading-normal', '1.5'],
+  ['--leading-relaxed', '1.625'],
   // Elevation by intent (light; dark-mode shadow softening handled via .dark rule later)
-  ['--shadow-card', '0 1px 3px 0 oklch(0 0 0 / 0.08), 0 1px 2px -1px oklch(0 0 0 / 0.08)'],
+  [
+    '--shadow-card',
+    '0 1px 3px 0 oklch(0 0 0 / 0.08), 0 1px 2px -1px oklch(0 0 0 / 0.08)',
+  ],
   ['--shadow-dropdown', '0 4px 12px -2px oklch(0 0 0 / 0.12)'],
   ['--shadow-popover', '0 8px 24px -4px oklch(0 0 0 / 0.14)'],
   ['--shadow-modal', '0 24px 48px -12px oklch(0 0 0 / 0.25)'],
@@ -118,30 +144,48 @@ export const themeExtras = [
   // Content container width → max-w-content
   ['--container-content', '80rem'],
   // Breakpoints (explicit single source; values match the standard scale → no behavior change)
-  ['--breakpoint-sm', '40rem'], ['--breakpoint-md', '48rem'], ['--breakpoint-lg', '64rem'],
-  ['--breakpoint-xl', '80rem'], ['--breakpoint-2xl', '96rem'],
+  ['--breakpoint-sm', '40rem'],
+  ['--breakpoint-md', '48rem'],
+  ['--breakpoint-lg', '64rem'],
+  ['--breakpoint-xl', '80rem'],
+  ['--breakpoint-2xl', '96rem'],
 ];
 
 // Mode-independent :root custom props consumed via var() (no Tailwind utility namespace):
 // motion durations, z-index layering, a11y, and content measure. Ordered [cssVar, value].
 export const rootExtras = [
-  ['--duration-fast', '150ms'], ['--duration-normal', '250ms'], ['--duration-slow', '400ms'],
-  ['--z-base', '0'], ['--z-dropdown', '1000'], ['--z-sticky', '1100'],
-  ['--z-overlay', '1300'], ['--z-modal', '1400'], ['--z-popover', '1500'], ['--z-toast', '1700'],
-  ['--focus-ring-width', '2px'], ['--focus-ring-offset', '2px'],
+  ['--duration-fast', '150ms'],
+  ['--duration-normal', '250ms'],
+  ['--duration-slow', '400ms'],
+  ['--z-base', '0'],
+  ['--z-dropdown', '1000'],
+  ['--z-sticky', '1100'],
+  ['--z-overlay', '1300'],
+  ['--z-modal', '1400'],
+  ['--z-popover', '1500'],
+  ['--z-toast', '1700'],
+  ['--focus-ring-width', '2px'],
+  ['--focus-ring-offset', '2px'],
   ['--touch-target-min', '44px'],
   ['--prose-measure', '65ch'],
   ['--section-space', 'clamp(4rem, 3rem + 5vw, 8rem)'],
   // Sizing — control heights (comfortable density) + iconography. Components adopt via var().
-  ['--control-h-sm', '1.75rem'], ['--control-h-md', '2rem'], ['--control-h-lg', '2.25rem'],
-  ['--icon-size', '1rem'], ['--icon-stroke', '2'],
+  ['--control-h-sm', '1.75rem'],
+  ['--control-h-md', '2rem'],
+  ['--control-h-lg', '2.25rem'],
+  ['--icon-size', '1rem'],
+  ['--icon-stroke', '2'],
   // Media aspect ratios (tourism) — use via aspect-[var(--aspect-card)] or component CSS.
-  ['--aspect-card', '4 / 3'], ['--aspect-hero', '16 / 9'], ['--aspect-thumb', '1 / 1'],
+  ['--aspect-card', '4 / 3'],
+  ['--aspect-hero', '16 / 9'],
+  ['--aspect-thumb', '1 / 1'],
 ];
 
 // Compact density overrides — emitted under [data-density='compact'] for dense admin tables.
 export const densityCompact = [
-  ['--control-h-sm', '1.5rem'], ['--control-h-md', '1.75rem'], ['--control-h-lg', '2rem'],
+  ['--control-h-sm', '1.5rem'],
+  ['--control-h-md', '1.75rem'],
+  ['--control-h-lg', '2rem'],
   ['--section-space', 'clamp(2.5rem, 2rem + 3vw, 5rem)'],
 ];
 

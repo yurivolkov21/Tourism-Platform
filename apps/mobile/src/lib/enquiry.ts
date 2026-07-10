@@ -8,8 +8,13 @@ export interface EnquiryInput {
   message: string;
 }
 
-export type EnquiryErrorKey = 'nameRequired' | 'emailInvalid' | 'messageRequired';
-export type EnquiryFieldErrors = Partial<Record<'name' | 'email' | 'message', EnquiryErrorKey>>;
+export type EnquiryErrorKey =
+  | 'nameRequired'
+  | 'emailInvalid'
+  | 'messageRequired';
+export type EnquiryFieldErrors = Partial<
+  Record<'name' | 'email' | 'message', EnquiryErrorKey>
+>;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

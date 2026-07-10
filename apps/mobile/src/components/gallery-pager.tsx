@@ -4,13 +4,27 @@ import { Image } from 'expo-image';
 import { useTheme } from '@tourism/mobile-ui';
 
 /** Edge-to-edge horizontal image pager with dot indicators. */
-export function GalleryPager({ images, title }: { images: string[]; title: string }) {
+export function GalleryPager({
+  images,
+  title,
+}: {
+  images: string[];
+  title: string;
+}) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const [index, setIndex] = useState(0);
 
   if (images.length === 0) {
-    return <View style={{ width: '100%', height: 280, backgroundColor: theme.colors['muted'] }} />;
+    return (
+      <View
+        style={{
+          width: '100%',
+          height: 280,
+          backgroundColor: theme.colors['muted'],
+        }}
+      />
+    );
   }
   return (
     <View>
@@ -23,13 +37,19 @@ export function GalleryPager({ images, title }: { images: string[]; title: strin
         renderItem={({ item }) => (
           <Image
             source={{ uri: item }}
-            style={{ width, height: 280, backgroundColor: theme.colors['muted'] }}
+            style={{
+              width,
+              height: 280,
+              backgroundColor: theme.colors['muted'],
+            }}
             contentFit="cover"
             transition={200}
             accessibilityLabel={title}
           />
         )}
-        onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
+        onMomentumScrollEnd={(e) =>
+          setIndex(Math.round(e.nativeEvent.contentOffset.x / width))
+        }
       />
       {images.length > 1 ? (
         <View
@@ -48,7 +68,10 @@ export function GalleryPager({ images, title }: { images: string[]; title: strin
                 width: 6,
                 height: 6,
                 borderRadius: 3,
-                backgroundColor: i === index ? theme.colors['primary'] : theme.colors['background'],
+                backgroundColor:
+                  i === index
+                    ? theme.colors['primary']
+                    : theme.colors['background'],
                 opacity: i === index ? 1 : 0.7,
               }}
             />

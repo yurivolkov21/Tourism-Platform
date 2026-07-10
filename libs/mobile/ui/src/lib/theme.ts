@@ -56,10 +56,18 @@ export function buildTheme(scheme: ColorScheme): Theme {
     spacing: (steps) => steps * 4,
     fontFamilies,
     typography: {
-      display: { fontSize: 28, lineHeight: 34, fontFamily: fontFamilies.headingBold },
+      display: {
+        fontSize: 28,
+        lineHeight: 34,
+        fontFamily: fontFamilies.headingBold,
+      },
       title: { fontSize: 20, lineHeight: 26, fontFamily: fontFamilies.heading },
       body: { fontSize: 15, lineHeight: 22, fontFamily: fontFamilies.sans },
-      caption: { fontSize: 12, lineHeight: 16, fontFamily: fontFamilies.sansMedium },
+      caption: {
+        fontSize: 12,
+        lineHeight: 16,
+        fontFamily: fontFamilies.sansMedium,
+      },
     },
   };
 }

@@ -6,7 +6,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import * as WebBrowser from 'expo-web-browser';
 import { messages } from '@tourism/i18n';
-import { AppText, Badge, Button, Screen, Spinner, useTheme } from '@tourism/mobile-ui';
+import {
+  AppText,
+  Badge,
+  Button,
+  Screen,
+  Spinner,
+  useTheme,
+} from '@tourism/mobile-ui';
 import { FactRow } from '../../../components/fact-row';
 import {
   captureBooking,
@@ -23,10 +30,20 @@ const tm = messages.mobile.booking;
 
 // 'closed' = terminal non-payable statuses (CANCELLED / REFUNDED / …) — never
 // offer Pay now on those.
-type Phase = 'paying' | 'verifying' | 'paid' | 'pending' | 'closed' | 'notFound' | 'error';
+type Phase =
+  | 'paying'
+  | 'verifying'
+  | 'paid'
+  | 'pending'
+  | 'closed'
+  | 'notFound'
+  | 'error';
 
 export default function BookingResultScreen() {
-  const { code, checkoutUrl } = useLocalSearchParams<{ code: string; checkoutUrl?: string }>();
+  const { code, checkoutUrl } = useLocalSearchParams<{
+    code: string;
+    checkoutUrl?: string;
+  }>();
   const theme = useTheme();
   const queryClient = useQueryClient();
   const [phase, setPhase] = useState<Phase>('paying');
@@ -114,7 +131,9 @@ export default function BookingResultScreen() {
 
   return (
     <Screen>
-      <View style={{ gap: theme.spacing(4), paddingVertical: theme.spacing(6) }}>
+      <View
+        style={{ gap: theme.spacing(4), paddingVertical: theme.spacing(6) }}
+      >
         {phase === 'paying' || phase === 'verifying' ? (
           <View
             style={{
@@ -138,10 +157,17 @@ export default function BookingResultScreen() {
         ) : null}
 
         {phase === 'paid' && booking ? (
-          <Animated.View entering={FadeIn.duration(200)} style={{ gap: theme.spacing(4) }}>
+          <Animated.View
+            entering={FadeIn.duration(200)}
+            style={{ gap: theme.spacing(4) }}
+          >
             <View style={{ alignItems: 'center', gap: theme.spacing(2) }}>
               <Animated.View entering={ZoomIn.springify().damping(12)}>
-                <Ionicons name="checkmark-circle" size={56} color={theme.colors['success']} />
+                <Ionicons
+                  name="checkmark-circle"
+                  size={56}
+                  color={theme.colors['success']}
+                />
               </Animated.View>
               <AppText variant="display" style={{ textAlign: 'center' }}>
                 {ts.confirmedTitle}
@@ -161,7 +187,10 @@ export default function BookingResultScreen() {
             >
               <FactRow label={ts.refLabel} value={booking.code} />
               <FactRow label={ts.tourLabel} value={booking.tourTitle} />
-              <FactRow label={ts.departureLabel} value={booking.departureLabel} />
+              <FactRow
+                label={ts.departureLabel}
+                value={booking.departureLabel}
+              />
               <FactRow label={ts.travellersLabel} value={booking.party} />
               <FactRow
                 label={ts.totalLabel}
@@ -175,14 +204,22 @@ export default function BookingResultScreen() {
               label={tm.viewBooking}
               onPress={() => router.replace(`/bookings/${booking.code}`)}
             />
-            <Button variant="outline" label={tm.browseTours} onPress={() => router.replace('/')} />
+            <Button
+              variant="outline"
+              label={tm.browseTours}
+              onPress={() => router.replace('/')}
+            />
           </Animated.View>
         ) : null}
 
         {phase === 'pending' && booking ? (
           <View style={{ gap: theme.spacing(4) }}>
             <View style={{ alignItems: 'center', gap: theme.spacing(2) }}>
-              <Ionicons name="time-outline" size={56} color={theme.colors['warning']} />
+              <Ionicons
+                name="time-outline"
+                size={56}
+                color={theme.colors['warning']}
+              />
               <AppText variant="display" style={{ textAlign: 'center' }}>
                 {tm.stillPendingTitle}
               </AppText>
@@ -190,8 +227,16 @@ export default function BookingResultScreen() {
                 {tm.stillPendingBody}
               </AppText>
             </View>
-            <Button testID="verify-again" label={tm.verifyAgain} onPress={() => void verify()} />
-            <Button variant="outline" label={td.payNow} onPress={() => void payAgain()} />
+            <Button
+              testID="verify-again"
+              label={tm.verifyAgain}
+              onPress={() => void verify()}
+            />
+            <Button
+              variant="outline"
+              label={td.payNow}
+              onPress={() => void payAgain()}
+            />
             <Button
               variant="outline"
               label={tm.viewBooking}
@@ -201,13 +246,26 @@ export default function BookingResultScreen() {
         ) : null}
 
         {phase === 'closed' && booking ? (
-          <View style={{ alignItems: 'center', gap: theme.spacing(3), paddingVertical: theme.spacing(6) }}>
-            <Badge tone={booking.statusMeta.tone} label={booking.statusMeta.label} />
+          <View
+            style={{
+              alignItems: 'center',
+              gap: theme.spacing(3),
+              paddingVertical: theme.spacing(6),
+            }}
+          >
+            <Badge
+              tone={booking.statusMeta.tone}
+              label={booking.statusMeta.label}
+            />
             <Button
               label={tm.viewBooking}
               onPress={() => router.replace(`/bookings/${booking.code}`)}
             />
-            <Button variant="outline" label={tm.browseTours} onPress={() => router.replace('/')} />
+            <Button
+              variant="outline"
+              label={tm.browseTours}
+              onPress={() => router.replace('/')}
+            />
           </View>
         ) : null}
 
@@ -222,7 +280,10 @@ export default function BookingResultScreen() {
             <AppText variant="body" style={{ textAlign: 'center' }}>
               {ts.notFound}
             </AppText>
-            <Button label={tm.browseTours} onPress={() => router.replace('/')} />
+            <Button
+              label={tm.browseTours}
+              onPress={() => router.replace('/')}
+            />
           </View>
         ) : null}
 
@@ -237,7 +298,11 @@ export default function BookingResultScreen() {
             <AppText variant="body" style={{ textAlign: 'center' }}>
               {tm.resultError}
             </AppText>
-            <Button testID="verify-again" label={tm.verifyAgain} onPress={() => void verify()} />
+            <Button
+              testID="verify-again"
+              label={tm.verifyAgain}
+              onPress={() => void verify()}
+            />
           </View>
         ) : null}
       </View>

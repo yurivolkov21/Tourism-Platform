@@ -15,7 +15,9 @@ export function BuiltWith() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <Reveal>
           <div className="border-border flex flex-col gap-6 border-t pt-12">
-            <p className="text-muted-foreground text-center text-base">{t.caption}</p>
+            <p className="text-muted-foreground text-center text-base">
+              {t.caption}
+            </p>
             <TechMarquee />
           </div>
         </Reveal>

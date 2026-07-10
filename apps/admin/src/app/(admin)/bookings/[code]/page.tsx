@@ -3,7 +3,14 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 
-import { Badge, Card, CardContent, CardHeader, CardTitle, Separator } from '@tourism/ui';
+import {
+  Badge,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Separator,
+} from '@tourism/ui';
 
 import { BookingStatusBadge } from '../../../../components/bookings/booking-status-badge';
 import { CopyCodeButton } from '../../../../components/bookings/copy-code-button';
@@ -11,8 +18,16 @@ import { DenyCancellation } from '../../../../components/bookings/deny-cancellat
 import { RefundBooking } from '../../../../components/bookings/refund-booking';
 import { getBooking } from '../../../../lib/bookings/data';
 import type { AdminBookingDetail } from '../../../../lib/bookings/detail';
-import { buildBookingTimeline, formatRelativeTime, stripePaymentUrl } from '../../../../lib/bookings/detail';
-import { formatGuests, formatMoney, formatSeatsSummary } from '../../../../lib/bookings/format';
+import {
+  buildBookingTimeline,
+  formatRelativeTime,
+  stripePaymentUrl,
+} from '../../../../lib/bookings/detail';
+import {
+  formatGuests,
+  formatMoney,
+  formatSeatsSummary,
+} from '../../../../lib/bookings/format';
 
 interface BookingDetailPageProps {
   params: Promise<{ code: string }>;
@@ -30,7 +45,11 @@ function formatDate(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? '—'
-    : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    : d.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
 }
 
 /** One label/value row in the summary rail. */
@@ -53,7 +72,9 @@ function Fact({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
-export default async function BookingDetailPage({ params }: BookingDetailPageProps) {
+export default async function BookingDetailPage({
+  params,
+}: BookingDetailPageProps) {
   const { code } = await params;
 
   let booking: AdminBookingDetail;
@@ -63,12 +84,18 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
     notFound();
   }
 
-  const paymentLabel = booking.paymentProvider === 'STRIPE' ? 'Stripe' : 'PayPal';
-  const stripeUrl = stripePaymentUrl(booking.providerPaymentId, booking.paymentProvider);
+  const paymentLabel =
+    booking.paymentProvider === 'STRIPE' ? 'Stripe' : 'PayPal';
+  const stripeUrl = stripePaymentUrl(
+    booking.providerPaymentId,
+    booking.paymentProvider,
+  );
   // Lifecycle events that actually happened (have a timestamp) — rendered as compact date rows.
   const lifecycle = buildBookingTimeline(booking).filter((s) => s.at);
   const openCancellationRequest =
-    booking.cancellationRequest?.status === 'REQUESTED' ? booking.cancellationRequest : null;
+    booking.cancellationRequest?.status === 'REQUESTED'
+      ? booking.cancellationRequest
+      : null;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 lg:px-6">
@@ -84,7 +111,9 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="font-heading text-2xl font-bold tracking-tight">{booking.code}</h1>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">
+              {booking.code}
+            </h1>
             <CopyCodeButton code={booking.code} />
             <BookingStatusBadge status={booking.status} />
           </div>
@@ -108,12 +137,20 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
           {openCancellationRequest ? (
             <Card className="border-destructive/50">
               <CardHeader>
-                <CardTitle className="text-base">Cancellation requested</CardTitle>
+                <CardTitle className="text-base">
+                  Cancellation requested
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-                  <Fact label="Reason" value={openCancellationRequest.reason?.trim() || '—'} />
-                  <Fact label="Requested" value={formatDate(openCancellationRequest.createdAt)} />
+                  <Fact
+                    label="Reason"
+                    value={openCancellationRequest.reason?.trim() || '—'}
+                  />
+                  <Fact
+                    label="Requested"
+                    value={formatDate(openCancellationRequest.createdAt)}
+                  />
                 </dl>
                 <div className="flex flex-wrap gap-2">
                   <RefundBooking
@@ -123,7 +160,10 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
                     currency={booking.currency}
                     hasOpenRequest
                   />
-                  <DenyCancellation requestId={openCancellationRequest.id} code={booking.code} />
+                  <DenyCancellation
+                    requestId={openCancellationRequest.id}
+                    code={booking.code}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -150,7 +190,10 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
                   label="Departure"
                   value={`${formatDate(booking.departure.startDate)} → ${formatDate(booking.departure.endDate)}`}
                 />
-                {formatSeatsSummary(booking.departure.seatsTotal, booking.departure.seatsBooked) ? (
+                {formatSeatsSummary(
+                  booking.departure.seatsTotal,
+                  booking.departure.seatsBooked,
+                ) ? (
                   <Fact
                     label="Seats"
                     value={formatSeatsSummary(
@@ -199,8 +242,12 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
               </dl>
               {booking.specialRequests?.trim() ? (
                 <div className="space-y-1">
-                  <p className="text-muted-foreground text-xs">Special requests</p>
-                  <p className="text-sm whitespace-pre-line">{booking.specialRequests}</p>
+                  <p className="text-muted-foreground text-xs">
+                    Special requests
+                  </p>
+                  <p className="text-sm whitespace-pre-line">
+                    {booking.specialRequests}
+                  </p>
                 </div>
               ) : null}
 
@@ -210,13 +257,23 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
                   <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
                     <Fact
                       label="Account"
-                      value={booking.customer.fullName?.trim() || booking.customer.email}
+                      value={
+                        booking.customer.fullName?.trim() ||
+                        booking.customer.email
+                      }
                     />
                     <Fact
                       label="Account email"
-                      value={<span className="break-all">{booking.customer.email}</span>}
+                      value={
+                        <span className="break-all">
+                          {booking.customer.email}
+                        </span>
+                      }
                     />
-                    <Fact label="Customer since" value={formatDate(booking.customer.createdAt)} />
+                    <Fact
+                      label="Customer since"
+                      value={formatDate(booking.customer.createdAt)}
+                    />
                   </dl>
                 </>
               ) : null}
@@ -227,11 +284,16 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
                     Other bookings ({booking.otherBookings.total})
                   </p>
                   {booking.otherBookings.items.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">No other bookings.</p>
+                    <p className="text-muted-foreground text-sm">
+                      No other bookings.
+                    </p>
                   ) : (
                     <ul className="divide-border divide-y">
                       {booking.otherBookings.items.map((b) => (
-                        <li key={b.code} className="flex items-center justify-between gap-3 py-2">
+                        <li
+                          key={b.code}
+                          className="flex items-center justify-between gap-3 py-2"
+                        >
                           <div className="min-w-0">
                             <Link
                               href={`/bookings/${b.code}`}
@@ -239,7 +301,9 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
                             >
                               {b.code}
                             </Link>
-                            <p className="text-muted-foreground truncate text-xs">{b.tourTitle}</p>
+                            <p className="text-muted-foreground truncate text-xs">
+                              {b.tourTitle}
+                            </p>
                           </div>
                           <div className="flex shrink-0 items-center gap-3">
                             <span className="text-muted-foreground text-xs">
@@ -251,7 +315,9 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
                       ))}
                     </ul>
                   )}
-                  {booking.customer && booking.otherBookings.total > booking.otherBookings.items.length ? (
+                  {booking.customer &&
+                  booking.otherBookings.total >
+                    booking.otherBookings.items.length ? (
                     <Link
                       href={`/bookings?userId=${booking.customer.id}`}
                       className="text-primary text-sm hover:underline"
@@ -270,17 +336,24 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
             </CardHeader>
             <CardContent>
               {!booking.paymentEvents || booking.paymentEvents.length === 0 ? (
-                <p className="text-muted-foreground text-sm">No webhook events received yet.</p>
+                <p className="text-muted-foreground text-sm">
+                  No webhook events received yet.
+                </p>
               ) : (
                 <ul className="divide-border divide-y">
                   {booking.paymentEvents.map((e) => (
-                    <li key={e.id} className="flex items-center justify-between gap-3 py-2">
+                    <li
+                      key={e.id}
+                      className="flex items-center justify-between gap-3 py-2"
+                    >
                       <div className="min-w-0">
                         <p className="truncate font-mono text-sm">{e.type}</p>
                         <p className="text-muted-foreground text-xs">
                           {e.provider === 'STRIPE' ? 'Stripe' : 'PayPal'} ·{' '}
                           {formatDate(e.receivedAt)}
-                          <span className="ml-1">{formatRelativeTime(e.receivedAt)}</span>
+                          <span className="ml-1">
+                            {formatRelativeTime(e.receivedAt)}
+                          </span>
                         </p>
                       </div>
                       {e.processedAt ? (
@@ -308,7 +381,10 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
             </CardHeader>
             <CardContent className="space-y-4">
               <dl className="space-y-3">
-                <SummaryRow label="Status" value={<BookingStatusBadge status={booking.status} />} />
+                <SummaryRow
+                  label="Status"
+                  value={<BookingStatusBadge status={booking.status} />}
+                />
                 <SummaryRow
                   label="Total"
                   value={
@@ -347,8 +423,12 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
                 <>
                   <Separator />
                   <div className="space-y-1">
-                    <p className="text-muted-foreground text-xs">Payment reference</p>
-                    <p className="font-mono text-xs break-all">{booking.providerPaymentId}</p>
+                    <p className="text-muted-foreground text-xs">
+                      Payment reference
+                    </p>
+                    <p className="font-mono text-xs break-all">
+                      {booking.providerPaymentId}
+                    </p>
                     {stripeUrl ? (
                       <a
                         href={stripeUrl}
@@ -368,13 +448,18 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
                 <>
                   <Separator />
                   <div className="space-y-1">
-                    <p className="text-muted-foreground text-xs">Session reference</p>
-                    <p className="font-mono text-xs break-all">{booking.providerSessionId}</p>
+                    <p className="text-muted-foreground text-xs">
+                      Session reference
+                    </p>
+                    <p className="font-mono text-xs break-all">
+                      {booking.providerSessionId}
+                    </p>
                   </div>
                 </>
               ) : null}
 
-              {booking.status === 'REFUNDED' || booking.status === 'PARTIALLY_REFUNDED' ? (
+              {booking.status === 'REFUNDED' ||
+              booking.status === 'PARTIALLY_REFUNDED' ? (
                 <>
                   <Separator />
                   <div className="space-y-2">
@@ -383,17 +468,25 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
                       {booking.refundedAmount ? (
                         <Fact
                           label="Amount"
-                          value={formatMoney(booking.refundedAmount, booking.currency)}
+                          value={formatMoney(
+                            booking.refundedAmount,
+                            booking.currency,
+                          )}
                         />
                       ) : null}
                       <Fact
                         label="Reason"
-                        value={booking.refundReason?.trim() || 'No reason recorded'}
+                        value={
+                          booking.refundReason?.trim() || 'No reason recorded'
+                        }
                       />
                       {booking.refundedBy ? (
                         <Fact
                           label="By"
-                          value={booking.refundedBy.fullName?.trim() || booking.refundedBy.email}
+                          value={
+                            booking.refundedBy.fullName?.trim() ||
+                            booking.refundedBy.email
+                          }
                         />
                       ) : null}
                     </dl>

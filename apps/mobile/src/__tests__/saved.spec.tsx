@@ -25,10 +25,14 @@ jest.mock('../lib/wishlist', () => ({
   }),
 }));
 
-const mockFetch = fetchSavedTours as jest.MockedFunction<typeof fetchSavedTours>;
+const mockFetch = fetchSavedTours as jest.MockedFunction<
+  typeof fetchSavedTours
+>;
 
 function renderSaved() {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: 0 } },
+  });
   return render(
     <SafeAreaProvider>
       <ThemeProvider>
@@ -75,5 +79,7 @@ test('signed-in empty state offers browsing', async () => {
   mockFetch.mockResolvedValueOnce([]);
   renderSaved();
   expect(await screen.findByText(/nothing saved yet/i)).toBeOnTheScreen();
-  expect(screen.getByRole('button', { name: 'Browse tours' })).toBeOnTheScreen();
+  expect(
+    screen.getByRole('button', { name: 'Browse tours' }),
+  ).toBeOnTheScreen();
 });

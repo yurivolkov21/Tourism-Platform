@@ -76,7 +76,9 @@ export function AccountDashboard({
     <div className="space-y-8">
       {/* Editorial header (no banner overlap) */}
       <header>
-        <p className="text-primary text-xs font-semibold tracking-[0.18em] uppercase">{t.eyebrow}</p>
+        <p className="text-primary text-xs font-semibold tracking-[0.18em] uppercase">
+          {t.eyebrow}
+        </p>
         <h1 className="font-heading mt-2 text-3xl font-semibold sm:text-4xl">
           {t.greeting(displayName)}
         </h1>
@@ -89,7 +91,11 @@ export function AccountDashboard({
           <div className="flex items-center gap-4">
             <div className="bg-muted ring-border size-18 shrink-0 overflow-hidden rounded-2xl ring-1 sm:size-20">
               {avatarUrl ? (
-                <img src={avatarUrl} alt={displayName} className="size-full object-cover" />
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  className="size-full object-cover"
+                />
               ) : (
                 <span className="text-muted-foreground flex size-full items-center justify-center text-2xl font-semibold">
                   {initial(name, email)}
@@ -98,14 +104,18 @@ export function AccountDashboard({
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-heading text-xl font-semibold">{displayName}</h2>
+                <h2 className="font-heading text-xl font-semibold">
+                  {displayName}
+                </h2>
                 <span className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium">
                   <CompassIcon className="size-3" />
                   {t.traveller}
                 </span>
               </div>
               <p className="text-muted-foreground text-sm">{email}</p>
-              <p className="text-muted-foreground/80 mt-0.5 text-xs">{t.memberSince(memberSince)}</p>
+              <p className="text-muted-foreground/80 mt-0.5 text-xs">
+                {t.memberSince(memberSince)}
+              </p>
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -126,8 +136,13 @@ export function AccountDashboard({
       {/* Journey stats — one divided card, centered */}
       <section className="bg-card shadow-card grid grid-cols-2 divide-x divide-y rounded-2xl border sm:grid-cols-4 sm:divide-y-0">
         {statCards.map(({ key, label, value }) => (
-          <div key={key} className="flex flex-col items-center justify-center gap-1 p-6 text-center">
-            <p className="font-heading text-3xl font-semibold tabular-nums sm:text-4xl">{value}</p>
+          <div
+            key={key}
+            className="flex flex-col items-center justify-center gap-1 p-6 text-center"
+          >
+            <p className="font-heading text-3xl font-semibold tabular-nums sm:text-4xl">
+              {value}
+            </p>
             <p className="text-muted-foreground text-xs font-medium tracking-[0.12em] uppercase">
               {label}
             </p>
@@ -142,7 +157,11 @@ export function AccountDashboard({
           <div className="flex h-full flex-col sm:flex-row">
             <div className="from-primary to-primary/70 relative aspect-video bg-linear-to-br sm:aspect-auto sm:w-2/5">
               {nextTrip?.image ? (
-                <img src={nextTrip.image} alt="" className="absolute inset-0 size-full object-cover" />
+                <img
+                  src={nextTrip.image}
+                  alt=""
+                  className="absolute inset-0 size-full object-cover"
+                />
               ) : null}
               {nextTrip ? (
                 <span className="bg-card/90 text-foreground absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium shadow-sm backdrop-blur-sm">
@@ -157,7 +176,9 @@ export function AccountDashboard({
               </p>
               {nextTrip ? (
                 <>
-                  <p className="font-heading text-xl font-semibold">{nextTrip.title}</p>
+                  <p className="font-heading text-xl font-semibold">
+                    {nextTrip.title}
+                  </p>
                   <p className="text-muted-foreground flex items-center gap-1.5 text-sm">
                     <MapPinIcon className="size-4" />
                     {nextTrip.dateLabel}
@@ -173,8 +194,12 @@ export function AccountDashboard({
                 </>
               ) : (
                 <>
-                  <p className="font-heading text-xl font-semibold">{t.nextTrip.noneTitle}</p>
-                  <p className="text-muted-foreground text-sm text-pretty">{t.nextTrip.noneBody}</p>
+                  <p className="font-heading text-xl font-semibold">
+                    {t.nextTrip.noneTitle}
+                  </p>
+                  <p className="text-muted-foreground text-sm text-pretty">
+                    {t.nextTrip.noneBody}
+                  </p>
                   <Button
                     render={<Link href="/tours" />}
                     nativeButton={false}
@@ -192,7 +217,9 @@ export function AccountDashboard({
         {/* Saved for later — compact preview; full list lives at /account/saved */}
         <div className="bg-card shadow-card rounded-2xl border p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg sm:p-6">
           <div className="flex items-center justify-between">
-            <h2 className="font-heading text-base font-semibold">{t.saved.heading}</h2>
+            <h2 className="font-heading text-base font-semibold">
+              {t.saved.heading}
+            </h2>
             {stats.saved > 0 ? (
               <Link
                 href="/account/saved"
@@ -215,24 +242,35 @@ export function AccountDashboard({
             <ul className="mt-4 space-y-3">
               {saved.map((s) => (
                 <li key={s.slug}>
-                  <Link href={`/tours/${s.slug}`} className="group flex items-center gap-3">
+                  <Link
+                    href={`/tours/${s.slug}`}
+                    className="group flex items-center gap-3"
+                  >
                     <div className="bg-muted size-12 shrink-0 overflow-hidden rounded-lg">
                       {s.image ? (
-                        <img src={s.image} alt="" className="size-full object-cover" />
+                        <img
+                          src={s.image}
+                          alt=""
+                          className="size-full object-cover"
+                        />
                       ) : null}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="group-hover:text-primary truncate text-sm font-medium transition-colors">
                         {s.title}
                       </p>
-                      <p className="text-muted-foreground text-xs">{t.saved.from(s.priceLabel)}</p>
+                      <p className="text-muted-foreground text-xs">
+                        {t.saved.from(s.priceLabel)}
+                      </p>
                     </div>
                   </Link>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-muted-foreground mt-4 text-sm text-pretty">{t.saved.empty}</p>
+            <p className="text-muted-foreground mt-4 text-sm text-pretty">
+              {t.saved.empty}
+            </p>
           )}
         </div>
       </section>
@@ -241,7 +279,9 @@ export function AccountDashboard({
       {upcoming.length > 0 ? (
         <section className="bg-card shadow-card rounded-2xl border p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg sm:p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-heading text-base font-semibold">{t.upcoming.heading}</h2>
+            <h2 className="font-heading text-base font-semibold">
+              {t.upcoming.heading}
+            </h2>
             <Link
               href="/account/bookings"
               className="text-primary inline-flex items-center gap-1 text-xs font-medium hover:underline"
@@ -259,7 +299,9 @@ export function AccountDashboard({
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{row.title}</p>
-                    <p className="text-muted-foreground text-xs">{row.dateLabel}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {row.dateLabel}
+                    </p>
                   </div>
                   <span
                     className={`hidden rounded-full px-2.5 py-0.5 text-xs font-medium sm:inline-flex ${bookingStatusTone(
@@ -271,7 +313,10 @@ export function AccountDashboard({
                   <span className="text-muted-foreground hidden font-mono text-xs sm:inline">
                     {row.code}
                   </span>
-                  <ArrowRightIcon className="text-muted-foreground size-4" aria-hidden="true" />
+                  <ArrowRightIcon
+                    className="text-muted-foreground size-4"
+                    aria-hidden="true"
+                  />
                 </Link>
               </li>
             ))}

@@ -45,7 +45,9 @@ export function RegionIntro({
           <p className="text-muted-foreground text-pretty">{intro2}</p>
 
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            <span className="text-foreground text-sm font-medium">{t.bestForLabel}:</span>
+            <span className="text-foreground text-sm font-medium">
+              {t.bestForLabel}:
+            </span>
             {tags.map((tag) => (
               <span
                 key={tag}
@@ -71,7 +73,10 @@ export function RegionIntro({
 
         {/* Right: feature + 2 stacked — one tall image left, two stacked right (clean, no repeats) */}
         <div className="grid h-96 grid-cols-2 grid-rows-2 gap-3 sm:gap-4">
-          <Tile image={{ src: images[0], alt: name }} className="row-span-2 h-full" />
+          <Tile
+            image={{ src: images[0], alt: name }}
+            className="row-span-2 h-full"
+          />
           <Tile image={{ src: images[1], alt: name }} className="h-full" />
           <Tile image={{ src: images[2], alt: name }} className="h-full" />
         </div>

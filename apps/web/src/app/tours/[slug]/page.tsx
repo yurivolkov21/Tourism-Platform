@@ -2,7 +2,12 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronRightIcon, ClockIcon, MapPinIcon, StarIcon } from 'lucide-react';
+import {
+  ChevronRightIcon,
+  ClockIcon,
+  MapPinIcon,
+  StarIcon,
+} from 'lucide-react';
 
 import { ScrollProgress } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
@@ -18,9 +23,15 @@ import { TourReviews } from '../../../components/tours/tour-reviews';
 import { TourTrust } from '../../../components/tours/tour-trust';
 import { TourFaq } from '../../../components/tours/tour-faq';
 import { RelatedTours } from '../../../components/tours/related-tours';
-import { Gallery, type GallerySection } from '../../../components/marketing/gallery';
+import {
+  Gallery,
+  type GallerySection,
+} from '../../../components/marketing/gallery';
 import { EnquiryCta } from '../../../components/marketing/enquiry-cta';
-import { fetchTourDetail, fetchTourDetailSlugs } from '../../../lib/api/tour-detail';
+import {
+  fetchTourDetail,
+  fetchTourDetailSlugs,
+} from '../../../lib/api/tour-detail';
 import { BreadcrumbJsonLd, TourJsonLd } from '../../../components/seo/json-ld';
 
 // ISR: render real tour detail statically; revalidate so the free API tier isn't hit per request.
@@ -54,7 +65,11 @@ export async function generateMetadata({
   };
 }
 
-export default async function TourDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function TourDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const tour = await fetchTourDetail(slug);
   if (!tour) notFound();
@@ -65,7 +80,10 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
   const galleryImages = tour.gallery.map((src) => ({ src, alt: tour.title }));
   const gallerySections: GallerySection[] =
     galleryImages.length > 1
-      ? [{ images: [galleryImages[0]] }, { type: 'grid', images: galleryImages.slice(1) }]
+      ? [
+          { images: [galleryImages[0]] },
+          { type: 'grid', images: galleryImages.slice(1) },
+        ]
       : [{ images: galleryImages }];
 
   return (
@@ -92,7 +110,14 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
 
       {/* Tour hero */}
       <section className="relative isolate flex min-h-88 items-end overflow-hidden lg:min-h-112">
-        <Image src={cover} alt={tour.title} fill priority sizes="100vw" className="-z-10 object-cover" />
+        <Image
+          src={cover}
+          alt={tour.title}
+          fill
+          priority
+          sizes="100vw"
+          className="-z-10 object-cover"
+        />
         <div className="from-overlay/85 via-overlay/45 absolute inset-0 -z-10 bg-linear-to-t to-transparent" />
 
         <div className="text-on-media mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8 lg:pb-14">
@@ -131,7 +156,10 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
               {tour.durationDays} {messages.featuredTours.daysLabel}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <StarIcon className="fill-rating text-rating size-4" aria-hidden="true" />
+              <StarIcon
+                className="fill-rating text-rating size-4"
+                aria-hidden="true"
+              />
               <span className="font-semibold">{tour.rating.toFixed(1)}</span>
               <span className="text-on-media/75">({tour.reviewCount})</span>
             </span>
@@ -159,7 +187,10 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
                 excluded={tour.notIncluded}
               />
               <TourPolicies
-                groups={tour.policies?.map((p) => ({ title: p.title, items: [p.body] }))}
+                groups={tour.policies?.map((p) => ({
+                  title: p.title,
+                  items: [p.body],
+                }))}
               />
             </div>
 
@@ -180,11 +211,20 @@ export default async function TourDetailPage({ params }: { params: Promise<{ slu
         </div>
       </section>
 
-      <TourReviews reviews={tour.reviews} rating={tour.rating} reviewCount={tour.reviewCount} />
+      <TourReviews
+        reviews={tour.reviews}
+        rating={tour.rating}
+        reviewCount={tour.reviewCount}
+      />
       <TourTrust />
-      <TourFaq items={tour.faqs?.map((f) => ({ q: f.question, a: f.answer }))} />
+      <TourFaq
+        items={tour.faqs?.map((f) => ({ q: f.question, a: f.answer }))}
+      />
       <RelatedTours tours={tour.related} />
-      <EnquiryCta heading={td.enquireHeading(tour.title)} prefillDestination={tour.title} />
+      <EnquiryCta
+        heading={td.enquireHeading(tour.title)}
+        prefillDestination={tour.title}
+      />
     </main>
   );
 }

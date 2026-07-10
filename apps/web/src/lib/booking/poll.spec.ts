@@ -1,4 +1,8 @@
-import { MAX_CONFIRM_POLLS, confirmPollDelayMs, shouldKeepPolling } from './poll';
+import {
+  MAX_CONFIRM_POLLS,
+  confirmPollDelayMs,
+  shouldKeepPolling,
+} from './poll';
 
 describe('confirmPollDelayMs', () => {
   it('starts at 2s and steps up every two attempts (gentle backoff)', () => {

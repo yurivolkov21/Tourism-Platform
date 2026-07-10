@@ -13,7 +13,11 @@ export interface PageView {
 }
 
 /** Clamp a page request to a result set and derive the visible slice bounds. */
-export function pageView(total: number, page: number, pageSize: number): PageView {
+export function pageView(
+  total: number,
+  page: number,
+  pageSize: number,
+): PageView {
   const size = Math.max(1, pageSize);
   const totalPages = Math.max(1, Math.ceil(total / size));
   const clamped = Math.min(Math.max(1, Math.trunc(page) || 1), totalPages);

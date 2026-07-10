@@ -23,7 +23,9 @@ function completedEvent() {
 function makeStripe(over: Record<string, unknown> = {}) {
   return {
     constructEvent: jest.fn().mockReturnValue(completedEvent()),
-    createRefund: jest.fn().mockResolvedValue({ id: 're_1', status: 'succeeded' }),
+    createRefund: jest
+      .fn()
+      .mockResolvedValue({ id: 're_1', status: 'succeeded' }),
     ...over,
   } as unknown as import('./stripe.service').StripeService;
 }
@@ -60,7 +62,9 @@ function makePrisma(o: PrismaOver = {}): PrismaService {
 function makePayPal(over: Record<string, unknown> = {}) {
   return {
     verifyWebhookSignature: jest.fn().mockResolvedValue(true),
-    refundCapture: jest.fn().mockResolvedValue({ id: 'rf_1', status: 'COMPLETED' }),
+    refundCapture: jest
+      .fn()
+      .mockResolvedValue({ id: 'rf_1', status: 'COMPLETED' }),
     ...over,
   } as unknown as import('./paypal.service').PayPalService;
 }
@@ -82,9 +86,9 @@ describe('PaymentsService.handleStripeEvent', () => {
         throw new Error('bad sig');
       }),
     });
-    await expect(svc(makePrisma(), stripe).handleStripeEvent(RAW, 'sig')).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(
+      svc(makePrisma(), stripe).handleStripeEvent(RAW, 'sig'),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it('skips a duplicate already-processed event without side effects', async () => {
@@ -103,7 +107,11 @@ describe('PaymentsService.handleStripeEvent', () => {
 
     const res = await service.handleStripeEvent(RAW, 'sig');
 
-    expect(res).toEqual({ received: true, eventId: 'evt_1', type: 'checkout.session.completed' });
+    expect(res).toEqual({
+      received: true,
+      eventId: 'evt_1',
+      type: 'checkout.session.completed',
+    });
     expect(queryRaw).not.toHaveBeenCalled(); // no dispatch
     expect(update).not.toHaveBeenCalled(); // no processedAt write
   });
@@ -123,7 +131,9 @@ describe('PaymentsService.handleStripeEvent', () => {
     expect(stripe.createRefund).not.toHaveBeenCalled();
     expect(evtUpdate.mock.calls[0][0].data.processedAt).toBeInstanceOf(Date);
     // The confirmation email is enqueued atomically in the same CTE (ADR-0007).
-    const sql = (queryRaw.mock.calls[0][0] as { strings: string[] }).strings.join('');
+    const sql = (
+      queryRaw.mock.calls[0][0] as { strings: string[] }
+    ).strings.join('');
     expect(sql).toContain('INSERT INTO outbox');
     expect(sql).toContain('BOOKING_CONFIRMATION');
   });
@@ -136,7 +146,9 @@ describe('PaymentsService.handleStripeEvent', () => {
       makePrisma({
         $queryRaw: queryRaw,
         booking: {
-          findUnique: jest.fn().mockResolvedValue({ status: BookingStatus.PENDING }),
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ status: BookingStatus.PENDING }),
           update: bookingUpdate,
         },
       }),
@@ -146,7 +158,9 @@ describe('PaymentsService.handleStripeEvent', () => {
     await service.handleStripeEvent(RAW, 'sig');
 
     expect(stripe.createRefund).toHaveBeenCalledTimes(1);
-    expect(bookingUpdate.mock.calls[0][0].data.status).toBe(BookingStatus.REFUNDED);
+    expect(bookingUpdate.mock.calls[0][0].data.status).toBe(
+      BookingStatus.REFUNDED,
+    );
   });
 
   it('on completed but already terminal: no refund, no seat change', async () => {
@@ -156,7 +170,9 @@ describe('PaymentsService.handleStripeEvent', () => {
       makePrisma({
         $queryRaw: queryRaw,
         booking: {
-          findUnique: jest.fn().mockResolvedValue({ status: BookingStatus.PAID }),
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ status: BookingStatus.PAID }),
         },
       }),
       stripe,
@@ -188,7 +204,9 @@ describe('PaymentsService.handleStripeEvent', () => {
     );
 
     await service.handleStripeEvent(RAW, 'sig');
-    expect(bookingUpdate.mock.calls[0][0].data.status).toBe(BookingStatus.CANCELLED);
+    expect(bookingUpdate.mock.calls[0][0].data.status).toBe(
+      BookingStatus.CANCELLED,
+    );
   });
 
   it('ignores an unhandled event type but still acks 200', async () => {
@@ -213,7 +231,9 @@ describe('PaymentsService.claimSeatsForPaid (shared)', () => {
     const service = svc(
       makePrisma({ $queryRaw: jest.fn().mockResolvedValue([{ id: 'bk-1' }]) }),
     );
-    await expect(service.claimSeatsForPaid('bk-1', 'pay_1')).resolves.toBe('paid');
+    await expect(service.claimSeatsForPaid('bk-1', 'pay_1')).resolves.toBe(
+      'paid',
+    );
   });
 
   it('returns "overbooked" when nothing claimed but booking still PENDING', async () => {
@@ -221,7 +241,9 @@ describe('PaymentsService.claimSeatsForPaid (shared)', () => {
       makePrisma({
         $queryRaw: jest.fn().mockResolvedValue([]),
         booking: {
-          findUnique: jest.fn().mockResolvedValue({ status: BookingStatus.PENDING }),
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ status: BookingStatus.PENDING }),
         },
       }),
     );
@@ -235,7 +257,9 @@ describe('PaymentsService.claimSeatsForPaid (shared)', () => {
       makePrisma({
         $queryRaw: jest.fn().mockResolvedValue([]),
         booking: {
-          findUnique: jest.fn().mockResolvedValue({ status: BookingStatus.PAID }),
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ status: BookingStatus.PAID }),
         },
       }),
     );
@@ -246,7 +270,10 @@ describe('PaymentsService.claimSeatsForPaid (shared)', () => {
 });
 
 describe('PaymentsService.handlePayPalEvent', () => {
-  const headers = { 'paypal-transmission-id': 't', 'paypal-transmission-sig': 's' };
+  const headers = {
+    'paypal-transmission-id': 't',
+    'paypal-transmission-sig': 's',
+  };
   const captureEvent = {
     id: 'wh_1',
     event_type: 'PAYMENT.CAPTURE.COMPLETED',
@@ -258,7 +285,10 @@ describe('PaymentsService.handlePayPalEvent', () => {
       verifyWebhookSignature: jest.fn().mockResolvedValue(false),
     });
     await expect(
-      svc(makePrisma(), makeStripe(), paypal).handlePayPalEvent(headers, captureEvent),
+      svc(makePrisma(), makeStripe(), paypal).handlePayPalEvent(
+        headers,
+        captureEvent,
+      ),
     ).rejects.toThrow(BadRequestException);
   });
 

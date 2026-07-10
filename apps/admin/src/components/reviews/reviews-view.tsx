@@ -63,7 +63,11 @@ import { ColumnsMenu } from '../crud/columns-menu';
 import { AdminTableShell } from '../crud/admin-table-shell';
 import { ClientTablePagination } from '../crud/client-table-pagination';
 import { DEFAULT_PAGE_SIZE } from '../crud/data-table-pagination';
-import { deleteReview, setApproved, setFeatured } from '../../lib/reviews/actions';
+import {
+  deleteReview,
+  setApproved,
+  setFeatured,
+} from '../../lib/reviews/actions';
 import type { AdminReview } from '../../lib/reviews/data';
 import { formatRelativeTime } from '../../lib/relative-time';
 
@@ -78,8 +82,14 @@ const SOURCE_OPTIONS: { key: SourceKey; label: string }[] = [
 function StatusBadges({ review }: { review: AdminReview }) {
   return (
     <div className="flex flex-col items-start gap-1">
-      <Badge variant={review.isApproved ? 'default' : 'secondary'} className="gap-1.5">
-        <span className="size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+      <Badge
+        variant={review.isApproved ? 'default' : 'secondary'}
+        className="gap-1.5"
+      >
+        <span
+          className="size-1.5 rounded-full bg-current opacity-70"
+          aria-hidden
+        />
         {review.isApproved ? 'Approved' : 'Pending'}
       </Badge>
       {review.isFeatured ? <Badge variant="outline">Featured</Badge> : null}
@@ -102,7 +112,13 @@ function Rating({ value }: { value: number }) {
  * carries everything — no detail endpoint). Actions live in a ⋮ menu (approve/feature/delete);
  * Delete only exists for CURATED testimonials (the API enforces it — 409 otherwise).
  */
-export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: number }) {
+export function ReviewsView({
+  rows,
+  total,
+}: {
+  rows: AdminReview[];
+  total: number;
+}) {
   const [tab, setTab] = useState<Tab>('all');
   const [sources, setSources] = useState<SourceKey[]>([]);
   const [query, setQuery] = useState('');
@@ -125,9 +141,11 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
     return rows.filter((r) => {
       if (tab === 'pending' && r.isApproved) return false;
       if (tab === 'approved' && !r.isApproved) return false;
-      if (sources.length && !sources.includes(r.source as SourceKey)) return false;
+      if (sources.length && !sources.includes(r.source as SourceKey))
+        return false;
       if (needle) {
-        const haystack = `${r.authorName} ${r.title ?? ''} ${r.body}`.toLowerCase();
+        const haystack =
+          `${r.authorName} ${r.title ?? ''} ${r.body}`.toLowerCase();
         if (!haystack.includes(needle)) return false;
       }
       return true;
@@ -213,9 +231,13 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
             className="block max-w-md cursor-pointer text-left"
           >
             {row.original.title ? (
-              <span className="block truncate font-medium">{row.original.title}</span>
+              <span className="block truncate font-medium">
+                {row.original.title}
+              </span>
             ) : null}
-            <span className="text-muted-foreground line-clamp-2 text-sm">{row.original.body}</span>
+            <span className="text-muted-foreground line-clamp-2 text-sm">
+              {row.original.body}
+            </span>
           </button>
         ),
       },
@@ -251,7 +273,11 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
         header: 'Source',
         meta: { label: 'Source' },
         cell: ({ row }) => (
-          <Badge variant={row.original.source === 'CURATED' ? 'outline' : 'secondary'}>
+          <Badge
+            variant={
+              row.original.source === 'CURATED' ? 'outline' : 'secondary'
+            }
+          >
             {row.original.source === 'CURATED' ? 'Curated' : 'Verified'}
           </Badge>
         ),
@@ -294,12 +320,26 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
                 <MoreHorizontal className="size-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuItem onClick={() => act(r, 'approve')} disabled={busy}>
-                  {r.isApproved ? <Undo2 className="size-4" /> : <Check className="size-4" />}
+                <DropdownMenuItem
+                  onClick={() => act(r, 'approve')}
+                  disabled={busy}
+                >
+                  {r.isApproved ? (
+                    <Undo2 className="size-4" />
+                  ) : (
+                    <Check className="size-4" />
+                  )}
                   {r.isApproved ? 'Unapprove' : 'Approve'}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => act(r, 'feature')} disabled={busy}>
-                  {r.isFeatured ? <PinOff className="size-4" /> : <Pin className="size-4" />}
+                <DropdownMenuItem
+                  onClick={() => act(r, 'feature')}
+                  disabled={busy}
+                >
+                  {r.isFeatured ? (
+                    <PinOff className="size-4" />
+                  ) : (
+                    <Pin className="size-4" />
+                  )}
                   {r.isFeatured ? 'Unfeature' : 'Feature'}
                 </DropdownMenuItem>
                 {r.source === 'CURATED' ? (
@@ -336,14 +376,17 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
   });
 
   const toggleSource = (key: SourceKey, checked: boolean) => {
-    setSources((prev) => (checked ? [...prev, key] : prev.filter((s) => s !== key)));
+    setSources((prev) =>
+      checked ? [...prev, key] : prev.filter((s) => s !== key),
+    );
   };
 
   const sourceLabel =
     sources.length === 0
       ? 'All sources'
       : sources.length === 1
-        ? (SOURCE_OPTIONS.find((s) => s.key === sources[0])?.label ?? '1 source')
+        ? (SOURCE_OPTIONS.find((s) => s.key === sources[0])?.label ??
+          '1 source')
         : `${sources.length} sources`;
 
   const tabs: { value: Tab; label: string; count: number }[] = [
@@ -387,7 +430,9 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
                 onClick={() => setTab(t.value)}
                 className={cn(
                   'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                  isActive ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+                  isActive
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'hover:text-foreground',
                 )}
               >
                 {t.label}
@@ -423,7 +468,9 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
                   <DropdownMenuCheckboxItem
                     key={s.key}
                     checked={sources.includes(s.key)}
-                    onCheckedChange={(checked) => toggleSource(s.key, checked === true)}
+                    onCheckedChange={(checked) =>
+                      toggleSource(s.key, checked === true)
+                    }
                     closeOnClick={false}
                   >
                     {s.label}
@@ -433,7 +480,9 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
               {sources.length ? (
                 <>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setSources([])}>Clear filter</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSources([])}>
+                    Clear filter
+                  </DropdownMenuItem>
                 </>
               ) : null}
             </DropdownMenuContent>
@@ -466,7 +515,9 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
               <MessageSquareQuote />
             </EmptyMedia>
             <EmptyTitle>No reviews match your filters</EmptyTitle>
-            <EmptyDescription>Try different filters or clear them to see them all.</EmptyDescription>
+            <EmptyDescription>
+              Try different filters or clear them to see them all.
+            </EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : (
@@ -477,7 +528,10 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
       )}
 
       {/* Full-text drawer */}
-      <Sheet open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
+      <Sheet
+        open={Boolean(selected)}
+        onOpenChange={(open) => !open && setSelected(null)}
+      >
         <SheetContent className="w-full gap-0 overflow-y-auto sm:max-w-md">
           {selected ? (
             <>
@@ -495,7 +549,11 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
 
               <div className="space-y-6 px-4 pb-6">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant={selected.source === 'CURATED' ? 'outline' : 'secondary'}>
+                  <Badge
+                    variant={
+                      selected.source === 'CURATED' ? 'outline' : 'secondary'
+                    }
+                  >
                     {selected.source === 'CURATED' ? 'Curated' : 'Verified'}
                   </Badge>
                   <StatusBadges review={selected} />
@@ -504,7 +562,9 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
                 <Separator />
 
                 <div className="space-y-2">
-                  {selected.title ? <p className="font-medium">{selected.title}</p> : null}
+                  {selected.title ? (
+                    <p className="font-medium">{selected.title}</p>
+                  ) : null}
                   <p className="text-muted-foreground text-sm whitespace-pre-line">
                     {selected.body}
                   </p>
@@ -545,7 +605,11 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
                     disabled={busy}
                     className="w-full"
                   >
-                    {selected.isApproved ? <Undo2 className="size-4" /> : <Check className="size-4" />}
+                    {selected.isApproved ? (
+                      <Undo2 className="size-4" />
+                    ) : (
+                      <Check className="size-4" />
+                    )}
                     {selected.isApproved ? 'Unapprove' : 'Approve'}
                   </Button>
                   <Button
@@ -554,7 +618,11 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
                     disabled={busy}
                     className="w-full"
                   >
-                    {selected.isFeatured ? <PinOff className="size-4" /> : <Pin className="size-4" />}
+                    {selected.isFeatured ? (
+                      <PinOff className="size-4" />
+                    ) : (
+                      <Pin className="size-4" />
+                    )}
                     {selected.isFeatured ? 'Unfeature' : 'Feature'}
                   </Button>
                   {selected.source === 'CURATED' ? (
@@ -586,13 +654,18 @@ export function ReviewsView({ rows, total }: { rows: AdminReview[]; total: numbe
               Delete “{pendingDelete?.authorName}”’s testimonial?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This permanently removes the curated testimonial and can’t be undone. Verified
-              traveller reviews can’t be deleted — unapprove those to hide them.
+              This permanently removes the curated testimonial and can’t be
+              undone. Verified traveller reviews can’t be deleted — unapprove
+              those to hide them.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={confirmDelete} disabled={busy}>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={busy}
+            >
               {busy ? 'Deleting…' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>

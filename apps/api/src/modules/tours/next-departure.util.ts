@@ -37,6 +37,9 @@ export function nextDepartureInfo(
   }
   return {
     nextDepartureDate: toDateOnlyIso(soonest.startDate),
-    nextDepartureSeatsLeft: Math.max(0, soonest.seatsTotal - soonest.seatsBooked),
+    nextDepartureSeatsLeft: Math.max(
+      0,
+      soonest.seatsTotal - soonest.seatsBooked,
+    ),
   };
 }

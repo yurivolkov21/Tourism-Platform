@@ -4,9 +4,21 @@
  */
 
 /** How a traveller travels. */
-export type TravelStyle = 'family' | 'couples' | 'adventure' | 'luxury' | 'group' | 'private';
+export type TravelStyle =
+  | 'family'
+  | 'couples'
+  | 'adventure'
+  | 'luxury'
+  | 'group'
+  | 'private';
 /** What a tour is about. */
-export type TourTheme = 'cruise' | 'trekking' | 'cultural' | 'culinary' | 'beach' | 'nature';
+export type TourTheme =
+  | 'cruise'
+  | 'trekking'
+  | 'cultural'
+  | 'culinary'
+  | 'beach'
+  | 'nature';
 /** Duration facet buckets. */
 export type DurationBucket = '1' | '2-3' | '4+';
 /** Price facet buckets (USD per person). */
@@ -59,9 +71,14 @@ export function filterTours<T extends FilterableTour>(
   tours: readonly T[],
   filters: TourFilters = {},
 ): T[] {
-  const { destinations, categories, durations, styles, themes, prices } = filters;
+  const { destinations, categories, durations, styles, themes, prices } =
+    filters;
   return tours.filter((tour) => {
-    if (destinations && destinations.length > 0 && !destinations.includes(tour.destination)) {
+    if (
+      destinations &&
+      destinations.length > 0 &&
+      !destinations.includes(tour.destination)
+    ) {
       return false;
     }
     if (
@@ -78,7 +95,11 @@ export function filterTours<T extends FilterableTour>(
     ) {
       return false;
     }
-    if (prices && prices.length > 0 && !prices.includes(priceBucket(tour.basePrice))) {
+    if (
+      prices &&
+      prices.length > 0 &&
+      !prices.includes(priceBucket(tour.basePrice))
+    ) {
       return false;
     }
     if (
@@ -88,7 +109,11 @@ export function filterTours<T extends FilterableTour>(
     ) {
       return false;
     }
-    if (themes && themes.length > 0 && !(tour.themes ?? []).some((theme) => themes.includes(theme))) {
+    if (
+      themes &&
+      themes.length > 0 &&
+      !(tour.themes ?? []).some((theme) => themes.includes(theme))
+    ) {
       return false;
     }
     return true;
@@ -122,16 +147,24 @@ export interface SearchableTour {
  * case-insensitive (see {@link normalizeText}). An empty/whitespace query returns a copy of all
  * tours. Input order is preserved; input is not mutated.
  */
-export function searchTours<T extends SearchableTour>(tours: readonly T[], query: string): T[] {
+export function searchTours<T extends SearchableTour>(
+  tours: readonly T[],
+  query: string,
+): T[] {
   const q = normalizeText(query);
   if (q === '') return [...tours];
   return tours.filter((tour) =>
-    normalizeText(`${tour.title} ${tour.destination} ${tour.categoryName ?? ''}`).includes(q),
+    normalizeText(
+      `${tour.title} ${tour.destination} ${tour.categoryName ?? ''}`,
+    ).includes(q),
   );
 }
 
 /** Return a sorted copy of the tours (does not mutate the input). */
-export function sortTours<T extends FilterableTour>(tours: readonly T[], sort: TourSort): T[] {
+export function sortTours<T extends FilterableTour>(
+  tours: readonly T[],
+  sort: TourSort,
+): T[] {
   const copy = [...tours];
   switch (sort) {
     case 'price-asc':
@@ -139,7 +172,9 @@ export function sortTours<T extends FilterableTour>(tours: readonly T[], sort: T
     case 'price-desc':
       return copy.sort((a, b) => b.basePrice - a.basePrice);
     case 'rating':
-      return copy.sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount);
+      return copy.sort(
+        (a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount,
+      );
     case 'popular':
     default:
       return copy.sort((a, b) => b.reviewCount - a.reviewCount);

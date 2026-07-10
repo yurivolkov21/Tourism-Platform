@@ -1,5 +1,10 @@
 import Image from 'next/image';
-import { CarIcon, RouteIcon, UtensilsCrossedIcon, type LucideIcon } from 'lucide-react';
+import {
+  CarIcon,
+  RouteIcon,
+  UtensilsCrossedIcon,
+  type LucideIcon,
+} from 'lucide-react';
 
 import { cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
@@ -23,7 +28,13 @@ export function ValueProps({
   if (image) {
     return (
       <section className="relative isolate overflow-hidden py-20 sm:py-28">
-        <Image src={image} alt="" fill sizes="100vw" className="-z-10 object-cover" />
+        <Image
+          src={image}
+          alt=""
+          fill
+          sizes="100vw"
+          className="-z-10 object-cover"
+        />
         <div className="bg-overlay/70 absolute inset-0 -z-10" />
         <div className="text-on-media mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="font-heading mb-12 text-center text-2xl font-semibold text-balance md:text-3xl">
@@ -33,7 +44,10 @@ export function ValueProps({
             {t.valueProps.map((prop, i) => {
               const Icon = ICONS[i] ?? CarIcon;
               return (
-                <div key={prop.title} className="flex flex-col items-center gap-3 text-center">
+                <div
+                  key={prop.title}
+                  className="flex flex-col items-center gap-3 text-center"
+                >
                   <span className="border-primary-foreground/25 bg-background/15 flex size-12 items-center justify-center rounded-full border backdrop-blur-sm">
                     <Icon className="size-6" />
                   </span>
@@ -58,7 +72,10 @@ export function ValueProps({
           {t.valueProps.map((prop, i) => {
             const Icon = ICONS[i] ?? CarIcon;
             return (
-              <div key={prop.title} className="flex flex-col items-center gap-3 text-center">
+              <div
+                key={prop.title}
+                className="flex flex-col items-center gap-3 text-center"
+              >
                 <span
                   className={cn(
                     'flex size-12 items-center justify-center rounded-full',

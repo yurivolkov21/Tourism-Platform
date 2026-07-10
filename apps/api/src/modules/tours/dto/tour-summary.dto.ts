@@ -51,13 +51,24 @@ export class TourSummaryDto {
   @ApiProperty({ type: [String], example: ['Lantern-lit old town'] })
   highlights!: string[];
 
-  @ApiProperty({ enum: TravellerType, isArray: true, example: [TravellerType.FAMILY] })
+  @ApiProperty({
+    enum: TravellerType,
+    isArray: true,
+    example: [TravellerType.FAMILY],
+  })
   suitableFor!: TravellerType[];
 
-  @ApiProperty({ enum: TourBadge, isArray: true, example: [TourBadge.BEST_VALUE] })
+  @ApiProperty({
+    enum: TourBadge,
+    isArray: true,
+    example: [TourBadge.BEST_VALUE],
+  })
   badges!: TourBadge[];
 
-  @ApiProperty({ example: 4.8, description: 'Average of approved reviews (1-dp); 0 if none' })
+  @ApiProperty({
+    example: 4.8,
+    description: 'Average of approved reviews (1-dp); 0 if none',
+  })
   averageRating!: number;
 
   @ApiProperty({ example: 214, description: 'Count of approved reviews' })
@@ -76,7 +87,8 @@ export class TourSummaryDto {
     type: Number,
     nullable: true,
     example: 6,
-    description: 'Seats left on the soonest open upcoming departure; null if none',
+    description:
+      'Seats left on the soonest open upcoming departure; null if none',
   })
   nextDepartureSeatsLeft!: number | null;
 

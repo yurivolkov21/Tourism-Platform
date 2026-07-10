@@ -31,7 +31,9 @@ export const DEFAULT_PAGE_SIZE = 20;
  * grows unbounded, so we never load the whole set into the client. The wire format is already the
  * `{ data, meta }` envelope, so the typed body matches.
  */
-export async function listBookings(params: BookingListParams = {}): Promise<BookingList> {
+export async function listBookings(
+  params: BookingListParams = {},
+): Promise<BookingList> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/bookings', {
     params: {

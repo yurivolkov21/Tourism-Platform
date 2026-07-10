@@ -1,6 +1,12 @@
 import { toCsv } from './csv';
 
-const row = (over: Partial<{ email: string; source: string | null; subscribedAt: string }> = {}) => ({
+const row = (
+  over: Partial<{
+    email: string;
+    source: string | null;
+    subscribedAt: string;
+  }> = {},
+) => ({
   email: 'jane@example.com',
   source: 'footer',
   subscribedAt: '2026-07-05T08:00:00.000Z',
@@ -12,7 +18,9 @@ describe('toCsv', () => {
     const csv = toCsv([row()]);
     const lines = csv.trimEnd().split('\r\n');
     expect(lines[0]).toBe('"email","source","subscribed_at"');
-    expect(lines[1]).toBe('"jane@example.com","footer","2026-07-05T08:00:00.000Z"');
+    expect(lines[1]).toBe(
+      '"jane@example.com","footer","2026-07-05T08:00:00.000Z"',
+    );
   });
 
   it('doubles inner quotes and renders null source as empty', () => {

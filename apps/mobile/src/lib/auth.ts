@@ -1,6 +1,10 @@
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export type AuthErrorKey = 'invalidCredentials' | 'emailTaken' | 'weakPassword' | 'generic';
+export type AuthErrorKey =
+  | 'invalidCredentials'
+  | 'emailTaken'
+  | 'weakPassword'
+  | 'generic';
 
 export type SignInErrors = Partial<
   Record<'email' | 'password', 'emailInvalid' | 'passwordRequired'>
@@ -12,7 +16,10 @@ export type SignUpErrors = Partial<
   >
 >;
 
-export function validateSignIn(input: { email: string; password: string }): SignInErrors {
+export function validateSignIn(input: {
+  email: string;
+  password: string;
+}): SignInErrors {
   const errors: SignInErrors = {};
   if (!EMAIL_RE.test(input.email.trim())) errors.email = 'emailInvalid';
   if (input.password === '') errors.password = 'passwordRequired';
@@ -40,9 +47,12 @@ export function validateForgot(input: {
 }
 
 /** Supabase auth error message → friendly copy key (defensive substring checks). */
-export function mapAuthError(error: { message?: string } | null | undefined): AuthErrorKey {
+export function mapAuthError(
+  error: { message?: string } | null | undefined,
+): AuthErrorKey {
   const message = error?.message?.toLowerCase() ?? '';
-  if (message.includes('invalid login credentials')) return 'invalidCredentials';
+  if (message.includes('invalid login credentials'))
+    return 'invalidCredentials';
   if (message.includes('already registered')) return 'emailTaken';
   if (message.includes('password should be')) return 'weakPassword';
   return 'generic';

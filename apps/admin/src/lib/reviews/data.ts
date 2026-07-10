@@ -3,7 +3,8 @@ import { ApiRequestError } from '@tourism/core';
 
 import { createClient } from '../supabase/server';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
 
 /** Admin review row — the generated `AdminReviewDto` (incl. `tripLabel`/`tourTitle`). */
 export type AdminReview = components['schemas']['AdminReviewDto'];
@@ -49,10 +50,13 @@ async function authedGet<T>(path: string): Promise<T> {
 }
 
 /** Lists reviews for the moderation table (`GET /admin/reviews`, optional `isApproved` filter). */
-export async function listAdminReviews(params: AdminReviewParams = {}): Promise<AdminReviewList> {
+export async function listAdminReviews(
+  params: AdminReviewParams = {},
+): Promise<AdminReviewList> {
   const q = new URLSearchParams();
   if (params.page) q.set('page', String(params.page));
   q.set('pageSize', String(params.pageSize ?? 20));
-  if (params.isApproved !== undefined) q.set('isApproved', String(params.isApproved));
+  if (params.isApproved !== undefined)
+    q.set('isApproved', String(params.isApproved));
   return authedGet<AdminReviewList>(`/api/v1/admin/reviews?${q.toString()}`);
 }

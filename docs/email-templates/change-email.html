@@ -1,40 +1,153 @@
 <!-- Supabase → Authentication → Emails → "Change Email Address" -->
 <!-- Subject: Confirm your new Nexora email -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;padding:0;background-color:#f6f4ee;">
+<table
+  role="presentation"
+  width="100%"
+  cellpadding="0"
+  cellspacing="0"
+  style="margin: 0; padding: 0; background-color: #f6f4ee"
+>
   <tr>
-    <td align="center" style="padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;">
+    <td
+      align="center"
+      style="padding: 32px 16px; font-family: Arial, Helvetica, sans-serif"
+    >
+      <table
+        role="presentation"
+        width="100%"
+        cellpadding="0"
+        cellspacing="0"
+        style="max-width: 480px"
+      >
         <tr>
-          <td style="padding:0 4px 20px;">
-            <span style="font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:800;letter-spacing:-0.5px;color:#2f6b4f;">NEX</span>
-            <span style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:600;color:#1d4636;">&nbsp;Nexora</span>
+          <td style="padding: 0 4px 20px">
+            <span
+              style="
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 22px;
+                font-weight: 800;
+                letter-spacing: -0.5px;
+                color: #2f6b4f;
+              "
+              >NEX</span
+            >
+            <span
+              style="
+                font-family: Georgia, 'Times New Roman', serif;
+                font-size: 20px;
+                font-weight: 600;
+                color: #1d4636;
+              "
+              >&nbsp;Nexora</span
+            >
           </td>
         </tr>
         <tr>
-          <td style="background-color:#ffffff;border:1px solid #e7e2d6;border-radius:14px;padding:36px 32px;">
-            <h1 style="margin:0 0 12px;font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:1.25;font-weight:600;color:#1d4636;">Confirm your new email</h1>
-            <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#54514a;">
-              Confirm this address to finish updating the email you use to sign in to Nexora.
+          <td
+            style="
+              background-color: #ffffff;
+              border: 1px solid #e7e2d6;
+              border-radius: 14px;
+              padding: 36px 32px;
+            "
+          >
+            <h1
+              style="
+                margin: 0 0 12px;
+                font-family: Georgia, 'Times New Roman', serif;
+                font-size: 24px;
+                line-height: 1.25;
+                font-weight: 600;
+                color: #1d4636;
+              "
+            >
+              Confirm your new email
+            </h1>
+            <p
+              style="
+                margin: 0 0 24px;
+                font-size: 15px;
+                line-height: 1.6;
+                color: #54514a;
+              "
+            >
+              Confirm this address to finish updating the email you use to sign
+              in to Nexora.
             </p>
             <table role="presentation" cellpadding="0" cellspacing="0">
               <tr>
-                <td style="border-radius:10px;background-color:#2f6b4f;">
-                  <a href="{{ .ConfirmationURL }}" target="_blank"
-                     style="display:inline-block;padding:13px 28px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:10px;">
+                <td style="border-radius: 10px; background-color: #2f6b4f">
+                  <a
+                    href="{{ .ConfirmationURL }}"
+                    target="_blank"
+                    style="
+                      display: inline-block;
+                      padding: 13px 28px;
+                      font-family: Arial, Helvetica, sans-serif;
+                      font-size: 15px;
+                      font-weight: 600;
+                      color: #ffffff;
+                      text-decoration: none;
+                      border-radius: 10px;
+                    "
+                  >
                     Confirm email change
                   </a>
                 </td>
               </tr>
             </table>
-            <p style="margin:24px 0 6px;font-size:13px;line-height:1.6;color:#8a857a;">Or paste this link into your browser:</p>
-            <p style="margin:0;font-size:13px;line-height:1.5;word-break:break-all;color:#2f6b4f;">{{ .ConfirmationURL }}</p>
-            <hr style="border:none;border-top:1px solid #efece3;margin:28px 0 0;" />
-            <p style="margin:20px 0 0;font-size:12px;line-height:1.6;color:#9a958a;">If you didn’t request this change, please secure your account and contact us.</p>
+            <p
+              style="
+                margin: 24px 0 6px;
+                font-size: 13px;
+                line-height: 1.6;
+                color: #8a857a;
+              "
+            >
+              Or paste this link into your browser:
+            </p>
+            <p
+              style="
+                margin: 0;
+                font-size: 13px;
+                line-height: 1.5;
+                word-break: break-all;
+                color: #2f6b4f;
+              "
+            >
+              {{ .ConfirmationURL }}
+            </p>
+            <hr
+              style="
+                border: none;
+                border-top: 1px solid #efece3;
+                margin: 28px 0 0;
+              "
+            />
+            <p
+              style="
+                margin: 20px 0 0;
+                font-size: 12px;
+                line-height: 1.6;
+                color: #9a958a;
+              "
+            >
+              If you didn’t request this change, please secure your account and
+              contact us.
+            </p>
           </td>
         </tr>
         <tr>
-          <td style="padding:20px 8px 0;font-size:12px;line-height:1.6;color:#9a958a;">
-            <strong style="color:#6f6a5d;">Nexora</strong> · Boutique heritage journeys across Vietnam
+          <td
+            style="
+              padding: 20px 8px 0;
+              font-size: 12px;
+              line-height: 1.6;
+              color: #9a958a;
+            "
+          >
+            <strong style="color: #6f6a5d">Nexora</strong> · Boutique heritage
+            journeys across Vietnam
           </td>
         </tr>
       </table>

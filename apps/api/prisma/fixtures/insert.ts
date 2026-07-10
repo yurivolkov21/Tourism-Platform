@@ -26,28 +26,63 @@ const toDate = (value: string | null | undefined): Date | null | undefined =>
 
 export async function insertFixtures(prisma: PrismaClient): Promise<number> {
   const steps: Array<[string, () => Promise<{ count: number }>]> = [
-    ['users', () => prisma.user.createMany({ data: f.users as any, skipDuplicates: true })],
+    [
+      'users',
+      () =>
+        prisma.user.createMany({ data: f.users as any, skipDuplicates: true }),
+    ],
     [
       'tourCategories',
-      () => prisma.tourCategory.createMany({ data: f.tourCategories as any, skipDuplicates: true }),
+      () =>
+        prisma.tourCategory.createMany({
+          data: f.tourCategories as any,
+          skipDuplicates: true,
+        }),
     ],
     [
       'destinations',
-      () => prisma.destination.createMany({ data: f.destinations as any, skipDuplicates: true }),
+      () =>
+        prisma.destination.createMany({
+          data: f.destinations as any,
+          skipDuplicates: true,
+        }),
     ],
-    ['tours', () => prisma.tour.createMany({ data: f.tours as any, skipDuplicates: true })],
+    [
+      'tours',
+      () =>
+        prisma.tour.createMany({ data: f.tours as any, skipDuplicates: true }),
+    ],
     [
       'tourDestinations',
-      () => prisma.tourDestination.createMany({ data: f.tourDestinations as any, skipDuplicates: true }),
+      () =>
+        prisma.tourDestination.createMany({
+          data: f.tourDestinations as any,
+          skipDuplicates: true,
+        }),
     ],
     [
       'tourItineraryDays',
-      () => prisma.tourItineraryDay.createMany({ data: f.tourItineraryDays as any, skipDuplicates: true }),
+      () =>
+        prisma.tourItineraryDay.createMany({
+          data: f.tourItineraryDays as any,
+          skipDuplicates: true,
+        }),
     ],
-    ['tourFaqs', () => prisma.tourFaq.createMany({ data: f.tourFaqs as any, skipDuplicates: true })],
+    [
+      'tourFaqs',
+      () =>
+        prisma.tourFaq.createMany({
+          data: f.tourFaqs as any,
+          skipDuplicates: true,
+        }),
+    ],
     [
       'tourPolicies',
-      () => prisma.tourPolicy.createMany({ data: f.tourPolicies as any, skipDuplicates: true }),
+      () =>
+        prisma.tourPolicy.createMany({
+          data: f.tourPolicies as any,
+          skipDuplicates: true,
+        }),
     ],
     [
       'tourDepartures',
@@ -62,31 +97,78 @@ export async function insertFixtures(prisma: PrismaClient): Promise<number> {
           skipDuplicates: true,
         }),
     ],
-    ['bookings', () => prisma.booking.createMany({ data: f.bookings as any, skipDuplicates: true })],
+    [
+      'bookings',
+      () =>
+        prisma.booking.createMany({
+          data: f.bookings as any,
+          skipDuplicates: true,
+        }),
+    ],
     [
       'paymentEvents',
-      () => prisma.paymentEvent.createMany({ data: f.paymentEvents as any, skipDuplicates: true }),
+      () =>
+        prisma.paymentEvent.createMany({
+          data: f.paymentEvents as any,
+          skipDuplicates: true,
+        }),
     ],
-    ['reviews', () => prisma.review.createMany({ data: f.reviews as any, skipDuplicates: true })],
-    ['wishlist', () => prisma.wishlist.createMany({ data: f.wishlist as any, skipDuplicates: true })],
+    [
+      'reviews',
+      () =>
+        prisma.review.createMany({
+          data: f.reviews as any,
+          skipDuplicates: true,
+        }),
+    ],
+    [
+      'wishlist',
+      () =>
+        prisma.wishlist.createMany({
+          data: f.wishlist as any,
+          skipDuplicates: true,
+        }),
+    ],
     [
       'enquiries',
       () =>
         prisma.enquiry.createMany({
           // `travelDate` is a nullable @db.Date → coerce when present.
-          data: (f.enquiries as any[]).map((e) => ({ ...e, travelDate: toDate(e.travelDate) })),
+          data: (f.enquiries as any[]).map((e) => ({
+            ...e,
+            travelDate: toDate(e.travelDate),
+          })),
           skipDuplicates: true,
         }),
     ],
-    ['posts', () => prisma.post.createMany({ data: f.posts as any, skipDuplicates: true })],
-    ['outbox', () => prisma.outbox.createMany({ data: f.outbox as any, skipDuplicates: true })],
+    [
+      'posts',
+      () =>
+        prisma.post.createMany({ data: f.posts as any, skipDuplicates: true }),
+    ],
+    [
+      'outbox',
+      () =>
+        prisma.outbox.createMany({
+          data: f.outbox as any,
+          skipDuplicates: true,
+        }),
+    ],
     [
       'mediaAssets',
-      () => prisma.mediaAsset.createMany({ data: f.mediaAssets as any, skipDuplicates: true }),
+      () =>
+        prisma.mediaAsset.createMany({
+          data: f.mediaAssets as any,
+          skipDuplicates: true,
+        }),
     ],
     [
       'mediaGarbage',
-      () => prisma.mediaGarbage.createMany({ data: f.mediaGarbage as any, skipDuplicates: true }),
+      () =>
+        prisma.mediaGarbage.createMany({
+          data: f.mediaGarbage as any,
+          skipDuplicates: true,
+        }),
     ],
   ];
 

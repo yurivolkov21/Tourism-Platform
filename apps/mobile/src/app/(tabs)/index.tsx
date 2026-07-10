@@ -1,12 +1,24 @@
 import type { ReactNode } from 'react';
-import { FlatList, Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  View,
+} from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
-import { AppText, Button, Screen, Skeleton, useTheme } from '@tourism/mobile-ui';
+import {
+  AppText,
+  Button,
+  Screen,
+  Skeleton,
+  useTheme,
+} from '@tourism/mobile-ui';
 import { DestinationCard } from '../../components/destination-card';
 import { HeartButton } from '../../components/heart-button';
 import { SavedMiniCard } from '../../components/saved-mini-card';
@@ -30,7 +42,9 @@ function todayIso(): string {
 
 function Section({ children }: { children: ReactNode }) {
   const theme = useTheme();
-  return <View style={{ paddingHorizontal: theme.spacing(4) }}>{children}</View>;
+  return (
+    <View style={{ paddingHorizontal: theme.spacing(4) }}>{children}</View>
+  );
 }
 
 function Greeting() {
@@ -77,7 +91,11 @@ function SearchPill() {
         opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.9 : 1,
       })}
     >
-      <Ionicons name="search-outline" size={18} color={theme.colors['muted-foreground']} />
+      <Ionicons
+        name="search-outline"
+        size={18}
+        color={theme.colors['muted-foreground']}
+      />
       <AppText variant="body" muted style={{ flex: 1 }}>
         {t.searchPlaceholder}
       </AppText>
@@ -91,7 +109,11 @@ function SearchPill() {
           backgroundColor: theme.colors['primary'],
         }}
       >
-        <Ionicons name="search" size={18} color={theme.colors['primary-foreground']} />
+        <Ionicons
+          name="search"
+          size={18}
+          color={theme.colors['primary-foreground']}
+        />
       </View>
     </Pressable>
   );
@@ -103,8 +125,14 @@ export default function HomeScreen() {
   const { status } = useAuth();
   const signedIn = status === 'signedIn';
 
-  const toursQ = useQuery({ queryKey: ['tours', 'featured'], queryFn: fetchFeaturedTours });
-  const destQ = useQuery({ queryKey: ['destinations'], queryFn: fetchDestinations });
+  const toursQ = useQuery({
+    queryKey: ['tours', 'featured'],
+    queryFn: fetchFeaturedTours,
+  });
+  const destQ = useQuery({
+    queryKey: ['destinations'],
+    queryFn: fetchDestinations,
+  });
   const bookingsQ = useQuery({
     queryKey: ['bookings', 'list'],
     queryFn: fetchMyBookings,
@@ -116,7 +144,9 @@ export default function HomeScreen() {
     enabled: signedIn,
   });
 
-  const upcoming = bookingsQ.data ? selectUpcomingTrip(bookingsQ.data, todayIso()) : null;
+  const upcoming = bookingsQ.data
+    ? selectUpcomingTrip(bookingsQ.data, todayIso())
+    : null;
   const saved = savedQ.data ?? [];
 
   return (
@@ -197,9 +227,14 @@ export default function HomeScreen() {
               data={saved.slice(0, 6)}
               keyExtractor={(item) => item.tourId}
               renderItem={({ item }) => (
-                <SavedMiniCard tour={item} onPress={() => router.push(`/tours/${item.slug}`)} />
+                <SavedMiniCard
+                  tour={item}
+                  onPress={() => router.push(`/tours/${item.slug}`)}
+                />
               )}
-              ItemSeparatorComponent={() => <View style={{ width: theme.spacing(3) }} />}
+              ItemSeparatorComponent={() => (
+                <View style={{ width: theme.spacing(3) }} />
+              )}
               showsHorizontalScrollIndicator={false}
             />
           </Section>
@@ -210,7 +245,12 @@ export default function HomeScreen() {
           {toursQ.isPending ? (
             <View style={{ flexDirection: 'row', gap: theme.spacing(3) }}>
               {[0, 1].map((i) => (
-                <Skeleton key={i} width={260} height={300} borderRadius={theme.radius.lg} />
+                <Skeleton
+                  key={i}
+                  width={260}
+                  height={300}
+                  borderRadius={theme.radius.lg}
+                />
               ))}
             </View>
           ) : toursQ.isError ? (
@@ -240,7 +280,9 @@ export default function HomeScreen() {
                   />
                 </Animated.View>
               )}
-              ItemSeparatorComponent={() => <View style={{ width: theme.spacing(3) }} />}
+              ItemSeparatorComponent={() => (
+                <View style={{ width: theme.spacing(3) }} />
+              )}
               showsHorizontalScrollIndicator={false}
             />
           ) : (
@@ -261,11 +303,16 @@ export default function HomeScreen() {
                 <DestinationCard
                   destination={item}
                   onPress={() =>
-                    router.push({ pathname: '/explore', params: { destination: item.name } })
+                    router.push({
+                      pathname: '/explore',
+                      params: { destination: item.name },
+                    })
                   }
                 />
               )}
-              ItemSeparatorComponent={() => <View style={{ width: theme.spacing(3) }} />}
+              ItemSeparatorComponent={() => (
+                <View style={{ width: theme.spacing(3) }} />
+              )}
               showsHorizontalScrollIndicator={false}
             />
           </Section>

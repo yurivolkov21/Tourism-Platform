@@ -1,5 +1,8 @@
 import { toCsv } from '../../../../lib/subscribers/csv';
-import { listSubscribers, type Subscriber } from '../../../../lib/subscribers/data';
+import {
+  listSubscribers,
+  type Subscriber,
+} from '../../../../lib/subscribers/data';
 
 /** Server-side page-through cap — 100 pages × 100 rows = 10k subscribers, plenty for an export. */
 const PAGE_SIZE = 100;
@@ -19,9 +22,12 @@ export async function GET(): Promise<Response> {
       if (page >= batch.meta.totalPages) break;
     }
   } catch {
-    return new Response('Could not load subscribers — is your admin session valid?', {
-      status: 502,
-    });
+    return new Response(
+      'Could not load subscribers — is your admin session valid?',
+      {
+        status: 502,
+      },
+    );
   }
 
   const stamp = new Date().toISOString().slice(0, 10);

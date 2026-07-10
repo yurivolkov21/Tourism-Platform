@@ -3,7 +3,8 @@ import { ApiRequestError } from '@tourism/core';
 import { createClient } from '../supabase/server';
 
 // API origin (routes below already carry the `/api/v1` prefix).
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
 
 /**
  * Authed JSON call to the API using native `fetch` with a **string** body. We deliberately bypass the
@@ -31,11 +32,15 @@ export async function authedJson<T>(
     cache: 'no-store',
   });
 
-  const json = (await res.json().catch(() => null)) as
-    | { data?: T; error?: { code: string; message: string } }
-    | null;
+  const json = (await res.json().catch(() => null)) as {
+    data?: T;
+    error?: { code: string; message: string };
+  } | null;
   if (!res.ok) {
-    throw new ApiRequestError(res.status, json?.error ?? { code: 'UNKNOWN', message: res.statusText });
+    throw new ApiRequestError(
+      res.status,
+      json?.error ?? { code: 'UNKNOWN', message: res.statusText },
+    );
   }
   return json?.data as T;
 }

@@ -44,7 +44,12 @@ export function SubscribersView({
             aria-label="Search subscribers by email"
             className="border-input bg-background focus-visible:ring-ring h-9 w-64 rounded-md border px-3 text-sm outline-none focus-visible:ring-2"
           />
-          <Button type="submit" variant="outline" size="sm" className="cursor-pointer">
+          <Button
+            type="submit"
+            variant="outline"
+            size="sm"
+            className="cursor-pointer"
+          >
             Search
           </Button>
         </form>
@@ -65,7 +70,9 @@ export function SubscribersView({
             <EmptyMedia variant="icon">
               <MailPlus />
             </EmptyMedia>
-            <EmptyTitle>{search ? 'No matching subscribers' : 'No subscribers yet'}</EmptyTitle>
+            <EmptyTitle>
+              {search ? 'No matching subscribers' : 'No subscribers yet'}
+            </EmptyTitle>
             <EmptyDescription>
               {search
                 ? 'No emails match that search — clear it to see the full list.'

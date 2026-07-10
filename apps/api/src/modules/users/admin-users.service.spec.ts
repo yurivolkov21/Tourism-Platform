@@ -20,9 +20,11 @@ function makePrisma(m: Mocks = {}): PrismaService {
       findMany: jest.fn().mockResolvedValue([]),
       findUnique: jest.fn().mockResolvedValue(null),
       count: jest.fn().mockResolvedValue(0),
-      update: jest.fn().mockImplementation(({ where, data }) =>
-        Promise.resolve({ ...USER_ROW, id: where.id, ...data }),
-      ),
+      update: jest
+        .fn()
+        .mockImplementation(({ where, data }) =>
+          Promise.resolve({ ...USER_ROW, id: where.id, ...data }),
+        ),
       delete: jest.fn(),
       ...m.user,
     },
@@ -32,13 +34,16 @@ function makePrisma(m: Mocks = {}): PrismaService {
     post: { count: jest.fn().mockResolvedValue(0), ...m.post },
     $transaction:
       m.$transaction ??
-      jest.fn().mockImplementation((fn: (tx: unknown) => Promise<unknown>) => fn({})),
+      jest
+        .fn()
+        .mockImplementation((fn: (tx: unknown) => Promise<unknown>) => fn({})),
   } as unknown as PrismaService;
 }
 
 function makeConfig(adminEmails: string[] = []) {
   return {
-    get: (k: string) => (k === 'supabase.adminEmails' ? adminEmails : undefined),
+    get: (k: string) =>
+      k === 'supabase.adminEmails' ? adminEmails : undefined,
   } as unknown as import('@nestjs/config').ConfigService;
 }
 
@@ -111,9 +116,14 @@ describe('AdminUsersService', () => {
 
     it('AND-composes role filter with search over name/email', async () => {
       const findMany = jest.fn().mockResolvedValue([]);
-      const prisma = makePrisma({ user: { findMany, count: jest.fn().mockResolvedValue(0) } });
+      const prisma = makePrisma({
+        user: { findMany, count: jest.fn().mockResolvedValue(0) },
+      });
 
-      await svcWith(prisma).list({ role: UserRole.ADMIN, search: 'jane' } as never);
+      await svcWith(prisma).list({
+        role: UserRole.ADMIN,
+        search: 'jane',
+      } as never);
 
       const where = findMany.mock.calls[0][0].where;
       expect(where.role).toBe(UserRole.ADMIN);
@@ -127,18 +137,28 @@ describe('AdminUsersService', () => {
   describe('detail', () => {
     it('returns counts, avatar, isEnvAdmin and isSelf', async () => {
       const prisma = makePrisma({
-        user: { findUnique: jest.fn().mockResolvedValue({ ...USER_ROW, role: UserRole.ADMIN }) },
+        user: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ ...USER_ROW, role: UserRole.ADMIN }),
+        },
         booking: { count: jest.fn().mockResolvedValue(4) },
         review: { count: jest.fn().mockResolvedValue(2) },
         wishlist: { count: jest.fn().mockResolvedValue(5) },
       });
       const media = makeMedia({
         attachToOwner: jest.fn().mockImplementation((_t: unknown, o: object) =>
-          Promise.resolve({ ...o, media: [{ url: 'https://cdn/avatar.jpg' }] }),
+          Promise.resolve({
+            ...o,
+            media: [{ url: 'https://cdn/avatar.jpg' }],
+          }),
         ),
       });
 
-      const res = await svcWith(prisma, ['jane@example.com'], media).detail('u-1', 'caller-9');
+      const res = await svcWith(prisma, ['jane@example.com'], media).detail(
+        'u-1',
+        'caller-9',
+      );
 
       expect(res.avatarUrl).toBe('https://cdn/avatar.jpg');
       expect(res.counts).toEqual({ bookings: 4, reviews: 2, wishlist: 5 });
@@ -157,22 +177,35 @@ describe('AdminUsersService', () => {
     });
 
     it('404s on an unknown id', async () => {
-      await expect(svcWith(makePrisma()).detail('nope', 'c')).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        svcWith(makePrisma()).detail('nope', 'c'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 
   describe('changeRole', () => {
-    const admin = { ...USER_ROW, id: 'a-1', role: UserRole.ADMIN, email: 'boss@x.com' };
+    const admin = {
+      ...USER_ROW,
+      id: 'a-1',
+      role: UserRole.ADMIN,
+      email: 'boss@x.com',
+    };
 
     it('promotes a customer to ADMIN', async () => {
-      const update = jest.fn().mockResolvedValue({ ...USER_ROW, role: UserRole.ADMIN, _count: undefined });
+      const update = jest.fn().mockResolvedValue({
+        ...USER_ROW,
+        role: UserRole.ADMIN,
+        _count: undefined,
+      });
       const prisma = makePrisma({
         user: { findUnique: jest.fn().mockResolvedValue(USER_ROW), update },
         booking: { count: jest.fn().mockResolvedValue(0) },
       });
-      const res = await svcWith(prisma).changeRole('u-1', 'caller-9', UserRole.ADMIN);
+      const res = await svcWith(prisma).changeRole(
+        'u-1',
+        'caller-9',
+        UserRole.ADMIN,
+      );
       expect(update.mock.calls[0][0]).toMatchObject({
         where: { id: 'u-1' },
         data: { role: UserRole.ADMIN },
@@ -181,16 +214,24 @@ describe('AdminUsersService', () => {
     });
 
     it('blocks changing your own role (ROLE_SELF_CHANGE)', async () => {
-      const prisma = makePrisma({ user: { findUnique: jest.fn().mockResolvedValue(USER_ROW) } });
+      const prisma = makePrisma({
+        user: { findUnique: jest.fn().mockResolvedValue(USER_ROW) },
+      });
       await expect(
         svcWith(prisma).changeRole('u-1', 'u-1', UserRole.ADMIN),
       ).rejects.toBeInstanceOf(ConflictException);
     });
 
     it('blocks demoting an env-admin (ROLE_ENV_ADMIN)', async () => {
-      const prisma = makePrisma({ user: { findUnique: jest.fn().mockResolvedValue(admin) } });
+      const prisma = makePrisma({
+        user: { findUnique: jest.fn().mockResolvedValue(admin) },
+      });
       await expect(
-        svcWith(prisma, ['boss@x.com']).changeRole('a-1', 'caller-9', UserRole.CUSTOMER),
+        svcWith(prisma, ['boss@x.com']).changeRole(
+          'a-1',
+          'caller-9',
+          UserRole.CUSTOMER,
+        ),
       ).rejects.toBeInstanceOf(ConflictException);
     });
 
@@ -207,7 +248,9 @@ describe('AdminUsersService', () => {
     });
 
     it('allows demoting a non-last, non-env admin', async () => {
-      const update = jest.fn().mockResolvedValue({ ...admin, role: UserRole.CUSTOMER });
+      const update = jest
+        .fn()
+        .mockResolvedValue({ ...admin, role: UserRole.CUSTOMER });
       const prisma = makePrisma({
         user: {
           findUnique: jest.fn().mockResolvedValue(admin),
@@ -216,7 +259,11 @@ describe('AdminUsersService', () => {
         },
         booking: { count: jest.fn().mockResolvedValue(0) },
       });
-      const res = await svcWith(prisma).changeRole('a-1', 'caller-9', UserRole.CUSTOMER);
+      const res = await svcWith(prisma).changeRole(
+        'a-1',
+        'caller-9',
+        UserRole.CUSTOMER,
+      );
       expect(res.role).toBe(UserRole.CUSTOMER);
     });
   });
@@ -236,7 +283,10 @@ describe('AdminUsersService', () => {
         $transaction,
       });
 
-      const res = await svcWith(prisma, [], media, users).deleteUser('u-1', 'caller-9');
+      const res = await svcWith(prisma, [], media, users).deleteUser(
+        'u-1',
+        'caller-9',
+      );
 
       expect(res).toEqual({ id: 'u-1', email: 'jane@example.com' });
       expect(
@@ -244,26 +294,31 @@ describe('AdminUsersService', () => {
       ).toHaveBeenCalledWith(expect.anything(), MediaOwnerType.USER, 'u-1');
       expect(del).toHaveBeenCalledWith({ where: { id: 'u-1' } });
       expect(
-        (users as unknown as { deleteSupabaseUser: jest.Mock }).deleteSupabaseUser,
+        (users as unknown as { deleteSupabaseUser: jest.Mock })
+          .deleteSupabaseUser,
       ).toHaveBeenCalledWith('sub-1');
     });
 
     it('blocks self-delete (USER_SELF_DELETE)', async () => {
-      const prisma = makePrisma({ user: { findUnique: jest.fn().mockResolvedValue(USER_ROW) } });
-      await expect(svcWith(prisma).deleteUser('u-1', 'u-1')).rejects.toBeInstanceOf(
-        ConflictException,
-      );
+      const prisma = makePrisma({
+        user: { findUnique: jest.fn().mockResolvedValue(USER_ROW) },
+      });
+      await expect(
+        svcWith(prisma).deleteUser('u-1', 'u-1'),
+      ).rejects.toBeInstanceOf(ConflictException);
     });
 
     it('blocks deleting an ADMIN (USER_IS_ADMIN)', async () => {
       const prisma = makePrisma({
         user: {
-          findUnique: jest.fn().mockResolvedValue({ ...USER_ROW, role: UserRole.ADMIN }),
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ ...USER_ROW, role: UserRole.ADMIN }),
         },
       });
-      await expect(svcWith(prisma).deleteUser('u-1', 'c')).rejects.toBeInstanceOf(
-        ConflictException,
-      );
+      await expect(
+        svcWith(prisma).deleteUser('u-1', 'c'),
+      ).rejects.toBeInstanceOf(ConflictException);
     });
 
     it('blocks when the user has bookings (ACCOUNT_HAS_BOOKINGS)', async () => {
@@ -271,9 +326,9 @@ describe('AdminUsersService', () => {
         user: { findUnique: jest.fn().mockResolvedValue(USER_ROW) },
         booking: { count: jest.fn().mockResolvedValue(2) },
       });
-      await expect(svcWith(prisma).deleteUser('u-1', 'c')).rejects.toBeInstanceOf(
-        ConflictException,
-      );
+      await expect(
+        svcWith(prisma).deleteUser('u-1', 'c'),
+      ).rejects.toBeInstanceOf(ConflictException);
     });
 
     it('blocks a posts author (USER_HAS_POSTS)', async () => {
@@ -281,15 +336,15 @@ describe('AdminUsersService', () => {
         user: { findUnique: jest.fn().mockResolvedValue(USER_ROW) },
         post: { count: jest.fn().mockResolvedValue(1) },
       });
-      await expect(svcWith(prisma).deleteUser('u-1', 'c')).rejects.toBeInstanceOf(
-        ConflictException,
-      );
+      await expect(
+        svcWith(prisma).deleteUser('u-1', 'c'),
+      ).rejects.toBeInstanceOf(ConflictException);
     });
 
     it('404s on an unknown id', async () => {
-      await expect(svcWith(makePrisma()).deleteUser('nope', 'c')).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        svcWith(makePrisma()).deleteUser('nope', 'c'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 });

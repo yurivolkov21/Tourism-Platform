@@ -4,7 +4,8 @@ import { getApiClient } from '../api/client';
 
 export type Destination = components['schemas']['DestinationDto'];
 /** Admin detail shape — the destination plus the tours that use it (superset of {@link Destination}). */
-export type DestinationDetail = components['schemas']['AdminDestinationDetailDto'];
+export type DestinationDetail =
+  components['schemas']['AdminDestinationDetailDto'];
 export type LinkedTour = components['schemas']['DestinationTourDto'];
 export type PageMeta = components['schemas']['PageMetaDto'];
 
@@ -27,7 +28,9 @@ export const DEFAULT_PAGE_SIZE = 20;
  * Lists destinations for the admin table (`GET /admin/destinations`, drafts included). The wire
  * format is already `{ data, meta }` (the API's paginated envelope), so the typed body matches.
  */
-export async function listDestinations(params: DestinationListParams = {}): Promise<DestinationList> {
+export async function listDestinations(
+  params: DestinationListParams = {},
+): Promise<DestinationList> {
   const api = await getApiClient();
   const { data } = await api.GET('/api/v1/admin/destinations', {
     params: {

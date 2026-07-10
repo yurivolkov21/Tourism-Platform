@@ -7,17 +7,24 @@ import { fetchTourReviews } from '../lib/tour-detail';
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ slug: 'ha-long-cruise' }),
 }));
-jest.mock('../lib/supabase', () => ({ supabase: { auth: { getSession: jest.fn() } } }));
+jest.mock('../lib/supabase', () => ({
+  supabase: { auth: { getSession: jest.fn() } },
+}));
 jest.mock('../lib/tour-detail', () => ({
   ...jest.requireActual('../lib/tour-detail'),
   fetchTourReviews: jest.fn(),
 }));
 
-const mockReviews = fetchTourReviews as jest.MockedFunction<typeof fetchTourReviews>;
+const mockReviews = fetchTourReviews as jest.MockedFunction<
+  typeof fetchTourReviews
+>;
 
 function renderScreen() {
   const client = new QueryClient({
-    defaultOptions: { queries: { retry: false, gcTime: 0 }, mutations: { gcTime: 0 } },
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+      mutations: { gcTime: 0 },
+    },
   });
   return render(
     <ThemeProvider>
@@ -30,8 +37,20 @@ function renderScreen() {
 
 test('lists the full set of reviews (pageSize 50)', async () => {
   mockReviews.mockResolvedValueOnce([
-    { id: 'r1', author: 'Jane', date: 'May 2026', rating: 5, quote: 'Wonderful trip.' },
-    { id: 'r2', author: 'Minh', date: 'Jun 2026', rating: 4, quote: 'Great guide.' },
+    {
+      id: 'r1',
+      author: 'Jane',
+      date: 'May 2026',
+      rating: 5,
+      quote: 'Wonderful trip.',
+    },
+    {
+      id: 'r2',
+      author: 'Minh',
+      date: 'Jun 2026',
+      rating: 4,
+      quote: 'Great guide.',
+    },
   ]);
   renderScreen();
   expect(await screen.findByText('Wonderful trip.')).toBeOnTheScreen();

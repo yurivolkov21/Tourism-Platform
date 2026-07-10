@@ -1,5 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ArrayMaxSize, IsArray, IsEnum, IsOptional, IsString, Length, MaxLength } from 'class-validator';
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsEnum,
+  IsOptional,
+  IsString,
+  Length,
+  MaxLength,
+} from 'class-validator';
 import { PostStatus } from '@prisma/client';
 
 /**
@@ -42,7 +50,8 @@ export class CreatePostDto {
 
   @ApiPropertyOptional({
     type: [String],
-    description: 'Tag display names (upserted by slug); replace-all when provided.',
+    description:
+      'Tag display names (upserted by slug); replace-all when provided.',
     maxItems: 10,
     example: ['Hạ Long', 'Cruises'],
   })
@@ -55,7 +64,8 @@ export class CreatePostDto {
 
   @ApiPropertyOptional({
     type: [String],
-    description: 'Related tour slugs (max 3, order = array order); replace-all when provided.',
+    description:
+      'Related tour slugs (max 3, order = array order); replace-all when provided.',
     maxItems: 3,
     example: ['halong-heritage-cruise'],
   })

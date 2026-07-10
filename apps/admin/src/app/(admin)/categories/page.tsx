@@ -13,7 +13,10 @@ import {
 import { apiErrorMessage } from '../../../lib/api/error';
 import { AdminListHeader } from '../../../components/crud/list-header';
 import { CategoriesTable } from '../../../components/categories/categories-table';
-import { listCategories, type CategoryList } from '../../../lib/categories/data';
+import {
+  listCategories,
+  type CategoryList,
+} from '../../../lib/categories/data';
 import { ErrorAlert } from '../../../components/crud/error-alert';
 
 export default async function CategoriesPage() {
@@ -43,8 +46,8 @@ export default async function CategoriesPage() {
 
       {error ? (
         <ErrorAlert>
-          Couldn&apos;t load categories: {error}. Check that the API is running and your admin session
-          is valid.
+          Couldn&apos;t load categories: {error}. Check that the API is running
+          and your admin session is valid.
         </ErrorAlert>
       ) : rows.length === 0 ? (
         <Empty className="border">
@@ -53,7 +56,9 @@ export default async function CategoriesPage() {
               <Tags />
             </EmptyMedia>
             <EmptyTitle>No categories yet</EmptyTitle>
-            <EmptyDescription>Create your first category to start organizing tours.</EmptyDescription>
+            <EmptyDescription>
+              Create your first category to start organizing tours.
+            </EmptyDescription>
           </EmptyHeader>
           <Button nativeButton={false} render={<Link href="/categories/new" />}>
             <Plus data-icon="inline-start" />

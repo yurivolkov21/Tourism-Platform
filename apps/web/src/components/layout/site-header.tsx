@@ -40,7 +40,10 @@ const toggleClass =
 // Flat nav for the mobile dropdown — expands Destinations into its region pages.
 const mobileNav = [
   { label: messages.nav.tours, href: '/tours' },
-  ...messages.nav.destinationsMenu.items.map((i) => ({ label: i.label, href: i.href })),
+  ...messages.nav.destinationsMenu.items.map((i) => ({
+    label: i.label,
+    href: i.href,
+  })),
   { label: messages.nav.blog, href: '/blog' },
   { label: messages.nav.about, href: '/about' },
   { label: messages.nav.contact, href: '/contact' },
@@ -48,7 +51,13 @@ const mobileNav = [
 
 // Animated "Plan your trip" CTA (borrowed from shadcnspace Navbar 01): the arrow
 // disc slides across and rotates on hover. Motion gated behind motion-safe.
-function PlanTripButton({ label, className }: { label: string; className?: string }) {
+function PlanTripButton({
+  label,
+  className,
+}: {
+  label: string;
+  className?: string;
+}) {
   return (
     <a
       href="#contact"
@@ -72,7 +81,8 @@ export function SiteHeader() {
   const pathname = usePathname();
   // aria-current="page" marks the active route. Use exact match so a parent like /tours
   // isn't flagged active while on a deeper, unrelated page.
-  const current = (href: string) => (pathname === href ? ('page' as const) : undefined);
+  const current = (href: string) =>
+    pathname === href ? ('page' as const) : undefined;
 
   // #1 Pill-on-scroll: past 50px the bar contracts into a floating glass pill.
   const [scrolled, setScrolled] = useState(false);
@@ -102,102 +112,141 @@ export function SiteHeader() {
                 : 'h-16',
             )}
           >
-          <a href="/" aria-label={messages.brand.name}>
-            <Logo />
-          </a>
-
-          {/* Desktop nav */}
-          <nav className="flex items-center gap-1 max-md:hidden" aria-label="Primary">
-            <a href="/tours" className={linkClass} aria-current={current('/tours')}>
-              {t.tours}
+            <a href="/" aria-label={messages.brand.name}>
+              <Logo />
             </a>
-            <NavigationMenu>
-              <NavigationMenuList>
-                {[t.destinationsMenu].map((menu) => (
-                  <NavigationMenuItem key={menu.label}>
-                    <NavigationMenuTrigger>{menu.label}</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <ul className="grid w-md grid-cols-2 gap-1 p-2">
-                        {menu.items.map((item) => (
-                          <li key={item.label}>
-                            <NavigationMenuLink render={<a href={item.href} aria-current={current(item.href)} />}>
-                              <div className="flex flex-col gap-0.5">
-                                <span className="font-medium">{item.label}</span>
-                                <span className="text-muted-foreground text-xs">{item.hint}</span>
-                              </div>
-                            </NavigationMenuLink>
-                          </li>
-                        ))}
-                      </ul>
-                    </NavigationMenuContent>
-                  </NavigationMenuItem>
-                ))}
-              </NavigationMenuList>
-            </NavigationMenu>
 
-            <a href="/blog" className={linkClass} aria-current={current('/blog')}>
-              {t.blog}
-            </a>
-            <a href="/about" className={linkClass} aria-current={current('/about')}>
-              {t.about}
-            </a>
-            <a href="/contact" className={linkClass} aria-current={current('/contact')}>
-              {t.contact}
-            </a>
-          </nav>
-
-          {/* Desktop actions */}
-          <div className="flex items-center gap-4 max-md:hidden">
-            <ThemeToggle className={toggleClass} />
-            <UserMenu linkClassName={linkClass} />
-            <PlanTripButton label={t.planTrip} />
-          </div>
-
-          {/* Mobile actions */}
-          <div className="flex items-center gap-3 md:hidden">
-            <ThemeToggle className={toggleClass} />
-            <a
-              href="#contact"
-              className={cn(buttonVariants({ size: 'default' }), 'max-[400px]:hidden')}
+            {/* Desktop nav */}
+            <nav
+              className="flex items-center gap-1 max-md:hidden"
+              aria-label="Primary"
             >
-              {t.planTrip}
-            </a>
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="outline" size="icon-lg" />}>
-                <MenuIcon />
-                <span className="sr-only">{t.menu}</span>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
-                {mobileNav.map((item) => (
-                  <DropdownMenuItem
-                    key={item.label}
-                    render={<a href={item.href} aria-current={current(item.href)} />}
-                  >
-                    {item.label}
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                {user ? (
-                  <>
-                    <DropdownMenuItem render={<a href="/account" />}>
-                      {messages.auth.menu.account}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        void signOut();
-                      }}
-                    >
-                      {messages.auth.menu.signOut}
-                    </DropdownMenuItem>
-                  </>
-                ) : (
-                  <DropdownMenuItem render={<a href="/login" />}>
-                    {messages.auth.menu.login}
-                  </DropdownMenuItem>
+              <a
+                href="/tours"
+                className={linkClass}
+                aria-current={current('/tours')}
+              >
+                {t.tours}
+              </a>
+              <NavigationMenu>
+                <NavigationMenuList>
+                  {[t.destinationsMenu].map((menu) => (
+                    <NavigationMenuItem key={menu.label}>
+                      <NavigationMenuTrigger>
+                        {menu.label}
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <ul className="grid w-md grid-cols-2 gap-1 p-2">
+                          {menu.items.map((item) => (
+                            <li key={item.label}>
+                              <NavigationMenuLink
+                                render={
+                                  <a
+                                    href={item.href}
+                                    aria-current={current(item.href)}
+                                  />
+                                }
+                              >
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="font-medium">
+                                    {item.label}
+                                  </span>
+                                  <span className="text-muted-foreground text-xs">
+                                    {item.hint}
+                                  </span>
+                                </div>
+                              </NavigationMenuLink>
+                            </li>
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                  ))}
+                </NavigationMenuList>
+              </NavigationMenu>
+
+              <a
+                href="/blog"
+                className={linkClass}
+                aria-current={current('/blog')}
+              >
+                {t.blog}
+              </a>
+              <a
+                href="/about"
+                className={linkClass}
+                aria-current={current('/about')}
+              >
+                {t.about}
+              </a>
+              <a
+                href="/contact"
+                className={linkClass}
+                aria-current={current('/contact')}
+              >
+                {t.contact}
+              </a>
+            </nav>
+
+            {/* Desktop actions */}
+            <div className="flex items-center gap-4 max-md:hidden">
+              <ThemeToggle className={toggleClass} />
+              <UserMenu linkClassName={linkClass} />
+              <PlanTripButton label={t.planTrip} />
+            </div>
+
+            {/* Mobile actions */}
+            <div className="flex items-center gap-3 md:hidden">
+              <ThemeToggle className={toggleClass} />
+              <a
+                href="#contact"
+                className={cn(
+                  buttonVariants({ size: 'default' }),
+                  'max-[400px]:hidden',
                 )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+              >
+                {t.planTrip}
+              </a>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={<Button variant="outline" size="icon-lg" />}
+                >
+                  <MenuIcon />
+                  <span className="sr-only">{t.menu}</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end">
+                  {mobileNav.map((item) => (
+                    <DropdownMenuItem
+                      key={item.label}
+                      render={
+                        <a href={item.href} aria-current={current(item.href)} />
+                      }
+                    >
+                      {item.label}
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  {user ? (
+                    <>
+                      <DropdownMenuItem render={<a href="/account" />}>
+                        {messages.auth.menu.account}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          void signOut();
+                        }}
+                      >
+                        {messages.auth.menu.signOut}
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <DropdownMenuItem render={<a href="/login" />}>
+                      {messages.auth.menu.login}
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </header>

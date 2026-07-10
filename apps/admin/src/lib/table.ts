@@ -10,7 +10,10 @@ import type { Table } from '@tanstack/react-table';
  */
 declare module '@tanstack/react-table' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface ColumnMeta<TData extends import('@tanstack/react-table').RowData, TValue> {
+  interface ColumnMeta<
+    TData extends import('@tanstack/react-table').RowData,
+    TValue,
+  > {
     /** Human label shown in the Columns menu (falls back to the column id). */
     label?: string;
     /** Horizontal alignment applied to both the header and body cells by {@link AdminTableShell}. */

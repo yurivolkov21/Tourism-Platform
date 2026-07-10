@@ -12,9 +12,15 @@ test('valid input returns no errors', () => {
 });
 
 test('blank name / message and bad email are flagged with i18n keys', () => {
-  expect(validateEnquiry({ ...valid, name: '  ' })).toEqual({ name: 'nameRequired' });
-  expect(validateEnquiry({ ...valid, email: 'not-an-email' })).toEqual({ email: 'emailInvalid' });
-  expect(validateEnquiry({ ...valid, message: '' })).toEqual({ message: 'messageRequired' });
+  expect(validateEnquiry({ ...valid, name: '  ' })).toEqual({
+    name: 'nameRequired',
+  });
+  expect(validateEnquiry({ ...valid, email: 'not-an-email' })).toEqual({
+    email: 'emailInvalid',
+  });
+  expect(validateEnquiry({ ...valid, message: '' })).toEqual({
+    message: 'messageRequired',
+  });
 });
 
 test('phone is optional', () => {
