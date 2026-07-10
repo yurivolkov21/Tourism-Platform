@@ -6,7 +6,12 @@ import { useState, type FormEvent } from 'react';
 import { Button, Input, Label } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import {
+  validateEmailField,
+  type FieldErrorCode,
+} from '../../lib/auth/validate';
 import { createClient } from '../../lib/supabase/client';
+import { AuthFieldError } from './auth-field-error';
 
 /**
  * Request a password-reset email (browser client). The link returns to `/auth/callback?redirect=
@@ -16,6 +21,7 @@ import { createClient } from '../../lib/supabase/client';
 export function ForgotPasswordForm() {
   const t = messages.auth.forgot;
   const [sent, setSent] = useState(false);
+  const [fieldError, setFieldError] = useState<FieldErrorCode>();
   const [pending, setPending] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -26,6 +32,13 @@ export function ForgotPasswordForm() {
     const email = String(
       new FormData(event.currentTarget).get('email') ?? '',
     ).trim();
+
+    const invalid = validateEmailField(email);
+    setFieldError(invalid ?? undefined);
+    if (invalid) {
+      setPending(false);
+      return;
+    }
     const supabase = createClient();
     await supabase.auth
       .resetPasswordForEmail(email, {
@@ -59,7 +72,7 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} noValidate className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="email">{t.emailLabel}</Label>
         <Input
@@ -67,9 +80,12 @@ export function ForgotPasswordForm() {
           name="email"
           type="email"
           autoComplete="email"
-          required
+          aria-required="true"
           placeholder="you@example.com"
+          aria-invalid={Boolean(fieldError)}
+          aria-describedby={fieldError ? 'email-error' : undefined}
         />
+        <AuthFieldError id="email-error" field="email" code={fieldError} />
       </div>
 
       <Button type="submit" className="w-full" disabled={pending}>

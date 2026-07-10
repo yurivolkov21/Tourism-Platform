@@ -7,6 +7,7 @@ import { Button, Input, Label } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { signUp, type SignUpState } from '../../lib/auth/actions';
+import { AuthFieldError } from './auth-field-error';
 import { ResendConfirmation } from './resend-confirmation';
 
 export function RegisterForm() {
@@ -15,6 +16,8 @@ export function RegisterForm() {
     signUp,
     {},
   );
+  // Server-validated per-field codes from the `signUp` action (empty until a submit comes back).
+  const fieldErrors = state.fieldErrors ?? {};
 
   if (state.sent) {
     return (
@@ -44,15 +47,22 @@ export function RegisterForm() {
   }
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} noValidate className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="fullName">{t.fullNameLabel}</Label>
         <Input
           id="fullName"
           name="fullName"
           autoComplete="name"
-          required
+          aria-required="true"
           placeholder="Nguyen Van A"
+          aria-invalid={Boolean(fieldErrors.fullName)}
+          aria-describedby={fieldErrors.fullName ? 'fullName-error' : undefined}
+        />
+        <AuthFieldError
+          id="fullName-error"
+          field="fullName"
+          code={fieldErrors.fullName}
         />
       </div>
 
@@ -63,8 +73,15 @@ export function RegisterForm() {
           name="email"
           type="email"
           autoComplete="email"
-          required
+          aria-required="true"
           placeholder="you@example.com"
+          aria-invalid={Boolean(fieldErrors.email)}
+          aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+        />
+        <AuthFieldError
+          id="email-error"
+          field="email"
+          code={fieldErrors.email}
         />
       </div>
 
@@ -75,7 +92,14 @@ export function RegisterForm() {
           name="password"
           type="password"
           autoComplete="new-password"
-          required
+          aria-required="true"
+          aria-invalid={Boolean(fieldErrors.password)}
+          aria-describedby={fieldErrors.password ? 'password-error' : undefined}
+        />
+        <AuthFieldError
+          id="password-error"
+          field="password"
+          code={fieldErrors.password}
         />
       </div>
 
@@ -86,7 +110,14 @@ export function RegisterForm() {
           name="confirm"
           type="password"
           autoComplete="new-password"
-          required
+          aria-required="true"
+          aria-invalid={Boolean(fieldErrors.confirm)}
+          aria-describedby={fieldErrors.confirm ? 'confirm-error' : undefined}
+        />
+        <AuthFieldError
+          id="confirm-error"
+          field="confirm"
+          code={fieldErrors.confirm}
         />
       </div>
 

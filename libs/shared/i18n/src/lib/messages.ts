@@ -225,6 +225,25 @@ export const messages = {
       TOO_SHORT: 'Password must be at least 6 characters.',
       MISMATCH: 'Passwords do not match.',
     } as Record<string, string>,
+    // Per-field error copy for the auth forms (login / register / forgot / reset).
+    // Keys are the stable `FieldErrorCode` values from the web auth validator.
+    fieldErrors: {
+      fullName: {
+        REQUIRED: 'Enter your full name.',
+      },
+      email: {
+        REQUIRED: 'Enter your email address.',
+        INVALID: 'Enter a valid email address, e.g. you@example.com.',
+      },
+      password: {
+        REQUIRED: 'Enter your password.',
+        TOO_SHORT: 'Password must be at least 6 characters.',
+      },
+      confirm: {
+        REQUIRED: 'Confirm your password.',
+        MISMATCH: 'Passwords do not match.',
+      },
+    } as Record<string, Record<string, string>>,
     passwordRules: {
       length: 'At least 8 characters',
       lower: 'A lowercase letter',

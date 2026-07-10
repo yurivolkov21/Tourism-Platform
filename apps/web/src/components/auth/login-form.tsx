@@ -10,7 +10,12 @@ import { messages } from '@tourism/i18n';
 import { mirrorUser } from '../../lib/auth/actions';
 import { authErrorMessage } from '../../lib/auth/auth-error';
 import { safeRedirect } from '../../lib/auth/safe-redirect';
+import {
+  validateLoginFields,
+  type LoginFieldErrors,
+} from '../../lib/auth/validate';
 import { createClient } from '../../lib/supabase/client';
+import { AuthFieldError } from './auth-field-error';
 
 /**
  * Client-side sign-in: authenticate in the browser so the AuthProvider's `onAuthStateChange` updates
@@ -21,6 +26,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
   const t = messages.auth.login;
   const router = useRouter();
   const [error, setError] = useState<string>();
+  const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const [pending, setPending] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -32,8 +38,10 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
     const form = new FormData(event.currentTarget);
     const email = String(form.get('email') ?? '').trim();
     const password = String(form.get('password') ?? '');
-    if (!email || !password) {
-      setError('Enter your email and password.');
+
+    const invalid = validateLoginFields({ email, password });
+    setFieldErrors(invalid);
+    if (Object.keys(invalid).length > 0) {
       setPending(false);
       return;
     }
@@ -61,7 +69,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} noValidate className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="email">{t.emailLabel}</Label>
         <Input
@@ -69,8 +77,15 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
           name="email"
           type="email"
           autoComplete="email"
-          required
+          aria-required="true"
           placeholder="you@example.com"
+          aria-invalid={Boolean(fieldErrors.email)}
+          aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+        />
+        <AuthFieldError
+          id="email-error"
+          field="email"
+          code={fieldErrors.email}
         />
       </div>
 
@@ -81,7 +96,14 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
           name="password"
           type="password"
           autoComplete="current-password"
-          required
+          aria-required="true"
+          aria-invalid={Boolean(fieldErrors.password)}
+          aria-describedby={fieldErrors.password ? 'password-error' : undefined}
+        />
+        <AuthFieldError
+          id="password-error"
+          field="password"
+          code={fieldErrors.password}
         />
         <div className="text-right">
           <Link
