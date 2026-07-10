@@ -52,7 +52,16 @@ module.exports = Promise.resolve(nxConfig).then((config) => {
   // the app ships only the "Welcome to Expo" onboarding screen (verified via
   // `expo export` — no route strings in the bundle). Expo's monorepo standard is
   // projectRoot = the app dir + watchFolders = the monorepo root; restore that.
-  config.projectRoot = __dirname;
+  // projectRoot and serverRoot need the same normalization as watchFolders:
+  // when nx spawns expo with a lowercase-drive cwd, @expo/cli joins the entry's
+  // server-relative path onto serverRoot, and Metro's fileMap rejects the result
+  // ("Failed to get the SHA-1") because the crawled roots are uppercase.
+  config.projectRoot = fixDriveCase(__dirname);
+  if (config.server?.unstable_serverRoot) {
+    config.server.unstable_serverRoot = fixDriveCase(
+      config.server.unstable_serverRoot,
+    );
+  }
   const workspaceRoot = fixDriveCase(
     require('node:path').resolve(__dirname, '../..'),
   );
