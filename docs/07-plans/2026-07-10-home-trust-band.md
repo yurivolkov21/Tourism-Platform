@@ -14,10 +14,11 @@
   ff-only, deleted).
 - **Tests:** api 340 (was 338, +2 `summarize` cases) · web 197 (was 191, +6:
   `trust-band.spec.ts` 4 + `trust-band.spec.tsx` 2).
-- **Follow-up (not in scope here):** `/contact` (`contact-inquiry.tsx`)
-  still renders the old `TechMarquee` "trusted by" strip — `tech-marquee.tsx`
-  was intentionally kept for it — so home/About now visually diverge from
-  Contact until a later pass brings Contact onto `TrustBand` too.
+- **Follow-up — DONE (2026-07-10, `feat/contact-payment-row`):** `/contact`
+  swapped its "Built with" `TechMarquee` for the shared `PaymentRow`
+  (`align="start"`, "Secure payments" label); `tech-marquee.tsx` +
+  `marquee.tsx` deleted — no marquee or external logo CDN remains in the web
+  app.
 
 **Goal:** Replace the home (and About) "Built with" coloured tech-stack marquee with a credible, on-brand **dark trust band**: real live stats (`23 curated tours · 16 destinations · 4.4★ average rating`) + a monochrome, self-hosted payment-method marquee (`Visa · Mastercard · American Express · PayPal · Stripe`) + a security caption.
 

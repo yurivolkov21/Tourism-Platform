@@ -42,11 +42,11 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 > + PayPal · enquiry sheet · show-all screens), **N1** (ripple · haptics ·
 > Fraunces headers · image fade-in · autofill) and **W4 payment loop**
 > checklists. Also pending: the user's visual review of the redesigned
-> trust band on the deployed home. After that, pick the next phase with the user
+> trust band + Contact secure-payments row on the deployed site. After that,
+> pick the next phase with the user
 > (mobile backlog: "Browse by experience" · dark-mode splash/adaptive-icon
 > assets · in-app theme toggle · encrypted LargeSecureStore; web backlog:
-> bring Contact's "trusted by" strip onto `TrustBand` for consistency — it
-> still renders the old `TechMarquee`; or an admin-managed brand-chrome media
+> an admin-managed brand-chrome media
 > model; or store builds via EAS).
 >
 > **Home trust band — MERGED + redesigned (2026-07-10):** the original
@@ -63,12 +63,14 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 > centered row** (`payment-row.tsx` replaces `payment-marquee.tsx`; no more
 > marquee/fades). New i18n key `messages.trustBand.heading`. Spec:
 > `docs/06-specs/2026-07-10-trust-band-editorial-redesign.md`.
-> **Consistency follow-up (not done):** `apps/web/src/components/marketing/
-> contact-inquiry.tsx` still renders the **old** `TechMarquee` "trusted by"
-> strip on `/contact` — `tech-marquee.tsx` was intentionally kept because
-> Contact still consumes it; home/About vs Contact is now visually
-> inconsistent until that's addressed. Baselines: api 340 · web 197. Plans:
-> `docs/07-plans/2026-07-10-home-trust-band.md` + the 06-specs doc above.
+> **Consistency follow-up DONE the same day (`feat/contact-payment-row`):**
+> Contact's "Built with" `TechMarquee` (dev-stack logos via
+> `cdn.simpleicons.org`) → the same `PaymentRow` (new `align="start"`) under a
+> "Secure payments" label in the left rail — layout untouched;
+> `tech-marquee.tsx` + `marquee.tsx` deleted (last marquee consumers), so the
+> web app no longer hits any external logo CDN. Baselines: api 340 · web 197.
+> Plans: `docs/07-plans/2026-07-10-home-trust-band.md` + the 06-specs doc
+> above.
 >
 > **P5.5 N3 "IA & Home" COMPLETE (2026-07-09, branch
 > `feat/mobile-n3-ia-home`, merged ff-only):** **5 tabs** — bookings list
