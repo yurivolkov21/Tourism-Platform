@@ -92,3 +92,6 @@ docs/Lily Wireframes/
 
 # Superpowers brainstorm/SDD scratch
 .superpowers/
+
+# understand-anything plugin cache (generated)
+.understand-anything/
