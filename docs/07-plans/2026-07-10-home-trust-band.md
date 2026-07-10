@@ -4,11 +4,14 @@
 
 ## STATUS
 
-- **State:** DONE — all 6 tasks implemented on branch `feat/home-trust-band`
-  (commits `50922bb..a8c00a9`), reviewed clean. Docs sweep done this pass.
-  **Not yet merged/deployed** — the full `run-many` gate + manual visual
-  check (Task 6 Steps 1–2) are still owed before merge.
-- **Branch:** `feat/home-trust-band` (open, awaiting user review + merge).
+- **State:** MERGED + SUPERSEDED (2026-07-10) — all 6 tasks landed on `main`;
+  the visual design was then reworked the same day after user feedback
+  (floating-card look + broken marquee edge fades) into an **editorial inline
+  strip** with count-up stats and a static payment row: see
+  `docs/06-specs/2026-07-10-trust-band-editorial-redesign.md`. The BE endpoint,
+  stats plumbing, self-hosted logos, and i18n block from this plan all survive.
+- **Branch:** `feat/home-trust-band` + `feat/trust-band-editorial` (both merged
+  ff-only, deleted).
 - **Tests:** api 340 (was 338, +2 `summarize` cases) · web 197 (was 191, +6:
   `trust-band.spec.ts` 4 + `trust-band.spec.tsx` 2).
 - **Follow-up (not in scope here):** `/contact` (`contact-inquiry.tsx`)
