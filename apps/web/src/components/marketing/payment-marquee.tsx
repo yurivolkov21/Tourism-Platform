@@ -33,8 +33,8 @@ export function PaymentMarquee() {
             />
           ))}
         </Marquee>
-        <div className="from-background pointer-events-none absolute inset-y-0 left-0 w-1/6 bg-linear-to-r to-transparent" />
-        <div className="from-background pointer-events-none absolute inset-y-0 right-0 w-1/6 bg-linear-to-l to-transparent" />
+        <div className="from-[color-mix(in_oklab,var(--background)_82%,var(--primary))] pointer-events-none absolute inset-y-0 left-0 w-1/6 bg-linear-to-r to-transparent" />
+        <div className="from-[color-mix(in_oklab,var(--background)_82%,var(--primary))] pointer-events-none absolute inset-y-0 right-0 w-1/6 bg-linear-to-l to-transparent" />
       </div>
       <p className="text-muted-foreground mt-5 text-center text-xs">
         {messages.trustBand.security}

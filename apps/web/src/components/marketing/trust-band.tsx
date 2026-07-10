@@ -8,7 +8,7 @@ export function TrustBand({ stats }: { stats: TrustStat[] }) {
   if (stats.length === 0) return null;
   const t = messages.trustBand;
   return (
-    <section className="dark bg-background text-foreground py-10 sm:py-12">
+    <section className="dark bg-[color-mix(in_oklab,var(--background)_82%,var(--primary))] text-foreground py-10 sm:py-12">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <p className="text-primary mb-6 text-center text-xs font-semibold tracking-[0.22em] uppercase">
           {t.eyebrow}
