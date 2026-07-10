@@ -32,7 +32,12 @@ export interface AdminStatsResponse {
     title: string;
     wishlistCount: number;
   }>;
-  monthlyTrend: Array<{ month: string; bookings: number; paidBookings: number; revenue: string }>;
+  monthlyTrend: Array<{
+    month: string;
+    bookings: number;
+    paidBookings: number;
+    revenue: string;
+  }>;
   dailyTrend: Array<{ date: string; bookings: number; revenue: string }>;
   pendingCounts: { reviews: number; enquiries: number };
 }
@@ -185,7 +190,9 @@ export class AdminStatsService {
       };
     });
     const topToursByRating = topRatingGroups
-      .filter((row): row is typeof row & { tourId: string } => row.tourId !== null)
+      .filter(
+        (row): row is typeof row & { tourId: string } => row.tourId !== null,
+      )
       .map((row) => {
         const t = tourById.get(row.tourId);
         return {

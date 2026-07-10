@@ -2,7 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { BookingStatus } from '@prisma/client';
 
 class StatsOverviewDto {
-  @ApiProperty({ example: '12450.00', description: 'Sum of PAID totals (string Decimal)' })
+  @ApiProperty({
+    example: '12450.00',
+    description: 'Sum of PAID totals (string Decimal)',
+  })
   totalRevenue!: string;
 
   @ApiProperty({ example: 'USD' })
@@ -14,10 +17,18 @@ class StatsOverviewDto {
   @ApiProperty({ example: 61 })
   paidBookings!: number;
 
-  @ApiProperty({ example: 0.7, description: 'paid / total (0 when no bookings)' })
+  @ApiProperty({
+    example: 0.7,
+    description: 'paid / total (0 when no bookings)',
+  })
   conversionRate!: number;
 
-  @ApiProperty({ nullable: true, type: Number, example: 0.18, description: 'Last vs prior month revenue; null if <2 months' })
+  @ApiProperty({
+    nullable: true,
+    type: Number,
+    example: 0.18,
+    description: 'Last vs prior month revenue; null if <2 months',
+  })
   monthOverMonthGrowth!: number | null;
 }
 
@@ -98,7 +109,10 @@ class PendingCountsDto {
   @ApiProperty({ example: 3, description: 'Reviews awaiting approval' })
   reviews!: number;
 
-  @ApiProperty({ example: 5, description: 'Enquiries still in the NEW pipeline stage' })
+  @ApiProperty({
+    example: 5,
+    description: 'Enquiries still in the NEW pipeline stage',
+  })
   enquiries!: number;
 }
 

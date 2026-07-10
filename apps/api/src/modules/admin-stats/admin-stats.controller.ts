@@ -28,7 +28,10 @@ export class AdminStatsController {
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Dashboard aggregates (revenue, top tours, trend)' })
-  @ApiOkResponse({ type: AdminStatsResponseDto, description: 'Aggregated stats' })
+  @ApiOkResponse({
+    type: AdminStatsResponseDto,
+    description: 'Aggregated stats',
+  })
   @ApiResponse({ status: 401, description: 'Missing/invalid token' })
   @ApiResponse({ status: 403, description: 'Caller is not an admin' })
   get(): Promise<AdminStatsResponse> {

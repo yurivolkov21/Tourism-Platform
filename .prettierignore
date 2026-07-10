@@ -15,3 +15,5 @@
 
 # Lockfiles are managed by the package manager — never reformat
 /pnpm-lock.yaml
+# Brainstorm/SDD scratch
+/.superpowers/

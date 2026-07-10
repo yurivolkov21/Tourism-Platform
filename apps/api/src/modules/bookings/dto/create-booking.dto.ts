@@ -31,7 +31,9 @@ export class CreateBookingDto {
   })
   @IsString()
   @MaxLength(120)
-  @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: 'tourSlug must be kebab-case' })
+  @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+    message: 'tourSlug must be kebab-case',
+  })
   tourSlug!: string;
 
   @ApiProperty({

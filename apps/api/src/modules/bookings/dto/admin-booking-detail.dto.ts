@@ -38,7 +38,10 @@ export class BookingCustomerDto {
   @ApiProperty({ example: 'jane@example.com' })
   email!: string;
 
-  @ApiProperty({ format: 'date-time', description: 'Account created — "customer since".' })
+  @ApiProperty({
+    format: 'date-time',
+    description: 'Account created — "customer since".',
+  })
   createdAt!: string;
 }
 
@@ -65,10 +68,16 @@ export class OtherBookingItemDto {
 
 /** The customer's other bookings — capped preview + true total. */
 export class OtherBookingsDto {
-  @ApiProperty({ example: 7, description: 'Total OTHER bookings (current one excluded).' })
+  @ApiProperty({
+    example: 7,
+    description: 'Total OTHER bookings (current one excluded).',
+  })
   total!: number;
 
-  @ApiProperty({ type: [OtherBookingItemDto], description: 'Newest first, at most 5.' })
+  @ApiProperty({
+    type: [OtherBookingItemDto],
+    description: 'Newest first, at most 5.',
+  })
   items!: OtherBookingItemDto[];
 }
 
@@ -87,7 +96,10 @@ export class PaymentEventSummaryDto {
   @ApiProperty({ example: 'checkout.session.completed' })
   type!: string;
 
-  @ApiProperty({ example: 'evt_1PabcXYZ', description: 'Provider-side event id.' })
+  @ApiProperty({
+    example: 'evt_1PabcXYZ',
+    description: 'Provider-side event id.',
+  })
   eventId!: string;
 
   @ApiProperty({ format: 'date-time' })
@@ -117,7 +129,8 @@ export class AdminBookingDetailDto extends BookingDto {
   @ApiProperty({
     nullable: true,
     type: String,
-    description: 'Captured charge/order id at the payment gateway (Stripe PaymentIntent / PayPal capture).',
+    description:
+      'Captured charge/order id at the payment gateway (Stripe PaymentIntent / PayPal capture).',
     example: 'pi_3QabcXYZ',
   })
   providerPaymentId!: string | null;
@@ -125,12 +138,17 @@ export class AdminBookingDetailDto extends BookingDto {
   @ApiProperty({
     nullable: true,
     type: String,
-    description: 'Checkout session / PayPal order id minted at checkout start (pre-capture reference).',
+    description:
+      'Checkout session / PayPal order id minted at checkout start (pre-capture reference).',
     example: 'cs_test_a1B2c3',
   })
   providerSessionId!: string | null;
 
-  @ApiProperty({ nullable: true, type: String, example: 'Customer cancelled within the free window' })
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    example: 'Customer cancelled within the free window',
+  })
   refundReason!: string | null;
 
   @ApiProperty({ nullable: true, type: RefundedByDto })

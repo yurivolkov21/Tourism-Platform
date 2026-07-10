@@ -110,7 +110,10 @@ export class AuthService {
     let user: User;
     if (bySub) {
       // Known identity → refresh the profile.
-      user = await this.prisma.user.update({ where: { id: bySub.id }, data: profile });
+      user = await this.prisma.user.update({
+        where: { id: bySub.id },
+        data: profile,
+      });
     } else if (byEmail) {
       // No row for this Supabase id yet, but one already owns this (Supabase-verified) email — e.g. a
       // seeded user, or a Supabase account re-created with a new id. Relink that row to this identity
@@ -123,7 +126,13 @@ export class AuthService {
     } else {
       // Brand-new user.
       user = await this.prisma.user.create({
-        data: { supabaseId: identity.sub, email: emailLower, fullName, phone, role },
+        data: {
+          supabaseId: identity.sub,
+          email: emailLower,
+          fullName,
+          phone,
+          role,
+        },
       });
     }
 
