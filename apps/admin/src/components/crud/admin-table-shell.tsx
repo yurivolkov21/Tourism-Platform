@@ -13,6 +13,8 @@ import {
   cn,
 } from '@tourism/ui';
 
+import { Reveal } from '../motion/reveal';
+
 interface AdminTableShellProps<T> {
   table: TanstackTable<T>;
   /** Opt-in row interactivity: makes each row a button (role/tabindex/Enter+Space) — e.g. Enquiries. */
@@ -37,7 +39,7 @@ export function AdminTableShell<T>({
   const interactive = Boolean(onRowClick);
 
   return (
-    <div className="overflow-hidden rounded-lg border">
+    <Reveal delay={0.06} className="overflow-hidden rounded-lg border">
       <Table>
         <TableHeader className="bg-muted/50">
           {table.getHeaderGroups().map((group) => (
@@ -110,7 +112,7 @@ export function AdminTableShell<T>({
           )}
         </TableBody>
       </Table>
-    </div>
+    </Reveal>
   );
 }
 

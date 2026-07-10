@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { LucideIcon } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 
 import {
   SidebarGroup,
@@ -24,9 +25,14 @@ export interface NavSection {
   items: NavItem[];
 }
 
-/** Sidebar navigation — sections + items; the active item is brand-emerald, "soon" items disabled. */
+/**
+ * Sidebar navigation — sections + items; the active item is brand-emerald, "soon" items
+ * disabled. The emerald surface is a shared-`layoutId` motion pill, so it slides between
+ * items on navigation; reduced-motion falls back to the static active background.
+ */
 export function NavMain({ sections }: { sections: NavSection[] }) {
   const pathname = usePathname();
+  const reduced = useReducedMotion();
 
   return (
     <>
@@ -57,14 +63,28 @@ export function NavMain({ sections }: { sections: NavSection[] }) {
                       isActive={active}
                       tooltip={item.title}
                       className={cn(
-                        'rounded-lg',
+                        'relative rounded-lg',
                         active &&
-                          'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground',
+                          (reduced
+                            ? 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground'
+                            : 'text-primary-foreground hover:bg-transparent hover:text-primary-foreground'),
                       )}
                       render={<Link href={item.href} />}
                     >
-                      <item.icon className="size-4" />
-                      <span>{item.title}</span>
+                      {active && !reduced ? (
+                        <motion.span
+                          layoutId="nav-active-pill"
+                          aria-hidden
+                          className="bg-primary absolute inset-0 rounded-lg"
+                          transition={{
+                            type: 'spring',
+                            stiffness: 500,
+                            damping: 40,
+                          }}
+                        />
+                      ) : null}
+                      <item.icon className="relative size-4" />
+                      <span className="relative">{item.title}</span>
                     </SidebarMenuButton>
                   )}
                 </SidebarMenuItem>

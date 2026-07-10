@@ -1,6 +1,7 @@
 import {
   sliceDailyTrend,
   computeCardModels,
+  currencyAffixes,
   formatMoney,
   formatPct,
   bookingsPipeline,
@@ -63,6 +64,65 @@ test('computeCardModels: no deltas with <2 months', () => {
 test('formatPct / formatMoney', () => {
   expect(formatPct(0.8)).toBe('80%');
   expect(formatMoney('1000', 'USD')).toMatch(/\$1,000/);
+});
+
+test('currencyAffixes: symbol placement from Intl (prefix for USD, EUR suffix-safe)', () => {
+  expect(currencyAffixes('USD')).toEqual({ prefix: '$', suffix: '' });
+  // Whatever Intl decides for the locale, prefix + 1,234.56 + suffix must round-trip
+  // to the exact formatMoney output (the ticker's final frame must match the SSR value).
+  const { prefix, suffix } = currencyAffixes('EUR');
+  const body = (1234.56).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  expect(`${prefix}${body}${suffix}`).toBe(formatMoney(1234.56, 'EUR'));
+});
+
+test('computeCardModels: every card carries a ticker matching its formatted value', () => {
+  const overview = {
+    totalRevenue: '1000.00',
+    currency: 'USD',
+    totalBookings: 50,
+    paidBookings: 40,
+    conversionRate: 0.8,
+    monthOverMonthGrowth: 0.25,
+  };
+  const cards = computeCardModels(overview, []);
+  const byKey = Object.fromEntries(cards.map((c) => [c.key, c]));
+
+  expect(byKey.revenue.ticker).toEqual({
+    value: 1000,
+    prefix: '$',
+    suffix: '',
+    decimals: 2,
+  });
+  expect(byKey.bookings.ticker).toEqual({
+    value: 50,
+    prefix: '',
+    suffix: '',
+    decimals: 0,
+  });
+  expect(byKey.conversion.ticker).toEqual({
+    value: 80,
+    prefix: '',
+    suffix: '%',
+    decimals: 0,
+  });
+  expect(byKey.aov.ticker).toEqual({
+    value: 25,
+    prefix: '$',
+    suffix: '',
+    decimals: 2,
+  });
+
+  // The ticker's final rendered frame must equal the card's SSR string.
+  for (const c of cards) {
+    const body = c.ticker.value.toLocaleString('en-US', {
+      minimumFractionDigits: c.ticker.decimals,
+      maximumFractionDigits: c.ticker.decimals,
+    });
+    expect(`${c.ticker.prefix}${body}${c.ticker.suffix}`).toBe(c.value);
+  }
 });
 
 describe('bookingsPipeline', () => {

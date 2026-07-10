@@ -7,10 +7,23 @@ export function sliceDailyTrend<T>(daily: T[], range: DailyRange): T[] {
   return daily.slice(-RANGE_DAYS[range]);
 }
 
+/** Numeric drive for the KPI count-up: NumberTicker(value, prefix, suffix, decimals). */
+export interface TickerModel {
+  value: number;
+  prefix: string;
+  suffix: string;
+  decimals: number;
+}
+
 export interface CardModel {
   key: 'revenue' | 'bookings' | 'conversion' | 'aov';
   label: string;
   value: string;
+  /**
+   * Count-up model whose final frame formats to exactly `value` (same locale rules),
+   * so SSR shows the final number and the animation lands on it.
+   */
+  ticker: TickerModel;
   /** Fractional change (0.25 = +25%) vs the prior month when both exist, else null. */
   delta: number | null;
   /** Muted footer descriptor line. */
@@ -40,6 +53,48 @@ export function formatMoney(value: string | number, currency: string): string {
 
 export function formatPct(n: number): string {
   return `${Math.round(n * 100)}%`;
+}
+
+/**
+ * Symbol placement for a currency under the same en-US rules `formatMoney` uses, so
+ * `prefix + toLocaleString(body) + suffix` reproduces the `formatMoney` string exactly.
+ */
+export function currencyAffixes(currency: string): {
+  prefix: string;
+  suffix: string;
+} {
+  const parts = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+  }).formatToParts(0);
+  const firstDigit = parts.findIndex((p) => p.type === 'integer');
+  const lastNumeric = parts.reduce(
+    (last, p, i) =>
+      p.type === 'integer' || p.type === 'decimal' || p.type === 'fraction'
+        ? i
+        : last,
+    -1,
+  );
+  return {
+    prefix: parts
+      .slice(0, firstDigit)
+      .map((p) => p.value)
+      .join(''),
+    suffix: parts
+      .slice(lastNumeric + 1)
+      .map((p) => p.value)
+      .join(''),
+  };
+}
+
+/** Fraction digits the currency renders with (2 for USD, 0 for e.g. JPY). */
+function currencyDecimals(currency: string): number {
+  return (
+    new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+    }).resolvedOptions().maximumFractionDigits ?? 2
+  );
 }
 
 export function formatDay(iso: string): string {
@@ -124,18 +179,33 @@ export function computeCardModels(
       ? Number(overview.totalRevenue) / overview.paidBookings
       : 0;
 
+  const money = currencyAffixes(overview.currency);
+  const moneyDecimals = currencyDecimals(overview.currency);
+  const revenue = Number(overview.totalRevenue);
+
   return [
     {
       key: 'revenue',
       label: 'Total Revenue',
       value: formatMoney(overview.totalRevenue, overview.currency),
+      ticker: {
+        value: Number.isFinite(revenue) ? revenue : 0,
+        ...money,
+        decimals: moneyDecimals,
+      },
       delta: revenueDelta,
       descriptor: 'Paid bookings revenue',
     },
     {
       key: 'bookings',
       label: 'Bookings',
-      value: String(overview.totalBookings),
+      value: overview.totalBookings.toLocaleString('en-US'),
+      ticker: {
+        value: overview.totalBookings,
+        prefix: '',
+        suffix: '',
+        decimals: 0,
+      },
       delta: bookingsDelta,
       descriptor: 'All bookings to date',
     },
@@ -143,6 +213,12 @@ export function computeCardModels(
       key: 'conversion',
       label: 'Conversion Rate',
       value: formatPct(overview.conversionRate),
+      ticker: {
+        value: Math.round(overview.conversionRate * 100),
+        prefix: '',
+        suffix: '%',
+        decimals: 0,
+      },
       delta: conversionDelta,
       descriptor: 'Paid ÷ total bookings',
     },
@@ -150,6 +226,7 @@ export function computeCardModels(
       key: 'aov',
       label: 'Avg Order Value',
       value: formatMoney(aov, overview.currency),
+      ticker: { value: aov, ...money, decimals: moneyDecimals },
       delta: aovDelta,
       descriptor: 'Revenue per paid booking',
     },

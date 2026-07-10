@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import { Reveal } from '../motion/reveal';
+
 /** Shared admin list-page header: title + description on the left, a primary action on the right. */
 export function AdminListHeader({
   title,
@@ -11,7 +13,7 @@ export function AdminListHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4">
+    <Reveal className="flex flex-wrap items-end justify-between gap-4">
       <div className="space-y-1">
         <h1 className="font-heading text-2xl font-bold tracking-tight">
           {title}
@@ -21,7 +23,7 @@ export function AdminListHeader({
         ) : null}
       </div>
       {action}
-    </div>
+    </Reveal>
   );
 }
 
