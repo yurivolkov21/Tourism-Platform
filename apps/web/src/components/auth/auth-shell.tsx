@@ -6,6 +6,8 @@ import { ArrowLeftIcon, MapPinIcon } from 'lucide-react';
 import { AnimatedGridPattern, Card, CardContent } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { Logo } from '../brand/logo';
+
 // A real destination from the catalog (same Hạ Long shot the site uses elsewhere) — the auth screen
 // opens on the product's own world, not a stock login illustration.
 const PANEL_IMAGE =
@@ -41,12 +43,15 @@ export function AuthShell({
         <div className="from-primary/85 via-primary/35 to-foreground/70 absolute inset-0 bg-linear-to-br" />
 
         <div className="relative flex h-full flex-col justify-between p-6 lg:p-10">
-          <span className="inline-flex items-baseline gap-2 text-white">
-            <span className="font-sans text-2xl font-extrabold tracking-[-0.045em]">
-              NEX
-            </span>
-            <span className="font-heading text-lg font-semibold">Nexora</span>
-          </span>
+          {/* The panel sits on a photo + dark scrim in both themes, so the fold tone is
+              pinned to white rather than the theme-following `--background` the footer uses. */}
+          <Link
+            href="/"
+            aria-label={messages.brand.name}
+            className="self-start"
+          >
+            <Logo className="[--nx-tone:var(--color-white)]" />
+          </Link>
 
           <div className="hidden space-y-4 text-white lg:block">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur-sm">
