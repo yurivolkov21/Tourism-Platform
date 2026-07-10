@@ -10,5 +10,8 @@
 **/.next/
 **/.expo/
 
+# Framework-generated files (overwritten on every build) — never format
+**/next-env.d.ts
+
 # Lockfiles are managed by the package manager — never reformat
 /pnpm-lock.yaml
