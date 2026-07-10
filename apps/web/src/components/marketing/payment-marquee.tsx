@@ -13,13 +13,14 @@ const PAYMENTS = [
 export function PaymentMarquee() {
   return (
     <div>
-      <div className="relative overflow-hidden">
+      <span className="sr-only">
+        We accept Visa, Mastercard, American Express, PayPal and Stripe
+      </span>
+      <div aria-hidden className="relative overflow-hidden">
         <Marquee pauseOnHover className="[--duration:36s] p-0">
           {PAYMENTS.map((p) => (
             <span
               key={p.name}
-              role="img"
-              aria-label={p.name}
               className="bg-muted-foreground hover:bg-foreground mx-8 inline-block h-6 w-16 shrink-0 transition-colors lg:mx-10"
               style={{
                 maskImage: `url(/logos/pay/${p.file}.svg)`,
