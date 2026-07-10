@@ -36,7 +36,7 @@ export function PaymentMarquee() {
         <div className="from-background pointer-events-none absolute inset-y-0 left-0 w-1/6 bg-linear-to-r to-transparent" />
         <div className="from-background pointer-events-none absolute inset-y-0 right-0 w-1/6 bg-linear-to-l to-transparent" />
       </div>
-      <p className="text-muted-foreground mt-8 text-center text-xs">
+      <p className="text-muted-foreground mt-5 text-center text-xs">
         {messages.trustBand.security}
       </p>
     </div>

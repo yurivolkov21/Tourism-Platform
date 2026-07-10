@@ -8,13 +8,13 @@ export function TrustBand({ stats }: { stats: TrustStat[] }) {
   if (stats.length === 0) return null;
   const t = messages.trustBand;
   return (
-    <section className="dark bg-background text-foreground py-16 sm:py-20">
+    <section className="dark bg-background text-foreground py-10 sm:py-12">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <p className="text-primary mb-9 text-center text-xs font-semibold tracking-[0.22em] uppercase">
+        <p className="text-primary mb-6 text-center text-xs font-semibold tracking-[0.22em] uppercase">
           {t.eyebrow}
         </p>
         <StatCluster stats={stats} />
-        <div className="border-border/70 mt-12 border-t pt-10">
+        <div className="border-border/70 mt-7 border-t pt-6">
           <PaymentMarquee />
         </div>
       </div>
