@@ -27,7 +27,7 @@ export default async function EditCategoryPage({
   const action = updateCategory.bind(null, slug);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-6">
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 lg:px-6">
       <div className="space-y-3">
         <Button
           variant="ghost"
