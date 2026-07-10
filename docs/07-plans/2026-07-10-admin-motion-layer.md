@@ -5,9 +5,9 @@
 
 ## STATUS
 
-- **State:** 🔎 IN REVIEW — Tasks 1–6 done + gate green (2026-07-10), awaiting user visual review before merge
+- **State:** ✅ COMPLETE — merged to `main` 2026-07-10 (`6836500`, ff-only)
 - **Done:** Tasks 1–6 + gate (admin 164 tests: +3 primitives, +3 skeletons, +2 ticker transforms)
-- **Next action:** user reviews on the Vercel preview -> confirm -> commit + ff-merge + docs sweep
+- **Next action:** user visual pass on the deployed admin (cold-API skeletons · KPI count-up · route fade · sidebar pill · reduced-motion)
 
 ## Tasks
 
@@ -63,6 +63,6 @@
 ### Task 7 — gate + docs
 
 - [x] Kill orphan node → `pnpm nx affected -t lint typecheck test build` green.
-- [ ] Report to user → confirm → commit → rebase ff-only merge to `main`.
-- [ ] Docs sweep: this STATUS block · CLAUDE.md admin row (+test count) ·
+- [x] Report to user → confirm → commit → rebase ff-only merge to `main`.
+- [x] Docs sweep: this STATUS block · CLAUDE.md admin row (+test count) ·
       HANDOFF.md current-state.
