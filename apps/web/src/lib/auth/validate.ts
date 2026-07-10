@@ -6,21 +6,12 @@
  * Supabase-in-the-browser forms run it in their submit handlers with the same codes.
  */
 
+import { validateEmailField, type FieldErrorCode } from '../forms/validate';
 import { validatePasswordPair } from './password';
 
-export type FieldErrorCode = 'REQUIRED' | 'INVALID' | 'TOO_SHORT' | 'MISMATCH';
-
-/** Pragmatic shape check (`local@domain.tld`, no spaces) — deliverability is Supabase's job. */
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-export function validateEmailField(
-  email: string,
-): Extract<FieldErrorCode, 'REQUIRED' | 'INVALID'> | null {
-  const trimmed = email.trim();
-  if (!trimmed) return 'REQUIRED';
-  if (!EMAIL_RE.test(trimmed)) return 'INVALID';
-  return null;
-}
+// The generic base lives in `lib/forms/validate.ts`; re-exported so auth consumers keep one import.
+export { validateEmailField };
+export type { FieldErrorCode };
 
 export type LoginFieldErrors = Partial<
   Record<'email' | 'password', FieldErrorCode>

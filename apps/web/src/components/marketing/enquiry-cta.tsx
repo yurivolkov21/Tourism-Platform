@@ -6,14 +6,15 @@ import { CheckIcon } from 'lucide-react';
 import { Button, Field, FieldLabel, Input, toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-import { buildEnquiryCtaPayload, isValidEnquiry } from '../../lib/enquiry-form';
+import { buildEnquiryCtaPayload } from '../../lib/enquiry-form';
 import { submitEnquiry } from '../../lib/api/enquiry';
 import { LEAD_FIELD_CLASS } from '../../lib/form-field';
 import {
-  EnquiryStatus,
-  EnquirySuccess,
-  type EnquiryFormStatus,
-} from './enquiry-status';
+  validateEnquiryFields,
+  type EnquiryFieldErrors,
+} from '../../lib/forms/validate';
+import { FieldErrorText } from '../forms/field-error-text';
+import { EnquirySuccess, type EnquiryFormStatus } from './enquiry-status';
 
 interface EnquiryCtaProps {
   /** Anchor id — kept as `contact` so in-page "Request to book" CTAs can scroll here. */
@@ -37,20 +38,24 @@ export function EnquiryCta({
   const t = messages.enquiryCta;
   const fm = t.form;
   const [status, setStatus] = useState<EnquiryFormStatus>('idle');
+  const [fieldErrors, setFieldErrors] = useState<EnquiryFieldErrors>({});
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
+    const name = String(fd.get('name') ?? '');
+    const email = String(fd.get('email') ?? '');
+
+    const invalid = validateEnquiryFields({ name, email });
+    setFieldErrors(invalid);
+    if (Object.keys(invalid).length > 0) return;
+
     const payload = buildEnquiryCtaPayload({
-      name: String(fd.get('name') ?? ''),
-      email: String(fd.get('email') ?? ''),
+      name,
+      email,
       destination: String(fd.get('destination') ?? ''),
       website: String(fd.get('website') ?? ''),
     });
-    if (!isValidEnquiry(payload)) {
-      setStatus('invalid');
-      return;
-    }
     setStatus('submitting');
     const res = await submitEnquiry(payload);
     if (res.ok) {
@@ -98,7 +103,11 @@ export function EnquiryCta({
             {status === 'success' ? (
               <EnquirySuccess />
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <form
+                onSubmit={handleSubmit}
+                noValidate
+                className="flex flex-col gap-4"
+              >
                 {/* Honeypot — hidden from real users; the API drops non-empty submissions. */}
                 <input
                   type="text"
@@ -116,6 +125,16 @@ export function EnquiryCta({
                     type="text"
                     placeholder={fm.namePlaceholder}
                     className={LEAD_FIELD_CLASS}
+                    aria-required="true"
+                    aria-invalid={Boolean(fieldErrors.name)}
+                    aria-describedby={
+                      fieldErrors.name ? 'enq-name-error' : undefined
+                    }
+                  />
+                  <FieldErrorText
+                    id="enq-name-error"
+                    field="name"
+                    code={fieldErrors.name}
                   />
                 </Field>
                 <Field className="gap-1.5">
@@ -126,6 +145,16 @@ export function EnquiryCta({
                     type="email"
                     placeholder={fm.emailPlaceholder}
                     className={LEAD_FIELD_CLASS}
+                    aria-required="true"
+                    aria-invalid={Boolean(fieldErrors.email)}
+                    aria-describedby={
+                      fieldErrors.email ? 'enq-email-error' : undefined
+                    }
+                  />
+                  <FieldErrorText
+                    id="enq-email-error"
+                    field="email"
+                    code={fieldErrors.email}
                   />
                 </Field>
                 <Field className="gap-1.5">
@@ -142,7 +171,6 @@ export function EnquiryCta({
                   />
                 </Field>
 
-                <EnquiryStatus status={status} />
                 <Button
                   type="submit"
                   size="lg"

@@ -221,10 +221,6 @@ export const messages = {
         'This reset link is invalid or has expired. Request a new one.',
       requestNew: 'Request a new link',
     },
-    passwordErrors: {
-      TOO_SHORT: 'Password must be at least 6 characters.',
-      MISMATCH: 'Passwords do not match.',
-    } as Record<string, string>,
     // Per-field error copy for the auth forms (login / register / forgot / reset).
     // Keys are the stable `FieldErrorCode` values from the web auth validator.
     fieldErrors: {
@@ -1656,13 +1652,40 @@ export const messages = {
     submit: 'Send enquiry',
     note: 'Free and no-obligation — we usually reply within 24 hours.',
   },
+  // Generic per-field error copy for the public web forms (enquiry family, booking contact,
+  // account security). Keys are the stable `FieldErrorCode` values from the web form validator;
+  // the auth forms keep their own copy under `auth.fieldErrors`.
+  fieldErrors: {
+    name: {
+      REQUIRED: 'Enter your name.',
+    },
+    firstName: {
+      REQUIRED: 'Enter your first name.',
+    },
+    lastName: {
+      REQUIRED: 'Enter your last name.',
+    },
+    email: {
+      REQUIRED: 'Enter your email address.',
+      INVALID: 'Enter a valid email address, e.g. you@example.com.',
+    },
+    terms: {
+      REQUIRED: 'Please accept the terms to continue.',
+    },
+    contactName: {
+      REQUIRED: 'Enter the lead traveller’s name.',
+    },
+    contactEmail: {
+      REQUIRED: 'Enter the lead traveller’s email address.',
+      INVALID: 'Enter a valid email address, e.g. you@example.com.',
+    },
+  } as Record<string, Record<string, string>>,
   // Shared submit/feedback states for both enquiry forms (enquiryCta + planTrip).
   enquiryForm: {
     submitting: 'Sending…',
     success: 'Thank you — your enquiry is on its way!',
     successBody:
       'Our local experts will get back to you within about 24 hours.',
-    required: 'Please enter your name and a valid email address.',
     errorGeneric:
       'Something went wrong sending your enquiry. Please try again, or email us directly.',
     rateLimited:

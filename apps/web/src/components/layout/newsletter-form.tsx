@@ -44,7 +44,7 @@ export function NewsletterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2">
+    <form onSubmit={handleSubmit} noValidate className="space-y-2">
       <div className="flex gap-2">
         {/* Honeypot — hidden from real users; the API silently drops non-empty fills. */}
         <input
@@ -59,6 +59,11 @@ export function NewsletterForm() {
           type="email"
           name="email"
           aria-label={f.newsletterPlaceholder}
+          aria-required="true"
+          aria-invalid={status === 'invalid'}
+          aria-describedby={
+            status === 'invalid' ? 'newsletter-invalid' : undefined
+          }
           placeholder={f.newsletterPlaceholder}
           className="border-background/25 bg-background/10 text-background placeholder:text-background/60 focus-visible:ring-background/40 h-11 w-full rounded-full border px-4 text-sm outline-none focus-visible:ring-2"
         />
@@ -71,7 +76,11 @@ export function NewsletterForm() {
         </button>
       </div>
       {status === 'invalid' ? (
-        <p role="status" className="text-background/80 text-xs">
+        <p
+          id="newsletter-invalid"
+          role="status"
+          className="text-background/80 text-xs"
+        >
           {f.newsletterInvalid}
         </p>
       ) : null}

@@ -2,13 +2,9 @@ import { CheckIcon } from 'lucide-react';
 
 import { messages } from '@tourism/i18n';
 
-export type EnquiryFormStatus =
-  | 'idle'
-  | 'submitting'
-  | 'success'
-  | 'invalid'
-  | 'error'
-  | 'rateLimited';
+// Field-level validation errors render inline per input (FieldErrorText); submit failures go
+// through toasts — so the shared status only tracks the submit lifecycle.
+export type EnquiryFormStatus = 'idle' | 'submitting' | 'success';
 
 /** Thank-you panel shown in place of the form after a successful submit. */
 export function EnquirySuccess() {
@@ -27,24 +23,5 @@ export function EnquirySuccess() {
         {t.successBody}
       </p>
     </div>
-  );
-}
-
-/** Inline error message above the submit button (invalid / generic / rate-limited). */
-export function EnquiryStatus({ status }: { status: EnquiryFormStatus }) {
-  const t = messages.enquiryForm;
-  const text =
-    status === 'invalid'
-      ? t.required
-      : status === 'rateLimited'
-        ? t.rateLimited
-        : status === 'error'
-          ? t.errorGeneric
-          : null;
-  if (!text) return null;
-  return (
-    <p className="text-destructive text-sm" role="alert">
-      {text}
-    </p>
   );
 }

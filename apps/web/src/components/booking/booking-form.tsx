@@ -26,6 +26,7 @@ import {
   type BookingActionState,
 } from '../../lib/booking/actions';
 import { computeBookingTotal } from '../../lib/booking/price';
+import { FieldErrorText } from '../forms/field-error-text';
 import { DeparturePicker } from './departure-picker';
 import { OrderSummary } from './order-summary';
 import { PrivateRequestForm } from './private-request-form';
@@ -82,6 +83,8 @@ export function BookingForm({
     BookingActionState,
     FormData
   >(createAndCheckout, {});
+  // Server-validated per-field codes from `createAndCheckout` (empty until a submit comes back).
+  const fieldErrors = state.fieldErrors ?? {};
 
   const [departureId, setDepartureId] = useState(initialDepartureId);
   const [adults, setAdults] = useState(1);
@@ -131,7 +134,7 @@ export function BookingForm({
         />
       ) : (
         <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
-          <form action={formAction} className="space-y-6">
+          <form action={formAction} noValidate className="space-y-6">
             {/* Values from the presentational widgets, posted as plain fields. */}
             <input type="hidden" name="tourSlug" value={tourSlug} />
             <input type="hidden" name="departureId" value={departureId} />
@@ -170,7 +173,7 @@ export function BookingForm({
                           clampInt(e.target.valueAsNumber, 1, MAX_ADULTS),
                         )
                       }
-                      required
+                      aria-required="true"
                     />
                   </Field>
                   <Field className="gap-1.5">
@@ -212,7 +215,16 @@ export function BookingForm({
                     name="contactName"
                     autoComplete="name"
                     defaultValue={defaultName}
-                    required
+                    aria-required="true"
+                    aria-invalid={Boolean(fieldErrors.contactName)}
+                    aria-describedby={
+                      fieldErrors.contactName ? 'contactName-error' : undefined
+                    }
+                  />
+                  <FieldErrorText
+                    id="contactName-error"
+                    field="contactName"
+                    code={fieldErrors.contactName}
                   />
                 </Field>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -226,7 +238,18 @@ export function BookingForm({
                       type="email"
                       autoComplete="email"
                       defaultValue={defaultEmail}
-                      required
+                      aria-required="true"
+                      aria-invalid={Boolean(fieldErrors.contactEmail)}
+                      aria-describedby={
+                        fieldErrors.contactEmail
+                          ? 'contactEmail-error'
+                          : undefined
+                      }
+                    />
+                    <FieldErrorText
+                      id="contactEmail-error"
+                      field="contactEmail"
+                      code={fieldErrors.contactEmail}
                     />
                   </Field>
                   <Field className="gap-1.5">

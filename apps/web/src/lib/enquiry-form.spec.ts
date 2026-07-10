@@ -5,7 +5,6 @@ import {
   composeEnquiryMessage,
   composePlanTripMessage,
   ENQUIRY_FALLBACK_MESSAGE,
-  isValidEnquiry,
   parseGroupSize,
   type PlanTripRaw,
 } from './enquiry-form';
@@ -139,15 +138,5 @@ describe('buildContactPayload', () => {
     });
     expect(p.message).toBe(ENQUIRY_FALLBACK_MESSAGE);
     expect(p.interests).toBeUndefined();
-  });
-});
-
-describe('isValidEnquiry', () => {
-  it('accepts a valid name + email', () => {
-    expect(isValidEnquiry({ name: 'Alex', email: 'a@b.co' })).toBe(true);
-  });
-  it('rejects short name or bad email', () => {
-    expect(isValidEnquiry({ name: 'A', email: 'a@b.co' })).toBe(false);
-    expect(isValidEnquiry({ name: 'Alex', email: 'not-an-email' })).toBe(false);
   });
 });

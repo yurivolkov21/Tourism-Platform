@@ -18,15 +18,16 @@ import {
 } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-import { buildPlanTripPayload, isValidEnquiry } from '../../lib/enquiry-form';
+import { buildPlanTripPayload } from '../../lib/enquiry-form';
 import { submitEnquiry } from '../../lib/api/enquiry';
 import { LEAD_FIELD_CLASS, LEAD_TEXTAREA_CLASS } from '../../lib/form-field';
-import { DatePicker } from '../booking/date-picker';
 import {
-  EnquiryStatus,
-  EnquirySuccess,
-  type EnquiryFormStatus,
-} from './enquiry-status';
+  validateEnquiryFields,
+  type EnquiryFieldErrors,
+} from '../../lib/forms/validate';
+import { DatePicker } from '../booking/date-picker';
+import { FieldErrorText } from '../forms/field-error-text';
+import { EnquirySuccess, type EnquiryFormStatus } from './enquiry-status';
 
 // Pill-style choice chips, built on the design-system ToggleGroup (keeps the primary-filled look
 // while gaining real toggle semantics + keyboard support over the old native buttons).
@@ -82,13 +83,21 @@ export function PlanTripForm() {
   const [interests, setInterests] = useState<string[]>([]);
   const [travelDate, setTravelDate] = useState('');
   const [status, setStatus] = useState<EnquiryFormStatus>('idle');
+  const [fieldErrors, setFieldErrors] = useState<EnquiryFieldErrors>({});
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
+    const name = String(fd.get('name') ?? '');
+    const email = String(fd.get('email') ?? '');
+
+    const invalid = validateEnquiryFields({ name, email });
+    setFieldErrors(invalid);
+    if (Object.keys(invalid).length > 0) return;
+
     const payload = buildPlanTripPayload({
-      name: String(fd.get('name') ?? ''),
-      email: String(fd.get('email') ?? ''),
+      name,
+      email,
       phone: String(fd.get('phone') ?? ''),
       nationality: String(fd.get('nationality') ?? ''),
       travelDate,
@@ -99,10 +108,6 @@ export function PlanTripForm() {
       interests,
       website: String(fd.get('website') ?? ''),
     });
-    if (!isValidEnquiry(payload)) {
-      setStatus('invalid');
-      return;
-    }
     setStatus('submitting');
     const res = await submitEnquiry(payload);
     if (res.ok) {
@@ -150,7 +155,11 @@ export function PlanTripForm() {
             {status === 'success' ? (
               <EnquirySuccess />
             ) : (
-              <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+              <form
+                className="flex flex-col gap-5"
+                onSubmit={handleSubmit}
+                noValidate
+              >
                 {/* Honeypot — hidden from real users; the API drops non-empty submissions. */}
                 <input
                   type="text"
@@ -169,6 +178,16 @@ export function PlanTripForm() {
                       type="text"
                       placeholder={f.namePlaceholder}
                       className={LEAD_FIELD_CLASS}
+                      aria-required="true"
+                      aria-invalid={Boolean(fieldErrors.name)}
+                      aria-describedby={
+                        fieldErrors.name ? 'pt-name-error' : undefined
+                      }
+                    />
+                    <FieldErrorText
+                      id="pt-name-error"
+                      field="name"
+                      code={fieldErrors.name}
                     />
                   </Field>
                   <Field className="gap-1.5">
@@ -179,6 +198,16 @@ export function PlanTripForm() {
                       type="email"
                       placeholder={f.emailPlaceholder}
                       className={LEAD_FIELD_CLASS}
+                      aria-required="true"
+                      aria-invalid={Boolean(fieldErrors.email)}
+                      aria-describedby={
+                        fieldErrors.email ? 'pt-email-error' : undefined
+                      }
+                    />
+                    <FieldErrorText
+                      id="pt-email-error"
+                      field="email"
+                      code={fieldErrors.email}
                     />
                   </Field>
                   <Field className="gap-1.5">
@@ -258,7 +287,6 @@ export function PlanTripForm() {
                   />
                 </Field>
 
-                <EnquiryStatus status={status} />
                 <Button
                   type="submit"
                   size="lg"

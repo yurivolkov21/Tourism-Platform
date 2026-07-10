@@ -15,6 +15,10 @@ import {
   type BookingDto,
 } from '../api/booking';
 import {
+  validateBookingContactFields,
+  type BookingContactFieldErrors,
+} from '../forms/validate';
+import {
   buildCreateBookingPayload,
   type BookingFormError,
 } from './booking-form';
@@ -25,6 +29,12 @@ const errors = messages.booking.errors;
 
 export interface BookingActionState {
   error?: string;
+  /**
+   * Server-validated per-field codes for the traveller contact fields → the form maps them to
+   * `messages.fieldErrors`. Presence/shape only; `buildCreateBookingPayload` stays the backstop
+   * for everything else (party size, provider, departure).
+   */
+  fieldErrors?: BookingContactFieldErrors;
 }
 
 /** Maps a form/API error code to friendly EN; unknown codes fall back to the generic message. */
@@ -66,6 +76,15 @@ export async function createAndCheckout(
   _prev: BookingActionState,
   formData: FormData,
 ): Promise<BookingActionState> {
+  // Per-field contact validation first (clear inline messages); the payload builder below
+  // re-checks the same rule (INVALID_CONTACT) as the backstop, so the two can never disagree
+  // in a way that lets a bad payload through.
+  const fieldErrors = validateBookingContactFields({
+    contactName: String(formData.get('contactName') ?? ''),
+    contactEmail: String(formData.get('contactEmail') ?? ''),
+  });
+  if (Object.keys(fieldErrors).length > 0) return { fieldErrors };
+
   const built = buildCreateBookingPayload({
     tourSlug: String(formData.get('tourSlug') ?? ''),
     departureId: String(formData.get('departureId') ?? ''),

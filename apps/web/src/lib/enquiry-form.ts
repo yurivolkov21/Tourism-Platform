@@ -123,12 +123,3 @@ export function buildContactPayload(raw: ContactRaw): EnquiryPayload {
     website: clean(raw.website),
   };
 }
-
-/** Lightweight client-side guard (the API re-validates fully). */
-export function isValidEnquiry(
-  payload: Pick<EnquiryPayload, 'name' | 'email'>,
-): boolean {
-  const nameOk = payload.name.trim().length >= 2;
-  const emailOk = /^\S+@\S+\.\S+$/.test(payload.email.trim());
-  return nameOk && emailOk;
-}

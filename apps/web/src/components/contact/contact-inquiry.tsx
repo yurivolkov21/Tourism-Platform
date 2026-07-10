@@ -22,7 +22,7 @@ import {
 } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-import { buildContactPayload, isValidEnquiry } from '../../lib/enquiry-form';
+import { buildContactPayload } from '../../lib/enquiry-form';
 import { submitEnquiry } from '../../lib/api/enquiry';
 import {
   LEAD_FIELD_CLASS,
@@ -30,7 +30,11 @@ import {
   LEAD_TEXTAREA_CLASS,
 } from '../../lib/form-field';
 import {
-  EnquiryStatus,
+  validateContactFields,
+  type ContactFieldErrors,
+} from '../../lib/forms/validate';
+import { FieldErrorText } from '../forms/field-error-text';
+import {
   EnquirySuccess,
   type EnquiryFormStatus,
 } from '../marketing/enquiry-status';
@@ -61,9 +65,19 @@ export function ContactInquiry({
   const [terms, setTerms] = useState(false);
   const [website, setWebsite] = useState('');
   const [status, setStatus] = useState<EnquiryFormStatus>('idle');
+  const [fieldErrors, setFieldErrors] = useState<ContactFieldErrors>({});
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const invalid = validateContactFields({
+      firstName,
+      lastName,
+      email,
+      terms,
+    });
+    setFieldErrors(invalid);
+    if (Object.keys(invalid).length > 0) return;
+
     const payload = buildContactPayload({
       firstName,
       lastName,
@@ -72,10 +86,6 @@ export function ContactInquiry({
       message,
       website,
     });
-    if (!isValidEnquiry(payload) || !terms) {
-      setStatus('invalid');
-      return;
-    }
     setStatus('submitting');
     const res = await submitEnquiry(payload);
     if (res.ok) {
@@ -149,7 +159,11 @@ export function ContactInquiry({
                 {status === 'success' ? (
                   <EnquirySuccess />
                 ) : (
-                  <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                  <form
+                    onSubmit={handleSubmit}
+                    noValidate
+                    className="flex flex-col gap-5"
+                  >
                     {/* Honeypot */}
                     <input
                       type="text"
@@ -173,7 +187,18 @@ export function ContactInquiry({
                           value={firstName}
                           onChange={(e) => setFirstName(e.target.value)}
                           className={LEAD_FIELD_CLASS}
-                          required
+                          aria-required="true"
+                          aria-invalid={Boolean(fieldErrors.firstName)}
+                          aria-describedby={
+                            fieldErrors.firstName
+                              ? 'contact-firstName-error'
+                              : undefined
+                          }
+                        />
+                        <FieldErrorText
+                          id="contact-firstName-error"
+                          field="firstName"
+                          code={fieldErrors.firstName}
                         />
                       </div>
                       <div className="space-y-1.5">
@@ -187,7 +212,18 @@ export function ContactInquiry({
                           value={lastName}
                           onChange={(e) => setLastName(e.target.value)}
                           className={LEAD_FIELD_CLASS}
-                          required
+                          aria-required="true"
+                          aria-invalid={Boolean(fieldErrors.lastName)}
+                          aria-describedby={
+                            fieldErrors.lastName
+                              ? 'contact-lastName-error'
+                              : undefined
+                          }
+                        />
+                        <FieldErrorText
+                          id="contact-lastName-error"
+                          field="lastName"
+                          code={fieldErrors.lastName}
                         />
                       </div>
                     </div>
@@ -201,7 +237,16 @@ export function ContactInquiry({
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className={LEAD_FIELD_CLASS}
-                        required
+                        aria-required="true"
+                        aria-invalid={Boolean(fieldErrors.email)}
+                        aria-describedby={
+                          fieldErrors.email ? 'contact-email-error' : undefined
+                        }
+                      />
+                      <FieldErrorText
+                        id="contact-email-error"
+                        field="email"
+                        code={fieldErrors.email}
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -238,21 +283,34 @@ export function ContactInquiry({
                         className={LEAD_TEXTAREA_CLASS}
                       />
                     </div>
-                    <div className="flex items-start gap-2.5">
-                      <Checkbox
-                        id="contact-terms"
-                        checked={terms}
-                        onCheckedChange={(c) => setTerms(c === true)}
-                        className="mt-0.5"
+                    <div className="space-y-1.5">
+                      <div className="flex items-start gap-2.5">
+                        <Checkbox
+                          id="contact-terms"
+                          checked={terms}
+                          onCheckedChange={(c) => setTerms(c === true)}
+                          className="mt-0.5"
+                          aria-required="true"
+                          aria-invalid={Boolean(fieldErrors.terms)}
+                          aria-describedby={
+                            fieldErrors.terms
+                              ? 'contact-terms-error'
+                              : undefined
+                          }
+                        />
+                        <Label
+                          htmlFor="contact-terms"
+                          className="text-muted-foreground text-sm font-normal"
+                        >
+                          {f.terms}
+                        </Label>
+                      </div>
+                      <FieldErrorText
+                        id="contact-terms-error"
+                        field="terms"
+                        code={fieldErrors.terms}
                       />
-                      <Label
-                        htmlFor="contact-terms"
-                        className="text-muted-foreground text-sm font-normal"
-                      >
-                        {f.terms}
-                      </Label>
                     </div>
-                    <EnquiryStatus status={status} />
                     <Button
                       type="submit"
                       size="lg"

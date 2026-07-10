@@ -6,7 +6,12 @@ import { Button, Input, Label, toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { authErrorMessage } from '../../lib/auth/auth-error';
+import {
+  validateEmailField,
+  type FieldErrorCode,
+} from '../../lib/auth/validate';
 import { createClient } from '../../lib/supabase/client';
+import { AuthFieldError } from '../auth/auth-field-error';
 
 /**
  * Change email while signed in. Supabase emails a confirmation (to both addresses); the change lands
@@ -15,6 +20,7 @@ import { createClient } from '../../lib/supabase/client';
 export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
   const t = messages.auth.account.securityPage.email;
   const [pending, setPending] = useState(false);
+  const [fieldError, setFieldError] = useState<FieldErrorCode>();
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -24,6 +30,13 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
     const email = String(
       new FormData(event.currentTarget).get('email') ?? '',
     ).trim();
+
+    const invalid = validateEmailField(email);
+    setFieldError(invalid ?? undefined);
+    if (invalid) {
+      setPending(false);
+      return;
+    }
     const { error: updateError } = await createClient().auth.updateUser(
       { email },
       {
@@ -41,7 +54,7 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} noValidate className="space-y-4">
       <h3 className="text-sm font-medium">{t.heading}</h3>
       <div className="space-y-1.5">
         <Label htmlFor="current-email">{t.currentLabel}</Label>
@@ -60,8 +73,11 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
           name="email"
           type="email"
           autoComplete="email"
-          required
+          aria-required="true"
+          aria-invalid={Boolean(fieldError)}
+          aria-describedby={fieldError ? 'new-email-error' : undefined}
         />
+        <AuthFieldError id="new-email-error" field="email" code={fieldError} />
       </div>
       <Button type="submit" disabled={pending}>
         {pending ? t.submitting : t.submit}

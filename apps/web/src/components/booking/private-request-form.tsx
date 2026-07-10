@@ -28,6 +28,11 @@ import {
   deriveEndDate,
 } from '../../lib/booking/private-request';
 import { formatTripDate } from '../../lib/booking/my-bookings';
+import {
+  validateBookingContactFields,
+  type BookingContactFieldErrors,
+} from '../../lib/forms/validate';
+import { FieldErrorText } from '../forms/field-error-text';
 import { DatePicker } from './date-picker';
 
 const MAX_ADULTS = 20;
@@ -66,6 +71,7 @@ export function PrivateRequestForm({
   const [children, setChildren] = useState(0);
   const [pending, setPending] = useState(false);
   const [done, setDone] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<BookingContactFieldErrors>({});
 
   const endDate = startDate ? deriveEndDate(startDate, durationDays) : '';
 
@@ -73,6 +79,12 @@ export function PrivateRequestForm({
     event.preventDefault();
     if (pending || !startDate) return;
     const fd = new FormData(event.currentTarget);
+    const contactName = String(fd.get('contactName') ?? '');
+    const contactEmail = String(fd.get('contactEmail') ?? '');
+
+    const invalid = validateBookingContactFields({ contactName, contactEmail });
+    setFieldErrors(invalid);
+    if (Object.keys(invalid).length > 0) return;
     setPending(true);
 
     const payload = buildPrivateEnquiryPayload({
@@ -80,8 +92,8 @@ export function PrivateRequestForm({
       tourTitle,
       durationDays,
       startDate,
-      name: String(fd.get('contactName') ?? ''),
-      email: String(fd.get('contactEmail') ?? ''),
+      name: contactName,
+      email: contactEmail,
       phone: String(fd.get('contactPhone') ?? ''),
       adults,
       children,
@@ -115,7 +127,7 @@ export function PrivateRequestForm({
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
-      <form onSubmit={onSubmit} className="space-y-6">
+      <form onSubmit={onSubmit} noValidate className="space-y-6">
         {/* ① Your dates */}
         <FieldSet className="grid grid-cols-1 gap-x-10 gap-y-4 md:grid-cols-3">
           <div>
@@ -151,7 +163,7 @@ export function PrivateRequestForm({
                   onChange={(e) =>
                     setAdults(clampInt(e.target.valueAsNumber, 1, MAX_ADULTS))
                   }
-                  required
+                  aria-required="true"
                 />
               </Field>
               <Field className="gap-1.5">
@@ -192,7 +204,16 @@ export function PrivateRequestForm({
                 name="contactName"
                 autoComplete="name"
                 defaultValue={defaultName}
-                required
+                aria-required="true"
+                aria-invalid={Boolean(fieldErrors.contactName)}
+                aria-describedby={
+                  fieldErrors.contactName ? 'pr-contactName-error' : undefined
+                }
+              />
+              <FieldErrorText
+                id="pr-contactName-error"
+                field="contactName"
+                code={fieldErrors.contactName}
               />
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -204,7 +225,18 @@ export function PrivateRequestForm({
                   type="email"
                   autoComplete="email"
                   defaultValue={defaultEmail}
-                  required
+                  aria-required="true"
+                  aria-invalid={Boolean(fieldErrors.contactEmail)}
+                  aria-describedby={
+                    fieldErrors.contactEmail
+                      ? 'pr-contactEmail-error'
+                      : undefined
+                  }
+                />
+                <FieldErrorText
+                  id="pr-contactEmail-error"
+                  field="contactEmail"
+                  code={fieldErrors.contactEmail}
                 />
               </Field>
               <Field className="gap-1.5">
