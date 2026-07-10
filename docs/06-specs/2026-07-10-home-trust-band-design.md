@@ -55,11 +55,11 @@ Optional micro-interaction: a logo recolours to its brand colour on hover.
 | Destinations | **16** (across 3 regions: Northern / Central / Southern Vietnam) |
 | Reviews | **26**, average rating **4.38 → 4.4★** |
 
-**Stats to show (recommended): three strong, honest figures —
+**Stats to show (locked): three strong, honest figures —
 `23 curated tours · 16 destinations · 4.4★ average rating`.** The 26-review
-count is real but modest; including it as a 4th stat is optional (open question).
-All figures are computed **server-side at request time** so they track the live
-DB rather than being hard-coded.
+count is real but modest, so it is dropped from the row (the rating implicitly
+represents the reviews). All figures are computed **server-side at request time**
+so they track the live DB rather than being hard-coded.
 
 ### Honesty constraints (non-negotiable)
 
@@ -93,8 +93,8 @@ DB rather than being hard-coded.
 
 - **In:** home `/` — swap `TechCloud` → `TrustBand`; self-host payment logos;
   i18n copy; live stat wiring; retire `TechCloud`.
-- **About page decision (open):** either give About the same `TrustBand`, or
-  retire `BuiltWith`/`TechMarquee` entirely. Decide in the plan.
+- **About page (decided):** give About the **same `TrustBand`** for
+  site-wide consistency; retire `BuiltWith` + `TechMarquee`.
 - **Out:** no new payment methods; no checkout/booking changes; no fabricated
   logos or numbers.
 
@@ -114,6 +114,9 @@ DB rather than being hard-coded.
 
 ## Open questions (resolve in plan)
 
-1. Three stats vs four (include the modest `26 reviews`?).
-2. About page: same band, or drop the tech strip there too?
-3. Review-aggregate data source (existing endpoint vs small new public aggregate).
+1. Review-aggregate data source: reuse an existing public endpoint that exposes
+   avg-rating + count, or add a small public aggregate. (Tours/destinations
+   counts come from existing list-endpoint pagination totals.)
+
+_Resolved during spec review (2026-07-10): **3 stats** (drop the 26-review count);
+About page **gets the same `TrustBand`**._
