@@ -54,7 +54,7 @@ tokens-only (no-hex), reuse `@tourism/ui`, copy in `@tourism/i18n`. Plan:
 
 | Page / area | Route | Status |
 | --- | --- | --- |
-| **Home** (Lily-style clone) | `/` | ✅ hero · **"Built with" coloured tech-cloud marquee** · destinations bento · experiences · featured · why-choose · trust · blog-teaser · enquiry — **featured/bento wired to live API** (ISR 300) |
+| **Home** (Lily-style clone) | `/` | ✅ hero · destinations bento · experiences · featured · why-choose · trust · blog-teaser · enquiry — **featured/bento wired to live API** (ISR 300). **Trust band — implemented, pending merge** (`feat/home-trust-band`): dark `TrustBand` (real live stats + self-hosted monochrome payment marquee) replaces the old "Built with" coloured tech-cloud marquee on home + About; Contact's "Built with" strip is unchanged (follow-up). |
 | **Destinations overview** | `/destinations` | ✅ hero · full-bleed region mosaics (feature tiles) · when-to-visit · popular (image posters) · testimonials · travel-tips · enquiry |
 | **Region pages** | `/destinations/[region]` | ✅ SSG ×3 (northern / central / southern) — hero · intro bento · highlights · **per-region L2 signature** (North = dark adventure-stats · Central = heritage timeline · South = delta image-postcards) · **tours + destination tabs wired to live data** (`selectRegionBookables`, ISR 300, fixture fallback) · gallery · value-props · **rich Plan-your-trip form** (maps Enquiry model). **Hero/gallery/signature imagery derives from `Destination.media[]`** (`lib/region-imagery.ts`, all-real-or-fixture; real images seeded + live). 404 on unknown region. |
 | **FAQ** | `/faq` | ✅ searchable grouped accordion (category icons) · sticky TOC · FAQPage JSON-LD |

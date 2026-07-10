@@ -31,7 +31,7 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08)** · **P5.5 app-native UX pass COMPLETE — N1 Feel + N2 Patterns (2026-07-08) + N3 IA & Home (2026-07-09) all merged; combined on-device pass still owed** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08)** · **P5.5 app-native UX pass COMPLETE — N1 Feel + N2 Patterns (2026-07-08) + N3 IA & Home (2026-07-09) all merged; combined on-device pass still owed** · **home trust band — implemented, pending merge (2026-07-10)** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
 
 > **Next action: the combined on-device pass** (Expo Go, Android) — P5.5
 > feature work is done; the one owed item is a single device session covering
@@ -41,10 +41,32 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 > Trips) **+** the still-owed **N2** (filter sheet · stepped booking on Stripe
 > + PayPal · enquiry sheet · show-all screens), **N1** (ripple · haptics ·
 > Fraunces headers · image fade-in · autofill) and **W4 payment loop**
-> checklists. After that, pick the next phase with the user (mobile backlog:
-> "Browse by experience" · dark-mode splash/adaptive-icon assets · in-app
-> theme toggle · encrypted LargeSecureStore; or an admin-managed brand-chrome
-> media model; or store builds via EAS).
+> checklists. Also pending: merge **`feat/home-trust-band`** (implemented +
+> reviewed clean, see below). After that, pick the next phase with the user
+> (mobile backlog: "Browse by experience" · dark-mode splash/adaptive-icon
+> assets · in-app theme toggle · encrypted LargeSecureStore; web backlog:
+> bring Contact's "trusted by" strip onto `TrustBand` for consistency — it
+> still renders the old `TechMarquee`; or an admin-managed brand-chrome media
+> model; or store builds via EAS).
+>
+> **Home trust band — implemented, pending merge (2026-07-10, branch
+> `feat/home-trust-band`, `50922bb..a8c00a9`):** replaced the coloured
+> "Built with" tech-stack marquee on the web **home + About** pages with a
+> dark, on-brand `TrustBand` — real live stats (curated tours ·
+> destinations · average rating, computed server-side) + a **monochrome,
+> self-hosted** payment-method marquee (Visa · Mastercard · American
+> Express · PayPal · Stripe) with an sr-only label + security caption. New
+> public BE endpoint `GET /api/v1/reviews/summary` (site-wide
+> approved-review count + average rating). Retired `tech-cloud.tsx` +
+> `built-with.tsx` and their i18n; **removed the external
+> `cdn.simpleicons.org` runtime dependency** (logos self-hosted under
+> `apps/web/public/logos/pay/`). New i18n block `messages.trustBand`.
+> **Consistency follow-up (not done):** `apps/web/src/components/marketing/
+> contact-inquiry.tsx` still renders the **old** `TechMarquee` "trusted by"
+> strip on `/contact` — `tech-marquee.tsx` was intentionally kept because
+> Contact still consumes it; home/About vs Contact is now visually
+> inconsistent until that's addressed. Baselines: api 340 · web 197. Plan:
+> `docs/07-plans/2026-07-10-home-trust-band.md`.
 >
 > **P5.5 N3 "IA & Home" COMPLETE (2026-07-09, branch
 > `feat/mobile-n3-ia-home`, merged ff-only):** **5 tabs** — bookings list

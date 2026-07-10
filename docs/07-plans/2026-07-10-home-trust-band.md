@@ -2,6 +2,20 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+## STATUS
+
+- **State:** DONE — all 6 tasks implemented on branch `feat/home-trust-band`
+  (commits `50922bb..a8c00a9`), reviewed clean. Docs sweep done this pass.
+  **Not yet merged/deployed** — the full `run-many` gate + manual visual
+  check (Task 6 Steps 1–2) are still owed before merge.
+- **Branch:** `feat/home-trust-band` (open, awaiting user review + merge).
+- **Tests:** api 340 (was 338, +2 `summarize` cases) · web 197 (was 191, +6:
+  `trust-band.spec.ts` 4 + `trust-band.spec.tsx` 2).
+- **Follow-up (not in scope here):** `/contact` (`contact-inquiry.tsx`)
+  still renders the old `TechMarquee` "trusted by" strip — `tech-marquee.tsx`
+  was intentionally kept for it — so home/About now visually diverge from
+  Contact until a later pass brings Contact onto `TrustBand` too.
+
 **Goal:** Replace the home (and About) "Built with" coloured tech-stack marquee with a credible, on-brand **dark trust band**: real live stats (`23 curated tours · 16 destinations · 4.4★ average rating`) + a monochrome, self-hosted payment-method marquee (`Visa · Mastercard · American Express · PayPal · Stripe`) + a security caption.
 
 **Architecture:** One presentational `TrustBand` client component (dark-forced section) fed real stats computed server-side. Stats come from existing public list endpoints (`tours`/`destinations` → `meta.total`) plus one new tiny public endpoint `GET /reviews/summary` (site-wide approved-review count + average). Payment logos are self-hosted SVGs, tinted to a single token ink via CSS `mask`, scrolled by the existing shared `Marquee`.
@@ -637,7 +651,7 @@ git commit -m "feat(web): render TrustBand on home + About, retire tech-stack ma
 **Files:**
 - Modify (docs): `CLAUDE.md` (web row), `docs/roadmap.md` if it has a matching row, `HANDOFF.md`, and this plan's status. Update test-count baselines where they appear.
 
-- [ ] **Step 1: Run the full gate (hand to the user)**
+- [ ] **Step 1: Run the full gate (hand to the user)** — pending; the user runs gate checks manually (standing rule). Targeted test runs confirmed green during this docs sweep (api 340/340, web 197/197).
 
 Ask the user to run:
 ```bash
@@ -645,15 +659,15 @@ pnpm nx run-many -t lint typecheck test build --projects=@tourism/web,@tourism/a
 ```
 Expected: all green. Fix any failure at its root before proceeding.
 
-- [ ] **Step 2: Manual visual check (hand to the user)**
+- [ ] **Step 2: Manual visual check (hand to the user)** — pending.
 
 Confirm on the running web app: home + About show the dark trust band with real numbers (`23 curated tours · 16 destinations · 4.4★`), the monochrome payment marquee scrolls (and pauses on hover / is static under reduced-motion), the security caption reads correctly, and no horizontal overflow.
 
-- [ ] **Step 3: Docs sweep**
+- [x] **Step 3: Docs sweep**
 
 Per CLAUDE.md rule 9: update the `@tourism/web` status line in `CLAUDE.md` (note the trust band replacing the tech marquee), the roadmap row if present, `HANDOFF.md` current-state/next-action, and bump any stated web test-count baseline (new specs: `trust-band.spec.ts`, `trust-band.spec.tsx`, plus the api `reviews.service.spec.ts` cases). Mark this plan's status **DONE**.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add CLAUDE.md HANDOFF.md docs/roadmap.md docs/07-plans/2026-07-10-home-trust-band.md
