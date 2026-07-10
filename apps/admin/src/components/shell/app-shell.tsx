@@ -92,7 +92,7 @@ export function AppShell({ email, children }: { email: string; children: React.R
         </SidebarFooter>
       </Sidebar>
 
-      <SidebarInset>
+      <SidebarInset className="min-w-0">
         <header className="bg-background sticky top-0 z-30 flex h-14 items-center gap-2 rounded-t-xl border-b px-4 sm:px-6">
           <SidebarTrigger className="text-muted-foreground -ml-1 cursor-pointer" />
           <span className="bg-border mx-1 h-4 w-px" aria-hidden />

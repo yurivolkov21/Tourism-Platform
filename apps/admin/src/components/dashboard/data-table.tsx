@@ -50,7 +50,16 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
           </Link>
         ),
       },
-      { accessorKey: 'tourTitle', header: 'Tour', meta: { label: 'Tour' } },
+      {
+        accessorKey: 'tourTitle',
+        header: 'Tour',
+        meta: { label: 'Tour' },
+        cell: ({ row }) => (
+          <span className="block max-w-88 truncate" title={row.original.tourTitle}>
+            {row.original.tourTitle}
+          </span>
+        ),
+      },
       {
         accessorKey: 'status',
         header: 'Status',
