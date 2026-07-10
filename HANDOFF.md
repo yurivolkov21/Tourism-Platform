@@ -31,7 +31,7 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08)** · **P5.5 app-native UX pass COMPLETE — N1 Feel + N2 Patterns (2026-07-08) + N3 IA & Home (2026-07-09) all merged; combined on-device pass still owed** · **home trust band — MERGED + redesigned as an editorial inline strip (2026-07-10)** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08)** · **P5.5 app-native UX pass COMPLETE — N1 Feel + N2 Patterns (2026-07-08) + N3 IA & Home (2026-07-09) all merged; combined on-device pass still owed** · **home trust band — MERGED + redesigned as an editorial inline strip (2026-07-10)** · **web form-validation sweep COMPLETE (2026-07-10)** — no native HTML validation anywhere on web (auth + enquiry family + newsletter + account security + booking/private-request): `noValidate` + per-field error codes from shared TDD'd validators (`lib/forms/validate.ts` + `lib/auth/validate.ts`), server-side in `signUp`/`createAndCheckout`, copy in `messages.fieldErrors`; **admin still owed the same sweep** (user rule) · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
 
 > **Next action: the combined on-device pass** (Expo Go, Android) — P5.5
 > feature work is done; the one owed item is a single device session covering
@@ -47,7 +47,9 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 > (mobile backlog: "Browse by experience" · dark-mode splash/adaptive-icon
 > assets · in-app theme toggle · encrypted LargeSecureStore; web backlog:
 > an admin-managed brand-chrome media
-> model; or store builds via EAS).
+> model; **admin backlog: the form-validation sweep** — same noValidate +
+> per-field pattern the web got 2026-07-10, admin login first; or store
+> builds via EAS).
 >
 > **Home trust band — MERGED + redesigned (2026-07-10):** the original
 > `feat/home-trust-band` (real live stats from `GET /api/v1/reviews/summary` +
