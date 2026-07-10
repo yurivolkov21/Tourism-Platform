@@ -13,9 +13,7 @@ const PAYMENTS = [
 export function PaymentMarquee() {
   return (
     <div>
-      <span className="sr-only">
-        We accept Visa, Mastercard, American Express, PayPal and Stripe
-      </span>
+      <span className="sr-only">{messages.trustBand.payments}</span>
       <div aria-hidden className="relative overflow-hidden">
         <Marquee pauseOnHover className="[--duration:36s] p-0">
           {PAYMENTS.map((p) => (

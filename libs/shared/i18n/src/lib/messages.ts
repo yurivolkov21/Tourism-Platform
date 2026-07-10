@@ -21,6 +21,7 @@ export const messages = {
       rating: 'Average rating',
     },
     security: 'Every booking secured by Stripe & PayPal · SSL encrypted',
+    payments: 'We accept Visa, Mastercard, American Express, PayPal and Stripe',
   },
   // Customer auth (login / register / account / user menu). EN-only (ADR-0005).
   auth: {
