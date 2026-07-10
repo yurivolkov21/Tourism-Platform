@@ -34,13 +34,14 @@ import {
   EnquirySuccess,
   type EnquiryFormStatus,
 } from '../marketing/enquiry-status';
+import { PaymentRow } from '../marketing/payment-row';
 import { Reveal } from '../marketing/reveal';
-import { TechMarquee } from '../marketing/tech-marquee';
 
 /**
  * Contact-page lead section (Shadcn Space "Contact 01" layout, brand-tokenized):
- * contact details + "Built with" strip on the left, a real enquiry form on the right.
- * The form posts to /enquiries via submitEnquiry (the first-class contact channel).
+ * contact details + secure-payments strip on the left, a real enquiry form on the
+ * right. The form posts to /enquiries via submitEnquiry (the first-class contact
+ * channel).
  */
 export function ContactInquiry({
   interestOptions = [],
@@ -129,9 +130,9 @@ export function ContactInquiry({
 
               <div className="flex flex-col gap-5">
                 <span className="text-muted-foreground text-base">
-                  {t.trustedByLabel}
+                  {t.securePaymentsLabel}
                 </span>
-                <TechMarquee />
+                <PaymentRow align="start" />
               </div>
             </div>
           </Reveal>

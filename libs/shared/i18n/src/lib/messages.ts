@@ -1227,7 +1227,7 @@ export const messages = {
         { label: 'Email', value: 'tourism.platform.online@gmail.com' },
         { label: 'Location', value: 'Hồ Chí Minh City, Vietnam' },
       ],
-      trustedByLabel: 'Built with',
+      securePaymentsLabel: 'Secure payments',
       form: {
         title: 'Send us a message',
         firstNameLabel: 'First name',
