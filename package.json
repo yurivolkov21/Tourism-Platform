@@ -3,10 +3,16 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "check:no-hex": "node tools/check-no-hex.mjs"
+    "check:no-hex": "node tools/check-no-hex.mjs",
+    "prepare": "husky",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,mjs,cjs,cts,mts,json,jsonc,css,scss,html,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mjs,cjs,cts,mts,json,jsonc,css,scss,html,yaml,yml}\""
   },
   "private": true,
   "packageManager": "pnpm@11.4.0",
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs,cjs,cts,mts,json,jsonc,css,scss,html,yaml,yml}": "prettier --write"
+  },
   "devDependencies": {
     "@babel/core": "^7.14.5",
     "@babel/preset-react": "^7.14.5",
@@ -43,12 +49,14 @@
     "babel-preset-expo": "~54.0.7",
     "eslint": "~8.57.0",
     "eslint-config-prettier": "^9.1.2",
+    "husky": "^9.1.7",
     "jest": "~30.3.0",
     "jest-environment-jsdom": "~30.3.0",
     "jest-environment-node": "~30.3.0",
     "jest-expo": "~54.0.13",
     "jest-util": "~30.3.0",
     "jsonc-eslint-parser": "^2.4.2",
+    "lint-staged": "^17.0.8",
     "metro-config": "~0.83.0",
     "metro-resolver": "~0.83.0",
     "nx": "22.7.5",

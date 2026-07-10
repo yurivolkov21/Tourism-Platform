@@ -33,6 +33,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Fails the PR if any code/config file drifts from Prettier (markdown is
+      # intentionally out of scope — see the format:check glob in package.json).
+      - name: Format check
+        run: pnpm format:check
+
       # Prisma client isn't committed — generate before typecheck/build (no DB needed).
       - name: Generate Prisma client
         run: pnpm --filter @tourism/api exec prisma generate
