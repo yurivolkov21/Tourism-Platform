@@ -11,6 +11,7 @@ import {
   MailWarning,
   MapPin,
   MessageSquareQuote,
+  Palette,
   Receipt,
   Tags,
   TicketX,
@@ -47,6 +48,7 @@ const NAV: NavSection[] = [
       { title: 'Media', href: '/media', icon: ImageIcon },
       { title: 'Posts', href: '/posts', icon: FileText },
       { title: 'Reviews', href: '/reviews', icon: MessageSquareQuote },
+      { title: 'Appearance', href: '/appearance', icon: Palette },
     ],
   },
   {

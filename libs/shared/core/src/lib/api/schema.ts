@@ -773,6 +773,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/reviews/summary': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Site-wide approved-review count + average rating */
+    get: operations['ReviewsController_summary'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/reviews': {
     parameters: {
       query?: never;
@@ -1270,6 +1287,57 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/site-media': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Managed brand-chrome slots (non-empty only) */
+    get: operations['SiteMediaController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/site-media': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Admin: full brand-chrome slot catalog */
+    get: operations['AdminSiteMediaController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/site-media/{key}/media': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Admin: replace a slot’s media (empty array = reset to default) */
+    put: operations['AdminSiteMediaController_setMedia'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1429,7 +1497,8 @@ export interface components {
         | 'DESTINATION_VIDEO'
         | 'USER_AVATAR'
         | 'POST_COVER'
-        | 'POST_BODY';
+        | 'POST_BODY'
+        | 'SITE_CHROME';
       /**
        * @description Original filename (single extension). The backend sanitizes + timestamps it.
        * @example hero-shot.jpg
@@ -2736,6 +2805,18 @@ export interface components {
     FeaturedReviewsDto: {
       data: components['schemas']['FeaturedReviewDto'][];
     };
+    ReviewSummaryDto: {
+      /**
+       * @description Number of approved reviews
+       * @example 26
+       */
+      count: number;
+      /**
+       * @description Mean rating across approved reviews (1 dp); null when none.
+       * @example 4.4
+       */
+      averageRating: number | null;
+    };
     CreateReviewDto: {
       /**
        * @description Booking code this review is attached to (must be PAID).
@@ -3403,7 +3484,7 @@ export interface components {
       /** Format: date-time */
       createdAt: string;
       /** @enum {string} */
-      ownerType: 'TOUR' | 'DESTINATION' | 'USER' | 'POST';
+      ownerType: 'TOUR' | 'DESTINATION' | 'USER' | 'POST' | 'SITE';
       /** Format: uuid */
       ownerId: string;
       /**
@@ -3452,6 +3533,27 @@ export interface components {
       id: string;
       /** @example tourism/tours/hero/1717000000000-hoi-an */
       publicId: string;
+    };
+    SiteMediaSlotDto: {
+      /** @example home-hero */
+      key: string;
+      media: components['schemas']['MediaItemDto'][];
+    };
+    AdminSiteMediaSlotDto: {
+      /** @example home-hero */
+      key: string;
+      media: components['schemas']['MediaItemDto'][];
+      /**
+       * @example single
+       * @enum {string}
+       */
+      kind: 'single' | 'gallery';
+      /** @example Hero backdrop */
+      label: string;
+      /** @example Home */
+      group: string;
+      /** @example Full-bleed photo behind the home-page hero heading and search. */
+      hint: string;
     };
   };
   responses: never;
@@ -5474,6 +5576,26 @@ export interface operations {
       };
     };
   };
+  ReviewsController_summary: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Approved-review aggregate */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReviewSummaryDto'];
+        };
+      };
+    };
+  };
   ReviewsController_create: {
     parameters: {
       query?: never;
@@ -6456,7 +6578,7 @@ export interface operations {
       query?: {
         page?: number;
         pageSize?: number;
-        ownerType?: 'TOUR' | 'DESTINATION' | 'USER' | 'POST';
+        ownerType?: 'TOUR' | 'DESTINATION' | 'USER' | 'POST' | 'SITE';
         role?: 'hero' | 'gallery' | 'avatar' | 'body';
         type?: 'IMAGE' | 'VIDEO';
         search?: string;
@@ -6574,6 +6696,84 @@ export interface operations {
       };
       /** @description USER-owned asset (customer avatar) */
       409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SiteMediaController_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SiteMediaSlotDto'][];
+        };
+      };
+    };
+  };
+  AdminSiteMediaController_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminSiteMediaSlotDto'][];
+        };
+      };
+    };
+  };
+  AdminSiteMediaController_setMedia: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        key: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SetMediaDto'];
+      };
+    };
+    responses: {
+      /** @description New media set */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MediaItemDto'][];
+        };
+      };
+      /** @description Kind/role/type violation */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unknown slot key */
+      404: {
         headers: {
           [name: string]: unknown;
         };

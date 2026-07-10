@@ -10,10 +10,12 @@ import {
 import { Card, CardContent } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { getSiteMedia } from '../../lib/api/site-media';
+import { siteImage } from '../../lib/site-media';
 import { Reveal } from './reveal';
 
-// Curated real Vietnam imagery (Unsplash).
-const WHY_IMAGE =
+// Built-in default — overridable via the `home-why-choose` Appearance slot.
+const DEFAULT_WHY_IMAGE =
   'https://images.unsplash.com/photo-1639458110591-17c4cede0c4b?w=1920&q=70&auto=format&fit=crop';
 
 // Four strongest pillars drawn from messages.features.items (icon paired per item).
@@ -26,8 +28,13 @@ const pillars: { index: number; icon: LucideIcon }[] = [
 
 // "Why travel with us" — Lily's photo-left / cards-right composition, filled with our real
 // value props (no fabricated awards).
-export function WhyChoose() {
+export async function WhyChoose() {
   const t = messages.features;
+  const whyImage = siteImage(
+    await getSiteMedia(),
+    'home-why-choose',
+    DEFAULT_WHY_IMAGE,
+  );
 
   return (
     <section className="py-16 sm:py-20 lg:py-24">
@@ -45,7 +52,7 @@ export function WhyChoose() {
           {/* Team / atmosphere photo */}
           <div className="relative overflow-hidden rounded-2xl max-lg:aspect-4/3 lg:min-h-96">
             <Image
-              src={WHY_IMAGE}
+              src={whyImage}
               alt="Our team and travellers exploring Vietnam"
               fill
               sizes="(min-width: 1024px) 50vw, 100vw"

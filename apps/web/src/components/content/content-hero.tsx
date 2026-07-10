@@ -4,17 +4,21 @@ import { ChevronRightIcon } from 'lucide-react';
 
 import { messages } from '@tourism/i18n';
 
-// Curated real Vietnam imagery (Unsplash) for content-page / Journal headers.
+import { getSiteMedia } from '../../lib/api/site-media';
+import { siteImage } from '../../lib/site-media';
+
+// Built-in default for content-page / Journal headers — overridable via the
+// `content-hero` Appearance slot; a page-supplied `image` prop still wins.
 const DEFAULT_IMAGE =
   'https://images.unsplash.com/photo-1753003491860-89b500bc62f3?w=1920&q=70&auto=format&fit=crop';
 
 /** Shared header for content pages (FAQ, legal): full-bleed image + scrim + breadcrumb + title. */
-export function ContentHero({
+export async function ContentHero({
   breadcrumb,
   title,
   meta,
   subtitle,
-  image = DEFAULT_IMAGE,
+  image,
 }: {
   breadcrumb: string;
   title: string;
@@ -22,10 +26,12 @@ export function ContentHero({
   subtitle?: string;
   image?: string;
 }) {
+  const heroImage =
+    image ?? siteImage(await getSiteMedia(), 'content-hero', DEFAULT_IMAGE);
   return (
     <section className="relative isolate overflow-hidden">
       <Image
-        src={image}
+        src={heroImage}
         alt=""
         fill
         priority

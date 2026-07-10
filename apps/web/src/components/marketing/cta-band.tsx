@@ -3,9 +3,12 @@ import { ArrowRightIcon } from 'lucide-react';
 
 import { buttonVariants, cn } from '@tourism/ui';
 
+import { getSiteMedia } from '../../lib/api/site-media';
+import { siteImage } from '../../lib/site-media';
 import { Reveal } from './reveal';
 
-// Vietnam scenery behind the end-of-page CTA (Hạ Long Bay). Neutral Unsplash placeholder.
+// Built-in default (Hạ Long Bay) — overridable via the `cta-band` Appearance slot;
+// a page-supplied `image` prop still wins over both.
 const DEFAULT_IMAGE =
   'https://images.unsplash.com/photo-1668000018482-a02acf02b22a?w=1920&q=70&auto=format&fit=crop';
 
@@ -19,19 +22,16 @@ export type CtaBandProps = {
   image?: string;
 };
 
-export function CtaBand({
-  heading,
-  subtitle,
-  cta,
-  image = DEFAULT_IMAGE,
-}: CtaBandProps) {
+export async function CtaBand({ heading, subtitle, cta, image }: CtaBandProps) {
+  const bgImage =
+    image ?? siteImage(await getSiteMedia(), 'cta-band', DEFAULT_IMAGE);
   return (
     <section className="py-12 sm:py-16 lg:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <Reveal>
           <div className="group relative isolate overflow-hidden rounded-2xl">
             <Image
-              src={image}
+              src={bgImage}
               alt=""
               fill
               sizes="(min-width: 1280px) 1216px, 100vw"

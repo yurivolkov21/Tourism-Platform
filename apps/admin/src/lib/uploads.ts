@@ -21,7 +21,8 @@ export type UploadPurpose =
   | 'TOUR_HERO'
   | 'TOUR_GALLERY'
   | 'POST_COVER'
-  | 'POST_BODY';
+  | 'POST_BODY'
+  | 'SITE_CHROME';
 
 /**
  * Signs a direct-to-Cloudinary upload for any owner/role. The BE derives the target folder + a

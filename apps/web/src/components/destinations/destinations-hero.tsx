@@ -2,18 +2,26 @@ import Image from 'next/image';
 
 import { messages } from '@tourism/i18n';
 
-// Curated real Vietnam hero image (Unsplash).
-const HERO_IMAGE =
+import { getSiteMedia } from '../../lib/api/site-media';
+import { siteImage } from '../../lib/site-media';
+
+// Built-in default — overridable via the `destinations-hero` Appearance slot.
+const DEFAULT_HERO_IMAGE =
   'https://images.unsplash.com/photo-1462688681110-15bc88b1497c?w=1920&q=70&auto=format&fit=crop';
 
 /** Overview hero: full-bleed image + centred title/subtitle (inspiration tier). */
-export function DestinationsHero() {
+export async function DestinationsHero() {
   const t = messages.destinationsPage;
+  const heroImage = siteImage(
+    await getSiteMedia(),
+    'destinations-hero',
+    DEFAULT_HERO_IMAGE,
+  );
 
   return (
     <section className="relative isolate flex min-h-96 items-center justify-center overflow-hidden lg:min-h-120">
       <Image
-        src={HERO_IMAGE}
+        src={heroImage}
         alt=""
         fill
         priority

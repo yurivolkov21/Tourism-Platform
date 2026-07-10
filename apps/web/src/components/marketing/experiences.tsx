@@ -13,6 +13,9 @@ import {
 import { buttonVariants, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { getSiteMedia } from '../../lib/api/site-media';
+import { siteImage } from '../../lib/site-media';
+
 // Icons align by index to messages.experiences.items (TourCategory-shaped).
 const icons: LucideIcon[] = [
   ShipIcon,
@@ -23,13 +26,18 @@ const icons: LucideIcon[] = [
   WavesIcon,
 ];
 
-// Curated real Vietnam backdrop (Unsplash).
-const BG_IMAGE =
+// Built-in default backdrop — overridable via the `home-experiences` Appearance slot.
+const DEFAULT_BG_IMAGE =
   'https://images.unsplash.com/photo-1549797058-00bbab4f7e82?w=1920&q=70&auto=format&fit=crop';
 
 // Theme-led discovery backed by TourCategory — each card links to the filtered tours listing.
-export function Experiences() {
+export async function Experiences() {
   const t = messages.experiences;
+  const bgImage = siteImage(
+    await getSiteMedia(),
+    'home-experiences',
+    DEFAULT_BG_IMAGE,
+  );
 
   return (
     <section
@@ -38,7 +46,7 @@ export function Experiences() {
     >
       {/* Atmospheric backdrop + scrim; white cards float on top */}
       <Image
-        src={BG_IMAGE}
+        src={bgImage}
         alt=""
         fill
         sizes="100vw"

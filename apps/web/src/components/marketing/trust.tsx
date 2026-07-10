@@ -2,20 +2,27 @@ import Image from 'next/image';
 
 import { messages } from '@tourism/i18n';
 
+import { getSiteMedia } from '../../lib/api/site-media';
+import { siteImage } from '../../lib/site-media';
 import { MetricValue } from './metric-value';
 
-// Curated real Vietnam image (Unsplash).
-const TRUST_IMAGE =
+// Built-in default — overridable via the `home-trust` Appearance slot.
+const DEFAULT_TRUST_IMAGE =
   'https://images.unsplash.com/photo-1767768996421-9784fde0f946?w=1920&q=70&auto=format&fit=crop';
 
 // Full-bleed photo trust banner (Lily-style) with headline + our real stats overlaid.
-export function Trust() {
+export async function Trust() {
   const t = messages.trust;
+  const trustImage = siteImage(
+    await getSiteMedia(),
+    'home-trust',
+    DEFAULT_TRUST_IMAGE,
+  );
 
   return (
     <section className="relative isolate overflow-hidden py-20 sm:py-24 lg:py-28">
       <Image
-        src={TRUST_IMAGE}
+        src={trustImage}
         alt=""
         fill
         sizes="100vw"

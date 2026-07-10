@@ -115,6 +115,7 @@ export class UploadsService implements OnModuleInit {
       case UploadPurpose.USER_AVATAR:
       case UploadPurpose.POST_COVER:
       case UploadPurpose.POST_BODY:
+      case UploadPurpose.SITE_CHROME:
         return 'image';
     }
   }
@@ -139,6 +140,8 @@ export class UploadsService implements OnModuleInit {
         return `${this.rootFolder}/posts/cover`;
       case UploadPurpose.POST_BODY:
         return `${this.rootFolder}/posts/body`;
+      case UploadPurpose.SITE_CHROME:
+        return `${this.rootFolder}/site/chrome`;
     }
   }
 

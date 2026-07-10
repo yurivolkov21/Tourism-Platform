@@ -70,6 +70,7 @@ enum MediaOwnerType {
   DESTINATION
   USER
   POST
+  SITE
 }
 
 /// Slot a media asset occupies within its owner. Closed enum (security-first).
@@ -571,6 +572,25 @@ model MediaAsset {
   @@unique([ownerType, ownerId, publicId])
   @@index([ownerType, ownerId, role])
   @@map("media_assets")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SiteMediaSlot — one row per brand-chrome image slot on the public web (home
+// hero, About story gallery, …). The catalog of keys/kinds lives in API code
+// (site-media/slot-catalog.ts); this table only gives each slot a stable uuid so
+// its images live in media_assets (ownerType=SITE, ownerId=slot.id) — visible to
+// the admin Media Library and protected by the Cloudinary GC like every asset.
+// Rows are seeded by migration; slots with no assets fall back to the web's
+// built-in defaults. See docs/06-specs/2026-07-10-site-media-appearance-design.md.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model SiteMediaSlot {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique @db.VarChar(60)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("site_media_slots")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

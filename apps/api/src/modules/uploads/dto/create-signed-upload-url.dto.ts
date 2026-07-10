@@ -25,6 +25,7 @@ export enum UploadPurpose {
   USER_AVATAR = 'USER_AVATAR',
   POST_COVER = 'POST_COVER',
   POST_BODY = 'POST_BODY',
+  SITE_CHROME = 'SITE_CHROME',
 }
 
 /**

@@ -4,18 +4,27 @@ import { MapPinIcon, SearchIcon } from 'lucide-react';
 import { Badge, Button, Input } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-// Curated real Vietnam hero image (Unsplash).
-const HERO_IMAGE =
+import { getSiteMedia } from '../../lib/api/site-media';
+import { siteImage } from '../../lib/site-media';
+
+// Built-in default (curated real Vietnam Unsplash) — used until the admin sets
+// the `home-hero` Appearance slot, and again after a reset.
+const DEFAULT_HERO_IMAGE =
   'https://images.unsplash.com/photo-1634951412593-b2cdca1ae519?w=1920&q=70&auto=format&fit=crop';
 
-export function Hero() {
+export async function Hero() {
   const t = messages.hero;
+  const heroImage = siteImage(
+    await getSiteMedia(),
+    'home-hero',
+    DEFAULT_HERO_IMAGE,
+  );
 
   return (
     <section className="relative isolate flex min-h-144 items-center justify-center overflow-hidden lg:min-h-176">
       {/* Full-bleed background image */}
       <Image
-        src={HERO_IMAGE}
+        src={heroImage}
         alt={t.imageAlt}
         fill
         priority

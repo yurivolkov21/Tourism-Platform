@@ -3,12 +3,15 @@ import Image from 'next/image';
 import { cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { getSiteMedia } from '../../lib/api/site-media';
+import { siteGallery } from '../../lib/site-media';
 import { StorySpine } from './story-spine';
 
-// Curated real Vietnam imagery (Unsplash) — one per milestone, aligned by index.
+// Built-in defaults — one per milestone, aligned by index; overridable as a set via
+// the `about-story` Appearance slot (all-real-or-fixture, never mixed).
 const u = (id: string) =>
   `https://images.unsplash.com/${id}?w=900&q=70&auto=format&fit=crop`;
-const milestoneImages = [
+const DEFAULT_MILESTONE_IMAGES = [
   u('photo-1583417319070-4a69db38a482'), // Hồ Chí Minh City
   u('photo-1694391744914-8d82068cb46f'), // Hội An
   u('photo-1716817623452-9ce58a3acac5'), // Huế
@@ -19,8 +22,13 @@ const milestoneImages = [
 // About-page "Our story" — an alternating left/right milestone timeline with imagery, anchored to a
 // centre spine on desktop and stacked on mobile. The image and the copy swap sides each milestone;
 // the year is the central marker that breaks the spine.
-export function Story() {
+export async function Story() {
   const t = messages.about.story;
+  const milestoneImages = siteGallery(
+    await getSiteMedia(),
+    'about-story',
+    DEFAULT_MILESTONE_IMAGES,
+  );
 
   return (
     <section id="story" className="scroll-mt-20 py-16 sm:py-20 lg:py-24">

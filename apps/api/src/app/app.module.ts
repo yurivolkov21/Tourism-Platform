@@ -19,6 +19,7 @@ import { JobsModule } from '../modules/jobs/jobs.module';
 import { NewsletterModule } from '../modules/newsletter/newsletter.module';
 import { PostsModule } from '../modules/posts/posts.module';
 import { ReviewsModule } from '../modules/reviews/reviews.module';
+import { SiteMediaModule } from '../modules/site-media/site-media.module';
 import { TourCategoriesModule } from '../modules/tour-categories/tour-categories.module';
 import { ToursModule } from '../modules/tours/tours.module';
 import { UploadsModule } from '../modules/uploads/uploads.module';
@@ -55,6 +56,7 @@ import { AppService } from './app.service';
     PostsModule,
     JobsModule,
     AdminMediaModule,
+    SiteMediaModule,
   ],
   controllers: [AppController],
   providers: [

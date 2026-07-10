@@ -8,9 +8,12 @@ import { messages } from '@tourism/i18n';
 
 import { Logo } from '../brand/logo';
 
-// A real destination from the catalog (same Hạ Long shot the site uses elsewhere) — the auth screen
-// opens on the product's own world, not a stock login illustration.
-const PANEL_IMAGE =
+import { getSiteMedia } from '../../lib/api/site-media';
+import { siteImage } from '../../lib/site-media';
+
+// Built-in default (same Hạ Long shot the site uses elsewhere) — overridable via the
+// `auth-panel` Appearance slot; the auth screen opens on the product's own world.
+const DEFAULT_PANEL_IMAGE =
   'https://images.unsplash.com/photo-1462688681110-15bc88b1497c?w=1920&q=70&auto=format&fit=crop';
 
 /**
@@ -19,7 +22,7 @@ const PANEL_IMAGE =
  * catalogue. Right: an ivory form column. On mobile the panel collapses to a slim photo band above
  * the form. API is unchanged (`title` / `subtitle` / `children`) so the pages need no edits.
  */
-export function AuthShell({
+export async function AuthShell({
   title,
   subtitle,
   children,
@@ -28,12 +31,17 @@ export function AuthShell({
   subtitle: string;
   children: ReactNode;
 }) {
+  const panelImage = siteImage(
+    await getSiteMedia(),
+    'auth-panel',
+    DEFAULT_PANEL_IMAGE,
+  );
   return (
     <main className="grid min-h-svh lg:grid-cols-[1.05fr_1fr]">
       {/* Visual panel — full height on lg, slim band on mobile. */}
       <aside className="relative h-44 overflow-hidden lg:h-auto">
         <Image
-          src={PANEL_IMAGE}
+          src={panelImage}
           alt=""
           fill
           priority
