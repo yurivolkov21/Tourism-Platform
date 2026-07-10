@@ -16,6 +16,16 @@ export const messages = {
   techCloud: {
     eyebrow: 'Built with',
   },
+  // Home + About trust band (real live stats + accepted payment methods).
+  trustBand: {
+    eyebrow: 'Why travelers choose Nexora',
+    stats: {
+      tours: 'Curated tours',
+      destinations: 'Destinations',
+      rating: 'Average rating',
+    },
+    security: 'Every booking secured by Stripe & PayPal · SSL encrypted',
+  },
   // Customer auth (login / register / account / user menu). EN-only (ADR-0005).
   auth: {
     login: {
