@@ -15,6 +15,7 @@ export const messages = {
   // Home + About trust band (real live stats + accepted payment methods).
   trustBand: {
     eyebrow: 'Why travelers choose Nexora',
+    heading: 'Boutique journeys, trusted by travelers across Vietnam.',
     stats: {
       tours: 'Curated tours',
       destinations: 'Destinations',

@@ -1,19 +1,33 @@
 import { render, screen } from '@testing-library/react';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
 import { TrustBand } from './trust-band';
 
-// `marquee.tsx` (imported by PaymentMarquee) only needs `cn` from `@tourism/ui`, but that
-// package's barrel (`libs/web/ui/src/index.ts`) also re-exports browser-only components
-// (maplibre-gl's <Map>, gsap's <AnimatedContent>) that crash on import under jsdom — jsdom
-// has no WebGL/canvas. Stub the barrel with a real `cn` implementation so this render test
-// exercises TrustBand/StatCluster/PaymentMarquee for real without paying for that barrel.
+// StatCluster → MetricValue imports `NumberTicker` from `@tourism/ui`, but that package's
+// barrel (`libs/web/ui/src/index.ts`) also re-exports browser-only components (maplibre-gl's
+// <Map>, gsap's <AnimatedContent>) that crash on import under jsdom — jsdom has no
+// WebGL/canvas. Stub the barrel with a static NumberTicker (its real no-JS fallback is the
+// same final value) so this render test exercises TrustBand/StatCluster/PaymentRow for real.
 jest.mock('@tourism/ui', () => ({
-  cn: (...inputs: ClassValue[]) => twMerge(clsx(inputs)),
+  NumberTicker: ({
+    value,
+    prefix = '',
+    suffix = '',
+    decimals = 0,
+    className,
+  }: {
+    value: number;
+    prefix?: string;
+    suffix?: string;
+    decimals?: number;
+    className?: string;
+  }) => (
+    <span className={className}>{`${prefix}${value.toFixed(
+      decimals,
+    )}${suffix}`}</span>
+  ),
 }));
 
 describe('TrustBand', () => {
-  it('renders the eyebrow, each stat value + label, and the security caption', () => {
+  it('renders the eyebrow, heading, each stat value + label, and the security caption', () => {
     render(
       <TrustBand
         stats={[
@@ -23,6 +37,9 @@ describe('TrustBand', () => {
       />,
     );
     expect(screen.getByText('Why travelers choose Nexora')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Boutique journeys, trusted by travelers/),
+    ).toBeInTheDocument();
     expect(screen.getByText('23')).toBeInTheDocument();
     expect(screen.getByText('Curated tours')).toBeInTheDocument();
     expect(screen.getByText('4.4★')).toBeInTheDocument();

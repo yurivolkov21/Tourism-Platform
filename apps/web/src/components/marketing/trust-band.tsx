@@ -1,26 +1,33 @@
 import { messages } from '@tourism/i18n';
 import type { TrustStat } from '../../lib/trust-band';
-import { PaymentMarquee } from './payment-marquee';
+import { PaymentRow } from './payment-row';
 import { StatCluster } from './stat-cluster';
 
 /**
- * Light trust panel: a soft emerald-washed card on the cream page — eyebrow ·
- * live stats (iconed) · hairline · monochrome payment marquee · security caption.
+ * Editorial inline trust band: content sits directly on the page between two
+ * hairlines — eyebrow + one-line serif heading on the left, live count-up stats
+ * with hairline dividers on the right — with the static payment row + security
+ * caption tucked below.
  */
 export function TrustBand({ stats }: { stats: TrustStat[] }) {
   if (stats.length === 0) return null;
   const t = messages.trustBand;
   return (
     <section className="bg-background py-12 sm:py-16">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <div className="border-primary/10 from-primary/5 to-card rounded-3xl border bg-linear-to-b p-8 shadow-sm sm:p-10">
-          <p className="text-primary mb-8 text-center text-xs font-semibold tracking-[0.2em] uppercase">
-            {t.eyebrow}
-          </p>
-          <StatCluster stats={stats} />
-          <div className="border-border/60 mt-8 border-t pt-6">
-            <PaymentMarquee />
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="border-border/60 grid gap-8 border-y py-10 sm:py-12 lg:grid-cols-2 lg:items-center lg:gap-12">
+          <div className="space-y-3 text-center lg:text-left">
+            <p className="text-primary text-xs font-semibold tracking-[0.2em] uppercase">
+              {t.eyebrow}
+            </p>
+            <h2 className="text-2xl font-semibold text-balance sm:text-3xl">
+              {t.heading}
+            </h2>
           </div>
+          <StatCluster stats={stats} />
+        </div>
+        <div className="mt-8">
+          <PaymentRow />
         </div>
       </div>
     </section>
