@@ -9,6 +9,9 @@ packages:
 # package.json. Editing this alone may not re-resolve — also touch package.json
 # or delete the lockfile. Remove an entry once the parent ships a patched range.
 overrides:
+  react: '19.1.0' # Expo SDK 54 / RN 0.81 — must match react-native-renderer exactly
+  react-dom: '19.1.0'
+  react-test-renderer: '19.1.0'
   postcss: '^8.5.10' # GHSA-qx2v-qp2m-jg93 (XSS in CSS stringify), patched 8.5.10
   '@hono/node-server': '^1.19.13' # GHSA-92pp-h63x-v22m (serveStatic bypass), patched 1.19.13
   next: '>=16.2.6' # 14 advisories on Next.js 16 <16.2.6 (cache-poisoning/SSRF/DoS/middleware-bypass; last fix 16.2.6)

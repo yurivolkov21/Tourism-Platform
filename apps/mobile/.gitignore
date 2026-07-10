@@ -1,0 +1,41 @@
+# @generated expo-cli sync — https://docs.expo.dev/workflow/using-vcs/
+
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+dist-test-export/
+web-build/
+
+# Native credentials / signing
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+# Metro
+.metro-health-check*
+
+# Debug logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+
+# Env (secrets live in apps/mobile/.env — root .gitignore also covers .env)
+.env
+.env.*
+!.env.example
+
+# TypeScript
+*.tsbuildinfo
+
+# Expo Router types (regenerated locally)
+expo-env.d.ts

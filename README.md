@@ -3,13 +3,13 @@
 An **Nx 22 + pnpm** monorepo for a Lily-style tourism booking platform — mobile from day one. The
 backend is complete and the **web** + **admin** front-ends are live; mobile is next. **Brand: Nexora.**
 
-| Project | Path | Stack | Status |
-| --- | --- | --- | --- |
-| `@tourism/api` | `apps/api` | NestJS 11 · Prisma 7 · Supabase · Stripe + PayPal · Cloudinary · Resend · pg-boss | ✅ P1 complete · **deployed (Render)** |
-| `@tourism/web` | `apps/web` | Next.js 16 · React 19 · Tailwind v4 | 🟢 **P3 in progress** · **deployed (Vercel)** — home · destinations · tours (listing + detail) · about · contact · faq/legal; real data wired |
-| `@tourism/admin` | `apps/admin` | Next.js 16 | 🟢 **P4 CRUD done** · **deployed (Vercel)** — auth + dashboard + CRUD ×5 |
-| `@tourism/mobile` | `apps/mobile` | Expo SDK 54 / RN | 🚧 scaffold (P5) |
-| `@tourism/core` · `tokens` · `i18n` · `web/ui` · `mobile/ui` | `libs/` | shared types/OpenAPI client · design tokens ("Emerald Heritage") · EN copy · UI (54 comps) | 🟢 in use |
+| Project                                                                    | Path            | Stack                                                                                         | Status                                                                                                                                                          |
+| -------------------------------------------------------------------------- | --------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@tourism/api`                                                           | `apps/api`    | NestJS 11 · Prisma 7 · Supabase · Stripe + PayPal · Cloudinary · Resend · pg-boss       | ✅ P1 complete ·**deployed (Render)**                                                                                                                    |
+| `@tourism/web`                                                           | `apps/web`    | Next.js 16 · React 19 · Tailwind v4                                                         | 🟢**P3 in progress** · **deployed (Vercel)** — home · destinations · tours (listing + detail) · about · contact · faq/legal; real data wired |
+| `@tourism/admin`                                                         | `apps/admin`  | Next.js 16                                                                                    | 🟢**P4 CRUD done** · **deployed (Vercel)** — auth + dashboard + CRUD ×5                                                                          |
+| `@tourism/mobile`                                                        | `apps/mobile` | Expo SDK 54 / RN                                                                              | 🚧 scaffold (P5)                                                                                                                                                |
+| `@tourism/core` · `tokens` · `i18n` · `web/ui` · `mobile/ui` | `libs/`       | shared types/OpenAPI client · design tokens ("Emerald Heritage") · EN copy · UI (54 comps) | 🟢 in use                                                                                                                                                       |
 
 **Live demo:** web → [tourism-platform-web.vercel.app](https://tourism-platform-web.vercel.app) · admin → [tourism-platform-admin.vercel.app](https://tourism-platform-admin.vercel.app) · API health → [/api/v1/health](https://tourism-api-pqwr.onrender.com/api/v1/health).
 

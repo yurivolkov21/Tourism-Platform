@@ -1,8 +1,20 @@
 {
   "extends": "../../tsconfig.base.json",
   "files": [],
-  "include": [],
+  "include": [".expo/types/**/*.ts", "expo-env.d.ts"],
   "references": [
+    {
+      "path": "../../libs/shared/tokens"
+    },
+    {
+      "path": "../../libs/mobile/ui"
+    },
+    {
+      "path": "../../libs/shared/i18n"
+    },
+    {
+      "path": "../../libs/shared/core"
+    },
     {
       "path": "./tsconfig.app.json"
     },

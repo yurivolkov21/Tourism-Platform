@@ -14,9 +14,9 @@ A single **Nx 22 + pnpm** monorepo. You run tasks from the **repo root** with
 | API (NestJS) | `@tourism/api` | `http://localhost:3000/api/v1` | a Supabase DB + service keys |
 | Web (customer) | `@tourism/web` | `http://localhost:3001` | just an API origin (or the live one) |
 | Admin (dashboard) | `@tourism/admin` | `http://localhost:3002` | Supabase public keys + an allowlisted email |
-| Mobile (Expo) | `@tourism/mobile` | — | scaffold only (P5) |
+| Mobile (Expo) | `@tourism/mobile` | Expo dev server | **production API by default** (see §3.D) |
 
-You can run **any app on its own** — e.g. the web UI against the live API, with no local backend.
+You can run **any app on its own** — e.g. the web UI or mobile app against the **live Render API**, with no local backend.
 
 ## 1. Prerequisites
 
@@ -68,6 +68,23 @@ pnpm nx dev @tourism/admin                  # → http://localhost:3002
 To sign in: your email must be in the API's **`ADMIN_EMAILS`** and `http://localhost:3002` must be in its
 **`CORS_ORIGINS`** (both in `apps/api/.env`). Point admin at a running API (local `:3000` or live).
 
+### D) Mobile app (production API — same as deployed web)
+
+```bash
+cp apps/mobile/.env.example apps/mobile/.env
+# default: EXPO_PUBLIC_API_BASE_URL=https://tourism-api-pqwr.onrender.com
+pnpm nx start @tourism/mobile
+```
+
+- **Default workflow:** mobile talks to the **live Render API** — same tours, bookings, and auth data as
+  [web on Vercel](https://tourism-platform-web.vercel.app). No local `nx serve @tourism/api` required.
+- **`EXPO_PUBLIC_API_BASE_URL` is an origin** (no `/api/v1`). EAS `production` / `preview` builds set this
+  in `apps/mobile/eas.json`.
+- **Local API override:** only when changing the backend — point `.env` at `http://localhost:3000` (simulator)
+  or your LAN IP (physical device), then restart Expo.
+- **Seed / media:** catalog images come from the **Supabase project wired to Render** (prod), not your dev
+  Supabase. To refresh prod catalog: `docs/05-runbooks/deploy.md` §1 step 4–6 (`migrate deploy` + optional `seed`).
+
 ## 4. Env files — where & what
 
 Each app has a committed **`.env.example`**; copy it to `.env` (gitignored) and fill it. Never commit `.env`.
@@ -77,6 +94,7 @@ Each app has a committed **`.env.example`**; copy it to `.env` (gitignored) and 
 | `apps/api/.env` | `DATABASE_URL`, `DIRECT_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWKS_URL`, `ADMIN_EMAILS`, `STRIPE_*`, `PAYPAL_*`, `CLOUDINARY_*`, `RESEND_*`, `FRONTEND_URL`, `CORS_ORIGINS` |
 | `apps/web/.env` | `NEXT_PUBLIC_API_BASE_URL` (API **origin**, no `/api/v1`), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (customer auth), `NEXT_PUBLIC_SITE_URL` *(optional — canonical origin for SEO sitemap/robots/OG; falls back to the Vercel production URL, then `localhost:3001`)* |
 | `apps/admin/.env` | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_API_BASE_URL` |
+| `apps/mobile/.env` | `EXPO_PUBLIC_API_BASE_URL` (API **origin**, no `/api/v1`; default = live Render) |
 
 ## 5. Test it
 

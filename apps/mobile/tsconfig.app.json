@@ -35,5 +35,19 @@
     "**/*.jsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
+  ],
+  "references": [
+    {
+      "path": "../../libs/shared/tokens/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/mobile/ui/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/shared/i18n/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/shared/core/tsconfig.lib.json"
+    }
   ]
 }

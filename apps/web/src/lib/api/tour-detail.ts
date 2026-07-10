@@ -1,92 +1,75 @@
 import { cache } from 'react';
 
-import type { components } from '@tourism/core';
+import {
+  mapPublicReview,
+  pickRelated,
+  toTourDetail,
+  type components,
+} from '@tourism/core';
 
 import type { TourBadgeKey, TourCardData } from '../../components/tours/tour-card';
-import type { ItineraryDay, TourDetailVM, TourReview } from '../tours';
-import { parseMealsLine, parseTransportLine, pickRelated } from '../tour-detail-derive';
+import type { TourDetailVM, TourReview } from '../tours';
+import { buildAccommodation, parseMealsLine, parseTransportLine } from '../tour-detail-derive';
 import { getApiClient } from './client';
 import { fetchTourCards } from './tours';
 
 type TourDetailDto = components['schemas']['TourDetailDto'];
 type PublicReviewDto = components['schemas']['PublicReviewDto'];
 
-/** "May 2024" from an ISO timestamp (graceful on a bad/empty value). */
-function formatReviewDate(iso: string): string {
-  const date = new Date(iso);
-  return Number.isNaN(date.getTime())
-    ? ''
-    : date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
-}
-
-/** Duration-derived stay summary (the detail DTO has no accommodation field). */
-function buildAccommodation(durationDays: number): string {
-  if (durationDays <= 1) return 'Day tour — no overnight stay';
-  const nights = durationDays - 1;
-  return `Hotel · ${nights} night${nights > 1 ? 's' : ''}`;
-}
-
-/** Hero status chip: a merchandising badge reads as "Best seller"; otherwise none. */
-function deriveBadge(badges: readonly string[]): TourDetailVM['badge'] {
-  return badges.includes('POPULAR') || badges.includes('BEST_VALUE') ? 'bestSeller' : undefined;
+/** Hero status chip for web — maps merchandising badges to legacy VM chip. */
+function deriveWebBadge(badges: readonly string[]): TourDetailVM['badge'] {
+  return badges.includes('POPULAR') || badges.includes('BEST_VALUE')
+    ? 'bestSeller'
+    : undefined;
 }
 
 function toTourReview(dto: PublicReviewDto): TourReview {
-  return {
-    id: dto.id,
-    author: dto.reviewer.fullName,
-    date: formatReviewDate(dto.createdAt),
-    rating: dto.rating,
-    quote: dto.body,
-  };
+  return mapPublicReview(dto);
 }
 
-/** Maps a `TourDetailDto` (+ resolved reviews & related) into the detail view-model. */
-function toTourDetail(
+/** Maps core detail data into the web view-model (card-compatible + web-only fields). */
+function toTourDetailVM(
   dto: TourDetailDto,
   reviews: TourReview[],
   related: TourCardData[],
 ): TourDetailVM {
-  const primary = dto.destinations.find((d) => d.isPrimary) ?? dto.destinations[0];
-  const hero = dto.media.find((m) => m.role === 'hero') ?? dto.media[0];
+  const data = toTourDetail(
+    dto,
+    reviews.map((r) => r),
+  );
   const included = dto.included ?? [];
-  const itinerary: ItineraryDay[] = dto.itinerary.map((d) => ({
-    day: d.dayNumber,
-    title: d.title,
-    body: d.description ?? '',
-  }));
 
   return {
-    id: dto.id,
-    slug: dto.slug,
-    title: dto.title,
-    destination: primary?.destination.name ?? '',
-    durationDays: dto.durationDays,
-    basePrice: Number(dto.basePrice),
-    compareAtPrice: dto.compareAtPrice ? Number(dto.compareAtPrice) : undefined,
-    currency: dto.currency,
-    rating: dto.averageRating,
-    reviewCount: dto.reviewsCount,
+    id: data.id,
+    slug: data.slug,
+    title: data.title,
+    destination: data.destination,
+    durationDays: data.durationDays,
+    basePrice: data.basePrice,
+    compareAtPrice: data.compareAtPrice,
+    currency: data.currency,
+    rating: data.rating,
+    reviewCount: data.reviewCount,
     badges: (dto.badges ?? []) as TourBadgeKey[],
-    image: hero?.url,
-    summary: dto.summary ?? undefined,
-    destinationSlug: primary?.destination.slug ?? '',
+    image: data.heroImage,
+    summary: data.overview || undefined,
+    destinationSlug: data.destinationSlug,
     region: '',
-    overview: dto.summary ?? '',
-    gallery: dto.media.map((m) => m.url),
-    itinerary,
-    included,
-    notIncluded: dto.excluded ?? [],
+    overview: data.overview,
+    gallery: data.gallery,
+    itinerary: data.itinerary,
+    included: data.included,
+    notIncluded: data.notIncluded,
     departures: [],
-    badge: deriveBadge(dto.badges ?? []),
+    badge: deriveWebBadge(dto.badges ?? []),
     related,
-    meals: parseMealsLine(included) ?? 'Meals as listed',
-    transport: parseTransportLine(included) ?? 'Private transfers',
-    accommodation: buildAccommodation(dto.durationDays),
+    meals: data.meals ?? parseMealsLine(included) ?? 'Meals as listed',
+    transport: data.transport ?? parseTransportLine(included) ?? 'Private transfers',
+    accommodation: data.accommodation ?? buildAccommodation(data.durationDays) ?? 'Hotel',
     departureFrequency: 'Flexible dates',
-    reviews,
-    faqs: dto.faqs.map((f) => ({ question: f.question, answer: f.answer })),
-    policies: dto.policies.map((p) => ({ kind: p.kind, title: p.title, body: p.body })),
+    reviews: data.reviews,
+    faqs: data.faqs,
+    policies: data.policies,
   };
 }
 
@@ -127,6 +110,8 @@ export const fetchTourDetail = cache(
       fetchTourReviews(slug).catch(() => []),
       fetchTourCards().catch(() => []),
     ]);
-    return toTourDetail(dto, reviews, pickRelated(cards, slug));
+    return toTourDetailVM(dto, reviews, pickRelated(cards, slug));
   },
 );
+
+export type { TourDetailData } from '@tourism/core';

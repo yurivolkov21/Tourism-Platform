@@ -1,5 +1,17 @@
 export * from './lib/api-response.js';
 export * from './lib/api/client.js';
 export * from './lib/destinations/destinations.js';
+export * from './lib/destinations/destination-listing.js';
 export * from './lib/tours/tours-filter.js';
+export * from './lib/tours/active-filter-chips.js';
+export * from './lib/tours/tour-card.js';
+export * from './lib/tours/availability.js';
+export * from './lib/tours/tour-detail.js';
+export * from './lib/enquiry/enquiry-form.js';
+export * from './lib/bookings/dashboard.js';
+export * from './lib/about/about-metrics.js';
+export * from './lib/legal/legal-page.js';
+export * from './lib/legal/legal-contact.js';
+export * from './lib/legal/privacy.js';
+export * from './lib/legal/terms.js';
 export type { paths, components, operations } from './lib/api/schema.js';

@@ -17,6 +17,12 @@ export type TourSort = 'popular' | 'price-asc' | 'price-desc' | 'rating';
 /** Minimal tour shape the filters operate on (the web `TourCardData` is structurally compatible). */
 export interface FilterableTour {
   destination: string;
+  /**
+   * Optional list of all linked destination names (M:N).
+   * When present, destination filtering matches against this list so
+   * a tour shows up for any destination it belongs to — not only its primary.
+   */
+  destinations?: string[];
   durationDays: number;
   basePrice: number;
   rating: number;
@@ -60,9 +66,15 @@ export function filterTours<T extends FilterableTour>(
   filters: TourFilters = {},
 ): T[] {
   const { destinations, categories, durations, styles, themes, prices } = filters;
+  const normalizedDestinations =
+    destinations && destinations.length > 0
+      ? new Set(destinations.map((d) => normalizeText(d)))
+      : null;
   return tours.filter((tour) => {
-    if (destinations && destinations.length > 0 && !destinations.includes(tour.destination)) {
-      return false;
+    if (normalizedDestinations) {
+      const pool = tour.destinations?.length ? tour.destinations : [tour.destination];
+      const matches = pool.some((value) => normalizedDestinations.has(normalizeText(value)));
+      if (!matches) return false;
     }
     if (
       categories &&

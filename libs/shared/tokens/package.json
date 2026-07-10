@@ -25,7 +25,9 @@
     "targets": {
       "tokens": {
         "command": "node libs/shared/tokens/style-dictionary/build.mjs",
-        "outputs": ["{projectRoot}/generated"],
+        "outputs": [
+          "{projectRoot}/generated"
+        ],
         "cache": true
       }
     }
@@ -34,6 +36,7 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "culori": "^4.0.2",
     "style-dictionary": "^5.4.4"
   }
 }

@@ -14,7 +14,7 @@ import {
   ChevronLastIcon,
 } from 'lucide-react';
 
-import { filterTours, searchTours, sortTours, type TourSort } from '@tourism/core';
+import { buildActiveFilterChips, filterTours, searchTours, sortTours, type TourSort } from '@tourism/core';
 import {
   Button,
   Input,
@@ -118,15 +118,19 @@ export function ToursListing({
   const view = pageView(results.length, page, pageSize);
   const visible = results.slice((view.page - 1) * pageSize, view.page * pageSize);
 
-  // Active selections flattened into removable chips (label resolved per facet).
-  const activeChips: { facet: FacetKey; value: string; label: string }[] = [
-    ...filters.destinations.map((v) => ({ facet: 'destinations' as const, value: v, label: v })),
-    ...filters.categories.map((v) => ({ facet: 'categories' as const, value: v, label: categoryLabel(v) })),
-    ...filters.durations.map((v) => ({ facet: 'durations' as const, value: v, label: t.durationLabels[v] })),
-    ...filters.styles.map((v) => ({ facet: 'styles' as const, value: v, label: t.styleLabels[v] })),
-    ...filters.themes.map((v) => ({ facet: 'themes' as const, value: v, label: t.themeLabels[v] })),
-    ...filters.prices.map((v) => ({ facet: 'prices' as const, value: v, label: t.priceLabels[v] })),
-  ];
+  const activeChips = useMemo(
+    () =>
+      buildActiveFilterChips(filters, {
+        categoryLabel,
+        facetLabels: {
+          duration: t.durationLabels,
+          price: t.priceLabels,
+          style: t.styleLabels,
+          theme: t.themeLabels,
+        },
+      }),
+    [filters, categoryLabel, t.durationLabels, t.priceLabels, t.styleLabels, t.themeLabels],
+  );
 
   const toggle = (facet: FacetKey, optionValue: string) =>
     setFilters((prev) => {
