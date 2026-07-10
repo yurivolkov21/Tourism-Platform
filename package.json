@@ -38,6 +38,7 @@
     "@swc/helpers": "0.5.18",
     "@swc/jest": "~0.2.38",
     "@testing-library/dom": "10.4.0",
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "16.3.0",
     "@testing-library/react-native": "~13.2.0",
     "@types/geojson": "^7946.0.16",
