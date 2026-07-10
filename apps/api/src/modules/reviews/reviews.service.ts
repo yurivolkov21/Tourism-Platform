@@ -418,6 +418,20 @@ export class ReviewsService {
     return deleted;
   }
 
+  /** Site-wide approved-review count + mean rating (1 dp), for the marketing trust band. */
+  async summarize(): Promise<{ count: number; averageRating: number | null }> {
+    const aggregate = await this.prisma.review.aggregate({
+      where: { isApproved: true },
+      _avg: { rating: true },
+      _count: { _all: true },
+    });
+    const avg = aggregate._avg.rating;
+    return {
+      count: aggregate._count._all,
+      averageRating: avg === null ? null : Math.round(avg * 10) / 10,
+    };
+  }
+
   /** Create an admin-authored testimonial (CURATED) — approved + featured immediately. */
   async createCurated(dto: CreateCuratedReviewDto): Promise<Review> {
     return this.prisma.review.create({

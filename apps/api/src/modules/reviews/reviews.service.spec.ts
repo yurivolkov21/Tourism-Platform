@@ -538,3 +538,42 @@ describe('ReviewsService — admin surfacing + curated delete', () => {
     expect(del).not.toHaveBeenCalled();
   });
 });
+
+describe('ReviewsService.summarize', () => {
+  it('returns site-wide approved count + rounded average', async () => {
+    const prisma = {
+      review: {
+        aggregate: jest.fn().mockResolvedValue({
+          _avg: { rating: 4.375 },
+          _count: { _all: 26 },
+        }),
+      },
+    };
+    const svc = new ReviewsService(prisma as never);
+
+    const result = await svc.summarize();
+
+    expect(prisma.review.aggregate).toHaveBeenCalledWith({
+      where: { isApproved: true },
+      _avg: { rating: true },
+      _count: { _all: true },
+    });
+    expect(result).toEqual({ count: 26, averageRating: 4.4 });
+  });
+
+  it('returns null averageRating and 0 count when there are no approved reviews', async () => {
+    const prisma = {
+      review: {
+        aggregate: jest.fn().mockResolvedValue({
+          _avg: { rating: null },
+          _count: { _all: 0 },
+        }),
+      },
+    };
+    const svc = new ReviewsService(prisma as never);
+
+    const result = await svc.summarize();
+
+    expect(result).toEqual({ count: 0, averageRating: null });
+  });
+});

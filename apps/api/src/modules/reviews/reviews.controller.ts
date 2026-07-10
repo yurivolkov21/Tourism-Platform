@@ -21,6 +21,7 @@ import { Public } from '../../common/decorators/public.decorator';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { FeaturedReviewsDto } from './dto/featured-review.dto';
 import { ReviewDto } from './dto/review.dto';
+import { ReviewSummaryDto } from './dto/review-summary.dto';
 import { FeaturedReview, ReviewsService } from './reviews.service';
 
 /**
@@ -43,6 +44,17 @@ export class ReviewsController {
   featured(): Promise<FeaturedReview[]> {
     // Plain array → the transform interceptor envelopes it as `{ data: [...], error: null }`.
     return this.reviewsService.findFeatured();
+  }
+
+  @Public()
+  @Get('summary')
+  @ApiOperation({ summary: 'Site-wide approved-review count + average rating' })
+  @ApiOkResponse({
+    type: ReviewSummaryDto,
+    description: 'Approved-review aggregate',
+  })
+  summary(): Promise<{ count: number; averageRating: number | null }> {
+    return this.reviewsService.summarize();
   }
 
   @Post()
