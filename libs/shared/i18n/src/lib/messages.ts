@@ -12,10 +12,6 @@ export const messages = {
     opensNewTab: '(opens in a new tab)',
     removeFilter: 'Remove filter',
   },
-  // Eyebrow for the home tech-stack logo cloud (real, coloured brand logos).
-  techCloud: {
-    eyebrow: 'Built with',
-  },
   // Home + About trust band (real live stats + accepted payment methods).
   trustBand: {
     eyebrow: 'Why travelers choose Nexora',
@@ -1013,9 +1009,6 @@ export const messages = {
           image: '',
         },
       ],
-    },
-    builtWith: {
-      caption: 'Built on a modern, production-grade stack',
     },
     story: {
       heading: 'Our story',

@@ -1,5 +1,7 @@
 import { Hero } from '../components/marketing/hero';
-import { TechCloud } from '../components/marketing/tech-cloud';
+import { TrustBand } from '../components/marketing/trust-band';
+import { fetchTrustStats } from '../lib/api/trust-stats';
+import { buildTrustStats } from '../lib/trust-band';
 import { Destinations } from '../components/marketing/destinations';
 import { Experiences } from '../components/marketing/experiences';
 import { FeaturedPackages } from '../components/marketing/featured-packages';
@@ -23,13 +25,19 @@ import { messages } from '@tourism/i18n';
 export const revalidate = 300;
 
 export default async function HomePage() {
-  const [featured, tiles, counts, posts] = await Promise.all([
+  const [featured, tiles, counts, posts, trustStats] = await Promise.all([
     fetchTourCards({ featured: true }).catch(() => []),
     fetchDestinationTiles().catch(() => []),
     fetchTourDestinationCounts().catch(() => ({})),
     fetchPosts({ pageSize: 3 })
       .then((page) => page.posts)
       .catch(() => []),
+    fetchTrustStats().catch(() => ({
+      tours: 0,
+      destinations: 0,
+      reviewCount: 0,
+      averageRating: null,
+    })),
   ]);
   const bento = applyTourCounts(pickHomeBento(tiles), counts);
 
@@ -37,8 +45,10 @@ export default async function HomePage() {
     <main>
       {/* Hero stays static (above the fold); below-fold sections rise in on scroll */}
       <Hero />
-      {/* Coloured "built with" tech-stack marquee — breather between hero + below */}
-      <TechCloud />
+      {/* Real-stat trust band + accepted payment methods — breather after the hero */}
+      <TrustBand
+        stats={buildTrustStats(trustStats, messages.trustBand.stats)}
+      />
       {bento.length > 0 && (
         <Reveal>
           <Destinations tiles={bento} />
