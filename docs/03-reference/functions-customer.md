@@ -131,6 +131,12 @@ Sequence diagram**.
 
 ---
 
+## `SiteMediaSlot` (brand-chrome công khai — 2026-07-10)
+
+| Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| U-MED-1 | Site Media Map<br>`GET /site-media` | 1. Web (ISR 5 phút) đọc bộ ảnh brand-chrome do admin quản lý<br>2. Công khai (`@Public`) — trả CHỈ các slot đang có media (`{ key, media[] }[]`, URL Cloudinary build sẵn)<br>3. Slot vắng mặt/rỗng → FE dùng ảnh default hardcode của slot đó (không bao giờ vỡ trang); fetch lỗi → FE coi như map rỗng | Customer | **SiteMediaSlot**, MediaAsset | site_media_slots, media_assets | Activity | ✅ |
+
 ## Lịch sử
 
 - **2026-07-05** — **Refund execution + cancellation-request queue:** **bổ sung**

@@ -26,9 +26,12 @@ DTOs; **real data is now wired** across home/destinations/tours/blog/account via
 (ISR). **Region-page + `/destinations` overview imagery now derives from `Destination.media[]`**
 (`lib/region-imagery.ts`, all-real-or-fixture — a region with real uploaded media renders it, else
 falls back entirely to the `lib/regions.ts` fixture). The **brand-chrome** imagery (home hero,
-experiences/why-choose/trust, about/FAQ/legal/CTA heroes) is now curated **real Vietnam** photos but
-stays **hardcoded** in the components (an admin-managed site/page-media model is still deferred); all
-image hosts go through `next/image` `remotePatterns` (`images.unsplash.com`).
+experiences/why-choose/trust, about/FAQ/legal/CTA heroes, `/destinations` hero, auth panel) is now
+**admin-managed** via the site-media Appearance surface (2026-07-10): components resolve their slot
+through `getSiteMedia()` (`GET /site-media`, ISR 300s) + `siteImage`/`siteGallery`
+(`lib/site-media.ts`, TDD) and keep the curated real-Vietnam photos as per-slot **fallbacks** — an
+empty slot or failed fetch renders exactly the previous visuals. Image hosts go through `next/image`
+`remotePatterns` (`images.unsplash.com`, `res.cloudinary.com`).
 
 ### Routes
 

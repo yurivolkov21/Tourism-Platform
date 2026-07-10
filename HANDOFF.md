@@ -31,7 +31,7 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08)** · **P5.5 app-native UX pass COMPLETE — N1 Feel + N2 Patterns (2026-07-08) + N3 IA & Home (2026-07-09) all merged; combined on-device pass still owed** · **home trust band — MERGED + redesigned as an editorial inline strip (2026-07-10)** · **form-validation sweep COMPLETE — web + admin (2026-07-10)** — no native HTML validation anywhere: web forms use `noValidate` + per-field codes from shared TDD'd validators (`lib/forms/validate.ts` + `lib/auth/validate.ts`, server-side in `signUp`/`createAndCheckout`, copy in `messages.fieldErrors`); admin's 6 CRUD forms + login are `noValidate` + `aria-required` (their zod per-field server validation now surfaces; sign-in per-field via admin `lib/auth/validate.ts`) · **admin motion layer COMPLETE (2026-07-10)** — `motion` v12 primitives + 13 route skeletons + KPI count-up + route-fade + sidebar `layoutId` pill (spec/plan: `docs/06-specs`+`07-plans/2026-07-10-admin-motion-layer*`; admin 164 tests, RTL now enabled); awaiting the user's visual pass on deployed admin · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08)** · **P5.5 app-native UX pass COMPLETE — N1 Feel + N2 Patterns (2026-07-08) + N3 IA & Home (2026-07-09) all merged; combined on-device pass still owed** · **home trust band — MERGED + redesigned as an editorial inline strip (2026-07-10)** · **form-validation sweep COMPLETE — web + admin (2026-07-10)** — no native HTML validation anywhere: web forms use `noValidate` + per-field codes from shared TDD'd validators (`lib/forms/validate.ts` + `lib/auth/validate.ts`, server-side in `signUp`/`createAndCheckout`, copy in `messages.fieldErrors`); admin's 6 CRUD forms + login are `noValidate` + `aria-required` (their zod per-field server validation now surfaces; sign-in per-field via admin `lib/auth/validate.ts`) · **site-media / Appearance COMPLETE (2026-07-10)** — the biggest owed admin feature: brand-chrome imagery (9 slots incl. the About-story gallery) is now admin-managed end-to-end (migration applied to live Supabase; api 349 · web 230 · admin 164 tests; adversarial review: 1 Cloudinary-leak finding fixed); web keeps hardcoded defaults as per-slot fallbacks · **admin motion layer COMPLETE (2026-07-10)** — `motion` v12 primitives + 13 route skeletons + KPI count-up + route-fade + sidebar `layoutId` pill (spec/plan: `docs/06-specs`+`07-plans/2026-07-10-admin-motion-layer*`; admin 164 tests, RTL now enabled); awaiting the user's visual pass on deployed admin · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
 
 > **Next action: the combined on-device pass** (Expo Go, Android) — P5.5
 > feature work is done; the one owed item is a single device session covering
@@ -45,9 +45,11 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 > trust band + Contact secure-payments row on the deployed site. After that,
 > pick the next phase with the user
 > (mobile backlog: "Browse by experience" · dark-mode splash/adaptive-icon
-> assets · in-app theme toggle · encrypted LargeSecureStore; web backlog:
-> an admin-managed brand-chrome media
-> model; or store builds via EAS).
+> assets · in-app theme toggle · encrypted LargeSecureStore; admin backlog:
+> the remaining owed-features audit list of 2026-07-10 — media-library
+> reuse/picker · tours-list filters/sort · table sorting/persistence ·
+> reviews edit/links · enquiry CRM notes · category imagery; or store
+> builds via EAS).
 >
 > **Home trust band — MERGED + redesigned (2026-07-10):** the original
 > `feat/home-trust-band` (real live stats from `GET /api/v1/reviews/summary` +
@@ -315,8 +317,8 @@ libs/   shared/{core,tokens,i18n} · web/ui (React) · mobile/ui (RN)
   all-real-or-fixture: a region with real uploaded media renders it, else falls back entirely to the
   `lib/regions.ts` fixture) — real Unsplash images seeded for all 16 destinations + tour/post heroes
   and synced live. The **brand-chrome** imagery (home hero, experiences/why-choose/trust, about/
-  FAQ/legal/CTA heroes) is now curated **real Vietnam** photos too, but stays **hardcoded** in the
-  components — an admin-managed site/page-media model is still deferred.
+  FAQ/legal/CTA heroes, destinations hero, auth panel) is **admin-managed** since 2026-07-10
+  (site-media Appearance) — curated real-Vietnam photos remain as per-slot fallbacks.
 
 ### History (P0–P1.6 detail)
 

@@ -5,9 +5,9 @@
 
 ## STATUS
 
-- **State:** 🔎 IN REVIEW — Tasks 1–5 + gate + adversarial review done (2026-07-10); awaiting user OK for the live migration + merge
+- **State:** ✅ COMPLETE — migration applied to live Supabase + merged to `main` 2026-07-10 (`2154f0f`, ff-only)
 - **Done:** Tasks 1–5; gate green (api 349 · web 230 · admin 164); adversarial review: 1 finding (gallery-upload Cloudinary leak) FIXED, all other surfaces verified sound
-- **Next action:** user confirms → `prisma migrate deploy` on live Supabase → commit → ff-merge → docs sweep
+- **Next action:** user visual pass on deployed admin `/appearance` (replace + reset a slot, verify the web picks it up within ~5 min ISR)
 
 ## Tasks
 
@@ -66,8 +66,8 @@
 
 - [x] Kill orphan node → `pnpm nx affected -t lint typecheck test build` green.
 - [x] Adversarial review (schema migration + GC interplay + web fallback semantics).
-- [ ] Apply the migration to the live DB (Supabase) — coordinate with the user.
-- [ ] Report → user confirms → commit → ff-only merge → push.
-- [ ] Docs sweep: this STATUS · roadmap · CLAUDE.md (api/admin/web rows + test
+- [x] Apply the migration to the live DB (Supabase) — coordinate with the user.
+- [x] Report → user confirms → commit → ff-only merge → push.
+- [x] Docs sweep: this STATUS · roadmap · CLAUDE.md (api/admin/web rows + test
       counts) · HANDOFF · `docs/01-architecture/frontend.md` + `data-model.md` +
       `03-reference` endpoint catalogs (brand-chrome no longer hardcoded).
