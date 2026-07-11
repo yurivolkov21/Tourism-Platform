@@ -105,15 +105,18 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 
 | Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
-| A-REV-1 | Moderation Queue<br>`GET /admin/reviews` | 1. Admin mở hàng chờ duyệt<br>2. Gửi `GET /admin/reviews` (lọc `isApproved` tùy chọn), mới nhất trước<br>3. Admin được xem PII — giữ `userId`/`bookingId` + join tên reviewer + slug tour<br>4. Phân trang; trả danh sách | Admin | **Review**, User, Tour | reviews, users, tours | Activity | ✅ |
+| A-REV-1 | Moderation Queue<br>`GET /admin/reviews` | 1. Admin mở hàng chờ duyệt<br>2. Gửi `GET /admin/reviews` (lọc `isApproved`/**`source`/`rating`/`search`** tùy chọn — `search` OR không phân biệt hoa thường trên `authorName`/`title`/`body`), mới nhất trước<br>3. Admin được xem PII — giữ `userId`/`bookingId` + join tên/email reviewer + mã booking + slug tour (null với review CURATED)<br>4. Phân trang; trả danh sách | Admin | **Review**, User, Tour, Booking | reviews, users, tours, bookings | Activity | ✅ |
 | A-REV-2 | Moderate Review<br>`PATCH /admin/reviews/:id/moderation` | 1. Admin xem review chờ duyệt<br>2. Gửi `{ isApproved: true \| false }`<br>3. 404 `REVIEW_NOT_FOUND` nếu thiếu<br>4. Trong `$transaction`: cập nhật `isApproved`; **khi false→true** thì ghi `outbox` REVIEW_APPROVED (email — S-JOB-1, `skipDuplicates`)<br>5. Trả review | Admin | **Review**, Outbox | reviews, outbox | Activity | 🕒 Thêm audit `moderated_by`/`moderated_at` khi làm admin FE |
+| A-REV-3 | Edit Curated Review<br>`PATCH /admin/reviews/:id` | 1. Admin sửa testimonial **CURATED** (`rating`/`title`/`body`/`authorName`/`authorLocation`/`tripLabel`… — mọi field optional)<br>2. 404 `REVIEW_NOT_FOUND` nếu thiếu; **review `VERIFIED` → 409 `REVIEW_NOT_CURATED`** (không sửa review thật của khách)<br>3. Field gửi `null` tường minh **xoá** field nullable (`authorLocation`/`tripLabel`…); field bỏ qua giữ nguyên giá trị cũ<br>4. Cập nhật; trả review | Admin | **Review** | reviews | Activity | ✅ |
 
 ## `Enquiry`
 
 | Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
-| A-ENQ-1 | CRM List<br>`GET /admin/enquiries` | 1. Admin mở CRM lead<br>2. Gửi `GET /admin/enquiries` (lọc `status` tùy chọn), mới nhất trước<br>3. `Promise.all` list+count; trả đầy đủ row (gồm lead fields P1.7d) | Admin | **Enquiry** | enquiries | Activity | ✅ |
+| A-ENQ-1 | CRM List<br>`GET /admin/enquiries` | 1. Admin mở CRM lead<br>2. Gửi `GET /admin/enquiries` (lọc `status` tùy chọn), mới nhất trước<br>3. `Promise.all` list+count (+ per-trang `groupBy(email)` tính **`repeatCount`**, exact-match, fallback 1 nếu lỗi); trả đầy đủ row (gồm lead fields P1.7d, **`repeatCount`**, **`notesCount`** từ `_count.notes`) | Admin | **Enquiry** | enquiries | Activity | ✅ |
 | A-ENQ-2 | Update Enquiry Status<br>`PATCH /admin/enquiries/:id/status` | 1. Admin chuyển pipeline (`NEW → CONTACTED → QUOTED → WON/LOST`)<br>2. Gửi `{ status }`; 404 `ENQUIRY_NOT_FOUND` nếu thiếu<br>3. Cập nhật `status`; trả enquiry | Admin | **Enquiry** | enquiries | Activity | 🕒 Thêm `assignedTo`/note + alert lead mới khi vận hành sales |
+| A-ENQ-3 | List Enquiry Notes<br>`GET /admin/enquiries/:id/notes` | 1. Admin mở drawer lead, xem thread ghi chú nội bộ<br>2. Gửi `GET /admin/enquiries/:id/notes`; 404 `ENQUIRY_NOT_FOUND` nếu thiếu<br>3. Trả danh sách tăng dần theo `createdAt` (kèm `authorName` snapshot) | Admin | **EnquiryNote**, Enquiry | enquiry_notes, enquiries | Activity | ✅ |
+| A-ENQ-4 | Add Enquiry Note<br>`POST /admin/enquiries/:id/notes` | 1. Admin nhập `body` cho lead đang mở<br>2. 404 `ENQUIRY_NOT_FOUND` nếu thiếu<br>3. Snapshot `authorId` + `authorName` từ `@CurrentUser` (không đổi ngược nếu tên user đổi sau này)<br>4. Tạo note (append-only, không sửa/xoá); trả bản ghi | Admin | **EnquiryNote**, Enquiry, User | enquiry_notes, enquiries, users | Activity | ✅ |
 
 ## `Booking`
 
@@ -159,6 +162,17 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 
 ## Lịch sử
 
+- **2026-07-11** — **Reviews upgrade + Enquiry CRM (wave B2):** A-REV-1 nhận filter
+  `source`/`rating`/`search` + join `userName`/`userEmail`/`bookingCode`; **bổ sung**
+  A-REV-3 (edit testimonial CURATED, 409 `REVIEW_NOT_CURATED` nếu VERIFIED, `null`
+  tường minh xoá field nullable). A-ENQ-1 nhận `repeatCount` (per-trang `groupBy`
+  theo email) + `notesCount`; **bổ sung** A-ENQ-3/A-ENQ-4 (thread ghi chú nội bộ
+  `EnquiryNote`, append-only, author snapshot). Model mới `EnquiryNote` + index
+  `Enquiry.email`. Adversarial review (3 vòng) bắt lỗi coercion boolean ở query
+  (`?isApproved=false` bị hiểu thành `true`) → sửa bằng `ToBoolean()` chung cho 5
+  query param boolean. Migration RLS-backfill riêng (`cancellation_requests`/
+  `post_tags`/`post_tag_links`/`post_tours`) áp cùng đợt. Xem
+  [spec](../06-specs/2026-07-11-admin-reviews-crm-design.md).
 - **2026-07-05** — **Refund execution + cancellation-request queue:** A-BKG-3 nhận
   `amount` tùy chọn (400 `INVALID_REFUND_AMOUNT`), tách nhánh full (release ghế,
   `REFUNDED`) / partial (giữ ghế, `PARTIALLY_REFUNDED`, `refunded_amount`), gắn

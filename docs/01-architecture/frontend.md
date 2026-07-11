@@ -126,7 +126,10 @@ manager, 9 slots) · **list-table stack** (`components/crud/`: `AdminTableShell`
 (`accessorFn` opt-in, `aria-sort`) · `ColumnsMenu` + per-table localStorage persistence
 (`lib/table-prefs.ts` + `usePersistentColumnVisibility`) · shared `FacetFilter` · client/server
 pagination adapters; Tours destination/featured filters · Bookings tour/departure URL filters +
-chips · Departures Upcoming·Past·All facet). 192 tests (2026-07-11).
+chips · Departures Upcoming·Past·All facet) · **reviews + enquiry CRM (2026-07-11)** — reviews
+list server-driven (status/source/rating/search facets) + `/reviews/[id]/edit` shared form +
+drawer customer/booking links; enquiries drawer notes thread + repeat-lead badges. 194 tests
+(2026-07-11).
 
 ## Mobile (`@tourism/mobile`) — P5
 

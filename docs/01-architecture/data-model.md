@@ -7,8 +7,12 @@ when this doc disagrees with the schema, the schema wins. Founding rationale:
 
 > **Status: live** — schema migrated to Supabase across P1.1 → P1.x → P-Content → blog-v2
 > (W1 tags/tours joins · W3 `MediaRole.body` · W5 `Subscriber` + media compound unique) →
-> refund + cancellation-request queue (2026-07-05).
-> **23 models, 16 enums.**
+> refund + cancellation-request queue (2026-07-05) →
+> admin reviews + enquiry CRM wave B2 (2026-07-11 — `EnquiryNote` +
+> `Enquiry.email` index; also backfilled RLS on 4 older tables —
+> `cancellation_requests`/`post_tags`/`post_tag_links`/`post_tours` — that had
+> shipped without it).
+> **24 models, 16 enums.**
 
 ## Conventions (kept from donor)
 
@@ -17,7 +21,7 @@ UUID PKs (`@db.Uuid`, client-generated; `Outbox`/`MediaGarbage` use DB-default
 `@db.VarChar(n)` · `Decimal(12,2)` for money · closed enums · `created_at`/`updated_at` ·
 indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 
-## Models (23)
+## Models (24)
 
 | Model | Purpose | Notable fields / relations |
 | --- | --- | --- |
@@ -35,7 +39,8 @@ indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 | `Review` | unified verified + curated | `rating`, `title?`, `body`, `isApproved`, `isFeatured`, `source ReviewSource` (VERIFIED/CURATED); VERIFIED → `bookingId? @unique`/`tourId?`/`userId?` set; CURATED testimonials have those FKs **nullable** + `authorName`, `authorLocation?`, `tripLabel?` (unified-reviews migration) |
 | `Wishlist` | saved tour | composite PK `(userId, tourId)` |
 | `PaymentEvent` | webhook idempotency log | `@@unique(provider, eventId)`, `processedAt?` (nullable → re-run on mid-flight crash) |
-| `Enquiry` | "Inquire Now" lead (ADR-0003) | `name`/`email`/`phone?`/`message`, `tourId?`, `status EnquiryStatus`, **lead fields P1.7d: `nationality?`/`travelDate?`/`groupSize?`/`budgetTier?`/`interests[]`** |
+| `Enquiry` | "Inquire Now" lead (ADR-0003) | `name`/`email`/`phone?`/`message`, `tourId?`, `status EnquiryStatus`, **lead fields P1.7d: `nationality?`/`travelDate?`/`groupSize?`/`budgetTier?`/`interests[]`**; **`@@index([email])`** (2026-07-11 — repeat-lead detection); 1:N → `notes` |
+| `EnquiryNote` | internal CRM note on an enquiry (wave B2, 2026-07-11) | `id`, `enquiryId` FK → Enquiry (Cascade), `authorId?` FK → User (SetNull), `authorName` snapshot, `body`, `createdAt`; append-only (no update/delete endpoint); `@@index([enquiryId, createdAt])` |
 | `MediaAsset` | Cloudinary asset, polymorphic | `(ownerType, ownerId, role)`, `publicId`, `type`, `posterId?` — no hard FK (ADR-0008 pragmatic); **`@@unique(ownerType, ownerId, publicId)`** (blog-v2 W5 — race-free body-image upsert) |
 | `SiteMediaSlot` | brand-chrome image slot of the public web (Appearance, 2026-07-10) | `key @unique` (9 seeded: home-hero … about-story); images = `MediaAsset(ownerType=SITE, ownerId=slot.id)` — catalog of kinds/labels lives in API code (`site-media/slot-catalog.ts`) |
 | `Outbox` | transactional email outbox (ADR-0007, P1.x-a) | `type EmailType`, `payload Json`, `status OutboxStatus`, `attempts`, `dedupeKey @unique` |
