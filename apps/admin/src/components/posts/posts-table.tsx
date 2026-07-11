@@ -9,7 +9,6 @@ import {
   getPaginationRowModel,
   useReactTable,
   type ColumnDef,
-  type VisibilityState,
 } from '@tanstack/react-table';
 
 import {
@@ -30,6 +29,7 @@ import type { Post } from '../../lib/posts/data';
 import { formatRelativeTime } from '../../lib/relative-time';
 import { DEFAULT_PAGE_SIZE } from '../crud/data-table-pagination';
 import { ColumnsMenu } from '../crud/columns-menu';
+import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import { AdminTableShell } from '../crud/admin-table-shell';
 import { ClientTablePagination } from '../crud/client-table-pagination';
 
@@ -156,7 +156,8 @@ const postColumns: ColumnDef<Post>[] = [
 export function PostsTable({ rows }: { rows: Post[] }) {
   const [tab, setTab] = useState<Tab>('all');
   const [query, setQuery] = useState('');
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] =
+    usePersistentColumnVisibility('posts');
 
   const counts = useMemo(
     () => ({

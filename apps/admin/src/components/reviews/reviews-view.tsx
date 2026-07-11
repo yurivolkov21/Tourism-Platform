@@ -19,9 +19,10 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
   type ColumnDef,
-  type VisibilityState,
+  type SortingState,
 } from '@tanstack/react-table';
 
 import {
@@ -60,6 +61,7 @@ import {
 } from '@tourism/ui';
 
 import { ColumnsMenu } from '../crud/columns-menu';
+import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import { AdminTableShell } from '../crud/admin-table-shell';
 import { ClientTablePagination } from '../crud/client-table-pagination';
 import { DEFAULT_PAGE_SIZE } from '../crud/data-table-pagination';
@@ -122,7 +124,9 @@ export function ReviewsView({
   const [tab, setTab] = useState<Tab>('all');
   const [sources, setSources] = useState<SourceKey[]>([]);
   const [query, setQuery] = useState('');
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnVisibility, setColumnVisibility] =
+    usePersistentColumnVisibility('reviews');
   const [selected, setSelected] = useState<AdminReview | null>(null);
   const [pendingDelete, setPendingDelete] = useState<AdminReview | null>(null);
   const [busy, startAction] = useTransition();
@@ -244,6 +248,7 @@ export function ReviewsView({
       {
         id: 'rating',
         header: 'Rating',
+        accessorFn: (row) => row.rating,
         meta: { label: 'Rating', align: 'right' },
         cell: ({ row }) => <Rating value={row.original.rating} />,
       },
@@ -291,6 +296,7 @@ export function ReviewsView({
       {
         id: 'posted',
         header: 'Posted',
+        accessorFn: (row) => new Date(row.createdAt).getTime(),
         meta: { label: 'Posted' },
         cell: ({ row }) => (
           <span className="text-muted-foreground whitespace-nowrap">
@@ -367,12 +373,14 @@ export function ReviewsView({
   const table = useReactTable({
     data: filtered,
     columns,
-    state: { columnVisibility },
+    state: { columnVisibility, sorting },
     initialState: { pagination: { pageSize: DEFAULT_PAGE_SIZE } },
     onColumnVisibilityChange: setColumnVisibility,
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   const toggleSource = (key: SourceKey, checked: boolean) => {

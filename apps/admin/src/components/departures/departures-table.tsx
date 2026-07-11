@@ -7,9 +7,10 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
   type ColumnDef,
-  type VisibilityState,
+  type SortingState,
 } from '@tanstack/react-table';
 
 import {
@@ -25,9 +26,15 @@ import {
 import { RowActions } from '../crud/row-actions';
 import { deleteDeparture } from '../../lib/departures/actions';
 import type { Departure } from '../../lib/departures/data';
-import { isDeparturePast, toDateOnly } from '../../lib/departures/format';
+import {
+  isDeparturePast,
+  matchesTimeTab,
+  toDateOnly,
+  type DepartureTimeTab,
+} from '../../lib/departures/format';
 import { DEFAULT_PAGE_SIZE } from '../crud/data-table-pagination';
 import { ColumnsMenu } from '../crud/columns-menu';
+import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import { AdminTableShell } from '../crud/admin-table-shell';
 import { ClientTablePagination } from '../crud/client-table-pagination';
 
@@ -54,7 +61,9 @@ function price(value: string | null | undefined, currency: string): string {
 
 /**
  * Client-side Departures table on TanStack — the per-tour schedule. Mirrors the other admin tables:
- * status tabs with counts + the "Columns" button + in-memory pagination + ⋮ row actions. Past
+ * a time facet (Upcoming — the default — · Past · All, composed AND with the status tabs; status
+ * counts are computed within the active time window) + status tabs with counts + the "Columns"
+ * button + in-memory pagination + ⋮ row actions. Past
  * departures (started before today) show a muted "Departed" chip and dimmed dates — they're already
  * unbookable (see the departures past-date guards), so this only makes that visible.
  */
@@ -67,22 +76,42 @@ export function DeparturesTable({
   slug: string;
   currency: string;
 }) {
+  const [timeTab, setTimeTab] = useState<DepartureTimeTab>('upcoming');
   const [tab, setTab] = useState<Tab>('all');
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnVisibility, setColumnVisibility] =
+    usePersistentColumnVisibility('departures');
 
-  const counts = useMemo(
+  // Time facet counts are global; status counts are computed WITHIN the active
+  // time window (so "Open (3)" means 3 open departures in the visible window).
+  const timeCounts = useMemo(
     () => ({
+      upcoming: rows.filter((r) => matchesTimeTab(r.startDate, 'upcoming'))
+        .length,
+      past: rows.filter((r) => matchesTimeTab(r.startDate, 'past')).length,
       all: rows.length,
-      OPEN: rows.filter((r) => r.status === 'OPEN').length,
-      CLOSED: rows.filter((r) => r.status === 'CLOSED').length,
-      CANCELLED: rows.filter((r) => r.status === 'CANCELLED').length,
     }),
     [rows],
   );
 
+  const inWindow = useMemo(
+    () => rows.filter((r) => matchesTimeTab(r.startDate, timeTab)),
+    [rows, timeTab],
+  );
+
+  const counts = useMemo(
+    () => ({
+      all: inWindow.length,
+      OPEN: inWindow.filter((r) => r.status === 'OPEN').length,
+      CLOSED: inWindow.filter((r) => r.status === 'CLOSED').length,
+      CANCELLED: inWindow.filter((r) => r.status === 'CANCELLED').length,
+    }),
+    [inWindow],
+  );
+
   const filtered = useMemo(
-    () => (tab === 'all' ? rows : rows.filter((r) => r.status === tab)),
-    [rows, tab],
+    () => (tab === 'all' ? inWindow : inWindow.filter((r) => r.status === tab)),
+    [inWindow, tab],
   );
 
   const columns = useMemo<ColumnDef<Departure>[]>(
@@ -91,6 +120,7 @@ export function DeparturesTable({
         id: 'start',
         header: 'Start',
         enableHiding: false,
+        accessorFn: (row) => new Date(row.startDate).getTime(),
         meta: { label: 'Start' },
         cell: ({ row }) => (
           <Link
@@ -108,6 +138,7 @@ export function DeparturesTable({
       {
         id: 'end',
         header: 'End',
+        accessorFn: (row) => new Date(row.endDate).getTime(),
         meta: { label: 'End' },
         cell: ({ row }) => (
           <span
@@ -124,6 +155,7 @@ export function DeparturesTable({
       {
         id: 'seats',
         header: 'Seats',
+        accessorFn: (row) => row.seatsBooked,
         meta: { label: 'Seats', align: 'right' },
         cell: ({ row }) => (
           <span className="tabular-nums">
@@ -134,6 +166,9 @@ export function DeparturesTable({
       {
         id: 'price',
         header: 'Price',
+        accessorFn: (row) =>
+          row.priceOverride ? Number(row.priceOverride) : undefined,
+        sortUndefined: 'last',
         meta: { label: 'Price', align: 'right' },
         cell: ({ row }) => (
           <>
@@ -194,13 +229,22 @@ export function DeparturesTable({
   const table = useReactTable({
     data: filtered,
     columns,
-    state: { columnVisibility },
+    state: { columnVisibility, sorting },
     initialState: { pagination: { pageSize: DEFAULT_PAGE_SIZE } },
     onColumnVisibilityChange: setColumnVisibility,
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
+
+  const timeTabs: { value: DepartureTimeTab; label: string; count: number }[] =
+    [
+      { value: 'upcoming', label: 'Upcoming', count: timeCounts.upcoming },
+      { value: 'past', label: 'Past', count: timeCounts.past },
+      { value: 'all', label: 'All', count: timeCounts.all },
+    ];
 
   const tabs: { value: Tab; label: string; count: number }[] = [
     { value: 'all', label: 'All', count: counts.all },
@@ -211,35 +255,67 @@ export function DeparturesTable({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Toolbar */}
+      {/* Toolbar — time facet (Upcoming default) composes with the status tabs (AND) */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div
-          role="tablist"
-          className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
-        >
-          {tabs.map((t) => {
-            const isActive = t.value === tab;
-            return (
-              <button
-                key={t.value}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => setTab(t.value)}
-                className={cn(
-                  'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                  isActive
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'hover:text-foreground',
-                )}
-              >
-                {t.label}
-                <Badge variant="secondary" className="px-1.5 tabular-nums">
-                  {t.count}
-                </Badge>
-              </button>
-            );
-          })}
+        <div className="flex flex-wrap items-center gap-2">
+          <div
+            role="tablist"
+            aria-label="Filter by time"
+            className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
+          >
+            {timeTabs.map((t) => {
+              const isActive = t.value === timeTab;
+              return (
+                <button
+                  key={t.value}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setTimeTab(t.value)}
+                  className={cn(
+                    'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
+                    isActive
+                      ? 'bg-background text-foreground shadow-sm'
+                      : 'hover:text-foreground',
+                  )}
+                >
+                  {t.label}
+                  <Badge variant="secondary" className="px-1.5 tabular-nums">
+                    {t.count}
+                  </Badge>
+                </button>
+              );
+            })}
+          </div>
+          <div
+            role="tablist"
+            aria-label="Filter by status"
+            className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
+          >
+            {tabs.map((t) => {
+              const isActive = t.value === tab;
+              return (
+                <button
+                  key={t.value}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setTab(t.value)}
+                  className={cn(
+                    'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
+                    isActive
+                      ? 'bg-background text-foreground shadow-sm'
+                      : 'hover:text-foreground',
+                  )}
+                >
+                  {t.label}
+                  <Badge variant="secondary" className="px-1.5 tabular-nums">
+                    {t.count}
+                  </Badge>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <ColumnsMenu table={table} />
@@ -251,9 +327,17 @@ export function DeparturesTable({
             <EmptyMedia variant="icon">
               <CalendarRange />
             </EmptyMedia>
-            <EmptyTitle>No departures with this status</EmptyTitle>
+            <EmptyTitle>
+              {timeTab === 'upcoming'
+                ? 'No upcoming departures here'
+                : timeTab === 'past'
+                  ? 'No past departures here'
+                  : 'No departures with this status'}
+            </EmptyTitle>
             <EmptyDescription>
-              Try a different tab, or add a departure date.
+              {timeTab === 'upcoming'
+                ? 'Switch to Past or All, try another status, or add a departure date.'
+                : 'Try a different tab, or add a departure date.'}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

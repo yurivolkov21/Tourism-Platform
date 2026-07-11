@@ -2,21 +2,15 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import {
-  CalendarRange,
-  ChevronDown,
-  Compass,
-  ListFilter,
-  Search,
-  Star,
-} from 'lucide-react';
+import { CalendarRange, Compass, ListFilter, Search, Star } from 'lucide-react';
 import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
   type ColumnDef,
-  type VisibilityState,
+  type SortingState,
 } from '@tanstack/react-table';
 
 import {
@@ -27,14 +21,6 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
   Input,
   cn,
 } from '@tourism/ui';
@@ -42,8 +28,11 @@ import {
 import { RowActions } from '../crud/row-actions';
 import { deleteTour } from '../../lib/tours/actions';
 import type { TourSummary } from '../../lib/tours/data';
+import { filterTourRows } from '../../lib/tours/filter';
 import { DEFAULT_PAGE_SIZE } from '../crud/data-table-pagination';
 import { ColumnsMenu } from '../crud/columns-menu';
+import { FacetFilter } from '../crud/facet-filter';
+import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import { AdminTableShell } from '../crud/admin-table-shell';
 import { ClientTablePagination } from '../crud/client-table-pagination';
 
@@ -87,6 +76,7 @@ const tourColumns: ColumnDef<TourSummary>[] = [
     id: 'title',
     header: 'Title',
     enableHiding: false,
+    accessorFn: (row) => row.title.toLowerCase(),
     meta: { label: 'Title' },
     cell: ({ row }) => (
       <Link
@@ -101,6 +91,7 @@ const tourColumns: ColumnDef<TourSummary>[] = [
   {
     id: 'category',
     header: 'Category',
+    accessorFn: (row) => row.category.name.toLowerCase(),
     meta: { label: 'Category' },
     cell: ({ row }) => (
       <span className="text-muted-foreground">
@@ -121,6 +112,7 @@ const tourColumns: ColumnDef<TourSummary>[] = [
   {
     id: 'price',
     header: 'Price',
+    accessorFn: (row) => Number(row.basePrice),
     meta: { label: 'Price', align: 'right' },
     cell: ({ row }) => (
       <span className="font-medium tabular-nums">
@@ -144,6 +136,7 @@ const tourColumns: ColumnDef<TourSummary>[] = [
   {
     id: 'days',
     header: 'Days',
+    accessorFn: (row) => row.durationDays,
     meta: { label: 'Days', align: 'right' },
     cell: ({ row }) => (
       <span className="tabular-nums">{row.original.durationDays}</span>
@@ -152,6 +145,7 @@ const tourColumns: ColumnDef<TourSummary>[] = [
   {
     id: 'rating',
     header: 'Rating',
+    accessorFn: (row) => row.averageRating,
     meta: { label: 'Rating' },
     cell: ({ row }) =>
       row.original.reviewsCount === 0 ? (
@@ -171,6 +165,11 @@ const tourColumns: ColumnDef<TourSummary>[] = [
   {
     id: 'nextDeparture',
     header: 'Next departure',
+    accessorFn: (row) =>
+      row.nextDepartureDate
+        ? new Date(row.nextDepartureDate).getTime()
+        : undefined,
+    sortUndefined: 'last',
     meta: { label: 'Next departure' },
     cell: ({ row }) => {
       const d = row.original.nextDepartureDate;
@@ -247,7 +246,11 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
   const [tab, setTab] = useState<Tab>('all');
   const [query, setQuery] = useState('');
   const [selectedCats, setSelectedCats] = useState<string[]>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [selectedDests, setSelectedDests] = useState<string[]>([]);
+  const [featuredOnly, setFeaturedOnly] = useState(false);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnVisibility, setColumnVisibility] =
+    usePersistentColumnVisibility('tours');
 
   const counts = useMemo(
     () => ({
@@ -267,36 +270,50 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [rows]);
 
-  const filtered = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return rows.filter((r) => {
-      if (tab === 'published' && !r.isPublished) return false;
-      if (tab === 'draft' && r.isPublished) return false;
-      if (selectedCats.length && !selectedCats.includes(r.category.slug))
-        return false;
-      if (needle) {
-        const haystack = `${r.title} ${r.category.name} ${r.destinations
-          .map((d) => d.destination.name)
-          .join(' ')}`.toLowerCase();
-        if (!haystack.includes(needle)) return false;
-      }
-      return true;
-    });
-  }, [rows, tab, selectedCats, query]);
+  // Unique destination options across every tour's M:N links, alphabetical.
+  const destinationOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const r of rows)
+      for (const d of r.destinations)
+        map.set(d.destination.slug, d.destination.name);
+    return [...map.entries()]
+      .map(([slug, name]) => ({ slug, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [rows]);
+
+  const filtered = useMemo(
+    () =>
+      filterTourRows(rows, {
+        tab,
+        categories: selectedCats,
+        destinations: selectedDests,
+        featuredOnly,
+        query,
+      }),
+    [rows, tab, selectedCats, selectedDests, featuredOnly, query],
+  );
 
   const table = useReactTable({
     data: filtered,
     columns: tourColumns,
-    state: { columnVisibility },
+    state: { columnVisibility, sorting },
     initialState: { pagination: { pageSize: DEFAULT_PAGE_SIZE } },
     onColumnVisibilityChange: setColumnVisibility,
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   const toggleCategory = (slug: string, checked: boolean) => {
     setSelectedCats((prev) =>
+      checked ? [...prev, slug] : prev.filter((s) => s !== slug),
+    );
+  };
+
+  const toggleDestination = (slug: string, checked: boolean) => {
+    setSelectedDests((prev) =>
       checked ? [...prev, slug] : prev.filter((s) => s !== slug),
     );
   };
@@ -309,6 +326,14 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
         ? (categoryOptions.find((c) => c.slug === selectedCats[0])?.name ??
           '1 category')
         : `${selectedCats.length} categories`;
+
+  const destinationLabel =
+    selectedDests.length === 0
+      ? 'All destinations'
+      : selectedDests.length === 1
+        ? (destinationOptions.find((d) => d.slug === selectedDests[0])?.name ??
+          '1 destination')
+        : `${selectedDests.length} destinations`;
 
   const tabs: { value: Tab; label: string; count: number }[] = [
     { value: 'all', label: 'All', count: counts.all },
@@ -350,48 +375,45 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="outline"
-                  className="w-full justify-between font-normal sm:w-52"
-                  aria-label="Filter by category"
-                />
-              }
-            >
-              <span className="inline-flex items-center gap-2">
-                <ListFilter className="size-4 shrink-0" />
-                <span className="truncate">{categoryLabel}</span>
-              </span>
-              <ChevronDown className="text-muted-foreground size-4 shrink-0" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-52">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Filter by category</DropdownMenuLabel>
-                {categoryOptions.map((c) => (
-                  <DropdownMenuCheckboxItem
-                    key={c.slug}
-                    checked={selectedCats.includes(c.slug)}
-                    onCheckedChange={(checked) =>
-                      toggleCategory(c.slug, checked === true)
-                    }
-                    closeOnClick={false}
-                  >
-                    {c.name}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuGroup>
-              {selectedCats.length ? (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setSelectedCats([])}>
-                    Clear filter
-                  </DropdownMenuItem>
-                </>
-              ) : null}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <FacetFilter
+            label="Filter by category"
+            icon={ListFilter}
+            triggerLabel={categoryLabel}
+            options={categoryOptions.map((c) => ({
+              value: c.slug,
+              label: c.name,
+            }))}
+            selected={selectedCats}
+            multiple
+            onToggle={toggleCategory}
+            onClear={() => setSelectedCats([])}
+          />
+          <FacetFilter
+            label="Filter by destination"
+            icon={Compass}
+            triggerLabel={destinationLabel}
+            options={destinationOptions.map((d) => ({
+              value: d.slug,
+              label: d.name,
+            }))}
+            selected={selectedDests}
+            multiple
+            onToggle={toggleDestination}
+            onClear={() => setSelectedDests([])}
+          />
+          <Button
+            type="button"
+            variant={featuredOnly ? 'default' : 'outline'}
+            aria-pressed={featuredOnly}
+            onClick={() => setFeaturedOnly((v) => !v)}
+            className={cn(!featuredOnly && 'font-normal')}
+          >
+            <Star
+              className={cn('size-4', featuredOnly && 'fill-current')}
+              aria-hidden
+            />
+            Featured
+          </Button>
           <div className="relative w-full sm:max-w-xs">
             <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
             <Input

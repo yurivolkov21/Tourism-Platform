@@ -1,12 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
 import {
   getCoreRowModel,
   useReactTable,
   type ColumnDef,
-  type VisibilityState,
 } from '@tanstack/react-table';
 
 import { UsersRound } from 'lucide-react';
@@ -23,6 +21,7 @@ import {
 import type { AdminUser, UserRole } from '../../lib/users/data';
 import { UsersFilters } from './users-filters';
 import { ColumnsMenu } from '../crud/columns-menu';
+import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import { AdminTableShell } from '../crud/admin-table-shell';
 
 /** Short date like "15 Aug 2026" from an ISO string; em dash when unparseable. */
@@ -114,7 +113,8 @@ export function UsersTable({
   role: 'all' | UserRole;
   search: string;
 }) {
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] =
+    usePersistentColumnVisibility('users');
 
   const table = useReactTable({
     data: rows,

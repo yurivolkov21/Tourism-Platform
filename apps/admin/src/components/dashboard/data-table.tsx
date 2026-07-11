@@ -6,10 +6,11 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
   type ColumnDef,
   type ColumnFiltersState,
-  type VisibilityState,
+  type SortingState,
 } from '@tanstack/react-table';
 
 import { Badge, Tabs, TabsList, TabsTrigger } from '@tourism/ui';
@@ -17,6 +18,7 @@ import { Badge, Tabs, TabsList, TabsTrigger } from '@tourism/ui';
 import { AdminTableShell } from '../crud/admin-table-shell';
 import { ClientTablePagination } from '../crud/client-table-pagination';
 import { ColumnsMenu } from '../crud/columns-menu';
+import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import type {
   AdminBookingRow,
   BookingRowStatus,
@@ -45,8 +47,10 @@ const STATUSES: BookingRowStatus[] = [
  * minus the bespoke table/footer markup this widget used to carry.
  */
 export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] =
+    usePersistentColumnVisibility('dashboard-bookings');
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [statusTab, setStatusTab] = useState<'all' | BookingRowStatus>('all');
 
   const columns = useMemo<ColumnDef<AdminBookingRow>[]>(
@@ -129,13 +133,15 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
     data: rows,
     columns,
     getRowId: (row) => row.code,
-    state: { columnVisibility, columnFilters },
+    state: { columnVisibility, columnFilters, sorting },
     initialState: { pagination: { pageSize: 10 } },
     onColumnVisibilityChange: setColumnVisibility,
     onColumnFiltersChange: setColumnFilters,
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   const counts = STATUSES.reduce(

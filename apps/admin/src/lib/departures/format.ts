@@ -18,3 +18,21 @@ export function isDeparturePast(startDate: string): boolean {
   const todayUtc = new Date().toISOString().slice(0, 10);
   return startDate.slice(0, 10) < todayUtc;
 }
+
+/** Time facet for the departures list. */
+export type DepartureTimeTab = 'upcoming' | 'past' | 'all';
+
+/**
+ * True when a departure belongs to the given time tab. "Upcoming" includes
+ * today (same walk-in rule as {@link isDeparturePast}); "past" is strictly
+ * before today.
+ */
+export function matchesTimeTab(
+  startDate: string,
+  tab: DepartureTimeTab,
+): boolean {
+  if (tab === 'all') return true;
+  return tab === 'past'
+    ? isDeparturePast(startDate)
+    : !isDeparturePast(startDate);
+}

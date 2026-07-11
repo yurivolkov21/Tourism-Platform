@@ -7,9 +7,10 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
   type ColumnDef,
-  type VisibilityState,
+  type SortingState,
 } from '@tanstack/react-table';
 
 import {
@@ -28,6 +29,7 @@ import { deleteDestination } from '../../lib/destinations/actions';
 import type { Destination } from '../../lib/destinations/data';
 import { DEFAULT_PAGE_SIZE } from '../crud/data-table-pagination';
 import { ColumnsMenu } from '../crud/columns-menu';
+import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import { AdminTableShell } from '../crud/admin-table-shell';
 import { ClientTablePagination } from '../crud/client-table-pagination';
 
@@ -57,6 +59,7 @@ const destinationColumns: ColumnDef<Destination>[] = [
     id: 'name',
     header: 'Name',
     enableHiding: false,
+    accessorFn: (row) => row.name.toLowerCase(),
     meta: { label: 'Name' },
     cell: ({ row }) => (
       <Link
@@ -70,6 +73,8 @@ const destinationColumns: ColumnDef<Destination>[] = [
   {
     id: 'region',
     header: 'Region',
+    accessorFn: (row) => row.region?.toLowerCase() ?? undefined,
+    sortUndefined: 'last',
     meta: { label: 'Region' },
     cell: ({ row }) => (
       <span className="text-muted-foreground">
@@ -80,6 +85,7 @@ const destinationColumns: ColumnDef<Destination>[] = [
   {
     id: 'country',
     header: 'Country',
+    accessorFn: (row) => row.country.toLowerCase(),
     meta: { label: 'Country' },
     cell: ({ row }) => (
       <span className="text-muted-foreground">{row.original.country}</span>
@@ -88,6 +94,8 @@ const destinationColumns: ColumnDef<Destination>[] = [
   {
     id: 'toursCount',
     header: 'Tours',
+    accessorFn: (row) => row.toursCount ?? undefined,
+    sortUndefined: 'last',
     meta: { label: 'Tours', align: 'right' },
     cell: ({ row }) => (
       <span className="tabular-nums">{row.original.toursCount ?? '—'}</span>
@@ -136,7 +144,9 @@ const destinationColumns: ColumnDef<Destination>[] = [
 export function DestinationsTable({ rows }: { rows: Destination[] }) {
   const [tab, setTab] = useState<Tab>('all');
   const [query, setQuery] = useState('');
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnVisibility, setColumnVisibility] =
+    usePersistentColumnVisibility('destinations');
 
   const counts = useMemo(
     () => ({
@@ -160,12 +170,14 @@ export function DestinationsTable({ rows }: { rows: Destination[] }) {
   const table = useReactTable({
     data: filtered,
     columns: destinationColumns,
-    state: { columnVisibility },
+    state: { columnVisibility, sorting },
     initialState: { pagination: { pageSize: DEFAULT_PAGE_SIZE } },
     onColumnVisibilityChange: setColumnVisibility,
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   const tabs: { value: Tab; label: string; count: number }[] = [

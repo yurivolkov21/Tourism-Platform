@@ -7,7 +7,6 @@ import {
   getCoreRowModel,
   useReactTable,
   type ColumnDef,
-  type VisibilityState,
 } from '@tanstack/react-table';
 
 import {
@@ -24,6 +23,7 @@ import {
 
 import { AdminTableShell } from '../crud/admin-table-shell';
 import { ColumnsMenu } from '../crud/columns-menu';
+import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import { ServerTablePagination } from '../crud/server-table-pagination';
 import { formatShortDate } from '../../lib/format-date';
 import { retryOutbox } from '../../lib/outbox/actions';
@@ -50,7 +50,8 @@ export function OutboxView({
 }) {
   const router = useRouter();
   const [, startRetry] = useTransition();
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] =
+    usePersistentColumnVisibility('outbox');
   // A Set, not a single id: overlapping retries on DIFFERENT rows must each keep
   // their own in-flight state — a lone id would clear row A's spinner when row B
   // is clicked, re-enabling A mid-request (duplicate-retry window).

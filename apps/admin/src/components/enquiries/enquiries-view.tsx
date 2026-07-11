@@ -9,7 +9,6 @@ import {
   getCoreRowModel,
   useReactTable,
   type ColumnDef,
-  type VisibilityState,
 } from '@tanstack/react-table';
 
 import {
@@ -38,6 +37,7 @@ import {
 
 import { ServerTablePagination } from '../crud/server-table-pagination';
 import { ColumnsMenu } from '../crud/columns-menu';
+import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import { AdminTableShell } from '../crud/admin-table-shell';
 import { updateEnquiryStatus } from '../../lib/enquiries/actions';
 import type { Enquiry, PageMeta } from '../../lib/enquiries/data';
@@ -146,7 +146,8 @@ export function EnquiriesView({
   const [draft, setDraft] = useState(query);
   const [selected, setSelected] = useState<Enquiry | null>(null);
   const [statusError, setStatusError] = useState<string | null>(null);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] =
+    usePersistentColumnVisibility('enquiries');
   const [saving, startSaving] = useTransition();
 
   // Keep the box in step with back/forward navigation.

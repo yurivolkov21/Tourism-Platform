@@ -1,12 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
 import {
   getCoreRowModel,
   useReactTable,
   type ColumnDef,
-  type VisibilityState,
 } from '@tanstack/react-table';
 
 import { Receipt } from 'lucide-react';
@@ -22,8 +20,13 @@ import {
 import { formatMoney, type BookingStatus } from '../../lib/bookings/format';
 import type { Booking } from '../../lib/bookings/data';
 import { BookingStatusBadge } from './booking-status-badge';
-import { BookingsFilters } from './bookings-filters';
+import {
+  BookingsFilters,
+  type DepartureFilterOption,
+  type TourFilterOption,
+} from './bookings-filters';
 import { ColumnsMenu } from '../crud/columns-menu';
+import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import { AdminTableShell } from '../crud/admin-table-shell';
 
 /** Short date like "15 Aug 2026" from an ISO/`YYYY-MM-DD` string; em dash when unparseable. */
@@ -124,15 +127,24 @@ export function BookingsTable({
   rows,
   status,
   search,
+  tourId,
+  departureId,
+  tours,
+  departures,
   filtered,
 }: {
   rows: Booking[];
   status: 'all' | BookingStatus;
   search: string;
-  /** Any server-side filter active (status/search/userId) — switches the empty-state hint. */
+  tourId?: string;
+  departureId?: string;
+  tours?: TourFilterOption[];
+  departures?: DepartureFilterOption[];
+  /** Any server-side filter active (status/search/userId/tour/departure) — switches the empty-state hint. */
   filtered: boolean;
 }) {
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] =
+    usePersistentColumnVisibility('bookings');
 
   const table = useReactTable({
     data: rows,
@@ -149,6 +161,10 @@ export function BookingsTable({
       <BookingsFilters
         status={status}
         search={search}
+        tourId={tourId}
+        departureId={departureId}
+        tours={tours}
+        departures={departures}
         trailing={<ColumnsMenu table={table} />}
       />
 
