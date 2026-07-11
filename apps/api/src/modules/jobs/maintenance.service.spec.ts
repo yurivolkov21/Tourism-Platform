@@ -152,16 +152,14 @@ describe('MaintenanceService.reconcileMedia — ref-safety backstop (wave D1)', 
     const del = jest.fn().mockResolvedValue({});
     const prisma = {
       mediaGarbage: {
-        findMany: jest
-          .fn()
-          .mockResolvedValue([
-            {
-              id: 'g-1',
-              publicId: 'tourism/shared',
-              resourceType: 'image',
-              attempts: 0,
-            },
-          ]),
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'g-1',
+            publicId: 'tourism/shared',
+            resourceType: 'image',
+            attempts: 0,
+          },
+        ]),
         delete: del,
         update: jest.fn(),
       },
