@@ -12,7 +12,9 @@ when this doc disagrees with the schema, the schema wins. Founding rationale:
 > `Enquiry.email` index; also backfilled RLS on 4 older tables —
 > `cancellation_requests`/`post_tags`/`post_tag_links`/`post_tours` — that had
 > shipped without it) → admin wave C (2026-07-11 — migration
-> `post_seo_fields` adds `Post.metaTitle`/`metaDescription`, applied live).
+> `post_seo_fields` adds `Post.metaTitle`/`metaDescription`, applied live) →
+> admin media-library wave D1 (2026-07-11 — migration `media_asset_alt` adds
+> `MediaAsset.alt`, applied live).
 > **24 models, 16 enums.**
 
 ## Conventions (kept from donor)
@@ -42,7 +44,7 @@ indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 | `PaymentEvent` | webhook idempotency log | `@@unique(provider, eventId)`, `processedAt?` (nullable → re-run on mid-flight crash) |
 | `Enquiry` | "Inquire Now" lead (ADR-0003) | `name`/`email`/`phone?`/`message`, `tourId?`, `status EnquiryStatus`, **lead fields P1.7d: `nationality?`/`travelDate?`/`groupSize?`/`budgetTier?`/`interests[]`**; **`@@index([email])`** (2026-07-11 — repeat-lead detection); 1:N → `notes` |
 | `EnquiryNote` | internal CRM note on an enquiry (wave B2, 2026-07-11) | `id`, `enquiryId` FK → Enquiry (Cascade), `authorId?` FK → User (SetNull), `authorName` snapshot, `body`, `createdAt`; append-only (no update/delete endpoint); `@@index([enquiryId, createdAt])` |
-| `MediaAsset` | Cloudinary asset, polymorphic | `(ownerType, ownerId, role)`, `publicId`, `type`, `posterId?` — no hard FK (ADR-0008 pragmatic); **`@@unique(ownerType, ownerId, publicId)`** (blog-v2 W5 — race-free body-image upsert) |
+| `MediaAsset` | Cloudinary asset, polymorphic | `(ownerType, ownerId, role)`, `publicId`, `type`, `posterId?`, **`alt?`** (editable alt text, wave D1 — `PATCH /admin/media/:id`) — no hard FK (ADR-0008 pragmatic); **`@@unique(ownerType, ownerId, publicId)`** (blog-v2 W5 — race-free body-image upsert) lets the same publicId legally serve several owners (reuse picker, wave D1) |
 | `SiteMediaSlot` | brand-chrome image slot of the public web (Appearance, 2026-07-10) | `key @unique` (9 seeded: home-hero … about-story); images = `MediaAsset(ownerType=SITE, ownerId=slot.id)` — catalog of kinds/labels lives in API code (`site-media/slot-catalog.ts`) |
 | `Outbox` | transactional email outbox (ADR-0007, P1.x-a) | `type EmailType`, `payload Json`, `status OutboxStatus`, `attempts`, `dedupeKey @unique` |
 | `MediaGarbage` | orphaned Cloudinary ids awaiting destroy (P1.x-b) | `publicId @unique`, `resourceType`, `attempts` |
@@ -92,6 +94,13 @@ P-Content blog).
   `TourCategory` references use `Restrict` (referenced rows can't be hard-deleted → P2003 → 409).
 - **MediaAsset** polymorphic `(ownerType, ownerId)` — no hard FK; integrity via same-tx
   `MediaGarbage` recording + the **media-reconcile cron** (Cloudinary destroy, P1.x-b).
+- **Ref-safe media GC (wave D1, 2026-07-11):** since one publicId may now legally serve
+  several owners (reuse picker), `MediaGarbage` enqueue is **guarded** — a publicId still
+  referenced by any `media_assets` row (any owner) is never queued for destroy — and the
+  reconcile cron re-checks at destroy time as a backstop; re-attaching a publicId purges any
+  pending garbage row for it. Accepted residual: a rare READ COMMITTED write-skew between two
+  overlapping drop transactions can still leak an undestroyed Cloudinary orphan (storage cost
+  only, no data exposure).
 - **CHECK** constraints: `rating 1..5`, `seatsBooked ≤ seatsTotal`, seats ≥ 0, amounts ≥ 0
   (in `prisma/migrations/*_hardening`).
 - **Email uniqueness** at DB via `citext` unique column.

@@ -29,7 +29,8 @@ falls back entirely to the `lib/regions.ts` fixture). The **brand-chrome** image
 experiences/why-choose/trust, about/FAQ/legal/CTA heroes, `/destinations` hero, auth panel) is now
 **admin-managed** via the site-media Appearance surface (2026-07-10): components resolve their slot
 through `getSiteMedia()` (`GET /site-media`, ISR 300s) + `siteImage`/`siteGallery`
-(`lib/site-media.ts`, TDD) and keep the curated real-Vietnam photos as per-slot **fallbacks** — an
+(`lib/site-media.ts`, TDD) and keep the curated real-Vietnam photos as per-slot **fallbacks**; render
+sites prefer `MediaAsset.alt` when the admin has set one (wave D1, 2026-07-11 — 232 tests) — an
 empty slot or failed fetch renders exactly the previous visuals. Image hosts go through `next/image`
 `remotePatterns` (`images.unsplash.com`, `res.cloudinary.com`).
 
@@ -130,7 +131,9 @@ chips · Departures Upcoming·Past·All facet) · **reviews + enquiry CRM (2026-
 list server-driven (status/source/rating/search facets) + `/reviews/[id]/edit` shared form +
 drawer customer/booking links; enquiries drawer notes thread + repeat-lead badges · **wave C
 (2026-07-11)** — booking breakdown card + tab counts · post SEO/schedule UI · self-profile ·
-subscriber remove + outbox delete · `/payment-events` viewer. 213 tests (2026-07-11).
+subscriber remove + outbox delete · `/payment-events` viewer · **media library upgrade (wave D1,
+2026-07-11)** — library reuse picker in MediaField · drawer alt editor · bulk selection/delete.
+224 tests (2026-07-11).
 
 ## Mobile (`@tourism/mobile`) — P5
 

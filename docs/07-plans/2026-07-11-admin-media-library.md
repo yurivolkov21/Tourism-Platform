@@ -3,7 +3,7 @@
 **Spec:** `docs/06-specs/2026-07-11-admin-media-library-design.md`
 **Branch:** `feat/admin-media-library` · **Scope:** `apps/api` + `apps/admin` + web alt
 
-**STATUS: EXECUTED** — T1-T6 done, gate green (api 402 · admin 224 · web 232). Adversarial review (2 reviewers, GC-focused): FIXED — preserved-role publicId conflict now a clean 400 `MEDIA_ROLE_CONFLICT` (picking a post body image as cover was a deterministic P2002 500 with a FALSE success toast — the media PUT swallow is also gone, failures now surface on the form) · owner forms no longer re-send load-time alt (a stale form save would clobber a fresh library alt edit; preserve-on-omit is the live path) · updateAlt P2025→404 · bulkDelete reports the tx count · re-attach purges pending garbage rows (shrinks the reconcile TOCTOU) · picker excludes USER avatars (`excludeUserOwned`) · SITE facet added to the library · 2 web spec fixtures typed-fixed. Accepted+documented: READ COMMITTED double-drop write-skew = rare leak-only orphan; ms-window reconcile TOCTOU. Awaiting user confirm -> live migration + merge.
+**STATUS: ✅ COMPLETE** — merged to `main` 2026-07-11 (`1d76c96`, ff-only); `media_asset_alt` migration applied to live Supabase (column verified). Gate green: api 402 · admin 224 · web 232. Adversarial-review fixes as recorded in the previous STATUS note.
 
 Standing rules: TDD-first on services + pure helpers · straight quotes · no
 unrelated-line reformatting · tokens only · reuse the crud stack · `noValidate`
@@ -65,8 +65,8 @@ forms · kill orphan node before nx runs · adversarial review before merge
 - [x] Kill orphan node → full affected gate green.
 - [x] **Adversarial review** (GC semantics + migration + picker/duplicate
       edges + bulk-delete tx) — fix confirmed findings.
-- [ ] Report → user confirms → `prisma migrate deploy` live → commit →
+- [x] Report → user confirms → `prisma migrate deploy` live → commit →
       ff-merge → push → delete branch.
-- [ ] Docs sweep (rule 9): STATUS · roadmap · CLAUDE.md rows/test counts ·
+- [x] Docs sweep (rule 9): STATUS · roadmap · CLAUDE.md rows/test counts ·
       HANDOFF (D1 done → D2 next) · functions-admin.md (PATCH + bulk-delete
       rows) · data-model.md (alt column) · backend.md GC note if present.

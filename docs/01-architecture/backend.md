@@ -51,7 +51,10 @@ dynamic-imported so it stays out of Jest; disabled in `test` / when `RESEND_API_
   with their state change (PAID/refund in a CTE; review-approved/enquiry in a short tx).
 - **Abandoned-booking cleanup** (cron 15m) — stale `PENDING` → `CANCELLED`.
 - **Media reconcile** (cron daily) — destroys orphaned Cloudinary assets recorded in
-  `MediaGarbage` (`CloudinaryService.destroy`).
+  `MediaGarbage` (`CloudinaryService.destroy`). **Ref-safe GC (wave D1, 2026-07-11)** — since the
+  reuse picker lets one publicId serve several owners, the enqueue side skips a publicId still
+  referenced by any owner, and this cron re-checks at destroy time as a backstop before calling
+  Cloudinary, so a legitimately re-attached image is never destroyed out from under its new owner.
 
 ## Security ([ADR-0008](../02-decisions/0008-security-integrity-hardening.md))
 
