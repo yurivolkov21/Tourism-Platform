@@ -111,14 +111,22 @@ content/       privacy.ts · terms.ts · legal-page.ts       (long-form legal do
 
 ## Admin (`@tourism/admin`) — P4
 
-🟢 **CRUD breadth done + DEPLOYED** (Vercel, dev port :3002). Supabase SSR auth + `proxy.ts` gate +
+🟢 **P4 complete + DEPLOYED** (Vercel, dev port :3002). Supabase SSR auth + `proxy.ts` gate +
 `/auth/admin/sync` allowlist · app shell (sidebar / topbar / theme / user-menu) · dashboard (live
 `/admin/stats/dashboard`) · **CRUD: Destinations · Categories · Tours · Departures · Posts** (Server
 Components fetch + Server Actions mutate, `@tourism/ui`, tokens-only) · Tours increment-2 sub-forms
-(itinerary/FAQs/policies) + shared `MediaField` upload — **done** · **blog-v2 authoring** (tag
-combobox · related-tours picker · inline body-image editor w/ Write|Preview) · **Subscribers list +
-CSV export** under Operations · media library (`/media` + garbage queue). Remaining (optional):
-UI polish pass. 146 tests (2026-07-05).
+(itinerary/FAQs/policies) + shared `MediaField` upload · **blog-v2 authoring** (tag combobox ·
+related-tours picker · inline body-image editor w/ Write|Preview) · **Subscribers list + CSV
+export** under Operations · media library (`/media` + garbage queue) · **refund execution +
+cancellation-request queue** (partial amount + proactive-refund safeguard · `/cancellation-requests`)
+· **form-validation sweep** (all forms `noValidate` + per-field server errors — standing rule) ·
+**motion layer** (`components/motion/` Reveal/Stagger · 13 route skeletons · KPI count-up · route
+fade · sidebar `layoutId` pill; RTL tests enabled) · **Appearance** (`/appearance` brand-chrome slot
+manager, 9 slots) · **list-table stack** (`components/crud/`: `AdminTableShell` w/ sortable headers
+(`accessorFn` opt-in, `aria-sort`) · `ColumnsMenu` + per-table localStorage persistence
+(`lib/table-prefs.ts` + `usePersistentColumnVisibility`) · shared `FacetFilter` · client/server
+pagination adapters; Tours destination/featured filters · Bookings tour/departure URL filters +
+chips · Departures Upcoming·Past·All facet). 192 tests (2026-07-11).
 
 ## Mobile (`@tourism/mobile`) — P5
 

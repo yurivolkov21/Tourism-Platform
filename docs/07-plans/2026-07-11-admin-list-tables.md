@@ -3,7 +3,7 @@
 **Spec:** `docs/06-specs/2026-07-11-admin-list-tables-design.md`
 **Branch:** `feat/admin-list-tables` · **Scope:** `apps/admin` only
 
-**STATUS: EXECUTED** — T1-T8 done, gate green (admin 192 tests), 8-angle review: 3 findings fixed (dashboard inert sort buttons -> real sorting · error-branch filter props · shared `FacetFilter` extraction), 100-tour cap + refetch-per-nav + TabPills extraction noted as accepted/follow-up. Awaiting user confirm -> commit + ff-merge.
+**STATUS: ✅ COMPLETE** — merged to `main` 2026-07-11 (`8fb01b9`, ff-only). Gate green (admin 192 tests). 8-angle review: 3 findings fixed (dashboard inert sort buttons → real sorting · error-branch filter props · shared `FacetFilter` extraction); noted, not fixed: 100-tour options cap (platform-wide catalog<<100 assumption, same as the Tours page) · options refetch per navigation (admin always-fresh convention) · `TabPills` extraction for the repeated tablist pill markup (follow-up cleanup, touches 6+ files beyond this diff).
 
 Standing rules: TDD on every pure helper (failing spec first) · straight quotes ·
 no unrelated-line reformatting · tokens only (no hex) · reuse `@tourism/ui` ·
@@ -86,7 +86,7 @@ kill orphan node processes before any nx run.
 - [x] Kill orphan node → `pnpm nx affected -t lint typecheck test build`
       (foreground, output to file) — green.
 - [x] Code review pass (no money-path here; standard review, verify findings).
-- [ ] Report to the user → confirm → commit (Conventional Commits) → rebase
+- [x] Report to the user → confirm → commit (Conventional Commits) → rebase
       ff-only onto `main` → push → delete branch.
-- [ ] Docs sweep (rule 9): this STATUS · roadmap · CLAUDE.md admin row + test
+- [x] Docs sweep (rule 9): this STATUS · roadmap · CLAUDE.md admin row + test
       baseline · HANDOFF current-state/next-action (mark B1 done, B2 next).

@@ -31,7 +31,7 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward) |
 
-## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08)** · **P5.5 app-native UX pass COMPLETE — N1 Feel + N2 Patterns (2026-07-08) + N3 IA & Home (2026-07-09) all merged; combined on-device pass still owed** · **home trust band — MERGED + redesigned as an editorial inline strip (2026-07-10)** · **form-validation sweep COMPLETE — web + admin (2026-07-10)** — no native HTML validation anywhere: web forms use `noValidate` + per-field codes from shared TDD'd validators (`lib/forms/validate.ts` + `lib/auth/validate.ts`, server-side in `signUp`/`createAndCheckout`, copy in `messages.fieldErrors`); admin's 6 CRUD forms + login are `noValidate` + `aria-required` (their zod per-field server validation now surfaces; sign-in per-field via admin `lib/auth/validate.ts`) · **site-media / Appearance COMPLETE (2026-07-10)** — the biggest owed admin feature: brand-chrome imagery (9 slots incl. the About-story gallery) is now admin-managed end-to-end (migration applied to live Supabase; api 349 · web 230 · admin 164 tests; adversarial review: 1 Cloudinary-leak finding fixed); web keeps hardcoded defaults as per-slot fallbacks · **admin motion layer COMPLETE (2026-07-10)** — `motion` v12 primitives + 13 route skeletons + KPI count-up + route-fade + sidebar `layoutId` pill (spec/plan: `docs/06-specs`+`07-plans/2026-07-10-admin-motion-layer*`; admin 164 tests, RTL now enabled); awaiting the user's visual pass on deployed admin · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
+## Current state — P1 + P2 DONE · P3 web DONE · P4 admin CRUD DONE · P6 + blog-v2 COMPLETE (all 5 waves, 2026-07-05) · **refund execution + cancellation-request queue COMPLETE + DEPLOYED (2026-07-05)** · **web feedback layer (toast + AlertDialog) COMPLETE + DEPLOYED (2026-07-06)** · **real content authoring (region/overview imagery from `Destination.media[]` + real seeded images, live media synced) COMPLETE (2026-07-06)** · **P5 mobile COMPLETE — W1→W4 all merged (W4 Booking 2026-07-08)** · **P5.5 app-native UX pass COMPLETE — N1 Feel + N2 Patterns (2026-07-08) + N3 IA & Home (2026-07-09) all merged; combined on-device pass still owed** · **home trust band — MERGED + redesigned as an editorial inline strip (2026-07-10)** · **form-validation sweep COMPLETE — web + admin (2026-07-10)** — no native HTML validation anywhere: web forms use `noValidate` + per-field codes from shared TDD'd validators (`lib/forms/validate.ts` + `lib/auth/validate.ts`, server-side in `signUp`/`createAndCheckout`, copy in `messages.fieldErrors`); admin's 6 CRUD forms + login are `noValidate` + `aria-required` (their zod per-field server validation now surfaces; sign-in per-field via admin `lib/auth/validate.ts`) · **site-media / Appearance COMPLETE (2026-07-10)** — the biggest owed admin feature: brand-chrome imagery (9 slots incl. the About-story gallery) is now admin-managed end-to-end (migration applied to live Supabase; api 349 · web 230 · admin 164 tests; adversarial review: 1 Cloudinary-leak finding fixed); web keeps hardcoded defaults as per-slot fallbacks · **admin motion layer COMPLETE (2026-07-10)** — `motion` v12 primitives + 13 route skeletons + KPI count-up + route-fade + sidebar `layoutId` pill (spec/plan: `docs/06-specs`+`07-plans/2026-07-10-admin-motion-layer*`; RTL now enabled); awaiting the user's visual pass on deployed admin · **admin list-tables upgrade COMPLETE (2026-07-11, `8fb01b9` — debt wave B1 of the user-approved B1→B2→C→D plan)** — column sorting on the 5 client-mode tables + dashboard (shared sortable headers in `AdminTableShell`, opt-in via `accessorFn`, `aria-sort`) · column visibility persisted per table (TDD `lib/table-prefs.ts` + `usePersistentColumnVisibility`, 11 tables) · Tours destination/featured filters (TDD `lib/tours/filter.ts`) · Bookings tour/departure URL filters + removable chips (`parseUuidParam`) · Departures Upcoming·Past·All time facet (TDD `matchesTimeTab`) · shared `FacetFilter` replaces 4 copy-pasted facet dropdowns; 8-angle review, 3 findings fixed (dashboard had inert sort buttons → now sorts for real); row-selection cut (no bulk action exists yet — ships with media-library bulk delete); spec/plan `docs/06-specs`+`07-plans/2026-07-11-admin-list-tables*`; **admin 192 tests** · **DEPLOYED** (`main` — web/admin/api; mobile = Expo Go dev loop, no store build yet)
 
 > **Next action: the combined on-device pass** (Expo Go, Android) — P5.5
 > feature work is done; the one owed item is a single device session covering
@@ -42,14 +42,21 @@ Strategy: greenfield + keep donor as a safety net to port from. Keep our
 > + PayPal · enquiry sheet · show-all screens), **N1** (ripple · haptics ·
 > Fraunces headers · image fade-in · autofill) and **W4 payment loop**
 > checklists. Also pending: the user's visual review of the redesigned
-> trust band + Contact secure-payments row on the deployed site. After that,
-> pick the next phase with the user
-> (mobile backlog: "Browse by experience" · dark-mode splash/adaptive-icon
-> assets · in-app theme toggle · encrypted LargeSecureStore; admin backlog:
-> the remaining owed-features audit list of 2026-07-10 — media-library
-> reuse/picker · tours-list filters/sort · table sorting/persistence ·
-> reviews edit/links · enquiry CRM notes · category imagery; or store
-> builds via EAS).
+> trust band + Contact secure-payments row on the deployed site, and of the
+> new admin list-tables (sorting · persisted columns · filters · time facet).
+> **Admin debt processing (user-approved 2026-07-11): waves B1 → B2 → C, then
+> D.** B1 (list-tables) is DONE — next up is **wave B2: Reviews (edit curated ·
+> user/booking links · rating filter · server pagination) + Enquiry CRM
+> (internal notes + repeat-lead detection)**, then wave C (booking-detail
+> price breakdown/seats-left/status tab counts · post SEO fields + scheduled
+> publishing · admin self-profile · subscriber unsubscribe/delete +
+> email-queue management · PaymentEvent viewer). Deferred to D: dashboard
+> analytics/date-range · real notifications · media-library reuse/picker +
+> bulk delete (+ row selection) · category imagery · `TabPills` extraction
+> (the tablist pill markup repeats in 6+ files) · last-admin-demote race ·
+> admin e2e. (Mobile backlog unchanged: "Browse by experience" · dark-mode
+> splash/adaptive-icon assets · in-app theme toggle · encrypted
+> LargeSecureStore; or store builds via EAS.)
 >
 > **Home trust band — MERGED + redesigned (2026-07-10):** the original
 > `feat/home-trust-band` (real live stats from `GET /api/v1/reviews/summary` +
