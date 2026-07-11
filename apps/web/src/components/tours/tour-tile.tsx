@@ -24,7 +24,7 @@ export function TourTile({ tour }: { tour: TourCardData }) {
     >
       <Image
         src={tour.image ?? ''}
-        alt={tour.title}
+        alt={tour.imageAlt ?? tour.title}
         fill
         sizes="(min-width: 1024px) 25vw, 50vw"
         className="object-cover transition-transform duration-500 ease-out-expo group-hover:scale-105"

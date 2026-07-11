@@ -9,10 +9,11 @@ export type PageMeta = components['schemas']['PageMetaDto'];
 export interface MediaListParams {
   page?: number;
   pageSize?: number;
-  ownerType?: 'TOUR' | 'DESTINATION' | 'USER' | 'POST';
+  ownerType?: 'TOUR' | 'DESTINATION' | 'USER' | 'POST' | 'SITE';
   role?: 'hero' | 'gallery' | 'avatar' | 'body';
   type?: 'IMAGE' | 'VIDEO';
   search?: string;
+  excludeUserOwned?: boolean;
 }
 
 export interface MediaList {
@@ -44,6 +45,7 @@ export async function listMedia(
         role: params.role,
         type: params.type,
         search: params.search,
+        excludeUserOwned: params.excludeUserOwned,
       },
     },
   });

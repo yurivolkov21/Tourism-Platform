@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { MediaOwnerType, MediaRole, MediaType, Prisma } from '@prisma/client';
 import { buildCloudinaryUrl } from '../../lib/cloudinary-url';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MediaService } from './media.service';
 import {
   MaintenanceService,
   ReconcileResult,
@@ -35,6 +36,8 @@ export interface AdminMediaAsset {
   ownerTitle: string | null;
   /** Owner page slug (tour/destination/post); null for USER owners. */
   ownerSlug: string | null;
+  /** Editable alt text (web falls back to owner-derived text). */
+  alt: string | null;
 }
 
 export interface PaginatedAdminMedia {
@@ -79,6 +82,7 @@ export class AdminMediaService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly maintenance: MaintenanceService,
+    private readonly media: MediaService,
   ) {}
 
   async list(query: ListAdminMediaQueryDto): Promise<PaginatedAdminMedia> {
@@ -87,7 +91,11 @@ export class AdminMediaService {
     const search = query.search?.trim();
 
     const where: Prisma.MediaAssetWhereInput = {
-      ...(query.ownerType ? { ownerType: query.ownerType } : {}),
+      ...(query.ownerType
+        ? { ownerType: query.ownerType }
+        : query.excludeUserOwned
+          ? { ownerType: { not: MediaOwnerType.USER } }
+          : {}),
       ...(query.role ? { role: query.role } : {}),
       ...(query.type ? { type: query.type } : {}),
       ...(search ? { OR: await this.searchClauses(search) } : {}),
@@ -132,6 +140,7 @@ export class AdminMediaService {
           ownerId: a.ownerId,
           ownerTitle: owner?.title ?? null,
           ownerSlug: owner?.slug ?? null,
+          alt: a.alt,
         };
       }),
       meta: {
@@ -288,25 +297,85 @@ export class AdminMediaService {
       });
     }
 
-    const garbage: Array<{ publicId: string; resourceType: string }> = [
-      {
-        publicId: asset.publicId,
-        resourceType: asset.type === MediaType.VIDEO ? 'video' : 'image',
-      },
-    ];
-    if (asset.posterId) {
-      garbage.push({ publicId: asset.posterId, resourceType: 'image' });
-    }
-
-    await this.prisma.$transaction([
-      this.prisma.mediaGarbage.createMany({
-        data: garbage,
-        skipDuplicates: true,
-      }),
-      this.prisma.mediaAsset.delete({ where: { id } }),
-    ]);
+    // Delete first, then the GUARDED enqueue (MediaService.recordGarbage skips
+    // any publicId another owner still references — the reuse picker makes
+    // cross-owner sharing legal, so the old unconditional enqueue could
+    // destroy a live image).
+    await this.prisma.$transaction(async (tx) => {
+      await tx.mediaAsset.delete({ where: { id } });
+      await this.media.recordGarbage(tx, [
+        {
+          publicId: asset.publicId,
+          posterId: asset.posterId,
+          type: asset.type,
+        },
+      ]);
+    });
 
     return { id: asset.id, publicId: asset.publicId };
+  }
+
+  /**
+   * Sets or clears (null) an asset's alt text. Atomic — a concurrent delete
+   * surfaces as a clean 404 via P2025, never a 500 (the B2 newsletter lesson).
+   */
+  async updateAlt(id: string, alt: string | null): Promise<void> {
+    try {
+      await this.prisma.mediaAsset.update({ where: { id }, data: { alt } });
+    } catch (err) {
+      if (
+        err instanceof Object &&
+        (err as { code?: string }).code === 'P2025'
+      ) {
+        throw new NotFoundException({
+          code: 'MEDIA_NOT_FOUND',
+          message: `Media asset "${id}" not found`,
+        });
+      }
+      throw err;
+    }
+  }
+
+  /**
+   * Bulk delete for the library selection. USER-owned rows (avatars) are
+   * SKIPPED (reported, not failed) — same policy as the single delete; unknown
+   * ids are ignored. One transaction: rows first, then the GUARDED garbage
+   * enqueue (a publicId reused by a surviving owner is never destroyed).
+   */
+  async bulkDelete(
+    ids: string[],
+  ): Promise<{ deleted: number; skipped: number }> {
+    const rows = await this.prisma.mediaAsset.findMany({
+      where: { id: { in: ids } },
+      select: {
+        id: true,
+        publicId: true,
+        posterId: true,
+        type: true,
+        ownerType: true,
+      },
+    });
+    const deletable = rows.filter((r) => r.ownerType !== MediaOwnerType.USER);
+    const skipped = rows.length - deletable.length;
+    if (deletable.length === 0) return { deleted: 0, skipped };
+
+    // Report the tx's ACTUAL count — a concurrent delete of an overlapping
+    // selection must not over-report in the toast.
+    const deleted = await this.prisma.$transaction(async (tx) => {
+      const res = await tx.mediaAsset.deleteMany({
+        where: { id: { in: deletable.map((r) => r.id) } },
+      });
+      await this.media.recordGarbage(
+        tx,
+        deletable.map((r) => ({
+          publicId: r.publicId,
+          posterId: r.posterId,
+          type: r.type,
+        })),
+      );
+      return res.count;
+    });
+    return { deleted, skipped };
   }
 
   /** The deferred-destroy queue, oldest first (the cron's processing order). */

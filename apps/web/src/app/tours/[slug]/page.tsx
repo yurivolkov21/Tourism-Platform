@@ -112,7 +112,7 @@ export default async function TourDetailPage({
       <section className="relative isolate flex min-h-88 items-end overflow-hidden lg:min-h-112">
         <Image
           src={cover}
-          alt={tour.title}
+          alt={tour.imageAlt ?? tour.title}
           fill
           priority
           sizes="100vw"

@@ -53,11 +53,19 @@ function makeMaintenance(over: Record<string, unknown> = {}) {
   } as unknown as MaintenanceService;
 }
 
+function makeMediaSvc(over: Record<string, unknown> = {}) {
+  return {
+    recordGarbage: jest.fn().mockResolvedValue(undefined),
+    ...over,
+  } as unknown as import('./media.service').MediaService;
+}
+
 function svcWith(
   prisma: PrismaService,
   maintenance = makeMaintenance(),
+  media = makeMediaSvc(),
 ): AdminMediaService {
-  return new AdminMediaService(prisma, makeConfig(), maintenance);
+  return new AdminMediaService(prisma, makeConfig(), maintenance, media);
 }
 
 const IMAGE_ROW = {
@@ -195,7 +203,7 @@ describe('AdminMediaService', () => {
   });
 
   describe('deleteAsset', () => {
-    it('queues garbage (with video poster) and deletes atomically', async () => {
+    it('deletes the row FIRST then routes garbage through the guarded MediaService (ref-safe)', async () => {
       const videoRow = {
         ...IMAGE_ROW,
         id: 'asset-3',
@@ -203,34 +211,48 @@ describe('AdminMediaService', () => {
         type: MediaType.VIDEO,
         posterId: 'tourism/tours/video/123-poster',
       };
-      const createMany = jest.fn();
-      const del = jest.fn();
-      const $transaction = jest.fn().mockResolvedValue([]);
+      const calls: string[] = [];
+      const del = jest.fn().mockImplementation(() => {
+        calls.push('delete');
+        return Promise.resolve({});
+      });
+      const recordGarbage = jest.fn().mockImplementation(() => {
+        calls.push('garbage');
+        return Promise.resolve();
+      });
+      const txObj = { mediaAsset: { delete: del } };
+      const $transaction = jest
+        .fn()
+        .mockImplementation((fn: (tx: unknown) => Promise<unknown>) =>
+          fn(txObj),
+        );
       const prisma = makePrisma({
         mediaAsset: {
           findUnique: jest.fn().mockResolvedValue(videoRow),
-          delete: del,
         },
-        mediaGarbage: { createMany },
         $transaction,
       });
+      const media = makeMediaSvc({ recordGarbage });
 
-      const res = await svcWith(prisma).deleteAsset('asset-3');
+      const res = await svcWith(prisma, makeMaintenance(), media).deleteAsset(
+        'asset-3',
+      );
 
       expect(res).toEqual({
         id: 'asset-3',
         publicId: 'tourism/tours/video/123-clip',
       });
-      expect(createMany.mock.calls[0][0]).toEqual({
-        data: [
-          { publicId: 'tourism/tours/video/123-clip', resourceType: 'video' },
-          { publicId: 'tourism/tours/video/123-poster', resourceType: 'image' },
-        ],
-        skipDuplicates: true,
-      });
       expect(del.mock.calls[0][0]).toEqual({ where: { id: 'asset-3' } });
-      // Batch transaction (array form) — garbage insert + delete together.
-      expect($transaction).toHaveBeenCalledTimes(1);
+      expect(recordGarbage).toHaveBeenCalledWith(txObj, [
+        {
+          publicId: 'tourism/tours/video/123-clip',
+          posterId: 'tourism/tours/video/123-poster',
+          type: MediaType.VIDEO,
+        },
+      ]);
+      // Row deletion precedes the guarded enqueue so the ref-check never sees
+      // the row being deleted.
+      expect(calls).toEqual(['delete', 'garbage']);
     });
 
     it('rejects USER-owned assets with 409', async () => {
@@ -300,5 +322,153 @@ describe('AdminMediaService', () => {
           .reconcileMedia,
       ).toHaveBeenCalledTimes(1);
     });
+  });
+});
+
+describe('AdminMediaService.updateAlt (wave D1)', () => {
+  it('sets alt on an existing asset', async () => {
+    const update = jest.fn().mockResolvedValue({ id: 'asset-1', alt: 'New' });
+    const prisma = makePrisma({
+      mediaAsset: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'asset-1' }),
+        update,
+      },
+    });
+
+    await svcWith(prisma).updateAlt('asset-1', 'New');
+
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 'asset-1' },
+      data: { alt: 'New' },
+    });
+  });
+
+  it('clears alt with null and 404s on unknown ids', async () => {
+    const update = jest.fn().mockResolvedValue({ id: 'asset-1', alt: null });
+    const prisma = makePrisma({
+      mediaAsset: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'asset-1' }),
+        update,
+      },
+    });
+    await svcWith(prisma).updateAlt('asset-1', null);
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 'asset-1' },
+      data: { alt: null },
+    });
+
+    const p2025 = Object.assign(new Error('gone'), { code: 'P2025' });
+    const missing = makePrisma({
+      mediaAsset: { update: jest.fn().mockRejectedValue(p2025) },
+    });
+    await expect(
+      svcWith(missing).updateAlt('nope', 'x'),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+});
+
+describe('AdminMediaService.bulkDelete (wave D1)', () => {
+  const rows = [
+    {
+      id: 'a-1',
+      publicId: 'p-1',
+      posterId: null,
+      type: MediaType.IMAGE,
+      ownerType: MediaOwnerType.TOUR,
+    },
+    {
+      id: 'a-2',
+      publicId: 'p-2',
+      posterId: null,
+      type: MediaType.IMAGE,
+      ownerType: MediaOwnerType.USER, // must be skipped
+    },
+  ];
+
+  it('deletes deletable rows, skips USER-owned, routes garbage through the guard', async () => {
+    const deleteMany = jest.fn().mockResolvedValue({ count: 1 });
+    const recordGarbage = jest.fn().mockResolvedValue(undefined);
+    const txObj = { mediaAsset: { deleteMany } };
+    const $transaction = jest
+      .fn()
+      .mockImplementation((fn: (tx: unknown) => Promise<unknown>) => fn(txObj));
+    const prisma = makePrisma({
+      mediaAsset: { findMany: jest.fn().mockResolvedValue(rows) },
+      $transaction,
+    });
+    const media = makeMediaSvc({ recordGarbage });
+
+    const res = await svcWith(prisma, makeMaintenance(), media).bulkDelete([
+      'a-1',
+      'a-2',
+      'a-unknown',
+    ]);
+
+    expect(res).toEqual({ deleted: 1, skipped: 1 });
+    expect(deleteMany).toHaveBeenCalledWith({ where: { id: { in: ['a-1'] } } });
+    expect(recordGarbage).toHaveBeenCalledWith(txObj, [
+      { publicId: 'p-1', posterId: null, type: MediaType.IMAGE },
+    ]);
+  });
+
+  it('no-ops cleanly when nothing is deletable', async () => {
+    const $transaction = jest.fn();
+    const prisma = makePrisma({
+      mediaAsset: { findMany: jest.fn().mockResolvedValue([rows[1]]) },
+      $transaction,
+    });
+
+    const res = await svcWith(prisma).bulkDelete(['a-2']);
+
+    expect(res).toEqual({ deleted: 0, skipped: 1 });
+    expect($transaction).not.toHaveBeenCalled();
+  });
+});
+
+describe('AdminMediaService — review fixes (wave D1)', () => {
+  it('updateAlt maps a concurrent-delete P2025 to 404 (not 500)', async () => {
+    const p2025 = Object.assign(new Error('gone'), { code: 'P2025' });
+    const prisma = makePrisma({
+      mediaAsset: {
+        update: jest.fn().mockRejectedValue(p2025),
+      },
+    });
+
+    await expect(
+      svcWith(prisma).updateAlt('asset-1', 'x'),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('bulkDelete reports the ACTUAL deleted count from the tx (concurrent deletes over-reported)', async () => {
+    const rows = [
+      {
+        id: 'a-1',
+        publicId: 'p-1',
+        posterId: null,
+        type: MediaType.IMAGE,
+        ownerType: MediaOwnerType.TOUR,
+      },
+      {
+        id: 'a-9',
+        publicId: 'p-9',
+        posterId: null,
+        type: MediaType.IMAGE,
+        ownerType: MediaOwnerType.TOUR,
+      },
+    ];
+    // Another admin already deleted a-9: deleteMany only matches 1.
+    const deleteMany = jest.fn().mockResolvedValue({ count: 1 });
+    const txObj = { mediaAsset: { deleteMany } };
+    const $transaction = jest
+      .fn()
+      .mockImplementation((fn: (tx: unknown) => Promise<unknown>) => fn(txObj));
+    const prisma = makePrisma({
+      mediaAsset: { findMany: jest.fn().mockResolvedValue(rows) },
+      $transaction,
+    });
+
+    const res = await svcWith(prisma).bulkDelete(['a-1', 'a-9']);
+
+    expect(res).toEqual({ deleted: 1, skipped: 0 });
   });
 });

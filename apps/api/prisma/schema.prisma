@@ -583,6 +583,10 @@ model MediaAsset {
   durationSec Float?         @map("duration_sec")
   posterId    String?        @map("poster_id") @db.VarChar(300)
   bytes       Int?
+  // Editable alt text (admin media library) — web falls back to owner-derived
+  // text when null. Survives owner-form replace-all via payload round-trip +
+  // preserve-on-omit in syncAssets.
+  alt         String?        @db.VarChar(300)
   sortOrder   Int            @default(0) @map("sort_order")
   createdAt   DateTime       @default(now()) @map("created_at")
   updatedAt   DateTime       @updatedAt @map("updated_at")

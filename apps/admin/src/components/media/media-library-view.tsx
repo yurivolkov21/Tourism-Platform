@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { ChevronDown, Film, ImageIcon, ListFilter, Search } from 'lucide-react';
 
 import {
@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
   Badge,
   Button,
+  Checkbox,
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -36,20 +37,28 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
+  Textarea,
   cn,
   toast,
 } from '@tourism/ui';
 
 import { ServerTablePagination } from '../crud/server-table-pagination';
-import { deleteMediaAsset } from '../../lib/media-library/actions';
+import {
+  bulkDeleteMedia,
+  deleteMediaAsset,
+  updateMediaAlt,
+} from '../../lib/media-library/actions';
 import type { AdminMediaAsset, PageMeta } from '../../lib/media-library/data';
 import { formatBytes, ownerHref } from '../../lib/media-library/format';
+
+const ALT_MAX = 300;
 
 const OWNER_OPTIONS = [
   { value: 'TOUR', label: 'Tours' },
   { value: 'DESTINATION', label: 'Destinations' },
   { value: 'POST', label: 'Posts' },
   { value: 'USER', label: 'Users' },
+  { value: 'SITE', label: 'Site chrome' },
 ] as const;
 const ROLE_OPTIONS = [
   { value: 'hero', label: 'Hero' },
@@ -147,6 +156,64 @@ export function MediaLibraryView({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, startDelete] = useTransition();
 
+  // Alt-text editor, scoped to the currently open drawer item.
+  const [altDraft, setAltDraft] = useState('');
+  const [savingAlt, startSavingAlt] = useTransition();
+
+  // Bulk selection — cleared whenever the page's row set changes (new fetch/navigation), so it
+  // never silently carries over across pagination or filter changes.
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
+  const [bulkDeleting, startBulkDelete] = useTransition();
+
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [rows]);
+
+  useEffect(() => {
+    setAltDraft(selected?.alt ?? '');
+  }, [selected?.id]);
+
+  const toggleSelect = (id: string, checked: boolean) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
+
+  const onSaveAlt = () => {
+    if (!selected) return;
+    const next = altDraft.trim() === '' ? null : altDraft.trim();
+    startSavingAlt(async () => {
+      const res = await updateMediaAlt(selected.id, next);
+      if (res.ok) {
+        setSelected((prev) => (prev ? { ...prev, alt: next } : prev));
+        setAltDraft(next ?? '');
+        toast('Alt text saved.');
+        router.refresh();
+      } else {
+        toast.error(res.error ?? 'Could not save the alt text.');
+      }
+    });
+  };
+
+  const onBulkDelete = () => {
+    startBulkDelete(async () => {
+      const res = await bulkDeleteMedia([...selectedIds]);
+      setBulkConfirmOpen(false);
+      if (res.ok) {
+        const skippedPart = res.skipped ? ` · skipped ${res.skipped}` : '';
+        toast(`Deleted ${res.deleted ?? 0}${skippedPart}.`);
+        setSelectedIds(new Set());
+        router.refresh();
+      } else {
+        toast.error(res.error ?? 'Bulk delete failed.');
+      }
+    });
+  };
+
   const pushParams = (changes: Record<string, string | null>) => {
     const next = new URLSearchParams(params.toString());
     for (const [key, value] of Object.entries(changes)) {
@@ -241,7 +308,22 @@ export function MediaLibraryView({
         <>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {rows.map((asset) => (
-              <li key={asset.id}>
+              <li key={asset.id} className="relative">
+                {asset.ownerType !== 'USER' ? (
+                  <div
+                    className="absolute top-1.5 left-1.5 z-10"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Checkbox
+                      checked={selectedIds.has(asset.id)}
+                      onCheckedChange={(checked) =>
+                        toggleSelect(asset.id, checked === true)
+                      }
+                      className="bg-background/90 shadow-sm"
+                      aria-label={`Select ${asset.ownerTitle ?? asset.publicId}`}
+                    />
+                  </div>
+                ) : null}
                 <button
                   type="button"
                   onClick={() => setSelected(asset)}
@@ -293,6 +375,29 @@ export function MediaLibraryView({
           ) : null}
         </>
       )}
+
+      {/* Bulk selection action bar */}
+      {selectedIds.size > 0 ? (
+        <div className="bg-popover ring-foreground/10 fixed inset-x-0 bottom-4 z-40 mx-auto flex w-fit items-center gap-3 rounded-full border px-4 py-2 shadow-lg ring-1">
+          <span className="text-sm font-medium">
+            {selectedIds.size} selected
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSelectedIds(new Set())}
+          >
+            Clear
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setBulkConfirmOpen(true)}
+          >
+            Delete
+          </Button>
+        </div>
+      ) : null}
 
       {/* Detail drawer */}
       <Sheet
@@ -381,6 +486,48 @@ export function MediaLibraryView({
                     </p>
                   )}
                 </div>
+                <Separator />
+                <form
+                  noValidate
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    onSaveAlt();
+                  }}
+                  className="space-y-1.5"
+                >
+                  <label
+                    htmlFor="media-alt"
+                    className="text-muted-foreground text-xs"
+                  >
+                    Alt text
+                  </label>
+                  {!selected.alt ? (
+                    <p className="text-muted-foreground text-xs italic">
+                      No alt text set.
+                    </p>
+                  ) : null}
+                  <Textarea
+                    id="media-alt"
+                    value={altDraft}
+                    onChange={(e) => setAltDraft(e.target.value)}
+                    maxLength={ALT_MAX}
+                    rows={2}
+                    placeholder="A short description for accessibility and SEO."
+                    aria-label="Alt text"
+                  />
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground text-xs tabular-nums">
+                      {altDraft.length}/{ALT_MAX}
+                    </span>
+                    <Button
+                      type="submit"
+                      size="sm"
+                      disabled={savingAlt || altDraft === (selected.alt ?? '')}
+                    >
+                      {savingAlt ? 'Saving…' : 'Save'}
+                    </Button>
+                  </div>
+                </form>
                 {selected.ownerType !== 'USER' ? (
                   <>
                     <Separator />
@@ -418,6 +565,34 @@ export function MediaLibraryView({
               disabled={deleting}
             >
               {deleting ? 'Deleting…' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk delete confirm */}
+      <AlertDialog open={bulkConfirmOpen} onOpenChange={setBulkConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Delete {selectedIds.size} asset
+              {selectedIds.size === 1 ? '' : 's'}?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              User avatars are skipped automatically. Images still used
+              elsewhere are kept safe by the server. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={bulkDeleting}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={onBulkDelete}
+              disabled={bulkDeleting}
+            >
+              {bulkDeleting ? 'Deleting…' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -32,6 +32,7 @@ export function toDestinationTile(dto: DestinationDto): DestinationTileVM {
     tourCount: 0,
     tagline: dto.description ?? '',
     image: hero?.url ?? PLACEHOLDER_IMG,
+    imageAlt: hero?.alt,
     intro: dto.description ?? '',
     gallery: dto.media.map((m) => m.url),
     tours: [],

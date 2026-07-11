@@ -41,7 +41,7 @@ export function PostCard({
         {post.coverUrl ? (
           <Image
             src={post.coverUrl}
-            alt={post.title}
+            alt={post.coverAlt ?? post.title}
             fill
             sizes={
               featured

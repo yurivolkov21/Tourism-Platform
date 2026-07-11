@@ -69,6 +69,7 @@ describe('MaintenanceService.reconcileMedia', () => {
     const del = jest.fn().mockResolvedValue({});
     const update = jest.fn();
     const prisma = {
+      mediaAsset: { findFirst: jest.fn().mockResolvedValue(null) },
       mediaGarbage: {
         findMany: jest.fn().mockResolvedValue(garbage),
         delete: del,
@@ -97,6 +98,7 @@ describe('MaintenanceService.reconcileMedia', () => {
     const del = jest.fn().mockResolvedValue({});
     const update = jest.fn().mockResolvedValue({});
     const prisma = {
+      mediaAsset: { findFirst: jest.fn().mockResolvedValue(null) },
       mediaGarbage: {
         findMany: jest.fn().mockResolvedValue(garbage),
         delete: del,
@@ -125,6 +127,7 @@ describe('MaintenanceService.reconcileMedia', () => {
   it('is a no-op when there is no garbage', async () => {
     const destroy = jest.fn();
     const prisma = {
+      mediaAsset: { findFirst: jest.fn().mockResolvedValue(null) },
       mediaGarbage: {
         findMany: jest.fn().mockResolvedValue([]),
         delete: jest.fn(),
@@ -140,5 +143,46 @@ describe('MaintenanceService.reconcileMedia', () => {
 
     expect(result).toEqual({ destroyed: 0, failed: 0 });
     expect(destroy).not.toHaveBeenCalled();
+  });
+});
+
+describe('MaintenanceService.reconcileMedia — ref-safety backstop (wave D1)', () => {
+  it('drops the garbage row WITHOUT destroying when the publicId is still referenced', async () => {
+    const destroy = jest.fn();
+    const del = jest.fn().mockResolvedValue({});
+    const prisma = {
+      mediaGarbage: {
+        findMany: jest
+          .fn()
+          .mockResolvedValue([
+            {
+              id: 'g-1',
+              publicId: 'tourism/shared',
+              resourceType: 'image',
+              attempts: 0,
+            },
+          ]),
+        delete: del,
+        update: jest.fn(),
+      },
+      mediaAsset: {
+        findFirst: jest.fn().mockResolvedValue({ id: 'm-1' }),
+      },
+    };
+    const svc = new MaintenanceService(
+      prisma as never,
+      makeCloudinary(destroy) as never,
+    );
+
+    await svc.reconcileMedia();
+
+    expect(destroy).not.toHaveBeenCalled();
+    expect(del).toHaveBeenCalledWith({ where: { id: 'g-1' } });
+    expect(prisma.mediaAsset.findFirst).toHaveBeenCalledWith({
+      where: {
+        OR: [{ publicId: 'tourism/shared' }, { posterId: 'tourism/shared' }],
+      },
+      select: { id: true },
+    });
   });
 });

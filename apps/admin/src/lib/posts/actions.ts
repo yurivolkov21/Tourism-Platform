@@ -15,10 +15,15 @@ export interface PostFormState {
 }
 
 /**
- * Best-effort attach of the form's cover set (`PUT /admin/posts/:slug/media`, replace-all). The
- * post is already saved, so a failure here is swallowed — the cover can be re-attached from edit.
+ * Attaches the form's cover set (`PUT /admin/posts/:slug/media`, replace-all). The post is
+ * already saved; a failure here is RETURNED (not swallowed) so the form can tell the admin the
+ * post exists but the cover didn't attach — e.g. the 400 MEDIA_ROLE_CONFLICT when a body image
+ * is picked as the cover (adversarial-review fix; the old silent swallow showed a false success).
  */
-async function putPostMedia(slug: string, mediaJson: string): Promise<void> {
+async function putPostMedia(
+  slug: string,
+  mediaJson: string,
+): Promise<string | null> {
   try {
     const media = assembleMediaSet(parseMediaField(mediaJson));
     await apiWrite(
@@ -26,8 +31,9 @@ async function putPostMedia(slug: string, mediaJson: string): Promise<void> {
       `/api/v1/admin/posts/${encodeURIComponent(slug)}/media`,
       { media },
     );
-  } catch {
-    // Saved without a cover; recoverable via edit.
+    return null;
+  } catch (e) {
+    return apiErrorMessage(e);
   }
 }
 
@@ -80,7 +86,16 @@ export async function createPost(
     return { error: apiErrorMessage(e) };
   }
 
-  await putPostMedia(createdSlug, String(formData.get('media') ?? '[]'));
+  const createMediaError = await putPostMedia(
+    createdSlug,
+    String(formData.get('media') ?? '[]'),
+  );
+  if (createMediaError) {
+    revalidatePath('/posts');
+    return {
+      error: `The post was saved, but the cover could not be attached: ${createMediaError}`,
+    };
+  }
   revalidatePath('/posts');
   redirect(flashPath('/posts', 'created'));
 }
@@ -106,7 +121,17 @@ export async function updatePost(
     return { error: apiErrorMessage(e) };
   }
 
-  await putPostMedia(savedSlug, String(formData.get('media') ?? '[]'));
+  const updateMediaError = await putPostMedia(
+    savedSlug,
+    String(formData.get('media') ?? '[]'),
+  );
+  if (updateMediaError) {
+    revalidatePath('/posts');
+    revalidatePath(`/posts/${savedSlug}/edit`);
+    return {
+      error: `The post was saved, but the cover could not be attached: ${updateMediaError}`,
+    };
+  }
   revalidatePath('/posts');
   revalidatePath(`/posts/${savedSlug}/edit`);
   redirect(flashPath('/posts', 'updated'));

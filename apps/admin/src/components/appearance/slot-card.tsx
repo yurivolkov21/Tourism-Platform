@@ -37,7 +37,9 @@ type SlotMedia = AdminSiteSlot['media'][number];
 /** Shape the slot's desired media list as the replace-all payload (role per slot kind). */
 function toPayload(
   kind: AdminSiteSlot['kind'],
-  items: Array<Pick<SlotMedia, 'publicId' | 'width' | 'height'>>,
+  items: Array<
+    Pick<SlotMedia, 'publicId' | 'width' | 'height'> & { alt?: string | null }
+  >,
 ): MediaPayload[] {
   return items.map((m, i) => ({
     publicId: m.publicId,
@@ -46,6 +48,9 @@ function toPayload(
     width: m.width ?? undefined,
     height: m.height ?? undefined,
     sortOrder: i,
+    // alt is deliberately NOT sent: the media library owns alt edits and the
+    // API preserves the stored value when the payload omits the field —
+    // re-sending a load-time copy would clobber a fresher library edit.
   }));
 }
 

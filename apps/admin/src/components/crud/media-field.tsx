@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
-import { GripVertical, ImagePlus, X } from 'lucide-react';
+import { GripVertical, ImagePlus, Images, X } from 'lucide-react';
 import {
   DndContext,
   KeyboardSensor,
@@ -30,6 +30,7 @@ import {
 
 import { ErrorAlert } from './error-alert';
 import { ImageLightbox, type LightboxImage } from './image-lightbox';
+import { LibraryPickerDialog } from './library-picker-dialog';
 import { signUpload, type UploadPurpose } from '../../lib/uploads';
 import { MAX_GALLERY, cloudinaryUrl, type MediaInput } from '../../lib/media';
 
@@ -172,6 +173,7 @@ export function MediaField({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewIndex, setViewIndex] = useState<number | null>(null);
+  const [pickerRole, setPickerRole] = useState<'hero' | 'gallery' | null>(null);
   const heroInput = useRef<HTMLInputElement>(null);
   const galleryInput = useRef<HTMLInputElement>(null);
   const sensors = useSensors(
@@ -223,6 +225,15 @@ export function MediaField({
     if (firstErr) setError(firstErr.error);
     if (ok.length) setItems((prev) => [...prev, ...ok]);
     setBusy(false);
+  }
+
+  /** Picked from the library dialog — replaces the hero, or appends to the gallery. */
+  function onLibraryPick(item: MediaInput) {
+    if (item.role === 'hero') {
+      setItems((prev) => [item, ...prev.filter((x) => x.role !== 'hero')]);
+    } else {
+      setItems((prev) => [...prev, item]);
+    }
   }
 
   function onDragEnd(ev: DragEndEvent) {
@@ -280,7 +291,7 @@ export function MediaField({
                 </Button>
               </div>
             ) : (
-              <div>
+              <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -290,6 +301,16 @@ export function MediaField({
                 >
                   {busy ? <Spinner /> : <ImagePlus className="size-4" />}
                   Upload hero image
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setPickerRole('hero')}
+                  disabled={busy}
+                  className="cursor-pointer"
+                >
+                  <Images className="size-4" />
+                  Choose from library
                 </Button>
               </div>
             )}
@@ -306,24 +327,37 @@ export function MediaField({
             <>
               {/* Gallery */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-sm font-medium">
                     Gallery{' '}
                     <span className="text-muted-foreground">
                       ({gallery.length}/{MAX_GALLERY})
                     </span>
                   </span>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => galleryInput.current?.click()}
-                    disabled={busy || galleryFull}
-                    className="cursor-pointer"
-                  >
-                    <ImagePlus className="size-4" />
-                    Add images
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => galleryInput.current?.click()}
+                      disabled={busy || galleryFull}
+                      className="cursor-pointer"
+                    >
+                      <ImagePlus className="size-4" />
+                      Add images
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPickerRole('gallery')}
+                      disabled={busy || galleryFull}
+                      className="cursor-pointer"
+                    >
+                      <Images className="size-4" />
+                      Choose from library
+                    </Button>
+                  </div>
                   <input
                     ref={galleryInput}
                     type="file"
@@ -383,6 +417,14 @@ export function MediaField({
         index={viewIndex}
         onClose={() => setViewIndex(null)}
         onIndex={setViewIndex}
+      />
+
+      <LibraryPickerDialog
+        open={pickerRole !== null}
+        onOpenChange={(open) => !open && setPickerRole(null)}
+        role={pickerRole ?? 'hero'}
+        existing={items}
+        onPick={onLibraryPick}
       />
     </>
   );

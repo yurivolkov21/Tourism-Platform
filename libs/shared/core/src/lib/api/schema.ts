@@ -1306,6 +1306,41 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/admin/media/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Admin: detach one asset from its owner + queue Cloudinary destroy */
+    delete: operations['AdminMediaController_remove'];
+    options?: never;
+    head?: never;
+    /** Admin: set/clear an asset's alt text */
+    patch: operations['AdminMediaController_updateAlt'];
+    trace?: never;
+  };
+  '/api/v1/admin/media/bulk-delete': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Admin: bulk-delete library assets (USER-owned skipped; ref-safe GC) */
+    post: operations['AdminMediaController_bulkDelete'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/admin/media/garbage': {
     parameters: {
       query?: never;
@@ -1335,23 +1370,6 @@ export interface paths {
     /** Admin: run one Cloudinary cleanup batch now (same as the daily cron) */
     post: operations['AdminMediaController_reconcile'];
     delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/admin/media/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Admin: detach one asset from its owner + queue Cloudinary destroy */
-    delete: operations['AdminMediaController_remove'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1602,6 +1620,8 @@ export interface components {
       durationSec?: number | null;
       /** @example 0 */
       sortOrder: number;
+      /** @description Editable alt text (web falls back to owner-derived text) */
+      alt: string | null;
     };
     DestinationDto: {
       /** Format: uuid */
@@ -1742,6 +1762,7 @@ export interface components {
        * @example 0
        */
       sortOrder?: number;
+      alt?: Record<string, never> | null;
     };
     SetMediaDto: {
       media: components['schemas']['MediaInputDto'][];
@@ -3707,10 +3728,31 @@ export interface components {
        * @example hoi-an-walking-tour
        */
       ownerSlug: string | null;
+      /** @description Editable alt text (web falls back to owner-derived text) */
+      alt: string | null;
     };
     PaginatedAdminMediaDto: {
       data: components['schemas']['AdminMediaAssetDto'][];
       meta: components['schemas']['PageMetaDto'];
+    };
+    UpdateMediaAltDto: {
+      /**
+       * @description Alt text; null clears it
+       * @example Lantern-lit old town at dusk
+       */
+      alt: string | null;
+    };
+    BulkDeleteMediaDto: {
+      ids: string[];
+    };
+    BulkDeleteMediaResultDto: {
+      /** @example 4 */
+      deleted: number;
+      /**
+       * @description USER-owned (avatar) rows skipped
+       * @example 1
+       */
+      skipped: number;
     };
     MediaGarbageRowDto: {
       /** Format: uuid */
@@ -7004,6 +7046,7 @@ export interface operations {
         role?: 'hero' | 'gallery' | 'avatar' | 'body';
         type?: 'IMAGE' | 'VIDEO';
         search?: string;
+        excludeUserOwned?: boolean;
       };
       header?: never;
       path?: never;
@@ -7017,6 +7060,116 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['PaginatedAdminMediaDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminMediaController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeletedMediaAssetDto'];
+        };
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Asset not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description USER-owned asset (customer avatar) */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminMediaController_updateAlt: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateMediaAltDto'];
+      };
+    };
+    responses: {
+      /** @description Updated */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Asset not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminMediaController_bulkDelete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['BulkDeleteMediaDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BulkDeleteMediaResultDto'];
         };
       };
       /** @description Not an ADMIN */
@@ -7076,48 +7229,6 @@ export interface operations {
       };
       /** @description Not an ADMIN */
       403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  AdminMediaController_remove: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['DeletedMediaAssetDto'];
-        };
-      };
-      /** @description Not an ADMIN */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Asset not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description USER-owned asset (customer avatar) */
-      409: {
         headers: {
           [name: string]: unknown;
         };

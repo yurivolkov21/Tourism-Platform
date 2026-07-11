@@ -1,10 +1,12 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   ParseUUIDPipe,
   Post,
   Query,
@@ -32,6 +34,11 @@ import {
   PaginatedMediaGarbageDto,
 } from './dto/admin-media.dto';
 import { ListAdminMediaQueryDto } from './dto/list-admin-media-query.dto';
+import {
+  BulkDeleteMediaDto,
+  BulkDeleteMediaResultDto,
+  UpdateMediaAltDto,
+} from './dto/media-library-actions.dto';
 import { ListMediaGarbageQueryDto } from './dto/list-media-garbage-query.dto';
 
 /**
@@ -55,6 +62,33 @@ export class AdminMediaController {
   @ApiResponse({ status: 403, description: 'Not an ADMIN' })
   list(@Query() query: ListAdminMediaQueryDto): Promise<PaginatedAdminMedia> {
     return this.adminMedia.list(query);
+  }
+
+  @Patch(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Admin: set/clear an asset's alt text" })
+  @ApiResponse({ status: 204, description: 'Updated' })
+  @ApiResponse({ status: 403, description: 'Not an ADMIN' })
+  @ApiResponse({ status: 404, description: 'Asset not found' })
+  updateAlt(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: UpdateMediaAltDto,
+  ): Promise<void> {
+    return this.adminMedia.updateAlt(id, body.alt);
+  }
+
+  @Post('bulk-delete')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Admin: bulk-delete library assets (USER-owned skipped; ref-safe GC)',
+  })
+  @ApiOkResponse({ type: BulkDeleteMediaResultDto })
+  @ApiResponse({ status: 403, description: 'Not an ADMIN' })
+  bulkDelete(
+    @Body() body: BulkDeleteMediaDto,
+  ): Promise<{ deleted: number; skipped: number }> {
+    return this.adminMedia.bulkDelete(body.ids);
   }
 
   @Get('garbage')

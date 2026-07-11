@@ -122,7 +122,7 @@ export default async function BlogPostPage({
         <section className="relative isolate min-h-72 overflow-hidden lg:min-h-96">
           <Image
             src={post.coverUrl}
-            alt={post.title}
+            alt={post.coverAlt ?? post.title}
             fill
             priority
             sizes="100vw"

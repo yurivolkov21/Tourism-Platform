@@ -71,6 +71,13 @@ export class AdminMediaAssetDto {
       'Owner page slug (tour/destination/post); null for USER owners.',
   })
   ownerSlug!: string | null;
+
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    description: 'Editable alt text (web falls back to owner-derived text)',
+  })
+  alt!: string | null;
 }
 
 /** Enveloped media-library list (`TransformInterceptor` hoists items→data + meta). */

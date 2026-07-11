@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JobsModule } from '../jobs/jobs.module';
+import { MediaModule } from './media.module';
 import { AdminMediaController } from './admin-media.controller';
 import { AdminMediaService } from './admin-media.service';
 
@@ -9,7 +10,7 @@ import { AdminMediaService } from './admin-media.service';
  * (JobsModule already imports MediaModule). Prisma/Config are global.
  */
 @Module({
-  imports: [JobsModule],
+  imports: [JobsModule, MediaModule],
   controllers: [AdminMediaController],
   providers: [AdminMediaService],
 })

@@ -4,10 +4,11 @@ import { authedJson } from './authed';
 
 export type WishlistItem = components['schemas']['WishlistItemDto'];
 
-/** Hero (or first) image url from a media list, `null` when there is none. */
-function heroUrl(media: { url: string; role: string }[]): string | null {
-  const hero = media.find((m) => m.role === 'hero') ?? media[0];
-  return hero?.url ?? null;
+type WishlistTourMedia = { url: string; role: string; alt?: string | null };
+
+/** Hero (or first) media item from a media list, `undefined` when there is none. */
+function heroMedia(media: WishlistTourMedia[]): WishlistTourMedia | undefined {
+  return media.find((m) => m.role === 'hero') ?? media[0];
 }
 
 export interface SavedTour {
@@ -15,6 +16,8 @@ export interface SavedTour {
   slug: string;
   title: string;
   image: string | null;
+  /** Cover MediaAsset's editable alt text; null/undefined = fall back to `title` at the call site. */
+  imageAlt?: string | null;
   basePrice: string;
   currency: string;
 }
@@ -26,14 +29,18 @@ export async function fetchSavedTours(): Promise<SavedTour[]> {
       method: 'GET',
     });
     if (!Array.isArray(items)) return [];
-    return items.map((it) => ({
-      tourId: it.tourId,
-      slug: it.tour.slug,
-      title: it.tour.title,
-      image: heroUrl(it.tour.media),
-      basePrice: it.tour.basePrice,
-      currency: it.tour.currency,
-    }));
+    return items.map((it) => {
+      const hero = heroMedia(it.tour.media);
+      return {
+        tourId: it.tourId,
+        slug: it.tour.slug,
+        title: it.tour.title,
+        image: hero?.url ?? null,
+        imageAlt: hero?.alt,
+        basePrice: it.tour.basePrice,
+        currency: it.tour.currency,
+      };
+    });
   } catch {
     return [];
   }

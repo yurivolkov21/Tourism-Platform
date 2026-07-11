@@ -26,6 +26,8 @@ export type TourCardData = {
   badges: TourBadgeKey[];
   // Optional cover (temporary Unsplash URL for review; from MediaAsset later). Falls back to a placeholder.
   image?: string;
+  // Editable alt text from the cover MediaAsset; null/undefined = fall back to the tour title.
+  imageAlt?: string | null;
   // One-line summary for the listing card (optional; populated on fixtures).
   summary?: string;
   // Category slug (filter value) + display name, from the API's TourCategoryRefDto.
@@ -62,7 +64,7 @@ export function TourCard({ tour }: { tour: TourCardData }) {
         {tour.image ? (
           <Image
             src={tour.image}
-            alt={tour.title}
+            alt={tour.imageAlt ?? tour.title}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover transition-transform duration-300 ease-out-expo group-hover:scale-105"

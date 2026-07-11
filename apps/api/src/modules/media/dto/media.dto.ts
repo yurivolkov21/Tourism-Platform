@@ -85,6 +85,16 @@ export class MediaInputDto {
   @IsInt()
   @Min(0)
   sortOrder?: number;
+
+  /**
+   * Alt text (admin-editable). Omit to PRESERVE the stored value on a kept
+   * asset; explicit null clears it.
+   */
+  @ApiPropertyOptional({ maxLength: 300, nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  alt?: string | null;
 }
 
 /**
@@ -122,4 +132,11 @@ export class MediaItemDto {
 
   @ApiProperty({ example: 0 })
   sortOrder!: number;
+
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    description: 'Editable alt text (web falls back to owner-derived text)',
+  })
+  alt!: string | null;
 }

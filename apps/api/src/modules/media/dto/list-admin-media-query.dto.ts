@@ -2,6 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { MediaOwnerType, MediaRole, MediaType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
   IsInt,
   IsOptional,
@@ -10,6 +11,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { ToBoolean } from '../../../common/to-boolean';
 
 /**
  * Query string for `GET /admin/media` (admin media library). Pagination plus
@@ -57,4 +59,11 @@ export class ListAdminMediaQueryDto {
   @IsString()
   @MaxLength(160)
   search?: string;
+
+  /** Exclude USER-owned avatars — the reuse picker must not offer customer photos. */
+  @ApiPropertyOptional({ example: true })
+  @IsOptional()
+  @ToBoolean()
+  @IsBoolean()
+  excludeUserOwned?: boolean;
 }

@@ -9,6 +9,7 @@ const post = (slug: string): PostSummaryVM => ({
   metaDescription: null,
   publishedAt: null,
   coverUrl: null,
+  coverAlt: null,
   tags: [],
   author: { fullName: null, avatarUrl: null },
 });

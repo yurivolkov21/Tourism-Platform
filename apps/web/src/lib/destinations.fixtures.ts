@@ -12,6 +12,8 @@ import type { TourCardData } from '../components/tours/tour-card';
 export type DestinationTileVM = DestinationSummary & {
   tagline: string;
   image: string;
+  /** Cover MediaAsset's editable alt text; null/undefined = fall back to `name` at the call site. */
+  imageAlt?: string | null;
   intro: string;
   gallery: string[];
   tours: TourCardData[];

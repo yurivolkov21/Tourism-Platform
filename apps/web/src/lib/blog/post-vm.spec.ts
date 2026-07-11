@@ -7,11 +7,16 @@ type PostDetailDto = components['schemas']['PostDetailDto'];
 type TourSummaryDto = components['schemas']['TourSummaryDto'];
 type MediaItemDto = components['schemas']['MediaItemDto'];
 
-const media = (role: MediaItemDto['role'], url: string): MediaItemDto => ({
+const media = (
+  role: MediaItemDto['role'],
+  url: string,
+  alt: string | null = null,
+): MediaItemDto => ({
   publicId: `tourism/posts/${url}`,
   url,
   type: 'IMAGE',
   role,
+  alt,
 });
 
 const tourSummary = (slug: string): TourSummaryDto =>
@@ -35,6 +40,7 @@ const tourSummary = (slug: string): TourSummaryDto =>
         url: 'https://cdn/hero.jpg',
         type: 'IMAGE',
         role: 'hero',
+        alt: null,
       },
     ],
     averageRating: 4.5,
@@ -75,6 +81,22 @@ describe('toPostSummary', () => {
       toPostSummary({ ...base, media: [media('gallery', 'g.jpg')] }).coverUrl,
     ).toBe('g.jpg');
     expect(toPostSummary(base).coverUrl).toBeNull();
+  });
+
+  it('prefers the cover media item alt text, else null', () => {
+    const withAlt = toPostSummary({
+      ...base,
+      media: [media('hero', 'h.jpg', 'Lanterns over the river')],
+    });
+    expect(withAlt.coverAlt).toBe('Lanterns over the river');
+
+    const withoutAlt = toPostSummary({
+      ...base,
+      media: [media('hero', 'h.jpg')],
+    });
+    expect(withoutAlt.coverAlt).toBeNull();
+
+    expect(toPostSummary(base).coverAlt).toBeNull();
   });
 
   it('uses the stored excerpt when present', () => {

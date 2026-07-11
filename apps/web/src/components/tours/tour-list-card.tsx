@@ -34,7 +34,7 @@ export function TourListCard({ tour }: { tour: TourCardData }) {
       >
         <Image
           src={tour.image ?? ''}
-          alt={tour.title}
+          alt={tour.imageAlt ?? tour.title}
           fill
           sizes="(min-width: 1024px) 20rem, (min-width: 640px) 16rem, 100vw"
           className="object-cover transition-transform duration-500 ease-out-expo group-hover:scale-105"

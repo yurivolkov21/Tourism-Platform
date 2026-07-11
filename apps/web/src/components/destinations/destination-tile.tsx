@@ -44,7 +44,7 @@ export function DestinationTile({
     >
       <Image
         src={d.image}
-        alt={d.name}
+        alt={d.imageAlt ?? d.name}
         fill
         sizes="(min-width: 1024px) 50vw, 50vw"
         className="object-cover transition-transform duration-500 ease-out-expo group-hover:scale-105"

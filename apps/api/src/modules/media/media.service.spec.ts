@@ -17,9 +17,16 @@ interface ExistingAsset {
   type: MediaType;
 }
 
-/** tx mock: `mediaAsset.findMany` returns `existing`; captures garbage inserts. */
+/**
+ * tx mock: the FIRST `mediaAsset.findMany` (existing-read) returns `existing`;
+ * subsequent calls (the ref-safety check) return [] — nothing else references
+ * the dropped ids, so the legacy enqueue expectations still hold.
+ */
 function makeTx(existing: ExistingAsset[] = []) {
-  const findMany = jest.fn().mockResolvedValue(existing);
+  const findMany = jest
+    .fn()
+    .mockResolvedValue([])
+    .mockResolvedValueOnce(existing);
   const deleteMany = jest.fn().mockResolvedValue({});
   const createMany = jest.fn().mockResolvedValue({});
   const garbageCreateMany = jest.fn().mockResolvedValue({});
@@ -29,7 +36,10 @@ function makeTx(existing: ExistingAsset[] = []) {
       deleteMany,
       createMany,
     },
-    mediaGarbage: { createMany: garbageCreateMany },
+    mediaGarbage: {
+      createMany: garbageCreateMany,
+      deleteMany: jest.fn().mockResolvedValue({}),
+    },
   } as never;
   return { tx, findMany, deleteMany, createMany, garbageCreateMany };
 }
@@ -230,5 +240,252 @@ describe('MediaService', () => {
     expect(upsert).toHaveBeenCalledTimes(1);
     expect(upsert.mock.calls[0][0].update).toEqual({});
     expect(res.url).toContain('already-there');
+  });
+});
+
+describe('MediaService — GC ref-safety (wave D1)', () => {
+  /** tx mock with SEQUENCED findMany: 1st = existing-read, 2nd = ref-check. */
+  function makeRefTx(existing: ExistingAsset[], refs: unknown[]) {
+    const findMany = jest
+      .fn()
+      .mockResolvedValueOnce(existing)
+      .mockResolvedValueOnce(refs);
+    const deleteMany = jest.fn().mockResolvedValue({});
+    const createMany = jest.fn().mockResolvedValue({});
+    const garbageCreateMany = jest.fn().mockResolvedValue({});
+    const tx = {
+      mediaAsset: { findMany, deleteMany, createMany },
+      mediaGarbage: {
+        createMany: garbageCreateMany,
+        deleteMany: jest.fn().mockResolvedValue({}),
+      },
+    } as never;
+    return { tx, findMany, deleteMany, garbageCreateMany };
+  }
+
+  it('syncAssets does NOT enqueue a dropped publicId still referenced by another owner', async () => {
+    const { tx, deleteMany, garbageCreateMany } = makeRefTx(
+      [{ publicId: 'shared', posterId: null, type: MediaType.IMAGE }],
+      [{ publicId: 'shared', posterId: null }], // another owner's surviving row
+    );
+    const svc = makeService({});
+
+    await svc.syncAssets(tx, MediaOwnerType.TOUR, 't-1', []);
+
+    expect(deleteMany).toHaveBeenCalled();
+    expect(garbageCreateMany).not.toHaveBeenCalled();
+  });
+
+  it('syncAssets still enqueues a dropped publicId nobody references', async () => {
+    const { tx, garbageCreateMany } = makeRefTx(
+      [{ publicId: 'orphan', posterId: null, type: MediaType.IMAGE }],
+      [], // no surviving references
+    );
+    const svc = makeService({});
+
+    await svc.syncAssets(tx, MediaOwnerType.TOUR, 't-1', []);
+
+    expect(garbageCreateMany).toHaveBeenCalledWith({
+      data: [{ publicId: 'orphan', resourceType: 'image' }],
+      skipDuplicates: true,
+    });
+  });
+
+  it('the ref-check runs AFTER the owner rows are deleted (own rows never count)', async () => {
+    const calls: string[] = [];
+    const findMany = jest
+      .fn()
+      .mockImplementationOnce(() => {
+        calls.push('read');
+        return Promise.resolve([
+          { publicId: 'x', posterId: null, type: MediaType.IMAGE },
+        ]);
+      })
+      .mockImplementationOnce(() => {
+        calls.push('refcheck');
+        return Promise.resolve([]);
+      });
+    const deleteMany = jest.fn().mockImplementation(() => {
+      calls.push('delete');
+      return Promise.resolve({});
+    });
+    const tx = {
+      mediaAsset: { findMany, deleteMany, createMany: jest.fn() },
+      mediaGarbage: {
+        createMany: jest.fn().mockResolvedValue({}),
+        deleteMany: jest.fn().mockResolvedValue({}),
+      },
+    } as never;
+    const svc = makeService({});
+
+    await svc.syncAssets(tx, MediaOwnerType.TOUR, 't-1', []);
+
+    expect(calls).toEqual(['read', 'delete', 'refcheck']);
+  });
+
+  it('checks poster references too (a shared poster is kept, the video goes)', async () => {
+    const { tx, garbageCreateMany } = makeRefTx(
+      [{ publicId: 'clip', posterId: 'poster-1', type: MediaType.VIDEO }],
+      [{ publicId: 'other', posterId: 'poster-1' }], // someone still uses the poster
+    );
+    const svc = makeService({});
+
+    await svc.deleteForOwner(tx, MediaOwnerType.TOUR, 't-1');
+
+    expect(garbageCreateMany).toHaveBeenCalledWith({
+      data: [{ publicId: 'clip', resourceType: 'video' }],
+      skipDuplicates: true,
+    });
+  });
+});
+
+describe('MediaService — alt round-trip (wave D1)', () => {
+  function makeAltTx(existing: Array<Record<string, unknown>>) {
+    const findMany = jest
+      .fn()
+      .mockResolvedValue([])
+      .mockResolvedValueOnce(existing);
+    const createMany = jest.fn().mockResolvedValue({});
+    const tx = {
+      mediaAsset: {
+        findMany,
+        deleteMany: jest.fn().mockResolvedValue({}),
+        createMany,
+      },
+      mediaGarbage: {
+        createMany: jest.fn().mockResolvedValue({}),
+        deleteMany: jest.fn().mockResolvedValue({}),
+      },
+    } as never;
+    return { tx, createMany };
+  }
+
+  it('stores alt from the payload', async () => {
+    const { tx, createMany } = makeAltTx([]);
+    const svc = makeService({});
+
+    await svc.syncAssets(tx, MediaOwnerType.TOUR, 't-1', [
+      {
+        publicId: 'a',
+        type: MediaType.IMAGE,
+        role: MediaRole.hero,
+        alt: 'Lantern-lit old town at dusk',
+      } as never,
+    ]);
+
+    expect(createMany.mock.calls[0][0].data[0].alt).toBe(
+      'Lantern-lit old town at dusk',
+    );
+  });
+
+  it('preserves the stored alt when a kept row is re-sent without one', async () => {
+    const { tx, createMany } = makeAltTx([
+      {
+        publicId: 'a',
+        posterId: null,
+        type: MediaType.IMAGE,
+        alt: 'Existing alt',
+      },
+    ]);
+    const svc = makeService({});
+
+    await svc.syncAssets(tx, MediaOwnerType.TOUR, 't-1', [
+      { publicId: 'a', type: MediaType.IMAGE, role: MediaRole.hero } as never,
+    ]);
+
+    expect(createMany.mock.calls[0][0].data[0].alt).toBe('Existing alt');
+  });
+
+  it('clears alt with an explicit null', async () => {
+    const { tx, createMany } = makeAltTx([
+      {
+        publicId: 'a',
+        posterId: null,
+        type: MediaType.IMAGE,
+        alt: 'Old alt',
+      },
+    ]);
+    const svc = makeService({});
+
+    await svc.syncAssets(tx, MediaOwnerType.TOUR, 't-1', [
+      {
+        publicId: 'a',
+        type: MediaType.IMAGE,
+        role: MediaRole.hero,
+        alt: null,
+      } as never,
+    ]);
+
+    expect(createMany.mock.calls[0][0].data[0].alt).toBeNull();
+  });
+});
+
+describe('MediaService — review fixes (wave D1)', () => {
+  it('syncAssets 400s when a payload publicId survives under a preserved role (unique would 500)', async () => {
+    // Post cover replace preserves body rows; picking the body image as the
+    // cover would violate (ownerType, ownerId, publicId) on createMany.
+    const findMany = jest
+      .fn()
+      // existing read (preserved roles excluded)
+      .mockResolvedValueOnce([])
+      // NEW: preserved-role conflict check
+      .mockResolvedValueOnce([{ publicId: 'blog/foo' }]);
+    const tx = {
+      mediaAsset: {
+        findMany,
+        deleteMany: jest.fn().mockResolvedValue({}),
+        createMany: jest.fn(),
+      },
+      mediaGarbage: {
+        createMany: jest.fn(),
+        deleteMany: jest.fn().mockResolvedValue({}),
+      },
+    } as never;
+    const svc = makeService({});
+
+    await expect(
+      svc.syncAssets(
+        tx,
+        MediaOwnerType.POST,
+        'p-1',
+        [
+          {
+            publicId: 'blog/foo',
+            type: MediaType.IMAGE,
+            role: MediaRole.hero,
+          } as never,
+        ],
+        { preserveRoles: [MediaRole.body] },
+      ),
+    ).rejects.toMatchObject({ status: 400 });
+  });
+
+  it('syncAssets purges kept publicIds from the garbage queue (re-attach defuses a pending destroy)', async () => {
+    const garbageDeleteMany = jest.fn().mockResolvedValue({});
+    const findMany = jest.fn().mockResolvedValue([]);
+    const tx = {
+      mediaAsset: {
+        findMany,
+        deleteMany: jest.fn().mockResolvedValue({}),
+        createMany: jest.fn().mockResolvedValue({}),
+      },
+      mediaGarbage: {
+        createMany: jest.fn(),
+        deleteMany: garbageDeleteMany,
+      },
+    } as never;
+    const svc = makeService({});
+
+    await svc.syncAssets(tx, MediaOwnerType.TOUR, 't-1', [
+      {
+        publicId: 'reused',
+        type: MediaType.IMAGE,
+        role: MediaRole.hero,
+      } as never,
+    ]);
+
+    expect(garbageDeleteMany).toHaveBeenCalledWith({
+      where: { publicId: { in: ['reused'] } },
+    });
   });
 });

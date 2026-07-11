@@ -25,6 +25,7 @@ export function toTourCard(dto: TourSummaryDto): TourCardData {
     reviewCount: dto.reviewsCount,
     badges: (dto.badges ?? []) as TourBadgeKey[],
     image: hero?.url,
+    imageAlt: hero?.alt,
     summary: dto.summary ?? undefined,
     category: dto.category?.slug,
     categoryName: dto.category?.name,

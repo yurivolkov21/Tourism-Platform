@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MediaOwnerType, MediaRole, MediaType, Prisma } from '@prisma/client';
 import { buildCloudinaryUrl } from '../../lib/cloudinary-url';
@@ -52,21 +52,53 @@ export class MediaService {
         : {}),
     };
 
-    // Garbage-collect Cloudinary assets that are dropped and NOT recreated. Read
-    // the current set first, then record any whose publicId isn't in the new
-    // payload (a kept publicId is re-created, so it must not be destroyed).
+    // Garbage-collect Cloudinary assets that are dropped and NOT recreated.
+    // ORDER MATTERS: delete the owner's rows FIRST, then run the guarded
+    // enqueue — its still-referenced check must only see rows that survive
+    // this mutation (other owners, or this owner's preserved roles), never
+    // the rows being replaced.
     const existing = await tx.mediaAsset.findMany({
       where,
-      select: { publicId: true, posterId: true, type: true },
+      select: { publicId: true, posterId: true, type: true, alt: true },
     });
     const keptIds = new Set(assets.map((a) => a.publicId));
-    await this.recordGarbage(
-      tx,
-      existing.filter((e) => !keptIds.has(e.publicId)),
-    );
+    const dropped = existing.filter((e) => !keptIds.has(e.publicId));
+    // Alt survives the replace-all: a payload that doesn't carry the field
+    // (undefined) keeps the stored value; explicit null clears it.
+    const storedAlt = new Map(existing.map((e) => [e.publicId, e.alt]));
+
+    // A payload publicId that SURVIVES under a preserved role (e.g. picking a
+    // post's body image as its cover) would violate the (ownerType, ownerId,
+    // publicId) unique on createMany — fail clean instead of a P2002 500.
+    if (opts?.preserveRoles?.length && assets.length > 0) {
+      const preservedConflict = await tx.mediaAsset.findMany({
+        where: {
+          ownerType,
+          ownerId,
+          role: { in: opts.preserveRoles },
+          publicId: { in: [...keptIds] },
+        },
+        select: { publicId: true },
+      });
+      if (preservedConflict.length > 0) {
+        throw new BadRequestException({
+          code: 'MEDIA_ROLE_CONFLICT',
+          message: `Image "${preservedConflict[0].publicId}" is already used by this item in another role (e.g. as an inline body image).`,
+        });
+      }
+    }
 
     await tx.mediaAsset.deleteMany({ where });
+    await this.recordGarbage(tx, dropped);
     if (assets.length === 0) return;
+
+    // Defuse pending destroys: a kept/re-attached publicId may already sit in
+    // the garbage queue (enqueued when a previous owner dropped it, hours
+    // before the daily reconcile) — purge it so the cron can't destroy a
+    // freshly re-attached image. Shrinks the reconcile TOCTOU to its ms-window.
+    await tx.mediaGarbage.deleteMany({
+      where: { publicId: { in: [...keptIds] } },
+    });
 
     await tx.mediaAsset.createMany({
       data: assets.map((a, index) => ({
@@ -80,6 +112,7 @@ export class MediaService {
         height: a.height ?? null,
         durationSec: a.durationSec ?? null,
         posterId: a.posterId ?? null,
+        alt: a.alt !== undefined ? a.alt : (storedAlt.get(a.publicId) ?? null),
         // Fall back to array index so callers get stable ordering even when the
         // FE omits explicit sortOrder.
         sortOrder: a.sortOrder ?? index,
@@ -96,22 +129,30 @@ export class MediaService {
     ownerType: MediaOwnerType,
     ownerId: string,
   ): Promise<void> {
-    // Every asset is removed and none recreated → all are Cloudinary garbage.
+    // Every asset is removed and none recreated → garbage, unless another
+    // owner still references the same publicId (delete first — see syncAssets).
     const existing = await tx.mediaAsset.findMany({
       where: { ownerType, ownerId },
       select: { publicId: true, posterId: true, type: true },
     });
-    await this.recordGarbage(tx, existing);
     await tx.mediaAsset.deleteMany({ where: { ownerType, ownerId } });
+    await this.recordGarbage(tx, existing);
   }
 
   /**
    * Queue dropped assets for Cloudinary destruction (the pg-boss media-reconcile
-   * cron — P1.x-b). Each asset contributes its `publicId` (resource_type from the
-   * media type) plus its video `posterId` (always an image). `publicId` is UNIQUE,
-   * so `skipDuplicates` collapses repeats. Runs on the caller's `tx`.
+   * cron — P1.x-b), SKIPPING any publicId that some other `media_assets` row
+   * still references (as its own image/video OR as a video poster) — the reuse
+   * picker legally attaches one Cloudinary asset to several owners, so
+   * "dropped by this owner" no longer implies "safe to destroy". Callers must
+   * delete the current owner's rows BEFORE calling, so the check only sees
+   * survivors. Each unreferenced asset contributes its `publicId`
+   * (resource_type from the media type) plus its video `posterId` (always an
+   * image). `publicId` is UNIQUE in the queue, so `skipDuplicates` collapses
+   * repeats. Runs on the caller's `tx`. Public: the admin library delete
+   * routes through the same guard.
    */
-  private async recordGarbage(
+  async recordGarbage(
     tx: Prisma.TransactionClient,
     dropped: Array<{
       publicId: string;
@@ -120,16 +161,38 @@ export class MediaService {
     }>,
   ): Promise<void> {
     if (dropped.length === 0) return;
+
+    const candidates = new Set<string>();
+    for (const asset of dropped) {
+      candidates.add(asset.publicId);
+      if (asset.posterId) candidates.add(asset.posterId);
+    }
+    const ids = [...candidates];
+    const referenced = await tx.mediaAsset.findMany({
+      where: {
+        OR: [{ publicId: { in: ids } }, { posterId: { in: ids } }],
+      },
+      select: { publicId: true, posterId: true },
+    });
+    const alive = new Set<string>();
+    for (const row of referenced) {
+      alive.add(row.publicId);
+      if (row.posterId) alive.add(row.posterId);
+    }
+
     const rows: Array<{ publicId: string; resourceType: string }> = [];
     for (const asset of dropped) {
-      rows.push({
-        publicId: asset.publicId,
-        resourceType: asset.type === MediaType.VIDEO ? 'video' : 'image',
-      });
-      if (asset.posterId) {
+      if (!alive.has(asset.publicId)) {
+        rows.push({
+          publicId: asset.publicId,
+          resourceType: asset.type === MediaType.VIDEO ? 'video' : 'image',
+        });
+      }
+      if (asset.posterId && !alive.has(asset.posterId)) {
         rows.push({ publicId: asset.posterId, resourceType: 'image' });
       }
     }
+    if (rows.length === 0) return;
     await tx.mediaGarbage.createMany({ data: rows, skipDuplicates: true });
   }
 
@@ -167,6 +230,7 @@ export class MediaService {
         width: asset.width,
         height: asset.height,
         durationSec: asset.durationSec,
+        alt: asset.alt,
         sortOrder: asset.sortOrder,
       };
       const list = byOwner.get(asset.ownerId);

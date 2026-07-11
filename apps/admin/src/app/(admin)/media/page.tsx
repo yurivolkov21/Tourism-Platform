@@ -14,7 +14,7 @@ import {
 import { parsePageSize } from '../../../lib/pagination';
 import { cn } from '@tourism/ui';
 
-const OWNER_TYPES = ['TOUR', 'DESTINATION', 'POST', 'USER'] as const;
+const OWNER_TYPES = ['TOUR', 'DESTINATION', 'POST', 'USER', 'SITE'] as const;
 const ROLES = ['hero', 'gallery', 'avatar', 'body'] as const;
 const TYPES = ['IMAGE', 'VIDEO'] as const;
 

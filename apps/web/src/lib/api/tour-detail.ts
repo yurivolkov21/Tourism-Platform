@@ -79,6 +79,7 @@ function toTourDetail(
     reviewCount: dto.reviewsCount,
     badges: (dto.badges ?? []) as TourBadgeKey[],
     image: hero?.url,
+    imageAlt: hero?.alt,
     summary: dto.summary ?? undefined,
     destinationSlug: primary?.destination.slug ?? '',
     region: '',

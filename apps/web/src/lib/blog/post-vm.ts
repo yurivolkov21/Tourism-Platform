@@ -31,6 +31,8 @@ export interface PostSummaryVM {
   publishedAt: string | null;
   /** Hero-role cover url, else the first attachment, else null (covers are optional). */
   coverUrl: string | null;
+  /** Cover MediaAsset's editable alt text; null = fall back to `title` at the call site. */
+  coverAlt: string | null;
   /** Topic chips (empty when untagged / older API). */
   tags: PostTagVM[];
   /** Public author (name + avatar only); nulls fall back to the brand byline. */
@@ -57,12 +59,13 @@ export function fallbackExcerpt(content: string): string {
   return `${cut.slice(0, lastSpace > 0 ? lastSpace : EXCERPT_MAX).trimEnd()}…`;
 }
 
-function pickCoverUrl(dto: PostDto): string | null {
+function pickCover(dto: PostDto) {
   const media = dto.media ?? [];
-  return (media.find((m) => m.role === 'hero') ?? media[0])?.url ?? null;
+  return media.find((m) => m.role === 'hero') ?? media[0];
 }
 
 export function toPostSummary(dto: PostDto): PostSummaryVM {
+  const cover = pickCover(dto);
   return {
     slug: dto.slug,
     title: dto.title,
@@ -70,7 +73,8 @@ export function toPostSummary(dto: PostDto): PostSummaryVM {
     metaTitle: dto.metaTitle ?? null,
     metaDescription: dto.metaDescription ?? null,
     publishedAt: dto.publishedAt,
-    coverUrl: pickCoverUrl(dto),
+    coverUrl: cover?.url ?? null,
+    coverAlt: cover?.alt ?? null,
     tags: (dto.tags ?? []).map((t) => ({ slug: t.slug, name: t.name })),
     author: {
       fullName: dto.author?.fullName ?? null,

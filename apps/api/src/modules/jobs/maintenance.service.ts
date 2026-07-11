@@ -61,6 +61,20 @@ export class MaintenanceService {
     let failed = 0;
     for (const row of rows) {
       try {
+        // Ref-safety backstop (wave D1): the reuse picker can re-attach a
+        // queued publicId to a new owner before this cron runs — destroying
+        // it would 404 a live image. Still referenced (as an asset OR as a
+        // video poster) → drop the queue row without destroying.
+        const stillReferenced = await this.prisma.mediaAsset.findFirst({
+          where: {
+            OR: [{ publicId: row.publicId }, { posterId: row.publicId }],
+          },
+          select: { id: true },
+        });
+        if (stillReferenced) {
+          await this.prisma.mediaGarbage.delete({ where: { id: row.id } });
+          continue;
+        }
         await this.cloudinary.destroy(row.publicId, row.resourceType);
         await this.prisma.mediaGarbage.delete({ where: { id: row.id } });
         destroyed += 1;
