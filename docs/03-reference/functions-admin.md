@@ -22,7 +22,8 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 - **Mã model** (dùng chung cả 3 catalog): `USR` User · `CAT` TourCategory ·
   `DST` Destination · `TUR` Tour · `DEP` TourDeparture · `MED` MediaAsset/Upload ·
   `REV` Review · `ENQ` Enquiry · `BKG` Booking · `CXR` CancellationRequest ·
-  `STA` Stats (tổng hợp) · `PST` Post · `SUB` Subscriber (newsletter).
+  `STA` Stats (tổng hợp) · `PST` Post · `SUB` Subscriber (newsletter) ·
+  `OUT` Outbox (email queue) · `PAY` PaymentEvent.
 - **Functions / Description / Entity / Models / Database / Diagram** — như catalog customer.
 - **Trạng thái** — ✅ **Ổn** · 🕒 **Lưu ý/Tương lai**.
 
@@ -122,7 +123,7 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 
 | Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
-| A-BKG-1 | List Bookings<br>`GET /admin/bookings` | 1. Admin mở quản lý đơn hàng<br>2. Gửi `GET /admin/bookings` với `page`/`pageSize`; lọc `status` tùy chọn + `search` (khớp **case-insensitive** trên `code`/`contactEmail`/`contactName`)<br>3. `Promise.all` list (kèm tour + departure) + count (pooler-safe), mới nhất trước<br>4. Trả danh sách + `meta` (`page`/`pageSize`/`total`/`totalPages`) | Admin | **Booking**, Tour, TourDeparture | bookings, tours, tour_departures | Activity | ✅ |
+| A-BKG-1 | List Bookings<br>`GET /admin/bookings` | 1. Admin mở quản lý đơn hàng<br>2. Gửi `GET /admin/bookings` với `page`/`pageSize`; lọc `status` tùy chọn + `search` (khớp **case-insensitive** trên `code`/`contactEmail`/`contactName`)<br>3. `Promise.all` list (kèm tour + departure) + count (pooler-safe), mới nhất trước<br>4. **`meta.statusCounts`** (wave C): `groupBy` bổ sung trên cùng `where` **trừ `status`** — đếm từng status cho badge trên tab list; `groupBy` lỗi → field bị bỏ qua (không fail request)<br>5. Trả danh sách + `meta` (`page`/`pageSize`/`total`/`totalPages`/`statusCounts?`) | Admin | **Booking**, Tour, TourDeparture | bookings, tours, tour_departures | Activity | ✅ |
 | A-BKG-2 | Booking Detail<br>`GET /admin/bookings/:code` | 1. Admin chọn đơn theo mã<br>2. Gửi `GET /admin/bookings/:code`<br>3. **Admin xem mọi đơn** (không owner-check như U-BKG-3); thiếu → 404 `BOOKING_NOT_FOUND`<br>4. Trả chi tiết + tour + departure | Admin | **Booking**, Tour, TourDeparture | bookings, tours, tour_departures | Activity | ✅ |
 | A-BKG-3 | Refund Booking<br>`POST /admin/bookings/:code/refund` | 1. Admin chọn booking `PAID` + nhập `reason`; **`amount` tùy chọn** (theo tiền tệ của booking)<br>2. Phải `PAID` + có `providerPaymentId` (else 400 `BOOKING_NOT_REFUNDABLE`); `amount` ≤0 hoặc > tổng đơn → 400 `INVALID_REFUND_AMOUNT`<br>3. Bỏ trống `amount` (hoặc `amount = tổng`) → **hoàn toàn phần** (release ghế, `REFUNDED`); `0 < amount < tổng` → **hoàn một phần** (giữ nguyên ghế, `PARTIALLY_REFUNDED`, ghi `refunded_amount`)<br>4. **Gọi refund cổng TRƯỚC** (Stripe/PayPal, key idempotency `booking-refund:<id>` chống double-charge khi retry); lỗi → 400 `REFUND_FAILED` (giữ PAID); riêng "đã hoàn out-of-band" → hội tụ tiếp<br>5. **CTE nguyên tử** (gated `status='PAID'`): release ghế (chỉ nhánh full) + flip status + audit `refund_reason`/`refunded_by`/`refunded_amount`; **có cancellation request đang mở thì resolve luôn về `REFUNDED`** + ghi `outbox` BOOKING_REFUNDED (email — S-JOB-1)<br>6. Trả booking | Admin | **Booking**, CancellationRequest, TourDeparture, Outbox | bookings, cancellation_requests, tour_departures, outbox | Sequence | ✅ |
 
@@ -145,8 +146,8 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
 | A-PST-1 | List Posts<br>`GET /admin/posts` | 1. Admin mở quản lý blog<br>2. Gửi `GET /admin/posts` (thấy cả `DRAFT`); lọc `status`/`search` tùy chọn, mới nhất trước<br>3. Phân trang; trả danh sách | Admin | **Post** | posts | Activity | ✅ |
 | A-PST-2 | View Post<br>`GET /admin/posts/:slug` | 1. Gửi `GET /admin/posts/:slug` (không lọc status)<br>2. Trả chi tiết hoặc 404 `POST_NOT_FOUND` | Admin | **Post** | posts | Activity | ✅ |
-| A-PST-3 | Create Post<br>`POST /admin/posts` | 1. Admin nhập `title`, `excerpt`, `content` (markdown), `status`; `slug` tùy chọn; **`tags[]`** (tên hiển thị) + **`relatedTourSlugs[]`** (≤3) tùy chọn (blog-v2 W1)<br>2. **`authorId` lấy từ JWT** (không nhận từ body)<br>3. Chuẩn hóa/sinh slug (`slugify`, cắt 80); trùng → 409 `POST_SLUG_EXISTS`<br>4. Tags **upsert theo slug** (tạo inline nếu chưa có) + link M:N; tour slugs resolve sang tour **đã publish** (sai → 400)<br>5. Tạo bản ghi; **`PUBLISHED` → stamp `publishedAt`** (DRAFT để null)<br>6. Trả post (kèm tags/author) | Admin | **Post**, PostTag, PostTagLink, PostTour, User | posts, post_tags, post_tag_links, post_tours, users | Activity | ✅ |
-| A-PST-4 | Update Post<br>`PATCH /admin/posts/:slug` | 1. Admin sửa trường bất kỳ (publish/ẩn, nội dung); `tags[]`/`relatedTourSlugs[]` gửi kèm = **replace-all** (bỏ trống = không đổi)<br>2. slug gửi kèm qua `slugify()`; trùng → 409<br>3. **Lần đầu chuyển sang `PUBLISHED` → stamp `publishedAt`** (giữ nguyên về sau, kể cả khi quay lại DRAFT)<br>4. Cập nhật; trả post | Admin | **Post**, PostTag, PostTagLink, PostTour | posts, post_tags, post_tag_links, post_tours | Activity | ✅ |
+| A-PST-3 | Create Post<br>`POST /admin/posts` | 1. Admin nhập `title`, `excerpt`, `content` (markdown), `status`; `slug` tùy chọn; **`tags[]`** (tên hiển thị) + **`relatedTourSlugs[]`** (≤3) tùy chọn (blog-v2 W1); **`metaTitle`/`metaDescription`** + **`publishedAt`** tùy chọn (wave C)<br>2. **`authorId` lấy từ JWT** (không nhận từ body)<br>3. Chuẩn hóa/sinh slug (`slugify`, cắt 80); trùng → 409 `POST_SLUG_EXISTS`<br>4. Tags **upsert theo slug** (tạo inline nếu chưa có) + link M:N; tour slugs resolve sang tour **đã publish** (sai → 400)<br>5. Tạo bản ghi; `publishedAt` **tường minh luôn thắng** (một ngày tương lai = **hẹn giờ đăng** — reader công khai lọc `publishedAt <= now()`, không cần cron) — bỏ trống thì `PUBLISHED` → stamp `now()`, DRAFT → null; `metaTitle`/`metaDescription` rỗng `''` gập về `null`<br>6. Trả post (kèm tags/author) | Admin | **Post**, PostTag, PostTagLink, PostTour, User | posts, post_tags, post_tag_links, post_tours, users | Activity | ✅ |
+| A-PST-4 | Update Post<br>`PATCH /admin/posts/:slug` | 1. Admin sửa trường bất kỳ (publish/ẩn, nội dung, **`metaTitle`/`metaDescription`**, **`publishedAt`** — wave C); `tags[]`/`relatedTourSlugs[]` gửi kèm = **replace-all** (bỏ trống = không đổi)<br>2. slug gửi kèm qua `slugify()`; trùng → 409<br>3. **Lần đầu chuyển sang `PUBLISHED` → stamp `publishedAt`** (giữ nguyên về sau, kể cả khi quay lại DRAFT); `publishedAt` gửi tường minh **luôn thắng** stamp đó (chuỗi ISO → set; `null` = xoá lịch — trên bài đang/sắp `PUBLISHED` nghĩa là **đăng ngay** (re-stamp `now()`), trên `DRAFT` thì xoá hẳn ngày)<br>4. `metaTitle`/`metaDescription` gửi `null` xoá override (reader fallback về title/excerpt); `''` cũng gập về `null`<br>5. Cập nhật; trả post | Admin | **Post**, PostTag, PostTagLink, PostTour | posts, post_tags, post_tag_links, post_tours | Activity | ✅ |
 | A-PST-5 | Delete Post<br>`DELETE /admin/posts/:slug` | 1. Admin xoá bài<br>2. 404 `POST_NOT_FOUND` nếu thiếu<br>3. `$transaction`: **media của post (cover + ảnh body) → `media_garbage`** (GC Cloudinary qua cron) rồi xoá post (tag/tour links cascade)<br>4. Trả xác nhận | Admin | **Post**, MediaAsset, MediaGarbage | posts, media_assets, media_garbage, post_tag_links, post_tours | Sequence | ✅ |
 | A-PST-6 | List Post Tags<br>`GET /admin/posts/tags` | 1. Form bài viết mở combobox tag<br>2. Trả toàn bộ tag kèm **số bài dùng** (gợi ý + tạo inline ở FE) | Admin | **PostTag** | post_tags, post_tag_links | Activity | ✅ |
 | A-PST-7 | Set Post Media<br>`PUT /admin/posts/:slug/media` | 1. Admin gửi `{ media: [...] }` (publicId từ A-MED-1, purpose `POST_COVER`) — replace-all cho **cover**<br>2. `$transaction` `syncAssets` với **carve-out `preserveRoles: [body]`** — ảnh body chèn trong bài KHÔNG bị GC khi đổi cover (blog-v2 W3)<br>3. Media bỏ → `media_garbage`; trả media set kèm URL | Admin | **Post**, MediaAsset, MediaGarbage | posts, media_assets, media_garbage | Sequence | ✅ |
@@ -157,11 +158,38 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 | Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
 | A-SUB-1 | List Subscribers<br>`GET /admin/newsletter/subscribers` | 1. Admin mở Operations → Subscribers<br>2. Lọc `search` (email contains, không phân biệt hoa thường), phân trang, mới nhất trước<br>3. Trả danh sách + meta; **CSV export** là việc của FE admin (route `/subscribers/export` page-through rồi dựng CSV có guard formula-injection) | Admin | **Subscriber** | subscribers | Activity | ✅ |
+| A-SUB-2 | Delete Subscriber<br>`DELETE /admin/newsletter/subscribers/:id` | 1. Admin bấm Remove trên 1 dòng subscriber (wave C)<br>2. Không tồn tại → 404 `SUBSCRIBER_NOT_FOUND`<br>3. Xoá cứng; trả xác nhận | Admin | **Subscriber** | subscribers | Activity | ✅ |
+
+## `Outbox` (email queue — quản trị)
+
+| Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
+| ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
+| A-OUT-1 | Delete Outbox Row<br>`DELETE /admin/outbox/:id` | 1. Admin xoá 1 email đang chờ/lỗi trước khi drain gửi đi (wave C)<br>2. Chỉ `PENDING`/`FAILED` mới xoá được — **atomic `deleteMany`** (không check-rồi-xoá) để tránh race với drain cron; `SENT` (đã gửi thật) → 409 `OUTBOX_ROW_SENT` (giữ làm lịch sử gửi)<br>3. Không tồn tại → 404 `OUTBOX_NOT_FOUND`<br>4. Trả xác nhận | Admin | **Outbox** | outbox | Activity | ✅ |
+
+## `PaymentEvent` (webhook log viewer)
+
+| Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
+| ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
+| A-PAY-1 | List Payment Events<br>`GET /admin/payment-events` | 1. Admin mở `/payment-events` để debug webhook (wave C)<br>2. Lọc `provider`/`type` (contains)/`search` (theo `eventId`), phân trang, mới nhất trước<br>3. Trả **kèm `payload` thô** (chỉ admin viewer mới lộ payload, khác booking-detail embed) + `bookingId`/`bookingCode` suy ra **best-effort** từ payload (không có FK — có thể null)<br>4. Trả danh sách + meta | Admin | **PaymentEvent**, Booking | payment_events, bookings | Activity | ✅ |
 
 ---
 
 ## Lịch sử
 
+- **2026-07-11** — **Admin wave C:** A-BKG-1 nhận `meta.statusCounts` (groupBy
+  theo status cho tab badge). A-PST-3/4 nhận `metaTitle`/`metaDescription` +
+  `publishedAt` tường minh (ngày tương lai = hẹn giờ đăng, đọc-lúc-truy-vấn
+  qua `publishedAt <= now()`, không cron). **Bổ sung** A-SUB-2 (delete
+  subscriber) · nhóm `Outbox` mới với A-OUT-1 (delete row, atomic vs drain,
+  409 `OUTBOX_ROW_SENT` nếu đã gửi) · nhóm `PaymentEvent` mới với A-PAY-1
+  (webhook log viewer, kèm payload thô + booking link suy ra best-effort).
+  Không có model mới, chỉ thêm cột `Post.metaTitle`/`metaDescription`
+  (migration `post_seo_fields`, live). Adversarial review (2 vòng):
+  outbox-delete TOCTOU vs drain (atomic
+  `deleteMany`) · schedule-timezone corruption (chuyển conversion sang
+  BROWSER-side ISO field) · blank publish-date khi edit = đăng ngay ·
+  overshot-page dead-end trên Subscribers/Outbox · SEO field `''` gập `null`.
+  api 386 · admin 213 · web 231 tests.
 - **2026-07-11** — **Reviews upgrade + Enquiry CRM (wave B2):** A-REV-1 nhận filter
   `source`/`rating`/`search` + join `userName`/`userEmail`/`bookingCode`; **bổ sung**
   A-REV-3 (edit testimonial CURATED, 409 `REVIEW_NOT_CURATED` nếu VERIFIED, `null`

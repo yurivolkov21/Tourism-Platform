@@ -3,7 +3,7 @@
 **Spec:** `docs/06-specs/2026-07-11-admin-wave-c-design.md`
 **Branch:** `feat/admin-wave-c` · **Scope:** `apps/api` + `apps/admin` (+ web `generateMetadata`)
 
-**STATUS: EXECUTED** — T1-T9 done, gate green (api 386 · admin 213 · web 231 tests). Adversarial review (2 reviewers): FIXED — outbox delete TOCTOU vs the drain (atomic deleteMany + P2025-tolerant drain updates) · schedule timezone corruption (conversion moved to the BROWSER via a hidden ISO field; server-side new Date() applied the server TZ and shifted +7h per save) · blank publish-date on edit now truly means "publish immediately" (UpdatePostDto publishedAt null = re-stamp/clear) · overshot-page dead-ends on Subscribers/Outbox after last-row deletes · strict IsDateString · '' SEO fields fold to null. Awaiting user confirm -> live migration + commit + ff-merge.
+**STATUS: ✅ COMPLETE** — merged to `main` 2026-07-11 (`a123d48`, ff-only); `post_seo_fields` migration applied to live Supabase (columns verified). Gate green: api 386 · admin 213 · web 231 tests. Adversarial review fixes as recorded in the previous STATUS note.
 
 Standing rules: TDD on service methods + pure helpers (failing spec first) ·
 straight quotes · no unrelated-line reformatting · tokens only · reuse the crud
@@ -78,9 +78,9 @@ merge (migration) · live migration only after user confirm.
 - [x] Kill orphan node → full affected gate green.
 - [x] Adversarial review (migration + new endpoints + derived breakdown) —
       fix confirmed findings.
-- [ ] Report → user confirms → `prisma migrate deploy` live → commit →
+- [x] Report → user confirms → `prisma migrate deploy` live → commit →
       ff-merge → push → delete branch.
-- [ ] Docs sweep (rule 9): STATUS · roadmap · CLAUDE.md rows + test counts ·
+- [x] Docs sweep (rule 9): STATUS · roadmap · CLAUDE.md rows + test counts ·
       HANDOFF (wave C done → D backlog) · functions-admin.md (new endpoints) ·
       data-model.md (Post SEO fields) · functions-customer.md if public post
       DTO documented there.

@@ -46,7 +46,7 @@ empty slot or failed fetch renders exactly the previous visuals. Image hosts go 
 | `/contact` | static | ContentHero · **channels** (call/email/WhatsApp action cards) · **two offices + map** · Plan-your-trip form · closing CtaBand. |
 | `/faq` | static | Searchable grouped accordion (category icons) · sticky TOC · **FAQPage JSON-LD**. |
 | `/privacy`, `/terms`, `/cancellation-policy` | static | Legal documents — complete real content, **not lawyer-reviewed** (fine for the demo). |
-| `/blog` · `/blog/[slug]` · `/blog/rss.xml` | ISR (300s) | Journal index (pagination + `?tag=`/`?q=` chips) · markdown article (outline scrollspy + scroll-progress · share row · prev/next · "Updated on") · RSS 2.0 feed. Footer carries a **live newsletter signup** (browser-side `POST /newsletter/subscribe`). |
+| `/blog` · `/blog/[slug]` · `/blog/rss.xml` | ISR (300s) | Journal index (pagination + `?tag=`/`?q=` chips) · markdown article (outline scrollspy + scroll-progress · share row · prev/next · "Updated on") · RSS 2.0 feed. Footer carries a **live newsletter signup** (browser-side `POST /newsletter/subscribe`). `/blog/[slug]` `generateMetadata` prefers the post's `metaTitle`/`metaDescription` (admin wave C, 2026-07-11), falling back to `title`/`excerpt`. |
 | `/login` `/register` `/forgot-password` `/reset-password` · `/account/*` | dynamic | Supabase auth + account hub (dashboard · settings · bookings + detail/cancel · saved). |
 | `/tours/[slug]/book` · `/checkout/{success,cancel}` | dynamic | Booking flow (Stripe/PayPal + private-departure request). |
 | `/ui-check` | static | Dev sandbox for `@tourism/ui`. |
@@ -128,8 +128,9 @@ manager, 9 slots) · **list-table stack** (`components/crud/`: `AdminTableShell`
 pagination adapters; Tours destination/featured filters · Bookings tour/departure URL filters +
 chips · Departures Upcoming·Past·All facet) · **reviews + enquiry CRM (2026-07-11)** — reviews
 list server-driven (status/source/rating/search facets) + `/reviews/[id]/edit` shared form +
-drawer customer/booking links; enquiries drawer notes thread + repeat-lead badges. 194 tests
-(2026-07-11).
+drawer customer/booking links; enquiries drawer notes thread + repeat-lead badges · **wave C
+(2026-07-11)** — booking breakdown card + tab counts · post SEO/schedule UI · self-profile ·
+subscriber remove + outbox delete · `/payment-events` viewer. 213 tests (2026-07-11).
 
 ## Mobile (`@tourism/mobile`) — P5
 

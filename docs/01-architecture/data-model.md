@@ -11,7 +11,8 @@ when this doc disagrees with the schema, the schema wins. Founding rationale:
 > admin reviews + enquiry CRM wave B2 (2026-07-11 — `EnquiryNote` +
 > `Enquiry.email` index; also backfilled RLS on 4 older tables —
 > `cancellation_requests`/`post_tags`/`post_tag_links`/`post_tours` — that had
-> shipped without it).
+> shipped without it) → admin wave C (2026-07-11 — migration
+> `post_seo_fields` adds `Post.metaTitle`/`metaDescription`, applied live).
 > **24 models, 16 enums.**
 
 ## Conventions (kept from donor)
@@ -45,7 +46,7 @@ indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 | `SiteMediaSlot` | brand-chrome image slot of the public web (Appearance, 2026-07-10) | `key @unique` (9 seeded: home-hero … about-story); images = `MediaAsset(ownerType=SITE, ownerId=slot.id)` — catalog of kinds/labels lives in API code (`site-media/slot-catalog.ts`) |
 | `Outbox` | transactional email outbox (ADR-0007, P1.x-a) | `type EmailType`, `payload Json`, `status OutboxStatus`, `attempts`, `dedupeKey @unique` |
 | `MediaGarbage` | orphaned Cloudinary ids awaiting destroy (P1.x-b) | `publicId @unique`, `resourceType`, `attempts` |
-| `Post` | editorial blog article (P-Content + blog-v2) | `slug @unique`, `title`, `excerpt?`, `content` (markdown), `status PostStatus`, `publishedAt?`, `authorId` FK → User (Restrict); cover = `MediaAsset(ownerType=POST, role=hero)`, inline body images = `role=body` (GC on post delete); tags via `PostTagLink`, hand-picked tours via `PostTour` |
+| `Post` | editorial blog article (P-Content + blog-v2) | `slug @unique`, `title`, `excerpt?`, `content` (markdown), `status PostStatus`, `publishedAt?` (explicit future value = scheduled — no cron, the public reader filters `publishedAt <= now()`), **`metaTitle?`/`metaDescription?`** (SEO overrides, wave C 2026-07-11), `authorId` FK → User (Restrict); cover = `MediaAsset(ownerType=POST, role=hero)`, inline body images = `role=body` (GC on post delete); tags via `PostTagLink`, hand-picked tours via `PostTour` |
 | `PostTag` | free-form blog topic (blog-v2 W1) | `slug @unique`, `name`; upserted by slug from admin tag combobox |
 | `PostTagLink` | Post ↔ PostTag **M:N** join | PK `(postId, tagId)` |
 | `PostTour` | Post ↔ Tour **M:N** join (related tours, max 3, ordered) | PK `(postId, tourId)`, `order` |
