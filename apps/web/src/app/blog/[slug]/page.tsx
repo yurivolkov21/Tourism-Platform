@@ -50,14 +50,17 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await fetchPost(slug);
   if (!post) return { title: 'Post not found' };
+  // SEO overrides fall back to the reader-facing title/excerpt when unset.
+  const title = post.metaTitle ?? post.title;
+  const description = post.metaDescription ?? post.excerpt;
   return {
-    title: post.title,
-    description: post.excerpt,
+    title,
+    description,
     alternates: { canonical: `/blog/${slug}` },
     openGraph: {
       type: 'article',
-      title: post.title,
-      description: post.excerpt,
+      title,
+      description,
       url: `/blog/${slug}`,
       ...(post.coverUrl ? { images: [{ url: post.coverUrl }] } : {}),
     },

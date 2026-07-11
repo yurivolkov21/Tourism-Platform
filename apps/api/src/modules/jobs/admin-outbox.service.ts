@@ -108,4 +108,32 @@ export class AdminOutboxService {
         : null,
     };
   }
+  /**
+   * Deletes a queued/poisoned row (cancel an email before the drain sends it).
+   * SENT rows are the delivery audit trail — protected (409). Conditional
+   * deleteMany (not check-then-delete) so a concurrent drain tick can't defeat
+   * the SENT guard; a row the drain has already picked up in the current tick
+   * may still send once — a true cancel-in-flight would need a claim state.
+   */
+  async deleteById(id: string): Promise<void> {
+    const deleted = await this.prisma.outbox.deleteMany({
+      where: {
+        id,
+        status: { in: [OutboxStatus.PENDING, OutboxStatus.FAILED] },
+      },
+    });
+    if (deleted.count === 0) {
+      const row = await this.prisma.outbox.findUnique({ where: { id } });
+      if (!row) {
+        throw new NotFoundException({
+          code: 'OUTBOX_NOT_FOUND',
+          message: `Outbox row "${id}" not found`,
+        });
+      }
+      throw new ConflictException({
+        code: 'OUTBOX_ROW_SENT',
+        message: 'Sent emails are delivery history and cannot be deleted.',
+      });
+    }
+  }
 }

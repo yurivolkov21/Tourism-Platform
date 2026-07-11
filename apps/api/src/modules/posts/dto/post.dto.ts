@@ -30,6 +30,22 @@ export class PostDto {
   @ApiProperty({ nullable: true, type: String })
   excerpt!: string | null;
 
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    maxLength: 70,
+    description: 'SEO <title> override (falls back to title)',
+  })
+  metaTitle!: string | null;
+
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    maxLength: 160,
+    description: 'SEO meta-description override (falls back to excerpt)',
+  })
+  metaDescription!: string | null;
+
   @ApiProperty({ description: 'Markdown body' })
   content!: string;
 

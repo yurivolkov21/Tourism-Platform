@@ -34,6 +34,8 @@ const FRIENDLY_409: Record<string, string> = {
   TOUR_HAS_BOOKINGS: 'This tour has bookings, so it can’t be deleted.',
   DEPARTURE_HAS_BOOKINGS:
     'This departure has bookings, so it can’t be deleted.',
+  OUTBOX_ROW_SENT:
+    'This email has already been sent, so it can’t be deleted — it stays as delivery history.',
   DESTINATION_SLUG_EXISTS:
     'That URL slug is already used by another destination. Please choose a different one.',
   CATEGORY_SLUG_EXISTS:

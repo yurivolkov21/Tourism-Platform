@@ -228,7 +228,17 @@ export class PostsService {
           excerpt: body.excerpt,
           content: body.content,
           status,
-          publishedAt: status === PostStatus.PUBLISHED ? new Date() : null,
+          // Explicit date wins (a future one schedules the post — the public
+          // reader filters publishedAt <= now); else stamp now on PUBLISHED.
+          publishedAt: body.publishedAt
+            ? new Date(body.publishedAt)
+            : status === PostStatus.PUBLISHED
+              ? new Date()
+              : null,
+          // `|| null` also folds '' to null so the web reader's ?? fallback
+          // never renders an empty <title> (raw-API hardening).
+          metaTitle: body.metaTitle || null,
+          metaDescription: body.metaDescription || null,
           authorId,
           ...(tagRows.length > 0
             ? { tags: { create: this.tagLinksCreate(tagRows) } }
@@ -260,6 +270,14 @@ export class PostsService {
       ...(body.excerpt !== undefined ? { excerpt: body.excerpt } : {}),
       ...(body.content !== undefined ? { content: body.content } : {}),
       ...(body.status !== undefined ? { status: body.status } : {}),
+      // null clears an SEO override (reader falls back to title/excerpt);
+      // `|| null` also folds '' to null (raw-API hardening).
+      ...(body.metaTitle !== undefined
+        ? { metaTitle: body.metaTitle || null }
+        : {}),
+      ...(body.metaDescription !== undefined
+        ? { metaDescription: body.metaDescription || null }
+        : {}),
     };
     if (body.slug !== undefined) {
       data.slug = this.normalizeSlug(body.slug, body.title ?? existing.title);
@@ -270,6 +288,17 @@ export class PostsService {
       existing.publishedAt === null
     ) {
       data.publishedAt = new Date();
+    }
+    // An explicit date always wins over the flip stamp. `null` = "clear the
+    // schedule": on a (still-)PUBLISHED post that means publish immediately
+    // (re-stamp now); on a DRAFT it clears the date entirely. Never
+    // `new Date(null)`.
+    if (typeof body.publishedAt === 'string') {
+      data.publishedAt = new Date(body.publishedAt);
+    } else if (body.publishedAt === null) {
+      const effectiveStatus = body.status ?? existing.status;
+      data.publishedAt =
+        effectiveStatus === PostStatus.PUBLISHED ? new Date() : null;
     }
     if (body.tags !== undefined) {
       const tagRows = this.normalizeTags(body.tags);

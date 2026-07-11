@@ -6,7 +6,8 @@ import type { BookingStatus } from './format';
 
 /** List-row shape (`GET /admin/bookings`). Detail uses the richer {@link AdminBookingDetail}. */
 export type Booking = components['schemas']['BookingDto'];
-export type PageMeta = components['schemas']['PageMetaDto'];
+/** Superset of the plain page meta — adds `statusCounts` (tab badges) for this endpoint only. */
+export type PageMeta = components['schemas']['BookingsPageMetaDto'];
 
 export interface BookingListParams {
   page?: number;

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 
 import {
   Button,
@@ -24,7 +24,11 @@ import {
 } from '@tourism/ui';
 
 import type { PostFormState } from '../../lib/posts/actions';
-import { POST_STATUSES } from '../../lib/posts/schema';
+import {
+  isoToLocalDatetimeInput,
+  localDatetimeToIso,
+  POST_STATUSES,
+} from '../../lib/posts/schema';
 import type { Post, PostTagOption } from '../../lib/posts/data';
 import { slugify } from '../../lib/slugify';
 import { MediaField } from '../crud/media-field';
@@ -74,6 +78,18 @@ export function PostForm({
   // On edit the slug is pre-set → treat as user-owned so editing the title doesn't clobber the URL.
   const [slugEdited, setSlugEdited] = useState(Boolean(post?.slug));
   const [status, setStatus] = useState<string>(post?.status ?? 'DRAFT');
+  const [metaTitle, setMetaTitle] = useState(post?.metaTitle ?? '');
+  const [metaDescription, setMetaDescription] = useState(
+    post?.metaDescription ?? '',
+  );
+  // Seeded CLIENT-SIDE ONLY (mount effect): the ISO→local conversion must run in the
+  // browser's timezone — during SSR it would use the server's (UTC on Vercel), seeding
+  // the wrong wall-clock time AND causing a hydration mismatch on the controlled input.
+  // The one-frame empty flash is accepted (same trade-off as the column-prefs hook).
+  const [publishedAt, setPublishedAt] = useState('');
+  useEffect(() => {
+    setPublishedAt(isoToLocalDatetimeInput(post?.publishedAt ?? null));
+  }, []);
 
   // Seed the cover from the existing post on edit (hero role only; guard: media may be absent
   // for a beat mid-deploy while the API still serves the old shape).
@@ -309,6 +325,64 @@ export function PostForm({
 
       <Separator className="my-8" />
 
+      {/* SEO */}
+      <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div>
+          <FieldLegend className="mb-1.5 font-semibold">SEO</FieldLegend>
+          <FieldDescription>
+            Overrides for search results and social shares. Falls back to the
+            title/excerpt when left blank.
+          </FieldDescription>
+        </div>
+        <FieldGroup className="grid grid-cols-1 gap-6 md:col-span-2">
+          <Field data-invalid={Boolean(errors.metaTitle)}>
+            <div className="flex items-baseline justify-between gap-2">
+              <FieldLabel htmlFor="metaTitle">Meta title</FieldLabel>
+              <span className="text-muted-foreground text-xs tabular-nums">
+                {metaTitle.length}/70
+              </span>
+            </div>
+            <Input
+              id="metaTitle"
+              name="metaTitle"
+              maxLength={70}
+              value={metaTitle}
+              onChange={(e) => setMetaTitle(e.target.value)}
+              placeholder="Hội An in 3 days — itinerary"
+              aria-invalid={Boolean(errors.metaTitle)}
+            />
+            {errors.metaTitle ? (
+              <FieldError>{errors.metaTitle}</FieldError>
+            ) : null}
+          </Field>
+          <Field data-invalid={Boolean(errors.metaDescription)}>
+            <div className="flex items-baseline justify-between gap-2">
+              <FieldLabel htmlFor="metaDescription">
+                Meta description
+              </FieldLabel>
+              <span className="text-muted-foreground text-xs tabular-nums">
+                {metaDescription.length}/160
+              </span>
+            </div>
+            <Textarea
+              id="metaDescription"
+              name="metaDescription"
+              rows={2}
+              maxLength={160}
+              value={metaDescription}
+              onChange={(e) => setMetaDescription(e.target.value)}
+              placeholder="A one-sentence summary shown in search results."
+              aria-invalid={Boolean(errors.metaDescription)}
+            />
+            {errors.metaDescription ? (
+              <FieldError>{errors.metaDescription}</FieldError>
+            ) : null}
+          </Field>
+        </FieldGroup>
+      </FieldSet>
+
+      <Separator className="my-8" />
+
       {/* Publishing */}
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
@@ -341,6 +415,37 @@ export function PostForm({
               public.
             </FieldDescription>
           </Field>
+          {status === 'PUBLISHED' ? (
+            <Field data-invalid={Boolean(errors.publishedAt)}>
+              <FieldLabel htmlFor="publishedAt">Publish date</FieldLabel>
+              {/* The visible input is NOT submitted — the hidden field carries the ISO
+                  instant computed HERE in the browser's timezone. Converting the bare
+                  local string on the server would apply the server's timezone and
+                  shift the schedule (adversarial-review finding). */}
+              <Input
+                id="publishedAt"
+                type="datetime-local"
+                className="max-w-xs"
+                value={publishedAt}
+                onChange={(e) => setPublishedAt(e.target.value)}
+                aria-invalid={Boolean(errors.publishedAt)}
+              />
+              <input
+                type="hidden"
+                name="publishedAtIso"
+                value={
+                  publishedAt ? (localDatetimeToIso(publishedAt) ?? '') : ''
+                }
+              />
+              <FieldDescription>
+                Leave empty to publish immediately; a future date schedules the
+                post. Times are in your local timezone.
+              </FieldDescription>
+              {errors.publishedAt ? (
+                <FieldError>{errors.publishedAt}</FieldError>
+              ) : null}
+            </Field>
+          ) : null}
         </FieldGroup>
       </FieldSet>
 

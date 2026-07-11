@@ -23,6 +23,10 @@ export interface PostSummaryVM {
   title: string;
   /** Stored excerpt, else derived from `content` — never empty for real content. */
   excerpt: string;
+  /** SEO <title> override; null = fall back to `title` at the call site. */
+  metaTitle: string | null;
+  /** SEO meta-description override; null = fall back to `excerpt` at the call site. */
+  metaDescription: string | null;
   /** ISO timestamp; null-safe (defensive — public posts are published, but don't crash). */
   publishedAt: string | null;
   /** Hero-role cover url, else the first attachment, else null (covers are optional). */
@@ -63,6 +67,8 @@ export function toPostSummary(dto: PostDto): PostSummaryVM {
     slug: dto.slug,
     title: dto.title,
     excerpt: dto.excerpt?.trim() || fallbackExcerpt(dto.content),
+    metaTitle: dto.metaTitle ?? null,
+    metaDescription: dto.metaDescription ?? null,
     publishedAt: dto.publishedAt,
     coverUrl: pickCoverUrl(dto),
     tags: (dto.tags ?? []).map((t) => ({ slug: t.slug, name: t.name })),

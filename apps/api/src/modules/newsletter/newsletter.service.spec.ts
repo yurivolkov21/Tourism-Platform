@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { NewsletterService } from './newsletter.service';
 
 beforeAll(() => {
@@ -97,5 +97,25 @@ describe('NewsletterService.findAllForAdmin', () => {
     expect(findMany.mock.calls[0][0].where).toEqual({
       email: { contains: 'Jane', mode: 'insensitive' },
     });
+  });
+});
+
+describe('NewsletterService.deleteById', () => {
+  it('hard-deletes atomically via deleteMany (no check-then-delete race)', async () => {
+    const deleteMany = jest.fn().mockResolvedValue({ count: 1 });
+    const svc = new NewsletterService({ subscriber: { deleteMany } } as never);
+
+    await svc.deleteById('s-1');
+
+    expect(deleteMany).toHaveBeenCalledWith({ where: { id: 's-1' } });
+  });
+
+  it('404s when nothing matched (unknown id or concurrently deleted)', async () => {
+    const deleteMany = jest.fn().mockResolvedValue({ count: 0 });
+    const svc = new NewsletterService({ subscriber: { deleteMany } } as never);
+
+    await expect(svc.deleteById('nope')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
   });
 });

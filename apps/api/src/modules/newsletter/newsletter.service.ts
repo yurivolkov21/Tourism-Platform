@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Prisma, Subscriber } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ListSubscribersQueryDto } from './dto/list-subscribers-query.dto';
@@ -22,6 +22,23 @@ export class NewsletterService {
   private readonly logger = new Logger(NewsletterService.name);
 
   constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * Hard delete (admin remove/unsubscribe). The model has no soft-unsubscribe
+   * field and the public subscribe silently upserts — re-opting-in later just
+   * recreates the row. Atomic deleteMany: a concurrent delete loses with a
+   * clean 404 instead of a P2025 500.
+   */
+  async deleteById(id: string): Promise<void> {
+    const deleted = await this.prisma.subscriber.deleteMany({ where: { id } });
+    if (deleted.count === 0) {
+      throw new NotFoundException({
+        code: 'SUBSCRIBER_NOT_FOUND',
+        message: `Subscriber "${id}" not found`,
+      });
+    }
+    this.logger.log(`Subscriber ${id} removed by admin`);
+  }
 
   async subscribe(dto: SubscribeDto): Promise<void> {
     const email = dto.email.trim().toLowerCase();

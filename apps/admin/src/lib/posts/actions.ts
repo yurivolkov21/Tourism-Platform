@@ -42,6 +42,10 @@ function parsePostForm(formData: FormData) {
       const v = String(formData.get('status') ?? '').trim();
       return v === '' ? undefined : v;
     })(),
+    metaTitle: String(formData.get('metaTitle') ?? ''),
+    metaDescription: String(formData.get('metaDescription') ?? ''),
+    // The ISO instant from the form's hidden field (browser-side TZ conversion).
+    publishedAt: String(formData.get('publishedAtIso') ?? ''),
     tags: parseJsonStringArray(formData.get('tags')),
     relatedTourSlugs: parseJsonStringArray(formData.get('relatedTourSlugs')),
   });
@@ -69,7 +73,7 @@ export async function createPost(
     const created = await apiWrite<{ slug: string }>(
       'POST',
       '/api/v1/admin/posts',
-      toPostPayload(parsed.data),
+      toPostPayload(parsed.data, 'create'),
     );
     createdSlug = created.slug;
   } catch (e) {
@@ -95,7 +99,7 @@ export async function updatePost(
     const updated = await apiWrite<{ slug: string }>(
       'PATCH',
       `/api/v1/admin/posts/${encodeURIComponent(slug)}`,
-      toPostPayload(parsed.data),
+      toPostPayload(parsed.data, 'update'),
     );
     savedSlug = updated.slug ?? slug;
   } catch (e) {

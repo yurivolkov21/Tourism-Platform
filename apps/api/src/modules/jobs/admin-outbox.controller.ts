@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -63,5 +64,19 @@ export class AdminOutboxController {
   @ApiResponse({ status: 409, description: 'Row is not FAILED' })
   retry(@Param('id', ParseUUIDPipe) id: string): Promise<AdminOutboxRow> {
     return this.adminOutbox.retry(id);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary:
+      'Admin: delete a PENDING/FAILED outbox row (SENT = delivery history, protected)',
+  })
+  @ApiResponse({ status: 204, description: 'Deleted' })
+  @ApiResponse({ status: 403, description: 'Not an ADMIN' })
+  @ApiResponse({ status: 404, description: 'Outbox row not found' })
+  @ApiResponse({ status: 409, description: 'Row already SENT' })
+  remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    return this.adminOutbox.deleteById(id);
   }
 }

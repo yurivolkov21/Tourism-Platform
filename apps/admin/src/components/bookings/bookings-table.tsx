@@ -132,6 +132,7 @@ export function BookingsTable({
   tours,
   departures,
   filtered,
+  statusCounts,
 }: {
   rows: Booking[];
   status: 'all' | BookingStatus;
@@ -142,6 +143,8 @@ export function BookingsTable({
   departures?: DepartureFilterOption[];
   /** Any server-side filter active (status/search/userId/tour/departure) — switches the empty-state hint. */
   filtered: boolean;
+  /** Per-status totals within the current scope — forwarded to the tab badges. */
+  statusCounts?: Record<string, number>;
 }) {
   const [columnVisibility, setColumnVisibility] =
     usePersistentColumnVisibility('bookings');
@@ -166,6 +169,7 @@ export function BookingsTable({
         tours={tours}
         departures={departures}
         trailing={<ColumnsMenu table={table} />}
+        statusCounts={statusCounts}
       />
 
       {rows.length === 0 ? (

@@ -624,3 +624,168 @@ describe('tags + author (reads)', () => {
     );
   });
 });
+
+describe('PostsService — SEO fields + scheduled publishing (wave C)', () => {
+  const echoCreate = () =>
+    jest.fn().mockImplementation(({ data }) =>
+      Promise.resolve({
+        id: '1',
+        ...data,
+        tags: [],
+        author: { id: 'u', fullName: null },
+      }),
+    );
+
+  it('create persists metaTitle/metaDescription and an explicit future publishedAt', async () => {
+    const create = echoCreate();
+    const svc = makeSvc(makePrisma({ create }), makeMedia());
+
+    await svc.create(
+      {
+        title: 'SEO Post',
+        content: '# hi',
+        status: PostStatus.PUBLISHED,
+        metaTitle: 'Custom SERP title',
+        metaDescription: 'Custom SERP description.',
+        publishedAt: '2030-01-01T09:00:00.000Z',
+      } as CreatePostDto,
+      AUTHOR,
+    );
+
+    const data = create.mock.calls[0][0].data;
+    expect(data.metaTitle).toBe('Custom SERP title');
+    expect(data.metaDescription).toBe('Custom SERP description.');
+    expect(data.publishedAt).toEqual(new Date('2030-01-01T09:00:00.000Z'));
+  });
+
+  it('create without an explicit date keeps the stamp-now-on-PUBLISHED behavior', async () => {
+    const create = echoCreate();
+    const svc = makeSvc(makePrisma({ create }), makeMedia());
+    const before = Date.now();
+
+    await svc.create(
+      {
+        title: 'Now Post',
+        content: '# hi',
+        status: PostStatus.PUBLISHED,
+      } as CreatePostDto,
+      AUTHOR,
+    );
+
+    const data = create.mock.calls[0][0].data;
+    expect(data.publishedAt).toBeInstanceOf(Date);
+    expect((data.publishedAt as Date).getTime()).toBeGreaterThanOrEqual(before);
+  });
+
+  it('update sets an explicit publishedAt and clears SEO fields with null', async () => {
+    const update = jest.fn().mockImplementation(({ data }) =>
+      Promise.resolve({
+        id: '1',
+        slug: 'p',
+        ...data,
+        tags: [],
+        author: { id: 'u', fullName: null },
+      }),
+    );
+    const findUnique = jest.fn().mockResolvedValue({
+      id: '1',
+      slug: 'p',
+      title: 'P',
+      status: PostStatus.PUBLISHED,
+      publishedAt: new Date('2026-01-01'),
+      tags: [],
+      author: { id: 'u', fullName: null },
+    });
+    const svc = makeSvc(makePrisma({ update, findUnique }), makeMedia());
+
+    await svc.update('p', {
+      metaTitle: null,
+      metaDescription: null,
+      publishedAt: '2030-06-01T00:00:00.000Z',
+    } as never);
+
+    const data = update.mock.calls[0][0].data;
+    expect(data.metaTitle).toBeNull();
+    expect(data.metaDescription).toBeNull();
+    expect(data.publishedAt).toEqual(new Date('2030-06-01T00:00:00.000Z'));
+  });
+
+  it('update without publishedAt keeps the existing flip semantics untouched', async () => {
+    const update = jest.fn().mockImplementation(({ data }) =>
+      Promise.resolve({
+        id: '1',
+        slug: 'p',
+        ...data,
+        tags: [],
+        author: { id: 'u', fullName: null },
+      }),
+    );
+    const findUnique = jest.fn().mockResolvedValue({
+      id: '1',
+      slug: 'p',
+      title: 'P',
+      status: PostStatus.PUBLISHED,
+      publishedAt: new Date('2026-01-01'),
+      tags: [],
+      author: { id: 'u', fullName: null },
+    });
+    const svc = makeSvc(makePrisma({ update, findUnique }), makeMedia());
+
+    await svc.update('p', { title: 'P2' } as never);
+
+    const data = update.mock.calls[0][0].data;
+    expect('publishedAt' in data).toBe(false);
+  });
+});
+
+describe('PostsService — publishedAt null semantics (wave C review fix)', () => {
+  const echoUpdate = () =>
+    jest.fn().mockImplementation(({ data }) =>
+      Promise.resolve({
+        id: '1',
+        slug: 'p',
+        ...data,
+        tags: [],
+        author: { id: 'u', fullName: null },
+      }),
+    );
+
+  it('update with publishedAt null re-stamps now on a PUBLISHED post (publish immediately)', async () => {
+    const update = echoUpdate();
+    const findUnique = jest.fn().mockResolvedValue({
+      id: '1',
+      slug: 'p',
+      title: 'P',
+      status: PostStatus.PUBLISHED,
+      publishedAt: new Date('2030-01-01'),
+      tags: [],
+      author: { id: 'u', fullName: null },
+    });
+    const svc = makeSvc(makePrisma({ update, findUnique }), makeMedia());
+    const before = Date.now();
+
+    await svc.update('p', { publishedAt: null } as never);
+
+    const data = update.mock.calls[0][0].data;
+    expect(data.publishedAt).toBeInstanceOf(Date);
+    expect((data.publishedAt as Date).getTime()).toBeGreaterThanOrEqual(before);
+  });
+
+  it('update with publishedAt null clears the date on a DRAFT post', async () => {
+    const update = echoUpdate();
+    const findUnique = jest.fn().mockResolvedValue({
+      id: '1',
+      slug: 'p',
+      title: 'P',
+      status: PostStatus.DRAFT,
+      publishedAt: new Date('2030-01-01'),
+      tags: [],
+      author: { id: 'u', fullName: null },
+    });
+    const svc = makeSvc(makePrisma({ update, findUnique }), makeMedia());
+
+    await svc.update('p', { publishedAt: null } as never);
+
+    expect(update.mock.calls[0][0].data.publishedAt).toBeNull();
+  });
+});

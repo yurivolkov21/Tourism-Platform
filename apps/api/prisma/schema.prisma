@@ -628,6 +628,10 @@ model Post {
   title       String     @db.VarChar(160)
   excerpt     String?    @db.VarChar(300)
   content     String
+  // SEO overrides for the web reader's <title>/meta description (fall back to
+  // title/excerpt when null). Length caps match SERP display limits.
+  metaTitle       String? @map("meta_title") @db.VarChar(70)
+  metaDescription String? @map("meta_description") @db.VarChar(160)
   status      PostStatus @default(DRAFT)
   publishedAt DateTime?  @map("published_at")
   authorId    String     @map("author_id") @db.Uuid

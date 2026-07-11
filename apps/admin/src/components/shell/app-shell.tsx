@@ -16,6 +16,7 @@ import {
   Tags,
   TicketX,
   UsersRound,
+  Webhook,
 } from 'lucide-react';
 
 import {
@@ -56,6 +57,7 @@ const NAV: NavSection[] = [
     items: [
       { title: 'Bookings', href: '/bookings', icon: Receipt },
       { title: 'Cancellations', href: '/cancellation-requests', icon: TicketX },
+      { title: 'Payment events', href: '/payment-events', icon: Webhook },
       { title: 'Enquiries', href: '/enquiries', icon: Inbox },
       { title: 'Subscribers', href: '/subscribers', icon: MailPlus },
       { title: 'Users', href: '/users', icon: UsersRound },

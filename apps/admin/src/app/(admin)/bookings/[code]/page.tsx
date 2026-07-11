@@ -19,6 +19,7 @@ import { RefundBooking } from '../../../../components/bookings/refund-booking';
 import { getBooking } from '../../../../lib/bookings/data';
 import type { AdminBookingDetail } from '../../../../lib/bookings/detail';
 import {
+  bookingBreakdown,
   buildBookingTimeline,
   formatRelativeTime,
   stripePaymentUrl,
@@ -92,6 +93,7 @@ export default async function BookingDetailPage({
   );
   // Lifecycle events that actually happened (have a timestamp) — rendered as compact date rows.
   const lifecycle = buildBookingTimeline(booking).filter((s) => s.at);
+  const breakdown = bookingBreakdown(booking);
   const openCancellationRequest =
     booking.cancellationRequest?.status === 'REQUESTED'
       ? booking.cancellationRequest
@@ -397,6 +399,35 @@ export default async function BookingDetailPage({
                   label="Guests"
                   value={formatGuests(booking.numAdults, booking.numChildren)}
                 />
+                {breakdown ? (
+                  <div className="space-y-1.5 border-l-2 pl-3">
+                    <div className="flex items-baseline justify-between gap-4">
+                      <p className="text-muted-foreground text-xs font-medium">
+                        Price breakdown
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        {formatMoney(
+                          breakdown.perTraveller.toFixed(2),
+                          booking.currency,
+                        )}{' '}
+                        / traveller
+                      </p>
+                    </div>
+                    {breakdown.rows.map((row) => (
+                      <div
+                        key={row.label}
+                        className="flex items-baseline justify-between gap-4"
+                      >
+                        <dt className="text-muted-foreground text-xs">
+                          {row.label}
+                        </dt>
+                        <dd className="text-xs font-medium tabular-nums">
+                          {formatMoney(row.amount.toFixed(2), booking.currency)}
+                        </dd>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
                 <SummaryRow label="Payment" value={paymentLabel} />
               </dl>
 

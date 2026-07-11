@@ -705,6 +705,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/admin/payment-events': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List provider webhook events (paginated, filterable) */
+    get: operations['AdminPaymentEventsController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/bookings/{code}/cancellation-request': {
     parameters: {
       query?: never;
@@ -1048,6 +1065,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/admin/newsletter/subscribers/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Remove a subscriber (hard delete; re-subscribing re-creates) */
+    delete: operations['AdminNewsletterController_remove'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/admin/stats/dashboard': {
     parameters: {
       query?: never;
@@ -1233,6 +1267,23 @@ export interface paths {
     /** Admin: retry a FAILED outbox row (resets to PENDING for the next drain tick) */
     post: operations['AdminOutboxController_retry'];
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/outbox/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Admin: delete a PENDING/FAILED outbox row (SENT = delivery history, protected) */
+    delete: operations['AdminOutboxController_remove'];
     options?: never;
     head?: never;
     patch?: never;
@@ -2586,9 +2637,32 @@ export interface components {
         | 'REFUNDED'
         | 'PARTIALLY_REFUNDED';
     };
+    BookingsPageMetaDto: {
+      /** @example 1 */
+      page: number;
+      /** @example 20 */
+      pageSize: number;
+      /** @example 42 */
+      total: number;
+      /** @example 3 */
+      totalPages: number;
+      /**
+       * @description Per-status totals within the current scope (minus the status filter) — for tab badges. Omitted if the count query fails.
+       * @example {
+       *       "PENDING": 2,
+       *       "PAID": 14,
+       *       "CANCELLED": 1,
+       *       "REFUNDED": 0,
+       *       "PARTIALLY_REFUNDED": 0
+       *     }
+       */
+      statusCounts?: {
+        [key: string]: number;
+      };
+    };
     PaginatedBookingsDto: {
       data: components['schemas']['BookingDto'][];
-      meta: components['schemas']['PageMetaDto'];
+      meta: components['schemas']['BookingsPageMetaDto'];
     };
     AdminBookingDepartureRefDto: {
       /**
@@ -2763,6 +2837,30 @@ export interface components {
        * @example 30
        */
       amount?: number;
+    };
+    AdminPaymentEventDto: {
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      provider: 'STRIPE' | 'PAYPAL';
+      /** @example evt_1PXYZ */
+      eventId: string;
+      /** @example checkout.session.completed */
+      type: string;
+      /** @description Raw provider webhook payload (JSON) */
+      payload: Record<string, never>;
+      /** Format: date-time */
+      processedAt: string | null;
+      /** Format: date-time */
+      receivedAt: string;
+      /** Format: uuid */
+      bookingId: string | null;
+      /** @example BK-ABCDEFGH */
+      bookingCode: string | null;
+    };
+    PaginatedPaymentEventsDto: {
+      data: components['schemas']['AdminPaymentEventDto'][];
+      meta: components['schemas']['PageMetaDto'];
     };
     CreateCancellationRequestDto: {
       /** @example Change of travel plans */
@@ -3327,6 +3425,10 @@ export interface components {
       /** @example Three perfect days in Hội An */
       title: string;
       excerpt: string | null;
+      /** @description SEO <title> override (falls back to title) */
+      metaTitle: string | null;
+      /** @description SEO meta-description override (falls back to excerpt) */
+      metaDescription: string | null;
       /** @description Markdown body */
       content: string;
       /** @enum {string} */
@@ -3365,6 +3467,10 @@ export interface components {
       /** @example Three perfect days in Hội An */
       title: string;
       excerpt: string | null;
+      /** @description SEO <title> override (falls back to title) */
+      metaTitle: string | null;
+      /** @description SEO meta-description override (falls back to excerpt) */
+      metaDescription: string | null;
       /** @description Markdown body */
       content: string;
       /** @enum {string} */
@@ -3408,6 +3514,10 @@ export interface components {
       /** @example Three perfect days in Hội An */
       title: string;
       excerpt: string | null;
+      /** @description SEO <title> override (falls back to title) */
+      metaTitle: string | null;
+      /** @description SEO meta-description override (falls back to excerpt) */
+      metaDescription: string | null;
       /** @description Markdown body */
       content: string;
       /** @enum {string} */
@@ -3447,6 +3557,14 @@ export interface components {
        * @enum {string}
        */
       status: 'DRAFT' | 'PUBLISHED';
+      /** @example Hội An in 3 days — itinerary */
+      metaTitle?: string;
+      metaDescription?: string;
+      /**
+       * Format: date-time
+       * @example 2026-08-01T09:00:00Z
+       */
+      publishedAt?: string;
       /**
        * @description Tag display names (upserted by slug); replace-all when provided.
        * @example [
@@ -3497,6 +3615,15 @@ export interface components {
        *     ]
        */
       relatedTourSlugs?: string[];
+      /**
+       * Format: date-time
+       * @description ISO sets/reschedules; null = publish immediately / clear
+       */
+      publishedAt?: Record<string, never> | null;
+      /** @description Pass null to clear */
+      metaTitle?: Record<string, never> | null;
+      /** @description Pass null to clear */
+      metaDescription?: Record<string, never> | null;
     };
     RegisterBodyImageDto: {
       /** @example tourism/posts/body/1717000000000-boat */
@@ -5530,6 +5657,45 @@ export interface operations {
       };
     };
   };
+  AdminPaymentEventsController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        provider?: 'STRIPE' | 'PAYPAL';
+        type?: string;
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedPaymentEventsDto'];
+        };
+      };
+      /** @description Missing/invalid token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Caller is not an admin */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   CancellationsController_request: {
     parameters: {
       query?: never;
@@ -6337,6 +6503,33 @@ export interface operations {
       };
     };
   };
+  AdminNewsletterController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Removed */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Subscriber not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   AdminStatsController_get: {
     parameters: {
       query?: never;
@@ -6753,6 +6946,47 @@ export interface operations {
         content?: never;
       };
       /** @description Row is not FAILED */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminOutboxController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not an ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Outbox row not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Row already SENT */
       409: {
         headers: {
           [name: string]: unknown;

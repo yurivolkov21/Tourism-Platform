@@ -6,6 +6,8 @@ const post = (slug: string): PostSummaryVM => ({
   slug,
   title: slug.toUpperCase(),
   excerpt: '',
+  metaTitle: null,
+  metaDescription: null,
   publishedAt: null,
   coverUrl: null,
   tags: [],

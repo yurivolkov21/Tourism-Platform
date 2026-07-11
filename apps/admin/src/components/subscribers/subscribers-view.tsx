@@ -1,8 +1,18 @@
 'use client';
 
-import { Download, MailPlus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
+import { Download, MailPlus, Trash2 } from 'lucide-react';
 
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
   Badge,
   Button,
   Empty,
@@ -16,13 +26,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  toast,
 } from '@tourism/ui';
 
 import { ServerTablePagination } from '../crud/server-table-pagination';
 import { formatShortDate } from '../../lib/format-date';
+import { removeSubscriber } from '../../lib/subscribers/actions';
 import type { PageMeta, Subscriber } from '../../lib/subscribers/data';
 
-/** Newsletter subscribers table — read-only list + CSV export (ESP-import handoff). */
+/**
+ * Newsletter subscribers table — read-only list + CSV export (ESP-import handoff), plus a per-row
+ * "Remove" (outbox-style inline single action — sanctioned deviation from `RowActions`) with a
+ * confirm dialog.
+ */
 export function SubscribersView({
   rows,
   meta,
@@ -32,6 +48,25 @@ export function SubscribersView({
   meta?: PageMeta;
   search: string;
 }) {
+  const router = useRouter();
+  const [pendingRemove, setPendingRemove] = useState<Subscriber | null>(null);
+  const [busy, startAction] = useTransition();
+
+  const confirmRemove = () => {
+    if (!pendingRemove || busy) return;
+    const target = pendingRemove;
+    startAction(async () => {
+      const result = await removeSubscriber(target.id);
+      if (result.ok) {
+        toast.success('Subscriber removed.');
+        setPendingRemove(null);
+        router.refresh();
+      } else {
+        toast.error(result.error ?? 'Could not remove subscriber.');
+      }
+    });
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -65,21 +100,39 @@ export function SubscribersView({
       </div>
 
       {rows.length === 0 ? (
-        <Empty className="border">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <MailPlus />
-            </EmptyMedia>
-            <EmptyTitle>
-              {search ? 'No matching subscribers' : 'No subscribers yet'}
-            </EmptyTitle>
-            <EmptyDescription>
-              {search
-                ? 'No emails match that search — clear it to see the full list.'
-                : 'Signups from the website footer will appear here.'}
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
+        <>
+          <Empty className="border">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <MailPlus />
+              </EmptyMedia>
+              <EmptyTitle>
+                {search
+                  ? 'No matching subscribers'
+                  : (meta?.total ?? 0) > 0
+                    ? 'Nothing on this page'
+                    : 'No subscribers yet'}
+              </EmptyTitle>
+              <EmptyDescription>
+                {search
+                  ? 'No emails match that search — clear it to see the full list.'
+                  : (meta?.total ?? 0) > 0
+                    ? 'The list shrank below this page — jump back with the pager.'
+                    : 'Signups from the website footer will appear here.'}
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+          {/* Keep the pager on an overshot page (e.g. the last row of the last
+              page was just removed) so the admin can navigate back. */}
+          {meta && meta.total > 0 ? (
+            <ServerTablePagination
+              page={meta.page}
+              pageCount={meta.totalPages}
+              total={meta.total}
+              pageSize={meta.pageSize}
+            />
+          ) : null}
+        </>
       ) : (
         <>
           <div className="overflow-hidden rounded-lg border">
@@ -89,6 +142,7 @@ export function SubscribersView({
                   <TableHead>Email</TableHead>
                   <TableHead>Source</TableHead>
                   <TableHead>Subscribed</TableHead>
+                  <TableHead className="text-right">Remove</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -107,6 +161,17 @@ export function SubscribersView({
                     <TableCell className="text-muted-foreground text-sm">
                       {formatShortDate(s.subscribedAt)}
                     </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={`Remove ${s.email}`}
+                        className="text-muted-foreground hover:text-destructive cursor-pointer"
+                        onClick={() => setPendingRemove(s)}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -122,6 +187,31 @@ export function SubscribersView({
           ) : null}
         </>
       )}
+
+      <AlertDialog
+        open={Boolean(pendingRemove)}
+        onOpenChange={(open) => !open && setPendingRemove(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove subscriber?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Remove {pendingRemove?.email} from the newsletter? They can
+              re-subscribe any time.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={confirmRemove}
+              disabled={busy}
+            >
+              {busy ? 'Removing…' : 'Remove'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

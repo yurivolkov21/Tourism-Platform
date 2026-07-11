@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ArrayMaxSize,
   IsArray,
+  IsDateString,
   IsEnum,
   IsOptional,
   IsString,
@@ -47,6 +48,33 @@ export class CreatePostDto {
   @IsOptional()
   @IsEnum(PostStatus)
   status?: PostStatus;
+
+  /** SEO <title> override (falls back to `title`). SERP display cap. */
+  @ApiPropertyOptional({
+    maxLength: 70,
+    example: 'Hội An in 3 days — itinerary',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(70)
+  metaTitle?: string;
+
+  /** SEO meta-description override (falls back to `excerpt`). */
+  @ApiPropertyOptional({ maxLength: 160 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(160)
+  metaDescription?: string;
+
+  /**
+   * Explicit publish date (ISO). A FUTURE date schedules the post — the public
+   * reader filters `publishedAt <= now`, so it appears automatically at that
+   * time. Omitted: PUBLISHED posts stamp `now()` as before.
+   */
+  @ApiPropertyOptional({ format: 'date-time', example: '2026-08-01T09:00:00Z' })
+  @IsOptional()
+  @IsDateString({ strict: true })
+  publishedAt?: string;
 
   @ApiPropertyOptional({
     type: [String],

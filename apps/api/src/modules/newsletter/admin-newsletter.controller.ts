@@ -1,4 +1,13 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Query,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -37,5 +46,16 @@ export class AdminNewsletterController {
   @ApiResponse({ status: 403, description: 'Caller is not an admin' })
   list(@Query() query: ListSubscribersQueryDto): Promise<PaginatedSubscribers> {
     return this.newsletterService.findAllForAdmin(query);
+  }
+  @Delete('subscribers/:id')
+  @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Remove a subscriber (hard delete; re-subscribing re-creates)',
+  })
+  @ApiResponse({ status: 204, description: 'Removed' })
+  @ApiResponse({ status: 404, description: 'Subscriber not found' })
+  remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    return this.newsletterService.deleteById(id);
   }
 }

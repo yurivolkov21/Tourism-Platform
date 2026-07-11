@@ -147,6 +147,7 @@ export default async function BookingsPage({
               filtered={Boolean(
                 status || search || userId || tourId || departureId,
               )}
+              statusCounts={meta?.statusCounts}
             />
             {rows.length > 0 && meta ? (
               <ServerTablePagination

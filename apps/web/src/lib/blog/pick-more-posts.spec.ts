@@ -5,6 +5,8 @@ const post = (slug: string): PostSummaryVM => ({
   slug,
   title: slug,
   excerpt: 'x',
+  metaTitle: null,
+  metaDescription: null,
   publishedAt: null,
   coverUrl: null,
   tags: [],

@@ -101,3 +101,49 @@ describe('AdminOutboxService', () => {
     });
   });
 });
+
+describe('AdminOutboxService.deleteById', () => {
+  it('deletes a PENDING/FAILED row atomically (conditional deleteMany — no TOCTOU vs the drain)', async () => {
+    const deleteMany = jest.fn().mockResolvedValue({ count: 1 });
+    const prisma = makePrisma({
+      outbox: { deleteMany, findUnique: jest.fn() },
+    });
+
+    await svcWith(prisma).deleteById('o-1');
+
+    expect(deleteMany).toHaveBeenCalledWith({
+      where: {
+        id: 'o-1',
+        status: { in: [OutboxStatus.PENDING, OutboxStatus.FAILED] },
+      },
+    });
+  });
+
+  it('409s when the row turned SENT (deleteMany matched nothing, row exists)', async () => {
+    const prisma = makePrisma({
+      outbox: {
+        deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ id: 'o-3', status: OutboxStatus.SENT }),
+      },
+    });
+
+    await expect(svcWith(prisma).deleteById('o-3')).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+  });
+
+  it('404s on an unknown id', async () => {
+    const prisma = makePrisma({
+      outbox: {
+        deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+        findUnique: jest.fn().mockResolvedValue(null),
+      },
+    });
+
+    await expect(svcWith(prisma).deleteById('nope')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+});

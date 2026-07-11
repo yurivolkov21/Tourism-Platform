@@ -48,6 +48,8 @@ const base: PostDto = {
   slug: 'hoi-an',
   title: 'Two unhurried days in Hoi An',
   excerpt: 'Lanterns and tailors.',
+  metaTitle: null,
+  metaDescription: null,
   content: '## Day 1\n\nRiverside mornings.',
   status: 'PUBLISHED',
   publishedAt: '2026-06-01T00:00:00.000Z',
@@ -93,6 +95,18 @@ describe('toPostSummary', () => {
     expect(
       toPostSummary({ ...base, publishedAt: null }).publishedAt,
     ).toBeNull();
+  });
+
+  it('passes metaTitle/metaDescription through (null stays null)', () => {
+    expect(toPostSummary(base).metaTitle).toBeNull();
+    expect(toPostSummary(base).metaDescription).toBeNull();
+    const vm = toPostSummary({
+      ...base,
+      metaTitle: 'Hoi An in 3 days',
+      metaDescription: 'A short SEO description.',
+    });
+    expect(vm.metaTitle).toBe('Hoi An in 3 days');
+    expect(vm.metaDescription).toBe('A short SEO description.');
   });
 });
 

@@ -48,7 +48,10 @@ export class OutboxService {
     for (const row of rows) {
       try {
         await this.dispatch(row);
-        await this.prisma.outbox.update({
+        // updateMany, not update: an admin can DELETE a pending row while the
+        // drain is mid-batch — a vanished row must not throw P2025 and abort
+        // the remaining batch.
+        await this.prisma.outbox.updateMany({
           where: { id: row.id },
           data: { status: OutboxStatus.SENT, processedAt: new Date() },
         });
@@ -60,7 +63,7 @@ export class OutboxService {
         const lastError = (
           err instanceof Error ? err.message : 'unknown error'
         ).slice(0, LAST_ERROR_MAX);
-        await this.prisma.outbox.update({
+        await this.prisma.outbox.updateMany({
           where: { id: row.id },
           data: { attempts, status, lastError },
         });

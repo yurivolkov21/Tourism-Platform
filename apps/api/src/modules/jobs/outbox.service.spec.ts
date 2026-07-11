@@ -12,7 +12,7 @@ afterAll(() => {
 
 interface PrismaParts {
   findMany?: jest.Mock;
-  update?: jest.Mock;
+  updateMany?: jest.Mock;
   bookingFindUnique?: jest.Mock;
   reviewFindUnique?: jest.Mock;
   enquiryFindUnique?: jest.Mock;
@@ -22,7 +22,7 @@ function makePrisma(parts: PrismaParts) {
   return {
     outbox: {
       findMany: parts.findMany ?? jest.fn().mockResolvedValue([]),
-      update: parts.update ?? jest.fn().mockResolvedValue({}),
+      updateMany: parts.updateMany ?? jest.fn().mockResolvedValue({ count: 1 }),
     },
     booking: { findUnique: parts.bookingFindUnique ?? jest.fn() },
     review: { findUnique: parts.reviewFindUnique ?? jest.fn() },
@@ -64,11 +64,11 @@ const seededBooking = {
 
 describe('OutboxService.drainOutbox', () => {
   it('sends a PENDING booking confirmation then marks the row SENT', async () => {
-    const update = jest.fn().mockResolvedValue({});
+    const updateMany = jest.fn().mockResolvedValue({ count: 1 });
     const email = makeEmail();
     const prisma = makePrisma({
       findMany: jest.fn().mockResolvedValue([bookingRow]),
-      update,
+      updateMany,
       bookingFindUnique: jest.fn().mockResolvedValue(seededBooking),
     });
     const svc = new OutboxService(prisma as never, email as never);
@@ -81,7 +81,7 @@ describe('OutboxService.drainOutbox', () => {
       vars: expect.objectContaining({ code: 'BK-1', totalAmount: '249.00' }),
     });
     type UpdCall = { data: { status: OutboxStatus } };
-    const calls = update.mock.calls as unknown as UpdCall[][];
+    const calls = updateMany.mock.calls as unknown as UpdCall[][];
     expect(calls[0][0].data.status).toBe(OutboxStatus.SENT);
   });
 
@@ -157,12 +157,12 @@ describe('OutboxService.drainOutbox', () => {
   });
 
   it('bumps attempts and keeps the row PENDING when a send fails below the cap', async () => {
-    const update = jest.fn().mockResolvedValue({});
+    const updateMany = jest.fn().mockResolvedValue({ count: 1 });
     const email = makeEmail();
     email.sendBookingConfirmation.mockRejectedValue(new Error('Resend down'));
     const prisma = makePrisma({
       findMany: jest.fn().mockResolvedValue([{ ...bookingRow, attempts: 1 }]),
-      update,
+      updateMany,
       bookingFindUnique: jest.fn().mockResolvedValue(seededBooking),
     });
     const svc = new OutboxService(prisma as never, email as never);
@@ -173,19 +173,19 @@ describe('OutboxService.drainOutbox', () => {
     type UpdCall = {
       data: { status: OutboxStatus; attempts: number; lastError: string };
     };
-    const calls = update.mock.calls as unknown as UpdCall[][];
+    const calls = updateMany.mock.calls as unknown as UpdCall[][];
     expect(calls[0][0].data.attempts).toBe(2);
     expect(calls[0][0].data.status).toBe(OutboxStatus.PENDING);
     expect(calls[0][0].data.lastError).toContain('Resend down');
   });
 
   it('parks the row FAILED once attempts reach the cap', async () => {
-    const update = jest.fn().mockResolvedValue({});
+    const updateMany = jest.fn().mockResolvedValue({ count: 1 });
     const email = makeEmail();
     email.sendBookingConfirmation.mockRejectedValue(new Error('still down'));
     const prisma = makePrisma({
       findMany: jest.fn().mockResolvedValue([{ ...bookingRow, attempts: 4 }]),
-      update,
+      updateMany,
       bookingFindUnique: jest.fn().mockResolvedValue(seededBooking),
     });
     const svc = new OutboxService(prisma as never, email as never);
@@ -193,16 +193,16 @@ describe('OutboxService.drainOutbox', () => {
     await svc.drainOutbox();
 
     type UpdCall = { data: { status: OutboxStatus } };
-    const calls = update.mock.calls as unknown as UpdCall[][];
+    const calls = updateMany.mock.calls as unknown as UpdCall[][];
     expect(calls[0][0].data.status).toBe(OutboxStatus.FAILED);
   });
 
   it('consumes a row whose entity no longer exists without sending', async () => {
-    const update = jest.fn().mockResolvedValue({});
+    const updateMany = jest.fn().mockResolvedValue({ count: 1 });
     const email = makeEmail();
     const prisma = makePrisma({
       findMany: jest.fn().mockResolvedValue([bookingRow]),
-      update,
+      updateMany,
       bookingFindUnique: jest.fn().mockResolvedValue(null),
     });
     const svc = new OutboxService(prisma as never, email as never);
@@ -212,7 +212,7 @@ describe('OutboxService.drainOutbox', () => {
     expect(result).toEqual({ sent: 1, failed: 0 });
     expect(email.sendBookingConfirmation).not.toHaveBeenCalled();
     type UpdCall = { data: { status: OutboxStatus } };
-    const calls = update.mock.calls as unknown as UpdCall[][];
+    const calls = updateMany.mock.calls as unknown as UpdCall[][];
     expect(calls[0][0].data.status).toBe(OutboxStatus.SENT);
   });
 

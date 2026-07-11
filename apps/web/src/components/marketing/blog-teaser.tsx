@@ -19,6 +19,8 @@ const fixturePosts: PostSummaryVM[] = [
     title: 'The best time to visit Vietnam, region by region',
     excerpt:
       'When the north is misty and the south is golden — how to time your trip for the weather you want.',
+    metaTitle: null,
+    metaDescription: null,
     publishedAt: '2026-05-18',
     coverUrl: cover('photo-1685345411484-c181bea48e9e'),
     tags: [],
@@ -29,6 +31,8 @@ const fixturePosts: PostSummaryVM[] = [
     title: 'Two unhurried days in Hội An',
     excerpt:
       'Lanterns, tailors, and riverside mornings — a slow itinerary for the old town.',
+    metaTitle: null,
+    metaDescription: null,
     publishedAt: '2026-04-30',
     coverUrl: cover('photo-1664650440553-ab53804814b3'),
     tags: [],
@@ -39,6 +43,8 @@ const fixturePosts: PostSummaryVM[] = [
     title: 'A morning at the Mekong floating markets',
     excerpt:
       'Dawn on the delta: what to expect, what to eat, and how to find the quieter channels.',
+    metaTitle: null,
+    metaDescription: null,
     publishedAt: '2026-04-12',
     coverUrl: cover('photo-1689760661317-a839f59b1c32'),
     tags: [],

@@ -37,7 +37,18 @@ export interface CheckoutStarted {
 /** Paginated admin-bookings result; `TransformInterceptor` hoists `items`→`data` + `meta`. */
 export interface PaginatedBookings {
   items: Booking[];
-  meta: { page: number; pageSize: number; total: number; totalPages: number };
+  meta: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+    /**
+     * Per-status totals within the current scope (minus the status filter) —
+     * for the list tab badges. Lives INSIDE meta because the envelope
+     * interceptor only carries `items` + `meta` through.
+     */
+    statusCounts?: Record<BookingStatus, number>;
+  };
 }
 
 /** Relations embedded on a booking payload (EN-only: single `title`). */
@@ -768,6 +779,9 @@ export class BookingsService {
   /**
    * Admin management list — paginated, newest first, optional `status` filter and
    * a case-insensitive `search` across code / contact email / contact name.
+   * Also returns `statusCounts` (per-status totals within the SAME scope minus
+   * the status filter itself) so the list tabs can show live badge counts;
+   * computed defensively — a failed groupBy just omits the field.
    */
   async findAllForAdmin(
     query: ListAdminBookingsQueryDto,
@@ -775,8 +789,7 @@ export class BookingsService {
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? 20;
     const search = query.search?.trim();
-    const where: Prisma.BookingWhereInput = {
-      ...(query.status ? { status: query.status } : {}),
+    const scopeWhere: Prisma.BookingWhereInput = {
       ...(query.tourId ? { tourId: query.tourId } : {}),
       ...(query.departureId ? { departureId: query.departureId } : {}),
       ...(query.userId ? { userId: query.userId } : {}),
@@ -790,8 +803,12 @@ export class BookingsService {
           }
         : {}),
     };
+    const where: Prisma.BookingWhereInput = {
+      ...(query.status ? { status: query.status } : {}),
+      ...scopeWhere,
+    };
 
-    const [items, total] = await Promise.all([
+    const [items, total, statusCounts] = await Promise.all([
       this.prisma.booking.findMany({
         where,
         include: BOOKING_INCLUDE,
@@ -800,6 +817,7 @@ export class BookingsService {
         take: pageSize,
       }),
       this.prisma.booking.count({ where }),
+      this.countByStatus(scopeWhere),
     ]);
 
     return {
@@ -809,8 +827,32 @@ export class BookingsService {
         pageSize,
         total,
         totalPages: Math.max(1, Math.ceil(total / pageSize)),
+        ...(statusCounts ? { statusCounts } : {}),
       },
     };
+  }
+
+  /** Per-status totals for the list tabs; undefined on failure (never breaks the list). */
+  private async countByStatus(
+    scopeWhere: Prisma.BookingWhereInput,
+  ): Promise<Record<BookingStatus, number> | undefined> {
+    try {
+      const groups = await this.prisma.booking.groupBy({
+        by: ['status'],
+        where: scopeWhere,
+        _count: { _all: true },
+      });
+      const counts = Object.fromEntries(
+        Object.values(BookingStatus).map((s) => [s, 0]),
+      ) as Record<BookingStatus, number>;
+      for (const g of groups) counts[g.status] = g._count._all;
+      return counts;
+    } catch (e) {
+      this.logger.warn(
+        `Bookings status groupBy failed — tabs render without counts (${String(e)})`,
+      );
+      return undefined;
+    }
   }
 
   /** One booking by code for an admin (sees any booking; no owner check). 404 if missing. */

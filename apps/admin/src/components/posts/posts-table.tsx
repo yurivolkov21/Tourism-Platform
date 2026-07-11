@@ -74,18 +74,29 @@ const postColumns: ColumnDef<Post>[] = [
     id: 'status',
     header: 'Status',
     meta: { label: 'Status' },
-    cell: ({ row }) => (
-      <Badge
-        variant={row.original.status === 'PUBLISHED' ? 'default' : 'secondary'}
-        className="gap-1.5"
-      >
-        <span
-          className="size-1.5 rounded-full bg-current opacity-70"
-          aria-hidden
-        />
-        {row.original.status === 'PUBLISHED' ? 'Published' : 'Draft'}
-      </Badge>
-    ),
+    cell: ({ row }) => {
+      const scheduled =
+        row.original.status === 'PUBLISHED' &&
+        Boolean(row.original.publishedAt) &&
+        new Date(row.original.publishedAt as string) > new Date();
+      return (
+        <span className="flex flex-wrap items-center gap-1.5">
+          <Badge
+            variant={
+              row.original.status === 'PUBLISHED' ? 'default' : 'secondary'
+            }
+            className="gap-1.5"
+          >
+            <span
+              className="size-1.5 rounded-full bg-current opacity-70"
+              aria-hidden
+            />
+            {row.original.status === 'PUBLISHED' ? 'Published' : 'Draft'}
+          </Badge>
+          {scheduled ? <Badge variant="outline">Scheduled</Badge> : null}
+        </span>
+      );
+    },
   },
   {
     id: 'tags',

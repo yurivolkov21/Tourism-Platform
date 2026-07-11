@@ -48,6 +48,7 @@ export function BookingsFilters({
   tours = [],
   departures = [],
   trailing,
+  statusCounts,
 }: {
   status: TabValue;
   search: string;
@@ -61,6 +62,9 @@ export function BookingsFilters({
   departures?: DepartureFilterOption[];
   /** Toolbar extras rendered after the search box (e.g. the Columns menu) — one row, catalog-style. */
   trailing?: ReactNode;
+  /** Per-status totals within the current scope (server-computed) — renders a count badge per tab
+   * when present; the All tab shows the sum. Undefined (groupBy failed) = plain tabs, no badges. */
+  statusCounts?: Record<string, number>;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -133,6 +137,11 @@ export function BookingsFilters({
         >
           {TABS.map((t) => {
             const active = t.value === status;
+            const count = statusCounts
+              ? t.value === 'all'
+                ? Object.values(statusCounts).reduce((sum, n) => sum + n, 0)
+                : (statusCounts[t.value] ?? 0)
+              : undefined;
             return (
               <button
                 key={t.value}
@@ -148,6 +157,11 @@ export function BookingsFilters({
                 )}
               >
                 {t.label}
+                {count !== undefined ? (
+                  <Badge variant="secondary" className="px-1.5 tabular-nums">
+                    {count}
+                  </Badge>
+                ) : null}
               </button>
             );
           })}

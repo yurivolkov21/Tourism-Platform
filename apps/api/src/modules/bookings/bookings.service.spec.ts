@@ -1278,3 +1278,50 @@ describe('BookingsService', () => {
     });
   });
 });
+
+describe('findAllForAdmin — statusCounts', () => {
+  it('computes counts from a groupBy over the same where MINUS status (zero-filled)', async () => {
+    const groupBy = jest.fn().mockResolvedValue([
+      { status: BookingStatus.PAID, _count: { _all: 3 } },
+      { status: BookingStatus.PENDING, _count: { _all: 1 } },
+    ]);
+    const findMany = jest.fn().mockResolvedValue([]);
+    const prisma = makePrisma({
+      booking: { findMany, count: jest.fn().mockResolvedValue(0), groupBy },
+    });
+
+    const result = await svcWith(prisma).findAllForAdmin({
+      status: BookingStatus.PAID,
+      tourId: 't-1',
+      search: 'hoi',
+    });
+
+    expect(result.meta.statusCounts).toEqual({
+      PENDING: 1,
+      PAID: 3,
+      CANCELLED: 0,
+      REFUNDED: 0,
+      PARTIALLY_REFUNDED: 0,
+    });
+    const gbArgs = groupBy.mock.calls[0][0];
+    expect(gbArgs.by).toEqual(['status']);
+    expect(gbArgs.where.status).toBeUndefined();
+    expect(gbArgs.where.tourId).toBe('t-1');
+    expect(gbArgs.where.OR).toHaveLength(3);
+  });
+
+  it('omits statusCounts when the groupBy fails (list still returns)', async () => {
+    const prisma = makePrisma({
+      booking: {
+        findMany: jest.fn().mockResolvedValue([{ id: 'bk-1' }]),
+        count: jest.fn().mockResolvedValue(1),
+        groupBy: jest.fn().mockRejectedValue(new Error('boom')),
+      },
+    });
+
+    const result = await svcWith(prisma).findAllForAdmin({});
+
+    expect(result.items).toHaveLength(1);
+    expect(result.meta.statusCounts).toBeUndefined();
+  });
+});

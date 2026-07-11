@@ -15,6 +15,7 @@ import {
 
 import type { AdminUserDetail } from '../../lib/users/data';
 import { DangerZone } from './danger-zone';
+import { ProfileCard } from './profile-card';
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -108,6 +109,8 @@ export function UserDetail({ detail }: UserDetailProps) {
           <p className="text-muted-foreground text-sm">{detail.email}</p>
         </div>
       </div>
+
+      {detail.isSelf ? <ProfileCard detail={detail} /> : null}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
