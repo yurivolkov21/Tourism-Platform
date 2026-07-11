@@ -1,13 +1,27 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { Enquiry, EmailType, EnquiryStatus, Prisma } from '@prisma/client';
+import {
+  Enquiry,
+  EnquiryNote,
+  EmailType,
+  EnquiryStatus,
+  Prisma,
+  User,
+} from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateEnquiryDto } from './dto/create-enquiry.dto';
+import { CreateEnquiryNoteDto } from './dto/enquiry-note.dto';
 import { ListEnquiriesQueryDto } from './dto/list-enquiries-query.dto';
 
-/** Admin CRM row — the enquiry plus its (optional) tour's display fields, flattened. */
+/**
+ * Admin CRM row — the enquiry plus its (optional) tour's display fields,
+ * flattened, plus `repeatCount` (enquiries sharing this exact email, incl.
+ * this one) and `notesCount` for the list badges.
+ */
 export type AdminEnquiryItem = Enquiry & {
   tourSlug: string | null;
   tourTitle: string | null;
+  repeatCount: number;
+  notesCount: number;
 };
 
 export interface PaginatedEnquiries {
@@ -104,15 +118,38 @@ export class EnquiryService {
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * pageSize,
         take: pageSize,
-        include: { tour: { select: { slug: true, title: true } } },
+        include: {
+          tour: { select: { slug: true, title: true } },
+          _count: { select: { notes: true } },
+        },
       }),
       this.prisma.enquiry.count({ where }),
     ]);
 
-    const items: AdminEnquiryItem[] = rows.map(({ tour, ...row }) => ({
+    // Repeat-lead detection: one groupBy over the page's exact emails. A
+    // failure here must never break the CRM list — degrade to count 1.
+    const repeatByEmail = new Map<string, number>();
+    if (rows.length > 0) {
+      try {
+        const groups = await this.prisma.enquiry.groupBy({
+          by: ['email'],
+          where: { email: { in: [...new Set(rows.map((r) => r.email))] } },
+          _count: { _all: true },
+        });
+        for (const g of groups) repeatByEmail.set(g.email, g._count._all);
+      } catch (e) {
+        this.logger.warn(
+          `Repeat-lead groupBy failed — defaulting counts to 1 (${String(e)})`,
+        );
+      }
+    }
+
+    const items: AdminEnquiryItem[] = rows.map(({ tour, _count, ...row }) => ({
       ...row,
       tourSlug: tour?.slug ?? null,
       tourTitle: tour?.title ?? null,
+      repeatCount: repeatByEmail.get(row.email) ?? 1,
+      notesCount: _count?.notes ?? 0,
     }));
 
     return {
@@ -144,5 +181,51 @@ export class EnquiryService {
     });
     this.logger.log(`Enquiry ${id} → status ${status}`);
     return updated;
+  }
+
+  /** Internal notes thread, oldest-first. 404 if the enquiry is unknown. */
+  async listNotes(enquiryId: string): Promise<EnquiryNote[]> {
+    await this.ensureEnquiryExists(enquiryId);
+    return this.prisma.enquiryNote.findMany({
+      where: { enquiryId },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  /**
+   * Appends an internal note, stamping the admin's id + a name snapshot (the
+   * thread stays readable if the admin account is later deleted).
+   */
+  async addNote(
+    enquiryId: string,
+    author: Pick<User, 'id' | 'fullName' | 'email'>,
+    dto: CreateEnquiryNoteDto,
+  ): Promise<EnquiryNote> {
+    await this.ensureEnquiryExists(enquiryId);
+    const note = await this.prisma.enquiryNote.create({
+      data: {
+        enquiryId,
+        authorId: author.id,
+        // fullName is nullable on User — fall back to the email so the
+        // snapshot column is always meaningful.
+        authorName: author.fullName ?? author.email,
+        body: dto.body,
+      },
+    });
+    this.logger.log(`Enquiry ${enquiryId}: note added by ${author.id}`);
+    return note;
+  }
+
+  private async ensureEnquiryExists(id: string): Promise<void> {
+    const existing = await this.prisma.enquiry.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!existing) {
+      throw new NotFoundException({
+        code: 'ENQUIRY_NOT_FOUND',
+        message: `Enquiry "${id}" not found`,
+      });
+    }
   }
 }

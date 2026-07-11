@@ -27,6 +27,7 @@ import { FeatureReviewDto } from './dto/feature-review.dto';
 import { ListAdminReviewsQueryDto } from './dto/list-admin-reviews-query.dto';
 import { ModerateReviewDto } from './dto/moderate-review.dto';
 import { ReviewDto } from './dto/review.dto';
+import { UpdateCuratedReviewDto } from './dto/update-curated-review.dto';
 import { PaginatedAdminReviews, ReviewsService } from './reviews.service';
 
 /**
@@ -109,5 +110,21 @@ export class AdminReviewsController {
   })
   createCurated(@Body() body: CreateCuratedReviewDto): Promise<Review> {
     return this.reviewsService.createCurated(body);
+  }
+
+  @Patch(':id')
+  @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Edit a curated testimonial (verified reviews are immutable)',
+  })
+  @ApiOkResponse({ type: ReviewDto, description: 'Updated review row' })
+  @ApiResponse({ status: 404, description: 'Review not found' })
+  @ApiResponse({ status: 409, description: 'Not a curated review' })
+  updateCurated(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: UpdateCuratedReviewDto,
+  ): Promise<Review> {
+    return this.reviewsService.updateCuratedById(id, body);
   }
 }

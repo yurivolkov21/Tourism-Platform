@@ -28,6 +28,22 @@ export class AdminReviewDto {
   userId!: string | null;
 
   @ApiProperty({
+    nullable: true,
+    type: String,
+    example: 'Alice Nguyen',
+    description: 'Joined customer display name (null for curated rows)',
+  })
+  userName!: string | null;
+
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    example: 'alice@example.com',
+    description: 'Joined customer email (null for curated rows)',
+  })
+  userEmail!: string | null;
+
+  @ApiProperty({
     example: 'Alice Nguyen',
     description: 'Snapshot display name',
   })
@@ -38,6 +54,14 @@ export class AdminReviewDto {
 
   @ApiProperty({ format: 'uuid', nullable: true, type: String })
   bookingId!: string | null;
+
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    example: 'BK-ABCDEFGH',
+    description: 'Joined booking code (null for curated rows)',
+  })
+  bookingCode!: string | null;
 
   @ApiProperty({ enum: ReviewSource, example: ReviewSource.VERIFIED })
   source!: ReviewSource;

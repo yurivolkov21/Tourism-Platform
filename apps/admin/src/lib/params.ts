@@ -8,3 +8,10 @@ const UUID_RE =
 export function parseUuidParam(raw?: string): string | undefined {
   return raw && UUID_RE.test(raw) ? raw : undefined;
 }
+
+/** Narrows a raw `?rating=` searchParam to an integer 1-5 (anything else = no filter). */
+export function parseRatingParam(raw?: string): number | undefined {
+  if (!raw) return undefined;
+  const n = Number(raw);
+  return Number.isInteger(n) && n >= 1 && n <= 5 ? n : undefined;
+}

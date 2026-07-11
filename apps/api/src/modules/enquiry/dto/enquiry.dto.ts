@@ -56,6 +56,17 @@ export class EnquiryDto {
   @ApiProperty({ enum: EnquiryStatus })
   status!: EnquiryStatus;
 
+  @ApiProperty({
+    example: 3,
+    minimum: 1,
+    description:
+      'How many enquiries share this exact email (incl. this one) — repeat-lead signal',
+  })
+  repeatCount!: number;
+
+  @ApiProperty({ example: 2, minimum: 0 })
+  notesCount!: number;
+
   @ApiProperty({ format: 'date-time' })
   createdAt!: string;
 

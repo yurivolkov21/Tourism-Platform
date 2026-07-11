@@ -5,6 +5,7 @@ import type { EnquiryStatus } from './status';
 
 export type Enquiry = components['schemas']['EnquiryDto'];
 export type PageMeta = components['schemas']['PageMetaDto'];
+export type EnquiryNote = components['schemas']['EnquiryNoteDto'];
 
 export interface EnquiryListParams {
   page?: number;

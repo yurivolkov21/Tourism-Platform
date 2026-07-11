@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ToBoolean } from '../../../common/to-boolean';
 import {
   IsBoolean,
   IsIn,
@@ -43,7 +44,7 @@ export class ListTourCategoriesQueryDto {
   /** Honoured only by the admin endpoint (public forces `isActive: true`). */
   @ApiPropertyOptional({ example: true })
   @IsOptional()
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsBoolean()
   isActive?: boolean;
 

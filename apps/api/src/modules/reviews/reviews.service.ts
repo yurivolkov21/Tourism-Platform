@@ -18,6 +18,7 @@ import { CreateCuratedReviewDto } from './dto/create-curated-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ListAdminReviewsQueryDto } from './dto/list-admin-reviews-query.dto';
 import { ListReviewsQueryDto } from './dto/list-reviews-query.dto';
+import { UpdateCuratedReviewDto } from './dto/update-curated-review.dto';
 
 /**
  * Public review item — strips `bookingId`/`userId` so the customer's purchase
@@ -54,9 +55,12 @@ export interface AdminReviewItem {
   tourSlug: string | null;
   tourTitle: string | null;
   userId: string | null;
+  userName: string | null;
+  userEmail: string | null;
   authorName: string;
   authorLocation: string | null;
   bookingId: string | null;
+  bookingCode: string | null;
   source: ReviewSource;
   isFeatured: boolean;
   rating: number;
@@ -269,17 +273,33 @@ export class ReviewsService {
   }
 
   /**
-   * Admin moderation queue — paginated, optional `isApproved` filter, newest
-   * first. Admins are trusted with PII, so this keeps `userId`/`bookingId` and
-   * joins the reviewer name + tour slug for context.
+   * Admin moderation queue — paginated; filters on moderation state, source,
+   * rating, and free text (author/title/body), newest first. Admins are
+   * trusted with PII, so this keeps `userId`/`bookingId` and joins the
+   * customer (name/email), booking code, and tour slug for real links.
    */
   async findAllForAdmin(
     query: ListAdminReviewsQueryDto,
   ): Promise<PaginatedAdminReviews> {
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? 20;
-    const where: Prisma.ReviewWhereInput =
-      query.isApproved !== undefined ? { isApproved: query.isApproved } : {};
+    const search = query.search?.trim();
+    const where: Prisma.ReviewWhereInput = {
+      ...(query.isApproved !== undefined
+        ? { isApproved: query.isApproved }
+        : {}),
+      ...(query.source !== undefined ? { source: query.source } : {}),
+      ...(query.rating !== undefined ? { rating: query.rating } : {}),
+      ...(search
+        ? {
+            OR: [
+              { authorName: { contains: search, mode: 'insensitive' } },
+              { title: { contains: search, mode: 'insensitive' } },
+              { body: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
 
     const [rows, total] = await Promise.all([
       this.prisma.review.findMany({
@@ -289,6 +309,8 @@ export class ReviewsService {
         take: pageSize,
         include: {
           tour: { select: { slug: true, title: true } },
+          user: { select: { fullName: true, email: true } },
+          booking: { select: { code: true } },
         },
       }),
       this.prisma.review.count({ where }),
@@ -300,9 +322,12 @@ export class ReviewsService {
       tourSlug: row.tour?.slug ?? null,
       tourTitle: row.tour?.title ?? null,
       userId: row.userId,
+      userName: row.user?.fullName ?? null,
+      userEmail: row.user?.email ?? null,
       authorName: row.authorName,
       authorLocation: row.authorLocation,
       bookingId: row.bookingId,
+      bookingCode: row.booking?.code ?? null,
       source: row.source,
       isFeatured: row.isFeatured,
       rating: row.rating,
@@ -416,6 +441,50 @@ export class ReviewsService {
     });
     this.logger.log(`Deleted curated review ${reviewId}`);
     return deleted;
+  }
+
+  /**
+   * Partial edit of a curated testimonial (admin). VERIFIED reviews are a real
+   * customer's words — immutable here (409), same guard as delete. Only the
+   * provided fields are written.
+   */
+  async updateCuratedById(
+    reviewId: string,
+    dto: UpdateCuratedReviewDto,
+  ): Promise<Review> {
+    const existing = await this.prisma.review.findUnique({
+      where: { id: reviewId },
+      select: { id: true, source: true },
+    });
+    if (!existing) {
+      throw new NotFoundException({
+        code: 'REVIEW_NOT_FOUND',
+        message: `Review "${reviewId}" not found`,
+      });
+    }
+    if (existing.source !== ReviewSource.CURATED) {
+      throw new ConflictException({
+        code: 'REVIEW_NOT_CURATED',
+        message:
+          'Only curated testimonials can be edited — verified reviews are customer words.',
+      });
+    }
+    const data: Prisma.ReviewUpdateInput = {
+      ...(dto.authorName !== undefined ? { authorName: dto.authorName } : {}),
+      ...(dto.authorLocation !== undefined
+        ? { authorLocation: dto.authorLocation }
+        : {}),
+      ...(dto.tripLabel !== undefined ? { tripLabel: dto.tripLabel } : {}),
+      ...(dto.rating !== undefined ? { rating: dto.rating } : {}),
+      ...(dto.title !== undefined ? { title: dto.title } : {}),
+      ...(dto.body !== undefined ? { body: dto.body } : {}),
+    };
+    const updated = await this.prisma.review.update({
+      where: { id: reviewId },
+      data,
+    });
+    this.logger.log(`Updated curated review ${reviewId}`);
+    return updated;
   }
 
   /** Site-wide approved-review count + mean rating (1 dp), for the marketing trust band. */

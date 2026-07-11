@@ -17,24 +17,35 @@ import {
   Textarea,
 } from '@tourism/ui';
 
-import {
-  createCurated,
-  type CuratedFormState,
-} from '../../lib/reviews/actions';
+import type { CuratedFormState } from '../../lib/reviews/actions';
+import type { AdminReview } from '../../lib/reviews/data';
 import { ErrorAlert } from '../crud/error-alert';
 
 const INITIAL: CuratedFormState = {};
 
+interface CuratedFormProps {
+  /** Bound server action — `createCurated`, or `updateCurated` with the id already applied. */
+  action: (
+    prev: CuratedFormState,
+    formData: FormData,
+  ) => Promise<CuratedFormState>;
+  /** Existing testimonial when editing; omitted when creating. */
+  review?: AdminReview;
+  submitLabel: string;
+}
+
 /**
- * Create-curated-testimonial form — shadcn "Form Layout 2" (sectioned), matching the other admin
- * forms. The API stores it approved + featured (it's for the homepage). Field names unchanged.
+ * Create/edit curated-testimonial form — shadcn "Form Layout 2" (sectioned), matching the other
+ * admin forms. Shared by `/reviews/new` and `/reviews/[id]/edit`. The API stores a new one approved
+ * + featured (it's for the homepage); editing only ever touches the fields below (source/isApproved/
+ * isFeatured aren't editable here).
  */
-export function CuratedForm() {
-  const [state, action, pending] = useActionState(createCurated, INITIAL);
+export function CuratedForm({ action, review, submitLabel }: CuratedFormProps) {
+  const [state, formAction, pending] = useActionState(action, INITIAL);
   const errors = state.fieldErrors ?? {};
 
   return (
-    <form action={action} noValidate>
+    <form action={formAction} noValidate>
       {/* Traveller */}
       <FieldSet className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div>
@@ -50,6 +61,7 @@ export function CuratedForm() {
               id="authorName"
               name="authorName"
               aria-required="true"
+              defaultValue={review?.authorName ?? ''}
               placeholder="Emily Carter"
               aria-invalid={Boolean(errors.authorName)}
             />
@@ -63,6 +75,7 @@ export function CuratedForm() {
               <Input
                 id="authorLocation"
                 name="authorLocation"
+                defaultValue={review?.authorLocation ?? ''}
                 placeholder="Sydney, Australia"
               />
               <FieldDescription>Optional.</FieldDescription>
@@ -72,6 +85,7 @@ export function CuratedForm() {
               <Input
                 id="tripLabel"
                 name="tripLabel"
+                defaultValue={review?.tripLabel ?? ''}
                 placeholder="Hạ Long Bay Cruise"
               />
               <FieldDescription>
@@ -103,7 +117,7 @@ export function CuratedForm() {
               type="number"
               min={1}
               max={5}
-              defaultValue={5}
+              defaultValue={review?.rating ?? 5}
               className="w-24"
               aria-invalid={Boolean(errors.rating)}
             />
@@ -117,6 +131,7 @@ export function CuratedForm() {
               name="body"
               rows={4}
               aria-required="true"
+              defaultValue={review?.body ?? ''}
               placeholder="What made the trip memorable…"
               aria-invalid={Boolean(errors.body)}
             />
@@ -141,7 +156,7 @@ export function CuratedForm() {
           Cancel
         </Button>
         <Button type="submit" disabled={pending}>
-          {pending ? 'Saving…' : 'Create testimonial'}
+          {pending ? 'Saving…' : submitLabel}
         </Button>
       </div>
     </form>

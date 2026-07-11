@@ -207,6 +207,7 @@ describe('EnquiryService.findAllForAdmin', () => {
 
     expect(findMany.mock.calls[0][0].include).toEqual({
       tour: { select: { slug: true, title: true } },
+      _count: { select: { notes: true } },
     });
     const item = res.items[0];
     expect(item.tourSlug).toBe('sapa-trek');
@@ -265,5 +266,144 @@ describe('EnquiryService.updateStatus', () => {
     const calls = update.mock.calls as unknown as UpdCall[][];
     expect(calls[0][0].where.id).toBe('e-1');
     expect(calls[0][0].data.status).toBe(EnquiryStatus.QUOTED);
+  });
+});
+
+describe('EnquiryService.listNotes / addNote', () => {
+  const admin = {
+    id: 'admin-1',
+    fullName: 'Yuri Volkov',
+    email: 'admin@example.com',
+  };
+
+  it('listNotes returns the thread ascending for an existing enquiry', async () => {
+    const findMany = jest
+      .fn()
+      .mockResolvedValue([{ id: 'n-1', body: 'called them' }]);
+    const prisma = {
+      enquiry: { findUnique: jest.fn().mockResolvedValue({ id: 'e-1' }) },
+      enquiryNote: { findMany },
+    };
+    const svc = new EnquiryService(prisma as never);
+
+    const notes = await svc.listNotes('e-1');
+
+    expect(notes).toHaveLength(1);
+    expect(findMany).toHaveBeenCalledWith({
+      where: { enquiryId: 'e-1' },
+      orderBy: { createdAt: 'asc' },
+    });
+  });
+
+  it('listNotes throws ENQUIRY_NOT_FOUND for an unknown enquiry', async () => {
+    const prisma = {
+      enquiry: { findUnique: jest.fn().mockResolvedValue(null) },
+      enquiryNote: { findMany: jest.fn() },
+    };
+    const svc = new EnquiryService(prisma as never);
+
+    await expect(svc.listNotes('nope')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(prisma.enquiryNote.findMany).not.toHaveBeenCalled();
+  });
+
+  it('addNote stamps the admin author id + name snapshot', async () => {
+    const create = jest.fn().mockResolvedValue({ id: 'n-2' });
+    const prisma = {
+      enquiry: { findUnique: jest.fn().mockResolvedValue({ id: 'e-1' }) },
+      enquiryNote: { create },
+    };
+    const svc = new EnquiryService(prisma as never);
+
+    await svc.addNote('e-1', admin as never, { body: 'sent the quote' });
+
+    expect(create).toHaveBeenCalledWith({
+      data: {
+        enquiryId: 'e-1',
+        authorId: 'admin-1',
+        authorName: 'Yuri Volkov',
+        body: 'sent the quote',
+      },
+    });
+  });
+
+  it('addNote throws ENQUIRY_NOT_FOUND for an unknown enquiry', async () => {
+    const prisma = {
+      enquiry: { findUnique: jest.fn().mockResolvedValue(null) },
+      enquiryNote: { create: jest.fn() },
+    };
+    const svc = new EnquiryService(prisma as never);
+
+    await expect(
+      svc.addNote('nope', admin as never, { body: 'x' }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(prisma.enquiryNote.create).not.toHaveBeenCalled();
+  });
+});
+
+describe('EnquiryService.findAllForAdmin — repeatCount + notesCount', () => {
+  const baseRow = {
+    id: 'e-1',
+    name: 'Alice',
+    email: 'alice@example.com',
+    status: 'NEW',
+    createdAt: new Date('2026-07-01'),
+    updatedAt: new Date('2026-07-01'),
+    tour: null,
+    _count: { notes: 2 },
+  };
+
+  function makePrisma(groupBy: jest.Mock) {
+    return {
+      enquiry: {
+        findMany: jest.fn().mockResolvedValue([baseRow]),
+        count: jest.fn().mockResolvedValue(1),
+        groupBy,
+      },
+    };
+  }
+
+  it('maps repeatCount from the per-page email groupBy and notesCount from _count', async () => {
+    const groupBy = jest
+      .fn()
+      .mockResolvedValue([{ email: 'alice@example.com', _count: { _all: 3 } }]);
+    const svc = new EnquiryService(makePrisma(groupBy) as never);
+
+    const res = await svc.findAllForAdmin({});
+
+    expect(res.items[0].repeatCount).toBe(3);
+    expect(res.items[0].notesCount).toBe(2);
+    expect(groupBy).toHaveBeenCalledWith({
+      by: ['email'],
+      where: { email: { in: ['alice@example.com'] } },
+      _count: { _all: true },
+    });
+  });
+
+  it('falls back to repeatCount 1 when the groupBy fails', async () => {
+    const groupBy = jest.fn().mockRejectedValue(new Error('boom'));
+    const svc = new EnquiryService(makePrisma(groupBy) as never);
+
+    const res = await svc.findAllForAdmin({});
+
+    expect(res.items[0].repeatCount).toBe(1);
+  });
+
+  it('skips the groupBy entirely for an empty page', async () => {
+    const groupBy = jest.fn();
+    const prisma = {
+      enquiry: {
+        findMany: jest.fn().mockResolvedValue([]),
+        count: jest.fn().mockResolvedValue(0),
+        groupBy,
+      },
+    };
+    const svc = new EnquiryService(prisma as never);
+
+    const res = await svc.findAllForAdmin({});
+
+    expect(res.items).toEqual([]);
+    expect(groupBy).not.toHaveBeenCalled();
   });
 });

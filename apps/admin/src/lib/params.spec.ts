@@ -1,4 +1,4 @@
-import { parseUuidParam } from './params';
+import { parseRatingParam, parseUuidParam } from './params';
 
 const UUID = '3f2b8c1a-9d4e-4f6a-8b2c-1d5e7f9a0b3c';
 
@@ -14,5 +14,21 @@ describe('parseUuidParam', () => {
     expect(parseUuidParam('not-a-uuid')).toBeUndefined();
     expect(parseUuidParam('3f2b8c1a-9d4e-4f6a-8b2c')).toBeUndefined();
     expect(parseUuidParam(`${UUID}x`)).toBeUndefined();
+  });
+});
+
+describe('parseRatingParam', () => {
+  it('passes integer ratings 1-5 through', () => {
+    expect(parseRatingParam('1')).toBe(1);
+    expect(parseRatingParam('5')).toBe(5);
+  });
+
+  it('drops missing, out-of-range, and non-integer values', () => {
+    expect(parseRatingParam(undefined)).toBeUndefined();
+    expect(parseRatingParam('')).toBeUndefined();
+    expect(parseRatingParam('0')).toBeUndefined();
+    expect(parseRatingParam('6')).toBeUndefined();
+    expect(parseRatingParam('4.5')).toBeUndefined();
+    expect(parseRatingParam('abc')).toBeUndefined();
   });
 });

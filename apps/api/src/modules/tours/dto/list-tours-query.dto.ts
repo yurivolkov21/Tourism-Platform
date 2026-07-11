@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ToBoolean } from '../../../common/to-boolean';
 import {
   IsBoolean,
   IsIn,
@@ -57,14 +58,14 @@ export class ListToursQueryDto {
   /** Featured-only filter for the home-page hero shelf. */
   @ApiPropertyOptional({ example: true })
   @IsOptional()
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsBoolean()
   featured?: boolean;
 
   /** Honoured only by the admin endpoint (public forces `isPublished: true`). */
   @ApiPropertyOptional({ example: true })
   @IsOptional()
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsBoolean()
   isPublished?: boolean;
 

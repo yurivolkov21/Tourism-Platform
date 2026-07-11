@@ -889,7 +889,8 @@ export interface paths {
     delete: operations['AdminReviewsController_remove'];
     options?: never;
     head?: never;
-    patch?: never;
+    /** Edit a curated testimonial (verified reviews are immutable) */
+    patch: operations['AdminReviewsController_updateCurated'];
     trace?: never;
   };
   '/api/v1/admin/reviews/curated': {
@@ -993,6 +994,24 @@ export interface paths {
     head?: never;
     /** Update an enquiry CRM status (admin) */
     patch: operations['AdminEnquiryController_updateStatus'];
+    trace?: never;
+  };
+  '/api/v1/admin/enquiries/{id}/notes': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List the internal notes on an enquiry (admin) */
+    get: operations['AdminEnquiryController_listNotes'];
+    put?: never;
+    /** Add an internal note to an enquiry (admin) */
+    post: operations['AdminEnquiryController_addNote'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/api/v1/newsletter/subscribe': {
@@ -2904,6 +2923,16 @@ export interface components {
       /** Format: uuid */
       userId: string | null;
       /**
+       * @description Joined customer display name (null for curated rows)
+       * @example Alice Nguyen
+       */
+      userName: string | null;
+      /**
+       * @description Joined customer email (null for curated rows)
+       * @example alice@example.com
+       */
+      userEmail: string | null;
+      /**
        * @description Snapshot display name
        * @example Alice Nguyen
        */
@@ -2912,6 +2941,11 @@ export interface components {
       authorLocation: string | null;
       /** Format: uuid */
       bookingId: string | null;
+      /**
+       * @description Joined booking code (null for curated rows)
+       * @example BK-ABCDEFGH
+       */
+      bookingCode: string | null;
       /**
        * @example VERIFIED
        * @enum {string}
@@ -2963,6 +2997,25 @@ export interface components {
       rating: number;
       title?: string;
       body: string;
+    };
+    UpdateCuratedReviewDto: {
+      /** @example Emily Carter */
+      authorName?: string;
+      /**
+       * @description Pass null to clear
+       * @example Sydney, Australia
+       */
+      authorLocation?: Record<string, never> | null;
+      /**
+       * @description Pass null to clear (falls back to the tour title)
+       * @example Hạ Long Bay Cruise
+       */
+      tripLabel?: Record<string, never> | null;
+      /** @example 5 */
+      rating?: number;
+      /** @description Pass null to clear */
+      title?: Record<string, never> | null;
+      body?: string;
     };
     WishlistTourPreviewDto: {
       /** Format: uuid */
@@ -3073,6 +3126,13 @@ export interface components {
       interests: string[];
       /** @enum {string} */
       status: 'NEW' | 'CONTACTED' | 'QUOTED' | 'WON' | 'LOST';
+      /**
+       * @description How many enquiries share this exact email (incl. this one) — repeat-lead signal
+       * @example 3
+       */
+      repeatCount: number;
+      /** @example 2 */
+      notesCount: number;
       /** Format: date-time */
       createdAt: string;
       /** Format: date-time */
@@ -3088,6 +3148,29 @@ export interface components {
        * @enum {string}
        */
       status: 'NEW' | 'CONTACTED' | 'QUOTED' | 'WON' | 'LOST';
+    };
+    EnquiryNoteDto: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      enquiryId: string;
+      /**
+       * Format: uuid
+       * @description Null if the authoring admin account was deleted
+       */
+      authorId: string | null;
+      /**
+       * @description Snapshot of the admin display name at write time
+       * @example Yuri Volkov
+       */
+      authorName: string;
+      body: string;
+      /** Format: date-time */
+      createdAt: string;
+    };
+    CreateEnquiryNoteDto: {
+      /** @example Called them back — wants a private departure in October. */
+      body: string;
     };
     SubscribeDto: {
       /** @example jane@example.com */
@@ -5694,6 +5777,9 @@ export interface operations {
         pageSize?: number;
         /** @description true = approved only, false = pending only, omit = all */
         isApproved?: boolean;
+        source?: 'VERIFIED' | 'CURATED';
+        rating?: number;
+        search?: string;
       };
       header?: never;
       path?: never;
@@ -5818,6 +5904,46 @@ export interface operations {
     requestBody?: never;
     responses: {
       /** @description Deleted (echo) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReviewDto'];
+        };
+      };
+      /** @description Review not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not a curated review */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminReviewsController_updateCurated: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateCuratedReviewDto'];
+      };
+    };
+    responses: {
+      /** @description Updated review row */
       200: {
         headers: {
           [name: string]: unknown;
@@ -6070,6 +6196,68 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+      /** @description Enquiry not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminEnquiryController_listNotes: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Notes, oldest first */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['EnquiryNoteDto'][];
+        };
+      };
+      /** @description Enquiry not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminEnquiryController_addNote: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateEnquiryNoteDto'];
+      };
+    };
+    responses: {
+      /** @description Created note */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['EnquiryNoteDto'];
+        };
       };
       /** @description Enquiry not found */
       404: {

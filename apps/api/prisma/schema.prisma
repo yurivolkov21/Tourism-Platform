@@ -161,6 +161,7 @@ model User {
   posts            Post[]
   cancellationRequests  CancellationRequest[] @relation("CancellationRequester")
   cancellationDecisions CancellationRequest[] @relation("CancellationDecider")
+  enquiryNotes          EnquiryNote[]
 
   @@index([role])
   @@map("users")
@@ -521,11 +522,31 @@ model Enquiry {
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
-  tour Tour? @relation(fields: [tourId], references: [id], onDelete: SetNull)
+  tour  Tour?         @relation(fields: [tourId], references: [id], onDelete: SetNull)
+  notes EnquiryNote[]
 
   @@index([status, createdAt])
   @@index([tourId])
+  @@index([email])
   @@map("enquiries")
+}
+
+/// Internal CRM note on an enquiry (admin-only, append-only thread). `authorName`
+/// is a snapshot so the thread stays readable if the admin account is deleted
+/// (`authorId` then goes null via SetNull).
+model EnquiryNote {
+  id         String   @id @default(uuid()) @db.Uuid
+  enquiryId  String   @map("enquiry_id") @db.Uuid
+  authorId   String?  @map("author_id") @db.Uuid
+  authorName String   @map("author_name") @db.VarChar(200)
+  body       String   @db.VarChar(2000)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  enquiry Enquiry @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  author  User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([enquiryId, createdAt])
+  @@map("enquiry_notes")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

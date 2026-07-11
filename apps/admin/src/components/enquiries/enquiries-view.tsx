@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useTransition } from 'react';
-import { Compass, Inbox, Search } from 'lucide-react';
+import { useEffect, useRef, useState, useTransition } from 'react';
+import { Compass, Inbox, MessageSquare, Search } from 'lucide-react';
 import { formatRelativeTime } from '../../lib/relative-time';
 import {
   getCoreRowModel,
@@ -19,6 +19,9 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
+  Field,
+  FieldError,
+  FieldLabel,
   Input,
   Select,
   SelectContent,
@@ -31,6 +34,7 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
+  Textarea,
   cn,
   toast,
 } from '@tourism/ui';
@@ -39,8 +43,13 @@ import { ServerTablePagination } from '../crud/server-table-pagination';
 import { ColumnsMenu } from '../crud/columns-menu';
 import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import { AdminTableShell } from '../crud/admin-table-shell';
-import { updateEnquiryStatus } from '../../lib/enquiries/actions';
-import type { Enquiry, PageMeta } from '../../lib/enquiries/data';
+import {
+  addEnquiryNote,
+  listEnquiryNotes,
+  updateEnquiryStatus,
+} from '../../lib/enquiries/actions';
+import type { Enquiry, EnquiryNote, PageMeta } from '../../lib/enquiries/data';
+import { apiErrorMessage } from '../../lib/api/error';
 import {
   ENQUIRY_STATUSES,
   enquiryStatusMeta,
@@ -79,7 +88,14 @@ const enquiryColumns: ColumnDef<Enquiry>[] = [
     meta: { label: 'Name' },
     cell: ({ row }) => (
       <>
-        <span className="block font-medium">{row.original.name}</span>
+        <span className="flex items-center gap-1.5">
+          <span className="font-medium">{row.original.name}</span>
+          {row.original.repeatCount > 1 ? (
+            <Badge variant="outline" className="whitespace-nowrap text-xs">
+              Repeat ×{row.original.repeatCount}
+            </Badge>
+          ) : null}
+        </span>
         <span className="text-muted-foreground text-xs">
           {row.original.email}
         </span>
@@ -99,6 +115,17 @@ const enquiryColumns: ColumnDef<Enquiry>[] = [
           </Badge>
         ) : null}
         <span className="line-clamp-1">{row.original.message}</span>
+        {row.original.notesCount > 0 ? (
+          <span
+            className="ml-auto inline-flex shrink-0 items-center gap-1 text-xs"
+            title={`${row.original.notesCount} internal ${
+              row.original.notesCount === 1 ? 'note' : 'notes'
+            }`}
+          >
+            <MessageSquare className="size-3" aria-hidden />
+            {row.original.notesCount}
+          </span>
+        ) : null}
       </span>
     ),
   },
@@ -150,6 +177,13 @@ export function EnquiriesView({
     usePersistentColumnVisibility('enquiries');
   const [saving, startSaving] = useTransition();
 
+  const [notes, setNotes] = useState<EnquiryNote[]>([]);
+  const [notesError, setNotesError] = useState<string | null>(null);
+  const [notesLoading, startNotesLoading] = useTransition();
+  const [noteBody, setNoteBody] = useState('');
+  const [noteFieldError, setNoteFieldError] = useState<string | null>(null);
+  const [addingNote, startAddingNote] = useTransition();
+
   // Keep the box in step with back/forward navigation.
   useEffect(() => {
     setDraft(query);
@@ -198,6 +232,31 @@ export function EnquiriesView({
     if (fresh && fresh.status !== selected.status) setSelected(fresh);
   }, [rows, saving, selected]);
 
+  // Load the notes thread whenever the drawer opens on a (new) enquiry — keyed on id only, so an
+  // in-place optimistic status update doesn't trigger a redundant refetch. Server-action calls can
+  // resolve out of order (open A, switch to B, A resolves last), so every async callback checks the
+  // ref before touching state — otherwise B's drawer would show A's notes/draft.
+  const selectedIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    selectedIdRef.current = selected?.id ?? null;
+    if (!selected) return;
+    const id = selected.id;
+    setNotes([]);
+    setNotesError(null);
+    setNoteBody('');
+    setNoteFieldError(null);
+    startNotesLoading(async () => {
+      try {
+        const fetched = await listEnquiryNotes(id);
+        if (selectedIdRef.current !== id) return; // drawer moved on
+        setNotes(fetched);
+      } catch (e) {
+        if (selectedIdRef.current !== id) return;
+        setNotesError(apiErrorMessage(e));
+      }
+    });
+  }, [selected?.id]);
+
   const changeStatus = (next: EnquiryStatus) => {
     if (!selected || saving || next === selected.status) return;
     const prev = selected;
@@ -212,6 +271,48 @@ export function EnquiriesView({
       } else {
         toast.success('Status updated.');
       }
+    });
+  };
+
+  const submitNote = () => {
+    if (!selected || addingNote) return;
+    const trimmed = noteBody.trim();
+    if (!trimmed) {
+      setNoteFieldError('Write a note before adding it.');
+      return;
+    }
+    setNoteFieldError(null);
+
+    const enquiryId = selected.id;
+    const tempId = `temp-${Date.now()}`;
+    const optimistic: EnquiryNote = {
+      id: tempId,
+      enquiryId,
+      authorId: null,
+      authorName: 'You',
+      body: trimmed,
+      createdAt: new Date().toISOString(),
+    };
+    setNotes((prev) => [...prev, optimistic]);
+    setNoteBody('');
+
+    startAddingNote(async () => {
+      const result = await addEnquiryNote(enquiryId, trimmed);
+      // If the drawer moved to another enquiry meanwhile, the notes state was
+      // reset for it — don't write A's rollback/result into B's drawer.
+      const stillOpen = selectedIdRef.current === enquiryId;
+      if (result.error || !result.note) {
+        if (stillOpen) {
+          setNotes((prev) => prev.filter((n) => n.id !== tempId));
+          setNoteBody(trimmed); // restore the draft so the admin doesn't lose it
+        }
+        toast.error(result.error ?? 'Could not add the note.');
+        return;
+      }
+      if (!stillOpen) return;
+      const savedNote = result.note;
+      setNotes((prev) => prev.map((n) => (n.id === tempId ? savedNote : n)));
+      toast.success('Note added.');
     });
   };
 
@@ -322,6 +423,10 @@ export function EnquiriesView({
           if (!open) {
             setSelected(null);
             setStatusError(null);
+            setNotes([]);
+            setNotesError(null);
+            setNoteBody('');
+            setNoteFieldError(null);
           }
         }}
       >
@@ -332,11 +437,29 @@ export function EnquiriesView({
                 <div className="flex flex-wrap items-center gap-2">
                   <SheetTitle>{selected.name}</SheetTitle>
                   <EnquiryStatusBadge status={selected.status} />
+                  {selected.repeatCount > 1 ? (
+                    <Badge variant="outline">
+                      Repeat lead ×{selected.repeatCount}
+                    </Badge>
+                  ) : null}
                 </div>
                 <SheetDescription>
                   Received {receivedAt(selected.createdAt)} ·{' '}
                   {formatRelativeTime(selected.createdAt)}
                 </SheetDescription>
+                {selected.repeatCount > 1 ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const email = selected.email;
+                      setSelected(null);
+                      pushParams({ q: email });
+                    }}
+                    className="text-primary w-fit cursor-pointer text-sm hover:underline"
+                  >
+                    View all from this email
+                  </button>
+                ) : null}
               </SheetHeader>
 
               <div className="space-y-6 px-4 pb-6">
@@ -500,6 +623,97 @@ export function EnquiriesView({
                     {selected.message}
                   </p>
                 </div>
+
+                <Separator />
+
+                {/* Internal notes */}
+                <div className="space-y-3">
+                  <p className="text-sm font-medium">
+                    Notes
+                    {notes.length > 0 ? (
+                      <span className="text-muted-foreground font-normal">
+                        {' '}
+                        ({notes.length})
+                      </span>
+                    ) : null}
+                  </p>
+
+                  {notesLoading ? (
+                    <p className="text-muted-foreground text-sm">
+                      Loading notes…
+                    </p>
+                  ) : notesError ? (
+                    <p className="text-destructive text-sm" role="alert">
+                      {notesError}
+                    </p>
+                  ) : notes.length === 0 ? (
+                    <p className="text-muted-foreground text-sm">
+                      No internal notes yet.
+                    </p>
+                  ) : (
+                    <ul className="space-y-3">
+                      {notes.map((note) => (
+                        <li
+                          key={note.id}
+                          className="bg-muted/40 rounded-md border p-3 text-sm"
+                        >
+                          <div className="mb-1 flex items-center justify-between gap-2 text-xs">
+                            <span className="font-medium">
+                              {note.authorName}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {formatRelativeTime(note.createdAt)}
+                            </span>
+                          </div>
+                          <p className="whitespace-pre-wrap">{note.body}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <form
+                    noValidate
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      submitNote();
+                    }}
+                    className="space-y-2"
+                  >
+                    <Field data-invalid={Boolean(noteFieldError)}>
+                      <FieldLabel
+                        htmlFor="enquiry-note-body"
+                        className="sr-only"
+                      >
+                        Add a note
+                      </FieldLabel>
+                      <Textarea
+                        id="enquiry-note-body"
+                        name="body"
+                        aria-required="true"
+                        aria-invalid={Boolean(noteFieldError)}
+                        rows={3}
+                        maxLength={2000}
+                        value={noteBody}
+                        onChange={(e) => {
+                          setNoteBody(e.target.value);
+                          if (noteFieldError) setNoteFieldError(null);
+                        }}
+                        placeholder="Add an internal note — visible to admins only."
+                        disabled={addingNote}
+                      />
+                      {noteFieldError ? (
+                        <FieldError>{noteFieldError}</FieldError>
+                      ) : null}
+                    </Field>
+                    <div className="flex justify-end">
+                      <Button type="submit" size="sm" disabled={addingNote}>
+                        {addingNote ? 'Adding…' : 'Add note'}
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+
+                <Separator />
 
                 <Button
                   nativeButton={false}

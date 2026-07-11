@@ -1,13 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState, useTransition } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import {
   Check,
-  ChevronDown,
   ListFilter,
+  Mail,
   MessageSquareQuote,
   MoreHorizontal,
+  Pencil,
   Pin,
   PinOff,
   Search,
@@ -17,12 +19,8 @@ import {
 } from 'lucide-react';
 import {
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
   type ColumnDef,
-  type SortingState,
 } from '@tanstack/react-table';
 
 import {
@@ -37,11 +35,8 @@ import {
   Badge,
   Button,
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   Empty,
@@ -60,11 +55,10 @@ import {
   toast,
 } from '@tourism/ui';
 
+import { FacetFilter } from '../crud/facet-filter';
 import { ColumnsMenu } from '../crud/columns-menu';
 import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import { AdminTableShell } from '../crud/admin-table-shell';
-import { ClientTablePagination } from '../crud/client-table-pagination';
-import { DEFAULT_PAGE_SIZE } from '../crud/data-table-pagination';
 import {
   deleteReview,
   setApproved,
@@ -73,13 +67,26 @@ import {
 import type { AdminReview } from '../../lib/reviews/data';
 import { formatRelativeTime } from '../../lib/relative-time';
 
-type Tab = 'all' | 'pending' | 'approved';
+type StatusFilter = 'all' | 'pending' | 'approved';
 type SourceKey = 'VERIFIED' | 'CURATED';
 
-const SOURCE_OPTIONS: { key: SourceKey; label: string }[] = [
-  { key: 'VERIFIED', label: 'Verified' },
-  { key: 'CURATED', label: 'Curated' },
+const STATUS_TABS: { value: StatusFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'approved', label: 'Approved' },
 ];
+
+const SOURCE_OPTIONS: { value: SourceKey; label: string }[] = [
+  { value: 'VERIFIED', label: 'Verified' },
+  { value: 'CURATED', label: 'Curated' },
+];
+
+const RATING_OPTIONS = [5, 4, 3, 2, 1].map((n) => ({
+  value: String(n),
+  label: `${n} star${n === 1 ? '' : 's'}`,
+}));
+
+const SEARCH_DEBOUNCE_MS = 350;
 
 function StatusBadges({ review }: { review: AdminReview }) {
   return (
@@ -109,52 +116,89 @@ function Rating({ value }: { value: number }) {
 }
 
 /**
- * Reviews moderation surface — client-side template table (tabs with counts, source facet,
- * instant search, Columns, pagination) + a right-hand drawer with the full text (the row already
- * carries everything — no detail endpoint). Actions live in a ⋮ menu (approve/feature/delete);
- * Delete only exists for CURATED testimonials (the API enforces it — 409 otherwise).
+ * Reviews moderation surface — server-driven table (URL-owned status/source/rating/search + paging,
+ * the bookings/enquiries pattern) with a right-hand drawer showing the full text plus, when the
+ * review is tied to an account, the customer + booking links. Actions live in a ⋮ menu
+ * (edit/approve/feature/delete); Edit and Delete only exist for CURATED testimonials (the API
+ * enforces both — 409 otherwise).
  */
 export function ReviewsView({
   rows,
-  total,
+  status,
+  source,
+  rating,
+  search,
+  totalBeyondPage = false,
 }: {
   rows: AdminReview[];
-  total: number;
+  status: StatusFilter;
+  source?: SourceKey;
+  rating?: number;
+  search: string;
+  /** Reviews exist but this page is empty (overshot `?page=`) — fixes the empty-state copy. */
+  totalBeyondPage?: boolean;
 }) {
-  const [tab, setTab] = useState<Tab>('all');
-  const [sources, setSources] = useState<SourceKey[]>([]);
-  const [query, setQuery] = useState('');
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+
+  const [query, setQuery] = useState(search);
+  const firstRender = useRef(true);
   const [columnVisibility, setColumnVisibility] =
     usePersistentColumnVisibility('reviews');
   const [selected, setSelected] = useState<AdminReview | null>(null);
   const [pendingDelete, setPendingDelete] = useState<AdminReview | null>(null);
   const [busy, startAction] = useTransition();
 
-  const counts = useMemo(
-    () => ({
-      all: rows.length,
-      pending: rows.filter((r) => !r.isApproved).length,
-      approved: rows.filter((r) => r.isApproved).length,
-    }),
-    [rows],
-  );
+  /** Build the next URL from a partial change (`null`/`undefined` value deletes), always resetting `page`. */
+  const pushWith = (changes: {
+    status?: StatusFilter;
+    source?: SourceKey | null;
+    rating?: number | null;
+    q?: string;
+  }) => {
+    const next = new URLSearchParams(params.toString());
+    if (changes.status !== undefined) {
+      if (changes.status === 'all') next.delete('status');
+      else next.set('status', changes.status);
+    }
+    if (changes.source !== undefined) {
+      if (changes.source) next.set('source', changes.source);
+      else next.delete('source');
+    }
+    if (changes.rating !== undefined) {
+      if (changes.rating) next.set('rating', String(changes.rating));
+      else next.delete('rating');
+    }
+    if (changes.q !== undefined) {
+      if (changes.q.trim()) next.set('q', changes.q.trim());
+      else next.delete('q');
+    }
+    next.delete('page');
+    const qs = next.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname);
+  };
 
-  const filtered = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return rows.filter((r) => {
-      if (tab === 'pending' && r.isApproved) return false;
-      if (tab === 'approved' && !r.isApproved) return false;
-      if (sources.length && !sources.includes(r.source as SourceKey))
-        return false;
-      if (needle) {
-        const haystack =
-          `${r.authorName} ${r.title ?? ''} ${r.body}`.toLowerCase();
-        if (!haystack.includes(needle)) return false;
-      }
-      return true;
-    });
-  }, [rows, tab, sources, query]);
+  // Keep the input in sync when the URL changes underneath it (back/forward,
+  // chip clears) — without this the box shows a stale term after navigation.
+  useEffect(() => {
+    setQuery(search);
+  }, [search]);
+
+  // Debounce the search box → URL. Skip the initial mount so we don't re-push
+  // on load. `params` is in the deps so a tab/facet navigation rebuilds the
+  // pending timer with a fresh URL snapshot — a stale closure here would push
+  // a URL that silently drops the just-applied filter.
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    const id = setTimeout(() => {
+      if (query !== search) pushWith({ q: query });
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(id);
+  }, [query, search, params]);
 
   /** Approve/unapprove or feature/unfeature with toast feedback; the page revalidates rows. */
   const act = (review: AdminReview, kind: 'approve' | 'feature') => {
@@ -248,7 +292,6 @@ export function ReviewsView({
       {
         id: 'rating',
         header: 'Rating',
-        accessorFn: (row) => row.rating,
         meta: { label: 'Rating', align: 'right' },
         cell: ({ row }) => <Rating value={row.original.rating} />,
       },
@@ -296,7 +339,6 @@ export function ReviewsView({
       {
         id: 'posted',
         header: 'Posted',
-        accessorFn: (row) => new Date(row.createdAt).getTime(),
         meta: { label: 'Posted' },
         cell: ({ row }) => (
           <span className="text-muted-foreground whitespace-nowrap">
@@ -326,6 +368,18 @@ export function ReviewsView({
                 <MoreHorizontal className="size-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
+                {r.source === 'CURATED' ? (
+                  <>
+                    <DropdownMenuItem
+                      render={<Link href={`/reviews/${r.id}/edit`} />}
+                      nativeButton={false}
+                    >
+                      <Pencil className="size-4" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                ) : null}
                 <DropdownMenuItem
                   onClick={() => act(r, 'approve')}
                   disabled={busy}
@@ -371,53 +425,22 @@ export function ReviewsView({
   );
 
   const table = useReactTable({
-    data: filtered,
+    data: rows,
     columns,
-    state: { columnVisibility, sorting },
-    initialState: { pagination: { pageSize: DEFAULT_PAGE_SIZE } },
+    state: { columnVisibility },
+    manualPagination: true,
+    manualFiltering: true,
     onColumnVisibilityChange: setColumnVisibility,
-    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
   });
 
-  const toggleSource = (key: SourceKey, checked: boolean) => {
-    setSources((prev) =>
-      checked ? [...prev, key] : prev.filter((s) => s !== key),
-    );
-  };
+  const ratingLabel =
+    RATING_OPTIONS.find((o) => o.value === String(rating))?.label ??
+    'All ratings';
 
-  const sourceLabel =
-    sources.length === 0
-      ? 'All sources'
-      : sources.length === 1
-        ? (SOURCE_OPTIONS.find((s) => s.key === sources[0])?.label ??
-          '1 source')
-        : `${sources.length} sources`;
-
-  const tabs: { value: Tab; label: string; count: number }[] = [
-    { value: 'all', label: 'All', count: counts.all },
-    { value: 'pending', label: 'Pending', count: counts.pending },
-    { value: 'approved', label: 'Approved', count: counts.approved },
-  ];
-
-  if (rows.length === 0) {
-    return (
-      <Empty className="border">
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <MessageSquareQuote />
-          </EmptyMedia>
-          <EmptyTitle>No reviews yet</EmptyTitle>
-          <EmptyDescription>
-            Reviews from travellers will appear here once they’re submitted.
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    );
-  }
+  const filtered = Boolean(
+    status !== 'all' || source || rating || search || totalBeyondPage,
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -427,15 +450,15 @@ export function ReviewsView({
           role="tablist"
           className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
         >
-          {tabs.map((t) => {
-            const isActive = t.value === tab;
+          {STATUS_TABS.map((t) => {
+            const isActive = t.value === status;
             return (
               <button
                 key={t.value}
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                onClick={() => setTab(t.value)}
+                onClick={() => pushWith({ status: t.value })}
                 className={cn(
                   'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
                   isActive
@@ -444,57 +467,41 @@ export function ReviewsView({
                 )}
               >
                 {t.label}
-                <Badge variant="secondary" className="px-1.5 tabular-nums">
-                  {t.count}
-                </Badge>
               </button>
             );
           })}
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="outline"
-                  className="w-full justify-between font-normal sm:w-44"
-                  aria-label="Filter by source"
-                />
-              }
-            >
-              <span className="inline-flex items-center gap-2">
-                <ListFilter className="size-4 shrink-0" />
-                <span className="truncate">{sourceLabel}</span>
-              </span>
-              <ChevronDown className="text-muted-foreground size-4 shrink-0" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-44">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Filter by source</DropdownMenuLabel>
-                {SOURCE_OPTIONS.map((s) => (
-                  <DropdownMenuCheckboxItem
-                    key={s.key}
-                    checked={sources.includes(s.key)}
-                    onCheckedChange={(checked) =>
-                      toggleSource(s.key, checked === true)
-                    }
-                    closeOnClick={false}
-                  >
-                    {s.label}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuGroup>
-              {sources.length ? (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setSources([])}>
-                    Clear filter
-                  </DropdownMenuItem>
-                </>
-              ) : null}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <FacetFilter
+            label="Filter by source"
+            icon={ListFilter}
+            triggerLabel={
+              source
+                ? (SOURCE_OPTIONS.find((s) => s.value === source)?.label ??
+                  '1 source')
+                : 'All sources'
+            }
+            options={SOURCE_OPTIONS}
+            selected={source ? [source] : []}
+            onToggle={(value, checked) =>
+              pushWith({ source: checked ? (value as SourceKey) : null })
+            }
+            onClear={() => pushWith({ source: null })}
+            contentClassName="w-44"
+          />
+          <FacetFilter
+            label="Filter by rating"
+            icon={Star}
+            triggerLabel={ratingLabel}
+            options={RATING_OPTIONS}
+            selected={rating ? [String(rating)] : []}
+            onToggle={(value, checked) =>
+              pushWith({ rating: checked ? Number(value) : null })
+            }
+            onClear={() => pushWith({ rating: null })}
+            contentClassName="w-40"
+          />
           <div className="relative w-full sm:max-w-xs">
             <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
             <Input
@@ -510,29 +517,24 @@ export function ReviewsView({
         </div>
       </div>
 
-      {total > rows.length ? (
-        <p className="text-muted-foreground text-sm">
-          Showing the {rows.length} most recent of {total} reviews.
-        </p>
-      ) : null}
-
-      {filtered.length === 0 ? (
+      {rows.length === 0 ? (
         <Empty className="border">
           <EmptyHeader>
             <EmptyMedia variant="icon">
               <MessageSquareQuote />
             </EmptyMedia>
-            <EmptyTitle>No reviews match your filters</EmptyTitle>
+            <EmptyTitle>
+              {filtered ? 'No reviews match your filters' : 'No reviews yet'}
+            </EmptyTitle>
             <EmptyDescription>
-              Try different filters or clear them to see them all.
+              {filtered
+                ? 'Try different filters or clear them to see them all.'
+                : 'Reviews from travellers will appear here once they’re submitted.'}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : (
-        <>
-          <AdminTableShell table={table} />
-          <ClientTablePagination table={table} />
-        </>
+        <AdminTableShell table={table} />
       )}
 
       {/* Full-text drawer */}
@@ -606,7 +608,94 @@ export function ReviewsView({
                   </div>
                 </dl>
 
+                {selected.userId ? (
+                  <>
+                    <Separator />
+
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium">Customer</p>
+                      <dl className="space-y-2 text-sm">
+                        <div className="flex justify-between gap-4">
+                          <dt className="text-muted-foreground">Name</dt>
+                          <dd className="text-right">
+                            {selected.userName ?? '—'}
+                          </dd>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <dt className="text-muted-foreground">Email</dt>
+                          <dd className="text-right">
+                            {selected.userEmail ? (
+                              <a
+                                href={`mailto:${selected.userEmail}`}
+                                className="hover:text-primary inline-flex items-center gap-1 break-all hover:underline"
+                              >
+                                <Mail
+                                  className="size-3.5 shrink-0"
+                                  aria-hidden
+                                />
+                                {selected.userEmail}
+                              </a>
+                            ) : (
+                              '—'
+                            )}
+                          </dd>
+                        </div>
+                        {selected.bookingCode ? (
+                          <div className="flex justify-between gap-4">
+                            <dt className="text-muted-foreground">Booking</dt>
+                            <dd className="text-right">
+                              <Link
+                                href={`/bookings/${selected.bookingCode}`}
+                                className="hover:text-primary hover:underline"
+                              >
+                                {selected.bookingCode}
+                              </Link>
+                            </dd>
+                          </div>
+                        ) : null}
+                      </dl>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          nativeButton={false}
+                          render={<Link href={`/users/${selected.userId}`} />}
+                          className="flex-1"
+                        >
+                          View customer
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          nativeButton={false}
+                          render={
+                            <Link
+                              href={`/bookings?userId=${selected.userId}`}
+                            />
+                          }
+                          className="flex-1"
+                        >
+                          View their bookings
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                ) : null}
+
+                <Separator />
+
                 <div className="flex flex-col gap-2">
+                  {selected.source === 'CURATED' ? (
+                    <Button
+                      variant="outline"
+                      nativeButton={false}
+                      render={<Link href={`/reviews/${selected.id}/edit`} />}
+                      className="w-full"
+                    >
+                      <Pencil className="size-4" />
+                      Edit testimonial
+                    </Button>
+                  ) : null}
                   <Button
                     variant="outline"
                     onClick={() => act(selected, 'approve')}

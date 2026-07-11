@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@tourism/ui';
 
 import { CuratedForm } from '../../../../components/reviews/curated-form';
+import { createCurated } from '../../../../lib/reviews/actions';
 
 export default function NewCuratedReviewPage() {
   return (
@@ -26,7 +27,7 @@ export default function NewCuratedReviewPage() {
         </p>
       </div>
 
-      <CuratedForm />
+      <CuratedForm action={createCurated} submitLabel="Create testimonial" />
     </div>
   );
 }

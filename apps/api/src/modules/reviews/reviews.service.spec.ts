@@ -494,6 +494,8 @@ describe('ReviewsService — admin surfacing + curated delete', () => {
 
     expect(findMany.mock.calls[0][0].include).toEqual({
       tour: { select: { slug: true, title: true } },
+      user: { select: { fullName: true, email: true } },
+      booking: { select: { code: true } },
     });
     expect(res.items[0].tripLabel).toBe('Hạ Long Bay Cruise');
     expect(res.items[0].tourTitle).toBe('Hạ Long Bay Cruise 2D1N');
@@ -575,5 +577,210 @@ describe('ReviewsService.summarize', () => {
     const result = await svc.summarize();
 
     expect(result).toEqual({ count: 0, averageRating: null });
+  });
+});
+
+describe('ReviewsService.findAllForAdmin — B2 filters + joins', () => {
+  function makeAdminPrisma(rows: unknown[], total: number) {
+    return {
+      review: {
+        findMany: jest.fn().mockResolvedValue(rows),
+        count: jest.fn().mockResolvedValue(total),
+      },
+    };
+  }
+
+  it('builds the where for source, rating, and insensitive search', async () => {
+    const prisma = makeAdminPrisma([], 0);
+    const svc = new ReviewsService(prisma as never);
+
+    await svc.findAllForAdmin({
+      source: ReviewSource.CURATED,
+      rating: 5,
+      search: 'lantern',
+    });
+
+    type Call = {
+      where: {
+        source?: string;
+        rating?: number;
+        OR?: { [k: string]: { contains: string; mode: string } }[];
+      };
+    };
+    const calls = prisma.review.findMany.mock.calls as unknown as Call[][];
+    const where = calls[0][0].where;
+    expect(where.source).toBe('CURATED');
+    expect(where.rating).toBe(5);
+    expect(where.OR).toHaveLength(3);
+    expect(where.OR?.[0]).toEqual({
+      authorName: { contains: 'lantern', mode: 'insensitive' },
+    });
+    expect(where.OR?.[1]).toEqual({
+      title: { contains: 'lantern', mode: 'insensitive' },
+    });
+    expect(where.OR?.[2]).toEqual({
+      body: { contains: 'lantern', mode: 'insensitive' },
+    });
+  });
+
+  it('omits all filters when none are provided', async () => {
+    const prisma = makeAdminPrisma([], 0);
+    const svc = new ReviewsService(prisma as never);
+
+    await svc.findAllForAdmin({});
+
+    type Call = { where: Record<string, unknown> };
+    const calls = prisma.review.findMany.mock.calls as unknown as Call[][];
+    expect(Object.keys(calls[0][0].where)).toEqual([]);
+  });
+
+  it('maps userName/userEmail/bookingCode from the joined relations', async () => {
+    const prisma = makeAdminPrisma(
+      [
+        {
+          id: 'r-1',
+          tourId: 't-1',
+          userId: 'u-1',
+          authorName: 'Alice',
+          authorLocation: null,
+          bookingId: 'b-1',
+          source: 'VERIFIED',
+          isFeatured: false,
+          rating: 5,
+          title: 'Good',
+          tripLabel: null,
+          body: 'great',
+          isApproved: true,
+          createdAt: new Date('2026-05-01'),
+          updatedAt: new Date('2026-05-01'),
+          tour: { slug: 'hoi-an-walking-tour', title: 'Hoi An Walking Tour' },
+          user: { fullName: 'Alice Nguyen', email: 'alice@example.com' },
+          booking: { code: 'BK-ABCDEFGH' },
+        },
+      ],
+      1,
+    );
+    const svc = new ReviewsService(prisma as never);
+
+    const result = await svc.findAllForAdmin({});
+
+    expect(result.items[0].userName).toBe('Alice Nguyen');
+    expect(result.items[0].userEmail).toBe('alice@example.com');
+    expect(result.items[0].bookingCode).toBe('BK-ABCDEFGH');
+  });
+
+  it('maps null user/booking fields for curated rows', async () => {
+    const prisma = makeAdminPrisma(
+      [
+        {
+          id: 'r-2',
+          tourId: null,
+          userId: null,
+          authorName: 'Marketing',
+          authorLocation: 'Hanoi',
+          bookingId: null,
+          source: 'CURATED',
+          isFeatured: true,
+          rating: 5,
+          title: null,
+          tripLabel: 'Family trip',
+          body: 'wonderful',
+          isApproved: true,
+          createdAt: new Date('2026-05-01'),
+          updatedAt: new Date('2026-05-01'),
+          tour: null,
+          user: null,
+          booking: null,
+        },
+      ],
+      1,
+    );
+    const svc = new ReviewsService(prisma as never);
+
+    const result = await svc.findAllForAdmin({});
+
+    expect(result.items[0].userName).toBeNull();
+    expect(result.items[0].userEmail).toBeNull();
+    expect(result.items[0].bookingCode).toBeNull();
+  });
+});
+
+describe('ReviewsService.updateCuratedById', () => {
+  const curated = { id: 'r-9', source: ReviewSource.CURATED };
+
+  it('throws REVIEW_NOT_FOUND for an unknown id', async () => {
+    const prisma = {
+      review: {
+        findUnique: jest.fn().mockResolvedValue(null),
+        update: jest.fn(),
+      },
+    };
+    const svc = new ReviewsService(prisma as never);
+
+    await expect(
+      svc.updateCuratedById('nope', { rating: 4 }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(prisma.review.update).not.toHaveBeenCalled();
+  });
+
+  it('throws REVIEW_NOT_CURATED for a verified review', async () => {
+    const prisma = {
+      review: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ id: 'r-1', source: ReviewSource.VERIFIED }),
+        update: jest.fn(),
+      },
+    };
+    const svc = new ReviewsService(prisma as never);
+
+    await expect(
+      svc.updateCuratedById('r-1', { body: 'edited' }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(prisma.review.update).not.toHaveBeenCalled();
+  });
+
+  it('updates only the provided fields on a curated review', async () => {
+    const update = jest.fn().mockResolvedValue({ id: 'r-9', rating: 4 });
+    const prisma = {
+      review: {
+        findUnique: jest.fn().mockResolvedValue(curated),
+        update,
+      },
+    };
+    const svc = new ReviewsService(prisma as never);
+
+    await svc.updateCuratedById('r-9', { rating: 4, body: 'polished copy' });
+
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 'r-9' },
+      data: { rating: 4, body: 'polished copy' },
+    });
+  });
+});
+
+describe('ReviewsService.updateCuratedById — null clears nullable fields', () => {
+  it('writes null through for authorLocation/tripLabel/title', async () => {
+    const update = jest.fn().mockResolvedValue({ id: 'r-9' });
+    const prisma = {
+      review: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ id: 'r-9', source: ReviewSource.CURATED }),
+        update,
+      },
+    };
+    const svc = new ReviewsService(prisma as never);
+
+    await svc.updateCuratedById('r-9', {
+      authorLocation: null,
+      tripLabel: null,
+      title: null,
+    });
+
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 'r-9' },
+      data: { authorLocation: null, tripLabel: null, title: null },
+    });
   });
 });

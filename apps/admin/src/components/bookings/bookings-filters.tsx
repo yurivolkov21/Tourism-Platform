@@ -104,7 +104,15 @@ export function BookingsFilters({
     ? departures.find((d) => d.id === departureId)
     : undefined;
 
-  // Debounce the search box → URL. Skip the initial mount so we don't re-push on load.
+  // Keep the input in sync when the URL changes underneath it (back/forward).
+  useEffect(() => {
+    setQuery(search);
+  }, [search]);
+
+  // Debounce the search box → URL. Skip the initial mount so we don't re-push
+  // on load. `params` is in the deps so a tab/filter navigation rebuilds the
+  // pending timer with a fresh URL snapshot — a stale closure here would push
+  // a URL that silently drops the just-applied filter.
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;
@@ -114,7 +122,7 @@ export function BookingsFilters({
       if (query !== search) pushWith({ q: query });
     }, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(id);
-  }, [query]);
+  }, [query, search, params]);
 
   return (
     <div className="flex flex-col gap-3">
