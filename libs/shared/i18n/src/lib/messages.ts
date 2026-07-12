@@ -461,6 +461,38 @@ export const messages = {
     home: 'Home',
     onThisPage: 'On this page',
   },
+  // Resilience layer (W2): loading/error/404 states across web. Copy is warm + reassuring.
+  resilience: {
+    loadError: {
+      title: 'We couldn’t load this',
+      body: 'Something interrupted the connection. Please try again in a moment.',
+      retry: 'Try again',
+    },
+    error: {
+      title: 'Something went wrong',
+      body: 'An unexpected error occurred on our end. Please try again — if it keeps happening, get in touch.',
+      retry: 'Try again',
+      home: 'Back home',
+    },
+    notFound: {
+      title: 'Page not found',
+      body: 'The page you’re looking for doesn’t exist or may have moved. Let’s get you back on track.',
+      home: 'Back home',
+      tours: 'Browse tours',
+      blog: 'Read the journal',
+    },
+    globalError: {
+      title: 'Something went wrong',
+      body: 'The page failed to load. Please reload to try again.',
+      retry: 'Reload',
+    },
+    checkoutError: {
+      title: 'We’re confirming your payment',
+      body: 'Your payment is safe. We hit a snag loading this page, but your booking isn’t lost — try again, or check your trips in a moment.',
+      retry: 'Try again',
+      account: 'View my trips',
+    },
+  },
   topBar: {
     tagline: 'Vietnam’s boutique heritage travel, crafted end to end',
   },
@@ -1415,6 +1447,10 @@ export const messages = {
       title: 'No tours match your filters',
       body: 'Try removing a filter or two to see more journeys.',
       cta: 'Clear all filters',
+    },
+    loadError: {
+      title: 'We couldn’t load our tours',
+      body: 'The tour catalogue didn’t load just now — this is usually momentary. Please try again.',
     },
   },
   tourDetail: {
