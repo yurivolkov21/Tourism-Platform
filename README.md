@@ -1,15 +1,17 @@
 # tourism-platform
 
-An **Nx 22 + pnpm** monorepo for a Lily-style tourism booking platform — mobile from day one. The
-backend is complete and the **web** + **admin** front-ends are live (incl. the full **blog** — reader, tags/search, inline body images, share/prev-next/scrollspy polish, **newsletter signup** + **RSS**); mobile is next. **Brand: Nexora.**
+An **Nx 22 + pnpm** monorepo for a Lily-style tourism booking platform — mobile from day one. All
+four apps (API, web, admin, mobile) are complete and live/on-device-ready. **Brand: Nexora.**
 
 | Project | Path | Stack | Status |
 | --- | --- | --- | --- |
 | `@tourism/api` | `apps/api` | NestJS 11 · Prisma 7 · Supabase · Stripe + PayPal · Cloudinary · Resend · pg-boss | ✅ P1 complete · **deployed (Render)** |
-| `@tourism/web` | `apps/web` | Next.js 16 · React 19 · Tailwind v4 | 🟢 **P3 + P6 DONE (blog-v2 complete)** · **deployed (Vercel)** — home · destinations · tours (listing + detail) · about · contact · faq/legal · account + booking flow (Stripe/PayPal) · **blog** (`/blog` + `/blog/[slug]`, tag/search filter, share + prev/next + scrollspy, `/blog/rss.xml`) · **live footer newsletter signup**; real data wired |
-| `@tourism/admin` | `apps/admin` | Next.js 16 | 🟢 **P4 CRUD done** · **deployed (Vercel)** — auth + dashboard + CRUD ×5 (+ post tags & related-tours · **inline body-image editor** · **Subscribers list + CSV export**) |
-| `@tourism/mobile` | `apps/mobile` | Expo SDK 54 / RN | 🚧 scaffold (P5) |
+| `@tourism/web` | `apps/web` | Next.js 16 · React 19 · Tailwind v4 | 🟢 P3 + P6 (blog-v2) complete · **deployed (Vercel)** |
+| `@tourism/admin` | `apps/admin` | Next.js 16 | 🟢 P4 complete · **deployed (Vercel)** |
+| `@tourism/mobile` | `apps/mobile` | Expo SDK 54 / RN | 🟢 P5 + P5.5 complete (combined on-device pass owed) |
 | `@tourism/core` · `tokens` · `i18n` · `web/ui` · `mobile/ui` | `libs/` | shared types/OpenAPI client · design tokens ("Emerald Heritage") · EN copy · UI (54 comps) | 🟢 in use |
+
+Details per phase: **[docs/roadmap.md](docs/roadmap.md)** · full history: **[docs/CHANGELOG.md](docs/CHANGELOG.md)**.
 
 **Live demo:** web → [tourism-platform-web.vercel.app](https://tourism-platform-web.vercel.app) · admin → [tourism-platform-admin.vercel.app](https://tourism-platform-admin.vercel.app) · API health → [/api/v1/health](https://tourism-api-pqwr.onrender.com/api/v1/health).
 
@@ -39,7 +41,8 @@ pnpm nx run @tourism/api:seed     # HOẶC nạp dữ liệu demo (catalog + 1 b
 ```
 
 Lệnh hay dùng: `pnpm nx <việc> @tourism/api` — `serve` (chạy watch, ~ `start:dev`), `test`, `lint`,
-`build`. Test API bằng tay: xem **[apps/api/postman/README.md](apps/api/postman/README.md)**. Danh mục
+`build`. Test API bằng tay: mở **Swagger UI** tại `/api/docs` khi API đang chạy, hoặc xem mục
+**test data** trong **[docs/05-runbooks/local-dev.md](docs/05-runbooks/local-dev.md#test-data)**. Danh mục
 function (tiếng Việt): **[admin](docs/03-reference/functions-admin.md)** · **[customer](docs/03-reference/functions-customer.md)** · **[system](docs/03-reference/functions-system.md)**.
 
 ---
@@ -76,8 +79,8 @@ pnpm nx serve @tourism/api          # → http://localhost:3000/api/v1  ·  Swag
 
 - **From zero (recommended for understanding the API)** — `pnpm nx run @tourism/api:reset` empties all
   app tables (keeps schema + your Supabase accounts). Then build every row yourself through the API; the
-  **[Postman collection](apps/api/postman/README.md)** walks you through it (admin creates the catalog →
-  customer books it).
+  **Swagger UI** (`/api/docs` on the running API) walks you through every endpoint (admin creates the
+  catalog → customer books it).
 - **Seeded (quick demo data)** — `pnpm nx run @tourism/api:seed` loads a demo catalog + a self-signed
   PAID booking (this is what e2e/CI use).
 
@@ -137,5 +140,6 @@ docs/   README.md (map) · BLUEPRINT.md · roadmap.md · 01-architecture/ · 02-
 - **[docs/README.md](docs/README.md)** — documentation map + reading path.
 - **[docs/roadmap.md](docs/roadmap.md)** — phases P0–P6 + status.
 - **[docs/03-reference/functions-admin.md](docs/03-reference/functions-admin.md)** · **[customer](docs/03-reference/functions-customer.md)** · **[system](docs/03-reference/functions-system.md)** — every backend function.
-- **[apps/api/postman/README.md](apps/api/postman/README.md)** — manual API testing.
+- **[docs/05-runbooks/local-dev.md#test-data](docs/05-runbooks/local-dev.md#test-data)** — manual API
+  testing (from-zero vs seeded) via the Swagger UI.
 - **[docs/05-runbooks/local-dev.md](docs/05-runbooks/local-dev.md)** — running the project locally.

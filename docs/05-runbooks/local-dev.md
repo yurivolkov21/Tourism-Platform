@@ -80,11 +80,11 @@ pnpm nx dev @tourism/admin                    # → http://localhost:3002
 
 | Goal | Command | Effect |
 | --- | --- | --- |
-| **Start from zero** | `pnpm nx run @tourism/api:reset` | TRUNCATEs all 17 app tables. Keeps the schema/RLS, the pg-boss queue, and your **Supabase Auth accounts** (logins survive). Build rows yourself via the API. |
+| **Start from zero** | `pnpm nx run @tourism/api:reset` | TRUNCATEs all 25 app tables. Keeps the schema/RLS, the pg-boss queue, and your **Supabase Auth accounts** (logins survive). Build rows yourself via the API. |
 | **Quick demo data** | `pnpm nx run @tourism/api:seed` | Loads a demo catalog (categories/destinations/tours/departures + media) + a self-signed PAID booking. Used by **e2e/CI**. |
 
-Manual API testing (incl. creating the Supabase users + a from-zero walkthrough):
-**[apps/api/postman/README.md](../../apps/api/postman/README.md)**.
+Manual API testing: the running API's **Swagger UI** at `/api/docs` — every endpoint is listed
+and callable from there (create your Supabase test users via the Supabase dashboard/CLI first).
 
 ## Useful Nx commands
 
@@ -131,7 +131,7 @@ Investigated 2026-06-23 — there are **two distinct causes**:
    exclusions (admin PowerShell, the biggest lever), then prune the caches:
 
    ```powershell
-   Add-MpPreference -ExclusionPath "c:\develop\Apps\Main-Projects\tourism-platform"
+   Add-MpPreference -ExclusionPath "c:\Dev Program Files\Dev\Projects\Tourism-Platform"
    Add-MpPreference -ExclusionProcess "node.exe"
    ```
 

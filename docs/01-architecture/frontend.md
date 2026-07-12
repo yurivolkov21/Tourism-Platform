@@ -1,6 +1,6 @@
 # Frontend (web · admin · mobile)
 
-> Living doc. Web (P3) is filled below; admin (P4) / mobile (P5) fill as they land.
+> Living doc. Web (P3), admin (P4), and mobile (P5 + P5.5) are all complete and filled in below.
 
 ## Shared foundation
 
@@ -41,10 +41,10 @@ empty slot or failed fetch renders exactly the previous visuals. Image hosts go 
 | `/` | static | Lily-style homepage (hero · destinations bento · experiences · featured · why-choose · trust · blog-teaser · enquiry). |
 | `/destinations` | static | Overview: hero · full-bleed region mosaics (feature tiles) · when-to-visit · popular (image posters) · testimonials · travel-tips · enquiry. |
 | `/destinations/[region]` | **SSG** (×3) | `generateStaticParams` → northern/central/southern-vietnam; unknown → `notFound()`. Hero · intro bento · highlights · **per-region L2 signature** (North dark-stats · Central heritage-timeline · South delta-postcards) · tours (tabs, `?d=` client-read keeps SSG) · gallery · value-props · **rich Plan-your-trip form** (maps Enquiry model). Replaced per-destination `[slug]`. |
-| `/tours` | static | Filterable catalogue: sidebar facets (Destination · Duration · Travel style · Theme) + mobile drawer · sort · `TourCard` grid · empty state. Client-side filter (`filterTours`/`sortTours` from `@tourism/core`) keeps it static. |
-| `/tours/[slug]` | **SSG** | `generateStaticParams` from all fixture tour slugs; unknown → `notFound()`. Tour hero · overview · highlights · **itinerary accordion** · what's-included · sticky **BookingBox** (UI-only) · gallery · enquiry. |
+| `/tours` | static | Filterable catalogue: sidebar facets (Destination · Category · Duration · Price) + mobile drawer · sort · **free-text search** (`searchTours` from `@tourism/core`, accent/đ-insensitive, fed by the hero `?q=`) · client-side pagination (10/15/25, TDD `pageView`/`pageNumbers`) · `TourCard` grid w/ **availability badge** ("Only N seats left" at ≤5 · "Next: {date}" · "On request" — never "sold out"; pure `tourAvailability`/`nextDepartureInfo` over BE `nextDepartureDate`/`nextDepartureSeatsLeft`) · empty state. Client-side filter (`filterTours`/`sortTours`) keeps it static. |
+| `/tours/[slug]` | **SSG + ISR 300** | `generateStaticParams` from live tour slugs (`fetchTourDetailSlugs`); unknown → `notFound()`. Tour hero · overview · highlights · **itinerary accordion** · what's-included · sticky **BookingBox** (real "Book now" → `/tours/[slug]/book` · "Travel on your own dates" → private request · **seats-left per departure** · wishlist heart for signed-in users) · gallery · enquiry. |
 | `/about` | static | AboutHero · "Our story" **alternating image timeline** (centre spine + haloed year nodes) · by-the-numbers · team · enquiry. |
-| `/contact` | static | ContentHero · **channels** (call/email/WhatsApp action cards) · **two offices + map** · Plan-your-trip form · closing CtaBand. |
+| `/contact` | static | ContentHero · **Contact-01 inquiry** (real hotline/email/location · "Secure payments" self-hosted marks row · real enquiry form → `POST /enquiries` w/ **interest dropdown from live tour categories**, ISR 1h) · **MapLibre map** (lazy) · short FAQ accordion · image CtaBand. |
 | `/faq` | static | Searchable grouped accordion (category icons) · sticky TOC · **FAQPage JSON-LD**. |
 | `/privacy`, `/terms`, `/cancellation-policy` | static | Legal documents — complete real content, **not lawyer-reviewed** (fine for the demo). |
 | `/blog` · `/blog/[slug]` · `/blog/rss.xml` | ISR (300s) | Journal index (pagination + `?tag=`/`?q=` chips) · markdown article (outline scrollspy + scroll-progress · share row · prev/next · "Updated on") · RSS 2.0 feed. Footer carries a **live newsletter signup** (browser-side `POST /newsletter/subscribe`). `/blog/[slug]` `generateMetadata` prefers the post's `metaTitle`/`metaDescription` (admin wave C, 2026-07-11), falling back to `title`/`excerpt`. |
@@ -73,8 +73,17 @@ components/
   legal/       LegalArticle (renders a LegalDoc)
   content/     ContentHero · OnThisPage (shared content-page template)
   tours/       TourCard · ToursExplorer · TourGallery
+  account/     dashboard/settings/bookings/saved surfaces
+  auth/        login/register/forgot/reset forms
+  blog/        journal index · article · outline scrollspy · share row · newsletter signup
+  booking/     departure picker · price summary · checkout redirect
+  forms/       shared field/error primitives (noValidate + per-field error rendering)
+  feedback/    <Toaster>/<FlashToaster> + AlertDialog confirms (toast/flash outcome layer)
+  seo/         JSON-LD builders + metadata helpers
   about/ contact/ brand/ icons/
-lib/           destinations.fixtures.ts · slug.ts          (view-model fixtures + helpers)
+lib/           api/ (typed-client wrappers per resource) · account/ · blog/ · booking/ · tours/ ·
+               wishlist/ · supabase/ · forms/ (shared + per-flow validators) · site-media.ts ·
+               region-imagery.ts · regions.ts (fixture fallback) · slug.ts · flash.ts …
 content/       privacy.ts · terms.ts · legal-page.ts       (long-form legal documents)
 ```
 
@@ -90,11 +99,18 @@ content/       privacy.ts · terms.ts · legal-page.ts       (long-form legal do
 
 ### Data strategy
 
-- **Now:** fixtures in `apps/web/src/lib/*.fixtures.ts`, typed as web view-models that extend
-  `@tourism/core` DTOs (e.g. `DestinationTileVM extends DestinationSummary`).
-- **Pure logic in `@tourism/core`** (not the app): the app has no unit-test harness, and the project
-  TDDs pure logic in shared libs while covering web layout via e2e. Example: `groupByRegion`, `getBySlug`.
-- **Later:** replace fixtures with the live typed client (`/regen-types` after BE DTO changes).
+- **Live data via the typed client.** `apps/web/src/lib/api/*` wraps the `@tourism/core` OpenAPI
+  client per resource (destinations, tours, posts, reviews, wishlist, booking, …); pages fetch through
+  it server-side with ISR, not fixtures. Regenerate the client after any BE DTO change (`/regen-types`).
+- **`lib/regions.ts` fixtures are a narrowly-scoped fallback**, not the data source: region-page +
+  `/destinations` overview imagery derives from `Destination.media[]` via `lib/region-imagery.ts`
+  (all-real-or-fixture — a region with real uploaded media renders it, else falls back entirely to the
+  static fixture) so a destination never renders a half-real, half-placeholder gallery.
+- **Pure logic in `@tourism/core`** (not the app): the app has no unit-test harness for React
+  components, and the project TDDs pure logic in shared libs while covering web layout via e2e.
+  Example: `groupByRegion`, `getBySlug`, `filterTours`/`sortTours`. The web app itself does carry a
+  Jest harness for its own pure `lib/*.ts` helpers (e.g. `region-imagery`, `site-media`, `flash`,
+  `paginate`), TDD'd the same way.
 
 ### Conventions
 
@@ -112,36 +128,58 @@ content/       privacy.ts · terms.ts · legal-page.ts       (long-form legal do
 
 ## Admin (`@tourism/admin`) — P4
 
-🟢 **P4 complete + DEPLOYED** (Vercel, dev port :3002). Supabase SSR auth + `proxy.ts` gate +
-`/auth/admin/sync` allowlist · app shell (sidebar / topbar / theme / user-menu) · dashboard (live
-`/admin/stats/dashboard`) · **CRUD: Destinations · Categories · Tours · Departures · Posts** (Server
-Components fetch + Server Actions mutate, `@tourism/ui`, tokens-only) · Tours increment-2 sub-forms
-(itinerary/FAQs/policies) + shared `MediaField` upload · **blog-v2 authoring** (tag combobox ·
-related-tours picker · inline body-image editor w/ Write|Preview) · **Subscribers list + CSV
-export** under Operations · media library (`/media` + garbage queue) · **refund execution +
-cancellation-request queue** (partial amount + proactive-refund safeguard · `/cancellation-requests`)
-· **form-validation sweep** (all forms `noValidate` + per-field server errors — standing rule) ·
-**motion layer** (`components/motion/` Reveal/Stagger · 13 route skeletons · KPI count-up · route
-fade · sidebar `layoutId` pill; RTL tests enabled) · **Appearance** (`/appearance` brand-chrome slot
-manager, 9 slots) · **list-table stack** (`components/crud/`: `AdminTableShell` w/ sortable headers
-(`accessorFn` opt-in, `aria-sort`) · `ColumnsMenu` + per-table localStorage persistence
-(`lib/table-prefs.ts` + `usePersistentColumnVisibility`) · shared `FacetFilter` · client/server
-pagination adapters; Tours destination/featured filters · Bookings tour/departure URL filters +
-chips · Departures Upcoming·Past·All facet) · **reviews + enquiry CRM (2026-07-11)** — reviews
-list server-driven (status/source/rating/search facets) + `/reviews/[id]/edit` shared form +
-drawer customer/booking links; enquiries drawer notes thread + repeat-lead badges · **wave C
-(2026-07-11)** — booking breakdown card + tab counts · post SEO/schedule UI · self-profile ·
-subscriber remove + outbox delete · `/payment-events` viewer · **media library upgrade (wave D1,
-2026-07-11)** — library reuse picker in MediaField · drawer alt editor · bulk selection/delete ·
-**wave D2 (2026-07-12)** — shared **`TabPills`** (`components/crud/tab-pills.tsx`, button +
-RSC-safe `<Link>` variants w/ count badges; all 13 copy-pasted tablists across 11 files
-migrated byte-identically; post-form Write|Preview stays hand-rolled) · **dashboard
-date-range** (preset pills + custom `Calendar` range popover → URL `?from&to`; TDD
-`lib/dashboard/date-range.ts`; `today` resolves post-mount to stay hydration-safe) ·
-per-currency stats render (extra-currency KPI footnote · per-row Top-Tours currency ·
-AOV divides by the dominant currency's paid count).
-260 tests (2026-07-12).
+🟢 **P4 complete + DEPLOYED** (Vercel, dev port :3002). Current surfaces:
+
+- **Shell & auth** — Supabase SSR auth + `proxy.ts` gate + `/auth/admin/sync` allowlist · app
+  shell (sidebar / topbar / theme / user-menu) · dashboard (live `/admin/stats/dashboard`,
+  preset/custom date-range filter, per-currency stats).
+- **CRUD** — Destinations · Categories · Tours (+ itinerary/FAQs/policies sub-forms) ·
+  Departures · Posts (Server Components fetch + Server Actions mutate, `@tourism/ui`,
+  tokens-only), all sharing a `MediaField` upload with a "choose from library" reuse picker ·
+  **blog-v2 authoring** (tag combobox · related-tours picker · inline body-image editor).
+- **Users management** — `/users` list (role/search filter) · `/users/[id]` detail with
+  footprint counts · role change and delete via a danger-zone confirm · `/users/me`
+  self-profile.
+- **Operations** — Subscribers list + CSV export · `/cancellation-requests` queue ·
+  `/payment-events` webhook viewer · outbox delete · media library (`/media` + garbage queue,
+  bulk delete, alt editor) · **Appearance** (`/appearance` brand-chrome slot manager, 9 slots).
+- **CRM & money** — refund execution (partial amount + proactive-refund safeguard) · reviews
+  CRM (server-driven facets, curated-review create/edit/delete/feature) · enquiry CRM (notes
+  thread + repeat-lead badges).
+- **Shared UI stack** — sortable `AdminTableShell` + `ColumnsMenu` (persisted column
+  visibility) + `FacetFilter` + `TabPills` (`components/crud/`) · motion layer (route
+  skeletons, KPI count-up, route fade, sidebar pill) · form-validation sweep (`noValidate` +
+  per-field server errors — standing rule).
+
+History: see [CHANGELOG](../CHANGELOG.md).
+
+264 tests (2026-07-12).
 
 ## Mobile (`@tourism/mobile`) — P5
 
-📝 Scaffold. Expo Router, RN screens, `@tourism/mobile-ui`, reuse `@tourism/core` — fill when P5 lands.
+🟢 **P5 (W1→W4) + P5.5 (N1→N3) COMPLETE.** Expo Router (SDK 54) app over a **5-tab** shell —
+**Home · Explore · Saved · Trips · Account** (`app/(tabs)/`) — consuming the same
+`@tourism/core` typed client + TanStack Query as web/admin.
+
+- **Browse & detail** — task-first Home (greeting · search pill → Explore autofocus ·
+  signed-in next-trip/recently-saved rails · featured + destinations shelves); Explore
+  (instant client-side search/filter/sort + an `AppSheet` filter drawer); tour detail at web
+  parity (gallery pager, seats-left, accordions, reviews, sticky Inquire CTA).
+- **Auth & wishlist** — guest-first Supabase auth (AsyncStorage session + `AppState`
+  auto-refresh, `/auth/sync` after sign-in) via 3 auth screens (sign-in/up/forgot); wishlist
+  (optimistic `useWishlist` + `HeartButton`, guest tap → sign-in) surfaced on its own Saved
+  tab; bookings live on a dedicated **Trips** tab (booking detail is a stack screen); Account
+  carries profile edit + sign-out.
+- **Booking (money path)** — stepped, Airbnb-style booking sheets (`DepartureSheet` → contact
+  → payment) driven by a `BookingDraft` context; pricing/validation logic ported **verbatim**
+  from web (`booking-form.ts`/`price.ts`, TDD); checkout opens the provider's hosted page via
+  `expo-web-browser`, then a **self-verifying result screen** refetches the booking (idempotent
+  PayPal capture-on-return) — Android's `openBrowserAsync` resolves immediately, so the same
+  verify also fires on `AppState` return-to-foreground.
+- **Design system** — `@tourism/mobile-ui` (RN, themed off `@tourism/tokens/theme`): Button,
+  Card, TextField, Chip, Accordion, Badge, Skeleton, `AppSheet` (bottom-sheet wrapper), native
+  motion (reanimated, Android ripple, haptics) — **34 tests**.
+
+⚠️ **Owed:** a combined on-device pass (Stripe test card · PayPal sandbox · abandon→pay-now ·
+cancel/cancellation-request · guest gating) across N1–N3 + W4 hasn't run yet — feature work
+itself is complete. **153 tests** (`apps/mobile`).

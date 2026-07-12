@@ -50,6 +50,9 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 | A-USR-1 | Admin Sync Account<br>`POST /auth/admin/sync` | 1. Admin đăng nhập qua Supabase (FE admin), nhận token<br>2. Gửi `POST /auth/admin/sync` (Bearer)<br>3. Guard verify JWT<br>4. **Email phải nằm trong `ADMIN_EMAILS`** — không thì 403 `NOT_ADMIN` (không âm thầm về CUSTOMER)<br>5. Upsert user, **force `role = ADMIN`**<br>6. Trả hồ sơ admin | Admin | **User** | users | Sequence | ✅ |
 | A-USR-2 | Change User Role<br>`PATCH /admin/users/:id/role` | 1. Admin đổi role CUSTOMER↔ADMIN từ trang user detail<br>2. Guard 409: tự đổi role mình (`ROLE_SELF_CHANGE`) · demote admin thuộc `ADMIN_EMAILS` (`ROLE_ENV_ADMIN`)<br>3. **Demote chạy locking-CTE claim một statement (wave D2)**: `FOR UPDATE` toàn bộ hàng ADMIN + đếm trong cùng statement — 2 demote đồng thời không thể cùng qua, không bao giờ còn 0 admin; claim rỗng → 409 `ROLE_LAST_ADMIN`<br>4. Promote = `update` thường; trả hồ sơ mới | Admin | **User** | users | Sequence | ✅ |
 | A-USR-3 | Delete User<br>`DELETE /admin/users/:id` | 1. Admin xóa tài khoản khách<br>2. Guard 409: tự xóa mình (`USER_SELF_DELETE`) · target là ADMIN (`USER_IS_ADMIN` — demote trước) · còn booking (`ACCOUNT_HAS_BOOKINGS`) · có bài blog (`USER_HAS_POSTS`)<br>3. `$transaction`: GC avatar + **`deleteMany({id, role: CUSTOMER})` có điều kiện (wave D2)** — target bị promote xen kẽ thì count 0 → 409, đóng đường vòng promote→demote→delete quanh invariant last-admin<br>4. Xóa identity Supabase best-effort | Admin | **User**, MediaAsset | users, media_assets, media_garbage | Sequence | ✅ |
+| A-USR-4 | List Users<br>`GET /admin/users` | 1. Admin mở trang quản lý người dùng<br>2. Gửi `GET /admin/users` — phân trang, lọc `role` tùy chọn + `search` (không phân biệt hoa thường trên tên/email)<br>3. `Promise.all` list + count (pooler-safe), mới nhất trước<br>4. Trả danh sách + `meta` | Admin | **User** | users | Activity | ✅ |
+| A-USR-5 | My Admin Profile<br>`GET /admin/users/me` | 1. Admin mở trang hồ sơ của chính mình trong khu quản trị<br>2. Gửi `GET /admin/users/me`<br>3. Resolve caller từ JWT đã sync (401 `USER_NOT_SYNCED` nếu chưa); dùng chung service `detail()` với A-USR-6<br>4. Trả chi tiết + số liệu dấu chân (booking/review/post…) | Admin | **User** | users, bookings, reviews, posts | Activity | ✅ |
+| A-USR-6 | User Detail<br>`GET /admin/users/:id` | 1. Admin mở chi tiết 1 người dùng từ danh sách<br>2. Gửi `GET /admin/users/:id`<br>3. Không tồn tại → 404; trả chi tiết + số liệu dấu chân (booking/review/post…) dùng để quyết định cờ hành động (đổi role/xoá) ở FE<br>4. Trả bản ghi | Admin | **User** | users, bookings, reviews, posts | Activity | ✅ |
 
 ## `TourCategory`
 
@@ -113,6 +116,9 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 | A-REV-1 | Moderation Queue<br>`GET /admin/reviews` | 1. Admin mở hàng chờ duyệt<br>2. Gửi `GET /admin/reviews` (lọc `isApproved`/**`source`/`rating`/`search`** tùy chọn — `search` OR không phân biệt hoa thường trên `authorName`/`title`/`body`), mới nhất trước<br>3. Admin được xem PII — giữ `userId`/`bookingId` + join tên/email reviewer + mã booking + slug tour (null với review CURATED)<br>4. Phân trang; trả danh sách | Admin | **Review**, User, Tour, Booking | reviews, users, tours, bookings | Activity | ✅ |
 | A-REV-2 | Moderate Review<br>`PATCH /admin/reviews/:id/moderation` | 1. Admin xem review chờ duyệt<br>2. Gửi `{ isApproved: true \| false }`<br>3. 404 `REVIEW_NOT_FOUND` nếu thiếu<br>4. Trong `$transaction`: cập nhật `isApproved`; **khi false→true** thì ghi `outbox` REVIEW_APPROVED (email — S-JOB-1, `skipDuplicates`)<br>5. Trả review | Admin | **Review**, Outbox | reviews, outbox | Activity | 🕒 Thêm audit `moderated_by`/`moderated_at` khi làm admin FE |
 | A-REV-3 | Edit Curated Review<br>`PATCH /admin/reviews/:id` | 1. Admin sửa testimonial **CURATED** (`rating`/`title`/`body`/`authorName`/`authorLocation`/`tripLabel`… — mọi field optional)<br>2. 404 `REVIEW_NOT_FOUND` nếu thiếu; **review `VERIFIED` → 409 `REVIEW_NOT_CURATED`** (không sửa review thật của khách)<br>3. Field gửi `null` tường minh **xoá** field nullable (`authorLocation`/`tripLabel`…); field bỏ qua giữ nguyên giá trị cũ<br>4. Cập nhật; trả review | Admin | **Review** | reviews | Activity | ✅ |
+| A-REV-4 | Feature Review<br>`PATCH /admin/reviews/:id/feature` | 1. Admin ghim/bỏ ghim 1 review lên carousel trang chủ<br>2. Gửi `{ isFeatured: true \| false }`<br>3. 404 `REVIEW_NOT_FOUND` nếu thiếu<br>4. Cập nhật `isFeatured`; trả review | Admin | **Review** | reviews | Activity | ✅ |
+| A-REV-5 | Delete Curated Review<br>`DELETE /admin/reviews/:id` | 1. Admin xoá 1 testimonial **CURATED** (nhập tay, không gắn booking)<br>2. 404 `REVIEW_NOT_FOUND` nếu thiếu; **review `VERIFIED` (của khách thật) → 409 `REVIEW_NOT_CURATED`** (bất tử)<br>3. Xoá cứng<br>4. Trả bản ghi đã xoá (echo) | Admin | **Review** | reviews | Activity | ✅ |
+| A-REV-6 | Create Curated Review<br>`POST /admin/reviews/curated` | 1. Admin nhập testimonial tay (không gắn booking): `rating`, `body`, `authorName`; tùy chọn `title`/`authorLocation`/`tripLabel`<br>2. Không qua hàng chờ duyệt — tạo thẳng `source=CURATED`, `isApproved=true`, `isFeatured=true`<br>3. Trả review đã tạo | Admin | **Review** | reviews | Activity | ✅ |
 
 ## `Enquiry`
 
@@ -169,6 +175,8 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 | Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
 | A-OUT-1 | Delete Outbox Row<br>`DELETE /admin/outbox/:id` | 1. Admin xoá 1 email đang chờ/lỗi trước khi drain gửi đi (wave C)<br>2. Chỉ `PENDING`/`FAILED` mới xoá được — **atomic `deleteMany`** (không check-rồi-xoá) để tránh race với drain cron; `SENT` (đã gửi thật) → 409 `OUTBOX_ROW_SENT` (giữ làm lịch sử gửi)<br>3. Không tồn tại → 404 `OUTBOX_NOT_FOUND`<br>4. Trả xác nhận | Admin | **Outbox** | outbox | Activity | ✅ |
+| A-OUT-2 | List Outbox<br>`GET /admin/outbox` | 1. Admin mở `/outbox` xem hàng đợi email<br>2. Gửi `GET /admin/outbox` — phân trang, lọc `status` tùy chọn, mới nhất trước<br>3. `payload` (nội dung email) không lộ trong danh sách<br>4. Trả danh sách + `meta` | Admin | **Outbox** | outbox | Activity | ✅ |
+| A-OUT-3 | Retry Outbox Row<br>`POST /admin/outbox/:id/retry` | 1. Admin bấm Retry trên 1 dòng `FAILED`<br>2. Không tồn tại → 404 `OUTBOX_NOT_FOUND`; không phải `FAILED` → 409<br>3. Reset về `PENDING` (drain cron 1 phút sau nhặt lại)<br>4. Trả bản ghi đã cập nhật | Admin | **Outbox** | outbox | Activity | ✅ |
 
 ## `PaymentEvent` (webhook log viewer)
 
@@ -180,6 +188,13 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 
 ## Lịch sử
 
+- **2026-07-12** — **Docs-restructure audit:** catalog thiếu 8 endpoint đã sống trong code từ
+  các đợt trước — bổ sung không đổi số cũ: `User` **A-USR-4/5/6** (`GET /admin/users` list ·
+  `GET /admin/users/me` · `GET /admin/users/:id` detail — ship từ 2026-07-03 (`ae02bed`) nhưng
+  chưa vào catalog; wave D2 chỉ hardening A-USR-2/3) · `Outbox` **A-OUT-2/3** (`GET /admin/outbox` list · `POST /admin/outbox/:id/retry`,
+  cùng đợt với A-OUT-1 xóa) · `Review` **A-REV-4/5/6** (`PATCH .../feature` ghim carousel ·
+  `DELETE /admin/reviews/:id` xóa CURATED · `POST /admin/reviews/curated` tạo testimonial tay).
+  Không có model/endpoint mới — chỉ đóng khoảng trống tài liệu.
 - **2026-07-11** — **Media library upgrade (wave D1, `1d76c96`):** GC ref-safe ở
   cả hai đầu — `recordGarbage` (dùng chung bởi A-DST-5/A-TUR-5/A-PST-7/A-MED-3/
   A-MED-9) bỏ qua publicId còn owner khác tham chiếu; `reconcileMedia` (S-JOB)

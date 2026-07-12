@@ -15,10 +15,11 @@
 ## 📖 Reading path
 
 1. **[BLUEPRINT.md](BLUEPRINT.md)** — *why* greenfield+donor, locked decisions, the data model. The origin story.
-2. **[roadmap.md](roadmap.md)** — phases P0–P6, current status, and the P1 backend breakdown.
-3. **[01-architecture/](01-architecture/README.md)** — how the system is built (layout, boundaries, reuse engine, backend, data model, frontend).
-4. **[04-guides/conventions.md](04-guides/conventions.md)** — how we work + which tools/skills to use.
-5. **[02-decisions/](02-decisions/README.md)** — the decision log (ADRs) + open questions.
+2. **[roadmap.md](roadmap.md)** — phases P0–P6, short current status per phase.
+3. **[CHANGELOG.md](CHANGELOG.md)** — full project history, reverse-chronological (one entry per merge to `main`).
+4. **[01-architecture/](01-architecture/README.md)** — how the system is built (layout, boundaries, reuse engine, backend, data model, frontend).
+5. **[04-guides/conventions.md](04-guides/conventions.md)** — how we work + which tools/skills to use.
+6. **[02-decisions/](02-decisions/README.md)** — the decision log (ADRs) + open questions.
 
 Then, as needed: **[03-reference/](03-reference/)** — function catalog ([admin](03-reference/functions-admin.md)/[customer](03-reference/functions-customer.md)/[system](03-reference/functions-system.md)) + reference-site research · **[05-runbooks/](05-runbooks/README.md)** (ops) · **[06-specs/](06-specs/)** + **[07-plans/](07-plans/)** (per-feature).
 
@@ -28,14 +29,16 @@ Then, as needed: **[03-reference/](03-reference/)** — function catalog ([admin
 docs/
 ├── README.md                  ← you are here (map + reading path)
 ├── BLUEPRINT.md               founding plan (why · decisions · data model)
-├── roadmap.md                 phases P0–P6 + P1 breakdown
-├── 01-architecture/              how it's built (overview + data-model/backend/frontend)
+├── roadmap.md                 phases P0–P6, short status (history → CHANGELOG)
+├── CHANGELOG.md                  full project history (reverse-chronological)
+├── 01-architecture/              how it's built (overview + data-model/backend/frontend/risks)
 ├── 02-decisions/                 ADR log (one decision per file)
 ├── 03-reference/                 function catalog (admin/customer/system) + reference-site research
 ├── 04-guides/                    conventions + how-tos
-├── 05-runbooks/                  operational how-tos (local-dev, seed, deploy)
+├── 05-runbooks/                  operational how-tos (local-dev, deploy, env-and-secrets)
 ├── 06-specs/                     per-feature design specs (spec→plan→execute)
-└── 07-plans/                     per-feature implementation plans
+├── 07-plans/                     per-feature implementation plans
+└── email-templates/              Supabase Auth email templates (HTML, configured in the dashboard)
 ```
 
 ## Doc language / Ngôn ngữ tài liệu

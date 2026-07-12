@@ -40,14 +40,21 @@ const TABLES = [
   'tour_faqs',
   'tour_policies',
   'bookings',
+  'cancellation_requests',
   'reviews',
   'wishlist',
   'payment_events',
   'enquiries',
+  'enquiry_notes',
+  'subscribers',
   'media_assets',
+  'site_media_slots',
   'outbox',
   'media_garbage',
   'posts',
+  'post_tags',
+  'post_tag_links',
+  'post_tours',
 ] as const;
 
 async function main(): Promise<void> {

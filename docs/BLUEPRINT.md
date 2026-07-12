@@ -4,7 +4,7 @@
 **Status:** Draft for review (founding doc — lives in the current/"donor" repo
 until the new repo is scaffolded, then moves there).
 **Author context:** drives a from-zero rebuild after the customer-FE/UX analysis
-and the reference-site study ([reference-sites-analysis](../research/2026-06-14-reference-sites-analysis.md)).
+and the reference-site study ([reference-sites-analysis](03-reference/reference-sites-analysis.md)).
 
 > **Strategy in one line:** stand up a **brand-new Nx monorepo** (clean data
 > model + Lily-style FE + mobile from day one) while **keeping the current repo
@@ -132,7 +132,7 @@ consume `shared/tokens` so the Lily design language is identical across platform
 
 > **Founding sketch — not current.** The entity list below is the original draft;
 > it predates several changes that landed in P1. For the **canonical current model**
-> (17 models, 12 enums) see [01-architecture/data-model.md](01-architecture/data-model.md)
+> (25 models, 16 enums) see [01-architecture/data-model.md](01-architecture/data-model.md)
 > and [`schema.prisma`](../apps/api/prisma/schema.prisma).
 >
 > What changed since this draft:

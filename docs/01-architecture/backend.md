@@ -5,7 +5,7 @@ NestJS service. Ports the donor's proven structure; hardened per
 
 > **Status: P1 complete + blog-v2 BE complete** (P1.1 → P1.x + P1.7d/e → posts CRUD →
 > blog-v2 W1/W3/W5: tags/related-tours/author · body-image register · newsletter).
-> **314 unit + 8 e2e tests** (2026-07-05). Canonical surface: the running Swagger spec
+> **439 unit + 8 e2e tests** (2026-07-12). Canonical surface: the running Swagger spec
 > (`/api/docs`) + `schema.prisma`.
 
 ## Module map
@@ -17,7 +17,8 @@ config/   Joi env validation + namespaced registerAs
 prisma/   PrismaService (PrismaPg adapter) + prisma.config.ts (DIRECT_URL migrations)
 modules/
   auth · users · destinations · tour-categories · tours · departures ·
-  bookings · payments (stripe + paypal) · uploads · media ·
+  bookings · cancellations (cancellation-request queue) · payments (stripe + paypal) ·
+  uploads · media · site-media (brand-chrome slots) ·
   reviews · wishlist · enquiry · newsletter · admin-stats · posts ·
   email (Resend templates) · jobs (pg-boss outbox + cron)
 app/      AppModule (global guards/interceptor/filter) + root controller (GET /)
@@ -81,7 +82,15 @@ CRUD: destinations · tours (+categories, M:N destinations, itinerary/FAQs/polic
 departures · **bookings + Stripe/PayPal** · **media** (Cloudinary signed upload) · **reviews**
 (PAID-gated + moderation) · **wishlist** · **enquiry** (throttle + honeypot + lead fields) ·
 **admin-stats** (optional `?from&to` range + per-currency aggregation, no FX — wave D2) ·
-**jobs** (outbox + cron). Function catalog:
+**jobs** (outbox + cron) · **cancellation-request queue** (customer
+`POST /bookings/:code/cancellation-request` on a PAID booking + admin
+`GET /admin/cancellation-requests` list / `POST /admin/cancellation-requests/:id/deny`) ·
+**site-media / Appearance** (public `GET /site-media` + admin `GET/PUT /admin/site-media/:key/media`
+for the 9 brand-chrome slots) · **enquiry CRM** (`EnquiryNote` internal-notes thread +
+per-page repeat-lead counts on the admin enquiry list) · **subscriber + outbox deletes**
+(`DELETE /admin/newsletter/subscribers/:id`, `DELETE /admin/outbox/:id` — atomic vs the drain
+cron, 409 if already `SENT`) · **`GET /admin/payment-events`** (webhook log viewer with raw
+payload + best-effort booking link). Function catalog:
 [../03-reference/functions-admin.md](../03-reference/functions-admin.md) ·
 [functions-customer.md](../03-reference/functions-customer.md) ·
 [functions-system.md](../03-reference/functions-system.md).

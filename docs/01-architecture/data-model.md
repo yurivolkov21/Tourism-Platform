@@ -15,7 +15,7 @@ when this doc disagrees with the schema, the schema wins. Founding rationale:
 > `post_seo_fields` adds `Post.metaTitle`/`metaDescription`, applied live) →
 > admin media-library wave D1 (2026-07-11 — migration `media_asset_alt` adds
 > `MediaAsset.alt`, applied live).
-> **24 models, 16 enums.**
+> **25 models, 16 enums.**
 
 ## Conventions (kept from donor)
 
@@ -24,7 +24,7 @@ UUID PKs (`@db.Uuid`, client-generated; `Outbox`/`MediaGarbage` use DB-default
 `@db.VarChar(n)` · `Decimal(12,2)` for money · closed enums · `created_at`/`updated_at` ·
 indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 
-## Models (24)
+## Models (25)
 
 | Model | Purpose | Notable fields / relations |
 | --- | --- | --- |

@@ -80,8 +80,9 @@ Each app has a committed **`.env.example`**; copy it to `.env` (gitignored) and 
 
 ## 5. Test it
 
-- **API by hand:** [apps/api/postman/README.md](../../apps/api/postman/README.md) — import the collection +
-  an environment (local or cloud/Render), then run admin-builds-catalog → customer-books-it.
+- **API by hand:** the running API's **Swagger UI** at `/api/docs` (also linked from
+  [docs/05-runbooks/local-dev.md](../05-runbooks/local-dev.md#test-data)) — try requests directly:
+  admin-builds-catalog → customer-books-it.
 - **Quality gate (what CI runs):** `pnpm nx run-many -t lint typecheck test build`
   (or only what changed: `pnpm nx affected -t lint typecheck test build`).
 - **Preview the web app exactly as production serves it:**

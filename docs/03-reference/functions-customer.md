@@ -54,6 +54,8 @@ Sequence diagram**.
 | U-USR-3 | Update Profile<br>`PATCH /users/me` | 1. User nhập `fullName` / `phone`<br>2. Gửi `PATCH /users/me`<br>3. Validate DTO; `email` và `role` bất biến (bỏ qua nếu client gửi)<br>4. Cập nhật `users`<br>5. Trả hồ sơ đã cập nhật (+ `avatarUrl`) | Customer | **User** | users | Activity | ✅ |
 | U-USR-4 | Set Avatar<br>`PUT /users/me/avatar` | 1. User upload ảnh qua signed URL (A-MED-1) → có `publicId`<br>2. Gửi `PUT /users/me/avatar` kèm `publicId` (+ format/width/height)<br>3. Server replace-all media role=avatar cho owner USER trong `$transaction` (force type IMAGE)<br>4. Trả hồ sơ kèm `avatarUrl` mới | Customer | **User**, MediaAsset | users, media_assets | Sequence | ✅ |
 | U-USR-5 | Clear Avatar<br>`DELETE /users/me/avatar` | 1. User gỡ avatar<br>2. Gửi `DELETE /users/me/avatar`<br>3. Xoá MediaAsset role=avatar của owner (publicId ghi vào `media_garbage` để cron dọn Cloudinary — S-JOB-3)<br>4. Trả hồ sơ (`avatarUrl = null`) | Customer | **User**, MediaAsset, MediaGarbage | users, media_assets, media_garbage | Activity | ✅ |
+| U-USR-6 | Sign Avatar Upload<br>`POST /users/me/avatar/sign` | 1. User chọn ảnh đại diện mới<br>2. Gửi `POST /users/me/avatar/sign` kèm `filename`/`contentType`<br>3. Server **ép `purpose = USER_AVATAR`** phía server (khác endpoint ký của admin — khách chỉ ký được đúng thư mục avatar của mình) rồi ký chữ ký Cloudinary<br>4. Trả payload ký; FE upload thẳng lên Cloudinary rồi gọi `PUT /users/me/avatar` (U-USR-4) với `publicId` trả về | Customer | **User** | — (Cloudinary) | Sequence | ✅ |
+| U-USR-7 | Delete Account<br>`DELETE /users/me` | 1. User xoá tài khoản của chính mình (vùng nguy hiểm trong Settings)<br>2. Gửi `DELETE /users/me`<br>3. **Còn booking (mọi status) → 409 `ACCOUNT_HAS_BOOKINGS`** (giữ hồ sơ tài chính, không xoá được)<br>4. `$transaction`: GC avatar (→ `media_garbage`) + xoá hàng `users`; xoá identity Supabase best-effort<br>5. 204 rỗng | Customer | **User**, MediaAsset, MediaGarbage | users, media_assets, media_garbage, bookings | Sequence | ✅ |
 
 ## `Destination` (công khai)
 
@@ -88,6 +90,8 @@ Sequence diagram**.
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
 | U-REV-1 | View Tour Reviews<br>`GET /tours/:slug/reviews` (công khai) | 1. User xem đánh giá tour<br>2. Gửi `GET /tours/:slug/reviews?page&pageSize`<br>3. Tour phải publish (404 nếu không) — tránh "200 rỗng" che bug routing<br>4. Server chỉ trả review `isApproved = true`, mới nhất trước<br>5. **Ẩn PII** — chỉ lộ `reviewer.fullName`<br>6. Trả danh sách + `meta.averageRating` (trung bình review đã duyệt) | Customer | **Review**, User, Tour | reviews, users, tours | Activity | ✅ |
 | U-REV-2 | Write Review<br>`POST /reviews` | 1. User chọn booking đã hoàn tất để đánh giá<br>2. Nhập `rating` (1–5), `title`, `body`; gửi kèm `bookingCode`<br>3. Server kiểm tra booking tồn tại → thuộc về caller (else 403 `BOOKING_FORBIDDEN`) → trạng thái `PAID` (else 400 `REVIEW_NOT_ELIGIBLE`)<br>4. Mỗi booking 1 review (`bookingId` UNIQUE → P2002 → 409 `REVIEW_ALREADY_EXISTS`)<br>5. `tourId` denormalize từ booking; tạo review `isApproved = false` (chờ admin duyệt — A-REV-2)<br>6. Trả review | Customer | **Review**, Booking | reviews, bookings | Activity | 🕒 Cần booking **PAID của chính chủ**; pre-moderation (verified-purchase chỉ chống fake, không chống nội dung bẩn/PII) |
+| U-REV-3 | Featured Testimonials<br>`GET /reviews/featured` (công khai) | 1. Trang chủ tải dải testimonial nổi bật<br>2. Gửi `GET /reviews/featured` (không cần đăng nhập)<br>3. Server trả review `isApproved = true` **và** `isFeatured = true` (gồm cả `CURATED` — testimonial admin nhập tay, không gắn booking), tối đa 12, `CURATED` xếp trước<br>4. Trả danh sách | Customer | **Review** | reviews | Activity | ✅ |
+| U-REV-4 | Review Summary<br>`GET /reviews/summary` (công khai) | 1. Trang chủ hiển thị dải "trust" (tổng số review + rating trung bình toàn site)<br>2. Gửi `GET /reviews/summary` (không cần đăng nhập)<br>3. Server `aggregate` đếm + tính trung bình trên mọi review `isApproved = true`, làm tròn 1 chữ số thập phân<br>4. Trả `{ count, averageRating }` (`averageRating = null` nếu chưa có review nào được duyệt) | Customer | **Review** | reviews | Activity | ✅ |
 
 ## `Booking`
 
@@ -139,6 +143,12 @@ Sequence diagram**.
 
 ## Lịch sử
 
+- **2026-07-12** — **Docs-restructure audit:** catalog thiếu 4 endpoint công khai/khách hàng đã
+  sống trong code — bổ sung không đổi số cũ: `User` **U-USR-6/7** (`POST
+  /users/me/avatar/sign` ký upload avatar · `DELETE /users/me` xóa tài khoản, 409 nếu còn
+  booking) · `Review` **U-REV-3/4** (`GET /reviews/featured` testimonial nổi bật · `GET
+  /reviews/summary` tổng số + rating trung bình toàn site — cả hai `@Public`). Không có
+  model/endpoint mới — chỉ đóng khoảng trống tài liệu.
 - **2026-07-05** — **Refund execution + cancellation-request queue:** **bổ sung**
   U-BKG-7 (`POST /bookings/:code/cancellation-request` — owner-only, upsert 1
   request/booking, reset request `DENIED` cũ khi gửi lại) — **thay cho hack cũ**

@@ -16,6 +16,10 @@ decisions also fold into [../BLUEPRINT.md](../BLUEPRINT.md) / [../01-architectur
 | [0006](0006-multi-gateway-momo.md) | **Multi-gateway** payments: Stripe + **PayPal** (amended from MoMo 2026-06-16) | 2026-06-15 |
 | [0007](0007-pgboss-outbox-jobs.md) | **pg-boss** outbox + jobs (reliability) | 2026-06-15 |
 | [0008](0008-security-integrity-hardening.md) | **Security & integrity hardening** (tighter than donor) | 2026-06-15 |
+| [0009](0009-single-statement-atomic-claims.md) | **Single-statement atomic claims** — concurrency control with no interactive locks (seat claim + last-admin) | 2026-07-12 (retroactive) |
+| [0010](0010-per-currency-stats-no-fx.md) | Dashboard stats **aggregate per currency**, no FX conversion | 2026-07-12 (retroactive) |
+| [0011](0011-ref-safe-media-gc.md) | **Reference-safe media GC** — assets may be shared across owners | 2026-07-12 (retroactive) |
+| [0012](0012-scheduled-publishing-read-time-filter.md) | **Scheduled publishing via read-time filter** — no cron | 2026-07-12 (retroactive) |
 
 ## Resolved (P1 — all closed) ✅
 
