@@ -17,7 +17,7 @@ export function BlogListSkeleton() {
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="space-y-3">
-              <Skeleton className="aspect-[16/10] w-full rounded-2xl" />
+              <Skeleton className="aspect-16/10 w-full rounded-2xl" />
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-6 w-5/6" />
               <Skeleton className="h-4 w-full" />
