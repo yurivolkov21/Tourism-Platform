@@ -48,6 +48,8 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 | Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
 | A-USR-1 | Admin Sync Account<br>`POST /auth/admin/sync` | 1. Admin đăng nhập qua Supabase (FE admin), nhận token<br>2. Gửi `POST /auth/admin/sync` (Bearer)<br>3. Guard verify JWT<br>4. **Email phải nằm trong `ADMIN_EMAILS`** — không thì 403 `NOT_ADMIN` (không âm thầm về CUSTOMER)<br>5. Upsert user, **force `role = ADMIN`**<br>6. Trả hồ sơ admin | Admin | **User** | users | Sequence | ✅ |
+| A-USR-2 | Change User Role<br>`PATCH /admin/users/:id/role` | 1. Admin đổi role CUSTOMER↔ADMIN từ trang user detail<br>2. Guard 409: tự đổi role mình (`ROLE_SELF_CHANGE`) · demote admin thuộc `ADMIN_EMAILS` (`ROLE_ENV_ADMIN`)<br>3. **Demote chạy locking-CTE claim một statement (wave D2)**: `FOR UPDATE` toàn bộ hàng ADMIN + đếm trong cùng statement — 2 demote đồng thời không thể cùng qua, không bao giờ còn 0 admin; claim rỗng → 409 `ROLE_LAST_ADMIN`<br>4. Promote = `update` thường; trả hồ sơ mới | Admin | **User** | users | Sequence | ✅ |
+| A-USR-3 | Delete User<br>`DELETE /admin/users/:id` | 1. Admin xóa tài khoản khách<br>2. Guard 409: tự xóa mình (`USER_SELF_DELETE`) · target là ADMIN (`USER_IS_ADMIN` — demote trước) · còn booking (`ACCOUNT_HAS_BOOKINGS`) · có bài blog (`USER_HAS_POSTS`)<br>3. `$transaction`: GC avatar + **`deleteMany({id, role: CUSTOMER})` có điều kiện (wave D2)** — target bị promote xen kẽ thì count 0 → 409, đóng đường vòng promote→demote→delete quanh invariant last-admin<br>4. Xóa identity Supabase best-effort | Admin | **User**, MediaAsset | users, media_assets, media_garbage | Sequence | ✅ |
 
 ## `TourCategory`
 
@@ -140,7 +142,7 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 
 | Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
-| A-STA-1 | Dashboard Stats<br>`GET /admin/stats/dashboard` | 1. Admin mở dashboard<br>2. Server chạy **`Promise.all`** (pooler-safe): overview (doanh thu từ booking `PAID`, conversion rate), `bookingsByStatus` (groupBy), top tour theo doanh thu / rating / wishlist, `monthlyTrend` 6 tháng (`$queryRaw` `date_trunc`)<br>3. Trả payload tổng hợp | Admin | **Booking**, Review, Wishlist, Tour | bookings, reviews, wishlist, tours | Activity | 🕒 (1) lời/vốn cần thêm `costPrice` vào Tour; (2) doanh thu cộng thô `totalAmount` chưa quy đổi tiền tệ (hiện toàn USD) |
+| A-STA-1 | Dashboard Stats<br>`GET /admin/stats/dashboard?from&to` | 1. Admin mở dashboard (tùy chọn `?from&to` — ngày `YYYY-MM-DD`, biên ngày UTC inclusive; không tham số = toàn thời gian, output như cũ; range ngược/sai → 400 `STATS_RANGE_INVALID`)<br>2. Server chạy **`Promise.all`** (pooler-safe): overview + `bookingsByStatus` + top tour (doanh thu / rating / wishlist) + `dailyTrend` (range kẹp 90 ngày gần nhất, neo tại `now`) lọc theo range; `monthlyTrend` 6 tháng + MoM giữ cố định<br>3. **Per-currency (wave D2, không FX)**: dominant currency = nhiều booking PAID nhất trong range; overview kèm `revenueByCurrency[]`, top-tours group theo (tour, currency), trend revenue chỉ tính dominant<br>4. Trả payload tổng hợp | Admin | **Booking**, Review, Wishlist, Tour | bookings, reviews, wishlist, tours | Activity | 🕒 (1) lời/vốn cần thêm `costPrice` vào Tour |
 
 ## `Post` (blog biên tập — P-Content)
 

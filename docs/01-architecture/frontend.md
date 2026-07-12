@@ -132,8 +132,15 @@ list server-driven (status/source/rating/search facets) + `/reviews/[id]/edit` s
 drawer customer/booking links; enquiries drawer notes thread + repeat-lead badges · **wave C
 (2026-07-11)** — booking breakdown card + tab counts · post SEO/schedule UI · self-profile ·
 subscriber remove + outbox delete · `/payment-events` viewer · **media library upgrade (wave D1,
-2026-07-11)** — library reuse picker in MediaField · drawer alt editor · bulk selection/delete.
-224 tests (2026-07-11).
+2026-07-11)** — library reuse picker in MediaField · drawer alt editor · bulk selection/delete ·
+**wave D2 (2026-07-12)** — shared **`TabPills`** (`components/crud/tab-pills.tsx`, button +
+RSC-safe `<Link>` variants w/ count badges; all 13 copy-pasted tablists across 11 files
+migrated byte-identically; post-form Write|Preview stays hand-rolled) · **dashboard
+date-range** (preset pills + custom `Calendar` range popover → URL `?from&to`; TDD
+`lib/dashboard/date-range.ts`; `today` resolves post-mount to stay hydration-safe) ·
+per-currency stats render (extra-currency KPI footnote · per-row Top-Tours currency ·
+AOV divides by the dominant currency's paid count).
+260 tests (2026-07-12).
 
 ## Mobile (`@tourism/mobile`) — P5
 

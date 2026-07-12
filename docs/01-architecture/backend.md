@@ -37,6 +37,11 @@ app/      AppModule (global guards/interceptor/filter) + root controller (GET /)
   *only if* they fit AND the booking is still PENDING, then flip to PAID — **no interactive
   `$transaction`/`FOR UPDATE`** (the Supabase transaction pooler can't host those safely).
   The same CTE inserts the confirmation `Outbox` row (`ON CONFLICT (dedupe_key) DO NOTHING`).
+  (Nuance, wave D2: the pooler ban is on **interactive** lock-holding across statements — a
+  `FOR UPDATE` inside ONE autocommit statement is fine. The last-admin demote guard
+  (`admin-users` `changeRole`) uses exactly that: a locking-CTE locks all ADMIN rows and
+  counts them in the same statement, so concurrent demotes can never zero out the admin
+  pool; `deleteUser` pairs it with a role-conditional `deleteMany`.)
 - Both providers log to `PaymentEvent` (idempotent by `(provider, eventId)`; `processedAt`
   nullable → a mid-flight crash re-runs instead of being skipped forever).
 - Amount formatting: `toStripeMinorUnits` / `toPayPalAmount` (handles zero-decimal currencies).
@@ -75,7 +80,8 @@ global `APP_*` providers in `AppModule`. `@SkipTransform` opts webhooks out of t
 CRUD: destinations · tours (+categories, M:N destinations, itinerary/FAQs/policies, media) ·
 departures · **bookings + Stripe/PayPal** · **media** (Cloudinary signed upload) · **reviews**
 (PAID-gated + moderation) · **wishlist** · **enquiry** (throttle + honeypot + lead fields) ·
-**admin-stats** · **jobs** (outbox + cron). Function catalog:
+**admin-stats** (optional `?from&to` range + per-currency aggregation, no FX — wave D2) ·
+**jobs** (outbox + cron). Function catalog:
 [../03-reference/functions-admin.md](../03-reference/functions-admin.md) ·
 [functions-customer.md](../03-reference/functions-customer.md) ·
 [functions-system.md](../03-reference/functions-system.md).
