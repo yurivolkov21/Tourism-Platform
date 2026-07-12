@@ -5,6 +5,7 @@ export * from './lib/utils';
 
 export * from './components/ui/accordion';
 export * from './components/ui/alert';
+export * from './components/ui/attachment';
 export * from './components/ui/animated-grid-pattern';
 export * from './components/ui/alert-dialog';
 export * from './components/ui/animated-content';
@@ -14,6 +15,7 @@ export * from './components/ui/avatar';
 export * from './components/ui/badge';
 export * from './components/ui/border-glow';
 export * from './components/ui/breadcrumb';
+export * from './components/ui/bubble';
 export * from './components/ui/button';
 export * from './components/ui/button-group';
 export * from './components/ui/calendar';
@@ -42,8 +44,18 @@ export * from './components/ui/item';
 export * from './components/ui/kbd';
 export * from './components/ui/label';
 export * from './components/ui/logo-loop';
+// marker's MarkerContent collides with map.tsx's (mapcn, already consumed by
+// the web contact map) — the annotation-marker variant is aliased explicitly.
+export {
+  Marker,
+  MarkerIcon,
+  MarkerContent as AnnotationMarkerContent,
+  markerVariants,
+} from './components/ui/marker';
 export * from './components/ui/masonry';
 export * from './components/ui/menubar';
+export * from './components/ui/message';
+export * from './components/ui/message-scroller';
 export * from './components/ui/navigation-menu';
 export * from './components/ui/number-ticker';
 export * from './components/ui/pagination';
