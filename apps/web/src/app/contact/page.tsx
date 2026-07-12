@@ -10,9 +10,8 @@ import { CtaBand } from '../../components/marketing/cta-band';
 import { fetchActiveCategories } from '../../lib/api/categories';
 
 export const metadata: Metadata = {
-  title: 'Contact us — Tourism Platform',
-  description:
-    'Get in touch with our local travel experts — office hours, address, phone, and email, plus a quick enquiry form. We usually reply within 24 hours.',
+  title: messages.pageMeta.contact.title,
+  description: messages.pageMeta.contact.description,
 };
 
 // ISR: the enquiry "interest" options come from live tour categories (revalidated hourly).

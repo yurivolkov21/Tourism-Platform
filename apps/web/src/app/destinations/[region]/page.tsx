@@ -38,9 +38,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { region } = await params;
   const data = getRegion(region);
-  if (!data) return { title: 'Region not found' };
+  if (!data) return { title: messages.pageMeta.notFound.region };
   return {
-    title: `${data.name} tours`,
+    title: `${data.name} ${messages.pageMeta.regionSuffix}`,
     alternates: { canonical: `/destinations/${region}` },
   };
 }

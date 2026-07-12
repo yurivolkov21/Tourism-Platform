@@ -36,9 +36,8 @@ const galleryFrames: GallerySection[] = [
 ];
 
 export const metadata: Metadata = {
-  title: 'Vietnam destinations',
-  description:
-    'Explore Vietnam by destination — from the misty north to the Mekong south.',
+  title: messages.pageMeta.destinations.title,
+  description: messages.pageMeta.destinations.description,
 };
 
 // ISR: serve real destinations/tours without per-request API hits; fall back to empty on API error.

@@ -13,9 +13,8 @@ import { buildTrustStats } from '../../lib/trust-band';
 import { messages } from '@tourism/i18n';
 
 export const metadata: Metadata = {
-  title: 'About us — Tourism Platform',
-  description:
-    'Meet the local experts behind our boutique heritage journeys across Vietnam — our story, the numbers behind the trips, and the guides who craft them.',
+  title: messages.pageMeta.about.title,
+  description: messages.pageMeta.about.description,
 };
 
 // ISR: serve real catalog metrics without per-request API hits; fall back to zeros on error.

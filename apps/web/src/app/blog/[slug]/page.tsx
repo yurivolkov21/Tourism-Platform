@@ -49,7 +49,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const post = await fetchPost(slug);
-  if (!post) return { title: 'Post not found' };
+  if (!post) return { title: messages.pageMeta.notFound.post };
   // SEO overrides fall back to the reader-facing title/excerpt when unset.
   const title = post.metaTitle ?? post.title;
   const description = post.metaDescription ?? post.excerpt;

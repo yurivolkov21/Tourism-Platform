@@ -9,9 +9,8 @@ import { fetchTourCards } from '../../lib/api/tours';
 import { settle } from '../../lib/resilience';
 
 export const metadata: Metadata = {
-  title: 'All tours — Tourism Platform',
-  description:
-    'Browse every journey we run across Vietnam — filter by destination, length and price to find the trip that fits you.',
+  title: messages.pageMeta.tours.title,
+  description: messages.pageMeta.tours.description,
 };
 
 // ISR: rebuild at most every 5 min — serves real catalog data without hitting the (free, sleepy) API

@@ -49,7 +49,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const tour = await fetchTourDetail(slug);
-  if (!tour) return { title: 'Tour not found' };
+  if (!tour) return { title: messages.pageMeta.notFound.tour };
   const cover = tour.image ?? tour.gallery[0];
   return {
     title: tour.title,

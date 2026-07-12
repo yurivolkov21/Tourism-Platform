@@ -12,9 +12,8 @@ import { FaqExplorer } from '../../components/faq/faq-explorer';
 import { EnquiryCta } from '../../components/marketing/enquiry-cta';
 
 export const metadata: Metadata = {
-  title: 'FAQs — frequently asked questions',
-  description:
-    'Answers to the questions travellers ask us most — booking, payment, itineraries, guides, cancellations, and travelling in Vietnam.',
+  title: messages.pageMeta.faq.title,
+  description: messages.pageMeta.faq.description,
 };
 
 // FAQPage structured data (JSON-LD). Built from our own static catalogue (no user input),

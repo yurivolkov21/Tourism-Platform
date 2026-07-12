@@ -461,6 +461,55 @@ export const messages = {
     home: 'Home',
     onThisPage: 'On this page',
   },
+  // Page <title>/description copy. Titles are PLAIN — the root layout's title.template
+  // (`%s — Nexora`) appends the brand, so never suffix the brand here (would double it).
+  pageMeta: {
+    privacy: {
+      title: 'Privacy Statement',
+      description:
+        'How we collect, use, share, and protect your personal information.',
+    },
+    terms: {
+      title: 'Terms & Conditions',
+      description: 'The terms that govern booking and travelling with us.',
+    },
+    cancellation: {
+      title: 'Cancellation & Refund Policy',
+      description:
+        'How to cancel a booking with us, what to expect, and how refunds are handled.',
+    },
+    faq: {
+      title: 'FAQs — frequently asked questions',
+      description:
+        'Answers to the questions travellers ask us most — booking, payment, itineraries, guides, cancellations, and travelling in Vietnam.',
+    },
+    about: {
+      title: 'About us',
+      description:
+        'Meet the local experts behind our boutique heritage journeys across Vietnam — our story, the numbers behind the trips, and the guides who craft them.',
+    },
+    tours: {
+      title: 'All tours',
+      description:
+        'Browse every journey we run across Vietnam — filter by destination, length and price to find the trip that fits you.',
+    },
+    destinations: {
+      title: 'Vietnam destinations',
+      description:
+        'Explore Vietnam by destination — from the misty north to the Mekong south.',
+    },
+    contact: {
+      title: 'Contact us',
+      description:
+        'Get in touch with our local travel experts — office hours, address, phone, and email, plus a quick enquiry form. We usually reply within 24 hours.',
+    },
+    notFound: {
+      tour: 'Tour not found',
+      post: 'Post not found',
+      region: 'Region not found',
+    },
+    regionSuffix: 'tours',
+  },
   // Resilience layer (W2): loading/error/404 states across web. Copy is warm + reassuring.
   resilience: {
     loadError: {

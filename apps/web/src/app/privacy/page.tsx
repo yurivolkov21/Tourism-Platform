@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 
+import { messages } from '@tourism/i18n';
+
 import { LegalArticle } from '../../components/legal/legal-article';
 import { privacyDoc } from '../../content/privacy';
 
 export const metadata: Metadata = {
-  title: 'Privacy Statement',
-  description:
-    'How we collect, use, share, and protect your personal information.',
+  title: messages.pageMeta.privacy.title,
+  description: messages.pageMeta.privacy.description,
 };
 
 export default function PrivacyPage() {
