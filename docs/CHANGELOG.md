@@ -4,6 +4,34 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-12 — Docs restructure: changelog-first history, slim status docs, 4 new ADRs (`c236daf`)
+
+- This file created — the single home for history + test-count progression;
+  `roadmap.md`/`HANDOFF.md`/`CLAUDE.md` rewritten as short current-state docs
+  (40/36/29 KB → 3.4/5.7/14 KB); CLAUDE.md rule 9 is now changelog-first.
+- ADRs 0009–0012 record already-shipped idioms: single-statement atomic
+  claims · per-currency no-FX stats · ref-safe media GC · read-time
+  scheduled publishing. ADRs 0001–0008 untouched.
+- Accuracy sweep from a 3-agent audit: catalogs +12 missing endpoints
+  (users list/me/detail · outbox list/retry · reviews feature/delete/curated ·
+  avatar-sign · delete-me · reviews featured/summary) · frontend.md Mobile
+  section rewritten from "scaffold" to the real P5 app · live-data era
+  Data-strategy · 25 models count · backend.md +`cancellations`/`site-media`
+  modules · all broken links fixed (postman ×6, BLUEPRINT research path) ·
+  Defender-exclusion path corrected.
+- Independent reviewer pass (0 block-merge): recovered near-lost facts
+  (P1.7a/b/c · web component-reform Tiers 1–3a · motion increments ·
+  tours-listing detail) and promoted two standing rules into CLAUDE.md
+  gotchas (never delete `origin/nghia` · kill orphaned node before nx runs);
+  the "104 endpoints" claim re-verified correct (reviewer had missed 2
+  `@HttpPost(` aliases).
+- Code side-fix: `prisma/reset.ts` now truncates all 25 tables (7 newer
+  tables were missing — `subscribers`/`site_media_slots`/`post_tags`
+  previously survived a "reset to empty"). `playground.md` scaffold artifact
+  removed.
+- Tests after: unchanged — api 439 · web 232 · admin 264 · mobile 153 ·
+  mobile-ui 34 · core 42.
+
 ## 2026-07-12 — Media library hides customer avatars by default (`f6450ea`)
 
 - User feedback after the admin visual pass: avatars don't scale well in a

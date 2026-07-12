@@ -3,7 +3,12 @@
 **Spec:** `docs/06-specs/2026-07-12-docs-restructure-design.md`
 **Branch:** `chore/docs-restructure` · **Scope:** docs (minus 06/07 content) + root README/HANDOFF/CLAUDE + `reset.ts`
 
-**STATUS: 🔨 IN PROGRESS** (started 2026-07-12)
+**STATUS: ✅ COMPLETE** — merged to `main` 2026-07-12 (`c236daf`, ff-only).
+Reviewer pass: 0 block-merge, 10 should-fix all fixed pre-merge (2 near-lost
+standing rules promoted to CLAUDE.md gotchas; "104 endpoints" re-verified
+correct against a miscount). `playground.md` deleted per user. Follow-up
+agreed with the user: a from-scratch setup guide (env acquisition · Supabase +
+Google auth · seeding) as its own docs branch.
 
 Standing rules: source-of-truth wins (verify against code, never copy stale
 claims forward) · ADR content immutable · straight quotes · respect
