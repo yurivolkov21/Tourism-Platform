@@ -164,6 +164,22 @@ export default async function TourDetailPage({
               <span className="text-on-media/75">({tour.reviewCount})</span>
             </span>
           </div>
+
+          {tour.suitableFor && tour.suitableFor.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="text-on-media/75 text-xs font-medium tracking-wide uppercase">
+                {messages.tours.suitableFor}
+              </span>
+              {tour.suitableFor.map((key) => (
+                <span
+                  key={key}
+                  className="bg-on-media/10 border-on-media/20 text-on-media inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium"
+                >
+                  {messages.travellerTypes[key]}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

@@ -1,5 +1,11 @@
 import Image from 'next/image';
-import { ClockIcon, ImageIcon, MapPinIcon, StarIcon } from 'lucide-react';
+import {
+  ClockIcon,
+  ImageIcon,
+  MapPinIcon,
+  StarIcon,
+  UsersIcon,
+} from 'lucide-react';
 
 import type { TravelStyle, TourTheme } from '@tourism/core';
 
@@ -9,6 +15,7 @@ import { messages } from '@tourism/i18n';
 import { TourAvailability } from './tour-availability';
 
 export type TourBadgeKey = keyof typeof messages.featuredTours.badges;
+export type TravellerTypeKey = keyof typeof messages.travellerTypes;
 
 // Shape mirrors a future tour-card DTO from @tourism/core (basePrice/compareAtPrice/durationDays/
 // badges per the Prisma Tour model). `destination`, `rating`, `reviewCount`, `coverImage` are
@@ -39,6 +46,9 @@ export type TourCardData = {
   // Next-departure availability (soonest open upcoming departure) for the card badge.
   nextDepartureDate?: string | null;
   nextDepartureSeatsLeft?: number | null;
+  // Merchandising: who this tour suits (backend `TravellerType[]`). Optional so the destination
+  // fixtures (no such field) still satisfy the type; the API mapper always sets it (`?? []`).
+  suitableFor?: TravellerTypeKey[];
 };
 
 const badgeClass: Record<TourBadgeKey, string> = {
@@ -105,6 +115,17 @@ export function TourCard({ tour }: { tour: TourCardData }) {
         <h3 className="font-sans text-lg font-semibold leading-7 line-clamp-2 min-h-14">
           {tour.title}
         </h3>
+
+        {tour.suitableFor && tour.suitableFor.length > 0 && (
+          <p className="text-muted-foreground flex items-center gap-1.5 truncate text-xs">
+            <UsersIcon className="size-3.5 shrink-0" aria-hidden="true" />
+            <span className="truncate">
+              {tour.suitableFor
+                .map((key) => messages.travellerTypes[key])
+                .join(' · ')}
+            </span>
+          </p>
+        )}
 
         <div className="flex items-center justify-between gap-2 text-sm">
           <span className="flex items-center gap-1.5">

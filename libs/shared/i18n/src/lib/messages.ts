@@ -1264,6 +1264,13 @@ export const messages = {
         ],
         messagePlaceholder:
           'Tell us about your dream trip, dates, group size, or any questions…',
+        // Optional lead fields (same wording as the PlanTrip form's `fields`/`budgetLabel`).
+        nationality: 'Nationality',
+        nationalityPlaceholder: 'e.g. Australian',
+        travelDate: 'Approx. arrival date',
+        groupSize: 'Travellers',
+        groupSizePlaceholder: 'e.g. 2',
+        budget: 'Hotel preference',
         terms: 'I agree to be contacted about my enquiry.',
         submit: 'Send enquiry',
       },
@@ -1336,6 +1343,18 @@ export const messages = {
         'Browse our destinations and tours, or find quick answers in our FAQs.',
       cta: { label: 'Browse destinations', href: '/destinations' },
     },
+  },
+  // Shared tour merchandising copy (card + detail).
+  tours: {
+    suitableFor: 'Ideal for',
+  },
+  // TravellerType enum → display label (tour card compact row + detail "Ideal for" chips).
+  travellerTypes: {
+    FAMILY: 'Family trips',
+    COUPLE: 'Couples',
+    FRIENDS: 'Friends',
+    SOLO: 'Solo travellers',
+    BUSINESS: 'Business',
   },
   toursPage: {
     breadcrumb: 'Tours',
@@ -1679,6 +1698,17 @@ export const messages = {
       REQUIRED: 'Enter the lead traveller’s email address.',
       INVALID: 'Enter a valid email address, e.g. you@example.com.',
     },
+    rating: {
+      RATING_REQUIRED: 'Select a rating from 1 to 5 stars.',
+    },
+    title: {
+      TITLE_TOO_LONG: 'Keep the title under 120 characters.',
+    },
+    body: {
+      BODY_REQUIRED: 'Write a short review.',
+      BODY_TOO_SHORT: 'Reviews need at least 10 characters.',
+      BODY_TOO_LONG: 'Keep your review under 2000 characters.',
+    },
   } as Record<string, Record<string, string>>,
   // Shared submit/feedback states for both enquiry forms (enquiryCta + planTrip).
   enquiryForm: {
@@ -1775,6 +1805,34 @@ export const messages = {
     saved: 'Saved to wishlist.',
     removed: 'Removed from wishlist.',
     error: 'Something went wrong — please try again.',
+  },
+  // "Rate this trip" review-creation form on a PAID booking's detail page.
+  reviews: {
+    heading: 'Rate this trip',
+    ratingLabel: 'Your rating',
+    ratingValueLabel: (n: number) => `${n} star${n > 1 ? 's' : ''}`,
+    titleLabel: 'Title (optional)',
+    titlePlaceholder: 'Sum up your trip in a few words',
+    bodyLabel: 'Your review',
+    bodyPlaceholder: 'Tell other travellers about your experience…',
+    submit: 'Submit review',
+    submitting: 'Submitting…',
+    successTitle: 'Thanks for your review',
+    successBody:
+      'Your review is awaiting moderation — thank you for sharing your trip.',
+    alreadyReviewedTitle: 'You’ve already reviewed this trip',
+    alreadyReviewedBody:
+      'Thanks again for sharing your experience with other travellers.',
+    // Friendly EN for each `POST /reviews` error code (+ generic fallback).
+    errors: {
+      USER_NOT_SYNCED:
+        'We couldn’t verify your account. Sign out and back in, then try again.',
+      REVIEW_NOT_ELIGIBLE: 'This booking isn’t eligible for a review yet.',
+      BOOKING_FORBIDDEN: 'This booking doesn’t belong to your account.',
+      BOOKING_NOT_FOUND: 'We couldn’t find that booking.',
+      REVIEW_ALREADY_EXISTS: 'You’ve already reviewed this trip.',
+      generic: 'Something went wrong. Please try again.',
+    } as Record<string, string>,
   },
   // Mobile app (P5, customer-facing Expo app).
   mobile: {

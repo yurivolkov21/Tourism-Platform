@@ -4,6 +4,7 @@ import {
   validateEmailField,
   validateEnquiryFields,
   validateRequiredText,
+  validateReviewFields,
 } from './validate';
 
 describe('validateEmailField', () => {
@@ -113,5 +114,74 @@ describe('validateBookingContactFields (booking / private request)', () => {
     expect(
       validateBookingContactFields({ contactName: 'A', contactEmail: 'x@y' }),
     ).toEqual({ contactName: 'REQUIRED', contactEmail: 'INVALID' });
+  });
+});
+
+describe('validateReviewFields (review-creation form)', () => {
+  const valid = { rating: 5, title: 'Great trip', body: '1234567890' };
+
+  it('passes a valid form (optional title)', () => {
+    expect(validateReviewFields(valid)).toEqual({});
+    expect(validateReviewFields({ ...valid, title: '' })).toEqual({});
+  });
+
+  it('flags rating 0 and 6 as RATING_REQUIRED (only 1-5 is valid)', () => {
+    expect(validateReviewFields({ ...valid, rating: 0 }).rating).toBe(
+      'RATING_REQUIRED',
+    );
+    expect(validateReviewFields({ ...valid, rating: 6 }).rating).toBe(
+      'RATING_REQUIRED',
+    );
+    expect(
+      validateReviewFields({ ...valid, rating: 1 }).rating,
+    ).toBeUndefined();
+    expect(
+      validateReviewFields({ ...valid, rating: 5 }).rating,
+    ).toBeUndefined();
+  });
+
+  it('flags an empty body as BODY_REQUIRED', () => {
+    expect(validateReviewFields({ ...valid, body: '' }).body).toBe(
+      'BODY_REQUIRED',
+    );
+    expect(validateReviewFields({ ...valid, body: '   ' }).body).toBe(
+      'BODY_REQUIRED',
+    );
+  });
+
+  it('flags body boundary lengths (9 too short, 10 ok, 2000 ok, 2001 too long)', () => {
+    expect(validateReviewFields({ ...valid, body: 'a'.repeat(9) }).body).toBe(
+      'BODY_TOO_SHORT',
+    );
+    expect(
+      validateReviewFields({ ...valid, body: 'a'.repeat(10) }).body,
+    ).toBeUndefined();
+    expect(
+      validateReviewFields({ ...valid, body: 'a'.repeat(2000) }).body,
+    ).toBeUndefined();
+    expect(
+      validateReviewFields({ ...valid, body: 'a'.repeat(2001) }).body,
+    ).toBe('BODY_TOO_LONG');
+  });
+
+  it('flags title boundary lengths (120 ok, 121 too long)', () => {
+    expect(
+      validateReviewFields({ ...valid, title: 'a'.repeat(120) }).title,
+    ).toBeUndefined();
+    expect(
+      validateReviewFields({ ...valid, title: 'a'.repeat(121) }).title,
+    ).toBe('TITLE_TOO_LONG');
+  });
+
+  it('is total on crafted non-string input (server actions are public endpoints)', () => {
+    const crafted = {
+      rating: '5',
+      title: null,
+      body: undefined,
+    } as unknown as Parameters<typeof validateReviewFields>[0];
+    const errors = validateReviewFields(crafted);
+    expect(errors.rating).toBe('RATING_REQUIRED');
+    expect(errors.body).toBe('BODY_REQUIRED');
+    expect(errors.title).toBeUndefined();
   });
 });

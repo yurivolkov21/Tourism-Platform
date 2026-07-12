@@ -109,6 +109,11 @@ export interface ContactRaw {
   email: string;
   interest: string;
   message: string;
+  /** Full lead set (optional, same normalizers as PlanTrip) — the Contact form's 4 extra fields. */
+  nationality?: string;
+  travelDate?: string;
+  groupSize?: string;
+  budgetTier?: string;
   website?: string;
 }
 
@@ -120,6 +125,10 @@ export function buildContactPayload(raw: ContactRaw): EnquiryPayload {
     email: raw.email.trim(),
     message: message.length >= 10 ? message : ENQUIRY_FALLBACK_MESSAGE,
     interests: raw.interest ? [raw.interest] : undefined,
+    nationality: clean(raw.nationality),
+    travelDate: clean(raw.travelDate),
+    groupSize: parseGroupSize(raw.groupSize),
+    budgetTier: clean(raw.budgetTier),
     website: clean(raw.website),
   };
 }

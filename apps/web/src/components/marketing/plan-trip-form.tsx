@@ -3,19 +3,7 @@
 import { useState } from 'react';
 import { CheckIcon } from 'lucide-react';
 
-import {
-  Button,
-  cn,
-  Field,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
-  Input,
-  Textarea,
-  ToggleGroup,
-  ToggleGroupItem,
-  toast,
-} from '@tourism/ui';
+import { Button, Field, FieldLabel, Input, Textarea, toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { buildPlanTripPayload } from '../../lib/enquiry-form';
@@ -27,48 +15,8 @@ import {
 } from '../../lib/forms/validate';
 import { DatePicker } from '../booking/date-picker';
 import { FieldErrorText } from '../forms/field-error-text';
+import { ChoiceChips } from './choice-chips';
 import { EnquirySuccess, type EnquiryFormStatus } from './enquiry-status';
-
-// Pill-style choice chips, built on the design-system ToggleGroup (keeps the primary-filled look
-// while gaining real toggle semantics + keyboard support over the old native buttons).
-const chipItem = cn(
-  'rounded-full border border-border bg-background px-3.5 text-sm font-medium text-muted-foreground',
-  'hover:border-foreground/30 hover:bg-background hover:text-foreground',
-  'aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground',
-  'aria-pressed:hover:border-primary aria-pressed:hover:bg-primary aria-pressed:hover:text-primary-foreground',
-);
-
-function ChoiceChips({
-  legend,
-  options,
-  value,
-  multiple,
-  onChange,
-}: {
-  legend: string;
-  options: readonly string[];
-  value: string[];
-  multiple?: boolean;
-  onChange: (value: string[]) => void;
-}) {
-  return (
-    <FieldSet className="gap-2">
-      <FieldLegend variant="label">{legend}</FieldLegend>
-      <ToggleGroup
-        multiple={multiple}
-        value={value}
-        onValueChange={(next) => onChange(next as string[])}
-        className="w-full flex-wrap"
-      >
-        {options.map((opt) => (
-          <ToggleGroupItem key={opt} value={opt} className={chipItem}>
-            {opt}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
-    </FieldSet>
-  );
-}
 
 /**
  * Rich "Plan your trip" enquiry form — maps the Enquiry model (name · email · phone · nationality ·

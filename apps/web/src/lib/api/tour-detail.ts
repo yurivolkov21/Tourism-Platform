@@ -13,7 +13,7 @@ import {
   pickRelated,
 } from '../tour-detail-derive';
 import { getApiClient } from './client';
-import { fetchTourCards } from './tours';
+import { fetchTourCards, knownTravellerTypes } from './tours';
 
 type TourDetailDto = components['schemas']['TourDetailDto'];
 type PublicReviewDto = components['schemas']['PublicReviewDto'];
@@ -51,7 +51,7 @@ function toTourReview(dto: PublicReviewDto): TourReview {
 }
 
 /** Maps a `TourDetailDto` (+ resolved reviews & related) into the detail view-model. */
-function toTourDetail(
+export function toTourDetail(
   dto: TourDetailDto,
   reviews: TourReview[],
   related: TourCardData[],
@@ -81,6 +81,7 @@ function toTourDetail(
     image: hero?.url,
     imageAlt: hero?.alt,
     summary: dto.summary ?? undefined,
+    suitableFor: knownTravellerTypes(dto.suitableFor),
     destinationSlug: primary?.destination.slug ?? '',
     region: '',
     overview: dto.summary ?? '',

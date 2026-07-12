@@ -20,7 +20,10 @@ export function TourListCard({ tour }: { tour: TourCardData }) {
   const href = `/tours/${tour.slug}`;
   const topBadge = tour.badges[0];
 
+  // suitableFor leads: it's the only tag class the API actually populates
+  // (themes/travelStyles have no server-side data source yet).
   const tags = [
+    ...(tour.suitableFor ?? []).map((key) => messages.travellerTypes[key]),
     ...(tour.themes ?? []).map((theme) => t.themeLabels[theme]),
     ...(tour.travelStyles ?? []).map((style) => t.styleLabels[style]),
   ].slice(0, 3);

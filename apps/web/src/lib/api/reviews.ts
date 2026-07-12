@@ -1,8 +1,16 @@
-// Public reviews reads for the marketing site. The typed OpenAPI client doesn't carry the freshly
-// added `/reviews/featured` route yet, so this uses a plain fetch against the same API origin.
+// Public reviews reads for the marketing site, plus the authed "rate this trip" write. The typed
+// OpenAPI client doesn't carry the freshly added `/reviews/featured` route yet, so the read below
+// uses a plain fetch against the same API origin; the write goes through `authedJson` (owner-scoped).
+
+import type { components } from '@tourism/core';
+
+import { authedJson } from './authed';
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3000';
+
+export type CreateReviewDto = components['schemas']['CreateReviewDto'];
+export type ReviewDto = components['schemas']['ReviewDto'];
 
 export interface FeaturedReview {
   id: string;
@@ -27,4 +35,17 @@ export async function fetchFeaturedReviews(): Promise<FeaturedReview[]> {
   } catch {
     return [];
   }
+}
+
+/**
+ * Create a review on a PAID booking (`POST /reviews`, owner-scoped). Throws `ApiRequestError` on
+ * failure — the caller (`submitReview`) maps codes like 409 `REVIEW_ALREADY_EXISTS` to friendly UX.
+ */
+export async function createReview(
+  payload: CreateReviewDto,
+): Promise<ReviewDto> {
+  return authedJson<ReviewDto>('/api/v1/reviews', {
+    method: 'POST',
+    body: payload,
+  });
 }

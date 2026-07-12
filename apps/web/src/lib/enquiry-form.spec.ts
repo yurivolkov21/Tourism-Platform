@@ -139,4 +139,47 @@ describe('buildContactPayload', () => {
     expect(p.message).toBe(ENQUIRY_FALLBACK_MESSAGE);
     expect(p.interests).toBeUndefined();
   });
+
+  const base = {
+    firstName: 'Alex',
+    lastName: 'Carter',
+    email: 'alex@example.com',
+    interest: 'Cruises',
+    message: 'We would love a Ha Long Bay cruise in August.',
+  };
+
+  it('passes the lead fields through when present', () => {
+    const p = buildContactPayload({
+      ...base,
+      nationality: ' Australian ',
+      travelDate: '2026-08-01',
+      groupSize: '4',
+      budgetTier: ' Premium · 4★ ',
+    });
+    expect(p.nationality).toBe('Australian');
+    expect(p.travelDate).toBe('2026-08-01');
+    expect(p.groupSize).toBe(4);
+    expect(p.budgetTier).toBe('Premium · 4★');
+  });
+
+  it('drops empty/absent lead fields', () => {
+    const p = buildContactPayload(base);
+    expect(p.nationality).toBeUndefined();
+    expect(p.travelDate).toBeUndefined();
+    expect(p.groupSize).toBeUndefined();
+    expect(p.budgetTier).toBeUndefined();
+  });
+
+  it('normalizes groupSize the same way as PlanTrip (0/101/abc → undefined)', () => {
+    expect(
+      buildContactPayload({ ...base, groupSize: '0' }).groupSize,
+    ).toBeUndefined();
+    expect(
+      buildContactPayload({ ...base, groupSize: '101' }).groupSize,
+    ).toBeUndefined();
+    expect(
+      buildContactPayload({ ...base, groupSize: 'abc' }).groupSize,
+    ).toBeUndefined();
+    expect(buildContactPayload({ ...base, groupSize: '2' }).groupSize).toBe(2);
+  });
 });

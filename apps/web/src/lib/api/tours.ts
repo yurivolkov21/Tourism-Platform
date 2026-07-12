@@ -1,12 +1,25 @@
 import type { components } from '@tourism/core';
+import { messages } from '@tourism/i18n';
 
 import type {
   TourBadgeKey,
   TourCardData,
+  TravellerTypeKey,
 } from '../../components/tours/tour-card';
 import { getApiClient } from './client';
 
 type TourSummaryDto = components['schemas']['TourSummaryDto'];
+
+const KNOWN_TRAVELLER_TYPES = new Set(Object.keys(messages.travellerTypes));
+
+/** Drops traveller types a newer API might add before the FE regen — an unknown key would otherwise render as the literal text "undefined". */
+export function knownTravellerTypes(
+  values: string[] | undefined,
+): TravellerTypeKey[] {
+  return (values ?? []).filter((v): v is TravellerTypeKey =>
+    KNOWN_TRAVELLER_TYPES.has(v),
+  );
+}
 
 /** Adapts an API tour summary → the card view-model the UI renders. */
 export function toTourCard(dto: TourSummaryDto): TourCardData {
@@ -31,6 +44,7 @@ export function toTourCard(dto: TourSummaryDto): TourCardData {
     categoryName: dto.category?.name,
     nextDepartureDate: dto.nextDepartureDate,
     nextDepartureSeatsLeft: dto.nextDepartureSeatsLeft,
+    suitableFor: knownTravellerTypes(dto.suitableFor),
   };
 }
 

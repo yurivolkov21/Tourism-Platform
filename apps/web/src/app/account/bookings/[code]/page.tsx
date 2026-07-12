@@ -8,6 +8,7 @@ import { messages } from '@tourism/i18n';
 
 import { BookingActions } from '../../../../components/booking/booking-actions';
 import { formatPrice } from '../../../../components/booking/order-summary';
+import { ReviewPrompt } from '../../../../components/booking/review-prompt';
 import { fetchBooking } from '../../../../lib/api/booking';
 import {
   bookingStatusTone,
@@ -126,6 +127,13 @@ export default async function BookingDetailPage({
           <Separator />
 
           <BookingActions booking={booking} />
+
+          {booking.status === 'PAID' ? (
+            <>
+              <Separator />
+              <ReviewPrompt bookingCode={booking.code} />
+            </>
+          ) : null}
 
           <Link
             href={`/tours/${booking.tour.slug}`}

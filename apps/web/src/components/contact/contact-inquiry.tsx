@@ -33,7 +33,9 @@ import {
   validateContactFields,
   type ContactFieldErrors,
 } from '../../lib/forms/validate';
+import { DatePicker } from '../booking/date-picker';
 import { FieldErrorText } from '../forms/field-error-text';
+import { ChoiceChips } from '../marketing/choice-chips';
 import {
   EnquirySuccess,
   type EnquiryFormStatus,
@@ -64,6 +66,10 @@ export function ContactInquiry({
   const [message, setMessage] = useState('');
   const [terms, setTerms] = useState(false);
   const [website, setWebsite] = useState('');
+  const [nationality, setNationality] = useState('');
+  const [travelDate, setTravelDate] = useState('');
+  const [groupSize, setGroupSize] = useState('');
+  const [budgetTier, setBudgetTier] = useState('');
   const [status, setStatus] = useState<EnquiryFormStatus>('idle');
   const [fieldErrors, setFieldErrors] = useState<ContactFieldErrors>({});
 
@@ -84,6 +90,10 @@ export function ContactInquiry({
       email,
       interest,
       message,
+      nationality,
+      travelDate,
+      groupSize,
+      budgetTier,
       website,
     });
     setStatus('submitting');
@@ -249,6 +259,50 @@ export function ContactInquiry({
                         code={fieldErrors.email}
                       />
                     </div>
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="contact-nationality">
+                          {f.nationality}
+                        </Label>
+                        <Input
+                          id="contact-nationality"
+                          type="text"
+                          placeholder={f.nationalityPlaceholder}
+                          value={nationality}
+                          onChange={(e) => setNationality(e.target.value)}
+                          className={LEAD_FIELD_CLASS}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="contact-travelDate">
+                          {f.travelDate}
+                        </Label>
+                        <DatePicker
+                          id="contact-travelDate"
+                          value={travelDate}
+                          onChange={setTravelDate}
+                          className={LEAD_FIELD_CLASS}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="contact-groupSize">{f.groupSize}</Label>
+                      <Input
+                        id="contact-groupSize"
+                        type="number"
+                        min={1}
+                        placeholder={f.groupSizePlaceholder}
+                        value={groupSize}
+                        onChange={(e) => setGroupSize(e.target.value)}
+                        className={LEAD_FIELD_CLASS}
+                      />
+                    </div>
+                    <ChoiceChips
+                      legend={f.budget}
+                      options={messages.planTrip.budget}
+                      value={budgetTier ? [budgetTier] : []}
+                      onChange={(v) => setBudgetTier(v[0] ?? '')}
+                    />
                     <div className="space-y-1.5">
                       <Label htmlFor="contact-interest">
                         {f.interestLabel}
