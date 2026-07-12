@@ -9,6 +9,8 @@ import {
 import { cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { SectionHeading } from '../section-heading';
+
 // Icon per value prop, in catalogue order (transfers / itineraries / meals).
 const ICONS: readonly LucideIcon[] = [CarIcon, RouteIcon, UtensilsCrossedIcon];
 
@@ -37,9 +39,11 @@ export function ValueProps({
         />
         <div className="bg-overlay/70 absolute inset-0 -z-10" />
         <div className="text-on-media mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="font-heading mb-12 text-center text-2xl font-semibold text-balance md:text-3xl">
-            {t.valuePropsHeading}
-          </h2>
+          <SectionHeading
+            title={t.valuePropsHeading}
+            tone="onMedia"
+            className="mb-12 max-w-none"
+          />
           <div className="grid gap-8 sm:grid-cols-3">
             {t.valueProps.map((prop, i) => {
               const Icon = ICONS[i] ?? CarIcon;
@@ -65,9 +69,10 @@ export function ValueProps({
   return (
     <section className="py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="font-heading mb-10 text-center text-2xl font-semibold text-balance md:text-3xl">
-          {t.valuePropsHeading}
-        </h2>
+        <SectionHeading
+          title={t.valuePropsHeading}
+          className="mb-10 max-w-none"
+        />
         <div className="grid gap-8 sm:grid-cols-3">
           {t.valueProps.map((prop, i) => {
             const Icon = ICONS[i] ?? CarIcon;

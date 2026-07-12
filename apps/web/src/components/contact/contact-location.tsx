@@ -6,6 +6,8 @@ import { ArrowUpRightIcon, Clock8Icon, MapPinIcon } from 'lucide-react';
 
 import { messages } from '@tourism/i18n';
 
+import { SectionHeading } from '../section-heading';
+
 // MapLibre is heavy + WebGL/client-only → load it in a lazy chunk, skip SSR.
 const ContactMap = dynamic(() => import('./contact-map'), {
   ssr: false,
@@ -46,14 +48,12 @@ export function ContactLocation() {
   return (
     <section className="bg-muted py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 max-w-2xl sm:mb-14">
-          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
-            {t.officesHeading}
-          </h2>
-          <p className="text-muted-foreground mt-4 text-lg text-pretty">
-            {t.officesSubtitle}
-          </p>
-        </div>
+        <SectionHeading
+          title={t.officesHeading}
+          subtitle={t.officesSubtitle}
+          align="left"
+          className="mb-10 space-y-4 sm:mb-14"
+        />
 
         {/* Full-bleed map */}
         <div

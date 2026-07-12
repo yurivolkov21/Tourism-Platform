@@ -13,6 +13,7 @@ import {
 import { messages } from '@tourism/i18n';
 import { ScrollProgress } from '@tourism/ui';
 
+import { SectionHeading } from '../../../components/section-heading';
 import { TourCard } from '../../../components/tours/tour-card';
 import { EnquiryCta } from '../../../components/marketing/enquiry-cta';
 import { PostCard } from '../../../components/blog/post-card';
@@ -211,9 +212,11 @@ export default async function BlogPostPage({
       {post.relatedTours.length > 0 ? (
         <section className="py-14 sm:py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="font-heading mb-8 text-2xl font-semibold text-balance md:text-3xl">
-              {t.toursHeading}
-            </h2>
+            <SectionHeading
+              title={t.toursHeading}
+              align="left"
+              className="mb-8 max-w-none"
+            />
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {post.relatedTours.map((tour) => (
                 <TourCard key={tour.slug} tour={tour} />

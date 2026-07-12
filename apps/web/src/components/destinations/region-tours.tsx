@@ -13,6 +13,7 @@ import {
 } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { SectionHeading } from '../section-heading';
 import { TourTile } from '../tours/tour-tile';
 import type { TourCardData } from '../tours/tour-card';
 import { pageNumbers, pageView } from '../../lib/paginate';
@@ -85,9 +86,11 @@ export function RegionTours({
   return (
     <section className="bg-muted/40 py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="font-heading mb-6 text-2xl font-semibold text-balance md:text-3xl">
-          {t.toursHeading}
-        </h2>
+        <SectionHeading
+          title={t.toursHeading}
+          align="left"
+          className="mb-6 max-w-none"
+        />
 
         <div className="mb-8 flex flex-wrap gap-2">
           <button

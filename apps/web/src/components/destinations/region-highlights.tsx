@@ -7,6 +7,8 @@ import {
 
 import { cn } from '@tourism/ui';
 
+import { SectionHeading } from '../section-heading';
+
 const ICONS: readonly LucideIcon[] = [SparklesIcon, CompassIcon, MapPinIcon];
 
 /** "What makes {region} special" — three region-specific highlight cards (accent-themed icons). */
@@ -22,9 +24,7 @@ export function RegionHighlights({
   return (
     <section className="py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="font-heading mb-10 text-center text-2xl font-semibold text-balance md:text-3xl">
-          {heading}
-        </h2>
+        <SectionHeading title={heading} className="mb-10 max-w-none" />
 
         <div className="grid gap-6 md:grid-cols-3">
           {items.map((item, i) => {

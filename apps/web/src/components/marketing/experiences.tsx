@@ -15,6 +15,7 @@ import { messages } from '@tourism/i18n';
 
 import { getSiteMedia } from '../../lib/api/site-media';
 import { siteImage } from '../../lib/site-media';
+import { SectionHeading } from '../section-heading';
 
 // Icons align by index to messages.experiences.items (TourCategory-shaped).
 const icons: LucideIcon[] = [
@@ -55,12 +56,12 @@ export async function Experiences() {
       <div className="bg-overlay/65 absolute inset-0 -z-10" />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="text-on-media mx-auto mb-10 max-w-2xl space-y-3 text-center sm:mb-14">
-          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
-            {t.heading}
-          </h2>
-          <p className="text-on-media/85 text-lg text-pretty">{t.subtitle}</p>
-        </div>
+        <SectionHeading
+          title={t.heading}
+          subtitle={t.subtitle}
+          tone="onMedia"
+          className="mb-10 sm:mb-14"
+        />
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {t.items.map((item, i) => {

@@ -5,6 +5,7 @@ import { messages } from '@tourism/i18n';
 
 import { getSiteMedia } from '../../lib/api/site-media';
 import { siteGallery } from '../../lib/site-media';
+import { SectionHeading } from '../section-heading';
 import { StorySpine } from './story-spine';
 
 // Built-in defaults — one per milestone, aligned by index; overridable as a set via
@@ -33,14 +34,11 @@ export async function Story() {
   return (
     <section id="story" className="scroll-mt-20 py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-14 space-y-4 text-center sm:mb-20">
-          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
-            {t.heading}
-          </h2>
-          <p className="text-muted-foreground mx-auto max-w-2xl text-lg text-pretty">
-            {t.subtitle}
-          </p>
-        </div>
+        <SectionHeading
+          title={t.heading}
+          subtitle={t.subtitle}
+          className="mb-14 space-y-4 sm:mb-20"
+        />
 
         <ol className="relative space-y-12 lg:space-y-24">
           {/* Centre spine (desktop only) — faded track + scroll-driven emerald fill */}

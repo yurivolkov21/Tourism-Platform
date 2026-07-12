@@ -19,6 +19,8 @@ import {
 } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { SectionHeading } from '../section-heading';
+
 // Index-aligned with messages.features.items. Multi-color via semantic tokens (not raw rainbow).
 const featureStyles: {
   icon: LucideIcon;
@@ -72,12 +74,12 @@ export function Features() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-12 space-y-4 sm:mb-16">
-          <h2 className="text-2xl font-semibold text-balance md:text-3xl lg:text-4xl">
-            {t.heading}
-          </h2>
-          <p className="text-muted-foreground max-w-2xl text-lg text-pretty">
-            {t.subtitle}
-          </p>
+          <SectionHeading
+            title={t.heading}
+            subtitle={t.subtitle}
+            align="left"
+            className="space-y-4"
+          />
           <Button
             variant="outline"
             size="lg"
