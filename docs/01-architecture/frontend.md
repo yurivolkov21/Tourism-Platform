@@ -11,7 +11,7 @@
   wordmark carrying the origami two-tone fold (`.nexora-fold`); the standalone "NEX" monogram was
   dropped from the lockup (`ca1cfd0`). "Emerald Heritage" names the *palette/visual direction*, not
   the product.
-- **UI:** `@tourism/ui` (web, React) — shadcn on **Base UI** (`base-nova`), 54 components. admin reuses
+- **UI:** `@tourism/ui` (web, React) — shadcn on **Base UI** (`base-nova`), 59 components. admin reuses
   it. `@tourism/mobile-ui` (RN) later. *(Base UI: `Button` is the primitive — use `render`/`nativeButton`,
   no `asChild`.)*
 - **i18n:** `@tourism/i18n` EN-only ([ADR-0005](../02-decisions/0005-en-only.md)). All web surfaces read

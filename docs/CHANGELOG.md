@@ -4,6 +4,21 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-12 — @tourism/ui gains shadcn's new chat/AI components (`aa69190`)
+
+- Installed the 5 newest registry components via the base-nova (Base UI)
+  registry: `attachment` · `bubble` · `message` · `message-scroller` ·
+  `marker` — 54 → 59 shadcn components. New dep `@shadcn/react@^0.2.1`.
+- Deliberately skipped: `native-select` (user prefers the existing Select
+  design) and `toast` (still deprecated upstream in favor of sonner).
+- Install notes: the CLI's `button.tsx` overwrite was reverted (diff was
+  import-alias/quote style only); new files normalized to the lib's relative
+  import convention; `marker`'s `MarkerContent` barrel-aliased to
+  `AnnotationMarkerContent` (name collides with mapcn `map.tsx`'s, already
+  consumed by the web contact map).
+- Tests after: unchanged — api 439 · web 232 · admin 264 · mobile 153 ·
+  mobile-ui 34 · core 42.
+
 ## 2026-07-12 — From-scratch setup guide: own Supabase + Google OAuth, env acquisition, seeding (`a4e6817`)
 
 - New `docs/04-guides/from-scratch-setup.md` (user request after the
