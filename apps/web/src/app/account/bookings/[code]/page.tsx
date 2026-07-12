@@ -17,7 +17,7 @@ import {
 import { createClient } from '../../../../lib/supabase/server';
 
 export const metadata: Metadata = {
-  title: `${messages.booking.detail.title} — ${messages.brand.name}`,
+  title: messages.booking.detail.title,
 };
 
 // Per-user + authed → never statically optimised. (Proxy gates /account/*; re-check here.)

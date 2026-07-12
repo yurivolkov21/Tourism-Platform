@@ -11,7 +11,7 @@ import { captureBooking } from '../../../lib/booking/actions';
 import { createClient } from '../../../lib/supabase/server';
 
 export const metadata: Metadata = {
-  title: `${messages.booking.success.confirmedTitle} — ${messages.brand.name}`,
+  title: messages.booking.success.confirmedTitle,
 };
 
 export const dynamic = 'force-dynamic';

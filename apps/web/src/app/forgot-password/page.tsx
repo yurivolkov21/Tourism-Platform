@@ -6,7 +6,7 @@ import { AuthShell } from '../../components/auth/auth-shell';
 import { ForgotPasswordForm } from '../../components/auth/forgot-password-form';
 
 export const metadata: Metadata = {
-  title: `${messages.auth.forgot.title} — ${messages.brand.name}`,
+  title: messages.auth.forgot.title,
 };
 
 export default function ForgotPasswordPage() {

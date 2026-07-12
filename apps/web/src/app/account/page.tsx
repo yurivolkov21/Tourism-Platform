@@ -17,7 +17,7 @@ import { formatTripDate } from '../../lib/booking/my-bookings';
 import { createClient } from '../../lib/supabase/server';
 
 export const metadata: Metadata = {
-  title: `${messages.auth.account.title} — ${messages.brand.name}`,
+  title: messages.auth.account.title,
 };
 
 export const dynamic = 'force-dynamic';

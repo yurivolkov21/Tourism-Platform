@@ -17,7 +17,7 @@ import { fetchProfile } from '../../../lib/api/profile';
 import { createClient } from '../../../lib/supabase/server';
 
 export const metadata: Metadata = {
-  title: `${messages.auth.account.settings.title} — ${messages.brand.name}`,
+  title: messages.auth.account.settings.title,
 };
 
 export const dynamic = 'force-dynamic';

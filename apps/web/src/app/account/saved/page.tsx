@@ -10,7 +10,7 @@ import { fetchSavedTours } from '../../../lib/api/wishlist';
 import { createClient } from '../../../lib/supabase/server';
 
 export const metadata: Metadata = {
-  title: `${messages.auth.account.savedPage.title} — ${messages.brand.name}`,
+  title: messages.auth.account.savedPage.title,
 };
 
 // Per-user + authed → never statically optimised. (Proxy already gates /account/*; re-check here.)

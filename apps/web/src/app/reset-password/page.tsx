@@ -8,7 +8,7 @@ import { ResetPasswordForm } from '../../components/auth/reset-password-form';
 import { createClient } from '../../lib/supabase/server';
 
 export const metadata: Metadata = {
-  title: `${messages.auth.reset.title} — ${messages.brand.name}`,
+  title: messages.auth.reset.title,
 };
 
 // Reached via a recovery session (the callback exchanges the link's code first). Per-user → dynamic.

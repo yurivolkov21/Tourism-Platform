@@ -15,7 +15,7 @@ import { fetchProfile } from '../../../../lib/api/profile';
 import { createClient } from '../../../../lib/supabase/server';
 
 export const metadata: Metadata = {
-  title: `${messages.booking.page.title} — ${messages.brand.name}`,
+  title: messages.booking.page.title,
 };
 
 // Auth-gated + per-user: never statically optimised (the public catalog stays static/ISR).

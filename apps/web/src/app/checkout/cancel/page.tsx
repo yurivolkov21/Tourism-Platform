@@ -6,7 +6,7 @@ import { Card, CardContent, buttonVariants, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 export const metadata: Metadata = {
-  title: `${messages.booking.cancel.title} — ${messages.brand.name}`,
+  title: messages.booking.cancel.title,
 };
 
 export const dynamic = 'force-dynamic';

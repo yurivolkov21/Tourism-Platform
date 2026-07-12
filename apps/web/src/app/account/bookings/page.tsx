@@ -10,7 +10,7 @@ import { fetchMyBookings } from '../../../lib/api/booking';
 import { createClient } from '../../../lib/supabase/server';
 
 export const metadata: Metadata = {
-  title: `${messages.booking.list.title} — ${messages.brand.name}`,
+  title: messages.booking.list.title,
 };
 
 // Per-user + authed → never statically optimised. (Proxy already gates /account/*; re-check here.)

@@ -8,7 +8,7 @@ import { OAuthButtons } from '../../components/auth/oauth-buttons';
 import { safeRedirect } from '../../lib/auth/safe-redirect';
 
 export const metadata: Metadata = {
-  title: `Sign in — ${messages.brand.name}`,
+  title: 'Sign in',
 };
 
 export default async function LoginPage({
