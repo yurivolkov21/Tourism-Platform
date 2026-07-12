@@ -4,6 +4,12 @@ You just cloned the repo. This is the **one page** that takes you from clone →
 real data → testing. Backend deep-dive: [05-runbooks/local-dev.md](../05-runbooks/local-dev.md).
 The 30-second version (Vietnamese) is the **"Bắt đầu nhanh"** box in the root [README](../../README.md).
 
+> **No credentials at all?** This page assumes someone hands you the env
+> values. To provision everything yourself — your own Supabase project (incl.
+> Google sign-in), Stripe/Cloudinary/Resend keys, migrations and seed data —
+> follow **[from-scratch-setup.md](from-scratch-setup.md)** first, then come
+> back here.
+
 ## 0. What's here
 
 A single **Nx 22 + pnpm** monorepo. You run tasks from the **repo root** with
@@ -14,7 +20,7 @@ A single **Nx 22 + pnpm** monorepo. You run tasks from the **repo root** with
 | API (NestJS) | `@tourism/api` | `http://localhost:3000/api/v1` | a Supabase DB + service keys |
 | Web (customer) | `@tourism/web` | `http://localhost:3001` | just an API origin (or the live one) |
 | Admin (dashboard) | `@tourism/admin` | `http://localhost:3002` | Supabase public keys + an allowlisted email |
-| Mobile (Expo) | `@tourism/mobile` | — | scaffold only (P5) |
+| Mobile (Expo) | `@tourism/mobile` | Expo Go (`pnpm exec expo start` from `apps/mobile`) | 4 `EXPO_PUBLIC_*` vars ([.env.example](../../apps/mobile/.env.example)) |
 
 You can run **any app on its own** — e.g. the web UI against the live API, with no local backend.
 

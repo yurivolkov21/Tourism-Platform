@@ -34,7 +34,7 @@ docs/
 ├── 01-architecture/              how it's built (overview + data-model/backend/frontend/risks)
 ├── 02-decisions/                 ADR log (one decision per file)
 ├── 03-reference/                 function catalog (admin/customer/system) + reference-site research
-├── 04-guides/                    conventions + how-tos
+├── 04-guides/                    getting-started · from-scratch-setup · conventions
 ├── 05-runbooks/                  operational how-tos (local-dev, deploy, env-and-secrets)
 ├── 06-specs/                     per-feature design specs (spec→plan→execute)
 ├── 07-plans/                     per-feature implementation plans

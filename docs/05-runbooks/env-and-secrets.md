@@ -1,5 +1,10 @@
 # Runbook — Environment variables & secrets
 
+> This covers **where deploy-time secrets go** (Render/Vercel). To *obtain*
+> the values from scratch (own Supabase project incl. Google OAuth,
+> Stripe/Cloudinary/Resend), see
+> [../04-guides/from-scratch-setup.md](../04-guides/from-scratch-setup.md).
+>
 > How to load config into the deployed apps **fast** without leaking secrets.
 > This repo is **public** — committing a real secret leaks it within minutes. Keep every value
 > with a real secret **local-only** (the `.gitignore` already ignores `.env` + `.env.*`, tracking
