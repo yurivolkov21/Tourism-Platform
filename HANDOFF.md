@@ -75,11 +75,19 @@ Baselines: **api 439 · web 232 · admin 264 · mobile 153 · mobile-ui 34 · co
    reviews/CRM · wave C · media picker/alt/bulk · TabPills + dashboard
    date-range. Web still owed: the redesigned trust band + Contact
    "Secure payments" row (2026-07-10).
-3. **Deliberate cuts (unscheduled):** notifications · category imagery ·
+3. **Web debt program (user-approved 2026-07-12): W1 ✅ done (`ce8da9e` —
+   review form · suitableFor chips · contact lead fields) → next W2**
+   (loading/error/404 resilience layer: web has ZERO `loading.tsx`/
+   `error.tsx`/`not-found.tsx`; designed "couldn't load" states replace the
+   silent-blank `.catch(() => [])` renders) **→ W3** (shared `SectionHeading`
+   and `FormField` extraction · delete the dead 335-line `lib/tours.ts`
+   fixture generator, keep its types · i18n sweep for metadata/placeholders).
+   Cut for good: destination/category landing pages · auth toasts.
+4. **Deliberate cuts (unscheduled):** notifications · category imagery ·
    admin e2e.
-4. **Mobile backlog:** "Browse by experience" · dark-mode splash/adaptive-icon
+5. **Mobile backlog:** "Browse by experience" · dark-mode splash/adaptive-icon
    assets · in-app theme toggle · encrypted LargeSecureStore · EAS store builds.
-5. **Domain-gated (until a real domain is wired):** Resend outbound email
+6. **Domain-gated (until a real domain is wired):** Resend outbound email
    (enquiry ack / booking confirm / refund) + Supabase custom-domain email
    confirmation. DB rows + in-app flows already work; only outbound email waits.
 

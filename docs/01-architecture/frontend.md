@@ -30,7 +30,9 @@ experiences/why-choose/trust, about/FAQ/legal/CTA heroes, `/destinations` hero, 
 **admin-managed** via the site-media Appearance surface (2026-07-10): components resolve their slot
 through `getSiteMedia()` (`GET /site-media`, ISR 300s) + `siteImage`/`siteGallery`
 (`lib/site-media.ts`, TDD) and keep the curated real-Vietnam photos as per-slot **fallbacks**; render
-sites prefer `MediaAsset.alt` when the admin has set one (wave D1, 2026-07-11 — 232 tests) — an
+sites prefer `MediaAsset.alt` when the admin has set one (wave D1, 2026-07-11; **web debt wave W1
+2026-07-12** added the PAID-booking review form · suitableFor chips · full contact lead set —
+247 tests) — an
 empty slot or failed fetch renders exactly the previous visuals. Image hosts go through `next/image`
 `remotePatterns` (`images.unsplash.com`, `res.cloudinary.com`).
 
@@ -48,7 +50,7 @@ empty slot or failed fetch renders exactly the previous visuals. Image hosts go 
 | `/faq` | static | Searchable grouped accordion (category icons) · sticky TOC · **FAQPage JSON-LD**. |
 | `/privacy`, `/terms`, `/cancellation-policy` | static | Legal documents — complete real content, **not lawyer-reviewed** (fine for the demo). |
 | `/blog` · `/blog/[slug]` · `/blog/rss.xml` | ISR (300s) | Journal index (pagination + `?tag=`/`?q=` chips) · markdown article (outline scrollspy + scroll-progress · share row · prev/next · "Updated on") · RSS 2.0 feed. Footer carries a **live newsletter signup** (browser-side `POST /newsletter/subscribe`). `/blog/[slug]` `generateMetadata` prefers the post's `metaTitle`/`metaDescription` (admin wave C, 2026-07-11), falling back to `title`/`excerpt`. |
-| `/login` `/register` `/forgot-password` `/reset-password` · `/account/*` | dynamic | Supabase auth + account hub (dashboard · settings · bookings + detail/cancel · saved). |
+| `/login` `/register` `/forgot-password` `/reset-password` · `/account/*` | dynamic | Supabase auth + account hub (dashboard · settings · bookings + detail/cancel · saved). Booking detail carries the **"Rate this trip" review form** on PAID bookings (wave W1, 2026-07-12): star radiogroup + BE-limit validation, 409 → "already reviewed" panel, success → awaiting-moderation panel. |
 | `/tours/[slug]/book` · `/checkout/{success,cancel}` | dynamic | Booking flow (Stripe/PayPal + private-departure request). |
 | `/ui-check` | static | Dev sandbox for `@tourism/ui`. |
 

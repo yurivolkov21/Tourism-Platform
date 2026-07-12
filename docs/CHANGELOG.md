@@ -4,6 +4,37 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-12 — Web wave W1: review form · suitableFor chips · contact lead fields (`ce8da9e`)
+
+- Opens the user-approved web debt program W1 → W2 → W3 (from a 3-agent
+  audit: BE-coverage gaps · in-code debt · docs-recorded debt). Cut for good:
+  destination/category landing pages (region-first IA stays); auth flows stay
+  inline-only by design.
+- "Rate this trip" on PAID booking detail — the API's PAID-gated
+  1-per-booking `POST /reviews` finally has a UI: star radiogroup (real
+  WAI-ARIA semantics: roving tabindex + arrow keys), title/body validated to
+  the exact BE limits (TDD boundary specs), server action re-validates and is
+  total vs crafted non-string payloads; 409 `REVIEW_ALREADY_EXISTS` → calm
+  "already reviewed" panel (no hasReview flag exists — optimistic offer);
+  success → awaiting-moderation panel; action-transport failure can't brick
+  the form.
+- suitableFor merchandising rendered end-to-end: mappers add the field
+  (unknown future enum values filtered via `knownTravellerTypes`, TDD) →
+  "Ideal for" chips on tour detail hero, TourCard row and the /tours
+  TourListCard tag pills (which finally have real data — themes/styles were
+  dead facets). New `messages.travellerTypes` map.
+- Contact form sends the full CRM lead set (nationality · travelDate ·
+  groupSize · budgetTier) — `ChoiceChips` lifted out of plan-trip-form into a
+  shared component; `buildContactPayload` normalizers TDD'd; CTA form stays
+  minimal by design.
+- Adversarial review: 0 block-merge · 4 should-fix + 2 nits fixed pre-merge
+  (stuck-submitting catch · radiogroup keyboard contract · /tours surface gap
+  · crafted-input totality · unknown-enum filter · double-submit guard);
+  1 nit accepted (PlanTrip-consistent groupSize edge normalization).
+- No BE changes, no migration.
+- Tests after: web 247 (+15). api 439 · admin 264 · mobile 153 · mobile-ui
+  34 · core 42 unchanged.
+
 ## 2026-07-12 — Blog article body styled by shadcn/typeset (`c939773`)
 
 - Vendored `typeset.css` (ui.shadcn.com/typeset.css, 490 lines) into
