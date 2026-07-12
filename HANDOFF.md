@@ -52,7 +52,8 @@ program (waves B1 → B2 → C → D1 → D2) closed 2026-07-12. Wave-by-wave de
   `@tourism/ui` (54 shadcn/Base UI comps) + `@tourism/mobile-ui` (RN, 34 tests).
 - **Web (P3 + P6)** — live on **Vercel**. Marketing + catalogue + booking
   money-path + account + blog (v2 complete) on real data; a11y/SEO/perf polish
-  done; brand chrome admin-managed via site-media. **232 tests.**
+  done; brand chrome admin-managed via site-media; resilience layer (loading
+  skeletons · error/404/global-error boundaries · empty-vs-failed). **252 tests.**
 - **Admin (P4)** — live on **Vercel** (dev :3002). Full CRUD + operations
   (bookings/refunds · cancellation queue · reviews/CRM · enquiries+notes ·
   subscribers · outbox · payment-events) + media library (reuse picker · alt ·
@@ -62,7 +63,7 @@ program (waves B1 → B2 → C → D1 → D2) closed 2026-07-12. Wave-by-wave de
   booking money-path · guest-first auth · wishlist · Trips). Expo Go dev loop
   only (no store builds). **153 tests.**
 
-Baselines: **api 439 · web 232 · admin 264 · mobile 153 · mobile-ui 34 · core 42.**
+Baselines: **api 439 · web 252 · admin 264 · mobile 153 · mobile-ui 34 · core 42.**
 
 ## Next actions
 
@@ -75,13 +76,14 @@ Baselines: **api 439 · web 232 · admin 264 · mobile 153 · mobile-ui 34 · co
    reviews/CRM · wave C · media picker/alt/bulk · TabPills + dashboard
    date-range. Web still owed: the redesigned trust band + Contact
    "Secure payments" row (2026-07-10).
-3. **Web debt program (user-approved 2026-07-12): W1 ✅ done (`ce8da9e` —
-   review form · suitableFor chips · contact lead fields) → next W2**
-   (loading/error/404 resilience layer: web has ZERO `loading.tsx`/
-   `error.tsx`/`not-found.tsx`; designed "couldn't load" states replace the
-   silent-blank `.catch(() => [])` renders) **→ W3** (shared `SectionHeading`
-   and `FormField` extraction · delete the dead 335-line `lib/tours.ts`
-   fixture generator, keep its types · i18n sweep for metadata/placeholders).
+3. **Web debt program (user-approved 2026-07-12): W1 ✅ (`ce8da9e` — review
+   form · suitableFor chips · contact lead fields) · W2 ✅
+   (`afbc163…1d7fc24` — resilience layer: `loading.tsx` skeletons ·
+   error/404/global-error + checkout reassurance · `settle`/`contentState`
+   empty-vs-failed on tours/destinations/blog; Home left untouched by design)
+   → next W3** (shared `SectionHeading` and `FormField` extraction · delete the
+   dead 335-line `lib/tours.ts` fixture generator, keep its types · i18n sweep
+   for metadata/placeholders; also drop the now-unused `messages.blog.loadError`).
    Cut for good: destination/category landing pages · auth toasts.
 4. **Deliberate cuts (unscheduled):** notifications · category imagery ·
    admin e2e.

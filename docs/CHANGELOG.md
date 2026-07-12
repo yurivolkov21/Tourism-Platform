@@ -4,6 +4,42 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-12 — Web wave W2: resilience layer (loading · error · 404 · empty-vs-failed) (`afbc163…1d7fc24`)
+
+- Second wave of the web debt program. apps/web had ZERO `loading.tsx` /
+  `error.tsx` / `not-found.tsx` / `global-error.tsx`; an API outage rendered a
+  silent blank or a *lying* "no results" empty state (the swallow
+  `.catch(() => [])` is deliberate for Render cold-starts and stays — W2 just
+  makes failure distinguishable from a real empty result).
+- Pure logic (TDD): `lib/resilience.ts` — `settle()` (wraps a fetch, never
+  throws → `{ ok, data }`) + `contentState()` (`failed` wins over `isEmpty`, so
+  an outage never masquerades as empty). Red→green, 5 assertions.
+- Two isolated components: `LoadErrorState` (inline section-level "couldn't
+  load", retry = `router.refresh()`) + `ErrorState` (full-page branded panel,
+  presentational so it works in server `not-found` and client `error` alike).
+- 7 shape-matched skeletons (`components/skeletons/*`) behind 7 `loading.tsx`
+  (tours + tours/[slug] · destinations · blog + blog/[slug] · account ·
+  checkout) — split by depth so a detail nav never flashes the list skeleton;
+  pulse inherits the `global.css` reduced-motion baseline. Highest value on the
+  `force-dynamic` account + checkout routes.
+- 4 boundaries reusing `ErrorState`: `app/error.tsx` (reset + home) ·
+  `app/not-found.tsx` (brand 404 → home/tours/blog, upgrades every `notFound()`
+  in tour/blog/region detail) · `app/global-error.tsx` (self-contained
+  html/body + `global.css`) · **`checkout/error.tsx`** (money-path reassurance —
+  "your payment is safe, we're confirming").
+- Empty-vs-failed wiring: tours + destinations no longer show a lying empty
+  state on outage (hero stays, honest "couldn't load + retry" replaces it);
+  blog moves onto the shared helper and *gains* the retry it lacked. Home left
+  untouched by design (its hero + static sections already prevent a blank page).
+- New i18n `resilience` group + `toursPage.loadError`. Home swallow untouched;
+  no `destinations/[region]/loading`; no BE changes, no migration.
+- Adversarial review (opus): 0 issues — App Router special-file signatures,
+  server/client boundaries, empty-vs-failed precedence, hex/quote/reduced-motion
+  all verified clean. 2 non-blocking cosmetic notes (global-error font fallback
+  by design; destinations failure composition — eyeball on deploy).
+- Tests after: web 252 (+5). api 439 · admin 264 · mobile 153 · mobile-ui 34 ·
+  core 42 unchanged.
+
 ## 2026-07-12 — Web wave W1: review form · suitableFor chips · contact lead fields (`ce8da9e`)
 
 - Opens the user-approved web debt program W1 → W2 → W3 (from a 3-agent

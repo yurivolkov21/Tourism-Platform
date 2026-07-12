@@ -80,12 +80,14 @@ components/
   blog/        journal index · article · outline scrollspy · share row · newsletter signup
   booking/     departure picker · price summary · checkout redirect
   forms/       shared field/error primitives (noValidate + per-field error rendering)
-  feedback/    <Toaster>/<FlashToaster> + AlertDialog confirms (toast/flash outcome layer)
+  feedback/    <Toaster>/<FlashToaster> + AlertDialog confirms · LoadErrorState (inline retry) · ErrorState (boundary panel)
+  skeletons/   route-level loading placeholders (tours · tour-detail · destinations · blog-list · article · account · checkout)
   seo/         JSON-LD builders + metadata helpers
   about/ contact/ brand/ icons/
 lib/           api/ (typed-client wrappers per resource) · account/ · blog/ · booking/ · tours/ ·
                wishlist/ · supabase/ · forms/ (shared + per-flow validators) · site-media.ts ·
-               region-imagery.ts · regions.ts (fixture fallback) · slug.ts · flash.ts …
+               region-imagery.ts · regions.ts (fixture fallback) · slug.ts · flash.ts ·
+               resilience.ts (settle/contentState — empty-vs-failed) …
 content/       privacy.ts · terms.ts · legal-page.ts       (long-form legal documents)
 ```
 
@@ -127,6 +129,16 @@ content/       privacy.ts · terms.ts · legal-page.ts       (long-form legal do
   strong success panel (contact/enquiry family, private-request) keep the panel and toast only
   failures. The two destructive confirms — cancel a PENDING booking, delete account — are
   standardized on `AlertDialog`. Auth flows are excluded (deferred).
+- **Resilience (2026-07-12, W2):** App Router special files across web — per-route
+  `loading.tsx` skeletons (`components/skeletons/*`, split list vs detail so a
+  nav never flashes the wrong shape); `app/error.tsx` · `app/not-found.tsx`
+  (brand 404) · `app/global-error.tsx` (self-contained) · `checkout/error.tsx`
+  (money-path reassurance), all reusing `ErrorState`. Data-fed pages use
+  `lib/resilience.ts` `settle()`/`contentState()` to tell a real empty result
+  from a fetch failure — an outage renders a `LoadErrorState` (retry via
+  `router.refresh()`) instead of a lying "no results" (tours/destinations/blog).
+  The deliberate cold-start swallow stays; Home keeps its silent hide (hero +
+  static sections prevent a blank page).
 
 ## Admin (`@tourism/admin`) — P4
 
