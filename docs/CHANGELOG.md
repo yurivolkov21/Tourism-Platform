@@ -4,6 +4,26 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-12 — From-scratch setup guide: own Supabase + Google OAuth, env acquisition, seeding (`a4e6817`)
+
+- New `docs/04-guides/from-scratch-setup.md` (user request after the
+  restructure): two onboarding paths (FE against the live API vs a fully
+  self-provisioned stack) · Supabase project + Google OAuth provider
+  step-by-step (Google Cloud Console redirect URI gotcha) · per-service key
+  acquisition (Stripe test / PayPal sandbox / Cloudinary / Resend / Sentry)
+  with required-at-boot flags · migrate → seed flow incl. `BK-SEEDPAID`
+  mechanics and the seeded-accounts-are-local-rows semantics · verify loop +
+  troubleshooting table.
+- Facts audit-sourced from code, surfacing three onboarding traps now
+  documented: `RESEND_API_KEY` is required at boot (not optional) · mobile
+  had NO `.env.example` despite 4 required no-default `EXPO_PUBLIC_*` vars
+  (file added) · fixture media publicIds 404 on a fresh Cloudinary account.
+- `apps/web/.env.example` gains `NEXT_PUBLIC_SITE_URL`; getting-started /
+  env-and-secrets / docs index cross-linked; stale "Mobile — scaffold only"
+  row in getting-started fixed.
+- Tests after: unchanged — api 439 · web 232 · admin 264 · mobile 153 ·
+  mobile-ui 34 · core 42.
+
 ## 2026-07-12 — Docs restructure: changelog-first history, slim status docs, 4 new ADRs (`c236daf`)
 
 - This file created — the single home for history + test-count progression;
