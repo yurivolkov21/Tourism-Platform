@@ -1,6 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { BookingStatus, EnquiryStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import {
+  clampDailyWindow,
+  CurrencyGroupRow,
+  DailyTrendPoint,
+  DailyTrendRow,
+  MonthlyTrendPoint,
+  MonthlyTrendRow,
+  pickDominantCurrency,
+  rangeWhere,
+  reduceDailyRows,
+  reduceMonthlyRows,
+  resolveRangeBounds,
+  sortCurrencyGroups,
+  sortTopRevenueRows,
+  TopRevenueRow,
+} from './admin-stats.helpers';
 
 export interface AdminStatsResponse {
   overview: {
@@ -10,6 +26,11 @@ export interface AdminStatsResponse {
     paidBookings: number;
     conversionRate: number;
     monthOverMonthGrowth: number | null;
+    revenueByCurrency: Array<{
+      currency: string;
+      total: string;
+      paidBookings: number;
+    }>;
   };
   bookingsByStatus: Record<BookingStatus, number>;
   topToursByRevenue: Array<{
@@ -18,6 +39,7 @@ export interface AdminStatsResponse {
     title: string;
     revenue: string;
     bookingsCount: number;
+    currency: string;
   }>;
   topToursByRating: Array<{
     tourId: string;
@@ -42,40 +64,43 @@ export interface AdminStatsResponse {
   pendingCounts: { reviews: number; enquiries: number };
 }
 
-interface MonthlyRow {
-  month: Date;
-  bookings: bigint;
-  paid: bigint;
-  revenue: Prisma.Decimal | null;
-}
-
-interface DailyRow {
-  day: Date;
-  bookings: bigint;
-  revenue: Prisma.Decimal | null;
-}
-
 /**
  * Read-only admin dashboard aggregator (adapted from donor; EN-only `title`).
  *
  * Strategy:
  *  - Typed `groupBy`/`aggregate` for most slices (type safety + index use on
  *    `bookings(status, created_at)`, `reviews(tour_id, is_approved)`).
- *  - Monthly trend via `$queryRaw` (`date_trunc` isn't expressible in groupBy);
- *    parameter-free literal SQL, no interpolation → injection-safe.
+ *  - Monthly/daily trend via `$queryRaw` (`date_trunc` isn't expressible in
+ *    groupBy); `Prisma.sql` with interpolated `Date` params — Prisma
+ *    parameterizes, so this stays injection-safe.
  *  - Everything runs in parallel via `Promise.all` — read-only, pooler-safe.
  *
- * Currency: `totalRevenue` sums raw amounts without FX. The seed is USD-only; if
- * multi-currency lands the field should split per-currency or apply a daily rate.
+ * Date range: optional `?from&to` (`YYYY-MM-DD`, UTC day bounds) narrows
+ * `booking`/`review`/`wishlist` slices by their own `createdAt`. No params →
+ * every ranged query omits the `createdAt` clause entirely, so the output is
+ * byte-identical to the no-range baseline. `monthlyTrend`/MoM and
+ * `pendingCounts` are unaffected by the range (fixed window / current-state).
+ *
+ * Currency: NO FX. Each currency's PAID bookings are aggregated separately;
+ * the "dominant" currency (most PAID bookings in range, ties broken by
+ * higher total then currency A→Z) drives `overview.totalRevenue`/`currency`
+ * and the single-currency trend charts. `overview.revenueByCurrency` and
+ * per-row `topToursByRevenue.currency` expose the rest without ever summing
+ * across currencies.
  */
 @Injectable()
 export class AdminStatsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getDashboard(): Promise<AdminStatsResponse> {
+  async getDashboard(from?: string, to?: string): Promise<AdminStatsResponse> {
+    const bounds = resolveRangeBounds(from, to);
+    const range = rangeWhere(bounds);
+    const paidRange = { status: BookingStatus.PAID, ...range };
+    const dailyWindow = clampDailyWindow(bounds, new Date());
+
     const [
       statusGroups,
-      paidAggregate,
+      currencyGroups,
       topRevenueGroups,
       topRatingGroups,
       topWishlistGroups,
@@ -84,25 +109,28 @@ export class AdminStatsService {
       pendingReviews,
       newEnquiries,
     ] = await Promise.all([
-      this.prisma.booking.groupBy({ by: ['status'], _count: { _all: true } }),
-      this.prisma.booking.aggregate({
-        where: { status: BookingStatus.PAID },
+      this.prisma.booking.groupBy({
+        by: ['status'],
+        where: range,
+        _count: { _all: true },
+      }),
+      this.prisma.booking.groupBy({
+        by: ['currency'],
+        where: paidRange,
         _sum: { totalAmount: true },
         _count: { _all: true },
       }),
       this.prisma.booking.groupBy({
-        by: ['tourId'],
-        where: { status: BookingStatus.PAID },
+        by: ['tourId', 'currency'],
+        where: paidRange,
         _sum: { totalAmount: true },
         _count: { _all: true },
-        orderBy: { _sum: { totalAmount: 'desc' } },
-        take: 5,
       }),
       this.prisma.review.groupBy({
         by: ['tourId'],
         // Only tour-bound (verified) reviews count toward per-tour ratings; curated
         // testimonials have a null tourId.
-        where: { isApproved: true, tourId: { not: null } },
+        where: { isApproved: true, tourId: { not: null }, ...range },
         _avg: { rating: true },
         _count: { _all: true },
         orderBy: { _avg: { rating: 'desc' } },
@@ -110,32 +138,37 @@ export class AdminStatsService {
       }),
       this.prisma.wishlist.groupBy({
         by: ['tourId'],
+        where: range,
         _count: { _all: true },
         orderBy: { _count: { tourId: 'desc' } },
         take: 5,
       }),
-      this.prisma.$queryRaw<MonthlyRow[]>`
+      this.prisma.$queryRaw<MonthlyTrendRow[]>(Prisma.sql`
         SELECT
           date_trunc('month', created_at) AS month,
+          currency,
           COUNT(*)::bigint AS bookings,
           COUNT(*) FILTER (WHERE status = 'PAID')::bigint AS paid,
           COALESCE(SUM(total_amount) FILTER (WHERE status = 'PAID'), 0) AS revenue
         FROM bookings
         WHERE created_at >= (date_trunc('month', NOW()) - INTERVAL '5 months')
-        GROUP BY 1
+        GROUP BY 1, 2
         ORDER BY 1 ASC
-      `,
-      // Daily trend for the last 90 days — the FE slices it to 90/30/7 days client-side.
-      this.prisma.$queryRaw<DailyRow[]>`
+      `),
+      // Daily trend, clamped to the (range ∩ most-recent-90-days) window —
+      // the FE slices it to 90/30/7 days client-side.
+      this.prisma.$queryRaw<DailyTrendRow[]>(Prisma.sql`
         SELECT
           date_trunc('day', created_at) AS day,
+          currency,
           COUNT(*)::bigint AS bookings,
           COALESCE(SUM(total_amount) FILTER (WHERE status = 'PAID'), 0) AS revenue
         FROM bookings
-        WHERE created_at >= (NOW() - INTERVAL '90 days')
-        GROUP BY 1
+        WHERE created_at >= ${dailyWindow.gte}
+          ${dailyWindow.lt ? Prisma.sql`AND created_at < ${dailyWindow.lt}` : Prisma.empty}
+        GROUP BY 1, 2
         ORDER BY 1 ASC
-      `,
+      `),
       this.prisma.review.count({ where: { isApproved: false } }),
       this.prisma.enquiry.count({ where: { status: EnquiryStatus.NEW } }),
     ]);
@@ -154,9 +187,24 @@ export class AdminStatsService {
       (a, b) => a + b,
       0,
     );
-    const paidBookings = paidAggregate._count._all;
+
+    const currencyRows: CurrencyGroupRow[] = currencyGroups.map((g) => ({
+      currency: g.currency,
+      paidBookings: g._count._all,
+      total: (g._sum.totalAmount ?? new Prisma.Decimal(0)).toString(),
+    }));
+    const revenueByCurrency = sortCurrencyGroups(currencyRows).map((r) => ({
+      currency: r.currency,
+      total: r.total,
+      paidBookings: r.paidBookings,
+    }));
+    const dominant = pickDominantCurrency(currencyRows);
+    const paidBookings = currencyRows.reduce(
+      (sum, r) => sum + r.paidBookings,
+      0,
+    );
     const totalRevenue =
-      paidAggregate._sum.totalAmount ?? new Prisma.Decimal(0);
+      revenueByCurrency.find((r) => r.currency === dominant)?.total ?? '0';
     const conversionRate =
       totalBookings === 0 ? 0 : paidBookings / totalBookings;
 
@@ -179,7 +227,7 @@ export class AdminStatsService {
         : [];
     const tourById = new Map(tours.map((t) => [t.id, t]));
 
-    const topToursByRevenue = topRevenueGroups.map((row) => {
+    const topRevenueRows: TopRevenueRow[] = topRevenueGroups.map((row) => {
       const t = tourById.get(row.tourId);
       return {
         tourId: row.tourId,
@@ -187,8 +235,10 @@ export class AdminStatsService {
         title: t?.title ?? '<unknown>',
         revenue: (row._sum.totalAmount ?? new Prisma.Decimal(0)).toString(),
         bookingsCount: row._count._all,
+        currency: row.currency,
       };
     });
+    const topToursByRevenue = sortTopRevenueRows(topRevenueRows, dominant);
     const topToursByRating = topRatingGroups
       .filter(
         (row): row is typeof row & { tourId: string } => row.tourId !== null,
@@ -213,18 +263,11 @@ export class AdminStatsService {
       };
     });
 
-    const monthlyTrend = monthlyRows.map((row) => ({
-      month: row.month.toISOString().slice(0, 7),
-      bookings: Number(row.bookings),
-      paidBookings: Number(row.paid),
-      revenue: (row.revenue ?? new Prisma.Decimal(0)).toString(),
-    }));
-
-    const dailyTrend = dailyRows.map((row) => ({
-      date: row.day.toISOString().slice(0, 10),
-      bookings: Number(row.bookings),
-      revenue: (row.revenue ?? new Prisma.Decimal(0)).toString(),
-    }));
+    const monthlyTrend: MonthlyTrendPoint[] = reduceMonthlyRows(
+      monthlyRows,
+      dominant,
+    );
+    const dailyTrend: DailyTrendPoint[] = reduceDailyRows(dailyRows, dominant);
 
     // MoM growth — last month vs the month before, when both exist.
     let monthOverMonthGrowth: number | null = null;
@@ -238,12 +281,13 @@ export class AdminStatsService {
 
     return {
       overview: {
-        totalRevenue: totalRevenue.toString(),
-        currency: 'USD',
+        totalRevenue,
+        currency: dominant,
         totalBookings,
         paidBookings,
         conversionRate,
         monthOverMonthGrowth,
+        revenueByCurrency,
       },
       bookingsByStatus,
       topToursByRevenue,

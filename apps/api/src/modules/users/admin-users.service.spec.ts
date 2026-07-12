@@ -11,6 +11,7 @@ interface Mocks {
   review?: Record<string, unknown>;
   wishlist?: Record<string, unknown>;
   post?: Record<string, unknown>;
+  $queryRaw?: jest.Mock;
   $transaction?: jest.Mock;
 }
 
@@ -32,6 +33,7 @@ function makePrisma(m: Mocks = {}): PrismaService {
     review: { count: jest.fn().mockResolvedValue(0), ...m.review },
     wishlist: { count: jest.fn().mockResolvedValue(0), ...m.wishlist },
     post: { count: jest.fn().mockResolvedValue(0), ...m.post },
+    $queryRaw: m.$queryRaw ?? jest.fn().mockResolvedValue([{ id: 'a-1' }]),
     $transaction:
       m.$transaction ??
       jest
@@ -197,9 +199,11 @@ describe('AdminUsersService', () => {
         role: UserRole.ADMIN,
         _count: undefined,
       });
+      const queryRaw = jest.fn();
       const prisma = makePrisma({
         user: { findUnique: jest.fn().mockResolvedValue(USER_ROW), update },
         booking: { count: jest.fn().mockResolvedValue(0) },
+        $queryRaw: queryRaw,
       });
       const res = await svcWith(prisma).changeRole(
         'u-1',
@@ -211,6 +215,7 @@ describe('AdminUsersService', () => {
         data: { role: UserRole.ADMIN },
       });
       expect(res.role).toBe(UserRole.ADMIN);
+      expect(queryRaw).not.toHaveBeenCalled();
     });
 
     it('blocks changing your own role (ROLE_SELF_CHANGE)', async () => {
@@ -235,46 +240,75 @@ describe('AdminUsersService', () => {
       ).rejects.toBeInstanceOf(ConflictException);
     });
 
-    it('blocks demoting the last ADMIN (ROLE_LAST_ADMIN)', async () => {
+    it('blocks demoting the last ADMIN via an empty claim (ROLE_LAST_ADMIN)', async () => {
+      const queryRaw = jest.fn().mockResolvedValue([]);
       const prisma = makePrisma({
-        user: {
-          findUnique: jest.fn().mockResolvedValue(admin),
-          count: jest.fn().mockResolvedValue(1),
-        },
+        user: { findUnique: jest.fn().mockResolvedValue(admin) },
+        $queryRaw: queryRaw,
       });
       await expect(
         svcWith(prisma).changeRole('a-1', 'caller-9', UserRole.CUSTOMER),
       ).rejects.toBeInstanceOf(ConflictException);
+      expect(queryRaw).toHaveBeenCalled();
     });
 
-    it('allows demoting a non-last, non-env admin', async () => {
-      const update = jest
+    it('demotes a non-last, non-env admin via the locking-CTE claim, then re-fetches for the DTO', async () => {
+      const queryRaw = jest.fn().mockResolvedValue([{ id: 'a-1' }]);
+      const findUnique = jest
         .fn()
-        .mockResolvedValue({ ...admin, role: UserRole.CUSTOMER });
+        .mockResolvedValueOnce(admin) // pre-check read
+        .mockResolvedValueOnce({ ...admin, role: UserRole.CUSTOMER }); // re-fetch after claim
+      const update = jest.fn();
       const prisma = makePrisma({
-        user: {
-          findUnique: jest.fn().mockResolvedValue(admin),
-          count: jest.fn().mockResolvedValue(2),
-          update,
-        },
+        user: { findUnique, update },
         booking: { count: jest.fn().mockResolvedValue(0) },
+        $queryRaw: queryRaw,
       });
       const res = await svcWith(prisma).changeRole(
         'a-1',
         'caller-9',
         UserRole.CUSTOMER,
       );
+      expect(queryRaw).toHaveBeenCalled();
+      expect(update).not.toHaveBeenCalled();
+      expect(findUnique).toHaveBeenCalledTimes(2);
       expect(res.role).toBe(UserRole.CUSTOMER);
+    });
+
+    it('self-change and env-admin pre-checks fire before any claim is attempted', async () => {
+      const selfQueryRaw = jest.fn();
+      const selfPrisma = makePrisma({
+        user: { findUnique: jest.fn().mockResolvedValue(admin) },
+        $queryRaw: selfQueryRaw,
+      });
+      await expect(
+        svcWith(selfPrisma).changeRole('a-1', 'a-1', UserRole.CUSTOMER),
+      ).rejects.toBeInstanceOf(ConflictException);
+      expect(selfQueryRaw).not.toHaveBeenCalled();
+
+      const envQueryRaw = jest.fn();
+      const envPrisma = makePrisma({
+        user: { findUnique: jest.fn().mockResolvedValue(admin) },
+        $queryRaw: envQueryRaw,
+      });
+      await expect(
+        svcWith(envPrisma, ['boss@x.com']).changeRole(
+          'a-1',
+          'caller-9',
+          UserRole.CUSTOMER,
+        ),
+      ).rejects.toBeInstanceOf(ConflictException);
+      expect(envQueryRaw).not.toHaveBeenCalled();
     });
   });
 
   describe('deleteUser', () => {
-    it('deletes a bookings-free customer: media cleanup + row delete in a tx + Supabase auth delete', async () => {
-      const del = jest.fn();
+    it('deletes a bookings-free customer: media cleanup + conditional row delete in a tx + Supabase auth delete', async () => {
+      const del = jest.fn().mockResolvedValue({ count: 1 });
       const $transaction = jest
         .fn()
         .mockImplementation((fn: (tx: unknown) => Promise<unknown>) =>
-          fn({ user: { delete: del } }),
+          fn({ user: { deleteMany: del } }),
         );
       const media = makeMedia();
       const users = makeUsers();
@@ -292,11 +326,38 @@ describe('AdminUsersService', () => {
       expect(
         (media as unknown as { deleteForOwner: jest.Mock }).deleteForOwner,
       ).toHaveBeenCalledWith(expect.anything(), MediaOwnerType.USER, 'u-1');
-      expect(del).toHaveBeenCalledWith({ where: { id: 'u-1' } });
+      // Role-conditional delete: the in-tx claim is what makes a concurrent
+      // promote unable to slip an ADMIN row into the delete (last-admin
+      // invariant, wave D2 adversarial-review fix).
+      expect(del).toHaveBeenCalledWith({
+        where: { id: 'u-1', role: UserRole.CUSTOMER },
+      });
       expect(
         (users as unknown as { deleteSupabaseUser: jest.Mock })
           .deleteSupabaseUser,
       ).toHaveBeenCalledWith('sub-1');
+    });
+
+    it('409s (USER_IS_ADMIN) when the target was promoted between the pre-check and the tx delete', async () => {
+      const del = jest.fn().mockResolvedValue({ count: 0 });
+      const $transaction = jest
+        .fn()
+        .mockImplementation((fn: (tx: unknown) => Promise<unknown>) =>
+          fn({ user: { deleteMany: del } }),
+        );
+      const users = makeUsers();
+      const prisma = makePrisma({
+        user: { findUnique: jest.fn().mockResolvedValue(USER_ROW) },
+        $transaction,
+      });
+
+      await expect(
+        svcWith(prisma, [], makeMedia(), users).deleteUser('u-1', 'caller-9'),
+      ).rejects.toBeInstanceOf(ConflictException);
+      expect(
+        (users as unknown as { deleteSupabaseUser: jest.Mock })
+          .deleteSupabaseUser,
+      ).not.toHaveBeenCalled();
     });
 
     it('blocks self-delete (USER_SELF_DELETE)', async () => {

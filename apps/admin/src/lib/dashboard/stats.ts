@@ -11,6 +11,11 @@ export interface DashboardStats {
     paidBookings: number;
     conversionRate: number;
     monthOverMonthGrowth: number | null;
+    revenueByCurrency: {
+      currency: string;
+      total: string;
+      paidBookings: number;
+    }[];
   };
   bookingsByStatus: Record<
     'PENDING' | 'PAID' | 'CANCELLED' | 'REFUNDED',
@@ -22,6 +27,7 @@ export interface DashboardStats {
     title: string;
     revenue: string;
     bookingsCount: number;
+    currency?: string;
   }[];
   topToursByRating: {
     tourId: string;
@@ -46,15 +52,28 @@ export interface DashboardStats {
   pendingCounts: { reviews: number; enquiries: number } | null;
 }
 
-/** Fetches the wide admin dashboard payload with the current admin token. Unwraps the envelope. */
-export async function getDashboardStats(): Promise<DashboardStats> {
+/**
+ * Fetches the wide admin dashboard payload with the current admin token. Unwraps the envelope.
+ * `from`/`to` (`YYYY-MM-DD`, both optional/independent) scope every ranged aggregate server-side;
+ * omitting both keeps the original all-time output.
+ */
+export async function getDashboardStats(
+  from?: string,
+  to?: string,
+): Promise<DashboardStats> {
   const api = await getApiClient();
-  const { data } = await api.GET('/api/v1/admin/stats/dashboard', {});
+  const { data } = await api.GET('/api/v1/admin/stats/dashboard', {
+    params: { query: { from, to } },
+  });
   const payload = (data as unknown as { data: DashboardStats }).data;
   // New BE fields — default them so the dashboard never crashes against an API
   // instance that hasn't shipped them yet (e.g. a fresh FE hitting a lagging Render).
   return {
     ...payload,
+    overview: {
+      ...payload.overview,
+      revenueByCurrency: payload.overview.revenueByCurrency ?? [],
+    },
     dailyTrend: payload.dailyTrend ?? [],
     topToursByRating: payload.topToursByRating ?? [],
     topToursByWishlist: payload.topToursByWishlist ?? [],

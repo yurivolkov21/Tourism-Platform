@@ -35,7 +35,6 @@ import {
   SheetHeader,
   SheetTitle,
   Textarea,
-  cn,
   toast,
 } from '@tourism/ui';
 
@@ -43,6 +42,7 @@ import { ServerTablePagination } from '../crud/server-table-pagination';
 import { ColumnsMenu } from '../crud/columns-menu';
 import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import { AdminTableShell } from '../crud/admin-table-shell';
+import { TabPills } from '../crud/tab-pills';
 import {
   addEnquiryNote,
   listEnquiryNotes,
@@ -320,31 +320,11 @@ export function EnquiriesView({
     <div className="flex flex-col gap-4">
       {/* Toolbar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div
-          role="tablist"
-          className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
-        >
-          {TABS.map((t) => {
-            const active = t.value === status;
-            return (
-              <button
-                key={t.value}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => pushParams({ status: t.value })}
-                className={cn(
-                  'inline-flex h-7 cursor-pointer items-center rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                  active
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'hover:text-foreground',
-                )}
-              >
-                {t.label}
-              </button>
-            );
-          })}
-        </div>
+        <TabPills
+          tabs={TABS}
+          value={status}
+          onValueChange={(value) => pushParams({ status: value })}
+        />
 
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           <form

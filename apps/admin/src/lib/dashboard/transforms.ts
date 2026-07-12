@@ -28,6 +28,11 @@ export interface CardModel {
   delta: number | null;
   /** Muted footer descriptor line. */
   descriptor: string;
+  /**
+   * Revenue card only: non-dominant currencies' totals (`"+ ₫1,200,000 · +￥900"`), present
+   * only when the range mixes more than one currency. No FX — each stays in its own currency.
+   */
+  extraCurrencies?: string;
 }
 
 /** Relative change last-vs-prev, or null when prev is non-positive / missing. */
@@ -42,6 +47,11 @@ interface Overview {
   paidBookings: number;
   conversionRate: number;
   monthOverMonthGrowth: number | null;
+  revenueByCurrency?: {
+    currency: string;
+    total: string;
+    paidBookings: number;
+  }[];
 }
 
 export function formatMoney(value: string | number, currency: string): string {
@@ -174,14 +184,25 @@ export function computeCardModels(
         )
       : null;
 
+  // AOV must stay single-currency: `totalRevenue` is the dominant currency's
+  // sum, so divide by that currency's paid count — the all-currency
+  // `paidBookings` would silently mix currencies on a multi-currency range.
+  const dominantPaid =
+    overview.revenueByCurrency?.[0]?.paidBookings ?? overview.paidBookings;
   const aov =
-    overview.paidBookings > 0
-      ? Number(overview.totalRevenue) / overview.paidBookings
-      : 0;
+    dominantPaid > 0 ? Number(overview.totalRevenue) / dominantPaid : 0;
 
   const money = currencyAffixes(overview.currency);
   const moneyDecimals = currencyDecimals(overview.currency);
   const revenue = Number(overview.totalRevenue);
+
+  const otherCurrencies = (overview.revenueByCurrency ?? []).slice(1);
+  const extraCurrencies =
+    otherCurrencies.length > 0
+      ? otherCurrencies
+          .map((entry) => `+ ${formatMoney(entry.total, entry.currency)}`)
+          .join(' · ')
+      : undefined;
 
   return [
     {
@@ -195,6 +216,7 @@ export function computeCardModels(
       },
       delta: revenueDelta,
       descriptor: 'Paid bookings revenue',
+      extraCurrencies,
     },
     {
       key: 'bookings',

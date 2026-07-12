@@ -24,6 +24,7 @@ import {
 } from '@tourism/ui';
 
 import { RowActions } from '../crud/row-actions';
+import { TabPills } from '../crud/tab-pills';
 import { deleteDeparture } from '../../lib/departures/actions';
 import type { Departure } from '../../lib/departures/data';
 import {
@@ -258,64 +259,18 @@ export function DeparturesTable({
       {/* Toolbar — time facet (Upcoming default) composes with the status tabs (AND) */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
-          <div
-            role="tablist"
-            aria-label="Filter by time"
-            className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
-          >
-            {timeTabs.map((t) => {
-              const isActive = t.value === timeTab;
-              return (
-                <button
-                  key={t.value}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => setTimeTab(t.value)}
-                  className={cn(
-                    'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                    isActive
-                      ? 'bg-background text-foreground shadow-sm'
-                      : 'hover:text-foreground',
-                  )}
-                >
-                  {t.label}
-                  <Badge variant="secondary" className="px-1.5 tabular-nums">
-                    {t.count}
-                  </Badge>
-                </button>
-              );
-            })}
-          </div>
-          <div
-            role="tablist"
-            aria-label="Filter by status"
-            className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
-          >
-            {tabs.map((t) => {
-              const isActive = t.value === tab;
-              return (
-                <button
-                  key={t.value}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => setTab(t.value)}
-                  className={cn(
-                    'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                    isActive
-                      ? 'bg-background text-foreground shadow-sm'
-                      : 'hover:text-foreground',
-                  )}
-                >
-                  {t.label}
-                  <Badge variant="secondary" className="px-1.5 tabular-nums">
-                    {t.count}
-                  </Badge>
-                </button>
-              );
-            })}
-          </div>
+          <TabPills
+            tabs={timeTabs}
+            value={timeTab}
+            ariaLabel="Filter by time"
+            onValueChange={setTimeTab}
+          />
+          <TabPills
+            tabs={tabs}
+            value={tab}
+            ariaLabel="Filter by status"
+            onValueChange={setTab}
+          />
         </div>
 
         <ColumnsMenu table={table} />

@@ -64,6 +64,11 @@ export function SectionCards({ cards }: { cards: CardModel[] }) {
                   </div>
                 ) : null}
                 <div className="text-muted-foreground">{c.descriptor}</div>
+                {c.extraCurrencies ? (
+                  <div className="text-muted-foreground text-xs tabular-nums">
+                    {c.extraCurrencies}
+                  </div>
+                ) : null}
               </CardFooter>
             </Card>
           </Reveal>

@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Query } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -9,6 +9,7 @@ import {
 import { UserRole } from '@prisma/client';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { AdminStatsResponseDto } from './dto/admin-stats-response.dto';
+import { DashboardStatsQueryDto } from './dto/dashboard-stats-query.dto';
 import { AdminStatsResponse, AdminStatsService } from './admin-stats.service';
 
 /**
@@ -27,14 +28,18 @@ export class AdminStatsController {
   @Get('dashboard')
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Dashboard aggregates (revenue, top tours, trend)' })
+  @ApiOperation({
+    summary:
+      'Dashboard aggregates (revenue, top tours, trend), optionally narrowed by ?from&to (YYYY-MM-DD, UTC day bounds)',
+  })
   @ApiOkResponse({
     type: AdminStatsResponseDto,
     description: 'Aggregated stats',
   })
+  @ApiResponse({ status: 400, description: 'Invalid/inverted date range' })
   @ApiResponse({ status: 401, description: 'Missing/invalid token' })
   @ApiResponse({ status: 403, description: 'Caller is not an admin' })
-  get(): Promise<AdminStatsResponse> {
-    return this.statsService.getDashboard();
+  get(@Query() query: DashboardStatsQueryDto): Promise<AdminStatsResponse> {
+    return this.statsService.getDashboard(query.from, query.to);
   }
 }

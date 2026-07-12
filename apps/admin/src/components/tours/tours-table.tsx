@@ -35,6 +35,7 @@ import { FacetFilter } from '../crud/facet-filter';
 import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import { AdminTableShell } from '../crud/admin-table-shell';
 import { ClientTablePagination } from '../crud/client-table-pagination';
+import { TabPills } from '../crud/tab-pills';
 
 type Tab = 'all' | 'published' | 'draft';
 
@@ -345,34 +346,7 @@ export function ToursTable({ rows }: { rows: TourSummary[] }) {
     <div className="flex flex-col gap-4">
       {/* Toolbar */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div
-          role="tablist"
-          className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
-        >
-          {tabs.map((t) => {
-            const isActive = t.value === tab;
-            return (
-              <button
-                key={t.value}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => setTab(t.value)}
-                className={cn(
-                  'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                  isActive
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'hover:text-foreground',
-                )}
-              >
-                {t.label}
-                <Badge variant="secondary" className="px-1.5 tabular-nums">
-                  {t.count}
-                </Badge>
-              </button>
-            );
-          })}
-        </div>
+        <TabPills tabs={tabs} value={tab} onValueChange={setTab} />
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <FacetFilter

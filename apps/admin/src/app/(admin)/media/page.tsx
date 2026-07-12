@@ -1,7 +1,6 @@
-import Link from 'next/link';
-
 import { AdminListHeader } from '../../../components/crud/list-header';
 import { ErrorAlert } from '../../../components/crud/error-alert';
+import { TabPills } from '../../../components/crud/tab-pills';
 import { MediaLibraryView } from '../../../components/media/media-library-view';
 import { GarbageView } from '../../../components/media/garbage-view';
 import { apiErrorMessage } from '../../../lib/api/error';
@@ -12,7 +11,6 @@ import {
   type GarbageList,
 } from '../../../lib/media-library/data';
 import { parsePageSize } from '../../../lib/pagination';
-import { cn } from '@tourism/ui';
 
 const OWNER_TYPES = ['TOUR', 'DESTINATION', 'POST', 'USER', 'SITE'] as const;
 const ROLES = ['hero', 'gallery', 'avatar', 'body'] as const;
@@ -84,33 +82,14 @@ export default async function MediaPage({ searchParams }: MediaPageProps) {
       />
 
       {/* View tabs styled as the shared segmented tablist (matches every other admin list). */}
-      <div
-        role="tablist"
-        className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
-      >
-        {[
-          { key: 'library', label: 'Library', href: '/media' },
-          { key: 'garbage', label: 'Garbage', href: '/media?tab=garbage' },
-        ].map((t) => {
-          const active = tab === t.key;
-          return (
-            <Link
-              key={t.key}
-              href={t.href}
-              role="tab"
-              aria-selected={active}
-              className={cn(
-                'inline-flex h-7 items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                active
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'hover:text-foreground',
-              )}
-            >
-              {t.label}
-            </Link>
-          );
-        })}
-      </div>
+      <TabPills
+        tabs={[
+          { value: 'library', label: 'Library' },
+          { value: 'garbage', label: 'Garbage' },
+        ]}
+        value={tab}
+        hrefFor={(v) => (v === 'garbage' ? '/media?tab=garbage' : '/media')}
+      />
 
       {error ? (
         <ErrorAlert>

@@ -51,7 +51,6 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  cn,
   toast,
 } from '@tourism/ui';
 
@@ -59,6 +58,7 @@ import { FacetFilter } from '../crud/facet-filter';
 import { ColumnsMenu } from '../crud/columns-menu';
 import { usePersistentColumnVisibility } from '../crud/use-persistent-column-visibility';
 import { AdminTableShell } from '../crud/admin-table-shell';
+import { TabPills } from '../crud/tab-pills';
 import {
   deleteReview,
   setApproved,
@@ -446,31 +446,11 @@ export function ReviewsView({
     <div className="flex flex-col gap-4">
       {/* Toolbar */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div
-          role="tablist"
-          className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
-        >
-          {STATUS_TABS.map((t) => {
-            const isActive = t.value === status;
-            return (
-              <button
-                key={t.value}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => pushWith({ status: t.value })}
-                className={cn(
-                  'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                  isActive
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'hover:text-foreground',
-                )}
-              >
-                {t.label}
-              </button>
-            );
-          })}
-        </div>
+        <TabPills
+          tabs={STATUS_TABS}
+          value={status}
+          onValueChange={(value) => pushWith({ status: value })}
+        />
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <FacetFilter

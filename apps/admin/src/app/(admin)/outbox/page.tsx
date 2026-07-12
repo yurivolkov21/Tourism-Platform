@@ -1,12 +1,10 @@
-import Link from 'next/link';
-
 import { AdminListHeader } from '../../../components/crud/list-header';
 import { ErrorAlert } from '../../../components/crud/error-alert';
+import { TabPills } from '../../../components/crud/tab-pills';
 import { OutboxView } from '../../../components/outbox/outbox-view';
 import { apiErrorMessage } from '../../../lib/api/error';
 import { listOutbox, type OutboxList } from '../../../lib/outbox/data';
 import { parsePageSize } from '../../../lib/pagination';
-import { cn } from '@tourism/ui';
 
 const STATUSES = ['PENDING', 'SENT', 'FAILED'] as const;
 type OutboxStatus = (typeof STATUSES)[number];
@@ -50,35 +48,16 @@ export default async function OutboxPage({ searchParams }: OutboxPageProps) {
       />
 
       {/* Status tabs styled as the shared segmented tablist (matches every other admin list). */}
-      <div
-        role="tablist"
-        className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
-      >
-        {[
-          { key: undefined, label: 'All', href: '/outbox' },
-          { key: 'PENDING', label: 'Pending', href: '/outbox?status=PENDING' },
-          { key: 'SENT', label: 'Sent', href: '/outbox?status=SENT' },
-          { key: 'FAILED', label: 'Failed', href: '/outbox?status=FAILED' },
-        ].map((t) => {
-          const active = status === t.key;
-          return (
-            <Link
-              key={t.label}
-              href={t.href}
-              role="tab"
-              aria-selected={active}
-              className={cn(
-                'inline-flex h-7 items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                active
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'hover:text-foreground',
-              )}
-            >
-              {t.label}
-            </Link>
-          );
-        })}
-      </div>
+      <TabPills
+        tabs={[
+          { value: 'all', label: 'All' },
+          { value: 'PENDING', label: 'Pending' },
+          { value: 'SENT', label: 'Sent' },
+          { value: 'FAILED', label: 'Failed' },
+        ]}
+        value={status ?? 'all'}
+        hrefFor={(v) => (v === 'all' ? '/outbox' : `/outbox?status=${v}`)}
+      />
 
       {error ? (
         <ErrorAlert>

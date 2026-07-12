@@ -61,6 +61,82 @@ test('computeCardModels: no deltas with <2 months', () => {
   expect(byKey.aov.value).toBe(formatMoney(0, 'USD'));
 });
 
+test('computeCardModels: revenue card gets an extraCurrencies footnote when the range mixes currencies', () => {
+  const overview = {
+    totalRevenue: '1000.00',
+    currency: 'USD',
+    totalBookings: 50,
+    paidBookings: 40,
+    conversionRate: 0.8,
+    monthOverMonthGrowth: null,
+    revenueByCurrency: [
+      { currency: 'USD', total: '1000.00', paidBookings: 30 },
+      { currency: 'VND', total: '1200000', paidBookings: 10 },
+    ],
+  };
+  const cards = computeCardModels(overview, []);
+  const byKey = Object.fromEntries(cards.map((c) => [c.key, c]));
+
+  expect(byKey.revenue.extraCurrencies).toBe(
+    `+ ${formatMoney('1200000', 'VND')}`,
+  );
+  // Only the revenue card carries the footnote.
+  expect(byKey.bookings.extraCurrencies).toBeUndefined();
+  expect(byKey.conversion.extraCurrencies).toBeUndefined();
+  expect(byKey.aov.extraCurrencies).toBeUndefined();
+});
+
+test('computeCardModels: AOV divides dominant revenue by the dominant paid count, not the all-currency count', () => {
+  const overview = {
+    totalRevenue: '1000.00',
+    currency: 'USD',
+    totalBookings: 50,
+    paidBookings: 20, // 10 USD + 10 VND
+    conversionRate: 0.4,
+    monthOverMonthGrowth: null,
+    revenueByCurrency: [
+      { currency: 'USD', total: '1000.00', paidBookings: 10 },
+      { currency: 'VND', total: '1200000', paidBookings: 10 },
+    ],
+  };
+  const cards = computeCardModels(overview, []);
+  const byKey = Object.fromEntries(cards.map((c) => [c.key, c]));
+  // $1000 across 10 USD-paid bookings = $100 — dividing by all 20 would show $50.
+  expect(byKey.aov.value).toBe(formatMoney(100, 'USD'));
+  expect(byKey.aov.ticker.value).toBe(100);
+});
+
+test('computeCardModels: no extraCurrencies footnote for a single-currency range', () => {
+  const overview = {
+    totalRevenue: '1000.00',
+    currency: 'USD',
+    totalBookings: 50,
+    paidBookings: 40,
+    conversionRate: 0.8,
+    monthOverMonthGrowth: null,
+    revenueByCurrency: [
+      { currency: 'USD', total: '1000.00', paidBookings: 40 },
+    ],
+  };
+  const cards = computeCardModels(overview, []);
+  const byKey = Object.fromEntries(cards.map((c) => [c.key, c]));
+  expect(byKey.revenue.extraCurrencies).toBeUndefined();
+});
+
+test('computeCardModels: no extraCurrencies footnote when revenueByCurrency is missing', () => {
+  const overview = {
+    totalRevenue: '1000.00',
+    currency: 'USD',
+    totalBookings: 50,
+    paidBookings: 40,
+    conversionRate: 0.8,
+    monthOverMonthGrowth: null,
+  };
+  const cards = computeCardModels(overview, []);
+  const byKey = Object.fromEntries(cards.map((c) => [c.key, c]));
+  expect(byKey.revenue.extraCurrencies).toBeUndefined();
+});
+
 test('formatPct / formatMoney', () => {
   expect(formatPct(0.8)).toBe('80%');
   expect(formatMoney('1000', 'USD')).toMatch(/\$1,000/);

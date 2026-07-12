@@ -4,8 +4,9 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Search } from 'lucide-react';
 
-import { Input, cn } from '@tourism/ui';
+import { Input } from '@tourism/ui';
 
+import { TabPills } from '../crud/tab-pills';
 import type { UserRole } from '../../lib/users/data';
 
 type TabValue = 'all' | UserRole;
@@ -69,31 +70,11 @@ export function UsersFilters({
 
   return (
     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-      <div
-        role="tablist"
-        className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
-      >
-        {TABS.map((t) => {
-          const active = t.value === role;
-          return (
-            <button
-              key={t.value}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => pushWith({ role: t.value })}
-              className={cn(
-                'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                active
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'hover:text-foreground',
-              )}
-            >
-              {t.label}
-            </button>
-          );
-        })}
-      </div>
+      <TabPills
+        tabs={TABS}
+        value={role}
+        onValueChange={(value) => pushWith({ role: value })}
+      />
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <div className="relative w-full sm:max-w-xs">

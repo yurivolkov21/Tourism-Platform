@@ -128,10 +128,10 @@ export function TopToursCard({
               <ul className="space-y-2.5">
                 {byRevenue.map((t) => (
                   <RowShell
-                    key={t.tourId}
+                    key={`${t.tourId}:${t.currency ?? ''}`}
                     slug={t.slug}
                     title={t.title}
-                    right={`${formatMoney(t.revenue, currency)} · ${t.bookingsCount} bookings`}
+                    right={`${formatMoney(t.revenue, t.currency ?? currency)} · ${t.bookingsCount} bookings`}
                   />
                 ))}
               </ul>

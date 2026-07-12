@@ -1,23 +1,45 @@
 import { ChartAreaInteractive } from '../../../components/dashboard/chart-area-interactive';
 import { DataTable } from '../../../components/dashboard/data-table';
+import { DateRangeControl } from '../../../components/dashboard/date-range-control';
 import { SectionCards } from '../../../components/dashboard/section-cards';
 import { BookingsPipeline } from '../../../components/dashboard/bookings-pipeline';
 import { NeedsAttention } from '../../../components/dashboard/needs-attention';
 import { TopToursCard } from '../../../components/dashboard/top-tours-card';
 import { getRecentBookings } from '../../../lib/dashboard/bookings-table';
+import { parseDateParam } from '../../../lib/dashboard/date-range';
 import { getDashboardStats } from '../../../lib/dashboard/stats';
 import { computeCardModels } from '../../../lib/dashboard/transforms';
 import { ErrorAlert } from '../../../components/crud/error-alert';
 import { Reveal } from '../../../components/motion/reveal';
 
-export default async function DashboardPage() {
+interface DashboardPageProps {
+  searchParams: Promise<{ from?: string; to?: string }>;
+}
+
+export default async function DashboardPage({
+  searchParams,
+}: DashboardPageProps) {
+  const sp = await searchParams;
+  let from = parseDateParam(sp.from);
+  let to = parseDateParam(sp.to);
+  // An inverted deep-linked pair would 400 on the API and blank the whole
+  // stats block — drop both and render All time instead (lexicographic
+  // compare is exact for YYYY-MM-DD).
+  if (from && to && from > to) {
+    from = undefined;
+    to = undefined;
+  }
+
   const [stats, bookings] = await Promise.all([
-    getDashboardStats().catch(() => null),
+    getDashboardStats(from, to).catch(() => null),
     getRecentBookings(50).catch(() => null),
   ]);
 
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+      <div className="flex justify-end px-4 lg:px-6">
+        <DateRangeControl from={from} to={to} />
+      </div>
       {stats ? (
         <>
           <SectionCards

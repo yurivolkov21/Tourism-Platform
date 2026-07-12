@@ -4,9 +4,10 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { CalendarRange, Map, Search, X } from 'lucide-react';
 
-import { Badge, Input, cn } from '@tourism/ui';
+import { Badge, Input } from '@tourism/ui';
 
 import { FacetFilter } from '../crud/facet-filter';
+import { TabPills } from '../crud/tab-pills';
 import type { BookingStatus } from '../../lib/bookings/format';
 
 type TabValue = 'all' | BookingStatus;
@@ -131,41 +132,18 @@ export function BookingsFilters({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div
-          role="tablist"
-          className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-1"
-        >
-          {TABS.map((t) => {
-            const active = t.value === status;
-            const count = statusCounts
+        <TabPills
+          tabs={TABS.map((t) => ({
+            ...t,
+            count: statusCounts
               ? t.value === 'all'
                 ? Object.values(statusCounts).reduce((sum, n) => sum + n, 0)
                 : (statusCounts[t.value] ?? 0)
-              : undefined;
-            return (
-              <button
-                key={t.value}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => pushWith({ status: t.value })}
-                className={cn(
-                  'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors',
-                  active
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'hover:text-foreground',
-                )}
-              >
-                {t.label}
-                {count !== undefined ? (
-                  <Badge variant="secondary" className="px-1.5 tabular-nums">
-                    {count}
-                  </Badge>
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
+              : undefined,
+          }))}
+          value={status}
+          onValueChange={(value) => pushWith({ status: value })}
+        />
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           {tours.length > 0 ? (

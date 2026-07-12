@@ -1,14 +1,32 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BookingStatus } from '@prisma/client';
 
+class RevenueByCurrencyDto {
+  @ApiProperty({ example: 'USD' })
+  currency!: string;
+
+  @ApiProperty({
+    example: '12450.00',
+    description: 'Sum of PAID totals in this currency (string Decimal, no FX)',
+  })
+  total!: string;
+
+  @ApiProperty({ example: 61 })
+  paidBookings!: number;
+}
+
 class StatsOverviewDto {
   @ApiProperty({
     example: '12450.00',
-    description: 'Sum of PAID totals (string Decimal)',
+    description:
+      'Sum of PAID totals in the dominant currency (string Decimal, no FX)',
   })
   totalRevenue!: string;
 
-  @ApiProperty({ example: 'USD' })
+  @ApiProperty({
+    example: 'USD',
+    description: 'Dominant currency — most PAID bookings in range',
+  })
   currency!: string;
 
   @ApiProperty({ example: 87 })
@@ -30,6 +48,12 @@ class StatsOverviewDto {
     description: 'Last vs prior month revenue; null if <2 months',
   })
   monthOverMonthGrowth!: number | null;
+
+  @ApiProperty({
+    type: [RevenueByCurrencyDto],
+    description: 'Per-currency PAID revenue in range, dominant currency first',
+  })
+  revenueByCurrency!: RevenueByCurrencyDto[];
 }
 
 class TopTourByRevenueDto {
@@ -47,6 +71,9 @@ class TopTourByRevenueDto {
 
   @ApiProperty({ example: 30 })
   bookingsCount!: number;
+
+  @ApiProperty({ example: 'USD' })
+  currency!: string;
 }
 
 class TopTourByRatingDto {

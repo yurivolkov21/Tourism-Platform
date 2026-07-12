@@ -151,8 +151,10 @@ export class AdminUsersService {
   /**
    * Change a user's role. Guards (409 each): self-change · demoting an
    * env-bootstrap admin (only an env edit can) · demoting the LAST admin.
-   * Promote has no extra guard. Last-admin check is read-then-write — fine at
-   * this scale (single-admin reality).
+   * Promote has no extra guard. The last-admin check is a single-statement
+   * locking-CTE claim (`FOR UPDATE` over all admin rows, re-checked under
+   * READ COMMITTED) — two concurrent demotes can never both succeed and zero
+   * out the admin pool.
    */
   async changeRole(
     id: string,
@@ -175,22 +177,43 @@ export class AdminUsersService {
           'This admin is on the ADMIN_EMAILS bootstrap list — remove them from the env to demote',
       });
     }
+
+    let updated: {
+      id: string;
+      email: string;
+      fullName: string | null;
+      phone: string | null;
+      role: UserRole;
+      createdAt: Date;
+    };
     if (demoting) {
-      const admins = await this.prisma.user.count({
-        where: { role: UserRole.ADMIN },
-      });
-      if (admins <= 1) {
+      const claimed = await this.prisma.$queryRaw<Array<{ id: string }>>(
+        Prisma.sql`
+          WITH admins AS (
+            SELECT id FROM users WHERE role = 'ADMIN'::"UserRole" ORDER BY id FOR UPDATE
+          )
+          UPDATE users
+          SET role = 'CUSTOMER'::"UserRole", updated_at = NOW()
+          WHERE id = ${id}::uuid
+            AND role = 'ADMIN'::"UserRole"
+            AND (SELECT COUNT(*) FROM admins) > 1
+          RETURNING id
+        `,
+      );
+      if (claimed.length === 0) {
         throw new ConflictException({
           code: 'ROLE_LAST_ADMIN',
           message: 'Cannot demote the last remaining admin',
         });
       }
+      updated = await this.findOrThrow(id);
+    } else {
+      updated = await this.prisma.user.update({
+        where: { id },
+        data: { role },
+      });
     }
 
-    const updated = await this.prisma.user.update({
-      where: { id },
-      data: { role },
-    });
     const bookings = await this.prisma.booking.count({ where: { userId: id } });
     return this.toListItem(updated, bookings);
   }
@@ -241,7 +264,18 @@ export class AdminUsersService {
 
     await this.prisma.$transaction(async (tx) => {
       await this.media.deleteForOwner(tx, MediaOwnerType.USER, id);
-      await tx.user.delete({ where: { id } });
+      // Role-conditional delete: a concurrent promote between the pre-check
+      // and this tx must not let an ADMIN row be deleted (the last-admin
+      // invariant is otherwise bypassable via promote→demote→delete).
+      const deleted = await tx.user.deleteMany({
+        where: { id, role: UserRole.CUSTOMER },
+      });
+      if (deleted.count === 0) {
+        throw new ConflictException({
+          code: 'USER_IS_ADMIN',
+          message: 'Demote this admin to customer before deleting the account',
+        });
+      }
     });
     await this.users.deleteSupabaseUser(user.supabaseId);
     return { id: user.id, email: user.email };

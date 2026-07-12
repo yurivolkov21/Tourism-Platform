@@ -1089,7 +1089,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Dashboard aggregates (revenue, top tours, trend) */
+    /** Dashboard aggregates (revenue, top tours, trend), optionally narrowed by ?from&to (YYYY-MM-DD, UTC day bounds) */
     get: operations['AdminStatsController_get'];
     put?: never;
     post?: never;
@@ -3320,13 +3320,27 @@ export interface components {
       data: components['schemas']['SubscriberDto'][];
       meta: components['schemas']['PageMetaDto'];
     };
+    RevenueByCurrencyDto: {
+      /** @example USD */
+      currency: string;
+      /**
+       * @description Sum of PAID totals in this currency (string Decimal, no FX)
+       * @example 12450.00
+       */
+      total: string;
+      /** @example 61 */
+      paidBookings: number;
+    };
     StatsOverviewDto: {
       /**
-       * @description Sum of PAID totals (string Decimal)
+       * @description Sum of PAID totals in the dominant currency (string Decimal, no FX)
        * @example 12450.00
        */
       totalRevenue: string;
-      /** @example USD */
+      /**
+       * @description Dominant currency — most PAID bookings in range
+       * @example USD
+       */
       currency: string;
       /** @example 87 */
       totalBookings: number;
@@ -3342,6 +3356,8 @@ export interface components {
        * @example 0.18
        */
       monthOverMonthGrowth: number | null;
+      /** @description Per-currency PAID revenue in range, dominant currency first */
+      revenueByCurrency: components['schemas']['RevenueByCurrencyDto'][];
     };
     TopTourByRevenueDto: {
       /** Format: uuid */
@@ -3354,6 +3370,8 @@ export interface components {
       revenue: string;
       /** @example 30 */
       bookingsCount: number;
+      /** @example USD */
+      currency: string;
     };
     TopTourByRatingDto: {
       /** Format: uuid */
@@ -6574,7 +6592,12 @@ export interface operations {
   };
   AdminStatsController_get: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description UTC day, inclusive */
+        from?: string;
+        /** @description UTC day, inclusive */
+        to?: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -6589,6 +6612,13 @@ export interface operations {
         content: {
           'application/json': components['schemas']['AdminStatsResponseDto'];
         };
+      };
+      /** @description Invalid/inverted date range */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Missing/invalid token */
       401: {
