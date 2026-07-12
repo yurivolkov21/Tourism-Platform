@@ -41,7 +41,7 @@ export function RegionHero({
 
       <div className="text-on-media mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <nav
-          aria-label="Breadcrumb"
+          aria-label={messages.common.breadcrumbLabel}
           className="text-on-media/80 mb-3 flex items-center gap-1.5 text-sm"
         >
           <Link href="/" className="hover:text-on-media">

@@ -444,7 +444,7 @@ function PaginationBar({
             <PaginationItem>
               <PaginationLink
                 href="#"
-                aria-label="Go to first page"
+                aria-label={messages.pagination.first}
                 size="icon"
                 className={cn(edge, isFirst && disabled)}
                 onClick={go(1)}
@@ -456,7 +456,7 @@ function PaginationBar({
             <PaginationItem>
               <PaginationLink
                 href="#"
-                aria-label="Go to previous page"
+                aria-label={messages.pagination.previous}
                 size="icon"
                 className={cn(edge, isFirst && disabled)}
                 onClick={go(page - 1)}
@@ -488,7 +488,7 @@ function PaginationBar({
             <PaginationItem>
               <PaginationLink
                 href="#"
-                aria-label="Go to next page"
+                aria-label={messages.pagination.next}
                 size="icon"
                 className={cn(edge, isLast && disabled)}
                 onClick={go(page + 1)}
@@ -500,7 +500,7 @@ function PaginationBar({
             <PaginationItem>
               <PaginationLink
                 href="#"
-                aria-label="Go to last page"
+                aria-label={messages.pagination.last}
                 size="icon"
                 className={cn(edge, isLast && disabled)}
                 onClick={go(totalPages)}

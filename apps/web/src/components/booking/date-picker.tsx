@@ -13,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@tourism/ui';
+import { messages } from '@tourism/i18n';
 
 function toISO(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
@@ -101,9 +102,9 @@ export function DatePicker({
       <InputGroupInput
         id={id}
         value={text}
-        placeholder="July 01, 2026"
+        placeholder={messages.booking.datePicker.placeholder}
         autoComplete="off"
-        aria-label="Enter a date"
+        aria-label={messages.booking.datePicker.enter}
         onChange={handleType}
         onKeyDown={(event) => {
           if (event.key === 'ArrowDown') {
@@ -119,7 +120,7 @@ export function DatePicker({
               <InputGroupButton
                 variant="ghost"
                 size="icon-xs"
-                aria-label="Select date"
+                aria-label={messages.booking.datePicker.select}
               >
                 <CalendarIcon />
               </InputGroupButton>

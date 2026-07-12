@@ -81,7 +81,7 @@ export function ForgotPasswordForm() {
           type="email"
           autoComplete="email"
           aria-required="true"
-          placeholder="you@example.com"
+          placeholder={messages.common.emailPlaceholder}
           aria-invalid={Boolean(fieldError)}
           aria-describedby={fieldError ? 'email-error' : undefined}
         />

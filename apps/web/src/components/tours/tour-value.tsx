@@ -7,10 +7,7 @@ export function TourValue() {
   const t = messages.tourDetail.value;
 
   return (
-    <TourSection
-      title={t.heading}
-      className="bg-primary/[0.04] border-primary/15"
-    >
+    <TourSection title={t.heading} className="bg-primary/4 border-primary/15">
       <ul className="space-y-5">
         {t.props.map((prop) => (
           <li key={prop.title} className="flex gap-3">

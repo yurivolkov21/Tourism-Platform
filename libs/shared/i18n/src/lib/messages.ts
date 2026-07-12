@@ -41,6 +41,7 @@ export const messages = {
       title: 'Create your account',
       subtitle: 'Save trips, book tours, and track your journeys.',
       fullNameLabel: 'Full name',
+      namePlaceholder: 'Nguyen Van A',
       emailLabel: 'Email',
       passwordLabel: 'Password',
       confirmLabel: 'Confirm password',
@@ -264,6 +265,12 @@ export const messages = {
   },
   // Booking flow (book → pay → confirm). Login-required; Stripe + PayPal. EN-only (ADR-0005).
   booking: {
+    // Inline date-picker field (private-request / booking forms).
+    datePicker: {
+      placeholder: 'July 01, 2026',
+      enter: 'Enter a date',
+      select: 'Select date',
+    },
     // Tour-detail BookingBox CTA + inline departure picker.
     box: {
       selectDeparture: 'Select a departure',
@@ -460,6 +467,15 @@ export const messages = {
   common: {
     home: 'Home',
     onThisPage: 'On this page',
+    breadcrumbLabel: 'Breadcrumb',
+    emailPlaceholder: 'you@example.com',
+  },
+  // Shared pagination aria-labels (tours listing · region tours · blog).
+  pagination: {
+    first: 'Go to first page',
+    previous: 'Go to previous page',
+    next: 'Go to next page',
+    last: 'Go to last page',
   },
   // Page <title>/description copy. Titles are PLAIN — the root layout's title.template
   // (`%s — Nexora`) appends the brand, so never suffix the brand here (would double it).
@@ -1822,8 +1838,6 @@ export const messages = {
     backToBlog: 'Back to the journal',
     emptyTitle: 'No stories yet',
     emptyBody: 'We are writing our first guides now - check back soon.',
-    loadError:
-      'The journal could not be loaded right now. Please try again in a moment.',
     bylineNamed: (name: string) => `By ${name}`,
     toursHeading: 'Tours in this story',
     topicsLabel: 'Topics',

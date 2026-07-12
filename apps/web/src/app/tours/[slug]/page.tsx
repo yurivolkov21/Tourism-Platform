@@ -122,7 +122,7 @@ export default async function TourDetailPage({
 
         <div className="text-on-media mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8 lg:pb-14">
           <nav
-            aria-label="Breadcrumb"
+            aria-label={messages.common.breadcrumbLabel}
             className="text-on-media/80 mb-4 flex flex-wrap items-center gap-1.5 text-sm"
           >
             <Link href="/" className="hover:text-on-media">

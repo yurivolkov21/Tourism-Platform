@@ -248,7 +248,7 @@ function BlogPagination({
         <PaginationItem>
           <PaginationLink
             href={blogHref(tag, q, page - 1)}
-            aria-label="Go to previous page"
+            aria-label={messages.pagination.previous}
             aria-disabled={isFirst || undefined}
             tabIndex={isFirst ? -1 : undefined}
             size="icon"
@@ -279,7 +279,7 @@ function BlogPagination({
         <PaginationItem>
           <PaginationLink
             href={blogHref(tag, q, page + 1)}
-            aria-label="Go to next page"
+            aria-label={messages.pagination.next}
             aria-disabled={isLast || undefined}
             tabIndex={isLast ? -1 : undefined}
             size="icon"

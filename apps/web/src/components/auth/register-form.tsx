@@ -55,7 +55,7 @@ export function RegisterForm() {
           name="fullName"
           autoComplete="name"
           aria-required="true"
-          placeholder="Nguyen Van A"
+          placeholder={messages.auth.register.namePlaceholder}
           aria-invalid={Boolean(fieldErrors.fullName)}
           aria-describedby={fieldErrors.fullName ? 'fullName-error' : undefined}
         />
@@ -74,7 +74,7 @@ export function RegisterForm() {
           type="email"
           autoComplete="email"
           aria-required="true"
-          placeholder="you@example.com"
+          placeholder={messages.common.emailPlaceholder}
           aria-invalid={Boolean(fieldErrors.email)}
           aria-describedby={fieldErrors.email ? 'email-error' : undefined}
         />

@@ -39,7 +39,7 @@ export async function DestinationsHero() {
         </p>
         {/* Breadcrumb pill (Lily-style) */}
         <nav
-          aria-label="Breadcrumb"
+          aria-label={messages.common.breadcrumbLabel}
           className="border-primary-foreground/25 bg-background/10 text-on-media/90 mt-2 rounded-full border px-4 py-1 text-xs tracking-wide backdrop-blur-sm"
         >
           {t.breadcrumbHome} <span className="text-on-media/50 px-1">/</span>{' '}
