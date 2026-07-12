@@ -19,6 +19,8 @@ import { fetchTourCards } from '../../lib/api/tours';
 import { fetchFeaturedReviews } from '../../lib/api/reviews';
 import { pickFeaturedDestinations } from '../../lib/featured-destinations';
 import { deriveOverviewGallery } from '../../lib/region-imagery';
+import { LoadErrorState } from '../../components/feedback/load-error-state';
+import { settle } from '../../lib/resilience';
 
 // Placeholder frames for the editorial gallery (data-ready; maps to MediaAsset later).
 const galleryFrames: GallerySection[] = [
@@ -43,11 +45,12 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function DestinationsPage() {
-  const [tiles, popular, featured] = await Promise.all([
-    fetchDestinationTiles().catch(() => []),
+  const [tilesRes, popular, featured] = await Promise.all([
+    settle(fetchDestinationTiles()),
     fetchTourCards({ featured: true }).catch(() => []),
     fetchFeaturedReviews(),
   ]);
+  const tiles = tilesRes.data ?? [];
   const groups = groupByRegion(tiles);
   const editorialSections = deriveOverviewGallery(tiles, galleryFrames);
   // Map featured reviews → testimonial items; the component falls back to the i18n fixture when empty.
@@ -61,6 +64,13 @@ export default async function DestinationsPage() {
   return (
     <main>
       <DestinationsHero />
+      {!tilesRes.ok ? (
+        <section className="py-12 sm:py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <LoadErrorState />
+          </div>
+        </section>
+      ) : null}
       {groups.map((group) => (
         <RegionGroup
           key={group.region}

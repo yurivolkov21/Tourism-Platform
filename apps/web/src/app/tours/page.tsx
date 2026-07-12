@@ -4,8 +4,9 @@ import { messages } from '@tourism/i18n';
 
 import { ContentHero } from '../../components/content/content-hero';
 import { ToursListing } from '../../components/tours/tours-listing';
-import type { TourCardData } from '../../components/tours/tour-card';
+import { LoadErrorState } from '../../components/feedback/load-error-state';
 import { fetchTourCards } from '../../lib/api/tours';
+import { settle } from '../../lib/resilience';
 
 export const metadata: Metadata = {
   title: 'All tours — Tourism Platform',
@@ -14,8 +15,8 @@ export const metadata: Metadata = {
 };
 
 // ISR: rebuild at most every 5 min — serves real catalog data without hitting the (free, sleepy) API
-// on every request. If the API is unreachable, fall back to an empty list (the listing shows its
-// empty state) rather than failing the page.
+// on every request. On an API error we now distinguish failure from a real empty catalogue and show a
+// branded "couldn't load" state (with retry) instead of the "no tours match" empty state (which lies).
 export const revalidate = 300;
 
 export default async function ToursPage({
@@ -26,12 +27,7 @@ export default async function ToursPage({
   const t = messages.toursPage;
   const { category, q } = await searchParams;
 
-  let tours: TourCardData[] = [];
-  try {
-    tours = await fetchTourCards();
-  } catch {
-    tours = [];
-  }
+  const res = await settle(fetchTourCards());
 
   return (
     <main>
@@ -40,11 +36,19 @@ export default async function ToursPage({
         title={t.title}
         subtitle={t.subtitle}
       />
-      <ToursListing
-        tours={tours}
-        initialCategory={category ?? null}
-        initialQuery={q ?? ''}
-      />
+      {res.ok ? (
+        <ToursListing
+          tours={res.data}
+          initialCategory={category ?? null}
+          initialQuery={q ?? ''}
+        />
+      ) : (
+        <section className="py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <LoadErrorState title={t.loadError.title} body={t.loadError.body} />
+          </div>
+        </section>
+      )}
     </main>
   );
 }

@@ -2,12 +2,7 @@ import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import {
-  AlertCircleIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  SearchIcon,
-} from 'lucide-react';
+import { ChevronLeftIcon, ChevronRightIcon, SearchIcon } from 'lucide-react';
 
 import {
   Button,
@@ -23,8 +18,10 @@ import { messages } from '@tourism/i18n';
 
 import { PostCard } from '../../components/blog/post-card';
 import { BreadcrumbJsonLd } from '../../components/seo/json-ld';
+import { LoadErrorState } from '../../components/feedback/load-error-state';
 import { fetchPosts, fetchPostTags } from '../../lib/api/posts';
 import { pageNumbers } from '../../lib/paginate';
+import { settle, contentState } from '../../lib/resilience';
 
 export const metadata: Metadata = {
   title: messages.blog.indexTitle,
@@ -68,11 +65,9 @@ export default async function BlogIndexPage({
 
   const [tagOptions, listResult] = await Promise.all([
     fetchPostTags().catch(() => []),
-    fetchPosts({ page, pageSize: PAGE_SIZE, tag, search: q })
-      .then((r) => ({ ok: true as const, r }))
-      .catch(() => ({ ok: false as const })),
+    settle(fetchPosts({ page, pageSize: PAGE_SIZE, tag, search: q })),
   ]);
-  const result = listResult.ok ? listResult.r : null;
+  const result = listResult.data;
   const failed = !listResult.ok;
 
   // Past-the-end page (stale link) → clamp back to page 1.
@@ -83,6 +78,7 @@ export default async function BlogIndexPage({
   const meta = result?.meta;
   const showHero = page === 1 && !filtered && posts.length > 0;
   const [lead, ...rest] = posts;
+  const state = contentState({ failed, isEmpty: posts.length === 0 });
 
   return (
     <main>
@@ -151,15 +147,9 @@ export default async function BlogIndexPage({
           </div>
 
           <div className="mt-10 sm:mt-14">
-            {failed ? (
-              <div className="border-border/60 bg-muted/40 text-muted-foreground flex items-start gap-3 rounded-xl border p-6 text-sm">
-                <AlertCircleIcon
-                  className="mt-0.5 size-5 shrink-0"
-                  aria-hidden="true"
-                />
-                <p>{t.loadError}</p>
-              </div>
-            ) : posts.length === 0 ? (
+            {state === 'error' ? (
+              <LoadErrorState />
+            ) : state === 'empty' ? (
               <div className="border-border/60 bg-muted/40 rounded-xl border p-10 text-center">
                 <h2 className="font-heading text-xl font-semibold">
                   {t.emptyTitle}
