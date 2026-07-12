@@ -4,6 +4,23 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-12 — Blog article body styled by shadcn/typeset (`c939773`)
+
+- Vendored `typeset.css` (ui.shadcn.com/typeset.css, 490 lines) into
+  `apps/web/src/app/` + an owned `.typeset-article` preset preserving the
+  pre-Typeset voice on tokens (muted body / foreground headings · primary
+  links/markers/blockquote · 7rem heading `scroll-margin` for the outline
+  rail · rounded imagery); imported after tokens in `global.css`.
+- `post-content.tsx` drops its ~15-rule per-element className map — only
+  behavior renderers remain (heading anchor ids · lazy `img` ·
+  `.typeset-scroll` wide-table wrapper). `rehype-raw` stays disabled.
+- Groundwork for the upcoming blog-display adjustments: article typography
+  is now 3 CSS variables + presets in one owned file.
+- Admin Write|Preview keeps its own older render map — will be aligned in
+  the blog-display pass.
+- Tests after: unchanged — api 439 · web 232 · admin 264 · mobile 153 ·
+  mobile-ui 34 · core 42.
+
 ## 2026-07-12 — @tourism/ui gains shadcn's new chat/AI components (`aa69190`)
 
 - Installed the 5 newest registry components via the base-nova (Base UI)
