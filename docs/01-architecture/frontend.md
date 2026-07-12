@@ -82,6 +82,7 @@ components/
   forms/       shared field/error primitives (noValidate + per-field error rendering)
   feedback/    <Toaster>/<FlashToaster> + AlertDialog confirms · LoadErrorState (inline retry) · ErrorState (boundary panel)
   skeletons/   route-level loading placeholders (tours · tour-detail · destinations · blog-list · article · account · checkout)
+  section-heading.tsx  shared eyebrow+title+subtitle rhythm (align/tone/as; mirrors mobile) — used by ~15 marketing/destination sections
   seo/         JSON-LD builders + metadata helpers
   about/ contact/ brand/ icons/
 lib/           api/ (typed-client wrappers per resource) · account/ · blog/ · booking/ · tours/ ·

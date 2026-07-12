@@ -4,6 +4,41 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-12 — Web wave W3: cleanups (dead code · i18n sweep · SectionHeading) (`0b8dc66…a127979`)
+
+- Final wave of the web debt program. No new runtime logic — deletion,
+  copy-relocation, and one presentational component.
+- **Dead code:** `apps/web/src/lib/tours.ts` reduced 335 → 64 lines (types only;
+  `TourDetailVM`/`TourReview`/`ItineraryDay`/`Departure`/`TourBadge` kept, all 6
+  importers are `import type`). Dropped the pre-API fixture generator + its
+  `getBySlug`/`destinations.fixtures` imports; `destinations.fixtures` stays
+  (still live).
+- **i18n sweep:** 8 pages' `Metadata` moved into a new `messages.pageMeta` group;
+  titles are stored PLAIN so the root `title.template` (`%s — Nexora`) appends the
+  brand once — **fixing the "— Tourism Platform" branding bug** (verified in built
+  HTML: `About us — Nexora`). Shared duplicated aria copy consolidated:
+  `common.breadcrumbLabel` (4 sites) · a `pagination.*` group (10 sites across
+  tours-listing / region-tours / blog) · `common.emailPlaceholder` (3 auth forms)
+  · `auth.register.namePlaceholder` · `booking.datePicker.*`. Deleted the now-dead
+  `messages.blog.loadError` (W2 orphaned it).
+- **Discovered + fixed in-wave:** `login`/`register`/`forgot`/`reset`/`account*`/
+  `checkout/*`/`tours/[slug]/book` (12 pages) were **double-branding**
+  ("… — Nexora — Nexora") by manually appending `${brand.name}` on top of the
+  template — a pre-existing bug; now they set a plain title and brand once.
+- **SectionHeading:** new `apps/web/src/components/section-heading.tsx` (mirrors
+  the mobile prop shape: `{eyebrow?,title,subtitle?,as?,align?,tone?,className?}`).
+  Migrated **15** hand-rolled section headers to it (marketing · destinations ·
+  contact · blog "Tours in this story"), preserving align/tone/heading-level/
+  spacing. Left bespoke on principled type-scale grounds: `trust.tsx`,
+  `related-tours.tsx`, the 4 `region-signature*` bands, and the accent-bar
+  `TourSection` family — no god-component.
+- **FormField deferred to W4** (its own wave; picks up the `account/profile-form.tsx`
+  missing-`noValidate` bug then). No BE changes.
+- Adversarial review (opus): clean on all 6 dimensions (branding, key mapping,
+  no dropped subtitles, correct onMedia tone, no dangling refs, no unused imports).
+- Tests after: web 252 (unchanged — no new logic). api 439 · admin 264 · mobile
+  153 · mobile-ui 34 · core 42 unchanged.
+
 ## 2026-07-12 — Web wave W2: resilience layer (loading · error · 404 · empty-vs-failed) (`afbc163…1d7fc24`)
 
 - Second wave of the web debt program. apps/web had ZERO `loading.tsx` /

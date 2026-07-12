@@ -76,15 +76,15 @@ Baselines: **api 439 · web 252 · admin 264 · mobile 153 · mobile-ui 34 · co
    reviews/CRM · wave C · media picker/alt/bulk · TabPills + dashboard
    date-range. Web still owed: the redesigned trust band + Contact
    "Secure payments" row (2026-07-10).
-3. **Web debt program (user-approved 2026-07-12): W1 ✅ (`ce8da9e` — review
-   form · suitableFor chips · contact lead fields) · W2 ✅
-   (`afbc163…1d7fc24` — resilience layer: `loading.tsx` skeletons ·
-   error/404/global-error + checkout reassurance · `settle`/`contentState`
-   empty-vs-failed on tours/destinations/blog; Home left untouched by design)
-   → next W3** (shared `SectionHeading` and `FormField` extraction · delete the
-   dead 335-line `lib/tours.ts` fixture generator, keep its types · i18n sweep
-   for metadata/placeholders; also drop the now-unused `messages.blog.loadError`).
-   Cut for good: destination/category landing pages · auth toasts.
+3. **Web debt program (user-approved 2026-07-12): W1 ✅ (`ce8da9e`) · W2 ✅
+   (`afbc163…1d7fc24` — resilience layer) · W3 ✅ (`0b8dc66…a127979` —
+   `lib/tours.ts` trimmed to types · i18n sweep: page metadata → `pageMeta` +
+   single-branded `%s — Nexora` titles (fixed the "Tourism Platform" bug AND the
+   auth/account/checkout double-brand) + shared breadcrumb/pagination keys + drop
+   dead `blog.loadError` · shared `SectionHeading`, 15 sites) → next W4**
+   (FormField primitive: unify `FieldErrorText`/`AuthFieldError`, standardize the
+   `${id}-error`/aria wiring across the 14 forms; also fix `account/profile-form.tsx`
+   missing `noValidate`). Cut for good: destination/category landing pages · auth toasts.
 4. **Deliberate cuts (unscheduled):** notifications · category imagery ·
    admin e2e.
 5. **Mobile backlog:** "Browse by experience" · dark-mode splash/adaptive-icon
