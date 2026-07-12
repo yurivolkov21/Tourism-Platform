@@ -57,7 +57,7 @@ const OWNER_OPTIONS = [
   { value: 'TOUR', label: 'Tours' },
   { value: 'DESTINATION', label: 'Destinations' },
   { value: 'POST', label: 'Posts' },
-  { value: 'USER', label: 'Users' },
+  { value: 'USER', label: 'User avatars' },
   { value: 'SITE', label: 'Site chrome' },
 ] as const;
 const ROLE_OPTIONS = [

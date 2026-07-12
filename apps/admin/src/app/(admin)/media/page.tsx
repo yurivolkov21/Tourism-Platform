@@ -10,6 +10,7 @@ import {
   type MediaList,
   type GarbageList,
 } from '../../../lib/media-library/data';
+import { excludeUserOwnedFor } from '../../../lib/media-library/query';
 import { parsePageSize } from '../../../lib/pagination';
 
 const OWNER_TYPES = ['TOUR', 'DESTINATION', 'POST', 'USER', 'SITE'] as const;
@@ -62,6 +63,7 @@ export default async function MediaPage({ searchParams }: MediaPageProps) {
         role,
         type,
         search: search || undefined,
+        excludeUserOwned: excludeUserOwnedFor(ownerType, role),
       });
     } catch (e) {
       error = apiErrorMessage(e);
@@ -78,7 +80,7 @@ export default async function MediaPage({ searchParams }: MediaPageProps) {
     <div className="flex flex-col gap-6 px-4 py-6 lg:px-6">
       <AdminListHeader
         title="Media"
-        description="Every image and video across tours, destinations and posts. Search, inspect, and remove media; the Garbage tab shows the deferred Cloudinary cleanup queue."
+        description="Every image and video across tours, destinations, posts and site chrome. Customer avatars stay out of this view by default — pick the User avatars facet to moderate them. The Garbage tab shows the deferred Cloudinary cleanup queue."
       />
 
       {/* View tabs styled as the shared segmented tablist (matches every other admin list). */}
