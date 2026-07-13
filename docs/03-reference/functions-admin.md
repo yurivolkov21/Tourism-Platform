@@ -148,7 +148,7 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 
 | Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
-| A-STA-1 | Dashboard Stats<br>`GET /admin/stats/dashboard?from&to` | 1. Admin mở dashboard (tùy chọn `?from&to` — ngày `YYYY-MM-DD`, biên ngày UTC inclusive; không tham số = toàn thời gian, output như cũ; range ngược/sai → 400 `STATS_RANGE_INVALID`)<br>2. Server chạy **`Promise.all`** (pooler-safe): overview + `bookingsByStatus` + top tour (doanh thu / rating / wishlist) + `dailyTrend` (range kẹp 90 ngày gần nhất, neo tại `now`) lọc theo range; `monthlyTrend` 6 tháng + MoM giữ cố định<br>3. **Per-currency (wave D2, không FX)**: dominant currency = nhiều booking PAID nhất trong range; overview kèm `revenueByCurrency[]`, top-tours group theo (tour, currency), trend revenue chỉ tính dominant<br>4. Trả payload tổng hợp | Admin | **Booking**, Review, Wishlist, Tour | bookings, reviews, wishlist, tours | Activity | 🕒 (1) lời/vốn cần thêm `costPrice` vào Tour |
+| A-STA-1 | Dashboard Stats<br>`GET /admin/stats/dashboard?from&to` | 1. Admin mở dashboard (tùy chọn `?from&to` — ngày `YYYY-MM-DD`, biên ngày UTC inclusive; không tham số = toàn thời gian, output như cũ; range ngược/sai → 400 `STATS_RANGE_INVALID`)<br>2. Server chạy **`Promise.all`** (pooler-safe): overview + `bookingsByStatus` + top tour (doanh thu / rating / wishlist) + `dailyTrend` (range kẹp 90 ngày gần nhất, neo tại `now`) lọc theo range; `monthlyTrend` 6 tháng + MoM giữ cố định<br>3. **Per-currency (wave D2, không FX)**: dominant currency = nhiều booking PAID nhất trong range; overview kèm `revenueByCurrency[]`, top-tours group theo (tour, currency), trend revenue chỉ tính dominant<br>4. **Cost/margin per currency (API-W3)**: `revenueByCurrency[]` kèm `cost` (Σ `Tour.costPrice` × số khách trên cùng tập PAID) + `margin = total − cost`; tour thiếu costPrice góp 0 → margin là **cận trên** (footnote trên dashboard)<br>5. Trả payload tổng hợp | Admin | **Booking**, Review, Wishlist, Tour | bookings, reviews, wishlist, tours | Activity | ✅ |
 
 ## `Post` (blog biên tập — P-Content)
 
@@ -188,6 +188,12 @@ endpoint thực tế trong `apps/api/src/modules` (đối chiếu
 
 ## Lịch sử
 
+- **2026-07-13** — **API debt program W2+W3:** A-DEP-3 (PATCH departure
+  `CANCELLED` → auto-refund + summary, `USER_NOT_SYNCED` guard) · A-TUR-4
+  (+guard 409 `TOUR_HAS_ACTIVE_BOOKINGS` khi unpublish; +`costPrice` admin-only,
+  strip khỏi public; +khoá currency 409 `TOUR_CURRENCY_LOCKED`) · A-REV-2
+  (+audit `moderated_by/at`) · A-STA-1 (+cost/margin per currency). Endpoint
+  tổng: **105** (thêm U-REV-5 `GET /reviews/mine` bên catalog customer).
 - **2026-07-12** — **Docs-restructure audit:** catalog thiếu 8 endpoint đã sống trong code từ
   các đợt trước — bổ sung không đổi số cũ: `User` **A-USR-4/5/6** (`GET /admin/users` list ·
   `GET /admin/users/me` · `GET /admin/users/:id` detail — ship từ 2026-07-03 (`ae02bed`) nhưng

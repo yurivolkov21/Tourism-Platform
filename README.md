@@ -9,11 +9,11 @@ four apps (API, web, admin, mobile) are complete and live/on-device-ready. **Bra
 | `@tourism/web` | `apps/web` | Next.js 16 · React 19 · Tailwind v4 | 🟢 P3 + P6 (blog-v2) complete · **deployed (Vercel)** |
 | `@tourism/admin` | `apps/admin` | Next.js 16 | 🟢 P4 complete · **deployed (Vercel)** |
 | `@tourism/mobile` | `apps/mobile` | Expo SDK 54 / RN | 🟢 P5 + P5.5 complete (combined on-device pass owed) |
-| `@tourism/core` · `tokens` · `i18n` · `web/ui` · `mobile/ui` | `libs/` | shared types/OpenAPI client · design tokens ("Emerald Heritage") · EN copy · UI (54 comps) | 🟢 in use |
+| `@tourism/core` · `tokens` · `i18n` · `web/ui` · `mobile/ui` | `libs/` | shared types/OpenAPI client · design tokens ("Emerald Heritage") · EN copy · UI (59 comps) | 🟢 in use |
 
 Details per phase: **[docs/roadmap.md](docs/roadmap.md)** · full history: **[docs/CHANGELOG.md](docs/CHANGELOG.md)**.
 
-**Live demo:** web → [tourism-platform-web.vercel.app](https://tourism-platform-web.vercel.app) · admin → [tourism-platform-admin.vercel.app](https://tourism-platform-admin.vercel.app) · API health → [/api/v1/health](https://tourism-api-pqwr.onrender.com/api/v1/health).
+**Live demo:** web → [www.nexora-travel.agency](https://www.nexora-travel.agency) · admin → [admin.nexora-travel.agency](https://admin.nexora-travel.agency) · API health → [/api/v1/health](https://tourism-api-pqwr.onrender.com/api/v1/health). *(The old `tourism-platform-{web,admin}.vercel.app` URLs still serve as fallbacks.)*
 
 Full docs: **[docs/README.md](docs/README.md)** (map + reading path) · **new here? → [docs/04-guides/getting-started.md](docs/04-guides/getting-started.md)** · the operating contract: **[CLAUDE.md](CLAUDE.md)**.
 

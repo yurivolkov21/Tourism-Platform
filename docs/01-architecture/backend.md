@@ -3,10 +3,17 @@
 NestJS service. Ports the donor's proven structure; hardened per
 [ADR-0008](../02-decisions/0008-security-integrity-hardening.md).
 
-> **Status: P1 complete + blog-v2 BE complete** (P1.1 → P1.x + P1.7d/e → posts CRUD →
-> blog-v2 W1/W3/W5: tags/related-tours/author · body-image register · newsletter).
-> **439 unit + 8 e2e tests** (2026-07-12). Canonical surface: the running Swagger spec
-> (`/api/docs`) + `schema.prisma`.
+> **Status: P1 + blog-v2 BE + API debt program W1→W3 (2026-07-13) complete.**
+> **105 endpoints / 20 modules · 499 unit + 8 e2e tests.** Canonical surface: the
+> running Swagger spec (`/api/docs`) + `schema.prisma`.
+> Debt-program deltas: all **7 EmailTypes** dispatch w/ branded v2 templates +
+> Reply-To (W1) · cancel-departure **auto-refund** + unpublish guard
+> `TOUR_HAS_ACTIVE_BOOKINGS` + orphaned-capture refund (`claimSeatsForPaid`
+> outcome `cancelled`) + PayPal client id/secret required at boot + throttle env
+> enforced (W2) · review moderation audit (`moderatedBy/At`) · `GET
+> /reviews/mine` · `BookingDto.hasReview` · `Tour.costPrice` (admin-only,
+> stripped from public reads) + per-currency dashboard margin + currency lock
+> `TOUR_CURRENCY_LOCKED` (W3). Details: [CHANGELOG](../CHANGELOG.md).
 
 ## Module map
 

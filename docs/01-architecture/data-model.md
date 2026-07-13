@@ -14,7 +14,10 @@ when this doc disagrees with the schema, the schema wins. Founding rationale:
 > shipped without it) → admin wave C (2026-07-11 — migration
 > `post_seo_fields` adds `Post.metaTitle`/`metaDescription`, applied live) →
 > admin media-library wave D1 (2026-07-11 — migration `media_asset_alt` adds
-> `MediaAsset.alt`, applied live).
+> `MediaAsset.alt`, applied live) → **API debt program (2026-07-13)** —
+> migrations `email_type_newsletter_welcome` (+`NEWSLETTER_WELCOME` enum value,
+> W1) and `review_audit_and_tour_cost` (`Review.moderatedById/moderatedAt`
+> audit + `Tour.costPrice`, W3), both applied live.
 > **25 models, 16 enums.**
 
 ## Conventions (kept from donor)
@@ -31,7 +34,7 @@ indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 | `User` | local mirror of Supabase auth | `supabaseId @unique`, `email @db.Citext @unique`, `role`, `locale="en"`; → bookings, reviews, wishlist |
 | `TourCategory` | category **lookup** (replaced donor enum — D-P1.5) | `slug @unique`, `name`, `order`, `isActive`; → tours |
 | `Destination` | place | `slug @unique`, `name`, `country`, `region`, `isActive`; M:N → tours |
-| `Tour` | catalogue item | `slug @unique`, `title`, `summary`, `categoryId` FK, `basePrice`/`compareAtPrice`, `currency`, `isPublished`/`isFeatured`, **`suitableFor TravellerType[]` + `badges TourBadge[]`** (P1.7e), `included`/`excluded`/`highlights` `text[]` |
+| `Tour` | catalogue item | `slug @unique`, `title`, `summary`, `categoryId` FK, `basePrice`/`compareAtPrice`, **`costPrice?`** (per-traveller internal cost, API-W3 — admin-only, **stripped from every public read**; drives dashboard margin; `currency` is **locked once PAID bookings exist** — 409 `TOUR_CURRENCY_LOCKED`), `currency`, `isPublished`/`isFeatured`, **`suitableFor TravellerType[]` + `badges TourBadge[]`** (P1.7e), `included`/`excluded`/`highlights` `text[]` |
 | `TourDestination` | **M:N** join (ADR-0002) | PK `(tourId, destinationId)`, `isPrimary` |
 | `TourItineraryDay` | one row per day | `tourId`, `dayNumber`, `title`, `description` |
 | `TourDeparture` | dated departure | `startDate`/`endDate` `@db.Date`, `priceOverride?`/`compareAtPrice?`, `seatsTotal`/`seatsBooked`, `status` |
@@ -39,7 +42,7 @@ indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 | `TourPolicy` | structured policy (D-P1.1 — own model) | `tourId`, `kind PolicyKind`, `title`, `body`, `order` |
 | `Booking` | order | `code @unique` (`BK-…`), `userId`/`tourId`/`departureId` FKs, `totalAmount`, `status` (incl. `PARTIALLY_REFUNDED`), `paymentProvider`, `providerSessionId?`/`providerPaymentId?`, `refundReason?`/`refundedById?`, **`refundedAmount?`/`refundedAt?`** (partial-refund audit, 2026-07-05); 1:1 → `cancellationRequest?` |
 | `CancellationRequest` | a PAID customer's request to cancel/refund a booking (2026-07-05) | `bookingId @unique` FK (Restrict), `userId` FK (Restrict) — requester, `reason`, `status CancellationRequestStatus` (default `REQUESTED`), `decisionNote?`, `decidedById?` FK → User (SetNull), `decidedAt?`; one live row per booking — a `DENIED` row is reset to `REQUESTED` on re-request |
-| `Review` | unified verified + curated | `rating`, `title?`, `body`, `isApproved`, `isFeatured`, `source ReviewSource` (VERIFIED/CURATED); VERIFIED → `bookingId? @unique`/`tourId?`/`userId?` set; CURATED testimonials have those FKs **nullable** + `authorName`, `authorLocation?`, `tripLabel?` (unified-reviews migration) |
+| `Review` | unified verified + curated | `rating`, `title?`, `body`, `isApproved`, `isFeatured`, `source ReviewSource` (VERIFIED/CURATED); VERIFIED → `bookingId? @unique`/`tourId?`/`userId?` set; CURATED testimonials have those FKs **nullable** + `authorName`, `authorLocation?`, `tripLabel?` (unified-reviews migration); **`moderatedById?` FK → User (SetNull) + `moderatedAt?`** (moderation audit, API-W3 — written on every approve/reject, latest decision wins) |
 | `Wishlist` | saved tour | composite PK `(userId, tourId)` |
 | `PaymentEvent` | webhook idempotency log | `@@unique(provider, eventId)`, `processedAt?` (nullable → re-run on mid-flight crash) |
 | `Enquiry` | "Inquire Now" lead (ADR-0003) | `name`/`email`/`phone?`/`message`, `tourId?`, `status EnquiryStatus`, **lead fields P1.7d: `nationality?`/`travelDate?`/`groupSize?`/`budgetTier?`/`interests[]`**; **`@@index([email])`** (2026-07-11 — repeat-lead detection); 1:N → `notes` |
@@ -66,7 +69,8 @@ request, 2026-07-05) · `MediaType` (IMAGE/VIDEO) ·
 `MediaOwnerType` (TOUR/DESTINATION/USER/POST/**SITE** — brand-chrome slots, 2026-07-10) · `MediaRole` (hero/gallery/avatar/**body** — blog-v2 W3 inline images) ·
 `PolicyKind` (CANCELLATION/BOOKING/GENERAL) · **`EmailType`** (BOOKING_CONFIRMATION/
 BOOKING_REFUNDED/REVIEW_APPROVED/ENQUIRY_RECEIVED/**CANCELLATION_REQUESTED**/
-**CANCELLATION_DENIED**) · **`OutboxStatus`** (PENDING/SENT/FAILED) ·
+**CANCELLATION_DENIED**/**NEWSLETTER_WELCOME** — API-W1, one lifetime welcome
+per address) · **`OutboxStatus`** (PENDING/SENT/FAILED) ·
 **`TravellerType`** (FAMILY/COUPLE/FRIENDS/SOLO/BUSINESS) · **`TourBadge`** (BEST_VALUE/
 LIMITED_OFFER/EXCLUSIVE/NEW/POPULAR) (P1.7e merchandising) · **`ReviewSource`** (VERIFIED/CURATED —
 unified reviews, lets admins author testimonials with no booking) · **`PostStatus`** (DRAFT/PUBLISHED,

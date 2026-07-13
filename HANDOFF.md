@@ -37,19 +37,22 @@ via chat).
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward); brand **"Nexora"**, palette **"Emerald Heritage"** |
 
-## Current state (2026-07-12)
+## Current state (2026-07-13)
 
-**Every product phase is complete and deployed.** The admin owed-features debt
-program (waves B1 → B2 → C → D1 → D2) closed 2026-07-12. Wave-by-wave detail:
-[CHANGELOG](docs/CHANGELOG.md).
+**Every product phase is complete and deployed** — on the custom domain
+`www.nexora-travel.agency` (admin: `admin.`) since 2026-07-13. All three debt
+programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
+**API W1→W3 (2026-07-13)**. Wave-by-wave detail: [CHANGELOG](docs/CHANGELOG.md).
 
 - **API (P1+)** — live on **Render** (`/health` + cron-job.org keep-alive).
-  Full surface: 104 endpoints across 20 modules (CRUD · bookings ·
-  Stripe/PayPal + refunds · cancellation queue · media w/ ref-safe GC ·
-  reviews/CRM · newsletter · site-media · dashboard stats w/ `?from&to` +
-  per-currency · pg-boss outbox/cron). **439 unit + 8 e2e tests.**
+  Full surface: **105 endpoints** across 20 modules (CRUD · bookings ·
+  Stripe/PayPal + refunds · cancellation queue + **cancel-departure
+  auto-refund** · media w/ ref-safe GC · reviews/CRM w/ **moderation audit** ·
+  newsletter · site-media · dashboard stats w/ `?from&to` + per-currency
+  **+ cost/margin** · pg-boss outbox/cron — **all 7 EmailTypes live, branded
+  v2 templates**). **499 unit + 8 e2e tests.**
 - **Design system (P2)** — `@tourism/tokens` (no-hex enforced) +
-  `@tourism/ui` (54 shadcn/Base UI comps) + `@tourism/mobile-ui` (RN, 34 tests).
+  `@tourism/ui` (59 shadcn/Base UI comps) + `@tourism/mobile-ui` (RN, 34 tests).
 - **Web (P3 + P6)** — live on **Vercel**. Marketing + catalogue + booking
   money-path + account + blog (v2 complete) on real data; a11y/SEO/perf polish
   done; brand chrome admin-managed via site-media; resilience layer (loading
@@ -58,12 +61,12 @@ program (waves B1 → B2 → C → D1 → D2) closed 2026-07-12. Wave-by-wave de
   (bookings/refunds · cancellation queue · reviews/CRM · enquiries+notes ·
   subscribers · outbox · payment-events) + media library (reuse picker · alt ·
   bulk delete; avatars hidden by default) + Appearance + dashboard
-  (date-range + per-currency) + motion layer. **264 tests.**
+  (date-range + per-currency + margin) + motion layer. **266 tests.**
 - **Mobile (P5 + P5.5)** — feature-complete (5 tabs · browse/detail · stepped
   booking money-path · guest-first auth · wishlist · Trips). Expo Go dev loop
   only (no store builds). **153 tests.**
 
-Baselines: **api 439 · web 261 · admin 264 · mobile 153 · mobile-ui 34 · core 42.**
+Baselines: **api 499 · web 261 · admin 266 · mobile 153 · mobile-ui 34 · core 42.**
 
 ## Next actions
 

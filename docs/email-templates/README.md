@@ -36,6 +36,10 @@ template by swapping the heading + button label.)
 
 ## Production note
 
-While on the Supabase **default** email service these still send from `…@mail.app.supabase.io` and are
-rate-limited / spam-prone. For production, point Supabase at **Resend via Custom SMTP** (needs a
-verified sending domain) — see the env-and-secrets runbook. The HTML here works the same either way.
+**Done 2026-07-13:** Supabase sends through **Resend via Custom SMTP** (sender
+`noreply@nexora-travel.agency`, host `smtp.resend.com` — see
+[deploy §5b](../05-runbooks/deploy.md)), so auth emails come from the verified
+domain instead of the rate-limited `…@mail.app.supabase.io` default. Custom
+SMTP is also what UNLOCKS template editing — Supabase's 2026 policy blocks it
+on the default email service for new free-tier projects. These 3 templates are
+pasted into the dashboard; re-paste after any edit here.

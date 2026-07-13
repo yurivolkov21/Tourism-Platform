@@ -147,7 +147,8 @@ content/       privacy.ts · terms.ts · legal-page.ts       (long-form legal do
 
 - **Shell & auth** — Supabase SSR auth + `proxy.ts` gate + `/auth/admin/sync` allowlist · app
   shell (sidebar / topbar / theme / user-menu) · dashboard (live `/admin/stats/dashboard`,
-  preset/custom date-range filter, per-currency stats).
+  preset/custom date-range filter, per-currency stats **+ cost/margin lines from
+  `Tour.costPrice` w/ upper-bound footnote — API-W3**).
 - **CRUD** — Destinations · Categories · Tours (+ itinerary/FAQs/policies sub-forms) ·
   Departures · Posts (Server Components fetch + Server Actions mutate, `@tourism/ui`,
   tokens-only), all sharing a `MediaField` upload with a "choose from library" reuse picker ·
@@ -158,9 +159,11 @@ content/       privacy.ts · terms.ts · legal-page.ts       (long-form legal do
 - **Operations** — Subscribers list + CSV export · `/cancellation-requests` queue ·
   `/payment-events` webhook viewer · outbox delete · media library (`/media` + garbage queue,
   bulk delete, alt editor) · **Appearance** (`/appearance` brand-chrome slot manager, 9 slots).
-- **CRM & money** — refund execution (partial amount + proactive-refund safeguard) · reviews
-  CRM (server-driven facets, curated-review create/edit/delete/feature) · enquiry CRM (notes
-  thread + repeat-lead badges).
+- **CRM & money** — refund execution (partial amount + proactive-refund safeguard) ·
+  cancel-departure auto-refund toasts (`departure-cancelled[-issues]` — API-W2) · reviews
+  CRM (server-driven facets, curated-review create/edit/delete/feature, **moderation-audit
+  line "Moderated by … · time" — API-W3**) · enquiry CRM (notes thread + repeat-lead
+  badges) · tour form **Cost price** field (internal, margin).
 - **Shared UI stack** — sortable `AdminTableShell` + `ColumnsMenu` (persisted column
   visibility) + `FacetFilter` + `TabPills` (`components/crud/`) · motion layer (route
   skeletons, KPI count-up, route fade, sidebar pill) · form-validation sweep (`noValidate` +
@@ -168,7 +171,7 @@ content/       privacy.ts · terms.ts · legal-page.ts       (long-form legal do
 
 History: see [CHANGELOG](../CHANGELOG.md).
 
-264 tests (2026-07-12).
+266 tests (2026-07-13).
 
 ## Mobile (`@tourism/mobile`) — P5
 

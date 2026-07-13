@@ -105,6 +105,8 @@ pnpm nx reset                                        # clear the Nx cache if a t
   `DATABASE_URL` (the pooler) via the `PrismaPg` adapter.
 - **pg-boss jobs** are disabled when `NODE_ENV=test` or `RESEND_API_KEY` is unset, so unit/e2e don't
   start the worker.
+- **PayPal creds are required at boot since API-W2** (`PAYPAL_CLIENT_ID`/`_SECRET` non-empty;
+  `PAYPAL_WEBHOOK_ID` may stay blank locally — no inbound webhooks in dev).
 - **TS6305 flood on typecheck** = stale buildinfo → `cd apps/api && rm -rf dist && pnpm exec tsc -b
   tsconfig.json --emitDeclarationOnly --force`.
 
