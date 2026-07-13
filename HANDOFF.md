@@ -85,9 +85,14 @@ Baselines: **api 439 · web 261 · admin 264 · mobile 153 · mobile-ui 34 · co
    admin e2e.
 5. **Mobile backlog:** "Browse by experience" · dark-mode splash/adaptive-icon
    assets · in-app theme toggle · encrypted LargeSecureStore · EAS store builds.
-6. **Domain-gated (until a real domain is wired):** Resend outbound email
-   (enquiry ack / booking confirm / refund) + Supabase custom-domain email
-   confirmation. DB rows + in-app flows already work; only outbound email waits.
+6. **Domain + outbound email — LIVE 2026-07-13:** `nexora-travel.agency`
+   (Vercel Domains) wired end-to-end — web `www.` + admin `admin.` +
+   Resend-verified sender (`noreply@`); the 4 wired EmailTypes deliver for
+   real (first inbox delivery verified). Runbook:
+   [deploy §5b](docs/05-runbooks/deploy.md). Still code-gated:
+   `CANCELLATION_REQUESTED`/`_DENIED` need templates + dispatch cases
+   (**API-W1**, analyzed 2026-07-13, not started); optional: Supabase auth
+   SMTP via Resend.
 
 ## Business-logic anchors
 

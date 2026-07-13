@@ -79,10 +79,36 @@ For **each** app (`apps/web`, `apps/admin`) create a Vercel project from this re
 
 Back on Render, set:
 
-- `CORS_ORIGINS` = `https://tourism-web.vercel.app,https://tourism-admin.vercel.app` (comma-separated, no trailing slash).
-- `FRONTEND_URL` = `https://tourism-web.vercel.app`.
+- `CORS_ORIGINS` = the frontend origins, comma-separated, no trailing slash. Current live value covers both the `*.vercel.app` fallbacks and the custom domains (§5b).
+- `FRONTEND_URL` = the web origin (currently `https://www.nexora-travel.agency`).
 
-Redeploy the API (or it picks up env on next deploy). Sign in to the admin at `https://tourism-admin.vercel.app/login` with the §1.5 admin user.
+Redeploy the API (or it picks up env on next deploy). Sign in to the admin with the §1.5 admin user.
+
+## 5b. Custom domain + email (wired 2026-07-13)
+
+Domain **`nexora-travel.agency`** bought via **Vercel Domains** ($5.99 first year;
+**auto-renew OFF** — renewal is $25, the domain is scoped to the project year).
+DNS is managed by Vercel. Canonical web origin is **`https://www.nexora-travel.agency`**
+(apex 308-redirects to `www`); admin lives at `https://admin.nexora-travel.agency`.
+
+What was wired (all in dashboards, no repo change):
+
+1. **Vercel** — domain + `www` on the web project, `admin.` subdomain on the admin
+   project; web env `NEXT_PUBLIC_SITE_URL=https://www.nexora-travel.agency` + redeploy.
+2. **Render** — `FRONTEND_URL` + `CORS_ORIGINS` per §5 (old `*.vercel.app` origins kept).
+3. **Supabase** — Auth → URL Configuration: Site URL = the web origin;
+   `https://www.nexora-travel.agency/auth/callback` added to redirect URLs.
+4. **Resend** — domain added (region Tokyo `ap-northeast-1`) via the **Vercel
+   Auto-configure** integration (DKIM TXT · `send` MX/SPF written automatically;
+   no tracking subdomain → click tracking off, correct for transactional). Status
+   **Verified**; `RESEND_API_KEY` (Sending access) + `RESEND_FROM_EMAIL`
+   (`Nexora <noreply@nexora-travel.agency>`) set on Render.
+
+Result: the 4 wired `EmailType`s (booking confirmation · refund · review approved ·
+enquiry ack) deliver for real — first delivery verified to a Gmail inbox (not spam)
+2026-07-13. Still code-gated (not domain): `CANCELLATION_REQUESTED`/`_DENIED` have
+no dispatch case (API-W1). Optional follow-up: point Supabase auth SMTP at Resend
+(`smtp.resend.com`, user `resend`, password = API key) so auth emails use the domain.
 
 ## 6. Verify checklist
 

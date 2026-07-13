@@ -4,6 +4,25 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-13 — Custom domain + outbound email live (dashboards only, docs-only commit)
+
+- **`nexora-travel.agency`** bought via Vercel Domains ($5.99 first year,
+  auto-renew OFF — project-year domain) and wired end-to-end, no code change:
+  Vercel (web `www.` canonical + apex 308, admin `admin.`, `NEXT_PUBLIC_SITE_URL`) ·
+  Render (`FRONTEND_URL`, `CORS_ORIGINS` — old `*.vercel.app` kept as fallbacks) ·
+  Supabase auth URLs · **Resend domain Verified** (Tokyo; DKIM/MX/SPF via the
+  Vercel Auto-configure integration; click tracking off) · real
+  `RESEND_API_KEY` + `RESEND_FROM_EMAIL` (`Nexora <noreply@nexora-travel.agency>`).
+- **Unblocks the oldest deferred debt**: the 4 wired EmailTypes (booking
+  confirmation · refund · review approved · enquiry ack) now deliver — first
+  live enquiry-ack landed in a Gmail **inbox** (not spam) same day.
+- Remaining email debt is code-side only (API-W1, analyzed 2026-07-13, not
+  started): cancellation templates + dispatch cases · partial-refund amount
+  wording. Optional: Supabase auth SMTP via Resend.
+- Docs swept: [deploy §5b](05-runbooks/deploy.md) (new) ·
+  [env-and-secrets](05-runbooks/env-and-secrets.md) · HANDOFF · roadmap ·
+  functions-system S-JOB-1. Tests: n/a (no code).
+
 ## 2026-07-13 — Journal seed content enriched to long-form + SEO meta (`a304109`)
 
 - Diagnosis (user report: Journal reads short/shallow): the 10 seeded posts

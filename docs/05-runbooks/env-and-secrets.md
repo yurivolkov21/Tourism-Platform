@@ -27,8 +27,8 @@
 | Variable | Secret? | Notes |
 | --- | --- | --- |
 | `NODE_ENV`, `PORT`, `API_PREFIX`, `LOG_LEVEL` | no | runtime config |
-| `CORS_ORIGINS` | no | comma-sep Vercel origins (no trailing slash) |
-| `FRONTEND_URL` | no | **required at boot (Joi)** — the web origin; payment return URLs are built from it |
+| `CORS_ORIGINS` | no | comma-sep origins (no trailing slash) — the two `*.vercel.app` + `https://www.nexora-travel.agency` + `https://admin.nexora-travel.agency` |
+| `FRONTEND_URL` | no | **required at boot (Joi)** — the web origin (`https://www.nexora-travel.agency`); payment return URLs are built from it |
 | `DATABASE_URL`, `DIRECT_URL` | **yes** | Supabase Postgres (pooled / direct) — contain the DB password |
 | `SUPABASE_URL`, `SUPABASE_JWKS_URL` | no | project URLs |
 | `SUPABASE_ANON_KEY` | low | client-safe key (server uses it too) |
@@ -45,8 +45,8 @@
 | `PAYPAL_CLIENT_SECRET` | **yes** | |
 | `PAYPAL_MODE` | no | `sandbox` / `live` |
 | `PAYPAL_WEBHOOK_ID` | low | from the PayPal app webhook |
-| `RESEND_API_KEY` | **yes** | transactional email |
-| `RESEND_FROM_EMAIL` | no | verified sender |
+| `RESEND_API_KEY` | **yes** | transactional email — a real "Sending access" key since 2026-07-13 (domain verified) |
+| `RESEND_FROM_EMAIL` | no | verified sender: `Nexora <noreply@nexora-travel.agency>` |
 | `SENTRY_DSN` | low | error reporting (optional) |
 | `THROTTLE_TTL_SECONDS`, `THROTTLE_LIMIT` | no | rate-limit config |
 
@@ -57,6 +57,7 @@
 | `NEXT_PUBLIC_SUPABASE_URL` | no | public |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | no | client-safe by design |
 | `NEXT_PUBLIC_API_BASE_URL` | no | API origin **without** `/api/v1` (the client adds it) — e.g. `https://tourism-api-pqwr.onrender.com` |
+| `NEXT_PUBLIC_SITE_URL` | no | **web only** — canonical origin for sitemap/robots/OG: `https://www.nexora-travel.agency` |
 
 ## Fast loading (bulk, no typing each var)
 

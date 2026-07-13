@@ -47,7 +47,7 @@ email + cron). Dựng từ `apps/api/src/{app,modules/{payments,jobs}}` (đối 
 
 | Code | Functions | Description | Entity | Models | Database | Diagram | Trạng thái |
 | ---- | --------- | ----------- | ------ | ------ | -------- | ------- | ---------- |
-| S-JOB-1 | Outbox Drain<br>cron `* * * * *` (mỗi phút) | 1. pg-boss kích worker `outbox-drain`<br>2. Lấy các row `outbox` `PENDING` (cũ trước, batch)<br>3. Hydrate theo `type` (đọc booking/review/enquiry tại thời điểm gửi) → gửi qua **Resend** (`EmailService` ném lỗi khi Resend từ chối)<br>4. Thành công → `SENT` + `processedAt`; lỗi → `attempts++` (đến hạn → `FAILED`) + `lastError`<br>5. Idempotent qua `dedupeKey` UNIQUE (booking-confirmation / booking-refunded / review-approved / enquiry-received / **cancellation-requested theo bookingId / cancellation-denied theo requestId** — U-BKG-7/A-CXR-2) | System (pg-boss) | **Outbox**, Booking, Review, Enquiry, CancellationRequest | outbox | Sequence | ✅ Tắt nếu thiếu `RESEND_API_KEY`; 🕒 `CANCELLATION_REQUESTED`/`CANCELLATION_DENIED` chưa có case dispatch riêng (rơi vào `default`: warn + no-op) — row được ghi + đánh dấu xong nhưng chưa thật sự gửi email, domain-gated như các loại khác |
+| S-JOB-1 | Outbox Drain<br>cron `* * * * *` (mỗi phút) | 1. pg-boss kích worker `outbox-drain`<br>2. Lấy các row `outbox` `PENDING` (cũ trước, batch)<br>3. Hydrate theo `type` (đọc booking/review/enquiry tại thời điểm gửi) → gửi qua **Resend** (`EmailService` ném lỗi khi Resend từ chối)<br>4. Thành công → `SENT` + `processedAt`; lỗi → `attempts++` (đến hạn → `FAILED`) + `lastError`<br>5. Idempotent qua `dedupeKey` UNIQUE (booking-confirmation / booking-refunded / review-approved / enquiry-received / **cancellation-requested theo bookingId / cancellation-denied theo requestId** — U-BKG-7/A-CXR-2) | System (pg-boss) | **Outbox**, Booking, Review, Enquiry, CancellationRequest | outbox | Sequence | ✅ Tắt nếu thiếu `RESEND_API_KEY`; **4 loại đầu gửi thật từ 2026-07-13** (domain `nexora-travel.agency` verified trên Resend); 🕒 `CANCELLATION_REQUESTED`/`CANCELLATION_DENIED` vẫn chưa có case dispatch riêng (rơi vào `default`: warn + no-op) — nợ **code** (API-W1), không còn là nợ domain |
 | S-JOB-2 | Abandoned-booking Cleanup<br>cron `*/15 * * * *` | 1. pg-boss kích worker `abandoned-booking-cleanup`<br>2. `updateMany`: booking `PENDING` quá TTL (30 phút) → `CANCELLED` + `cancelledAt`<br>3. Không đụng ghế (PENDING chưa giữ ghế); idempotent<br>→ backstop cho checkout bỏ dở (miss Stripe expiry / bỏ giữa PayPal return) | System (pg-boss) | **Booking** | bookings | Activity | ✅ |
 | S-JOB-3 | Media Reconcile<br>cron `0 3 * * *` (hằng ngày) | 1. pg-boss kích worker `media-reconcile`<br>2. Lấy row `media_garbage` (publicId mồ côi do A-DST-5/A-TUR-5/A-DST-6/A-TUR-6/U-USR-5 thải ra)<br>3. Gọi Cloudinary `destroy(publicId, resourceType)`; `ok`/`not found` đều coi là xong → xoá row<br>4. Lỗi transport → `attempts++` + `lastError` (thử lại lần sau)<br>→ dọn asset Cloudinary không còn MediaAsset trỏ tới | System (pg-boss) | **MediaGarbage** (→ Cloudinary) | media_garbage | Activity | ✅ |
 
@@ -55,6 +55,9 @@ email + cron). Dựng từ `apps/api/src/{app,modules/{payments,jobs}}` (đối 
 
 ## Lịch sử
 
+- **2026-07-13** — Domain `nexora-travel.agency` verified trên Resend → S-JOB-1
+  gửi email thật cho 4 loại đã wire (delivery đầu tiên xác nhận vào inbox Gmail).
+  2 loại cancellation vẫn chờ code (API-W1).
 - **2026-07-05** — **Refund execution + cancellation-request queue:** hai `EmailType`
   mới `CANCELLATION_REQUESTED`/`CANCELLATION_DENIED` (dedupe theo bookingId/requestId,
   ghi từ U-BKG-7/A-CXR-2); S-JOB-1 **chưa** có case dispatch cho 2 loại này (`default`:
