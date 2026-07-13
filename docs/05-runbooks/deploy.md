@@ -104,11 +104,14 @@ What was wired (all in dashboards, no repo change):
    **Verified**; `RESEND_API_KEY` (Sending access) + `RESEND_FROM_EMAIL`
    (`Nexora <noreply@nexora-travel.agency>`) set on Render.
 
-Result: the 4 wired `EmailType`s (booking confirmation · refund · review approved ·
-enquiry ack) deliver for real — first delivery verified to a Gmail inbox (not spam)
-2026-07-13. Still code-gated (not domain): `CANCELLATION_REQUESTED`/`_DENIED` have
-no dispatch case (API-W1). Optional follow-up: point Supabase auth SMTP at Resend
-(`smtp.resend.com`, user `resend`, password = API key) so auth emails use the domain.
+Result: outbound email fully live 2026-07-13 — the same day API-W1 (`7c64852`)
+activated all 7 `EmailType`s. Completed follow-ups (same day):
+`RESEND_REPLY_TO_EMAIL` set on Render (replies land in the support Gmail) ·
+**Supabase custom SMTP via Resend** (Auth → Emails → SMTP: sender
+`noreply@nexora-travel.agency` / host `smtp.resend.com` / port 465 / user
+`resend` / password = a dedicated Resend API key) — required since Supabase's
+2026 policy locks template editing on the default email service — · the 3
+branded auth templates from `docs/email-templates/` pasted into the dashboard.
 
 ## 6. Verify checklist
 

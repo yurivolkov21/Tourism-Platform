@@ -90,8 +90,9 @@ Baselines: **api 439 · web 261 · admin 264 · mobile 153 · mobile-ui 34 · co
    revival" shipped** (`7c64852`): all 7 EmailTypes dispatch (2 cancellation +
    newsletter welcome net-new), refund email shows `refundedAmount`, branded
    v2 templates (react.email Barebone port), Reply-To support. Dashboard
-   steps still owed (with the user): `RESEND_REPLY_TO_EMAIL` on Render ·
-   paste the 3 Supabase auth templates · optional Supabase SMTP via Resend.
+   steps ALL DONE same day: `RESEND_REPLY_TO_EMAIL` on Render · Supabase
+   custom SMTP via Resend (unlocks template editing — 2026 Supabase policy) ·
+   3 branded auth templates pasted. **Email system fully closed.**
 
 ## Business-logic anchors
 
