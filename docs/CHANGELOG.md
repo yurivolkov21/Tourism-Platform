@@ -4,6 +4,36 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-13 — API-W1 "Email revival": cancellation dispatch · branded templates · replyTo · newsletter welcome (`7c64852`)
+
+- **Closes the email code debt** flagged in the 2026-07-13 API analysis, on
+  the domain unlocked the same day.
+- `CANCELLATION_REQUESTED`/`CANCELLATION_DENIED` get real templates +
+  dispatch cases (previously fell into the `default`: warn + marked SENT
+  without sending). Refund email now shows **`refundedAmount`** (partial: "of
+  $total paid" + booking-stays-active) — hydrate-side fix only; the refund
+  CTEs gate on `status='PAID'` so per-booking dedupe was already correct.
+- New `RESEND_REPLY_TO_EMAIL` (optional, Joi format-validated like
+  `RESEND_FROM_EMAIL` now is) → every send carries Reply-To; replies no
+  longer bounce against the MX-less root domain.
+- New `NEWSLETTER_WELCOME` EmailType (+ `ALTER TYPE` migration, deployed to
+  live) — subscribe enqueues in a short tx with dedupe
+  `newsletter-welcome:{email}`: one lifetime welcome per address (documented
+  decision: no re-welcome after admin removal; oracle-free endpoint
+  preserved).
+- **All 7 Resend renderers re-skinned** to the user-approved v2 design (port
+  of react.email "Barebone", MIT): 640px frame → centered gray card → white
+  data card → emerald button; booking confirmation embeds the tour hero
+  image (IMAGE-only after review) + `/account/bookings` CTA; all
+  user-controlled content HTML-escaped (hostile-payload tests). The 3
+  Supabase auth templates in `docs/email-templates/` rewritten on the same
+  shell (paste pending, with the user).
+- Review (strong tier): 0 must-fix · 1 should-fix fixed + pinned (VIDEO hero
+  → broken `<img>`) · verified correct: refund amounts, XSS/escaping, outbox
+  consume-vs-retry semantics, DI, config end-to-end.
+- Tests after: **api 473** (+34) · web 261 · admin 264 · mobile 153 ·
+  mobile-ui 34 · core 42.
+
 ## 2026-07-13 — Custom domain + outbound email live (dashboards only, docs-only commit)
 
 - **`nexora-travel.agency`** bought via Vercel Domains ($5.99 first year,

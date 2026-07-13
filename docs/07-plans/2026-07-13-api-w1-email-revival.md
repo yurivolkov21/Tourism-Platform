@@ -3,7 +3,14 @@
 **Spec:** `docs/06-specs/2026-07-13-api-w1-email-revival-design.md`
 **Branch:** `feat/api-w1-email-revival` · **Scope:** apps/api + docs/email-templates
 
-**STATUS: 🔨 IN PROGRESS** — started 2026-07-13.
+**STATUS: ✅ COMPLETE** — merged to `main` 2026-07-13 (`7c64852`, ff-only);
+`migrate deploy` applied the NEWSLETTER_WELCOME enum to live Supabase.
+Review (strong tier): 0 must-fix; 1 should-fix fixed + regression-pinned
+(VIDEO hero excluded from the email `<img>`); resubscribe-no-rewelcome
+accepted as a documented decision. api 473/473.
+Dashboard follow-ups owed (with the user): `RESEND_REPLY_TO_EMAIL` on
+Render · paste 3 Supabase auth templates · optional Supabase SMTP via
+Resend.
 
 Standing rules: TDD red→green on every renderer/dispatch/validation change ·
 straight quotes · no unrelated-line reformatting · EN-only copy · design

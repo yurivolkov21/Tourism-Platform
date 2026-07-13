@@ -85,14 +85,13 @@ Baselines: **api 439 · web 261 · admin 264 · mobile 153 · mobile-ui 34 · co
    admin e2e.
 5. **Mobile backlog:** "Browse by experience" · dark-mode splash/adaptive-icon
    assets · in-app theme toggle · encrypted LargeSecureStore · EAS store builds.
-6. **Domain + outbound email — LIVE 2026-07-13:** `nexora-travel.agency`
-   (Vercel Domains) wired end-to-end — web `www.` + admin `admin.` +
-   Resend-verified sender (`noreply@`); the 4 wired EmailTypes deliver for
-   real (first inbox delivery verified). Runbook:
-   [deploy §5b](docs/05-runbooks/deploy.md). Still code-gated:
-   `CANCELLATION_REQUESTED`/`_DENIED` need templates + dispatch cases
-   (**API-W1**, analyzed 2026-07-13, not started); optional: Supabase auth
-   SMTP via Resend.
+6. **Domain + email — FULLY LIVE 2026-07-13:** `nexora-travel.agency` wired
+   end-to-end ([deploy §5b](docs/05-runbooks/deploy.md)) **and API-W1 "Email
+   revival" shipped** (`7c64852`): all 7 EmailTypes dispatch (2 cancellation +
+   newsletter welcome net-new), refund email shows `refundedAmount`, branded
+   v2 templates (react.email Barebone port), Reply-To support. Dashboard
+   steps still owed (with the user): `RESEND_REPLY_TO_EMAIL` on Render ·
+   paste the 3 Supabase auth templates · optional Supabase SMTP via Resend.
 
 ## Business-logic anchors
 

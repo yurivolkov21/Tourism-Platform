@@ -26,9 +26,11 @@ progression: [CHANGELOG](CHANGELOG.md)** (the single home — status cells here 
   [HANDOFF](../HANDOFF.md#next-actions).
 - User **visual pass** on the deployed admin (debt-program surfaces).
 - Deliberate cuts (unscheduled): notifications · category imagery · admin e2e.
-- ~~Domain-gated: Resend outbound email~~ → **unblocked 2026-07-13**
-  (`nexora-travel.agency` + Resend verified — [deploy §5b](05-runbooks/deploy.md));
-  remaining email debt is code-side: cancellation templates/dispatch (API-W1).
+- ~~Domain-gated: Resend outbound email~~ → **fully closed 2026-07-13**:
+  domain wired ([deploy §5b](05-runbooks/deploy.md)) **+ API-W1 email revival**
+  (`7c64852` — all 7 EmailTypes dispatch, branded v2 templates, Reply-To,
+  newsletter welcome). Remaining: dashboard steps with the user (Render
+  replyTo env · Supabase template paste · optional SMTP).
 
 > Dev-tooling note: the Windows Turbopack dev-server freeze and its `--webpack`
 > pin are documented in
