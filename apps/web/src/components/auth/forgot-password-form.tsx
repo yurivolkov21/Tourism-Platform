@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 
-import { Button, Input, Label } from '@tourism/ui';
+import { Button } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import {
@@ -11,7 +11,7 @@ import {
   type FieldErrorCode,
 } from '../../lib/auth/validate';
 import { createClient } from '../../lib/supabase/client';
-import { AuthFieldError } from './auth-field-error';
+import { AuthFormField } from './auth-form-field';
 
 /**
  * Request a password-reset email (browser client). The link returns to `/auth/callback?redirect=
@@ -73,20 +73,17 @@ export function ForgotPasswordForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-4">
-      <div className="space-y-1.5">
-        <Label htmlFor="email">{t.emailLabel}</Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          aria-required="true"
-          placeholder={messages.common.emailPlaceholder}
-          aria-invalid={Boolean(fieldError)}
-          aria-describedby={fieldError ? 'email-error' : undefined}
-        />
-        <AuthFieldError id="email-error" field="email" code={fieldError} />
-      </div>
+      <AuthFormField
+        id="email"
+        label={t.emailLabel}
+        name="email"
+        type="email"
+        autoComplete="email"
+        required
+        placeholder={messages.common.emailPlaceholder}
+        field="email"
+        code={fieldError}
+      />
 
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? t.submitting : t.submit}

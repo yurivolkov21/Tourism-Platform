@@ -14,6 +14,7 @@ import {
 } from '../../lib/auth/validate';
 import { createClient } from '../../lib/supabase/client';
 import { AuthFieldError } from '../auth/auth-field-error';
+import { AuthFormField } from '../auth/auth-form-field';
 
 /** Change password while signed in (browser `updateUser`). */
 export function ChangePasswordForm() {
@@ -136,25 +137,16 @@ export function ChangePasswordForm() {
           </div>
         ) : null}
       </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="confirm-password">{t.confirmLabel}</Label>
-        <Input
-          id="confirm-password"
-          name="confirm"
-          type={show ? 'text' : 'password'}
-          autoComplete="new-password"
-          aria-required="true"
-          aria-invalid={Boolean(fieldErrors.confirm)}
-          aria-describedby={
-            fieldErrors.confirm ? 'confirm-password-error' : undefined
-          }
-        />
-        <AuthFieldError
-          id="confirm-password-error"
-          field="confirm"
-          code={fieldErrors.confirm}
-        />
-      </div>
+      <AuthFormField
+        id="confirm-password"
+        label={t.confirmLabel}
+        name="confirm"
+        type={show ? 'text' : 'password'}
+        autoComplete="new-password"
+        required
+        field="confirm"
+        code={fieldErrors.confirm}
+      />
       <Button type="submit" disabled={pending}>
         {pending ? t.submitting : t.submit}
       </Button>

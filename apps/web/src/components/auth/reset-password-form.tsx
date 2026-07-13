@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 
-import { Button, Input, Label } from '@tourism/ui';
+import { Button } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { authErrorMessage } from '../../lib/auth/auth-error';
@@ -12,7 +12,7 @@ import {
   type ResetFieldErrors,
 } from '../../lib/auth/validate';
 import { createClient } from '../../lib/supabase/client';
-import { AuthFieldError } from './auth-field-error';
+import { AuthFormField } from './auth-form-field';
 
 /**
  * Set a new password. Reached via the recovery session the callback established (the page guards that
@@ -57,41 +57,27 @@ export function ResetPasswordForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-4">
-      <div className="space-y-1.5">
-        <Label htmlFor="password">{t.passwordLabel}</Label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="new-password"
-          aria-required="true"
-          aria-invalid={Boolean(fieldErrors.password)}
-          aria-describedby={fieldErrors.password ? 'password-error' : undefined}
-        />
-        <AuthFieldError
-          id="password-error"
-          field="password"
-          code={fieldErrors.password}
-        />
-      </div>
+      <AuthFormField
+        id="password"
+        label={t.passwordLabel}
+        name="password"
+        type="password"
+        autoComplete="new-password"
+        required
+        field="password"
+        code={fieldErrors.password}
+      />
 
-      <div className="space-y-1.5">
-        <Label htmlFor="confirm">{t.confirmLabel}</Label>
-        <Input
-          id="confirm"
-          name="confirm"
-          type="password"
-          autoComplete="new-password"
-          aria-required="true"
-          aria-invalid={Boolean(fieldErrors.confirm)}
-          aria-describedby={fieldErrors.confirm ? 'confirm-error' : undefined}
-        />
-        <AuthFieldError
-          id="confirm-error"
-          field="confirm"
-          code={fieldErrors.confirm}
-        />
-      </div>
+      <AuthFormField
+        id="confirm"
+        label={t.confirmLabel}
+        name="confirm"
+        type="password"
+        autoComplete="new-password"
+        required
+        field="confirm"
+        code={fieldErrors.confirm}
+      />
 
       {error ? (
         <p className="text-destructive text-sm" role="alert">

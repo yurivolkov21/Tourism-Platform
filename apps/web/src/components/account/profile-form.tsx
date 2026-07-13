@@ -3,12 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 
-import { Button, Input, Label, toast } from '@tourism/ui';
+import { Button, toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { saveProfile } from '../../lib/account/actions';
 import { buildUpdateProfilePayload } from '../../lib/account/profile-form';
 import { createClient } from '../../lib/supabase/client';
+import { AuthFormField } from '../auth/auth-form-field';
 
 /**
  * Edit name + phone. Saves via the `saveProfile` server action (`PATCH /users/me`), then syncs the
@@ -58,33 +59,33 @@ export function ProfileForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div className="space-y-1.5">
-        <Label htmlFor="fullName">{t.fullNameLabel}</Label>
-        <Input
-          id="fullName"
-          name="fullName"
-          autoComplete="name"
-          defaultValue={fullName}
-        />
-      </div>
+    <form onSubmit={onSubmit} noValidate className="space-y-4">
+      <AuthFormField
+        id="fullName"
+        label={t.fullNameLabel}
+        name="fullName"
+        autoComplete="name"
+        defaultValue={fullName}
+      />
 
-      <div className="space-y-1.5">
-        <Label htmlFor="phone">{t.phoneLabel}</Label>
-        <Input
-          id="phone"
-          name="phone"
-          type="tel"
-          autoComplete="tel"
-          defaultValue={phone}
-        />
-      </div>
+      <AuthFormField
+        id="phone"
+        label={t.phoneLabel}
+        name="phone"
+        type="tel"
+        autoComplete="tel"
+        defaultValue={phone}
+      />
 
-      <div className="space-y-1.5">
-        <Label htmlFor="email">{t.emailLabel}</Label>
-        <Input id="email" type="email" value={email} disabled readOnly />
-        <p className="text-muted-foreground text-xs">{t.emailHint}</p>
-      </div>
+      <AuthFormField
+        id="email"
+        label={t.emailLabel}
+        type="email"
+        value={email}
+        disabled
+        readOnly
+        hint={t.emailHint}
+      />
 
       <Button type="submit" disabled={pending}>
         {pending ? t.saving : t.save}

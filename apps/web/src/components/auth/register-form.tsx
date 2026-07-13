@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { useActionState } from 'react';
 
-import { Button, Input, Label } from '@tourism/ui';
+import { Button } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { signUp, type SignUpState } from '../../lib/auth/actions';
-import { AuthFieldError } from './auth-field-error';
+import { AuthFormField } from './auth-form-field';
 import { ResendConfirmation } from './resend-confirmation';
 
 export function RegisterForm() {
@@ -48,78 +48,50 @@ export function RegisterForm() {
 
   return (
     <form action={formAction} noValidate className="space-y-4">
-      <div className="space-y-1.5">
-        <Label htmlFor="fullName">{t.fullNameLabel}</Label>
-        <Input
-          id="fullName"
-          name="fullName"
-          autoComplete="name"
-          aria-required="true"
-          placeholder={messages.auth.register.namePlaceholder}
-          aria-invalid={Boolean(fieldErrors.fullName)}
-          aria-describedby={fieldErrors.fullName ? 'fullName-error' : undefined}
-        />
-        <AuthFieldError
-          id="fullName-error"
-          field="fullName"
-          code={fieldErrors.fullName}
-        />
-      </div>
+      <AuthFormField
+        id="fullName"
+        label={t.fullNameLabel}
+        name="fullName"
+        autoComplete="name"
+        required
+        placeholder={messages.auth.register.namePlaceholder}
+        field="fullName"
+        code={fieldErrors.fullName}
+      />
 
-      <div className="space-y-1.5">
-        <Label htmlFor="email">{t.emailLabel}</Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          aria-required="true"
-          placeholder={messages.common.emailPlaceholder}
-          aria-invalid={Boolean(fieldErrors.email)}
-          aria-describedby={fieldErrors.email ? 'email-error' : undefined}
-        />
-        <AuthFieldError
-          id="email-error"
-          field="email"
-          code={fieldErrors.email}
-        />
-      </div>
+      <AuthFormField
+        id="email"
+        label={t.emailLabel}
+        name="email"
+        type="email"
+        autoComplete="email"
+        required
+        placeholder={messages.common.emailPlaceholder}
+        field="email"
+        code={fieldErrors.email}
+      />
 
-      <div className="space-y-1.5">
-        <Label htmlFor="password">{t.passwordLabel}</Label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="new-password"
-          aria-required="true"
-          aria-invalid={Boolean(fieldErrors.password)}
-          aria-describedby={fieldErrors.password ? 'password-error' : undefined}
-        />
-        <AuthFieldError
-          id="password-error"
-          field="password"
-          code={fieldErrors.password}
-        />
-      </div>
+      <AuthFormField
+        id="password"
+        label={t.passwordLabel}
+        name="password"
+        type="password"
+        autoComplete="new-password"
+        required
+        field="password"
+        code={fieldErrors.password}
+      />
 
-      <div className="space-y-1.5">
-        <Label htmlFor="confirm">{t.confirmLabel}</Label>
-        <Input
-          id="confirm"
-          name="confirm"
-          type="password"
-          autoComplete="new-password"
-          aria-required="true"
-          aria-invalid={Boolean(fieldErrors.confirm)}
-          aria-describedby={fieldErrors.confirm ? 'confirm-error' : undefined}
-        />
-        <AuthFieldError
-          id="confirm-error"
-          field="confirm"
-          code={fieldErrors.confirm}
-        />
-      </div>
+      <AuthFormField
+        id="confirm"
+        label={t.confirmLabel}
+        name="confirm"
+        type="password"
+        autoComplete="new-password"
+        required
+        field="confirm"
+        code={fieldErrors.confirm}
+      />
 
       {state.error ? (
         <p className="text-destructive text-sm" role="alert">

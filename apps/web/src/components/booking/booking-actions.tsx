@@ -151,7 +151,7 @@ export function BookingActions({ booking }: { booking: BookingDto }) {
           ) : null}
         </div>
         {requesting ? (
-          <form onSubmit={sendRequest} className="space-y-3">
+          <form onSubmit={sendRequest} noValidate className="space-y-3">
             <div className="space-y-1.5">
               <label htmlFor="cancel-reason" className="text-sm font-medium">
                 {t.reasonLabel}

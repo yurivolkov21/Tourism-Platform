@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 
-import { Button, Input, Label } from '@tourism/ui';
+import { Button } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { mirrorUser } from '../../lib/auth/actions';
@@ -15,7 +15,7 @@ import {
   type LoginFieldErrors,
 } from '../../lib/auth/validate';
 import { createClient } from '../../lib/supabase/client';
-import { AuthFieldError } from './auth-field-error';
+import { AuthFormField } from './auth-form-field';
 
 /**
  * Client-side sign-in: authenticate in the browser so the AuthProvider's `onAuthStateChange` updates
@@ -70,50 +70,38 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-4">
-      <div className="space-y-1.5">
-        <Label htmlFor="email">{t.emailLabel}</Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          aria-required="true"
-          placeholder={messages.common.emailPlaceholder}
-          aria-invalid={Boolean(fieldErrors.email)}
-          aria-describedby={fieldErrors.email ? 'email-error' : undefined}
-        />
-        <AuthFieldError
-          id="email-error"
-          field="email"
-          code={fieldErrors.email}
-        />
-      </div>
+      <AuthFormField
+        id="email"
+        label={t.emailLabel}
+        name="email"
+        type="email"
+        autoComplete="email"
+        required
+        placeholder={messages.common.emailPlaceholder}
+        field="email"
+        code={fieldErrors.email}
+      />
 
-      <div className="space-y-1.5">
-        <Label htmlFor="password">{t.passwordLabel}</Label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          aria-required="true"
-          aria-invalid={Boolean(fieldErrors.password)}
-          aria-describedby={fieldErrors.password ? 'password-error' : undefined}
-        />
-        <AuthFieldError
-          id="password-error"
-          field="password"
-          code={fieldErrors.password}
-        />
-        <div className="text-right">
-          <Link
-            href="/forgot-password"
-            className="text-muted-foreground hover:text-foreground text-sm"
-          >
-            {t.forgotCta}
-          </Link>
-        </div>
-      </div>
+      <AuthFormField
+        id="password"
+        label={t.passwordLabel}
+        name="password"
+        type="password"
+        autoComplete="current-password"
+        required
+        field="password"
+        code={fieldErrors.password}
+        after={
+          <div className="text-right">
+            <Link
+              href="/forgot-password"
+              className="text-muted-foreground hover:text-foreground text-sm"
+            >
+              {t.forgotCta}
+            </Link>
+          </div>
+        }
+      />
 
       {error ? (
         <p className="text-destructive text-sm" role="alert">

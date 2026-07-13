@@ -8,7 +8,7 @@ import { OAuthButtons } from '../../components/auth/oauth-buttons';
 import { safeRedirect } from '../../lib/auth/safe-redirect';
 
 export const metadata: Metadata = {
-  title: 'Sign in',
+  title: messages.auth.login.title,
 };
 
 export default async function LoginPage({

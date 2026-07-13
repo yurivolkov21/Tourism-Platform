@@ -7,7 +7,7 @@ import { OAuthButtons } from '../../components/auth/oauth-buttons';
 import { RegisterForm } from '../../components/auth/register-form';
 
 export const metadata: Metadata = {
-  title: 'Create your account',
+  title: messages.auth.register.title,
 };
 
 export default function RegisterPage() {

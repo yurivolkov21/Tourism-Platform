@@ -125,6 +125,7 @@ export default async function BlogIndexPage({
             )}
             <form
               action="/blog"
+              noValidate
               className="flex w-full items-center gap-2 lg:max-w-xs"
             >
               {tag ? <input type="hidden" name="tag" value={tag} /> : null}
