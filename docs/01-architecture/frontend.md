@@ -32,7 +32,7 @@ through `getSiteMedia()` (`GET /site-media`, ISR 300s) + `siteImage`/`siteGaller
 (`lib/site-media.ts`, TDD) and keep the curated real-Vietnam photos as per-slot **fallbacks**; render
 sites prefer `MediaAsset.alt` when the admin has set one (wave D1, 2026-07-11; **web debt wave W1
 2026-07-12** added the PAID-booking review form · suitableFor chips · full contact lead set —
-247 tests) — an
+261 tests; W4 2026-07-12 closed the debt program with the shared AuthFormField + full noValidate compliance) — an
 empty slot or failed fetch renders exactly the previous visuals. Image hosts go through `next/image`
 `remotePatterns` (`images.unsplash.com`, `res.cloudinary.com`).
 

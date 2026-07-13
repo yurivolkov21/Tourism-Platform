@@ -4,6 +4,32 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-12 — Web wave W4: shared AuthFormField · noValidate completion · auth titles (`ff058e9`)
+
+- **Closes the web debt program W1 → W2 → W3 → W4** (opened 2026-07-12 from
+  the 3-agent web audit).
+- New `AuthFormField` centralizes the field group repeated 17× across 7
+  auth/account forms (wrapper · Label · Input · AuthFieldError · aria
+  wiring): 16 sites migrated DOM-equivalent (`after` slot carries login's
+  forgot-password link, `hint` carries profile's email caption,
+  display-only fields omit error wiring); the new-password composite
+  (visibility toggle + strength meter) stays bespoke by design. Aria props
+  are locked against rest-spread clobber (type `Omit` + computed-props-last
+  spread) with a native-`required` regression guard in the 10-test RTL spec
+  (barrel-mock pattern from trust-band).
+- Sanctioned DOM delta: valid state omits `aria-invalid` instead of
+  rendering `"false"` — ARIA default, AT-neutral, styling only matches
+  `"true"`.
+- `noValidate` completion: profile-form (the only auth/account straggler) ·
+  booking-actions cancel-reason · hero + blog search — **all 17 web forms
+  now comply with the standing rule.**
+- login/register tab titles read `messages.auth.*.title` (login copy
+  unified: "Sign in" → "Welcome back", matching the on-page heading).
+- Adversarial review: 0 block-merge · 2 should-fix hardenings folded in ·
+  3 nits (2 recorded in the spec, 1 fixed).
+- Tests after: web 261 (+9). api 439 · admin 264 · mobile 153 · mobile-ui
+  34 · core 42 unchanged.
+
 ## 2026-07-12 — Web wave W3: cleanups (dead code · i18n sweep · SectionHeading) (`0b8dc66…a127979`)
 
 - Final wave of the web debt program. No new runtime logic — deletion,

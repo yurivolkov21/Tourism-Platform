@@ -53,7 +53,7 @@ program (waves B1 → B2 → C → D1 → D2) closed 2026-07-12. Wave-by-wave de
 - **Web (P3 + P6)** — live on **Vercel**. Marketing + catalogue + booking
   money-path + account + blog (v2 complete) on real data; a11y/SEO/perf polish
   done; brand chrome admin-managed via site-media; resilience layer (loading
-  skeletons · error/404/global-error boundaries · empty-vs-failed). **252 tests.**
+  skeletons · error/404/global-error boundaries · empty-vs-failed) → W4 ✅ (shared AuthFormField · noValidate completion · auth titles i18n) — **PROGRAM CLOSED 2026-07-12**. **261 tests.**
 - **Admin (P4)** — live on **Vercel** (dev :3002). Full CRUD + operations
   (bookings/refunds · cancellation queue · reviews/CRM · enquiries+notes ·
   subscribers · outbox · payment-events) + media library (reuse picker · alt ·
@@ -63,7 +63,7 @@ program (waves B1 → B2 → C → D1 → D2) closed 2026-07-12. Wave-by-wave de
   booking money-path · guest-first auth · wishlist · Trips). Expo Go dev loop
   only (no store builds). **153 tests.**
 
-Baselines: **api 439 · web 252 · admin 264 · mobile 153 · mobile-ui 34 · core 42.**
+Baselines: **api 439 · web 261 · admin 264 · mobile 153 · mobile-ui 34 · core 42.**
 
 ## Next actions
 
@@ -76,15 +76,11 @@ Baselines: **api 439 · web 252 · admin 264 · mobile 153 · mobile-ui 34 · co
    reviews/CRM · wave C · media picker/alt/bulk · TabPills + dashboard
    date-range. Web still owed: the redesigned trust band + Contact
    "Secure payments" row (2026-07-10).
-3. **Web debt program (user-approved 2026-07-12): W1 ✅ (`ce8da9e`) · W2 ✅
-   (`afbc163…1d7fc24` — resilience layer) · W3 ✅ (`0b8dc66…a127979` —
-   `lib/tours.ts` trimmed to types · i18n sweep: page metadata → `pageMeta` +
-   single-branded `%s — Nexora` titles (fixed the "Tourism Platform" bug AND the
-   auth/account/checkout double-brand) + shared breadcrumb/pagination keys + drop
-   dead `blog.loadError` · shared `SectionHeading`, 15 sites) → next W4**
-   (FormField primitive: unify `FieldErrorText`/`AuthFieldError`, standardize the
-   `${id}-error`/aria wiring across the 14 forms; also fix `account/profile-form.tsx`
-   missing `noValidate`). Cut for good: destination/category landing pages · auth toasts.
+3. **Web debt program — CLOSED 2026-07-12**: W1 ✅ (`ce8da9e`) · W2 ✅
+   resilience layer · W3 ✅ cleanups/i18n/SectionHeading · W4 ✅ (`ff058e9` —
+   shared `AuthFormField` over 16/17 field groups · all 17 forms `noValidate` ·
+   auth titles i18n). Cut for good: destination/category landing pages · auth
+   toasts. Detail per wave: [CHANGELOG](docs/CHANGELOG.md).
 4. **Deliberate cuts (unscheduled):** notifications · category imagery ·
    admin e2e.
 5. **Mobile backlog:** "Browse by experience" · dark-mode splash/adaptive-icon
