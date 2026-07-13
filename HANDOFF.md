@@ -85,7 +85,12 @@ Baselines: **api 439 · web 261 · admin 264 · mobile 153 · mobile-ui 34 · co
    admin e2e.
 5. **Mobile backlog:** "Browse by experience" · dark-mode splash/adaptive-icon
    assets · in-app theme toggle · encrypted LargeSecureStore · EAS store builds.
-6. **Domain + email — FULLY LIVE 2026-07-13:** `nexora-travel.agency` wired
+6. **API debt program:** W1 "Email revival" ✅ (`7c64852`) · W2 "Ops
+   hardening" ✅ (`7e51a24` — cancel-departure auto-refund · unpublish guard
+   · orphaned-capture refund · PayPal fail-fast · throttle config) · **W3
+   "CRM/analytics" NEXT** (moderated_by/at · hasReview + my-reviews ·
+   costPrice — approved 2026-07-13, own branch).
+7. **Domain + email — FULLY LIVE 2026-07-13:** `nexora-travel.agency` wired
    end-to-end ([deploy §5b](docs/05-runbooks/deploy.md)) **and API-W1 "Email
    revival" shipped** (`7c64852`): all 7 EmailTypes dispatch (2 cancellation +
    newsletter welcome net-new), refund email shows `refundedAmount`, branded

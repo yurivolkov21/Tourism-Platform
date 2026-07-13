@@ -4,6 +4,36 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-13 — API-W2 "Ops hardening": cancel-departure auto-refund · unpublish guard · orphaned-capture refund (`7e51a24`)
+
+- **Cancel-departure flow (A-DEP-3)**: `PATCH … status: CANCELLED` stops
+  being a silent flag — kills PENDING bookings, then sequentially
+  auto-refunds every PAID booking through `refundByAdmin` (provider-first,
+  idempotent, refund email now carries a **Reason** row), returning a
+  `cancellation` summary `{paidTotal, refunded, skipped, failed}`; admin
+  shows a clean/attention toast. Requires a synced admin (400
+  `USER_NOT_SYNCED`). `DeparturesModule` imports `BookingsModule` (acyclic).
+- **Review MUST-FIX (found by the strong-tier adversarial pass, fixed +
+  pinned)**: a payment completing AFTER the booking was cancelled underneath
+  the buyer used to be silently kept (`already_processed`). New
+  `claimSeatsForPaid` outcome `'cancelled'` → both the Stripe webhook
+  (generalized `refundOrphanedCapture`) and the PayPal capture webhook now
+  refund the orphaned capture and flip the booking REFUNDED.
+- **Unpublish guard (A-TUR-4)**: unpublishing a tour with
+  PAID/PARTIALLY_REFUNDED bookings on upcoming departures → 409
+  `TOUR_HAS_ACTIVE_BOOKINGS`; boundary is start-of-today UTC so a departure
+  leaving today still counts (review should-fix).
+- **PayPal fail-fast**: client id/secret required non-empty at boot;
+  `PAYPAL_WEBHOOK_ID` may stay empty in dev (no inbound webhooks locally).
+- **Dead config wired**: `THROTTLE_TTL_SECONDS`/`THROTTLE_LIMIT` now drive
+  the enquiry + newsletter throttlers (`forRootAsync`); enquiry's 5/min
+  per-route override stays.
+- Typed client regenerated (additive: `DepartureCancellationSummaryDto` +
+  `NEWSLETTER_WELCOME`); admin flash keys `departure-cancelled[-issues]`.
+  Self-caught fix: the admin action double-unwrapped the API envelope.
+- Tests after: **api 489** (+16) · web 261 · admin 264 · mobile 153 ·
+  mobile-ui 34 · core 42.
+
 ## 2026-07-13 — API-W1 "Email revival": cancellation dispatch · branded templates · replyTo · newsletter welcome (`7c64852`)
 
 - **Closes the email code debt** flagged in the 2026-07-13 API analysis, on

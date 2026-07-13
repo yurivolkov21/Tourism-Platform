@@ -26,6 +26,8 @@ progression: [CHANGELOG](CHANGELOG.md)** (the single home — status cells here 
   [HANDOFF](../HANDOFF.md#next-actions).
 - User **visual pass** on the deployed admin (debt-program surfaces).
 - Deliberate cuts (unscheduled): notifications · category imagery · admin e2e.
+- API debt program: W1 email ✅ (`7c64852`) · W2 ops hardening ✅
+  (`7e51a24`) · W3 CRM/analytics next.
 - ~~Domain-gated: Resend outbound email~~ → **fully closed 2026-07-13**:
   domain wired ([deploy §5b](05-runbooks/deploy.md)) **+ API-W1 email revival**
   (`7c64852` — all 7 EmailTypes dispatch, branded v2 templates, Reply-To,

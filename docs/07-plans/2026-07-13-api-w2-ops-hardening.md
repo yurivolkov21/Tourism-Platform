@@ -4,7 +4,14 @@
 **Branch:** `feat/api-w2-ops-hardening` · **Scope:** apps/api · @tourism/core
 regen · minimal admin toast
 
-**STATUS: 🔨 IN PROGRESS** — started 2026-07-13.
+**STATUS: ✅ COMPLETE** — merged to `main` 2026-07-13 (`7e51a24`, ff-only).
+Review (strong tier): 1 MUST-FIX found and fixed + TDD-pinned (payment
+completing after the CANCELLED flip was silently kept — now
+`claimSeatsForPaid` returns `'cancelled'` and both webhooks refund the
+orphaned capture) · 1 should-fix fixed (same-day departure boundary in the
+unpublish guard) · 2 nits accepted + documented in the spec. Also
+self-caught: admin action double-unwrapped the API envelope. api 489/489.
+No migration — nothing to deploy beyond Render's auto-redeploy.
 
 Standing rules: TDD red→green on every service/validation/renderer change ·
 straight quotes · no unrelated-line reformatting · EN-only copy ·
