@@ -4,7 +4,13 @@
 **Branch:** `feat/api-w3-crm-analytics` · **Scope:** apps/api · core regen ·
 small admin/web touches
 
-**STATUS: 🔨 IN PROGRESS** — started 2026-07-13.
+**STATUS: ✅ COMPLETE** — merged to `main` 2026-07-13 (`0547270`, ff-only);
+migration `review_audit_and_tour_cost` applied to live Supabase. Review
+(strong tier): 0 must-fix · 1 should-fix fixed + pinned (currency locked
+once PAID bookings exist — margin bucketing) · nits addressed (optional
+hasReview swagger · admin type cleanup · ReviewPrompt key). Self-caught
+during build: public tour surfaces now STRIP `costPrice` (internal number).
+api 499 · admin 266 · web 261. **Closes the API debt program W1→W2→W3.**
 
 Standing rules: TDD red→green on service/renderer changes · straight
 quotes · no unrelated-line reformatting · EN-only · Conventional Commits ·

@@ -4,6 +4,33 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-13 — API-W3 "CRM/analytics": moderation audit · hasReview + /reviews/mine · costPrice margin (`0547270`)
+
+- **Closes the API debt program** (W1 email `7c64852` → W2 ops `7e51a24` →
+  W3) — all three waves shipped the same day.
+- **Moderation audit**: every review approve/reject writes
+  `moderatedById/moderatedAt` in the same tx (migration adds the columns +
+  FK SetNull); admin reviews drawer shows "Moderated by … · time"; moderate
+  now requires a synced admin (400 `USER_NOT_SYNCED`).
+- **hasReview** on customer bookings (`/bookings/me` + detail; optional in
+  Swagger — write-path responses omit it) — the web review prompt hides
+  itself without probing for a 409 (409 stays as the race backstop; prompt
+  keyed per booking against App-Router state reuse). New **`GET
+  /reviews/mine`** (own reviews incl. pending, cap 50).
+- **Margin analytics**: `Tour.costPrice` (per traveller, admin-only input on
+  the tour form) + per-currency `cost`/`margin` on the dashboard revenue
+  card (3rd raw aggregate over the same PAID set; upper-bound footnote).
+  **`costPrice` is stripped from every public tour surface** (self-caught;
+  review verified all vectors closed) and only `AdminTourDetailDto` declares
+  it.
+- Review should-fix (fixed + pinned): tour `currency` becomes immutable once
+  PAID bookings exist — 409 `TOUR_CURRENCY_LOCKED` (a later currency edit
+  would mis-bucket per-currency margin).
+- Typed client regenerated (additive); FE touches by a sonnet subagent
+  (tour form · dashboard margin lines · reviews audit line · review prompt).
+- Tests after: **api 499** (+10) · **admin 266** (+2) · web 261 · mobile 153
+  · mobile-ui 34 · core 42.
+
 ## 2026-07-13 — API-W2 "Ops hardening": cancel-departure auto-refund · unpublish guard · orphaned-capture refund (`7e51a24`)
 
 - **Cancel-departure flow (A-DEP-3)**: `PATCH … status: CANCELLED` stops
