@@ -336,7 +336,40 @@ export class ToursService {
    * `deleteMany` + `create` (atomic implicit transaction — pooler-safe).
    */
   async update(slug: string, body: UpdateTourDto): Promise<TourWithMedia> {
-    await this.findBySlug(slug); // 404 early
+    const existing = await this.findBySlug(slug); // 404 early
+
+    // Unpublish guard (API-W2, A-TUR-4): a published tour with paying
+    // customers on upcoming departures must not become a 404 for them.
+    // Cancel the departures (auto-refund) or refund manually first.
+    if (body.isPublished === false && existing.isPublished) {
+      // startDate is @db.Date (midnight UTC) — compare against start-of-today
+      // UTC so a departure leaving TODAY still counts as active (walk-in
+      // parity, same calendar-date rule as the booking-create guard).
+      const now = new Date();
+      const startOfTodayUtc = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+      );
+      const activeBookings = await this.prisma.booking.count({
+        where: {
+          tourId: existing.id,
+          status: {
+            in: [BookingStatus.PAID, BookingStatus.PARTIALLY_REFUNDED],
+          },
+          departure: {
+            startDate: { gte: startOfTodayUtc },
+            status: { not: DepartureStatus.CANCELLED },
+          },
+        },
+      });
+      if (activeBookings > 0) {
+        throw new ConflictException({
+          code: 'TOUR_HAS_ACTIVE_BOOKINGS',
+          message:
+            `Cannot unpublish "${slug}" — ${activeBookings} paid booking(s) on upcoming departures. ` +
+            'Cancel those departures (auto-refund) or refund the bookings first.',
+        });
+      }
+    }
 
     const data: Prisma.TourUpdateInput = {};
     if (body.title !== undefined) data.title = body.title;

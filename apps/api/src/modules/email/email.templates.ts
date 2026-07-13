@@ -40,6 +40,8 @@ export interface BookingRefundedVars extends BookingEmailVars {
   /** The amount actually refunded (display string, no currency). */
   refundedAmount: string;
   isPartial: boolean;
+  /** Operator-provided refund reason (e.g. a cancelled departure) — API-W2. */
+  reason?: string | null;
 }
 
 export interface ReviewApprovedVars {
@@ -287,6 +289,7 @@ export const renderBookingRefunded = (
     ``,
     `Refund issued: ${vars.refundedAmount} ${vars.currency}` +
       (vars.isPartial ? ` (of ${vars.totalAmount} ${vars.currency} paid)` : ''),
+    ...(vars.reason?.trim() ? [`Reason: ${vars.reason.trim()}`] : []),
     `Returns to: original payment method`,
     ``,
     `The amount typically appears within 5-10 business days, depending on your bank.`,
@@ -300,6 +303,14 @@ export const renderBookingRefunded = (
     { label: 'Refund issued', valueHtml: moneyValue(refunded) },
     ...(vars.isPartial
       ? [{ label: 'Of total paid', valueHtml: plainValue(total) }]
+      : []),
+    ...(vars.reason?.trim()
+      ? [
+          {
+            label: 'Reason',
+            valueHtml: plainValue(escapeHtml(vars.reason.trim())),
+          },
+        ]
       : []),
     { label: 'Returns to', valueHtml: plainValue('Original payment method') },
   ];

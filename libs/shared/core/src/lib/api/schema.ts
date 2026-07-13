@@ -514,7 +514,7 @@ export interface paths {
     delete: operations['AdminDeparturesController_remove'];
     options?: never;
     head?: never;
-    /** Admin: partial update a departure */
+    /** Admin: partial update a departure (status: CANCELLED auto-refunds PAID bookings) */
     patch: operations['AdminDeparturesController_update'];
     trace?: never;
   };
@@ -2446,6 +2446,29 @@ export interface components {
       faqs?: components['schemas']['TourFaqInput'][];
       policies?: components['schemas']['TourPolicyInput'][];
     };
+    DepartureCancellationFailureDto: {
+      /** @example BK-2047 */
+      code: string;
+      /** @example Provider refund failed: network error */
+      message: string;
+    };
+    DepartureCancellationSummaryDto: {
+      /**
+       * @description PAID bookings the pass attempted
+       * @example 4
+       */
+      paidTotal: number;
+      /** @example 3 */
+      refunded: number;
+      /**
+       * @description PARTIALLY_REFUNDED bookings left for manual follow-up
+       * @example [
+       *       "BK-1201"
+       *     ]
+       */
+      skipped: string[];
+      failed: components['schemas']['DepartureCancellationFailureDto'][];
+    };
     DepartureDto: {
       /** Format: uuid */
       id: string;
@@ -2484,6 +2507,8 @@ export interface components {
       createdAt: string;
       /** Format: date-time */
       updatedAt: string;
+      /** @description Only on the admin PATCH response that flipped the departure to CANCELLED (API-W2) */
+      cancellation?: components['schemas']['DepartureCancellationSummaryDto'];
     };
     CreateDepartureDto: {
       /**
@@ -3688,7 +3713,8 @@ export interface components {
         | 'REVIEW_APPROVED'
         | 'ENQUIRY_RECEIVED'
         | 'CANCELLATION_REQUESTED'
-        | 'CANCELLATION_DENIED';
+        | 'CANCELLATION_DENIED'
+        | 'NEWSLETTER_WELCOME';
       /** @enum {string} */
       status: 'PENDING' | 'SENT' | 'FAILED';
       /** @example 0 */
@@ -5260,6 +5286,7 @@ export interface operations {
       };
     };
     responses: {
+      /** @description A CANCELLED transition additionally returns `cancellation` (refund summary) */
       200: {
         headers: {
           [name: string]: unknown;
@@ -5268,7 +5295,7 @@ export interface operations {
           'application/json': components['schemas']['DepartureDto'];
         };
       };
-      /** @description Invalid date range / seatsTotal below booked */
+      /** @description Invalid date range / seatsTotal below booked / user not synced */
       400: {
         headers: {
           [name: string]: unknown;

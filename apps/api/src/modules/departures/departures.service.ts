@@ -5,11 +5,31 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { DepartureStatus, Prisma, TourDeparture } from '@prisma/client';
+import {
+  BookingStatus,
+  DepartureStatus,
+  Prisma,
+  TourDeparture,
+} from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { BookingsService } from '../bookings/bookings.service';
 import { CreateDepartureDto } from './dto/create-departure.dto';
 import { ListDeparturesQueryDto } from './dto/list-departures-query.dto';
 import { UpdateDepartureDto } from './dto/update-departure.dto';
+
+/** Outcome of the auto-refund pass a CANCELLED transition runs (API-W2). */
+export interface DepartureCancellationSummary {
+  /** PAID bookings the pass attempted to refund. */
+  paidTotal: number;
+  refunded: number;
+  /** PARTIALLY_REFUNDED bookings left for manual follow-up (codes). */
+  skipped: string[];
+  failed: { code: string; message: string }[];
+}
+
+export type UpdatedDeparture = TourDeparture & {
+  cancellation?: DepartureCancellationSummary;
+};
 
 /**
  * CRUD for `TourDeparture` rows nested under a parent tour. Ported from the
@@ -30,7 +50,10 @@ import { UpdateDepartureDto } from './dto/update-departure.dto';
 export class DeparturesService {
   private readonly logger = new Logger(DeparturesService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly bookings: BookingsService,
+  ) {}
 
   // ── Reads — public ──────────────────────────────────────────────────────────
 
@@ -112,8 +135,21 @@ export class DeparturesService {
     slug: string,
     id: string,
     body: UpdateDepartureDto,
-  ): Promise<TourDeparture> {
+    adminUserId?: string | null,
+  ): Promise<UpdatedDeparture> {
     const existing = await this.findDepartureOrThrow(slug, id);
+
+    // API-W2: flipping to CANCELLED triggers the auto-refund pass below, which
+    // audits each refund with the admin's local user id — require it up front.
+    const cancelling =
+      body.status === DepartureStatus.CANCELLED &&
+      existing.status !== DepartureStatus.CANCELLED;
+    if (cancelling && !adminUserId) {
+      throw new BadRequestException({
+        code: 'USER_NOT_SYNCED',
+        message: 'Run POST /auth/sync before cancelling a departure',
+      });
+    }
 
     // Validate the date range against existing values when only one date is
     // sent — otherwise patching just `startDate` could silently invert it.
@@ -141,10 +177,81 @@ export class DeparturesService {
       });
     }
 
-    return this.prisma.tourDeparture.update({
+    const updated = await this.prisma.tourDeparture.update({
       where: { id: existing.id },
       data: this.mapUpdatePayload(body),
     });
+
+    if (!cancelling) return updated;
+    const cancellation = await this.runCancellationPass(
+      existing.id,
+      adminUserId as string,
+    );
+    return { ...updated, cancellation };
+  }
+
+  /**
+   * The trip is off (status already flipped — the operator's fact): kill
+   * in-flight PENDING bookings so a late payment webhook loses its seat-claim
+   * gate (its existing race path then auto-refunds the capture), then refund
+   * every PAID booking through the proven per-booking admin refund pipeline
+   * (provider-first, idempotent per booking, BOOKING_REFUNDED email). A failed
+   * provider refund leaves that booking PAID — reported in the summary and
+   * retryable from the admin bookings screen as today. Sequential on purpose:
+   * pooler- and provider-rate-friendly at our departure sizes.
+   */
+  private async runCancellationPass(
+    departureId: string,
+    adminUserId: string,
+  ): Promise<DepartureCancellationSummary> {
+    const pendingKilled = await this.prisma.booking.updateMany({
+      where: { departureId, status: BookingStatus.PENDING },
+      data: { status: BookingStatus.CANCELLED, cancelledAt: new Date() },
+    });
+    if (pendingKilled.count > 0) {
+      this.logger.log(
+        `Departure ${departureId} cancel: ${pendingKilled.count} PENDING booking(s) cancelled`,
+      );
+    }
+
+    const active = await this.prisma.booking.findMany({
+      where: {
+        departureId,
+        status: {
+          in: [BookingStatus.PAID, BookingStatus.PARTIALLY_REFUNDED],
+        },
+      },
+      select: { code: true, status: true },
+      orderBy: { createdAt: 'asc' },
+    });
+    const paid = active.filter((b) => b.status === BookingStatus.PAID);
+    const skipped = active
+      .filter((b) => b.status === BookingStatus.PARTIALLY_REFUNDED)
+      .map((b) => b.code);
+
+    const failed: { code: string; message: string }[] = [];
+    let refunded = 0;
+    for (const booking of paid) {
+      try {
+        await this.bookings.refundByAdmin({
+          code: booking.code,
+          adminUserId,
+          reason: 'Departure cancelled by the operator',
+        });
+        refunded += 1;
+      } catch (err) {
+        failed.push({
+          code: booking.code,
+          message: err instanceof Error ? err.message : 'unknown error',
+        });
+      }
+    }
+
+    this.logger.log(
+      `Departure ${departureId} cancel: ${refunded}/${paid.length} refunded, ` +
+        `${skipped.length} partial skipped, ${failed.length} failed`,
+    );
+    return { paidTotal: paid.length, refunded, skipped, failed };
   }
 
   async remove(slug: string, id: string): Promise<TourDeparture> {

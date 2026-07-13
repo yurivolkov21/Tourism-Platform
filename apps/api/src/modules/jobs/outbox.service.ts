@@ -139,6 +139,7 @@ export class OutboxService {
         contactEmail: true,
         totalAmount: true,
         refundedAmount: true,
+        refundReason: true,
         status: true,
         currency: true,
         numAdults: true,
@@ -185,6 +186,7 @@ export class OutboxService {
             booking.refundedAmount ?? booking.totalAmount
           ).toFixed(2),
           isPartial: booking.status === BookingStatus.PARTIALLY_REFUNDED,
+          reason: booking.refundReason,
         },
       });
     }

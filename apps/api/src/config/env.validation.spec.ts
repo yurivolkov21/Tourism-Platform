@@ -54,6 +54,37 @@ describe('envValidationSchema', () => {
     expect(error).toBeDefined();
   });
 
+  describe('PayPal fail-fast (API-W2)', () => {
+    it.each(['PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET'] as const)(
+      'fails when %s is missing',
+      (key) => {
+        const env = { ...validEnv } as Record<string, string>;
+        delete env[key];
+        const { error } = envValidationSchema.validate(env, {
+          abortEarly: false,
+        });
+        expect(error).toBeDefined();
+        expect(error?.message).toContain(key);
+      },
+    );
+
+    it('rejects an empty PAYPAL_CLIENT_SECRET (no silently broken gateway)', () => {
+      const { error } = envValidationSchema.validate({
+        ...validEnv,
+        PAYPAL_CLIENT_SECRET: '',
+      });
+      expect(error).toBeDefined();
+    });
+
+    it('allows an empty PAYPAL_WEBHOOK_ID (local dev never receives webhooks)', () => {
+      const { error } = envValidationSchema.validate({
+        ...validEnv,
+        PAYPAL_WEBHOOK_ID: '',
+      });
+      expect(error).toBeUndefined();
+    });
+  });
+
   describe('Resend sender/reply-to formats (API-W1)', () => {
     it.each(['noreply@example.com', 'Nexora <noreply@nexora-travel.agency>'])(
       'accepts RESEND_FROM_EMAIL %p',

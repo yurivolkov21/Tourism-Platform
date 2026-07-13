@@ -18,6 +18,7 @@ const FUTURE_END = '2999-01-12';
 interface Mocks {
   tour?: Record<string, unknown>;
   tourDeparture?: Record<string, unknown>;
+  booking?: Record<string, unknown>;
 }
 
 function makePrisma(m: Mocks = {}): PrismaService {
@@ -35,7 +36,21 @@ function makePrisma(m: Mocks = {}): PrismaService {
       delete: jest.fn(),
       ...m.tourDeparture,
     },
+    booking: {
+      updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      findMany: jest.fn().mockResolvedValue([]),
+      ...m.booking,
+    },
   } as unknown as PrismaService;
+}
+
+/** BookingsService stub — only the refund entry point the cancel flow uses. */
+function makeBookings(over: Record<string, unknown> = {}) {
+  return { refundByAdmin: jest.fn().mockResolvedValue({}), ...over };
+}
+
+function makeSvc(prisma: PrismaService, bookings = makeBookings()) {
+  return new DeparturesService(prisma, bookings as never);
 }
 
 function body(overrides: Partial<CreateDepartureDto> = {}): CreateDepartureDto {
@@ -56,9 +71,7 @@ describe('DeparturesService', () => {
       .mockImplementation(({ data }) =>
         Promise.resolve({ id: 'd-1', ...data }),
       );
-    const svc = new DeparturesService(
-      makePrisma({ tourDeparture: { create } }),
-    );
+    const svc = makeSvc(makePrisma({ tourDeparture: { create } }));
 
     await svc.create('hoi-an', body({ priceOverride: 59, compareAtPrice: 79 }));
 
@@ -70,21 +83,21 @@ describe('DeparturesService', () => {
   });
 
   it('create throws 404 when the tour slug is missing', async () => {
-    const svc = new DeparturesService(
+    const svc = makeSvc(
       makePrisma({ tour: { findUnique: jest.fn().mockResolvedValue(null) } }),
     );
     await expect(svc.create('nope', body())).rejects.toThrow(NotFoundException);
   });
 
   it('create rejects an inverted date range (400)', async () => {
-    const svc = new DeparturesService(makePrisma());
+    const svc = makeSvc(makePrisma());
     await expect(
       svc.create('hoi-an', body({ startDate: FUTURE_END, endDate: FUTURE })),
     ).rejects.toThrow(BadRequestException);
   });
 
   it('create rejects a start date in the past (400)', async () => {
-    const svc = new DeparturesService(makePrisma());
+    const svc = makeSvc(makePrisma());
     await expect(
       svc.create(
         'hoi-an',
@@ -103,9 +116,7 @@ describe('DeparturesService', () => {
       startDate: new Date(FUTURE),
       endDate: new Date(FUTURE_END),
     });
-    const svc = new DeparturesService(
-      makePrisma({ tourDeparture: { findFirst } }),
-    );
+    const svc = makeSvc(makePrisma({ tourDeparture: { findFirst } }));
     await expect(
       svc.update('hoi-an', 'd-1', { seatsTotal: 5 }),
     ).rejects.toThrow(BadRequestException);
@@ -120,9 +131,7 @@ describe('DeparturesService', () => {
       endDate: new Date(FUTURE_END),
     });
     const update = jest.fn().mockResolvedValue({ id: 'd-1' });
-    const svc = new DeparturesService(
-      makePrisma({ tourDeparture: { findFirst, update } }),
-    );
+    const svc = makeSvc(makePrisma({ tourDeparture: { findFirst, update } }));
 
     await svc.update('hoi-an', 'd-1', { priceOverride: null });
 
@@ -131,9 +140,7 @@ describe('DeparturesService', () => {
 
   it('update throws 404 when the departure is missing under the tour', async () => {
     const findFirst = jest.fn().mockResolvedValue(null);
-    const svc = new DeparturesService(
-      makePrisma({ tourDeparture: { findFirst } }),
-    );
+    const svc = makeSvc(makePrisma({ tourDeparture: { findFirst } }));
     await expect(
       svc.update('hoi-an', 'd-x', { seatsTotal: 10 }),
     ).rejects.toThrow(NotFoundException);
@@ -147,9 +154,7 @@ describe('DeparturesService', () => {
       startDate: new Date(FUTURE),
       endDate: new Date(FUTURE_END),
     });
-    const svc = new DeparturesService(
-      makePrisma({ tourDeparture: { findFirst } }),
-    );
+    const svc = makeSvc(makePrisma({ tourDeparture: { findFirst } }));
     await expect(
       svc.update('hoi-an', 'd-1', {
         startDate: '2000-01-01',
@@ -166,18 +171,139 @@ describe('DeparturesService', () => {
       id: 'd-1',
       tourId: 'tour-1',
       seatsBooked: 0,
+      status: DepartureStatus.OPEN,
       startDate: new Date('2000-01-01'),
       endDate: new Date('2000-01-02'),
     });
     const update = jest.fn().mockResolvedValue({ id: 'd-1' });
-    const svc = new DeparturesService(
-      makePrisma({ tourDeparture: { findFirst, update } }),
+    const svc = makeSvc(makePrisma({ tourDeparture: { findFirst, update } }));
+
+    const res = await svc.update(
+      'hoi-an',
+      'd-1',
+      { status: DepartureStatus.CANCELLED },
+      'admin-1',
     );
+    expect(res).toMatchObject({ id: 'd-1' });
+    expect(update.mock.calls[0][0].data.status).toBe(DepartureStatus.CANCELLED);
+  });
+
+  // ── cancel-departure flow (API-W2) ───────────────────────────────────────
+
+  const openDeparture = {
+    id: 'd-1',
+    tourId: 'tour-1',
+    seatsBooked: 6,
+    status: DepartureStatus.OPEN,
+    startDate: new Date(FUTURE),
+    endDate: new Date(FUTURE_END),
+  };
+
+  it('cancelling auto-refunds PAID bookings, flips PENDING, and reports a summary', async () => {
+    const findFirst = jest.fn().mockResolvedValue(openDeparture);
+    const update = jest
+      .fn()
+      .mockResolvedValue({ id: 'd-1', status: DepartureStatus.CANCELLED });
+    const updateMany = jest.fn().mockResolvedValue({ count: 2 });
+    const findMany = jest.fn().mockResolvedValue([
+      { code: 'BK-1', status: 'PAID' },
+      { code: 'BK-2', status: 'PAID' },
+      { code: 'BK-3', status: 'PARTIALLY_REFUNDED' },
+    ]);
+    const refundByAdmin = jest
+      .fn()
+      .mockResolvedValueOnce({})
+      .mockRejectedValueOnce(new Error('provider down'));
+    const svc = makeSvc(
+      makePrisma({
+        tourDeparture: { findFirst, update },
+        booking: { updateMany, findMany },
+      }),
+      makeBookings({ refundByAdmin }),
+    );
+
+    const res = await svc.update(
+      'hoi-an',
+      'd-1',
+      { status: DepartureStatus.CANCELLED },
+      'admin-1',
+    );
+
+    // PENDING bookings die first so a late webhook loses its claim gate.
+    expect(updateMany.mock.calls[0][0].where).toMatchObject({
+      departureId: 'd-1',
+      status: 'PENDING',
+    });
+    expect(refundByAdmin).toHaveBeenCalledTimes(2);
+    expect(refundByAdmin).toHaveBeenCalledWith({
+      code: 'BK-1',
+      adminUserId: 'admin-1',
+      reason: 'Departure cancelled by the operator',
+    });
+    expect(res.cancellation).toEqual({
+      paidTotal: 2,
+      refunded: 1,
+      skipped: ['BK-3'],
+      failed: [{ code: 'BK-2', message: 'provider down' }],
+    });
+  });
+
+  it('re-cancelling an already-CANCELLED departure runs no side effects', async () => {
+    const findFirst = jest.fn().mockResolvedValue({
+      ...openDeparture,
+      status: DepartureStatus.CANCELLED,
+    });
+    const update = jest
+      .fn()
+      .mockResolvedValue({ id: 'd-1', status: DepartureStatus.CANCELLED });
+    const updateMany = jest.fn();
+    const refundByAdmin = jest.fn();
+    const svc = makeSvc(
+      makePrisma({
+        tourDeparture: { findFirst, update },
+        booking: { updateMany },
+      }),
+      makeBookings({ refundByAdmin }),
+    );
+
+    const res = await svc.update(
+      'hoi-an',
+      'd-1',
+      { status: DepartureStatus.CANCELLED },
+      'admin-1',
+    );
+
+    expect(updateMany).not.toHaveBeenCalled();
+    expect(refundByAdmin).not.toHaveBeenCalled();
+    expect(res.cancellation).toBeUndefined();
+  });
+
+  it('cancelling without a synced admin id is rejected (400 USER_NOT_SYNCED)', async () => {
+    const findFirst = jest.fn().mockResolvedValue(openDeparture);
+    const svc = makeSvc(makePrisma({ tourDeparture: { findFirst } }));
 
     await expect(
       svc.update('hoi-an', 'd-1', { status: DepartureStatus.CANCELLED }),
-    ).resolves.toEqual({ id: 'd-1' });
-    expect(update.mock.calls[0][0].data.status).toBe(DepartureStatus.CANCELLED);
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('non-cancel patches never touch bookings', async () => {
+    const findFirst = jest.fn().mockResolvedValue(openDeparture);
+    const update = jest.fn().mockResolvedValue({ id: 'd-1' });
+    const updateMany = jest.fn();
+    const refundByAdmin = jest.fn();
+    const svc = makeSvc(
+      makePrisma({
+        tourDeparture: { findFirst, update },
+        booking: { updateMany },
+      }),
+      makeBookings({ refundByAdmin }),
+    );
+
+    await svc.update('hoi-an', 'd-1', { seatsTotal: 20 });
+
+    expect(updateMany).not.toHaveBeenCalled();
+    expect(refundByAdmin).not.toHaveBeenCalled();
   });
 
   it('update allows moving startDate to a future date', async () => {
@@ -189,9 +315,7 @@ describe('DeparturesService', () => {
       endDate: new Date(FUTURE_END),
     });
     const update = jest.fn().mockResolvedValue({ id: 'd-1' });
-    const svc = new DeparturesService(
-      makePrisma({ tourDeparture: { findFirst, update } }),
-    );
+    const svc = makeSvc(makePrisma({ tourDeparture: { findFirst, update } }));
 
     await expect(
       svc.update('hoi-an', 'd-1', {
@@ -207,9 +331,7 @@ describe('DeparturesService', () => {
     const findFirst = jest
       .fn()
       .mockResolvedValue({ id: 'd-1', tourId: 'tour-1', seatsBooked: 3 });
-    const svc = new DeparturesService(
-      makePrisma({ tourDeparture: { findFirst } }),
-    );
+    const svc = makeSvc(makePrisma({ tourDeparture: { findFirst } }));
     await expect(svc.remove('hoi-an', 'd-1')).rejects.toThrow(
       ConflictException,
     );
@@ -220,7 +342,7 @@ describe('DeparturesService', () => {
       .fn()
       .mockResolvedValue({ id: 'd-1', tourId: 'tour-1', seatsBooked: 0 });
     const del = jest.fn().mockRejectedValue(knownError('P2003'));
-    const svc = new DeparturesService(
+    const svc = makeSvc(
       makePrisma({ tourDeparture: { findFirst, delete: del } }),
     );
     await expect(svc.remove('hoi-an', 'd-1')).rejects.toThrow(
@@ -233,7 +355,7 @@ describe('DeparturesService', () => {
   it('public list gates on isPublished and defaults status=OPEN', async () => {
     const findFirst = jest.fn().mockResolvedValue({ id: 'tour-1' });
     const findMany = jest.fn().mockResolvedValue([]);
-    const svc = new DeparturesService(
+    const svc = makeSvc(
       makePrisma({ tour: { findFirst }, tourDeparture: { findMany } }),
     );
 
@@ -244,7 +366,7 @@ describe('DeparturesService', () => {
   });
 
   it('public list throws 404 when the tour is unpublished/missing', async () => {
-    const svc = new DeparturesService(
+    const svc = makeSvc(
       makePrisma({ tour: { findFirst: jest.fn().mockResolvedValue(null) } }),
     );
     await expect(svc.findPublicListForTour('nope', {})).rejects.toThrow(
@@ -254,9 +376,7 @@ describe('DeparturesService', () => {
 
   it('admin list applies no status default (full history)', async () => {
     const findMany = jest.fn().mockResolvedValue([]);
-    const svc = new DeparturesService(
-      makePrisma({ tourDeparture: { findMany } }),
-    );
+    const svc = makeSvc(makePrisma({ tourDeparture: { findMany } }));
 
     await svc.findAdminListForTour('hoi-an', {});
 

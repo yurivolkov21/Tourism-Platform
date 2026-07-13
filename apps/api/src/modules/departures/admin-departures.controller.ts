@@ -19,13 +19,14 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { TourDeparture, UserRole } from '@prisma/client';
+import { TourDeparture, User, UserRole } from '@prisma/client';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CreateDepartureDto } from './dto/create-departure.dto';
 import { DepartureDto } from './dto/departure.dto';
 import { ListDeparturesQueryDto } from './dto/list-departures-query.dto';
 import { UpdateDepartureDto } from './dto/update-departure.dto';
-import { DeparturesService } from './departures.service';
+import { DeparturesService, UpdatedDeparture } from './departures.service';
 
 /**
  * Admin nested CRUD at `/admin/tours/:slug/departures` — gated by `@Roles(ADMIN)`
@@ -69,19 +70,28 @@ export class AdminDeparturesController {
 
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Admin: partial update a departure' })
-  @ApiOkResponse({ type: DepartureDto })
+  @ApiOperation({
+    summary:
+      'Admin: partial update a departure (status: CANCELLED auto-refunds PAID bookings)',
+  })
+  @ApiOkResponse({
+    type: DepartureDto,
+    description:
+      'A CANCELLED transition additionally returns `cancellation` (refund summary)',
+  })
   @ApiResponse({
     status: 400,
-    description: 'Invalid date range / seatsTotal below booked',
+    description:
+      'Invalid date range / seatsTotal below booked / user not synced',
   })
   @ApiResponse({ status: 404, description: 'Tour or departure not found' })
   update(
+    @CurrentUser() user: User | null,
     @Param('slug') slug: string,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: UpdateDepartureDto,
-  ): Promise<TourDeparture> {
-    return this.departuresService.update(slug, id, body);
+  ): Promise<UpdatedDeparture> {
+    return this.departuresService.update(slug, id, body, user?.id ?? null);
   }
 
   @Delete(':id')

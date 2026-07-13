@@ -358,6 +358,72 @@ describe('ToursService', () => {
     ).rejects.toThrow(BadRequestException);
   });
 
+  it('update blocks unpublish while future PAID bookings exist (API-W2)', async () => {
+    const findUnique = jest
+      .fn()
+      .mockResolvedValue({ id: 't-1', slug: 'x', isPublished: true });
+    const count = jest.fn().mockResolvedValue(3);
+    const update = jest.fn();
+    const svc = makeService(
+      makePrisma({ tour: { findUnique, update }, booking: { count } }),
+    );
+
+    await expect(svc.update('x', { isPublished: false })).rejects.toThrow(
+      ConflictException,
+    );
+    expect(update).not.toHaveBeenCalled();
+    const where = (
+      count.mock.calls[0][0] as {
+        where: {
+          tourId: string;
+          status: { in: string[] };
+          departure: Record<string, unknown>;
+        };
+      }
+    ).where;
+    expect(where.tourId).toBe('t-1');
+    expect(where.status.in).toEqual(
+      expect.arrayContaining(['PAID', 'PARTIALLY_REFUNDED']),
+    );
+    // Boundary = start-of-today UTC: a departure leaving TODAY still counts
+    // (startDate is @db.Date — comparing with `new Date()` would miss it).
+    const gte = (where.departure as { startDate: { gte: Date } }).startDate.gte;
+    expect(gte.getUTCHours()).toBe(0);
+    expect(gte.getUTCMinutes()).toBe(0);
+    expect(gte.getUTCDate()).toBe(new Date().getUTCDate());
+  });
+
+  it('update allows unpublish when no active bookings remain (API-W2)', async () => {
+    const findUnique = jest
+      .fn()
+      .mockResolvedValue({ id: 't-1', slug: 'x', isPublished: true });
+    const count = jest.fn().mockResolvedValue(0);
+    const update = jest
+      .fn()
+      .mockResolvedValue({ id: 't-1', slug: 'x', isPublished: false });
+    const svc = makeService(
+      makePrisma({ tour: { findUnique, update }, booking: { count } }),
+    );
+
+    await expect(
+      svc.update('x', { isPublished: false }),
+    ).resolves.toBeDefined();
+  });
+
+  it('update skips the unpublish guard for non-unpublish patches (API-W2)', async () => {
+    const findUnique = jest
+      .fn()
+      .mockResolvedValue({ id: 't-1', slug: 'x', isPublished: true });
+    const count = jest.fn();
+    const update = jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' });
+    const svc = makeService(
+      makePrisma({ tour: { findUnique, update }, booking: { count } }),
+    );
+
+    await svc.update('x', { title: 'New title' });
+    expect(count).not.toHaveBeenCalled();
+  });
+
   it('update maps a unique-constraint (P2002) to 409', async () => {
     const findUnique = jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' });
     const update = jest.fn().mockRejectedValue(knownError('P2002'));

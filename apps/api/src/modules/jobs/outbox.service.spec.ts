@@ -175,6 +175,7 @@ describe('OutboxService.drainOutbox', () => {
         ...seededBooking,
         status: 'PARTIALLY_REFUNDED',
         refundedAmount: { toFixed: (): string => '100.00' },
+        refundReason: 'Departure cancelled by the operator',
       }),
     });
     const svc = makeService(prisma, email);
@@ -187,6 +188,7 @@ describe('OutboxService.drainOutbox', () => {
         refundedAmount: '100.00',
         isPartial: true,
         totalAmount: '249.00',
+        reason: 'Departure cancelled by the operator',
       }),
     });
   });

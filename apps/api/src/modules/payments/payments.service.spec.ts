@@ -163,6 +163,31 @@ describe('PaymentsService.handleStripeEvent', () => {
     );
   });
 
+  it('on completed for a CANCELLED booking (cancelled departure race): refunds the capture (API-W2)', async () => {
+    const queryRaw = jest.fn().mockResolvedValue([]); // claim misses
+    const bookingUpdate = jest.fn().mockResolvedValue({});
+    const stripe = makeStripe();
+    const service = svc(
+      makePrisma({
+        $queryRaw: queryRaw,
+        booking: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ status: BookingStatus.CANCELLED }),
+          update: bookingUpdate,
+        },
+      }),
+      stripe,
+    );
+
+    await service.handleStripeEvent(RAW, 'sig');
+
+    expect(stripe.createRefund).toHaveBeenCalledTimes(1);
+    expect(bookingUpdate.mock.calls[0][0].data.status).toBe(
+      BookingStatus.REFUNDED,
+    );
+  });
+
   it('on completed but already terminal: no refund, no seat change', async () => {
     const queryRaw = jest.fn().mockResolvedValue([]);
     const stripe = makeStripe();
@@ -252,6 +277,22 @@ describe('PaymentsService.claimSeatsForPaid (shared)', () => {
     );
   });
 
+  it('returns "cancelled" when the booking was cancelled while paying (API-W2)', async () => {
+    const service = svc(
+      makePrisma({
+        $queryRaw: jest.fn().mockResolvedValue([]),
+        booking: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ status: BookingStatus.CANCELLED }),
+        },
+      }),
+    );
+    await expect(service.claimSeatsForPaid('bk-1', 'pay_1')).resolves.toBe(
+      'cancelled',
+    );
+  });
+
   it('returns "already_processed" for a terminal-state booking', async () => {
     const service = svc(
       makePrisma({
@@ -309,6 +350,31 @@ describe('PaymentsService.handlePayPalEvent', () => {
 
     expect(queryRaw).toHaveBeenCalledTimes(1);
     expect(evtUpdate.mock.calls[0][0].data.processedAt).toBeInstanceOf(Date);
+  });
+
+  it('on CAPTURE.COMPLETED for a CANCELLED booking: refunds the capture (API-W2)', async () => {
+    const bookingUpdate = jest.fn().mockResolvedValue({});
+    const paypal = makePayPal();
+    const service = svc(
+      makePrisma({
+        $queryRaw: jest.fn().mockResolvedValue([]), // claim misses
+        booking: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ status: BookingStatus.CANCELLED }),
+          update: bookingUpdate,
+        },
+      }),
+      makeStripe(),
+      paypal,
+    );
+
+    await service.handlePayPalEvent(headers, captureEvent);
+
+    expect(paypal.refundCapture).toHaveBeenCalledWith('cap_1');
+    expect(bookingUpdate.mock.calls[0][0].data.status).toBe(
+      BookingStatus.REFUNDED,
+    );
   });
 
   it('skips a duplicate already-processed PayPal event', async () => {

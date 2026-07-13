@@ -62,6 +62,14 @@ export async function createDeparture(
   redirect(flashPath(`/tours/${slug}/departures`, 'created'));
 }
 
+/** Cancellation summary a `status: CANCELLED` PATCH returns (API-W2). */
+interface DepartureCancellation {
+  paidTotal: number;
+  refunded: number;
+  skipped: string[];
+  failed: { code: string; message: string }[];
+}
+
 /** Updates a departure (`PATCH /admin/tours/:slug/departures/:id`); 400 if seatsTotal < booked. */
 export async function updateDeparture(
   slug: string,
@@ -72,18 +80,28 @@ export async function updateDeparture(
   const parsed = parseDepartureForm(formData);
   if (!parsed.success) return { fieldErrors: toFieldErrors(parsed.error) };
 
+  let cancellation: DepartureCancellation | undefined;
   try {
-    await apiWrite(
+    // apiWrite unwraps the `{ data }` envelope — T is the departure itself.
+    const res = await apiWrite<{ cancellation?: DepartureCancellation }>(
       'PATCH',
       `/api/v1/admin/tours/${encodeURIComponent(slug)}/departures/${encodeURIComponent(id)}`,
       toDeparturePayload(parsed.data),
     );
+    cancellation = res?.cancellation;
   } catch (e) {
     return { error: apiErrorMessage(e) };
   }
 
+  // A CANCELLED transition ran the auto-refund pass — surface its outcome.
+  const flashKey = cancellation
+    ? cancellation.failed.length > 0 || cancellation.skipped.length > 0
+      ? 'departure-cancelled-issues'
+      : 'departure-cancelled'
+    : 'updated';
+
   revalidatePath(`/tours/${slug}/departures`);
-  redirect(flashPath(`/tours/${slug}/departures`, 'updated'));
+  redirect(flashPath(`/tours/${slug}/departures`, flashKey));
 }
 
 export interface DeleteDepartureState {

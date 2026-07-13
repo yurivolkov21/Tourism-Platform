@@ -231,11 +231,16 @@ export class PaymentsService {
       );
       // The confirmation email was enqueued atomically in `claimSeatsForPaid`'s
       // CTE (an `outbox` row); the pg-boss worker delivers it (ADR-0007, P1.x).
-    } else if (outcome === 'overbooked') {
-      await this.refundOverbookedAndCancel({
+    } else if (outcome === 'overbooked' || outcome === 'cancelled') {
+      // 'cancelled': the buyer completed Checkout after the booking was
+      // cancelled underneath them (e.g. its departure was cancelled — API-W2).
+      // The capture is real money on a dead booking: refund it, same as an
+      // overbook loss.
+      await this.refundOrphanedCapture({
         bookingId,
         bookingCode,
         paymentIntentId,
+        cause: outcome,
       });
     } else {
       this.logger.log(
@@ -252,13 +257,15 @@ export class PaymentsService {
    * interactive `FOR UPDATE`); idempotent on retries (gated on PENDING).
    *
    * @returns `'paid'` (claimed + flipped) · `'overbooked'` (still PENDING but seats
-   *   didn't fit — the caller issues a provider-specific refund) ·
-   *   `'already_processed'` (a terminal-state booking — no-op).
+   *   didn't fit — the caller issues a provider-specific refund) · `'cancelled'`
+   *   (payment completed for a booking cancelled while paying — e.g. its
+   *   departure was cancelled, API-W2 — the caller must refund the capture) ·
+   *   `'already_processed'` (any other terminal state — no-op).
    */
   async claimSeatsForPaid(
     bookingId: string,
     providerPaymentId: string | undefined,
-  ): Promise<'paid' | 'overbooked' | 'already_processed'> {
+  ): Promise<'paid' | 'overbooked' | 'cancelled' | 'already_processed'> {
     const claimed = await this.prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
       WITH booking_check AS (
         SELECT id, departure_id, (num_adults + num_children) AS seats
@@ -299,9 +306,9 @@ export class PaymentsService {
       where: { id: bookingId },
       select: { status: true },
     });
-    return booking?.status === BookingStatus.PENDING
-      ? 'overbooked'
-      : 'already_processed';
+    if (booking?.status === BookingStatus.PENDING) return 'overbooked';
+    if (booking?.status === BookingStatus.CANCELLED) return 'cancelled';
+    return 'already_processed';
   }
 
   /**
@@ -349,12 +356,14 @@ export class PaymentsService {
       this.logger.log(
         `PayPal capture ${captureId} confirmed booking ${bookingId} PAID`,
       );
-    } else if (outcome === 'overbooked') {
+    } else if (outcome === 'overbooked' || outcome === 'cancelled') {
+      // 'cancelled': capture completed for a booking cancelled while paying
+      // (e.g. its departure was cancelled — API-W2). Refund like an overbook.
       if (captureId) {
         await this.paypal.refundCapture(captureId).catch((err: unknown) => {
           const m = err instanceof Error ? err.message : 'unknown';
           this.logger.error(
-            `Overbook auto-refund failed (capture ${captureId}): ${m}`,
+            `${outcome} auto-refund failed (capture ${captureId}): ${m}`,
           );
         });
       }
@@ -366,7 +375,7 @@ export class PaymentsService {
           providerPaymentId: captureId,
         },
       });
-      this.logger.warn(`Auto-refunded overbooked PayPal booking ${bookingId}`);
+      this.logger.warn(`Auto-refunded ${outcome} PayPal booking ${bookingId}`);
     } else {
       this.logger.log(
         `PayPal booking ${bookingId} already terminal — skipping`,
@@ -377,18 +386,21 @@ export class PaymentsService {
   // ── Internals ─────────────────────────────────────────────────────────────────
 
   /**
-   * Auto-refund a booking that won payment but lost the seat race. Stripe call
-   * first; only flip to REFUNDED if the money is provably back. A failed refund
-   * leaves the booking PENDING for an operator to resolve (visible as stale).
+   * Auto-refund a Stripe capture that landed on a booking that can't be PAID:
+   * lost the seat race (`overbooked`, still PENDING) or was cancelled while
+   * the buyer paid (`cancelled` — e.g. its departure was cancelled, API-W2).
+   * Stripe call first; only flip to REFUNDED if the money is provably back.
+   * A failed refund leaves the booking as-is for an operator to resolve.
    */
-  private async refundOverbookedAndCancel(args: {
+  private async refundOrphanedCapture(args: {
     bookingId: string;
     bookingCode: string;
     paymentIntentId: string | undefined;
+    cause: 'overbooked' | 'cancelled';
   }): Promise<void> {
     if (!args.paymentIntentId) {
       this.logger.error(
-        `Cannot auto-refund overbooked booking ${args.bookingCode} — payment_intent missing`,
+        `Cannot auto-refund ${args.cause} booking ${args.bookingCode} — payment_intent missing`,
       );
       return;
     }
@@ -400,7 +412,7 @@ export class PaymentsService {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'unknown';
       this.logger.error(
-        `Refund failed for overbooked booking ${args.bookingCode}: ${message}`,
+        `Refund failed for ${args.cause} booking ${args.bookingCode}: ${message}`,
       );
       return;
     }
@@ -413,7 +425,7 @@ export class PaymentsService {
       },
     });
     this.logger.warn(
-      `Auto-refunded overbooked booking ${args.bookingCode} (payment_intent=${args.paymentIntentId})`,
+      `Auto-refunded ${args.cause} booking ${args.bookingCode} (payment_intent=${args.paymentIntentId})`,
     );
   }
 

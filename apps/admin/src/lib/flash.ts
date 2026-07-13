@@ -14,6 +14,15 @@ export interface FlashMessage {
 const FLASH_MESSAGES: Record<string, FlashMessage> = {
   created: { type: 'success', text: 'Created successfully.' },
   updated: { type: 'success', text: 'Changes saved.' },
+  // API-W2 cancel-departure: the PATCH auto-refunds PAID bookings.
+  'departure-cancelled': {
+    type: 'success',
+    text: 'Departure cancelled — all paid bookings refunded and emailed.',
+  },
+  'departure-cancelled-issues': {
+    type: 'error',
+    text: 'Departure cancelled, but some refunds need attention — failed ones stay PAID (see Bookings), partial refunds need manual follow-up.',
+  },
 };
 
 /** Resolve a `?flash=` key to its toast message, or null for a missing/unknown key. */

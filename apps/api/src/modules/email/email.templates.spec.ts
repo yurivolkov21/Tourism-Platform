@@ -119,6 +119,21 @@ describe('renderBookingRefunded', () => {
     expect(out.text).not.toContain('of 249.00 USD');
     expect(out.text).not.toContain('stays active');
   });
+
+  it('carries the refund reason when present — escaped (API-W2)', () => {
+    const out = renderBookingRefunded({
+      ...vars,
+      reason: 'Departure cancelled <by> the operator',
+    });
+    expect(out.text).toContain('Reason: Departure cancelled <by> the operator');
+    expect(out.html).toContain('Departure cancelled &lt;by&gt; the operator');
+  });
+
+  it('omits the reason row when absent', () => {
+    const out = renderBookingRefunded(vars);
+    expect(out.text).not.toContain('Reason:');
+    expect(out.html).not.toContain('>Reason<');
+  });
 });
 
 describe('renderReviewApproved', () => {

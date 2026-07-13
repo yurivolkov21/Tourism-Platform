@@ -56,10 +56,12 @@ export const envValidationSchema = Joi.object({
   FRONTEND_URL: Joi.string().uri().required(),
 
   // ── PayPal (international — ADR-0006 amended; replaced MoMo) ──────────────
-  // Optional until the PayPal integration lands (P1.5c) — tighten to
-  // `.required()` then so a misconfigured gateway fails fast.
-  PAYPAL_CLIENT_ID: Joi.string().allow('').optional(),
-  PAYPAL_CLIENT_SECRET: Joi.string().allow('').optional(),
+  // Client id/secret required non-empty since API-W2: an empty secret used to
+  // boot a silently broken gateway (checkout 500s only at click time). The
+  // webhook id may stay empty in dev (no inbound webhooks locally) — empty
+  // just disables the PayPal webhook backstop; prod sets it.
+  PAYPAL_CLIENT_ID: Joi.string().required(),
+  PAYPAL_CLIENT_SECRET: Joi.string().required(),
   PAYPAL_MODE: Joi.string().valid('sandbox', 'live').default('sandbox'),
   PAYPAL_WEBHOOK_ID: Joi.string().allow('').optional(),
 
