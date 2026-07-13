@@ -12,14 +12,24 @@ function makePrisma(opts: {
   upsert?: jest.Mock;
   findMany?: jest.Mock;
   count?: jest.Mock;
+  outboxCreateMany?: jest.Mock;
 }) {
-  return {
+  const prisma = {
     subscriber: {
       upsert: opts.upsert ?? jest.fn().mockResolvedValue({ id: 's-1' }),
       findMany: opts.findMany ?? jest.fn().mockResolvedValue([]),
       count: opts.count ?? jest.fn().mockResolvedValue(0),
     },
+    outbox: {
+      createMany:
+        opts.outboxCreateMany ?? jest.fn().mockResolvedValue({ count: 1 }),
+    },
+    // Interactive-tx stub: hands the same client back to the callback.
+    $transaction: jest.fn(
+      (fn: (tx: unknown) => Promise<unknown>): Promise<unknown> => fn(prisma),
+    ),
   };
+  return prisma;
 }
 
 describe('NewsletterService.subscribe', () => {
@@ -33,6 +43,26 @@ describe('NewsletterService.subscribe', () => {
       where: { email: 'jane@example.com' },
       update: {},
       create: { email: 'jane@example.com', source: 'footer' },
+    });
+  });
+
+  it('enqueues the welcome email with an email-scoped dedupe key (API-W1)', async () => {
+    const outboxCreateMany = jest.fn().mockResolvedValue({ count: 1 });
+    const svc = new NewsletterService(
+      makePrisma({ outboxCreateMany }) as never,
+    );
+
+    await svc.subscribe({ email: '  Jane@Example.COM ' });
+
+    expect(outboxCreateMany).toHaveBeenCalledWith({
+      data: [
+        {
+          type: 'NEWSLETTER_WELCOME',
+          payload: { email: 'jane@example.com' },
+          dedupeKey: 'newsletter-welcome:jane@example.com',
+        },
+      ],
+      skipDuplicates: true,
     });
   });
 

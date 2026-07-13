@@ -53,4 +53,59 @@ describe('envValidationSchema', () => {
 
     expect(error).toBeDefined();
   });
+
+  describe('Resend sender/reply-to formats (API-W1)', () => {
+    it.each(['noreply@example.com', 'Nexora <noreply@nexora-travel.agency>'])(
+      'accepts RESEND_FROM_EMAIL %p',
+      (from) => {
+        const { error } = envValidationSchema.validate({
+          ...validEnv,
+          RESEND_FROM_EMAIL: from,
+        });
+        expect(error).toBeUndefined();
+      },
+    );
+
+    it.each(['just-a-name', 'Nexora <not-an-email>', 'a@b'])(
+      'rejects malformed RESEND_FROM_EMAIL %p',
+      (from) => {
+        const { error } = envValidationSchema.validate({
+          ...validEnv,
+          RESEND_FROM_EMAIL: from,
+        });
+        expect(error).toBeDefined();
+        expect(error?.message).toContain('RESEND_FROM_EMAIL');
+      },
+    );
+
+    it('treats RESEND_REPLY_TO_EMAIL as optional (absent or empty)', () => {
+      expect(envValidationSchema.validate(validEnv).error).toBeUndefined();
+      expect(
+        envValidationSchema.validate({
+          ...validEnv,
+          RESEND_REPLY_TO_EMAIL: '',
+        }).error,
+      ).toBeUndefined();
+    });
+
+    it.each([
+      'support@example.com',
+      'Nexora Support <support@nexora-travel.agency>',
+    ])('accepts RESEND_REPLY_TO_EMAIL %p', (replyTo) => {
+      const { error } = envValidationSchema.validate({
+        ...validEnv,
+        RESEND_REPLY_TO_EMAIL: replyTo,
+      });
+      expect(error).toBeUndefined();
+    });
+
+    it('rejects a malformed RESEND_REPLY_TO_EMAIL', () => {
+      const { error } = envValidationSchema.validate({
+        ...validEnv,
+        RESEND_REPLY_TO_EMAIL: 'not-an-email',
+      });
+      expect(error).toBeDefined();
+      expect(error?.message).toContain('RESEND_REPLY_TO_EMAIL');
+    });
+  });
 });

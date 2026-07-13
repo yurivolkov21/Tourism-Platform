@@ -1,5 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { EmailType, OutboxStatus, type Outbox } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
+import {
+  BookingStatus,
+  EmailType,
+  MediaOwnerType,
+  MediaRole,
+  MediaType,
+  OutboxStatus,
+  type Outbox,
+} from '@prisma/client';
+import { buildCloudinaryUrl } from '../../lib/cloudinary-url';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 
@@ -22,19 +32,31 @@ export interface DrainResult {
  * service is the consumer the pg-boss worker invokes on a schedule.
  *
  * Each row carries a thin reference payload (`{ bookingId }` / `{ reviewId }` /
- * `{ enquiryId }`); the entity is re-read here at send time so the email always
- * reflects current data and the CTE stays a single cheap statement. A send that
- * throws bumps `attempts` and re-queues until `MAX_ATTEMPTS`, then parks FAILED.
- * Idempotency is upstream (`dedupeKey` UNIQUE → one row per event).
+ * `{ enquiryId }` / `{ requestId }` / `{ email }`); the entity is re-read here
+ * at send time so the email always reflects current data and the CTE stays a
+ * single cheap statement. A send that throws bumps `attempts` and re-queues
+ * until `MAX_ATTEMPTS`, then parks FAILED. Idempotency is upstream
+ * (`dedupeKey` UNIQUE → one row per event).
+ *
+ * CTA links are built here from `FRONTEND_URL` (renderers stay pure).
  */
 @Injectable()
 export class OutboxService {
   private readonly logger = new Logger(OutboxService.name);
+  private readonly frontendUrl: string;
+  private readonly cloudName: string;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
-  ) {}
+    config: ConfigService,
+  ) {
+    // Both are boot-validated (Joi) — strip any trailing slash once.
+    this.frontendUrl = config
+      .getOrThrow<string>('app.frontendUrl')
+      .replace(/\/+$/, '');
+    this.cloudName = config.getOrThrow<string>('cloudinary.cloudName');
+  }
 
   async drainOutbox(): Promise<DrainResult> {
     const rows = await this.prisma.outbox.findMany({
@@ -91,6 +113,12 @@ export class OutboxService {
         return this.sendReviewApproved(row);
       case EmailType.ENQUIRY_RECEIVED:
         return this.sendEnquiryReceived(row);
+      case EmailType.CANCELLATION_REQUESTED:
+        return this.sendCancellationRequested(row);
+      case EmailType.CANCELLATION_DENIED:
+        return this.sendCancellationDenied(row);
+      case EmailType.NEWSLETTER_WELCOME:
+        return this.sendNewsletterWelcome(row);
       default:
         // Exhaustive on the enum; an unknown type is consumed (warn, no-op).
         this.logger.warn(`Outbox ${row.id}: unknown type ${String(row.type)}`);
@@ -110,10 +138,12 @@ export class OutboxService {
         contactName: true,
         contactEmail: true,
         totalAmount: true,
+        refundedAmount: true,
+        status: true,
         currency: true,
         numAdults: true,
         numChildren: true,
-        tour: { select: { title: true } },
+        tour: { select: { id: true, title: true, slug: true } },
         departure: { select: { startDate: true, endDate: true } },
       },
     });
@@ -135,13 +165,52 @@ export class OutboxService {
       endDate: booking.departure.endDate,
     };
     if (kind === 'confirmation') {
+      const hero = await this.findTourHero(booking.tour.id);
       await this.email.sendBookingConfirmation({
         to: booking.contactEmail,
-        vars,
+        vars: {
+          ...vars,
+          tourImageUrl: hero?.url ?? null,
+          tourImageAlt: hero?.alt ?? null,
+          manageUrl: `${this.frontendUrl}/account/bookings`,
+        },
       });
     } else {
-      await this.email.sendBookingRefunded({ to: booking.contactEmail, vars });
+      await this.email.sendBookingRefunded({
+        to: booking.contactEmail,
+        vars: {
+          ...vars,
+          // Legacy rows predating refunded_amount fall back to the total.
+          refundedAmount: (
+            booking.refundedAmount ?? booking.totalAmount
+          ).toFixed(2),
+          isPartial: booking.status === BookingStatus.PARTIALLY_REFUNDED,
+        },
+      });
     }
+  }
+
+  /**
+   * The tour's hero image as an absolute delivery URL (null when none).
+   * IMAGE only — a VIDEO hero would hand `<img>` a video-file URL
+   * (buildCloudinaryUrl returns the playable URL, not the poster).
+   */
+  private async findTourHero(
+    tourId: string,
+  ): Promise<{ url: string; alt: string | null } | null> {
+    const asset = await this.prisma.mediaAsset.findFirst({
+      where: {
+        ownerType: MediaOwnerType.TOUR,
+        ownerId: tourId,
+        role: MediaRole.hero,
+        type: MediaType.IMAGE,
+      },
+      orderBy: { sortOrder: 'asc' },
+      select: { publicId: true, type: true, posterId: true, alt: true },
+    });
+    if (!asset) return null;
+    const { url } = buildCloudinaryUrl(this.cloudName, asset);
+    return { url, alt: asset.alt };
   }
 
   private async sendReviewApproved(row: Outbox): Promise<void> {
@@ -151,7 +220,7 @@ export class OutboxService {
       select: {
         rating: true,
         user: { select: { email: true, fullName: true } },
-        tour: { select: { title: true } },
+        tour: { select: { title: true, slug: true } },
       },
     });
     if (!review) {
@@ -171,6 +240,7 @@ export class OutboxService {
         reviewerName: review.user.fullName ?? 'there',
         tourTitle: review.tour.title,
         rating: review.rating,
+        tourUrl: `${this.frontendUrl}/tours/${review.tour.slug}`,
       },
     });
   }
@@ -196,7 +266,71 @@ export class OutboxService {
         name: enquiry.name,
         message: enquiry.message,
         tourTitle: enquiry.tour?.title ?? null,
+        browseUrl: `${this.frontendUrl}/tours`,
       },
+    });
+  }
+
+  private async sendCancellationRequested(row: Outbox): Promise<void> {
+    const { bookingId } = row.payload as { bookingId: string };
+    const booking = await this.prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: {
+        code: true,
+        contactName: true,
+        contactEmail: true,
+        tour: { select: { title: true } },
+      },
+    });
+    if (!booking) {
+      this.logger.warn(`Outbox ${row.id}: booking ${bookingId} not found`);
+      return;
+    }
+    await this.email.sendCancellationRequested({
+      to: booking.contactEmail,
+      vars: {
+        code: booking.code,
+        tourTitle: booking.tour.title,
+        contactName: booking.contactName,
+      },
+    });
+  }
+
+  private async sendCancellationDenied(row: Outbox): Promise<void> {
+    const { requestId } = row.payload as { requestId: string };
+    const request = await this.prisma.cancellationRequest.findUnique({
+      where: { id: requestId },
+      select: {
+        decisionNote: true,
+        booking: {
+          select: { code: true, contactName: true, contactEmail: true },
+        },
+      },
+    });
+    if (!request) {
+      this.logger.warn(
+        `Outbox ${row.id}: cancellation request ${requestId} not found`,
+      );
+      return;
+    }
+    await this.email.sendCancellationDenied({
+      to: request.booking.contactEmail,
+      vars: {
+        code: request.booking.code,
+        contactName: request.booking.contactName,
+        decisionNote: request.decisionNote,
+        manageUrl: `${this.frontendUrl}/account/bookings`,
+      },
+    });
+  }
+
+  private async sendNewsletterWelcome(row: Outbox): Promise<void> {
+    // Payload is self-sufficient — a later unsubscribe must not block the
+    // welcome that was already owed, so no subscriber re-read here.
+    const { email } = row.payload as { email: string };
+    await this.email.sendNewsletterWelcome({
+      to: email,
+      vars: { journalUrl: `${this.frontendUrl}/blog` },
     });
   }
 }

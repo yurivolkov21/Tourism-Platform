@@ -46,7 +46,8 @@
 | `PAYPAL_MODE` | no | `sandbox` / `live` |
 | `PAYPAL_WEBHOOK_ID` | low | from the PayPal app webhook |
 | `RESEND_API_KEY` | **yes** | transactional email — a real "Sending access" key since 2026-07-13 (domain verified) |
-| `RESEND_FROM_EMAIL` | no | verified sender: `Nexora <noreply@nexora-travel.agency>` |
+| `RESEND_FROM_EMAIL` | no | verified sender: `Nexora <noreply@nexora-travel.agency>` (format-validated at boot) |
+| `RESEND_REPLY_TO_EMAIL` | no | optional support inbox replies land in (blank = no Reply-To; replies to `noreply@` bounce) |
 | `SENTRY_DSN` | low | error reporting (optional) |
 | `THROTTLE_TTL_SECONDS`, `THROTTLE_LIMIT` | no | rate-limit config |
 

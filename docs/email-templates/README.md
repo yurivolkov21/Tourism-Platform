@@ -20,10 +20,16 @@ template by swapping the heading + button label.)
 
 ## Design notes
 
-- **Email-safe only:** table layout + inline CSS, web-safe fonts (Georgia serif / Arial), brand
-  hex hardcoded (`#2f6b4f` emerald, `#1d4636` dark, `#f6f4ee` ivory) — the app's design tokens (oklch
-  CSS vars) don't exist in an inbox, so colours are inlined here. The no-hex rule applies to app CSS,
-  not these pasted templates.
+- **v2 shell (API-W1, 2026-07-13):** a port of react.email's "Barebone" template
+  (MIT) — gray page `#f3f4f6` → white 640px frame → centered gray content card
+  (48px "N" monogram · 28px/600 heading · 16px body · emerald button) → footer.
+  Same system as the app's Resend templates
+  (`apps/api/src/modules/email/email.templates.ts`) — keep the two in sync.
+- **Email-safe only:** table layout + inline CSS; font = Inter webfont
+  (gstatic @font-face, the react.email approach) with `'Segoe UI', Arial`
+  fallback; brand hex hardcoded (`#2f6b4f` emerald, ink `#14171e`/`#43454b`/
+  `#7b7d81`) — the app's oklch tokens don't exist in an inbox. The no-hex rule
+  applies to app CSS, not these pasted templates.
 - **Don't remove `{{ .ConfirmationURL }}`** — it's the action link Supabase injects (button href + the
   copy-paste fallback). Other vars available: `{{ .SiteURL }}`, `{{ .Email }}`, `{{ .Token }}`.
 - Keep the layout in sync across the three files if you restyle (they share one shell).

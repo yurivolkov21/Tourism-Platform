@@ -55,6 +55,8 @@ export const paypalConfig = registerAs('paypal', () => ({
 export const emailConfig = registerAs('email', () => ({
   resendApiKey: process.env.RESEND_API_KEY,
   fromEmail: process.env.RESEND_FROM_EMAIL,
+  // Optional support inbox; empty/undefined = no Reply-To header (API-W1).
+  replyTo: process.env.RESEND_REPLY_TO_EMAIL || undefined,
 }));
 
 export const sentryConfig = registerAs('sentry', () => ({

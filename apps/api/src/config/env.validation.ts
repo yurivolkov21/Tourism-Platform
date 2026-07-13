@@ -1,6 +1,14 @@
 import * as Joi from 'joi';
 
 /**
+ * Resend sender shape: `addr@domain.tld` or `Display Name <addr@domain.tld>`.
+ * Loose on purpose (no full RFC 5322) — it catches the real misconfigs
+ * (a bare name, a missing domain) without rejecting exotic-but-valid senders.
+ */
+const SENDER_PATTERN =
+  /^(?:[^<>\s]+@[^<>\s]+\.[^<>\s]{2,}|[^<>]+<[^<>\s]+@[^<>\s]+\.[^<>\s]{2,}>)$/;
+
+/**
  * Joi schema validating `process.env` at boot (fail-fast — ADR-0008).
  * `@nestjs/config` runs this BEFORE any module initializes; any failure aborts
  * startup with the full list of violations.
@@ -57,7 +65,13 @@ export const envValidationSchema = Joi.object({
 
   // ── Email (Resend) ─────────────────────────────────────────────────────────
   RESEND_API_KEY: Joi.string().required(),
-  RESEND_FROM_EMAIL: Joi.string().required(),
+  RESEND_FROM_EMAIL: Joi.string().pattern(SENDER_PATTERN).required(),
+  // Optional support inbox replies land in (API-W1). Empty = header omitted
+  // (replies to noreply@ bounce — the root domain has no MX by design).
+  RESEND_REPLY_TO_EMAIL: Joi.string()
+    .pattern(SENDER_PATTERN)
+    .allow('')
+    .optional(),
 
   // ── Observability (Sentry — ADR-0008) ────────────────────────────────────
   SENTRY_DSN: Joi.string().uri().allow('').optional(),

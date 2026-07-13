@@ -2,13 +2,20 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
 import {
-  BookingEmailVars,
+  BookingConfirmationVars,
+  BookingRefundedVars,
+  CancellationDeniedVars,
+  CancellationRequestedVars,
   EnquiryReceivedVars,
+  NewsletterWelcomeVars,
   RenderedEmail,
   ReviewApprovedVars,
   renderBookingConfirmation,
   renderBookingRefunded,
+  renderCancellationDenied,
+  renderCancellationRequested,
   renderEnquiryReceived,
+  renderNewsletterWelcome,
   renderReviewApproved,
 } from './email.templates';
 
@@ -27,18 +34,21 @@ export class EmailService implements OnModuleInit {
   private readonly logger = new Logger(EmailService.name);
   private resend!: Resend;
   private fromEmail!: string;
+  /** Optional support inbox replies land in (API-W1); undefined = no header. */
+  private replyTo?: string;
 
   constructor(private readonly config: ConfigService) {}
 
   onModuleInit(): void {
     const apiKey = this.config.getOrThrow<string>('email.resendApiKey');
     this.fromEmail = this.config.getOrThrow<string>('email.fromEmail');
+    this.replyTo = this.config.get<string>('email.replyTo') || undefined;
     this.resend = new Resend(apiKey);
   }
 
   sendBookingConfirmation(args: {
     to: string;
-    vars: BookingEmailVars;
+    vars: BookingConfirmationVars;
   }): Promise<void> {
     return this.dispatch(
       args.to,
@@ -49,7 +59,7 @@ export class EmailService implements OnModuleInit {
 
   sendBookingRefunded(args: {
     to: string;
-    vars: BookingEmailVars;
+    vars: BookingRefundedVars;
   }): Promise<void> {
     return this.dispatch(
       args.to,
@@ -80,6 +90,39 @@ export class EmailService implements OnModuleInit {
     );
   }
 
+  sendCancellationRequested(args: {
+    to: string;
+    vars: CancellationRequestedVars;
+  }): Promise<void> {
+    return this.dispatch(
+      args.to,
+      renderCancellationRequested(args.vars),
+      `cancellation-requested:${args.vars.code}`,
+    );
+  }
+
+  sendCancellationDenied(args: {
+    to: string;
+    vars: CancellationDeniedVars;
+  }): Promise<void> {
+    return this.dispatch(
+      args.to,
+      renderCancellationDenied(args.vars),
+      `cancellation-denied:${args.vars.code}`,
+    );
+  }
+
+  sendNewsletterWelcome(args: {
+    to: string;
+    vars: NewsletterWelcomeVars;
+  }): Promise<void> {
+    return this.dispatch(
+      args.to,
+      renderNewsletterWelcome(args.vars),
+      `newsletter-welcome:${args.to}`,
+    );
+  }
+
   /**
    * Send via Resend. Throws on a rejected send (the worker maps that to a
    * FAILED outbox row + retry); logs the resend id on success.
@@ -95,6 +138,7 @@ export class EmailService implements OnModuleInit {
       subject: rendered.subject,
       html: rendered.html,
       text: rendered.text,
+      ...(this.replyTo ? { replyTo: this.replyTo } : {}),
     });
     if (result.error) {
       throw new Error(

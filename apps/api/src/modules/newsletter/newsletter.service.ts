@@ -1,5 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { Prisma, Subscriber } from '@prisma/client';
+import { EmailType, Prisma, Subscriber } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ListSubscribersQueryDto } from './dto/list-subscribers-query.dto';
 import { SubscribeDto } from './dto/subscribe.dto';
@@ -42,10 +42,29 @@ export class NewsletterService {
 
   async subscribe(dto: SubscribeDto): Promise<void> {
     const email = dto.email.trim().toLowerCase();
-    await this.prisma.subscriber.upsert({
-      where: { email },
-      update: {},
-      create: { email, source: dto.source ?? null },
+    // Upsert + welcome-email enqueue commit together (ADR-0007 short tx).
+    // The email-scoped dedupeKey makes the welcome first-subscribe-only —
+    // repeat signups hit ON CONFLICT DO NOTHING, so the endpoint's
+    // silent-dedupe (no email-exists oracle) is preserved. Deliberate
+    // consequence (reviewed 2026-07-13): the outbox row outlives an admin
+    // removal, so a removed-then-resubscribed address is NOT re-welcomed —
+    // one lifetime welcome per address, never spammy.
+    await this.prisma.$transaction(async (tx) => {
+      await tx.subscriber.upsert({
+        where: { email },
+        update: {},
+        create: { email, source: dto.source ?? null },
+      });
+      await tx.outbox.createMany({
+        data: [
+          {
+            type: EmailType.NEWSLETTER_WELCOME,
+            payload: { email } as Prisma.InputJsonValue,
+            dedupeKey: `newsletter-welcome:${email}`,
+          },
+        ],
+        skipDuplicates: true,
+      });
     });
     this.logger.log(`Newsletter subscribe: ${email}`);
   }
