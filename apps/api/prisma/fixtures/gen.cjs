@@ -2741,14 +2741,17 @@ extraEnq.forEach((e, i) => {
 
 // ═══════════════════════════════════════════════════════════════════════════
 // POSTS (10) — DRAFT & PUBLISHED; title@160, excerpt@300
+// Long-form content/metaTitle/metaDescription live in ./post-content.cjs
+// (kept out of gen.cjs so the editorial copy doesn't drown the generator —
+// see docs/06-specs/2026-07-13-blog-content-enrichment-design.md).
 // ═══════════════════════════════════════════════════════════════════════════
+const postContent = require('./post-content.cjs');
 const PS = 'a3000001';
 const postDefs = [
   [
     'best-time-to-visit-vietnam',
     'The best time to visit Vietnam, region by region',
     'When the north is misty and the south is golden — how to time your trip for the weather you want.',
-    '## North, Central & South\n\nVietnam spans many microclimates. The north has a real winter; the centre is best in spring; the south is warm year-round. Plan around the season you want, not a single "best" month.\n\n### The north\n\nMarch to May and September to November are the sweet spots.',
     'PUBLISHED',
     editorId,
     -40,
@@ -2757,7 +2760,6 @@ const postDefs = [
     'two-unhurried-days-in-hoi-an',
     'Two unhurried days in Hội An',
     'Lanterns, tailors, and riverside mornings — a slow itinerary for the old town.',
-    '## Day 1\n\nWander the old town before the crowds, then a tailor fitting and a lantern-lit dinner.\n\n## Day 2\n\nCycle to the rice paddies and the beach, returning for the night market.',
     'PUBLISHED',
     editorId,
     -30,
@@ -2766,7 +2768,6 @@ const postDefs = [
     'morning-at-the-mekong-floating-markets',
     'A morning at the Mekong floating markets',
     'Dawn on the delta: what to expect, what to eat, and how to find the quieter channels.',
-    '## Start before sunrise\n\nThe markets are busiest at dawn. Hire a small boat to slip into the narrow channels the big tours miss.',
     'PUBLISHED',
     editorId,
     -22,
@@ -2775,7 +2776,6 @@ const postDefs = [
     'packing-for-a-sa-pa-trek',
     'Packing for a Sa Pa trek: a short, honest list',
     'Boots, layers, and the three things everyone forgets before a mountain homestay.',
-    '## The essentials\n\nBroken-in boots, a rain layer, and a head torch. Homestays provide bedding, so travel light.\n\n## What people forget\n\nA dry bag, blister plasters, and cash for the villages.',
     'PUBLISHED',
     adminId,
     -18,
@@ -2784,7 +2784,6 @@ const postDefs = [
     'understanding-vietnamese-coffee',
     'A short guide to Vietnamese coffee',
     'From cà phê sữa đá to egg coffee — what to order and where it comes from.',
-    '## The basics\n\nStrong robusta, slow drip, sweetened condensed milk. Egg coffee is a Hà Nội invention worth seeking out.',
     'PUBLISHED',
     editorId,
     -12,
@@ -2793,7 +2792,6 @@ const postDefs = [
     'is-ha-giang-too-dangerous',
     'Is the Hà Giang loop too dangerous for beginners?',
     'An honest look at the risks of Vietnam’s most famous motorbike route — and how to ride it safely.',
-    '## The honest answer\n\nThe roads are mountainous and the weather turns fast. If you have never ridden, take an easy-rider rather than a rental.',
     'DRAFT',
     editorId,
     null,
@@ -2802,7 +2800,6 @@ const postDefs = [
     'a-first-timers-week-in-the-north',
     'A first-timer’s week in northern Vietnam',
     'Hà Nội, Hạ Long and Ninh Bình in seven days without rushing — a suggested shape for a first trip.',
-    '## The shape of the week\n\nTwo nights in Hà Nội, an overnight cruise, then the karsts of Ninh Bình before flying south.',
     'DRAFT',
     adminId,
     null,
@@ -2811,7 +2808,6 @@ const postDefs = [
     'eating-your-way-through-hanoi',
     'Eating your way through the Hà Nội Old Quarter',
     'Eight dishes, eight streets — a hungry walk through the heart of the capital.',
-    '## Where to start\n\nBegin with phở for breakfast, then bún chả for lunch, and finish the day with egg coffee.',
     'DRAFT',
     editorId,
     null,
@@ -2820,7 +2816,6 @@ const postDefs = [
     'the-caves-of-phong-nha',
     'The caves of Phong Nha, explained',
     'From day-trip grottoes to the world’s largest cave — which one is right for you?',
-    '## The options\n\nParadise Cave for grandeur on a day trip, Sơn Đoòng for a once-in-a-lifetime expedition.',
     'PUBLISHED',
     editorId,
     -6,
@@ -2834,24 +2829,32 @@ const postDefs = [
     fillTo(300, [
       'Everything you need to weigh up before you book a cruise on Hạ Long or Lan Hạ Bay, from cabin classes and crowd levels to the difference a third day makes and how to avoid the busiest routes, distilled into one practical and readable guide for first-time visitors to the bay.',
     ]),
-    '## Read this first\n\nThe bay is bigger and busier than most people expect. This guide walks through every option in plain terms.',
     'PUBLISHED',
     editorId,
     -3,
   ],
 ];
-const posts = postDefs.map((r, i) => ({
-  id: uid(PS, i + 1),
-  slug: r[0],
-  title: r[1],
-  excerpt: r[2],
-  content: r[3],
-  status: r[4],
-  publishedAt: r[6] === null ? null : ts(r[6], 9),
-  authorId: r[5],
-  createdAt: ts((r[6] === null ? -1 : r[6]) - 2, 9),
-  updatedAt: ts(r[6] === null ? -1 : r[6], 9),
-}));
+const posts = postDefs.map((r, i) => {
+  const pc =
+    postContent[r[0]] ??
+    (() => {
+      throw new Error('post-content.cjs missing slug ' + r[0]);
+    })();
+  return {
+    id: uid(PS, i + 1),
+    slug: r[0],
+    title: r[1],
+    excerpt: r[2],
+    content: pc.content,
+    metaTitle: pc.metaTitle,
+    metaDescription: pc.metaDescription,
+    status: r[3],
+    publishedAt: r[5] === null ? null : ts(r[5], 9),
+    authorId: r[4],
+    createdAt: ts((r[5] === null ? -1 : r[5]) - 2, 9),
+    updatedAt: ts(r[5] === null ? -1 : r[5], 9),
+  };
+});
 
 // ═══════════════════════════════════════════════════════════════════════════
 // OUTBOX (12) — every EmailType; PENDING/SENT/FAILED; unique dedupeKey
@@ -3644,7 +3647,13 @@ const CAPS = {
     nationality: 80,
     budgetTier: 40,
   },
-  posts: { slug: 80, title: 160, excerpt: 300 },
+  posts: {
+    slug: 80,
+    title: 160,
+    excerpt: 300,
+    metaTitle: 70,
+    metaDescription: 160,
+  },
   outbox: { dedupeKey: 200, lastError: 1000 },
   mediaAssets: { publicId: 300, format: 10, posterId: 300 },
   mediaGarbage: { publicId: 300, resourceType: 10, lastError: 1000 },

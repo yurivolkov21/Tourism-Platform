@@ -18,6 +18,13 @@
           "cwd": "apps/api"
         }
       },
+      "refresh-posts": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "pnpm exec ts-node --transpile-only prisma/refresh-post-content.ts",
+          "cwd": "apps/api"
+        }
+      },
       "e2e": {
         "executor": "nx:run-commands",
         "options": {
