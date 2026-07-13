@@ -80,6 +80,7 @@ function parseTourForm(formData: FormData) {
     maxGroupSize: opt(formData, 'maxGroupSize'),
     meetingPoint: String(formData.get('meetingPoint') ?? ''),
     basePrice: opt(formData, 'basePrice'),
+    costPrice: opt(formData, 'costPrice'),
     compareAtPrice: opt(formData, 'compareAtPrice'),
     currency: String(formData.get('currency') ?? ''),
     difficulty: String(formData.get('difficulty') ?? ''),

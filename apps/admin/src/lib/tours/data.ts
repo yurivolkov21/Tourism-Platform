@@ -6,7 +6,8 @@ export type TourSummary = components['schemas']['TourSummaryDto'];
 /**
  * `ops` is typed optional here even though the generated `AdminTourDetailDto` marks it required —
  * the API and FE can deploy out of order (Render lag), so the FE must tolerate a response from an
- * older API build that doesn't carry `ops` yet.
+ * older API build that doesn't carry `ops` yet. `costPrice` (internal margin field, API-W3) is
+ * declared by the generated `AdminTourDetailDto` — public tour DTOs stay cost-stripped.
  */
 export type TourDetail = Omit<
   components['schemas']['AdminTourDetailDto'],

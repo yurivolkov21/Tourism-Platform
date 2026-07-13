@@ -123,6 +123,59 @@ test('computeCardModels: no extraCurrencies footnote for a single-currency range
   expect(byKey.revenue.extraCurrencies).toBeUndefined();
 });
 
+test('computeCardModels: revenue card gets a "Margin {amount}" line per currency plus the upper-bound footnote', () => {
+  const overview = {
+    totalRevenue: '1000.00',
+    currency: 'USD',
+    totalBookings: 50,
+    paidBookings: 40,
+    conversionRate: 0.8,
+    monthOverMonthGrowth: null,
+    revenueByCurrency: [
+      {
+        currency: 'USD',
+        total: '1000.00',
+        paidBookings: 30,
+        cost: '400.00',
+        margin: '600.00',
+      },
+      {
+        currency: 'VND',
+        total: '1200000',
+        paidBookings: 10,
+        cost: '500000',
+        margin: '700000',
+      },
+    ],
+  };
+  const cards = computeCardModels(overview, []);
+  const byKey = Object.fromEntries(cards.map((c) => [c.key, c]));
+
+  expect(byKey.revenue.marginByCurrency).toEqual([
+    `Margin ${formatMoney('600.00', 'USD')}`,
+    `Margin ${formatMoney('700000', 'VND')}`,
+  ]);
+  expect(byKey.revenue.marginFootnote).toBe(
+    'Margin is an upper bound until every tour has a cost price.',
+  );
+  expect(byKey.bookings.marginByCurrency).toBeUndefined();
+});
+
+test('computeCardModels: no margin lines/footnote when revenueByCurrency is missing', () => {
+  const overview = {
+    totalRevenue: '1000.00',
+    currency: 'USD',
+    totalBookings: 50,
+    paidBookings: 40,
+    conversionRate: 0.8,
+    monthOverMonthGrowth: null,
+  };
+  const cards = computeCardModels(overview, []);
+  const byKey = Object.fromEntries(cards.map((c) => [c.key, c]));
+  expect(byKey.revenue.marginByCurrency).toBeUndefined();
+  expect(byKey.revenue.marginFootnote).toBeUndefined();
+});
+
 test('computeCardModels: no extraCurrencies footnote when revenueByCurrency is missing', () => {
   const overview = {
     totalRevenue: '1000.00',

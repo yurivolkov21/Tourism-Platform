@@ -89,6 +89,18 @@ export class AdminReviewDto {
   @ApiProperty()
   isApproved!: boolean;
 
+  @ApiProperty({
+    nullable: true,
+    type: Object,
+    example: { fullName: 'Admin', email: 'admin@example.com' },
+    description:
+      'Last moderation decision-maker (API-W3 audit); null = never moderated',
+  })
+  moderatedBy!: { fullName: string | null; email: string } | null;
+
+  @ApiProperty({ format: 'date-time', nullable: true, type: String })
+  moderatedAt!: string | null;
+
   @ApiProperty({ format: 'date-time' })
   createdAt!: string;
 

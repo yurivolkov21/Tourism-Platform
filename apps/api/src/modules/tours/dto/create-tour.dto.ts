@@ -135,6 +135,22 @@ export class CreateTourDto {
   @Min(0)
   basePrice!: number;
 
+  /**
+   * Per-traveller internal cost (API-W3 margin analytics). Admin-only input;
+   * NEVER exposed on public tour reads (stripped server-side).
+   */
+  @ApiPropertyOptional({
+    example: 19.5,
+    minimum: 0,
+    description:
+      'Decimal(12,2) per-traveller cost, tour currency — internal, drives dashboard margin',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  costPrice?: number;
+
   /** Optional strike-through anchor (D-P1.3). Must exceed `basePrice` to read as a discount. */
   @ApiPropertyOptional({
     example: 69,

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BookingStatus, PaymentProvider } from '@prisma/client';
 import { CancellationRequestSummaryDto } from '../../cancellations/dto/cancellation-request.dto';
 
@@ -79,4 +79,11 @@ export class BookingDto {
 
   @ApiProperty({ nullable: true, type: () => CancellationRequestSummaryDto })
   cancellationRequest!: CancellationRequestSummaryDto | null;
+
+  @ApiPropertyOptional({
+    description:
+      'True when the caller already reviewed this booking (API-W3). Present on `GET /bookings/me` and `GET /bookings/:code`; write-path responses (create/cancel/capture) omit it — the FE hides the review prompt without probing for a 409',
+    example: false,
+  })
+  hasReview?: boolean;
 }

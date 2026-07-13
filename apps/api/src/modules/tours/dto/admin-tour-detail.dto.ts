@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { TourDetailDto } from './tour.dto';
 
 /** Commercial signals for one tour — admin detail only. */
@@ -29,4 +29,13 @@ export class TourOpsDto {
 export class AdminTourDetailDto extends TourDetailDto {
   @ApiProperty({ type: TourOpsDto })
   ops!: TourOpsDto;
+
+  @ApiPropertyOptional({
+    nullable: true,
+    type: String,
+    example: '19.50',
+    description:
+      'Per-traveller internal cost (API-W3) — admin-only; public reads strip it',
+  })
+  costPrice?: string | null;
 }

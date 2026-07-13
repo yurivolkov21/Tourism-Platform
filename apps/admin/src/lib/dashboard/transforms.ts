@@ -33,6 +33,14 @@ export interface CardModel {
    * only when the range mixes more than one currency. No FX — each stays in its own currency.
    */
   extraCurrencies?: string;
+  /**
+   * Revenue card only (API-W3): one "Margin {amount}" line per currency in `revenueByCurrency`,
+   * present whenever the range has per-currency revenue. An upper bound until every tour has a
+   * cost price — see `marginFootnote`.
+   */
+  marginByCurrency?: string[];
+  /** Revenue card only: shown alongside `marginByCurrency`. */
+  marginFootnote?: string;
 }
 
 /** Relative change last-vs-prev, or null when prev is non-positive / missing. */
@@ -51,6 +59,8 @@ interface Overview {
     currency: string;
     total: string;
     paidBookings: number;
+    cost?: string;
+    margin?: string;
   }[];
 }
 
@@ -204,6 +214,20 @@ export function computeCardModels(
           .join(' · ')
       : undefined;
 
+  // One "Margin {amount}" line per currency (API-W3) — an upper bound until every tour has a
+  // cost price, hence the shared footnote.
+  const revenueRows = overview.revenueByCurrency ?? [];
+  const marginByCurrency =
+    revenueRows.length > 0
+      ? revenueRows.map(
+          (entry) =>
+            `Margin ${formatMoney(entry.margin ?? '0', entry.currency)}`,
+        )
+      : undefined;
+  const marginFootnote = marginByCurrency
+    ? 'Margin is an upper bound until every tour has a cost price.'
+    : undefined;
+
   return [
     {
       key: 'revenue',
@@ -217,6 +241,8 @@ export function computeCardModels(
       delta: revenueDelta,
       descriptor: 'Paid bookings revenue',
       extraCurrencies,
+      marginByCurrency,
+      marginFootnote,
     },
     {
       key: 'bookings',

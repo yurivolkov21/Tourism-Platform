@@ -53,6 +53,7 @@ function makePrisma(opts: {
     revenue: Prisma.Decimal | null;
   }>;
   tours?: Array<{ id: string; slug: string; title: string }>;
+  costRows?: Array<{ currency: string; cost: Prisma.Decimal }>;
   pendingReviews?: number;
   newEnquiries?: number;
 }) {
@@ -73,7 +74,8 @@ function makePrisma(opts: {
     $queryRaw: jest
       .fn()
       .mockResolvedValueOnce(opts.monthlyRows ?? [])
-      .mockResolvedValueOnce(opts.dailyRows ?? []),
+      .mockResolvedValueOnce(opts.dailyRows ?? [])
+      .mockResolvedValueOnce(opts.costRows ?? []),
   };
 }
 
@@ -318,8 +320,47 @@ describe('AdminStatsService.getDashboard', () => {
       expect(result.overview.totalRevenue).toBe('450');
       expect(result.overview.paidBookings).toBe(7); // all currencies summed
       expect(result.overview.revenueByCurrency).toEqual([
-        { currency: 'USD', total: '450', paidBookings: 5 },
-        { currency: 'EUR', total: '900', paidBookings: 2 },
+        {
+          currency: 'USD',
+          total: '450',
+          paidBookings: 5,
+          cost: '0',
+          margin: '450',
+        },
+        {
+          currency: 'EUR',
+          total: '900',
+          paidBookings: 2,
+          cost: '0',
+          margin: '900',
+        },
+      ]);
+    });
+
+    it('computes per-currency cost + margin from tour costPrice (API-W3)', async () => {
+      const svc = new AdminStatsService(
+        makePrisma({
+          currencyGroups: [
+            {
+              currency: 'USD',
+              _sum: { totalAmount: new Prisma.Decimal('450') },
+              _count: { _all: 5 },
+            },
+          ],
+          costRows: [{ currency: 'USD', cost: new Prisma.Decimal('180.50') }],
+        }) as never,
+      );
+
+      const result = await svc.getDashboard();
+
+      expect(result.overview.revenueByCurrency).toEqual([
+        {
+          currency: 'USD',
+          total: '450',
+          paidBookings: 5,
+          cost: '180.5',
+          margin: '269.5',
+        },
       ]);
     });
 

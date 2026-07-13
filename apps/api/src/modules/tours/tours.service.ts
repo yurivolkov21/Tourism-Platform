@@ -133,8 +133,8 @@ export class ToursService {
     });
     if (!tour) throw this.notFound(slug);
     const withMedia = await this.media.attachToOwner(MediaOwnerType.TOUR, tour);
-    return (
-      await this.attachNextDeparture(await this.attachRatings([withMedia]))
+    return this.stripCostPrice(
+      await this.attachNextDeparture(await this.attachRatings([withMedia])),
     )[0];
   }
 
@@ -153,8 +153,8 @@ export class ToursService {
       MediaOwnerType.TOUR,
       items,
     );
-    const enriched = await this.attachNextDeparture(
-      await this.attachRatings(withMedia),
+    const enriched = this.stripCostPrice(
+      await this.attachNextDeparture(await this.attachRatings(withMedia)),
     );
     const byId = new Map(enriched.map((t) => [t.id, t]));
     return ids
@@ -297,6 +297,10 @@ export class ToursService {
           durationDays: body.durationDays,
           maxGroupSize: body.maxGroupSize ?? 20,
           basePrice: new Prisma.Decimal(body.basePrice),
+          costPrice:
+            body.costPrice !== undefined
+              ? new Prisma.Decimal(body.costPrice)
+              : undefined,
           compareAtPrice:
             body.compareAtPrice !== undefined
               ? new Prisma.Decimal(body.compareAtPrice)
@@ -337,6 +341,30 @@ export class ToursService {
    */
   async update(slug: string, body: UpdateTourDto): Promise<TourWithMedia> {
     const existing = await this.findBySlug(slug); // 404 early
+
+    // Currency-change guard (API-W3): bookings snapshot `currency` at create,
+    // while `costPrice` is denominated in the tour's CURRENT currency — the
+    // per-currency margin buckets assume they agree. Once money has moved
+    // (PAID/PARTIALLY_REFUNDED, any date), the currency is locked.
+    const nextCurrency = body.currency?.toUpperCase();
+    if (nextCurrency !== undefined && nextCurrency !== existing.currency) {
+      const paidBookings = await this.prisma.booking.count({
+        where: {
+          tourId: existing.id,
+          status: {
+            in: [BookingStatus.PAID, BookingStatus.PARTIALLY_REFUNDED],
+          },
+        },
+      });
+      if (paidBookings > 0) {
+        throw new ConflictException({
+          code: 'TOUR_CURRENCY_LOCKED',
+          message:
+            `Cannot change the currency of "${slug}" — ${paidBookings} paid booking(s) ` +
+            'were sold in the current currency (margin analytics would mis-bucket).',
+        });
+      }
+    }
 
     // Unpublish guard (API-W2, A-TUR-4): a published tour with paying
     // customers on upcoming departures must not become a 404 for them.
@@ -383,6 +411,9 @@ export class ToursService {
     if (body.maxGroupSize !== undefined) data.maxGroupSize = body.maxGroupSize;
     if (body.basePrice !== undefined) {
       data.basePrice = new Prisma.Decimal(body.basePrice);
+    }
+    if (body.costPrice !== undefined) {
+      data.costPrice = new Prisma.Decimal(body.costPrice);
     }
     if (body.compareAtPrice !== undefined) {
       data.compareAtPrice = new Prisma.Decimal(body.compareAtPrice);
@@ -531,10 +562,12 @@ export class ToursService {
       MediaOwnerType.TOUR,
       items,
     );
+    const enriched = await this.attachNextDeparture(
+      await this.attachRatings(withMedia),
+    );
     return {
-      items: await this.attachNextDeparture(
-        await this.attachRatings(withMedia),
-      ),
+      // costPrice is internal (margin analytics) — public lists never carry it.
+      items: forcePublished ? this.stripCostPrice(enriched) : enriched,
       meta: {
         page,
         pageSize,
@@ -542,6 +575,15 @@ export class ToursService {
         totalPages: Math.max(1, Math.ceil(total / pageSize)),
       },
     };
+  }
+
+  /**
+   * Remove `costPrice` before a row leaves on a PUBLIC surface (API-W3) —
+   * it's a business-internal number. Cast-back is safe: the public DTOs never
+   * declared the field; this is a runtime-only removal.
+   */
+  private stripCostPrice<T extends { costPrice?: unknown }>(rows: T[]): T[] {
+    return rows.map(({ costPrice: _costPrice, ...rest }) => rest as T);
   }
 
   /** Resolve `categorySlug` → id; missing → 400 (clearer than a downstream FK). */

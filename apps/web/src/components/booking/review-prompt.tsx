@@ -45,17 +45,27 @@ function StatusPanel({ title, body }: { title: string; body: string }) {
 }
 
 /**
- * "Rate this trip" review form, offered optimistically on any PAID booking (no DTO exposes
- * whether the caller already reviewed it — see `page.tsx` for the PAID gate). Submits via the
- * `submitReview` server action: success and the 409 "already reviewed" case both replace the form
- * with an inline status panel; other failures toast while the form stays editable.
+ * "Rate this trip" review form, offered on any PAID booking (see `page.tsx` for the PAID gate).
+ * `hasReview` (API-W3) tells us upfront whether the caller already reviewed it, so the form never
+ * even renders in that case; the 409 `alreadyReviewed` path stays as a race backstop (e.g. two tabs
+ * submitting at once) for when `hasReview` was `false` at load but the review lands first here.
+ * Submits via the `submitReview` server action: success and the 409 case both replace the form with
+ * an inline status panel; other failures toast while the form stays editable.
  */
-export function ReviewPrompt({ bookingCode }: { bookingCode: string }) {
+export function ReviewPrompt({
+  bookingCode,
+  hasReview = false,
+}: {
+  bookingCode: string;
+  hasReview?: boolean;
+}) {
   const t = messages.reviews;
   const [rating, setRating] = useState(0);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [status, setStatus] = useState<Status>('idle');
+  const [status, setStatus] = useState<Status>(
+    hasReview ? 'alreadyReviewed' : 'idle',
+  );
   const [fieldErrors, setFieldErrors] = useState<ReviewFieldErrors>({});
 
   const starRefs = useRef<Array<HTMLButtonElement | null>>([]);

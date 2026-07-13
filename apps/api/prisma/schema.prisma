@@ -158,6 +158,7 @@ model User {
   bookings         Booking[] @relation("BookingCustomer")
   refundedBookings Booking[] @relation("BookingRefundedBy")
   reviews          Review[]
+  moderatedReviews Review[] @relation("ModeratedReviews")
   wishlist         Wishlist[]
   posts            Post[]
   cancellationRequests  CancellationRequest[] @relation("CancellationRequester")
@@ -222,6 +223,9 @@ model Tour {
   durationDays    Int      @map("duration_days")
   maxGroupSize    Int      @default(20) @map("max_group_size")
   basePrice       Decimal  @map("base_price") @db.Decimal(12, 2)
+  // Per-traveller cost in the tour's currency (API-W3 margin analytics).
+  // Null = unknown → contributes 0 cost (margin reads as an upper bound).
+  costPrice       Decimal? @map("cost_price") @db.Decimal(12, 2)
   // Price anchoring (D-P1.3) — optional "compare at" / strike-through price.
   compareAtPrice  Decimal? @map("compare_at_price") @db.Decimal(12, 2)
   currency        String   @default("USD") @db.VarChar(3)
@@ -450,12 +454,18 @@ model Review {
   // Free-text trip name for curated rows with no tourId (else the tour title is used).
   tripLabel      String?      @map("trip_label") @db.VarChar(160)
   isApproved Boolean  @default(false) @map("is_approved")
+  // Moderation audit (API-W3): who decided last + when. Overwritten on
+  // re-moderation — latest decision wins. SetNull keeps the review if the
+  // admin account is deleted.
+  moderatedById String?   @map("moderated_by") @db.Uuid
+  moderatedAt   DateTime? @map("moderated_at")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
   tour    Tour?    @relation(fields: [tourId], references: [id], onDelete: Cascade)
   user    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   booking Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  moderatedBy User? @relation("ModeratedReviews", fields: [moderatedById], references: [id], onDelete: SetNull)
 
   @@index([tourId, isApproved])
   @@index([userId])

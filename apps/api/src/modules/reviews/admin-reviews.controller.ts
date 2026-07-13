@@ -19,7 +19,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Review, UserRole } from '@prisma/client';
+import { Review, User, UserRole } from '@prisma/client';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { PaginatedAdminReviewsDto } from './dto/admin-review.dto';
 import { CreateCuratedReviewDto } from './dto/create-curated-review.dto';
@@ -68,10 +69,15 @@ export class AdminReviewsController {
   @ApiResponse({ status: 403, description: 'Caller is not an admin' })
   @ApiResponse({ status: 404, description: 'Review not found' })
   moderate(
+    @CurrentUser() user: User | null,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() body: ModerateReviewDto,
   ): Promise<Review> {
-    return this.reviewsService.moderateById(id, body.isApproved);
+    return this.reviewsService.moderateById(
+      id,
+      body.isApproved,
+      user?.id ?? null,
+    );
   }
 
   @Patch(':id/feature')

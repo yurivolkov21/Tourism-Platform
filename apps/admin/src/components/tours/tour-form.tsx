@@ -373,6 +373,27 @@ export function TourForm({
               <FieldError>{errors.basePrice}</FieldError>
             ) : null}
           </Field>
+          <Field data-invalid={Boolean(errors.costPrice)}>
+            <FieldLabel htmlFor="costPrice">Cost price</FieldLabel>
+            <Input
+              id="costPrice"
+              name="costPrice"
+              type="number"
+              min={0}
+              step="0.01"
+              inputMode="decimal"
+              defaultValue={tour?.costPrice ?? ''}
+              placeholder="19.50"
+              aria-invalid={Boolean(errors.costPrice)}
+            />
+            <FieldDescription>
+              Per traveller, internal — drives the dashboard margin. Never shown
+              to customers.
+            </FieldDescription>
+            {errors.costPrice ? (
+              <FieldError>{errors.costPrice}</FieldError>
+            ) : null}
+          </Field>
           <Field data-invalid={Boolean(errors.compareAtPrice)}>
             <FieldLabel htmlFor="compareAtPrice">Compare-at</FieldLabel>
             <Input

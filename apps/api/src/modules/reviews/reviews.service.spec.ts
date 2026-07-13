@@ -335,8 +335,20 @@ describe('ReviewsService.moderateById', () => {
       review: { findUnique: jest.fn().mockResolvedValue(null), update },
     };
     const svc = new ReviewsService(prisma as never);
-    await expect(svc.moderateById('missing', true)).rejects.toBeInstanceOf(
-      NotFoundException,
+    await expect(
+      svc.moderateById('missing', true, 'admin-1'),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it('rejects moderation without a synced admin id (400 — API-W3 audit)', async () => {
+    const update = jest.fn();
+    const prisma = {
+      review: { findUnique: jest.fn(), update },
+    };
+    const svc = new ReviewsService(prisma as never);
+    await expect(svc.moderateById('r-1', true, null)).rejects.toBeInstanceOf(
+      BadRequestException,
     );
     expect(update).not.toHaveBeenCalled();
   });
@@ -369,12 +381,18 @@ describe('ReviewsService.moderateById', () => {
     const { prisma, update, outboxCreateMany } = makeModeratePrisma(false);
     const svc = new ReviewsService(prisma as never);
 
-    await svc.moderateById('r-1', true);
+    await svc.moderateById('r-1', true, 'admin-1');
 
-    type UpdCall = { where: { id: string }; data: { isApproved: boolean } };
+    type UpdCall = {
+      where: { id: string };
+      data: { isApproved: boolean; moderatedById: string; moderatedAt: Date };
+    };
     const calls = update.mock.calls as unknown as UpdCall[][];
     expect(calls[0][0].where.id).toBe('r-1');
     expect(calls[0][0].data.isApproved).toBe(true);
+    // Audit trail (API-W3): every moderation write records who + when.
+    expect(calls[0][0].data.moderatedById).toBe('admin-1');
+    expect(calls[0][0].data.moderatedAt).toBeInstanceOf(Date);
 
     type OutboxCall = { data: Array<{ type: string; dedupeKey: string }> };
     const obCalls = outboxCreateMany.mock.calls as unknown as OutboxCall[][];
@@ -386,21 +404,63 @@ describe('ReviewsService.moderateById', () => {
     const { prisma, outboxCreateMany } = makeModeratePrisma(true);
     const svc = new ReviewsService(prisma as never);
 
-    await svc.moderateById('r-1', true);
+    await svc.moderateById('r-1', true, 'admin-1');
 
     expect(outboxCreateMany).not.toHaveBeenCalled();
   });
 
-  it('can re-draft an approved review (isApproved=false) without an email', async () => {
+  it('can re-draft an approved review (isApproved=false) without an email — audit still written', async () => {
     const { prisma, update, outboxCreateMany } = makeModeratePrisma(true);
     const svc = new ReviewsService(prisma as never);
 
-    await svc.moderateById('r-1', false);
+    await svc.moderateById('r-1', false, 'admin-2');
 
-    type UpdCall = { data: { isApproved: boolean } };
+    type UpdCall = {
+      data: { isApproved: boolean; moderatedById: string };
+    };
     const calls = update.mock.calls as unknown as UpdCall[][];
     expect(calls[0][0].data.isApproved).toBe(false);
+    expect(calls[0][0].data.moderatedById).toBe('admin-2');
     expect(outboxCreateMany).not.toHaveBeenCalled();
+  });
+});
+
+describe('ReviewsService.findMine (API-W3)', () => {
+  it('lists the caller reviews newest-first, capped at 50, with tour context', async () => {
+    const findMany = jest.fn().mockResolvedValue([
+      {
+        id: 'r-1',
+        rating: 5,
+        title: 'Great',
+        body: 'Loved it',
+        isApproved: true,
+        createdAt: new Date('2026-07-01'),
+        tour: { slug: 'hoi-an', title: 'Hoi An Walk' },
+      },
+      {
+        id: 'r-2',
+        rating: 4,
+        title: null,
+        body: 'Nice',
+        isApproved: false,
+        createdAt: new Date('2026-06-01'),
+        tour: null,
+      },
+    ]);
+    const svc = new ReviewsService({ review: { findMany } } as never);
+
+    const res = await svc.findMine('user-1');
+
+    const args = findMany.mock.calls[0][0];
+    expect(args.where).toEqual({ userId: 'user-1' });
+    expect(args.orderBy).toEqual({ createdAt: 'desc' });
+    expect(args.take).toBe(50);
+    expect(res[0]).toMatchObject({
+      id: 'r-1',
+      isApproved: true,
+      tour: { slug: 'hoi-an', title: 'Hoi An Walk' },
+    });
+    expect(res[1].tour).toBeNull();
   });
 });
 
@@ -496,9 +556,13 @@ describe('ReviewsService — admin surfacing + curated delete', () => {
       tour: { select: { slug: true, title: true } },
       user: { select: { fullName: true, email: true } },
       booking: { select: { code: true } },
+      moderatedBy: { select: { fullName: true, email: true } },
     });
     expect(res.items[0].tripLabel).toBe('Hạ Long Bay Cruise');
     expect(res.items[0].tourTitle).toBe('Hạ Long Bay Cruise 2D1N');
+    // API-W3 audit fields surface (null when never moderated).
+    expect(res.items[0].moderatedBy).toBeNull();
+    expect(res.items[0].moderatedAt).toBeNull();
   });
 
   it('deleteCuratedById deletes a curated review', async () => {

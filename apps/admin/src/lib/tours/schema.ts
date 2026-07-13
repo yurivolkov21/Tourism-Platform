@@ -131,6 +131,10 @@ export const tourSchema = z
       .optional(),
 
     basePrice: z.coerce.number().min(0, 'Price must be 0 or greater'),
+    costPrice: z.coerce
+      .number()
+      .min(0, 'Cost price must be 0 or greater')
+      .optional(),
     compareAtPrice: z.coerce
       .number()
       .min(0, 'Compare-at price must be 0 or greater')
@@ -194,6 +198,7 @@ export function toTourPayload(input: TourInput): Record<string, unknown> {
   }
   if (typeof input.maxGroupSize === 'number')
     out.maxGroupSize = input.maxGroupSize;
+  if (typeof input.costPrice === 'number') out.costPrice = input.costPrice;
   if (typeof input.compareAtPrice === 'number')
     out.compareAtPrice = input.compareAtPrice;
   if (typeof input.isPublished === 'boolean')

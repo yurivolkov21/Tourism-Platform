@@ -761,19 +761,41 @@ export class BookingsService {
 
   // ── Reads ───────────────────────────────────────────────────────────────────
 
-  /** The caller's bookings, newest first, capped at 50 (pagination when needed). */
-  findOwnList(customerUserId: string): Promise<Booking[]> {
-    return this.prisma.booking.findMany({
+  /**
+   * The caller's bookings, newest first, capped at 50 (pagination when needed).
+   * `hasReview` (API-W3) replaces the joined review row — the web account page
+   * hides the review prompt without probing for a 409.
+   */
+  async findOwnList(
+    customerUserId: string,
+  ): Promise<(Booking & { hasReview: boolean })[]> {
+    const rows = await this.prisma.booking.findMany({
       where: { userId: customerUserId },
-      include: BOOKING_INCLUDE,
+      // Schema models the 1:1 (bookingId UNIQUE) as a list — take 1 is exact.
+      include: {
+        ...BOOKING_INCLUDE,
+        reviews: { select: { id: true }, take: 1 },
+      },
       orderBy: { createdAt: 'desc' },
       take: 50,
     });
+    return rows.map(({ reviews, ...booking }) => ({
+      ...booking,
+      hasReview: reviews.length > 0,
+    }));
   }
 
   /** One booking by code — owner-or-admin; non-owner/missing both → 404. */
-  findByCodeForCaller(code: string, caller: Caller): Promise<Booking> {
-    return this.loadOwnedOr404(code, caller);
+  async findByCodeForCaller(
+    code: string,
+    caller: Caller,
+  ): Promise<Booking & { hasReview: boolean }> {
+    const booking = await this.loadOwnedOr404(code, caller);
+    const review = await this.prisma.review.findUnique({
+      where: { bookingId: booking.id },
+      select: { id: true },
+    });
+    return { ...booking, hasReview: Boolean(review) };
   }
 
   /**

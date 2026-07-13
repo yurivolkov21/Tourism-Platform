@@ -807,6 +807,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/reviews/mine': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** The caller's own reviews (incl. pending) */
+    get: operations['ReviewsController_mine'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/reviews': {
     parameters: {
       query?: never;
@@ -2189,6 +2206,11 @@ export interface components {
       faqs: components['schemas']['TourFaqDto'][];
       policies: components['schemas']['TourPolicyDto'][];
       ops: components['schemas']['TourOpsDto'];
+      /**
+       * @description Per-traveller internal cost (API-W3) — admin-only; public reads strip it
+       * @example 19.50
+       */
+      costPrice?: string | null;
     };
     TourItineraryDayInput: {
       /** @example 1 */
@@ -2266,6 +2288,11 @@ export interface components {
        * @example 49.5
        */
       basePrice: number;
+      /**
+       * @description Decimal(12,2) per-traveller cost, tour currency — internal, drives dashboard margin
+       * @example 19.5
+       */
+      costPrice?: number;
       /**
        * @description Decimal(12,2) compare-at anchor
        * @example 69
@@ -2377,6 +2404,11 @@ export interface components {
        * @example 49.5
        */
       basePrice?: number;
+      /**
+       * @description Decimal(12,2) per-traveller cost, tour currency — internal, drives dashboard margin
+       * @example 19.5
+       */
+      costPrice?: number;
       /**
        * @description Decimal(12,2) compare-at anchor
        * @example 69
@@ -2666,6 +2698,11 @@ export interface components {
       cancellationRequest:
         | components['schemas']['CancellationRequestSummaryDto']
         | null;
+      /**
+       * @description True when the caller already reviewed this booking (API-W3). Present on `GET /bookings/me` and `GET /bookings/:code`; write-path responses (create/cancel/capture) omit it — the FE hides the review prompt without probing for a 409
+       * @example false
+       */
+      hasReview?: boolean;
     };
     CheckoutSessionDto: {
       /** @example https://checkout.stripe.com/c/pay/cs_test_... */
@@ -2852,6 +2889,11 @@ export interface components {
       cancellationRequest:
         | components['schemas']['AdminCancellationRequestSummaryDto']
         | null;
+      /**
+       * @description True when the caller already reviewed this booking (API-W3). Present on `GET /bookings/me` and `GET /bookings/:code`; write-path responses (create/cancel/capture) omit it — the FE hides the review prompt without probing for a 409
+       * @example false
+       */
+      hasReview?: boolean;
       /** Format: date-time */
       paidAt: string | null;
       /** Format: date-time */
@@ -2980,6 +3022,28 @@ export interface components {
        */
       averageRating: number | null;
     };
+    MyReviewTourRefDto: {
+      /** @example hoi-an-walking-tour */
+      slug: string;
+      /** @example Hoi An Ancient Town Walking Tour */
+      title: string;
+    };
+    MyReviewDto: {
+      /** Format: uuid */
+      id: string;
+      /** @example 5 */
+      rating: number;
+      title: string | null;
+      body: string;
+      /**
+       * @description False while the review awaits moderation
+       * @example true
+       */
+      isApproved: boolean;
+      /** Format: date-time */
+      createdAt: string;
+      tour: components['schemas']['MyReviewTourRefDto'] | null;
+    };
     CreateReviewDto: {
       /**
        * @description Booking code this review is attached to (must be PAID).
@@ -3107,6 +3171,16 @@ export interface components {
       tripLabel: string | null;
       body: string;
       isApproved: boolean;
+      /**
+       * @description Last moderation decision-maker (API-W3 audit); null = never moderated
+       * @example {
+       *       "fullName": "Admin",
+       *       "email": "admin@example.com"
+       *     }
+       */
+      moderatedBy: Record<string, never> | null;
+      /** Format: date-time */
+      moderatedAt: string | null;
       /** Format: date-time */
       createdAt: string;
       /** Format: date-time */
@@ -3355,6 +3429,16 @@ export interface components {
       total: string;
       /** @example 61 */
       paidBookings: number;
+      /**
+       * @description Σ tour costPrice × travellers over the same PAID set (API-W3); tours without costPrice contribute 0
+       * @example 4980.00
+       */
+      cost: string;
+      /**
+       * @description total − cost. An UPPER BOUND until every tour has costPrice filled in
+       * @example 7470.00
+       */
+      margin: string;
     };
     StatsOverviewDto: {
       /**
@@ -5929,6 +6013,33 @@ export interface operations {
         content: {
           'application/json': components['schemas']['ReviewSummaryDto'];
         };
+      };
+    };
+  };
+  ReviewsController_mine: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Newest first, cap 50 */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MyReviewDto'][];
+        };
+      };
+      /** @description User not synced */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

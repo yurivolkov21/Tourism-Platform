@@ -116,6 +116,25 @@ function Rating({ value }: { value: number }) {
 }
 
 /**
+ * Last moderation decision-maker (API-W3 audit), shown only once a review has been moderated.
+ * `moderatedBy`'s generated type is a `Record<string, never>` stub (the DTO types it as a loose
+ * `Object`); the real runtime shape is `{ fullName, email }` — see `AdminReviewDto`.
+ */
+function ModeratedByLine({ review }: { review: AdminReview }) {
+  const moderator = review.moderatedBy as {
+    fullName: string | null;
+    email: string;
+  } | null;
+  if (!moderator) return null;
+  return (
+    <p className="text-muted-foreground text-xs">
+      Moderated by {moderator.fullName || moderator.email}
+      {review.moderatedAt ? ` · ${formatRelativeTime(review.moderatedAt)}` : ''}
+    </p>
+  );
+}
+
+/**
  * Reviews moderation surface — server-driven table (URL-owned status/source/rating/search + paging,
  * the bookings/enquiries pattern) with a right-hand drawer showing the full text plus, when the
  * review is tied to an account, the customer + booking links. Actions live in a ⋮ menu
@@ -587,6 +606,8 @@ export function ReviewsView({
                     <dd>{formatRelativeTime(selected.updatedAt)}</dd>
                   </div>
                 </dl>
+
+                <ModeratedByLine review={selected} />
 
                 {selected.userId ? (
                   <>

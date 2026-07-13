@@ -13,6 +13,20 @@ class RevenueByCurrencyDto {
 
   @ApiProperty({ example: 61 })
   paidBookings!: number;
+
+  @ApiProperty({
+    example: '4980.00',
+    description:
+      'Σ tour costPrice × travellers over the same PAID set (API-W3); tours without costPrice contribute 0',
+  })
+  cost!: string;
+
+  @ApiProperty({
+    example: '7470.00',
+    description:
+      'total − cost. An UPPER BOUND until every tour has costPrice filled in',
+  })
+  margin!: string;
 }
 
 class StatsOverviewDto {

@@ -131,7 +131,13 @@ export default async function BookingDetailPage({
           {booking.status === 'PAID' ? (
             <>
               <Separator />
-              <ReviewPrompt bookingCode={booking.code} />
+              {/* key: state seeds from hasReview at mount — remount per booking
+                  guards the App-Router shared-state gotcha on client nav. */}
+              <ReviewPrompt
+                key={booking.code}
+                bookingCode={booking.code}
+                hasReview={booking.hasReview}
+              />
             </>
           ) : null}
 

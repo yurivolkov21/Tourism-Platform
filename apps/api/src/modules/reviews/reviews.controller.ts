@@ -20,9 +20,14 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { FeaturedReviewsDto } from './dto/featured-review.dto';
+import { MyReviewDto } from './dto/my-review.dto';
 import { ReviewDto } from './dto/review.dto';
 import { ReviewSummaryDto } from './dto/review-summary.dto';
-import { FeaturedReview, ReviewsService } from './reviews.service';
+import {
+  FeaturedReview,
+  MyReviewItem,
+  ReviewsService,
+} from './reviews.service';
 
 /**
  * Customer review surface mounted at `/reviews`. Public read of approved reviews
@@ -55,6 +60,20 @@ export class ReviewsController {
   })
   summary(): Promise<{ count: number; averageRating: number | null }> {
     return this.reviewsService.summarize();
+  }
+
+  @Get('mine')
+  @ApiOperation({ summary: "The caller's own reviews (incl. pending)" })
+  @ApiOkResponse({ type: [MyReviewDto], description: 'Newest first, cap 50' })
+  @ApiResponse({ status: 401, description: 'User not synced' })
+  mine(@CurrentUser() user: User | null): Promise<MyReviewItem[]> {
+    if (!user) {
+      throw new UnauthorizedException({
+        code: 'USER_NOT_SYNCED',
+        message: 'Run POST /auth/sync before listing your reviews',
+      });
+    }
+    return this.reviewsService.findMine(user.id);
   }
 
   @Post()

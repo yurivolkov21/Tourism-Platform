@@ -18,6 +18,12 @@ import {
   TopRevenueRow,
 } from './admin-stats.helpers';
 
+/** Raw `$queryRaw` row for the per-currency cost aggregate (API-W3). */
+interface CostGroupRow {
+  currency: string;
+  cost: unknown;
+}
+
 export interface AdminStatsResponse {
   overview: {
     totalRevenue: string;
@@ -30,6 +36,12 @@ export interface AdminStatsResponse {
       currency: string;
       total: string;
       paidBookings: number;
+      /**
+       * Σ costPrice × travellers over the same PAID set (API-W3). Tours
+       * without costPrice contribute 0 → `margin` is an upper bound.
+       */
+      cost: string;
+      margin: string;
     }>;
   };
   bookingsByStatus: Record<BookingStatus, number>;
@@ -108,6 +120,7 @@ export class AdminStatsService {
       dailyRows,
       pendingReviews,
       newEnquiries,
+      costGroups,
     ] = await Promise.all([
       this.prisma.booking.groupBy({
         by: ['status'],
@@ -171,6 +184,20 @@ export class AdminStatsService {
       `),
       this.prisma.review.count({ where: { isApproved: false } }),
       this.prisma.enquiry.count({ where: { status: EnquiryStatus.NEW } }),
+      // Per-currency cost of the same PAID-in-range set (API-W3 margin).
+      // Tours without costPrice contribute 0 → margin is an UPPER BOUND
+      // until costs are filled in (documented on the DTO).
+      this.prisma.$queryRaw<CostGroupRow[]>(Prisma.sql`
+        SELECT b.currency,
+               COALESCE(SUM(t.cost_price * (b.num_adults + b.num_children)), 0) AS cost
+        FROM bookings b
+        JOIN tours t ON t.id = b.tour_id
+        WHERE b.status = 'PAID'::"BookingStatus"
+          AND t.cost_price IS NOT NULL
+          ${bounds.gte ? Prisma.sql`AND b.created_at >= ${bounds.gte}` : Prisma.empty}
+          ${bounds.lt ? Prisma.sql`AND b.created_at < ${bounds.lt}` : Prisma.empty}
+        GROUP BY b.currency
+      `),
     ]);
 
     const bookingsByStatus: Record<BookingStatus, number> = {
@@ -193,11 +220,22 @@ export class AdminStatsService {
       paidBookings: g._count._all,
       total: (g._sum.totalAmount ?? new Prisma.Decimal(0)).toString(),
     }));
-    const revenueByCurrency = sortCurrencyGroups(currencyRows).map((r) => ({
-      currency: r.currency,
-      total: r.total,
-      paidBookings: r.paidBookings,
-    }));
+    const costByCurrency = new Map(
+      costGroups.map((c) => [
+        c.currency,
+        new Prisma.Decimal(String(c.cost ?? 0)),
+      ]),
+    );
+    const revenueByCurrency = sortCurrencyGroups(currencyRows).map((r) => {
+      const cost = costByCurrency.get(r.currency) ?? new Prisma.Decimal(0);
+      return {
+        currency: r.currency,
+        total: r.total,
+        paidBookings: r.paidBookings,
+        cost: cost.toString(),
+        margin: new Prisma.Decimal(r.total).minus(cost).toString(),
+      };
+    });
     const dominant = pickDominantCurrency(currencyRows);
     const paidBookings = currencyRows.reduce(
       (sum, r) => sum + r.paidBookings,

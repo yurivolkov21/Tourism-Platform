@@ -358,6 +358,106 @@ describe('ToursService', () => {
     ).rejects.toThrow(BadRequestException);
   });
 
+  it('public reads strip costPrice; admin reads keep it (API-W3)', async () => {
+    const row = {
+      id: 't-1',
+      title: 'X',
+      costPrice: new Prisma.Decimal('20.00'),
+    };
+    const findMany = jest.fn().mockResolvedValue([{ ...row }]);
+    const count = jest.fn().mockResolvedValue(1);
+    const svc = makeService(makePrisma({ tour: { findMany, count } }));
+
+    const pub = await svc.findPublicList({});
+    expect(
+      (pub.items[0] as unknown as Record<string, unknown>).costPrice,
+    ).toBeUndefined();
+
+    const adm = await svc.findAll({});
+    expect(
+      (adm.items[0] as unknown as Record<string, unknown>).costPrice,
+    ).toBeDefined();
+  });
+
+  it('findPublicBySlug strips costPrice (API-W3)', async () => {
+    const findFirst = jest.fn().mockResolvedValue({
+      id: 't-1',
+      slug: 'x',
+      costPrice: new Prisma.Decimal('20.00'),
+    });
+    const svc = makeService(makePrisma({ tour: { findFirst } }));
+
+    const res = await svc.findPublicBySlug('x');
+
+    expect(
+      (res as unknown as Record<string, unknown>).costPrice,
+    ).toBeUndefined();
+  });
+
+  it('create + update map costPrice to a Decimal (API-W3)', async () => {
+    const create = jest
+      .fn()
+      .mockImplementation(({ data }) =>
+        Promise.resolve({ id: 't-1', ...data }),
+      );
+    const svc = makeService(makePrisma({ tour: { create } }));
+    await svc.create(body({ costPrice: 19.5 }));
+    expect(create.mock.calls[0][0].data.costPrice).toBeInstanceOf(
+      Prisma.Decimal,
+    );
+
+    const findUnique = jest
+      .fn()
+      .mockResolvedValue({ id: 't-1', slug: 'x', isPublished: false });
+    const update = jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' });
+    const svc2 = makeService(makePrisma({ tour: { findUnique, update } }));
+    await svc2.update('x', { costPrice: 25 });
+    expect(update.mock.calls[0][0].data.costPrice).toBeInstanceOf(
+      Prisma.Decimal,
+    );
+  });
+
+  it('update blocks a currency change once PAID bookings exist (API-W3 margin buckets)', async () => {
+    const findUnique = jest.fn().mockResolvedValue({
+      id: 't-1',
+      slug: 'x',
+      isPublished: true,
+      currency: 'USD',
+    });
+    const count = jest.fn().mockResolvedValue(2);
+    const update = jest.fn();
+    const svc = makeService(
+      makePrisma({ tour: { findUnique, update }, booking: { count } }),
+    );
+
+    await expect(svc.update('x', { currency: 'EUR' })).rejects.toThrow(
+      ConflictException,
+    );
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it('update allows a same-value currency patch and one on a tour without sales (API-W3)', async () => {
+    const findUnique = jest.fn().mockResolvedValue({
+      id: 't-1',
+      slug: 'x',
+      isPublished: true,
+      currency: 'USD',
+    });
+    const count = jest.fn().mockResolvedValue(0);
+    const update = jest.fn().mockResolvedValue({ id: 't-1', slug: 'x' });
+    const svc = makeService(
+      makePrisma({ tour: { findUnique, update }, booking: { count } }),
+    );
+
+    // Same value → no guard query at all.
+    await svc.update('x', { currency: 'usd' });
+    expect(count).not.toHaveBeenCalled();
+
+    // Different value but zero PAID bookings → allowed.
+    await svc.update('x', { currency: 'EUR' });
+    expect(update).toHaveBeenCalled();
+  });
+
   it('update blocks unpublish while future PAID bookings exist (API-W2)', async () => {
     const findUnique = jest
       .fn()

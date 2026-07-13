@@ -68,8 +68,22 @@ export interface AdminReviewItem {
   tripLabel: string | null;
   body: string;
   isApproved: boolean;
+  /** Moderation audit (API-W3): last decision-maker + timestamp. */
+  moderatedBy: { fullName: string | null; email: string } | null;
+  moderatedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/** One row of the caller's own reviews (API-W3 — `GET /reviews/mine`). */
+export interface MyReviewItem {
+  id: string;
+  rating: number;
+  title: string | null;
+  body: string;
+  isApproved: boolean;
+  createdAt: Date;
+  tour: { slug: string; title: string } | null;
 }
 
 export interface PaginatedAdminReviews {
@@ -311,6 +325,7 @@ export class ReviewsService {
           tour: { select: { slug: true, title: true } },
           user: { select: { fullName: true, email: true } },
           booking: { select: { code: true } },
+          moderatedBy: { select: { fullName: true, email: true } },
         },
       }),
       this.prisma.review.count({ where }),
@@ -335,6 +350,10 @@ export class ReviewsService {
       tripLabel: row.tripLabel,
       body: row.body,
       isApproved: row.isApproved,
+      moderatedBy: row.moderatedBy
+        ? { fullName: row.moderatedBy.fullName, email: row.moderatedBy.email }
+        : null,
+      moderatedAt: row.moderatedAt ?? null,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     }));
@@ -351,11 +370,54 @@ export class ReviewsService {
   }
 
   /**
+   * The caller's own reviews (API-W3) — newest first, capped at 50 (mirrors
+   * the bookings own-list posture; pagination when real volume demands it).
+   * Includes unapproved rows: the author may always see their own submission.
+   */
+  async findMine(userId: string): Promise<MyReviewItem[]> {
+    const rows = await this.prisma.review.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+      select: {
+        id: true,
+        rating: true,
+        title: true,
+        body: true,
+        isApproved: true,
+        createdAt: true,
+        tour: { select: { slug: true, title: true } },
+      },
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      rating: r.rating,
+      title: r.title,
+      body: r.body,
+      isApproved: r.isApproved,
+      createdAt: r.createdAt,
+      tour: r.tour ? { slug: r.tour.slug, title: r.tour.title } : null,
+    }));
+  }
+
+  /**
    * Admin moderation toggle. Idempotent — flipping to the current value is a
    * no-op write. The boolean shape (vs separate approve/reject endpoints) lets
    * the admin re-draft a review later if it gets flagged after going public.
+   * Every write records the audit pair `moderatedById`/`moderatedAt` (API-W3)
+   * — re-moderation overwrites: latest decision wins.
    */
-  async moderateById(reviewId: string, isApproved: boolean): Promise<Review> {
+  async moderateById(
+    reviewId: string,
+    isApproved: boolean,
+    adminUserId: string | null,
+  ): Promise<Review> {
+    if (!adminUserId) {
+      throw new BadRequestException({
+        code: 'USER_NOT_SYNCED',
+        message: 'Run POST /auth/sync before moderating reviews',
+      });
+    }
     const existing = await this.prisma.review.findUnique({
       where: { id: reviewId },
       select: { id: true, isApproved: true },
@@ -374,7 +436,11 @@ export class ReviewsService {
     const updated = await this.prisma.$transaction(async (tx) => {
       const review = await tx.review.update({
         where: { id: reviewId },
-        data: { isApproved },
+        data: {
+          isApproved,
+          moderatedById: adminUserId,
+          moderatedAt: new Date(),
+        },
       });
       if (justApproved) {
         await tx.outbox.createMany({

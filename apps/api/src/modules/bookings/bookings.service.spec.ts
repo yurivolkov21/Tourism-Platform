@@ -20,6 +20,7 @@ interface Mocks {
   tour?: Record<string, unknown>;
   tourDeparture?: Record<string, unknown>;
   booking?: Record<string, unknown>;
+  review?: Record<string, unknown>;
   $queryRaw?: jest.Mock;
 }
 
@@ -58,6 +59,10 @@ function makePrisma(m: Mocks = {}): PrismaService {
         ),
       update: jest.fn(),
       ...m.booking,
+    },
+    review: {
+      findUnique: jest.fn().mockResolvedValue(null),
+      ...m.review,
     },
     $queryRaw: m.$queryRaw ?? jest.fn().mockResolvedValue([{ id: 'bk-1' }]),
   } as unknown as PrismaService;
@@ -265,6 +270,27 @@ describe('BookingsService', () => {
     expect(findMany.mock.calls[0][0].where.userId).toBe('user-1');
   });
 
+  it('findOwnList maps hasReview from the joined review (API-W3)', async () => {
+    const findMany = jest.fn().mockResolvedValue([
+      { id: 'b1', code: 'BK-1', reviews: [{ id: 'r1' }] },
+      { id: 'b2', code: 'BK-2', reviews: [] },
+    ]);
+    const svc = svcWith(makePrisma({ booking: { findMany } }));
+
+    const res = await svc.findOwnList('user-1');
+
+    expect(findMany.mock.calls[0][0].include.reviews).toEqual({
+      select: { id: true },
+      take: 1,
+    });
+    expect(res[0]).toMatchObject({ code: 'BK-1', hasReview: true });
+    expect(res[1]).toMatchObject({ code: 'BK-2', hasReview: false });
+    // The raw joined rows must not leak through the customer surface.
+    expect(
+      (res[0] as unknown as Record<string, unknown>).reviews,
+    ).toBeUndefined();
+  });
+
   it('findByCodeForCaller returns the booking for its owner', async () => {
     const findUnique = jest
       .fn()
@@ -275,6 +301,30 @@ describe('BookingsService', () => {
       role: UserRole.CUSTOMER,
     });
     expect(res.code).toBe('BK-1');
+    expect(res.hasReview).toBe(false);
+  });
+
+  it('findByCodeForCaller reports hasReview=true when a review exists (API-W3)', async () => {
+    const findUnique = jest
+      .fn()
+      .mockResolvedValue({ id: 'bk-1', code: 'BK-1', userId: 'user-1' });
+    const reviewFindUnique = jest.fn().mockResolvedValue({ id: 'r-1' });
+    const svc = svcWith(
+      makePrisma({
+        booking: { findUnique },
+        review: { findUnique: reviewFindUnique },
+      }),
+    );
+
+    const res = await svc.findByCodeForCaller('BK-1', {
+      id: 'user-1',
+      role: UserRole.CUSTOMER,
+    });
+
+    expect(reviewFindUnique.mock.calls[0][0].where).toEqual({
+      bookingId: 'bk-1',
+    });
+    expect(res.hasReview).toBe(true);
   });
 
   it('findByCodeForCaller hides a non-owned booking as 404', async () => {

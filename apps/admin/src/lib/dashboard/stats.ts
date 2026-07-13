@@ -15,6 +15,10 @@ export interface DashboardStats {
       currency: string;
       total: string;
       paidBookings: number;
+      /** Σ tour costPrice × travellers over the same PAID set (API-W3); 0 when tours lack costPrice. */
+      cost: string;
+      /** total − cost. An upper bound until every tour has costPrice filled in. */
+      margin: string;
     }[];
   };
   bookingsByStatus: Record<
@@ -72,7 +76,13 @@ export async function getDashboardStats(
     ...payload,
     overview: {
       ...payload.overview,
-      revenueByCurrency: payload.overview.revenueByCurrency ?? [],
+      revenueByCurrency: (payload.overview.revenueByCurrency ?? []).map(
+        (entry) => ({
+          ...entry,
+          cost: entry.cost ?? '0',
+          margin: entry.margin ?? '0',
+        }),
+      ),
     },
     dailyTrend: payload.dailyTrend ?? [],
     topToursByRating: payload.topToursByRating ?? [],

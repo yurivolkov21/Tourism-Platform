@@ -69,6 +69,16 @@ export function SectionCards({ cards }: { cards: CardModel[] }) {
                     {c.extraCurrencies}
                   </div>
                 ) : null}
+                {c.marginByCurrency?.length ? (
+                  <div className="text-muted-foreground text-xs tabular-nums">
+                    {c.marginByCurrency.join(' · ')}
+                  </div>
+                ) : null}
+                {c.marginFootnote ? (
+                  <div className="text-muted-foreground/70 text-xs">
+                    {c.marginFootnote}
+                  </div>
+                ) : null}
               </CardFooter>
             </Card>
           </Reveal>
