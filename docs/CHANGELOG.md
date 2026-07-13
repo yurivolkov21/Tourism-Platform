@@ -4,6 +4,25 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-13 — Journal seed content enriched to long-form + SEO meta (`a304109`)
+
+- Diagnosis (user report: Journal reads short/shallow): the 10 seeded posts
+  averaged **27 words** — the reader UI (outline rail · scroll progress ·
+  reading time · typeset · related tours) was starved, not under-designed.
+- New `fixtures/post-content.cjs`: 10 EN long-form articles (700–1,022
+  words) with the mandated structure — intro · 4–7 `##` sections (+`###`) ·
+  ≥1 list · a "Local tip" blockquote · 1–3 inline images (URLs reused from
+  fixture media, topically matched) · tour-handoff close; 2 markdown tables
+  exercise `.typeset-scroll`. `metaTitle` ≤70 + `metaDescription` ≤160 filled
+  for all 10 (the wave-C SEO columns were empty).
+- `gen.cjs` sources content/meta from the module (throws on a missing slug);
+  varchar caps +70/160; fixtures regenerated + self-validated (429 records).
+- New `prisma/refresh-post-content.ts` + nx target `refresh-posts` —
+  executed against live Supabase post-merge: **10 updated, 0 skipped**.
+- 3 DRAFT posts stay DRAFT (admin-authoring fixtures). No schema change.
+- Tests after: unchanged — api 439 · web 261 · admin 264 · mobile 153 ·
+  mobile-ui 34 · core 42.
+
 ## 2026-07-12 — Web wave W4: shared AuthFormField · noValidate completion · auth titles (`ff058e9`)
 
 - **Closes the web debt program W1 → W2 → W3 → W4** (opened 2026-07-12 from

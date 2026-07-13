@@ -3,7 +3,11 @@
 **Spec:** `docs/06-specs/2026-07-13-blog-content-enrichment-design.md`
 **Branch:** `feat/blog-content-enrichment` · **Scope:** apps/api fixtures + refresh script
 
-**STATUS: 🔨 IN PROGRESS** (started 2026-07-13)
+**STATUS: ✅ COMPLETE** — merged to `main` 2026-07-13 (`a304109`, ff-only);
+`refresh-posts` executed on live Supabase (10 updated · 0 skipped). QA: all
+10 articles pass the structure checklist (700–1,022 words · 4–7 h2 · list +
+Local-tip blockquote · 1–3 fixture-sourced images · meta ≤70/≤160); api
+439/439 green.
 
 Standing rules: EN-only copy · structure per spec (intro · 4–6 h2 (+h3) ·
 list + tip per article · 1–3 inline images from existing fixture URLs ·
