@@ -74,12 +74,13 @@ Baselines: **api 499 · web 291 · admin 266 · mobile 153 · mobile-ui 34 · co
    Home states · N2 sheets + stepped booking · N1 feel checklist · W4 payment
    loop (Stripe test card · PayPal sandbox · abandon→Pay now ·
    cancel/cancellation-request · guest gating).
-2. **Contact Launcher owner to-do:** create the business WhatsApp number →
-   set `NEXT_PUBLIC_CHAT_WHATSAPP` (international digits) on the Vercel web
-   project — the WhatsApp channel stays hidden until then. Phase-2 chat options
-   (in-web Supabase Realtime · Business APIs · Messenger/LINE/Kakao) are
-   researched + parked in the spec appendix
-   (`docs/06-specs/2026-07-14-contact-launcher-design.md`).
+2. **Contact Launcher — LIVE 2026-07-14:** `NEXT_PUBLIC_CHAT_WHATSAPP` set on
+   Vercel with the owner's personal number (capstone context — no business
+   number needed); owner verified the wa.me chat end-to-end on production.
+   Remaining: cross-account test (teammate opens the launcher from the site and
+   messages the owner). Phase-2 chat options (in-web Supabase Realtime ·
+   Business APIs · Messenger/LINE/Kakao) stay researched + parked in the spec
+   appendix (`docs/06-specs/2026-07-14-contact-launcher-design.md`).
 3. **User visual pass on deployed surfaces** — in progress (the 2026-07-12
    avatar fix came out of it); remaining admin surfaces: list-tables B1 ·
    reviews/CRM · wave C · media picker/alt/bulk · TabPills + dashboard
