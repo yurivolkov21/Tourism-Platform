@@ -159,6 +159,22 @@ describe('buildChatTools', () => {
       );
     });
 
+    it('hard-caps at ONE enquiry per tool belt (prompt-injection flood guard)', async () => {
+      const { tools, deps } = makeTools();
+      const send = () =>
+        tools.submitEnquiry.execute({
+          name: 'Alice Nguyen',
+          email: 'alice@example.com',
+          message: 'Please quote a private Ha Long trip.',
+        } as never);
+      await send();
+      const second = await send();
+      expect(deps.enquiryService.create).toHaveBeenCalledTimes(1);
+      expect(second).toEqual(
+        expect.objectContaining({ sent: false, error: 'ENQUIRY_ALREADY_SENT' }),
+      );
+    });
+
     it('declares consent in its description and validates email', () => {
       const { tools } = makeTools();
       expect(tools.submitEnquiry.description).toMatch(/consent|permission/i);

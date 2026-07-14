@@ -54,6 +54,11 @@ async function bootstrap(): Promise<void> {
     express.raw({ type: 'application/json' }),
   );
 
+  // One proxy hop (Render) — without this, req.ip is the proxy address and
+  // every client shares a single per-IP throttle bucket (chat/enquiry limits
+  // would be a site-wide DoS lever). Harmless locally.
+  app.set('trust proxy', 1);
+
   app.use(helmet());
   // `origin: true` reflects the request origin (local dev). In prod the
   // allowlist must be populated via CORS_ORIGINS.

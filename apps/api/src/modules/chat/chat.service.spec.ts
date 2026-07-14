@@ -165,6 +165,52 @@ describe('ChatService.streamChat', () => {
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
+  it('rejects non-text parts and oversized raw payloads (smuggling guard)', async () => {
+    const { service, response } = makeService();
+    await expect(
+      service.streamChat({
+        message: {
+          id: 'm',
+          role: 'user',
+          parts: [
+            { type: 'text', text: 'look at this' },
+            { type: 'file', url: 'data:application/octet-stream;base64,AAAA' },
+          ],
+        },
+        user: null,
+        response: response as never,
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    await expect(
+      service.streamChat({
+        message: {
+          id: 'm',
+          role: 'user',
+          parts: [{ type: 'text', text: 'ok', extra: 'y'.repeat(9000) }],
+        },
+        user: null,
+        response: response as never,
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('falls back to the winner row when losing a create race on a fresh id', async () => {
+    const { service, prisma, response } = makeService();
+    prisma.chatConversation.findUnique
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(GUEST_CONVO);
+    prisma.chatConversation.create.mockRejectedValue(
+      new Error('Unique constraint failed'),
+    );
+    await service.streamChat({
+      conversationId: GUEST_CONVO.id,
+      message: userMessage('hello'),
+      user: null,
+      response: response as never,
+    });
+    expect(mockPipe).toHaveBeenCalled();
+  });
+
   it('rejects a non-user role or an oversized message', async () => {
     const { service, response } = makeService();
     await expect(
@@ -194,8 +240,9 @@ describe('ChatService.streamChat', () => {
       { id: 'h2', role: 'assistant', parts: [{ type: 'text', text: 'old a' }] },
     ];
     prisma.chatMessage.count.mockResolvedValue(2);
+    // Service loads newest-first (desc + take) and re-reverses to chronological.
     prisma.chatMessage.findMany.mockResolvedValue(
-      history.map((m, i) => ({ payload: m, seq: i })),
+      history.map((m, i) => ({ payload: m, seq: i })).reverse(),
     );
 
     await service.streamChat({

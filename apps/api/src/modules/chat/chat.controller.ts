@@ -62,6 +62,7 @@ export class ChatController {
 
   @Get('conversations/:id/messages')
   @Public()
+  @Throttle({ default: { limit: 30, ttl: CHAT_RATE_TTL_MS } })
   @ApiOperation({ summary: 'Replay a conversation history (ownership-gated)' })
   getMessages(
     @Param('id', ParseUUIDPipe) id: string,

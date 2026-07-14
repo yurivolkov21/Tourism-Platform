@@ -8,13 +8,17 @@ import { toTourDetailForBot, toTourSummary } from './shape';
 /**
  * Concierge tool belt (AI SDK `tool()` over existing services — in-process,
  * no HTTP hop). Read-only except `submitEnquiry`, which is consent-gated in
- * the system prompt and re-validated server-side by CreateEnquiryDto.
+ * the system prompt, re-validated server-side by CreateEnquiryDto, and
+ * HARD-CAPPED at one enquiry per request — build a FRESH tool belt per
+ * request so the closure counter resets (adversarial review finding 1:
+ * a prompt-injected model could otherwise flood the CRM/outbox in one turn).
  */
 export function buildChatTools(deps: {
   toursService: ToursService;
   enquiryService: EnquiryService;
 }) {
   const { toursService, enquiryService } = deps;
+  let enquiriesSent = 0;
 
   const resolveTourId = async (slug?: string): Promise<string | undefined> => {
     if (!slug) return undefined;
@@ -94,6 +98,14 @@ export function buildChatTools(deps: {
         nationality: z.string().max(80).optional(),
       }),
       execute: async ({ tourSlug, ...enquiry }) => {
+        if (enquiriesSent >= 1) {
+          return {
+            sent: false,
+            error: 'ENQUIRY_ALREADY_SENT',
+            hint: 'One enquiry per message — tell the traveller it was already submitted.',
+          };
+        }
+        enquiriesSent += 1;
         const tourId = await resolveTourId(tourSlug);
         await enquiryService.create({ ...enquiry, tourId } as never);
         return { sent: true, replyEta: 'within 24 hours' };

@@ -27,13 +27,15 @@ import { ToursService } from '../tours/tours.service';
 import { canAccessConversation } from './ownership';
 import { windowHistory } from './shape';
 import { buildSystemPrompt } from './system-prompt';
-import { buildChatTools, type ChatTools } from './tools';
+import { buildChatTools } from './tools';
 
 /** Hard spend/abuse caps — every request is bounded server-side (spec §caps). */
 const HISTORY_WINDOW = 20;
 const MAX_STEPS = 4;
 const MAX_OUTPUT_TOKENS = 800;
 const MAX_MESSAGE_CHARS = 2000;
+/** Whole-payload ceiling — text-length checks alone can be smuggled past. */
+const MAX_MESSAGE_BYTES = 8000;
 const MAX_MESSAGES_PER_CONVERSATION = 200;
 
 interface StreamChatInput {
@@ -53,16 +55,13 @@ interface StreamChatInput {
 @Injectable()
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
-  private readonly tools: ChatTools;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-    toursService: ToursService,
-    enquiryService: EnquiryService,
-  ) {
-    this.tools = buildChatTools({ toursService, enquiryService });
-  }
+    private readonly toursService: ToursService,
+    private readonly enquiryService: EnquiryService,
+  ) {}
 
   async streamChat(input: StreamChatInput): Promise<void> {
     const apiKey = this.config.get<string>('chat.anthropicApiKey');
@@ -90,19 +89,29 @@ export class ChatService {
 
     this.assertIncomingUserMessage(input.message);
 
+    // Only the model-visible window leaves the DB (review finding 2) — newest
+    // HISTORY_WINDOW rows, restored to chronological order.
     const rows = await this.prisma.chatMessage.findMany({
       where: { conversationId: conversation.id },
-      orderBy: { seq: 'asc' },
+      orderBy: { seq: 'desc' },
+      take: HISTORY_WINDOW,
       select: { payload: true },
     });
+    rows.reverse();
     const history = rows.map((row) => row.payload as unknown as UIMessage);
+
+    // Fresh tool belt per request: the submitEnquiry closure cap resets here.
+    const tools = buildChatTools({
+      toursService: this.toursService,
+      enquiryService: this.enquiryService,
+    });
 
     let validated: UIMessage[];
     try {
       validated = await validateUIMessages({
         messages: [...history, input.message as UIMessage],
         // Typed tool generics don't satisfy the loose validation signature.
-        tools: this.tools as unknown as Parameters<
+        tools: tools as unknown as Parameters<
           typeof validateUIMessages
         >[0]['tools'],
       });
@@ -125,11 +134,12 @@ export class ChatService {
       messages: await convertToModelMessages(
         windowHistory(validated, HISTORY_WINDOW),
       ),
-      tools: this.tools,
+      tools,
       stopWhen: stepCountIs(MAX_STEPS),
       maxOutputTokens: MAX_OUTPUT_TOKENS,
     });
 
+    const loadedCount = rows.length;
     pipeUIMessageStreamToResponse({
       response: input.response,
       headers: { 'x-conversation-id': conversation.id },
@@ -137,7 +147,12 @@ export class ChatService {
         stream: result.stream,
         originalMessages: validated,
         onEnd: async ({ messages }: { messages: UIMessage[] }) => {
-          await this.persistTail(conversation.id, persistedCount, messages);
+          await this.persistTail(
+            conversation.id,
+            persistedCount,
+            loadedCount,
+            messages,
+          );
         },
       }),
     });
@@ -175,9 +190,30 @@ export class ChatService {
       where: { id: conversationId },
     });
     if (!conversation) {
-      return this.prisma.chatConversation.create({
-        data: { id: conversationId, userId: user?.id ?? null },
-      });
+      try {
+        return await this.prisma.chatConversation.create({
+          data: { id: conversationId, userId: user?.id ?? null },
+        });
+      } catch {
+        // Lost a create race (two tabs, same fresh id): fall through to the
+        // row the winner made — ownership-checked like any existing convo.
+        const raced = await this.prisma.chatConversation.findUnique({
+          where: { id: conversationId },
+        });
+        if (!raced) {
+          throw new BadRequestException({
+            code: 'CHAT_INVALID_MESSAGE',
+            message: 'Conversation could not be created.',
+          });
+        }
+        if (!canAccessConversation(raced, user)) {
+          throw new ForbiddenException({
+            code: 'CHAT_CONVERSATION_FORBIDDEN',
+            message: 'You do not have access to this conversation.',
+          });
+        }
+        return raced;
+      }
     }
     if (!canAccessConversation(conversation, user)) {
       throw new ForbiddenException({
@@ -210,23 +246,42 @@ export class ChatService {
     }
   }
 
-  /** Cheap pre-validation before the (heavier) AI SDK schema validation. */
+  /**
+   * Cheap pre-validation before the (heavier) AI SDK schema validation.
+   * Text parts ONLY (the concierge takes no attachments — review finding 4:
+   * file/data parts could smuggle kilobytes past a text-length check), plus a
+   * whole-payload byte ceiling as defense in depth.
+   */
   private assertIncomingUserMessage(message: unknown): void {
     const candidate = message as { role?: unknown; parts?: unknown } | null;
     const parts = Array.isArray(candidate?.parts) ? candidate.parts : null;
-    if (!candidate || candidate.role !== 'user' || !parts) {
+    if (
+      !candidate ||
+      candidate.role !== 'user' ||
+      !parts ||
+      parts.length === 0
+    ) {
       throw new BadRequestException({
         code: 'CHAT_INVALID_MESSAGE',
         message: 'Expected a single user message with parts.',
       });
     }
-    const textLength = parts.reduce(
-      (sum: number, part: { type?: unknown; text?: unknown }) =>
-        part?.type === 'text' && typeof part.text === 'string'
-          ? sum + part.text.length
-          : sum,
-      0,
-    );
+    if (JSON.stringify(message).length > MAX_MESSAGE_BYTES) {
+      throw new BadRequestException({
+        code: 'CHAT_MESSAGE_TOO_LONG',
+        message: `Messages must be 1–${MAX_MESSAGE_CHARS} characters.`,
+      });
+    }
+    let textLength = 0;
+    for (const part of parts as Array<{ type?: unknown; text?: unknown }>) {
+      if (part?.type !== 'text' || typeof part.text !== 'string') {
+        throw new BadRequestException({
+          code: 'CHAT_INVALID_MESSAGE',
+          message: 'Only text messages are supported.',
+        });
+      }
+      textLength += part.text.length;
+    }
     if (textLength === 0 || textLength > MAX_MESSAGE_CHARS) {
       throw new BadRequestException({
         code: 'CHAT_MESSAGE_TOO_LONG',
@@ -237,25 +292,40 @@ export class ChatService {
 
   /**
    * Persists only the tail this turn produced (the incoming user message +
-   * the assistant reply). Runs at stream end — a failure here must not crash
-   * the already-delivered stream, so it logs instead of throwing.
+   * the assistant reply): `messages` = loaded window + tail, so the tail
+   * starts at `loadedCount`; its seqs continue from `persistedCount` (total
+   * rows). A seq collision (concurrent send to the same conversation) retries
+   * ONCE against a fresh count — beyond that it logs; a failure here must not
+   * crash the already-delivered stream.
    */
   private async persistTail(
     conversationId: string,
     persistedCount: number,
+    loadedCount: number,
     messages: UIMessage[],
   ): Promise<void> {
-    try {
-      const tail = messages.slice(persistedCount);
-      if (tail.length === 0) return;
-      await this.prisma.chatMessage.createMany({
+    const tail = messages.slice(loadedCount);
+    if (tail.length === 0) return;
+
+    const insert = (seqBase: number) =>
+      this.prisma.chatMessage.createMany({
         data: tail.map((message, i) => ({
           conversationId,
-          seq: persistedCount + i,
+          seq: seqBase + i,
           role: (message.role === 'user' ? 'USER' : 'ASSISTANT') as ChatRole,
           payload: message as never,
         })),
       });
+
+    try {
+      try {
+        await insert(persistedCount);
+      } catch {
+        const freshCount = await this.prisma.chatMessage.count({
+          where: { conversationId },
+        });
+        await insert(freshCount);
+      }
       await this.prisma.chatConversation.update({
         where: { id: conversationId },
         data: { updatedAt: new Date() },
