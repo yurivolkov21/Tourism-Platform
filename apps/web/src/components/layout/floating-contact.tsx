@@ -31,7 +31,7 @@ const rowClass =
 // Channel list is env-driven — WhatsApp hides itself until NEXT_PUBLIC_CHAT_WHATSAPP is set.
 export function FloatingContact() {
   const pathname = usePathname();
-  const [prefill, setPrefill] = useState(t.prefillGeneric);
+  const [prefill, setPrefill] = useState<string>(t.prefillGeneric);
 
   if (isLauncherHidden(pathname)) return null;
 
