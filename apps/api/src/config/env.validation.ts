@@ -78,6 +78,12 @@ export const envValidationSchema = Joi.object({
   // ── Observability (Sentry — ADR-0008) ────────────────────────────────────
   SENTRY_DSN: Joi.string().uri().allow('').optional(),
 
+  // ── AI Concierge Chat ──────────────────────────────────────────────────────
+  // Optional by design: no key ⇒ the chat endpoint answers 503 CHAT_UNAVAILABLE
+  // and everything else runs normally (the owner adds the key later).
+  ANTHROPIC_API_KEY: Joi.string().allow('').optional(),
+  CHAT_MODEL: Joi.string().default('claude-haiku-4-5'),
+
   // ── Throttler ──────────────────────────────────────────────────────────────
   THROTTLE_TTL_SECONDS: Joi.number().integer().min(1).default(60),
   THROTTLE_LIMIT: Joi.number().integer().min(1).default(100),

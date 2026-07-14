@@ -50,6 +50,8 @@
 | `RESEND_REPLY_TO_EMAIL` | no | optional support inbox replies land in (blank = no Reply-To; replies to `noreply@` bounce) |
 | `SENTRY_DSN` | low | error reporting (optional) |
 | `THROTTLE_TTL_SECONDS`, `THROTTLE_LIMIT` | no | rate-limit config |
+| `ANTHROPIC_API_KEY` | **yes** | AI concierge chat (console.anthropic.com) — **optional**: unset ⇒ chat endpoint answers 503 `CHAT_UNAVAILABLE`, rest of the API unaffected |
+| `CHAT_MODEL` | no | optional, default `claude-haiku-4-5` — provider/model swap point (AI SDK) |
 
 ### Web + Admin → Vercel (projects `tourism-platform-web`, admin)
 

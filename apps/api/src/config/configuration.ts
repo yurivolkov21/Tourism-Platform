@@ -63,6 +63,13 @@ export const sentryConfig = registerAs('sentry', () => ({
   dsn: process.env.SENTRY_DSN ?? '',
 }));
 
+// AI concierge chat. Key is optional by design: empty ⇒ the chat endpoint
+// answers 503 CHAT_UNAVAILABLE and the rest of the API runs normally.
+export const chatConfig = registerAs('chat', () => ({
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY || undefined,
+  model: process.env.CHAT_MODEL ?? 'claude-haiku-4-5',
+}));
+
 export const throttlerConfig = registerAs('throttler', () => ({
   ttlSeconds: parseInt(process.env.THROTTLE_TTL_SECONDS ?? '60', 10),
   limit: parseInt(process.env.THROTTLE_LIMIT ?? '100', 10),
@@ -77,5 +84,6 @@ export const configurations = [
   paypalConfig,
   emailConfig,
   sentryConfig,
+  chatConfig,
   throttlerConfig,
 ];
