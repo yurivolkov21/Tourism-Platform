@@ -5,20 +5,34 @@
 
 ## STATUS
 
-- [ ] T0 deps + SSE/Render smoke (de-risk first)
-- [ ] T1 Prisma models + migration
-- [ ] T2 pure logic TDD (system prompt · ownership · trimmers/windowing)
-- [ ] T3 bot tools (zod ↔ services)
-- [ ] T4 ChatService + streaming endpoint
-- [ ] T5 history endpoint + persistence tests
-- [ ] T6 i18n `chatBot` namespace
-- [ ] T7 web ChatPanel + launcher entry
-- [ ] T8 env docs + owner to-dos
-- [ ] T9 gate + adversarial review + e2e decision
+- [x] T0 deps + de-risk — **v7 stays**: `require(esm)` of `ai@7.0.22` works on
+  Node ≥22.12 (probed on Node 26); live SSE smoke deferred to the deployed env
+- [x] T1 Prisma models + migration (hand-authored SQL incl. RLS invariant + `seq`)
+- [x] T2 pure logic TDD (system prompt · ownership · trimmers/windowing)
+- [x] T3 bot tools (zod ↔ services)
+- [x] T4 ChatService + streaming endpoint (+ optional-identity guard tweak)
+- [x] T5 history endpoint + persistence tests
+- [x] T6 i18n `chatBot` namespace
+- [x] T7 web ChatPanel + launcher entry
+- [x] T8 env docs (done FIRST at user request: `.env.example` · runbook · Joi ·
+  configuration — key optional, 503 `CHAT_UNAVAILABLE` without it)
+- [x] T9 gate green (9 projects) + adversarial review done — 12 findings: 7
+  fixed (enquiry 1-per-turn cap · windowed history fetch · text-only +
+  8KB payload guard · create-race fallback · persist seq-retry · GET throttle ·
+  `trust proxy`), 5 accepted for capstone (guard perf on public routes ·
+  guest-uuid semantics per spec Risk 5 · client 403 asymmetry · Math.random
+  fallback · uuid probing at 30/min)
 
-**RESUME STATE:** spec + plan written; deps installed (`ai@7.0.22`,
-`@ai-sdk/anthropic`, `zod` in api; `ai`, `@ai-sdk/react` in web) — no feature
-code yet. Awaiting user review of spec + plan.
+**Design deltas vs spec (upgrades found during build):** server-authoritative
+history — the client sends ONLY its newest message (official AI SDK persistence
+pattern); the conversation uuid is CLIENT-minted (create-on-first-use) so no
+CORS-exposed response header is needed.
+
+**RESUME STATE:** all tasks done on `feat/ai-concierge-chat`; gate green.
+Tests: api 541 (+42) · web 300 (+9) · i18n/admin/mobile unchanged. Awaiting
+user review + merge decision. Deploy to-dos: set `ANTHROPIC_API_KEY` on Render
+(user adds later) · verify Render `NODE_VERSION` ≥ 22.12 · apply migration
+(`prisma migrate deploy`) · Anthropic console spend alert.
 
 ## Sequencing
 
