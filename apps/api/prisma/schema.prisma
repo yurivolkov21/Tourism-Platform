@@ -164,6 +164,7 @@ model User {
   cancellationRequests  CancellationRequest[] @relation("CancellationRequester")
   cancellationDecisions CancellationRequest[] @relation("CancellationDecider")
   enquiryNotes          EnquiryNote[]
+  chatConversations     ChatConversation[]
 
   @@index([role])
   @@map("users")
@@ -757,4 +758,43 @@ model MediaGarbage {
   createdAt    DateTime @default(now()) @map("created_at")
 
   @@map("media_garbage")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AI Concierge Chat (spec: docs/06-specs/2026-07-14-ai-concierge-chat-design.md)
+// Guest identity = knowledge of the conversation uuid (capstone-accepted risk);
+// a conversation created by a logged-in user additionally binds to userId and
+// then REQUIRES a matching JWT to read/continue.
+
+enum ChatRole {
+  USER
+  ASSISTANT
+}
+
+model ChatConversation {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  messages ChatMessage[]
+
+  @@index([userId])
+  @@map("chat_conversations")
+}
+
+model ChatMessage {
+  id             String   @id @default(uuid()) @db.Uuid
+  conversationId String   @map("conversation_id") @db.Uuid
+  role           ChatRole
+  // AI SDK UIMessage.parts stored verbatim (text + tool parts) — lossless and
+  // directly replayable into useChat on the web.
+  parts          Json
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  conversation ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@map("chat_messages")
 }
