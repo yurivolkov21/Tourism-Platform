@@ -5,13 +5,15 @@
 
 ## STATUS
 
-- [ ] T1 i18n namespace
-- [ ] T2 pure helpers (TDD)
-- [ ] T3 launcher component + tests
-- [ ] T4 env documentation touch-points
-- [ ] T5 gate + review
+- [x] T1 i18n namespace
+- [x] T2 pure helpers (TDD)
+- [x] T3 launcher component + tests
+- [x] T4 env documentation touch-points
+- [x] T5 gate + review
 
-**RESUME STATE:** plan written, no code yet — awaiting user review of spec + plan.
+**RESUME STATE:** all tasks done on `feat/contact-launcher` — gate green (web 291 ·
+admin 266 · mobile 153), reviewer pass clean. Awaiting user review + merge decision.
+Owner to-do after merge: create WhatsApp number, set `NEXT_PUBLIC_CHAT_WHATSAPP` in Vercel.
 
 ## Sequencing
 
