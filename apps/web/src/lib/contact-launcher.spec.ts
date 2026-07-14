@@ -40,23 +40,27 @@ describe('buildWhatsAppLink', () => {
 });
 
 describe('getContactChannels', () => {
-  it('returns enquiry only when the WhatsApp env is unset', () => {
+  it('returns bot + enquiry when the WhatsApp env is unset', () => {
     expect(getContactChannels({})).toEqual([
+      { kind: 'bot' },
       { kind: 'enquiry', href: '/contact' },
     ]);
   });
 
-  it('returns enquiry only when the WhatsApp env is blank or invalid', () => {
+  it('drops WhatsApp when the env is blank or invalid', () => {
     expect(getContactChannels({ whatsappPhone: '  ' })).toEqual([
+      { kind: 'bot' },
       { kind: 'enquiry', href: '/contact' },
     ]);
     expect(getContactChannels({ whatsappPhone: 'not-a-phone' })).toEqual([
+      { kind: 'bot' },
       { kind: 'enquiry', href: '/contact' },
     ]);
   });
 
-  it('puts WhatsApp (normalized) first and enquiry last when configured', () => {
+  it('orders bot → WhatsApp (normalized) → enquiry when configured', () => {
     expect(getContactChannels({ whatsappPhone: '+84 912 345 678' })).toEqual([
+      { kind: 'bot' },
       { kind: 'whatsapp', phone: '84912345678' },
       { kind: 'enquiry', href: '/contact' },
     ]);

@@ -4,6 +4,7 @@ import { messages } from '@tourism/i18n';
 // (spec: docs/06-specs/2026-07-14-contact-launcher-design.md).
 
 export type ContactChannel =
+  | { kind: 'bot' }
   | { kind: 'whatsapp'; phone: string }
   | { kind: 'enquiry'; href: '/contact' };
 
@@ -26,11 +27,15 @@ export function buildWhatsAppLink(phone: string, text?: string): string {
   return text ? `${base}?text=${encodeURIComponent(text)}` : base;
 }
 
-/** Channels in display order; a channel with no valid config is omitted, enquiry is always last. */
+/**
+ * Channels in display order: the AI concierge first (always on — the panel
+ * itself degrades when the API has no key), then env-gated externals, then
+ * the enquiry form last.
+ */
 export function getContactChannels(env: {
   whatsappPhone?: string;
 }): ContactChannel[] {
-  const channels: ContactChannel[] = [];
+  const channels: ContactChannel[] = [{ kind: 'bot' }];
   const phone = normalizeWhatsAppPhone(env.whatsappPhone);
   if (phone) channels.push({ kind: 'whatsapp', phone });
   channels.push({ kind: 'enquiry', href: '/contact' });

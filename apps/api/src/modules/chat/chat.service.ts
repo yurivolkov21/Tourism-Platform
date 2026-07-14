@@ -73,7 +73,7 @@ export class ChatService {
       });
     }
 
-    const conversation = await this.resolveConversation(
+    const conversation = await this.resolveForWrite(
       input.conversationId,
       input.user,
     );
@@ -147,7 +147,7 @@ export class ChatService {
     conversationId: string,
     user: User | null,
   ): Promise<{ conversationId: string; messages: unknown[] }> {
-    await this.resolveConversation(conversationId, user);
+    await this.resolveForRead(conversationId, user);
     const rows = await this.prisma.chatMessage.findMany({
       where: { conversationId },
       orderBy: { seq: 'asc' },
@@ -156,8 +156,13 @@ export class ChatService {
     return { conversationId, messages: rows.map((row) => row.payload) };
   }
 
-  /** Looks up (or creates) the conversation and enforces the ownership rule. */
-  private async resolveConversation(
+  /**
+   * Write path: the CLIENT mints the conversation uuid (localStorage) — an
+   * unknown id is created on first use, an existing one is ownership-checked.
+   * Avoids exposing the id via response headers across CORS; security is
+   * unchanged (knowledge of the uuid is the guest credential either way).
+   */
+  private async resolveForWrite(
     conversationId: string | undefined,
     user: User | null,
   ): Promise<{ id: string; userId: string | null }> {
@@ -166,6 +171,28 @@ export class ChatService {
         data: { userId: user?.id ?? null },
       });
     }
+    const conversation = await this.prisma.chatConversation.findUnique({
+      where: { id: conversationId },
+    });
+    if (!conversation) {
+      return this.prisma.chatConversation.create({
+        data: { id: conversationId, userId: user?.id ?? null },
+      });
+    }
+    if (!canAccessConversation(conversation, user)) {
+      throw new ForbiddenException({
+        code: 'CHAT_CONVERSATION_FORBIDDEN',
+        message: 'You do not have access to this conversation.',
+      });
+    }
+    return conversation;
+  }
+
+  /** Read path: replay never creates — unknown ids 404. */
+  private async resolveForRead(
+    conversationId: string,
+    user: User | null,
+  ): Promise<void> {
     const conversation = await this.prisma.chatConversation.findUnique({
       where: { id: conversationId },
     });
@@ -181,7 +208,6 @@ export class ChatService {
         message: 'You do not have access to this conversation.',
       });
     }
-    return conversation;
   }
 
   /** Cheap pre-validation before the (heavier) AI SDK schema validation. */

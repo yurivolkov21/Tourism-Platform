@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { messages } from '@tourism/i18n';
 
@@ -34,6 +34,13 @@ jest.mock('@tourism/ui', () => ({
 let mockPathname = '/';
 jest.mock('next/navigation', () => ({
   usePathname: () => mockPathname,
+}));
+
+// The chat panel pulls in @ai-sdk/react + supabase — out of scope here.
+jest.mock('../chat/chat-panel', () => ({
+  ChatPanel: ({ open }: { open: boolean }) => (
+    <div data-testid="chat-panel" data-open={open} />
+  ),
 }));
 
 const t = messages.contactLauncher;
@@ -80,6 +87,22 @@ describe('FloatingContact', () => {
     expect(
       screen.getByRole('link', { name: new RegExp(t.enquiry.label) }),
     ).toHaveAttribute('href', '/contact');
+  });
+
+  it('opens the chat panel from the AI concierge row', () => {
+    mockPathname = '/';
+    render(<FloatingContact />);
+    expect(screen.getByTestId('chat-panel')).toHaveAttribute(
+      'data-open',
+      'false',
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: new RegExp(t.bot.label) }),
+    );
+    expect(screen.getByTestId('chat-panel')).toHaveAttribute(
+      'data-open',
+      'true',
+    );
   });
 
   it('hides the WhatsApp channel when the env is unset, keeping enquiry', () => {

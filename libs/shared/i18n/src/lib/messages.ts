@@ -1320,12 +1320,44 @@ export const messages = {
       },
     ],
   },
+  // AI concierge chat panel (spec 2026-07-14-ai-concierge-chat).
+  chatBot: {
+    title: 'Nexora Concierge',
+    disclaimer:
+      'AI assistant — it can make mistakes. Tap WhatsApp for a human.',
+    greeting:
+      'Hi! I can help you find a tour, answer questions about itineraries and policies, or pass your details to our team. What are you planning?',
+    suggestions: {
+      findTour: 'Find me a tour',
+      askIncluded: 'What’s included in a tour?',
+      talkHuman: 'Talk to a human',
+    },
+    inputPlaceholder: 'Ask about tours, dates, what’s included…',
+    send: 'Send',
+    sendAria: 'Send message',
+    startOver: 'Start over',
+    openAria: 'Open chat panel',
+    thinking: 'Thinking…',
+    toolActivity: {
+      searchTours: 'Searching tours…',
+      getTourDetails: 'Checking tour details…',
+      submitEnquiry: 'Sending your enquiry…',
+    },
+    error: 'Something went wrong. Please try again.',
+    retry: 'Retry',
+    unavailable:
+      'The concierge is taking a break right now — please use WhatsApp or the enquiry form instead.',
+  },
   // Floating contact launcher (channel popover; spec 2026-07-14-contact-launcher).
   contactLauncher: {
     trigger: 'Plan your trip',
     triggerAria: 'Open contact options',
     title: 'Talk to us',
     subtitle: 'Questions about a tour? We usually reply within 24 hours.',
+    bot: {
+      label: 'Chat with us',
+      hint: 'Instant answers from our AI concierge.',
+    },
     whatsapp: {
       label: 'Chat on WhatsApp',
       hint: 'Fastest reply — chat with a local expert.',

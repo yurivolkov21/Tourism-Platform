@@ -110,17 +110,30 @@ describe('ChatService.streamChat', () => {
     );
   });
 
-  it('404s for an unknown conversation id', async () => {
+  it('creates the conversation under the client-minted id when unknown', async () => {
     const { service, prisma, response } = makeService();
     prisma.chatConversation.findUnique.mockResolvedValue(null);
-    await expect(
-      service.streamChat({
-        conversationId: 'missing',
-        message: userMessage('hello'),
-        user: null,
-        response: response as never,
-      }),
-    ).rejects.toBeInstanceOf(NotFoundException);
+    prisma.chatConversation.create.mockResolvedValue({
+      id: 'client-uuid',
+      userId: null,
+    });
+    await service.streamChat({
+      conversationId: 'client-uuid',
+      message: userMessage('hello'),
+      user: null,
+      response: response as never,
+    });
+    expect(prisma.chatConversation.create).toHaveBeenCalledWith({
+      data: { id: 'client-uuid', userId: null },
+    });
+  });
+
+  it('404s a replay of an unknown conversation id', async () => {
+    const { service, prisma } = makeService();
+    prisma.chatConversation.findUnique.mockResolvedValue(null);
+    await expect(service.getMessages('missing', null)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
   });
 
   it('forbids continuing an owned conversation as guest or another user', async () => {
