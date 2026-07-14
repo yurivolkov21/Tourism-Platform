@@ -37,7 +37,7 @@ via chat).
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward); brand **"Nexora"**, palette **"Emerald Heritage"** |
 
-## Current state (2026-07-13)
+## Current state (2026-07-14)
 
 **Every product phase is complete and deployed** — on the custom domain
 `www.nexora-travel.agency` (admin: `admin.`) since 2026-07-13. All three debt
@@ -56,7 +56,7 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
 - **Web (P3 + P6)** — live on **Vercel**. Marketing + catalogue + booking
   money-path + account + blog (v2 complete) on real data; a11y/SEO/perf polish
   done; brand chrome admin-managed via site-media; resilience layer (loading
-  skeletons · error/404/global-error boundaries · empty-vs-failed) → W4 ✅ (shared AuthFormField · noValidate completion · auth titles i18n) — **PROGRAM CLOSED 2026-07-12**. **261 tests.**
+  skeletons · error/404/global-error boundaries · empty-vs-failed) → W4 ✅ (shared AuthFormField · noValidate completion · auth titles i18n) — **PROGRAM CLOSED 2026-07-12**. **Contact Launcher 2026-07-14** (WhatsApp `wa.me` deep-link w/ tour prefill + enquiry popover; env-driven, hides w/o `NEXT_PUBLIC_CHAT_WHATSAPP`). **291 tests.**
 - **Admin (P4)** — live on **Vercel** (dev :3002). Full CRUD + operations
   (bookings/refunds · cancellation queue · reviews/CRM · enquiries+notes ·
   subscribers · outbox · payment-events) + media library (reuse picker · alt ·
@@ -66,7 +66,7 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   booking money-path · guest-first auth · wishlist · Trips). Expo Go dev loop
   only (no store builds). **153 tests.**
 
-Baselines: **api 499 · web 261 · admin 266 · mobile 153 · mobile-ui 34 · core 42.**
+Baselines: **api 499 · web 291 · admin 266 · mobile 153 · mobile-ui 34 · core 42.**
 
 ## Next actions
 
@@ -74,26 +74,32 @@ Baselines: **api 499 · web 261 · admin 266 · mobile 153 · mobile-ui 34 · co
    Home states · N2 sheets + stepped booking · N1 feel checklist · W4 payment
    loop (Stripe test card · PayPal sandbox · abandon→Pay now ·
    cancel/cancellation-request · guest gating).
-2. **User visual pass on deployed surfaces** — in progress (the 2026-07-12
+2. **Contact Launcher owner to-do:** create the business WhatsApp number →
+   set `NEXT_PUBLIC_CHAT_WHATSAPP` (international digits) on the Vercel web
+   project — the WhatsApp channel stays hidden until then. Phase-2 chat options
+   (in-web Supabase Realtime · Business APIs · Messenger/LINE/Kakao) are
+   researched + parked in the spec appendix
+   (`docs/06-specs/2026-07-14-contact-launcher-design.md`).
+3. **User visual pass on deployed surfaces** — in progress (the 2026-07-12
    avatar fix came out of it); remaining admin surfaces: list-tables B1 ·
    reviews/CRM · wave C · media picker/alt/bulk · TabPills + dashboard
    date-range. Web still owed: the redesigned trust band + Contact
    "Secure payments" row (2026-07-10).
-3. **Web debt program — CLOSED 2026-07-12**: W1 ✅ (`ce8da9e`) · W2 ✅
+4. **Web debt program — CLOSED 2026-07-12**: W1 ✅ (`ce8da9e`) · W2 ✅
    resilience layer · W3 ✅ cleanups/i18n/SectionHeading · W4 ✅ (`ff058e9` —
    shared `AuthFormField` over 16/17 field groups · all 17 forms `noValidate` ·
    auth titles i18n). Cut for good: destination/category landing pages · auth
    toasts. Detail per wave: [CHANGELOG](docs/CHANGELOG.md).
-4. **Deliberate cuts (unscheduled):** notifications · category imagery ·
+5. **Deliberate cuts (unscheduled):** notifications · category imagery ·
    admin e2e.
-5. **Mobile backlog:** "Browse by experience" · dark-mode splash/adaptive-icon
+6. **Mobile backlog:** "Browse by experience" · dark-mode splash/adaptive-icon
    assets · in-app theme toggle · encrypted LargeSecureStore · EAS store builds.
-6. **API debt program — CLOSED 2026-07-13 (all three waves, one day):** W1
+7. **API debt program — CLOSED 2026-07-13 (all three waves, one day):** W1
    "Email revival" ✅ (`7c64852`) · W2 "Ops hardening" ✅ (`7e51a24`) · W3
    "CRM/analytics" ✅ (`0547270` — moderation audit · hasReview +
    /reviews/mine · costPrice margin w/ public strip + currency lock).
    Detail per wave: [CHANGELOG](docs/CHANGELOG.md).
-7. **Domain + email — FULLY LIVE 2026-07-13:** `nexora-travel.agency` wired
+8. **Domain + email — FULLY LIVE 2026-07-13:** `nexora-travel.agency` wired
    end-to-end ([deploy §5b](docs/05-runbooks/deploy.md)) **and API-W1 "Email
    revival" shipped** (`7c64852`): all 7 EmailTypes dispatch (2 cancellation +
    newsletter welcome net-new), refund email shows `refundedAmount`, branded

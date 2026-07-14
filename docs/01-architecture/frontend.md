@@ -56,8 +56,11 @@ empty slot or failed fetch renders exactly the previous visuals. Image hosts go 
 
 **Header/footer** live in `app/layout.tsx`. Primary nav: **Tours** (experiences dropdown) · **Destinations**
 (regions dropdown → `/destinations/<region>`; regions also expanded in the mobile menu) · **About** (`/about`) ·
-**Contact** (`/contact`). The "Plan your trip" button/FAB keeps `#contact` (scrolls to the on-page enquiry
-form — every page carries one with `id="contact"`). Footer Support column → About · `/faq` `/privacy` `/terms` · Contact.
+**Contact** (`/contact`). The "Plan your trip" FAB is the **Contact Launcher** (2026-07-14): a popover of
+channels — WhatsApp click-to-chat (`wa.me` + tour-aware prefill from `document.title`; hides while
+`NEXT_PUBLIC_CHAT_WHATSAPP` is unset) + "Send an enquiry" (→ `/contact`); hidden on `/checkout*` and
+`/tours/[slug]/book`, helpers in `lib/contact-launcher.ts`. Header nav "Plan your trip" links keep `#contact`
+(every page carries an enquiry form with `id="contact"`). Footer Support column → About · `/faq` `/privacy` `/terms` · Contact.
 
 ### Component layout (`apps/web/src/`)
 

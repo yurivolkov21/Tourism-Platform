@@ -4,6 +4,31 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-14 — Web "Contact Launcher": WhatsApp deep-link + enquiry popover (`73b35a9`)
+
+- The floating "Plan your trip" bubble becomes a channel **popover**:
+  **WhatsApp click-to-chat** (`wa.me` + URL-encoded prefill; on tour detail
+  pages the message carries `"tour title" — URL`, title taken from
+  `document.title` at open time — no server→client plumbing) and **Send an
+  enquiry** (→ `/contact`, the CRM path, always present).
+- **Env-driven channels**: `NEXT_PUBLIC_CHAT_WHATSAPP` (international digits;
+  documented in `.env.example` + env runbook) — unset ⇒ WhatsApp hides itself,
+  so deploying before the number exists is safe. Future channels
+  (Messenger/Telegram/LINE/Kakao) are config entries, not component changes.
+- Hidden on the money-path (`/checkout*`, `/tours/[slug]/book`); auth routes
+  already bare via AppShell. Popover = `@tourism/ui` Base UI (focus/Esc/aria
+  wired by the primitive); copy via new `messages.contactLauncher`.
+- Direction pivot recorded in the spec: external deep-link chat shipped INSTEAD
+  of in-web realtime chat; the spec's appendix preserves the phase-2 research
+  (in-web Supabase Realtime design — Broadcast not postgres_changes, writes via
+  API, anon auth + quotas · Business-API prereqs (Meta verification / Zalo OA
+  needs GPKD) · messaging-app × VN-inbound market map).
+- Review: 1 build break self-caught (`as const` literal `useState` inference,
+  fixed `88f84c2`); reviewer pass clean (Base UI API, env inlining, pathname
+  edges, tokens/a11y verified). Spec: `docs/06-specs/2026-07-14-contact-launcher-design.md`.
+- Tests after: api 499 · **web 291 (+30)** · admin 266 · mobile 153 ·
+  mobile-ui 34 · core 42.
+
 ## 2026-07-13 — API-W3 "CRM/analytics": moderation audit · hasReview + /reviews/mine · costPrice margin (`0547270`)
 
 - **Closes the API debt program** (W1 email `7c64852` → W2 ops `7e51a24` →
