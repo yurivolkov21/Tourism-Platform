@@ -140,7 +140,30 @@ key handling. External link opens new tab; label announces the channel name.
 | Ops | owner replies from phone | admin inbox + phone apps | someone must staff admin inbox (email fallback designed) |
 | Verdict | **ship now** | when a registered business exists | phase 2; design agreed (below) |
 
-### B. Agreed in-web chat design (deferred)
+### B. Phase-2 direction — LOCKED 2026-07-14: AI concierge chat (supersedes the human-chat design)
+
+**Agreed with the owner (same day, after launch):** the in-web chat will be
+**bot-first, not human-staffed** — humans stay on WhatsApp (this launcher is
+the escalation path, prefill can carry chat context). Shape:
+
+- **User ↔ AI bot** in a web chat panel (the `@tourism/ui` chat set: bubble ·
+  message · message-scroller). No admin inbox surface, no Supabase
+  Realtime/Broadcast needed — bot replies are API-streamed (SSE), which
+  deletes the channels/subscribe-auth complexity from the superseded design.
+- **Anonymous-first**: guests chat immediately; the bot collects name/email
+  **conversationally and transparently** (consent-based) → qualified
+  conversations convert to the existing **`Enquiry`** CRM model (no new admin
+  UI). Logged-in users: bot personalizes via the user's OWN data through
+  existing authorized API endpoints (JWT) — never raw DB into the prompt.
+- **Guardrails**: read-only tool calls (tour search/detail, FAQ/policy);
+  no price promises or bookings — anything binding defers to WhatsApp or the
+  booking flow; rate-limited (LLM cost + abuse).
+- **Open at spec time**: LLM provider/cost (chat volume is tiny — cheap tier
+  or free tier), LLM call placement (NestJS API + SSE vs Next route handler +
+  AI SDK `useChat`), guest identity (Supabase anonymous sign-in vs simple
+  conversation token — write security now lives in the API either way).
+
+<details><summary>Superseded human-chat design (kept for reference)</summary>
 
 Broadcast (private channels) **not** `postgres_changes` (single-threaded,
 per-subscriber RLS auth: ~30 changes/s at 500 clients); **writes through the
@@ -151,6 +174,8 @@ outbox email. Quotas (fetched 2026-07-14): Free = 200 concurrent conns,
 2M msgs/mo, 100 msg/s, 50k MAU (anon included), 500 MB DB; Pro = 500 conns
 (10k with spend cap off), 5M msgs/mo. Free tier is ~20× current needs if the
 socket connects only when the chat panel opens.
+
+</details>
 
 ### C. Messaging-app market × Vietnam inbound (2025: 21.2M arrivals)
 
