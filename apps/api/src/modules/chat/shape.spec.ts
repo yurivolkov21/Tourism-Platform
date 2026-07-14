@@ -93,7 +93,7 @@ describe('toTourDetailForBot', () => {
     const bot = toTourDetailForBot({
       ...detail,
       costPrice: '100.00',
-    }) as Record<string, unknown>;
+    } as never) as Record<string, unknown>;
     expect(bot.id).toBeUndefined();
     expect(bot.media).toBeUndefined();
     expect(bot.costPrice).toBeUndefined();

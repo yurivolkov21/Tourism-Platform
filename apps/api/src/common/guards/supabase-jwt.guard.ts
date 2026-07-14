@@ -67,7 +67,15 @@ export class SupabaseJwtGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) return true;
+    if (isPublic) {
+      // Optional identity (chat personalization): a public route stays public,
+      // but a PRESENT, VALID bearer still attaches the user. Invalid/expired
+      // tokens are ignored — never a 401 on a public route.
+      await this.tryAttachIdentity(
+        context.switchToHttp().getRequest<AuthenticatedRequest>(),
+      );
+      return true;
+    }
 
     const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const token = this.extractToken(req);
@@ -113,6 +121,32 @@ export class SupabaseJwtGuard implements CanActivate {
     });
 
     return true;
+  }
+
+  /** Best-effort identity attach for public routes — swallows every failure. */
+  private async tryAttachIdentity(req: AuthenticatedRequest): Promise<void> {
+    const token = this.extractToken(req);
+    if (!token) return;
+    try {
+      const payload = await this.verifyToken(token);
+      const claims = payload as Record<string, unknown>;
+      const sub = typeof payload.sub === 'string' ? payload.sub : '';
+      const email = typeof claims.email === 'string' ? claims.email : '';
+      if (!sub || !email) return;
+      req.supabaseUser = {
+        sub,
+        email,
+        emailVerified: Boolean(
+          claims.email_verified ?? claims.email_confirmed_at,
+        ),
+        raw: claims,
+      };
+      req.currentUser = await this.prisma.user.findUnique({
+        where: { supabaseId: sub },
+      });
+    } catch {
+      // Public route: an invalid token is treated as anonymous, not an error.
+    }
   }
 
   /** Extracts the bearer token; `null` when missing/malformed. */

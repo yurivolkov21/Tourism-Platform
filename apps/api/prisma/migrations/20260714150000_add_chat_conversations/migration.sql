@@ -14,16 +14,17 @@ CREATE TABLE "chat_conversations" (
 CREATE TABLE "chat_messages" (
   "id" UUID NOT NULL,
   "conversation_id" UUID NOT NULL,
+  "seq" INTEGER NOT NULL,
   "role" "ChatRole" NOT NULL,
-  "parts" JSONB NOT NULL,
+  "payload" JSONB NOT NULL,
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
   CONSTRAINT "chat_messages_pkey" PRIMARY KEY ("id")
 );
 
 CREATE INDEX "chat_conversations_user_id_idx" ON "chat_conversations"("user_id");
-CREATE INDEX "chat_messages_conversation_id_created_at_idx"
-  ON "chat_messages"("conversation_id", "created_at");
+CREATE UNIQUE INDEX "chat_messages_conversation_id_seq_key"
+  ON "chat_messages"("conversation_id", "seq");
 
 ALTER TABLE "chat_conversations" ADD CONSTRAINT "chat_conversations_user_id_fkey"
   FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;

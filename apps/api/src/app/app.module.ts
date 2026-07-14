@@ -12,6 +12,7 @@ import { AuthModule } from '../modules/auth/auth.module';
 import { BookingsModule } from '../modules/bookings/bookings.module';
 import { CancellationsModule } from '../modules/cancellations/cancellations.module';
 import { DeparturesModule } from '../modules/departures/departures.module';
+import { ChatModule } from '../modules/chat/chat.module';
 import { DestinationsModule } from '../modules/destinations/destinations.module';
 import { EmailModule } from '../modules/email/email.module';
 import { EnquiryModule } from '../modules/enquiry/enquiry.module';
@@ -51,6 +52,7 @@ import { AppService } from './app.service';
     ReviewsModule,
     WishlistModule,
     EnquiryModule,
+    ChatModule,
     NewsletterModule,
     AdminStatsModule,
     PostsModule,
