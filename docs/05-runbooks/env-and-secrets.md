@@ -59,6 +59,7 @@
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | no | client-safe by design |
 | `NEXT_PUBLIC_API_BASE_URL` | no | API origin **without** `/api/v1` (the client adds it) — e.g. `https://tourism-api-pqwr.onrender.com` |
 | `NEXT_PUBLIC_SITE_URL` | no | **web only** — canonical origin for sitemap/robots/OG: `https://www.nexora-travel.agency` |
+| `NEXT_PUBLIC_CHAT_WHATSAPP` | no | **web only, optional** — WhatsApp number for the contact launcher, international digits (no `+`), e.g. `84912345678`; the channel hides itself while unset |
 
 ## Fast loading (bulk, no typing each var)
 

@@ -1320,6 +1320,24 @@ export const messages = {
       },
     ],
   },
+  // Floating contact launcher (channel popover; spec 2026-07-14-contact-launcher).
+  contactLauncher: {
+    trigger: 'Plan your trip',
+    triggerAria: 'Open contact options',
+    title: 'Talk to us',
+    subtitle: 'Questions about a tour? We usually reply within 24 hours.',
+    whatsapp: {
+      label: 'Chat on WhatsApp',
+      hint: 'Fastest reply — chat with a local expert.',
+    },
+    enquiry: {
+      label: 'Send an enquiry',
+      hint: 'Tell us about your trip and get a tailored quote.',
+    },
+    prefillGeneric: 'Hi Nexora! I have a question about planning a trip.',
+    prefillTour: (title: string, url: string) =>
+      `Hi Nexora! I’m interested in “${title}” — ${url}`,
+  },
   contact: {
     heading: 'Contact us',
     breadcrumb: 'Contact',
