@@ -1,6 +1,6 @@
 # AI Concierge Chat — design spec
 
-**Date:** 2026-07-14 · **Scope:** `@tourism/api` + `@tourism/web` (+ `@tourism/ui` reuse, `@tourism/i18n`) · **Status:** DRAFT (awaiting user review)
+**Date:** 2026-07-14 · **Scope:** `@tourism/api` + `@tourism/web` (+ `@tourism/ui` reuse, `@tourism/i18n`) · **Status:** ✅ SHIPPED 2026-07-14 (merged `74ef17f`; deploy owed — see plan STATUS). Implementation notes: two deltas vs this draft — client sends only its newest message (server-authoritative history, official AI SDK pattern) and the conversation uuid is client-minted (no CORS-exposed header).
 
 ## Goal & Scope
 

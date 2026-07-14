@@ -27,6 +27,7 @@ modules/
   bookings · cancellations (cancellation-request queue) · payments (stripe + paypal) ·
   uploads · media · site-media (brand-chrome slots) ·
   reviews · wishlist · enquiry · newsletter · admin-stats · posts ·
+  chat (AI concierge — SSE stream, tools over tours/enquiry) ·
   email (Resend templates) · jobs (pg-boss outbox + cron)
 app/      AppModule (global guards/interceptor/filter) + root controller (GET /)
 ```
@@ -88,6 +89,12 @@ global `APP_*` providers in `AppModule`. `@SkipTransform` opts webhooks out of t
 CRUD: destinations · tours (+categories, M:N destinations, itinerary/FAQs/policies, media) ·
 departures · **bookings + Stripe/PayPal** · **media** (Cloudinary signed upload) · **reviews**
 (PAID-gated + moderation) · **wishlist** · **enquiry** (throttle + honeypot + lead fields) ·
+**chat** (AI concierge — the API's only SSE surface: `POST /chat/messages` streams an
+AI SDK v7 UIMessage response over raw `@Res()`, bypassing the Transform envelope;
+Claude Haiku via `@ai-sdk/anthropic`, tools call `ToursService`/`EnquiryService`
+in-process; server-authoritative history in `chat_conversations`/`chat_messages`;
+hard spend caps + 1 enquiry/turn; `@Public()` but reads a valid JWT for
+personalization; `ANTHROPIC_API_KEY` optional → 503 `CHAT_UNAVAILABLE`) ·
 **admin-stats** (optional `?from&to` range + per-currency aggregation, no FX — wave D2) ·
 **jobs** (outbox + cron) · **cancellation-request queue** (customer
 `POST /bookings/:code/cancellation-request` on a PAID booking + admin

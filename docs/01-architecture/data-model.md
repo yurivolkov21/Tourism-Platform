@@ -17,8 +17,11 @@ when this doc disagrees with the schema, the schema wins. Founding rationale:
 > `MediaAsset.alt`, applied live) → **API debt program (2026-07-13)** —
 > migrations `email_type_newsletter_welcome` (+`NEWSLETTER_WELCOME` enum value,
 > W1) and `review_audit_and_tour_cost` (`Review.moderatedById/moderatedAt`
-> audit + `Tour.costPrice`, W3), both applied live.
-> **25 models, 16 enums.**
+> audit + `Tour.costPrice`, W3), both applied live. **AI concierge chat
+> (2026-07-14):** migration `add_chat_conversations` — `ChatConversation` +
+> `ChatMessage` (+`ChatRole` enum), merged but **not yet applied on Render**
+> (deploy owed — HANDOFF next-actions).
+> **27 models, 17 enums.**
 
 ## Conventions (kept from donor)
 
@@ -47,6 +50,8 @@ indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 | `PaymentEvent` | webhook idempotency log | `@@unique(provider, eventId)`, `processedAt?` (nullable → re-run on mid-flight crash) |
 | `Enquiry` | "Inquire Now" lead (ADR-0003) | `name`/`email`/`phone?`/`message`, `tourId?`, `status EnquiryStatus`, **lead fields P1.7d: `nationality?`/`travelDate?`/`groupSize?`/`budgetTier?`/`interests[]`**; **`@@index([email])`** (2026-07-11 — repeat-lead detection); 1:N → `notes` |
 | `EnquiryNote` | internal CRM note on an enquiry (wave B2, 2026-07-11) | `id`, `enquiryId` FK → Enquiry (Cascade), `authorId?` FK → User (SetNull), `authorName` snapshot, `body`, `createdAt`; append-only (no update/delete endpoint); `@@index([enquiryId, createdAt])` |
+| `ChatConversation` | AI concierge thread (2026-07-14) | `id` (uuid — also the client-minted guest token), `userId?` FK → User (SetNull; set when a logged-in user starts it → then requires a matching JWT), `createdAt`/`updatedAt`; 1:N → `messages`; `@@index([userId])` |
+| `ChatMessage` | one persisted turn (2026-07-14) | `id`, `conversationId` FK → ChatConversation (Cascade), `seq` (per-conversation order), `role ChatRole`, `payload` (AI SDK `UIMessage` JSONB verbatim), `createdAt`; `@@unique([conversationId, seq])` |
 | `MediaAsset` | Cloudinary asset, polymorphic | `(ownerType, ownerId, role)`, `publicId`, `type`, `posterId?`, **`alt?`** (editable alt text, wave D1 — `PATCH /admin/media/:id`) — no hard FK (ADR-0008 pragmatic); **`@@unique(ownerType, ownerId, publicId)`** (blog-v2 W5 — race-free body-image upsert) lets the same publicId legally serve several owners (reuse picker, wave D1) |
 | `SiteMediaSlot` | brand-chrome image slot of the public web (Appearance, 2026-07-10) | `key @unique` (9 seeded: home-hero … about-story); images = `MediaAsset(ownerType=SITE, ownerId=slot.id)` — catalog of kinds/labels lives in API code (`site-media/slot-catalog.ts`) |
 | `Outbox` | transactional email outbox (ADR-0007, P1.x-a) | `type EmailType`, `payload Json`, `status OutboxStatus`, `attempts`, `dedupeKey @unique` |
@@ -63,7 +68,7 @@ indexes on FKs + filters · EN-only single-language columns (ADR-0005).
 `BookingStatus` (PENDING/PAID/CANCELLED/REFUNDED/**PARTIALLY_REFUNDED** — 2026-07-05) ·
 **`PaymentProvider` (STRIPE/PAYPAL** —
 MoMo→PayPal, [ADR-0006](../02-decisions/0006-multi-gateway-momo.md) amended) ·
-`EnquiryStatus` (NEW/CONTACTED/QUOTED/WON/LOST) · **`CancellationRequestStatus`**
+`ChatRole` (USER/ASSISTANT) · `EnquiryStatus` (NEW/CONTACTED/QUOTED/WON/LOST) · **`CancellationRequestStatus`**
 (REQUESTED/REFUNDED/DENIED — support lifecycle for a PAID-booking cancellation
 request, 2026-07-05) · `MediaType` (IMAGE/VIDEO) ·
 `MediaOwnerType` (TOUR/DESTINATION/USER/POST/**SITE** — brand-chrome slots, 2026-07-10) · `MediaRole` (hero/gallery/avatar/**body** — blog-v2 W3 inline images) ·

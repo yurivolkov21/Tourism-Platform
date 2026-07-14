@@ -4,6 +4,44 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-14 — AI Concierge Chat: bot-first web chat over the API (`74ef17f`)
+
+- **Phase 2 of the chat direction** (locked earlier the same day): visitors
+  chat with an **AI concierge** — web Sheet panel (first real use of the
+  `@tourism/ui` chat set: bubble · message · message-scroller · marker;
+  markdown replies, suggestion chips, "Talk to a human" → WhatsApp) opened
+  from a new "Chat with us" channel at the top of the contact launcher.
+- **API `ChatModule`** — the repo's **first SSE surface**: `POST
+  /api/v1/chat/messages` streams an AI SDK UIMessage response over raw
+  Express `@Res()` (bypasses the Transform envelope); `GET
+  /chat/conversations/:id/messages` replays. **AI SDK v7** (`ai@7.0.22`,
+  ESM-only — loaded via Node ≥22.12 `require(esm)`; jest mocks the module) +
+  `@ai-sdk/anthropic`, model env-swappable (`CHAT_MODEL`, default
+  `claude-haiku-4-5`). Tools call services in-process: `searchTours`,
+  `getTourDetails` (itinerary/FAQs/policies), `submitEnquiry` (consent-gated
+  → existing CRM + outbox email). History is server-authoritative
+  (client sends only its newest message; client-minted conversation uuid,
+  create-on-first-use); persisted in `chat_conversations`/`chat_messages`
+  (UIMessage stored verbatim, `seq`-ordered, RLS invariant).
+- **Optional identity on `@Public()` routes** (guard change): a present,
+  valid JWT attaches `currentUser` for personalization; invalid tokens stay
+  anonymous — never a 401 on a public route.
+- **Spend/abuse caps, all server-side**: 10 msg/min/IP (+30/min GET) ·
+  `maxOutputTokens` 800 · 4 tool-steps · 20-message window · 200-message
+  conversation cap · text-only parts, ≤2000 chars, ≤8KB payload · **1 enquiry
+  per turn**. No key configured ⇒ 503 `CHAT_UNAVAILABLE` and the panel shows
+  its unavailable state (site unaffected — key can land after deploy).
+- **Adversarial review (money-path rule): 12 findings, 7 fixed** (`704a318`:
+  enquiry cap/turn · windowed history fetch · payload-smuggling guard ·
+  create-race fallback · persist seq-retry · GET throttle · **`trust proxy`**
+  — without it every client shared ONE throttle bucket behind Render), 5
+  accepted + pinned in the plan STATUS.
+- Deploy to-dos (HANDOFF): `ANTHROPIC_API_KEY` on Render (owner adds later) ·
+  `NODE_VERSION` ≥ 22.12 · `prisma migrate deploy` for the new migration ·
+  Anthropic spend alert.
+- Tests after: **api 541 (+42)** · **web 300 (+9)** · admin 266 · mobile 153 ·
+  mobile-ui 34 · core 42.
+
 ## 2026-07-14 — Web "Contact Launcher": WhatsApp deep-link + enquiry popover (`73b35a9`)
 
 - The floating "Plan your trip" bubble becomes a channel **popover**:

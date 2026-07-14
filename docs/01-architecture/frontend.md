@@ -59,7 +59,11 @@ empty slot or failed fetch renders exactly the previous visuals. Image hosts go 
 **Contact** (`/contact`). The "Plan your trip" FAB is the **Contact Launcher** (2026-07-14): a popover of
 channels — WhatsApp click-to-chat (`wa.me` + tour-aware prefill from `document.title`; hides while
 `NEXT_PUBLIC_CHAT_WHATSAPP` is unset) + "Send an enquiry" (→ `/contact`); hidden on `/checkout*` and
-`/tours/[slug]/book`, helpers in `lib/contact-launcher.ts`. Header nav "Plan your trip" links keep `#contact`
+`/tours/[slug]/book`, helpers in `lib/contact-launcher.ts`. The popover's first channel is **"Chat with us"**
+→ the **AI concierge** panel (2026-07-14, `components/chat/`): a `Sheet` running `useChat` (`@ai-sdk/react`)
+against `POST /api/v1/chat/messages`, markdown replies + suggestion chips + tool-activity markers; the guest
+conversation uuid is client-minted in `localStorage` (`conversation-store.ts`); it degrades to an "unavailable"
+state when the API has no `ANTHROPIC_API_KEY`. Header nav "Plan your trip" links keep `#contact`
 (every page carries an enquiry form with `id="contact"`). Footer Support column → About · `/faq` `/privacy` `/terms` · Contact.
 
 ### Component layout (`apps/web/src/`)
@@ -67,6 +71,7 @@ channels — WhatsApp click-to-chat (`wa.me` + tour-aware prefill from `document
 ```text
 components/
   layout/      SiteHeader · SiteFooter · TopBar · FloatingContact · ScrollToTop
+  chat/        ChatPanel(useChat Sheet) · conversation-store(localStorage uuid)
   marketing/   hero · destinations(bento) · experiences · featured-packages · why-choose ·
                trust · testimonials · blog-teaser · enquiry-cta · plan-trip-form(rich enquiry) ·
                gallery(+lightbox) · faq* · cta-band …

@@ -45,18 +45,20 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
 **API W1→W3 (2026-07-13)**. Wave-by-wave detail: [CHANGELOG](docs/CHANGELOG.md).
 
 - **API (P1+)** — live on **Render** (`/health` + cron-job.org keep-alive).
-  Full surface: **105 endpoints** across 20 modules (CRUD · bookings ·
+  Full surface: **107 endpoints** across 21 modules (CRUD · bookings ·
   Stripe/PayPal + refunds · cancellation queue + **cancel-departure
   auto-refund** · media w/ ref-safe GC · reviews/CRM w/ **moderation audit** ·
   newsletter · site-media · dashboard stats w/ `?from&to` + per-currency
   **+ cost/margin** · pg-boss outbox/cron — **all 7 EmailTypes live, branded
-  v2 templates**). **499 unit + 8 e2e tests.**
+  v2 templates** · **AI concierge chat — first SSE surface, AI SDK v7 + Claude
+  Haiku, tools over Tours/Enquiry, hard spend caps, key-optional**). **541 unit
+  + 8 e2e tests.**
 - **Design system (P2)** — `@tourism/tokens` (no-hex enforced) +
   `@tourism/ui` (59 shadcn/Base UI comps) + `@tourism/mobile-ui` (RN, 34 tests).
 - **Web (P3 + P6)** — live on **Vercel**. Marketing + catalogue + booking
   money-path + account + blog (v2 complete) on real data; a11y/SEO/perf polish
   done; brand chrome admin-managed via site-media; resilience layer (loading
-  skeletons · error/404/global-error boundaries · empty-vs-failed) → W4 ✅ (shared AuthFormField · noValidate completion · auth titles i18n) — **PROGRAM CLOSED 2026-07-12**. **Contact Launcher 2026-07-14** (WhatsApp `wa.me` deep-link w/ tour prefill + enquiry popover; env-driven, hides w/o `NEXT_PUBLIC_CHAT_WHATSAPP`). **291 tests.**
+  skeletons · error/404/global-error boundaries · empty-vs-failed) → W4 ✅ (shared AuthFormField · noValidate completion · auth titles i18n) — **PROGRAM CLOSED 2026-07-12**. **Contact Launcher 2026-07-14** (WhatsApp `wa.me` deep-link w/ tour prefill + enquiry popover; env-driven, hides w/o `NEXT_PUBLIC_CHAT_WHATSAPP`); **AI concierge chat panel 2026-07-14** ("Chat with us" → Sheet w/ useChat + markdown; degrades when API has no key). **300 tests.**
 - **Admin (P4)** — live on **Vercel** (dev :3002). Full CRUD + operations
   (bookings/refunds · cancellation queue · reviews/CRM · enquiries+notes ·
   subscribers · outbox · payment-events) + media library (reuse picker · alt ·
@@ -66,7 +68,7 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   booking money-path · guest-first auth · wishlist · Trips). Expo Go dev loop
   only (no store builds). **153 tests.**
 
-Baselines: **api 499 · web 291 · admin 266 · mobile 153 · mobile-ui 34 · core 42.**
+Baselines: **api 541 · web 300 · admin 266 · mobile 153 · mobile-ui 34 · core 42.**
 
 ## Next actions
 
@@ -75,16 +77,21 @@ Baselines: **api 499 · web 291 · admin 266 · mobile 153 · mobile-ui 34 · co
    loop (Stripe test card · PayPal sandbox · abandon→Pay now ·
    cancel/cancellation-request · guest gating).
 2. **Contact Launcher — LIVE 2026-07-14:** `NEXT_PUBLIC_CHAT_WHATSAPP` set on
-   Vercel with the owner's personal number (capstone context — no business
-   number needed); owner verified the wa.me chat end-to-end on production.
-   Remaining: cross-account test (teammate opens the launcher from the site and
-   messages the owner). **Phase-2 direction LOCKED 2026-07-14: AI concierge
-   chat** (bot-first web chat, humans stay on WhatsApp; anonymous-first with
-   consent-based lead capture → existing `Enquiry` CRM; personalization via
-   authorized API when logged in; supersedes the human-chat/Supabase-Realtime
-   design) — full shape + open decisions in the spec appendix
-   (`docs/06-specs/2026-07-14-contact-launcher-design.md` §B). Kick off via
-   `/new-feature` when the team wants it (strong capstone-report feature).
+   Vercel with the owner's personal number; owner verified the wa.me chat
+   end-to-end on production. Remaining: cross-account test (teammate opens the
+   launcher and messages the owner).
+2b. **AI Concierge Chat — MERGED 2026-07-14, deploy owed** (`74ef17f`; spec
+   `docs/06-specs/2026-07-14-ai-concierge-chat-design.md`). To go live:
+   **(a)** create `ANTHROPIC_API_KEY` (console.anthropic.com — owner adds
+   later) and set it on Render (unset ⇒ 503 `CHAT_UNAVAILABLE`, panel shows its
+   unavailable state — safe to deploy without); **(b)** ensure Render
+   `NODE_VERSION` ≥ 22.12 (AI SDK v7 is ESM-only, loaded via `require(esm)`);
+   **(c)** `prisma migrate deploy` for `20260714150000_add_chat_conversations`;
+   **(d)** set an Anthropic console spend alert. Review findings pinned as
+   accepted-for-capstone: plan STATUS
+   (`docs/07-plans/2026-07-14-ai-concierge-chat.md`). Later hardening (deferred):
+   scope optional-JWT guard work off high-traffic public GETs · bind a guest
+   conversation to the user on mid-thread login.
 3. **User visual pass on deployed surfaces** — in progress (the 2026-07-12
    avatar fix came out of it); remaining admin surfaces: list-tables B1 ·
    reviews/CRM · wave C · media picker/alt/bulk · TabPills + dashboard
