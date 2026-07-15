@@ -119,11 +119,18 @@ export default function BookingPaymentScreen() {
           gap: theme.spacing(2),
           borderWidth: 1,
           borderColor: theme.colors['border'],
-          borderRadius: theme.radius.md,
+          borderRadius: theme.radius.lg,
+          borderCurve: 'continuous',
+          backgroundColor: theme.colors['secondary'],
           padding: theme.spacing(4),
         }}
       >
-        <AppText variant="title">{t.page.summaryHeading}</AppText>
+        <AppText
+          variant="title"
+          style={{ fontFamily: theme.fontFamilies.headingBold }}
+        >
+          {t.page.summaryHeading}
+        </AppText>
         <AppText variant="body">{draft.departureLabel}</AppText>
         <AppText variant="caption" muted>
           {partyLine(draft.adults, draft.children)}
@@ -158,9 +165,14 @@ export default function BookingPaymentScreen() {
           >
             {t.page.totalLabel}
           </AppText>
+          {/* P5.6: the total is the hero number of this screen. */}
           <AppText
-            variant="body"
-            style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+            style={{
+              fontFamily: theme.fontFamilies.sansSemiBold,
+              fontSize: 22,
+              lineHeight: 28,
+              color: theme.colors['foreground'],
+            }}
           >
             {formatMoney(draft.currency, breakdown.total)}
           </AppText>
@@ -172,7 +184,12 @@ export default function BookingPaymentScreen() {
 
       {/* Payment method */}
       <View style={{ gap: theme.spacing(3) }}>
-        <AppText variant="title">{t.form.paymentHeading}</AppText>
+        <AppText
+          variant="title"
+          style={{ fontFamily: theme.fontFamilies.headingBold }}
+        >
+          {t.form.paymentHeading}
+        </AppText>
         {(
           [
             {
@@ -209,7 +226,11 @@ export default function BookingPaymentScreen() {
                 borderColor: isSelected
                   ? theme.colors['primary']
                   : theme.colors['border'],
-                borderRadius: theme.radius.md,
+                borderRadius: theme.radius.lg,
+                borderCurve: 'continuous',
+                backgroundColor: isSelected
+                  ? theme.colors['accent']
+                  : theme.colors['secondary'],
                 overflow: 'hidden',
                 padding: theme.spacing(3),
                 opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.85 : 1,

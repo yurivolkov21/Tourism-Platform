@@ -123,7 +123,12 @@ export const DepartureSheet = forwardRef<
       <View
         style={{ paddingHorizontal: theme.spacing(4), gap: theme.spacing(4) }}
       >
-        <AppText variant="title">{t.form.datesHeading}</AppText>
+        <AppText
+          variant="title"
+          style={{ fontFamily: theme.fontFamilies.headingBold, fontSize: 24 }}
+        >
+          {t.form.datesHeading}
+        </AppText>
 
         {departuresQ.isError ? (
           <View style={{ gap: theme.spacing(3) }}>
@@ -165,7 +170,11 @@ export const DepartureSheet = forwardRef<
                     borderColor: isSelected
                       ? theme.colors['primary']
                       : theme.colors['border'],
-                    borderRadius: theme.radius.md,
+                    borderRadius: theme.radius.lg,
+                    borderCurve: 'continuous',
+                    backgroundColor: isSelected
+                      ? theme.colors['accent']
+                      : theme.colors['secondary'],
                     overflow: 'hidden',
                     padding: theme.spacing(3),
                     gap: 2,
@@ -244,8 +253,8 @@ export const DepartureSheet = forwardRef<
             <AppText
               style={{
                 fontFamily: theme.fontFamilies.sansSemiBold,
-                fontSize: 18,
-                lineHeight: 24,
+                fontSize: 22,
+                lineHeight: 28,
                 color: theme.colors['foreground'],
               }}
             >

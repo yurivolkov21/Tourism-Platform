@@ -116,7 +116,15 @@ export const EnquirySheet = forwardRef<
         ) : (
           <>
             <View style={{ gap: theme.spacing(1) }}>
-              <AppText variant="title">{t.title}</AppText>
+              <AppText
+                variant="title"
+                style={{
+                  fontFamily: theme.fontFamilies.headingBold,
+                  fontSize: 24,
+                }}
+              >
+                {t.title}
+              </AppText>
               <AppText variant="caption" muted>
                 {tourTitle}
               </AppText>

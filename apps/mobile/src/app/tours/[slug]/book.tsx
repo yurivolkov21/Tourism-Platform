@@ -109,7 +109,9 @@ export default function BookingContactScreen() {
             gap: theme.spacing(2),
             borderWidth: 1,
             borderColor: theme.colors['border'],
-            borderRadius: theme.radius.md,
+            borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
+            backgroundColor: theme.colors['secondary'],
             padding: theme.spacing(4),
           }}
         >
@@ -120,7 +122,12 @@ export default function BookingContactScreen() {
               justifyContent: 'space-between',
             }}
           >
-            <AppText variant="title">{tm.tripHeading}</AppText>
+            <AppText
+              variant="title"
+              style={{ fontFamily: theme.fontFamilies.headingBold }}
+            >
+              {tm.tripHeading}
+            </AppText>
             <Button
               variant="outline"
               label={tm.editTrip}
@@ -136,7 +143,12 @@ export default function BookingContactScreen() {
         </View>
 
         <View style={{ gap: theme.spacing(3) }}>
-          <AppText variant="title">{t.form.travellersHeading}</AppText>
+          <AppText
+            variant="title"
+            style={{ fontFamily: theme.fontFamilies.headingBold }}
+          >
+            {t.form.travellersHeading}
+          </AppText>
           <AppText variant="caption" muted>
             {t.form.travellersDesc}
           </AppText>
