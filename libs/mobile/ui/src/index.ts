@@ -25,3 +25,7 @@ export { ScrimImage } from './lib/scrim-image';
 export type { ScrimImageProps } from './lib/scrim-image';
 export { FloatingTabBar } from './lib/floating-tab-bar';
 export type { FloatingTabBarProps } from './lib/floating-tab-bar';
+export { StickyCTABar } from './lib/sticky-cta-bar';
+export type { StickyCTABarProps } from './lib/sticky-cta-bar';
+export { GlowBadge } from './lib/glow-badge';
+export type { GlowBadgeProps } from './lib/glow-badge';
