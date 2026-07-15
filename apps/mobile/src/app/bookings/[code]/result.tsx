@@ -261,12 +261,22 @@ export default function BookingResultScreen() {
               paddingVertical: theme.spacing(6),
             }}
           >
-            {/* Same template as success — only the glow tone + copy differ. */}
-            <GlowBadge tone="error">
+            {/* Same template as success — glow follows the status semantics
+                (REFUNDED keeps its destructive tone; CANCELLED reads neutral,
+                per the adversarial review). */}
+            <GlowBadge
+              tone={
+                booking.statusMeta.tone === 'destructive' ? 'error' : 'neutral'
+              }
+            >
               <Ionicons
                 name="close"
                 size={44}
-                color={theme.colors['destructive']}
+                color={
+                  booking.statusMeta.tone === 'destructive'
+                    ? theme.colors['destructive']
+                    : theme.colors['muted-foreground']
+                }
               />
             </GlowBadge>
             <Badge

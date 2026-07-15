@@ -168,8 +168,12 @@ export default function TourDetailScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors['background'] }}>
       <ScrollView
-        // 140 clears the StickyCTABar (its own height + safe-area).
-        contentContainerStyle={{ paddingBottom: 140 }}
+        // Clears the StickyCTABar: bar body (~96) + device bottom inset +
+        // breathing room — a flat constant under-clears at large font scales
+        // (adversarial-review finding).
+        contentContainerStyle={{
+          paddingBottom: 96 + insets.bottom + theme.spacing(6),
+        }}
         showsVerticalScrollIndicator={false}
       >
         <View>

@@ -42,10 +42,11 @@ export function StickyCTABar({ leading, children }: StickyCTABarProps) {
         borderColor: theme.colors['border'],
       }}
     >
+      {/* The price side yields (flexShrink) — CTAs never clip off-screen
+          (adversarial-review finding: a capped, non-shrinking CTA slot
+          overflowed on narrow devices at large font scales). */}
       {leading ? <View style={{ flexShrink: 1 }}>{leading}</View> : null}
-      <View style={{ flexGrow: 1, flexShrink: 0, maxWidth: '60%' }}>
-        {children}
-      </View>
+      <View>{children}</View>
     </View>
   );
 }

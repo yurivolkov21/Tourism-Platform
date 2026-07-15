@@ -95,10 +95,13 @@ export function GalleryPager({
         style={{ position: 'absolute', inset: 0 }}
       />
 
-      {/* Title block slot — bottom-left, clear of the rail. */}
+      {/* Title block slot — bottom-left, clear of the rail. pointerEvents
+          "none" (not "box-none"): the slot is decorative, and on iOS its
+          subviews would otherwise capture horizontal swipes over the pager
+          (adversarial-review finding). */}
       {overlay ? (
         <View
-          pointerEvents="box-none"
+          pointerEvents="none"
           style={{
             position: 'absolute',
             left: theme.spacing(4),
@@ -121,8 +124,12 @@ export function GalleryPager({
           }}
         >
           {railImages.map((uri, i) => {
+            // Clamp: a refetch can shrink `images` while `index` still points
+            // past the end (adversarial-review finding).
+            const safeIndex = Math.min(index, images.length - 1);
             const active =
-              i === index || (i === RAIL_THUMBS - 1 && index >= RAIL_THUMBS);
+              i === safeIndex ||
+              (i === RAIL_THUMBS - 1 && safeIndex >= RAIL_THUMBS);
             return (
               <Pressable
                 key={`${i}-${uri}`}
