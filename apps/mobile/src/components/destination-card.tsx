@@ -1,10 +1,10 @@
 import { Pressable, View } from 'react-native';
-import { Image } from 'expo-image';
 import { messages } from '@tourism/i18n';
-import { AppText, useTheme } from '@tourism/mobile-ui';
+import { AppText, ScrimImage, useTheme } from '@tourism/mobile-ui';
 import type { DestinationChipVm } from '../lib/destinations';
 
-/** Vertical image tile for the Home destinations rail (name over a scrim band). */
+/** Vertical image tile for the Home destinations rail (P5.6: name sits on the
+ * ScrimImage gradient instead of a flat overlay band). */
 export function DestinationCard({
   destination,
   onPress,
@@ -21,56 +21,37 @@ export function DestinationCard({
       onPress={onPress}
       android_ripple={{ color: theme.colors['muted'], foreground: true }}
       style={({ pressed }) => ({
-        borderRadius: theme.radius.lg,
+        borderRadius: theme.radius.xl,
         overflow: 'hidden',
         opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.85 : 1,
       })}
     >
-      <View
-        style={{
-          width: 140,
-          height: 180,
-          borderRadius: theme.radius.lg,
-          overflow: 'hidden',
-          backgroundColor: theme.colors['muted'],
-        }}
-      >
-        <Image
-          source={destination.image ? { uri: destination.image } : undefined}
-          style={{ width: '100%', height: '100%' }}
-          contentFit="cover"
-          transition={200}
-          accessibilityLabel={destination.name}
-        />
-        <View
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: theme.colors['overlay'],
-            padding: theme.spacing(2),
-            gap: 2,
-          }}
+      <View style={{ width: 140 }}>
+        <ScrimImage
+          uri={destination.image}
+          alt={destination.name}
+          aspectRatio={140 / 180}
         >
-          <AppText
-            variant="body"
-            style={{
-              fontFamily: theme.fontFamilies.sansSemiBold,
-              color: theme.colors['on-media'],
-            }}
-          >
-            {destination.name}
-          </AppText>
-          {destination.toursCount > 0 ? (
+          <View style={{ gap: 2 }}>
             <AppText
-              variant="caption"
-              style={{ color: theme.colors['on-media'], opacity: 0.85 }}
+              variant="body"
+              style={{
+                fontFamily: theme.fontFamilies.sansSemiBold,
+                color: theme.colors['on-media'],
+              }}
             >
-              {destination.toursCount} {messages.destinations.toursLabel}
+              {destination.name}
             </AppText>
-          ) : null}
-        </View>
+            {destination.toursCount > 0 ? (
+              <AppText
+                variant="caption"
+                style={{ color: theme.colors['on-media'], opacity: 0.85 }}
+              >
+                {destination.toursCount} {messages.destinations.toursLabel}
+              </AppText>
+            ) : null}
+          </View>
+        </ScrimImage>
       </View>
     </Pressable>
   );

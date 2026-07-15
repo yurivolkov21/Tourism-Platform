@@ -49,9 +49,11 @@ test('shelf variant hides the low-seats badge', () => {
   expect(screen.queryByText('3 seats left')).not.toBeOnTheScreen();
 });
 
-test('list variant shows the 2-line summary; shelf does not', () => {
+test('summary is not rendered in either variant (P5.6 image-forward card)', () => {
   renderCard('list');
-  expect(screen.getByText('Two days among the karsts.')).toBeOnTheScreen();
+  expect(
+    screen.queryByText('Two days among the karsts.'),
+  ).not.toBeOnTheScreen();
   screen.unmount();
   renderCard('shelf');
   expect(

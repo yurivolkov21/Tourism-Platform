@@ -23,7 +23,7 @@ import { DestinationCard } from '../../components/destination-card';
 import { HeartButton } from '../../components/heart-button';
 import { SavedMiniCard } from '../../components/saved-mini-card';
 import { SectionHeading } from '../../components/section-heading';
-import { TourCard } from '../../components/tour-card';
+import { SHELF_CARD_WIDTH, TourCard } from '../../components/tour-card';
 import { UpcomingTripCard } from '../../components/upcoming-trip-card';
 import { useAuth } from '../../lib/auth-context';
 import { fetchMyBookings } from '../../lib/booking';
@@ -59,7 +59,8 @@ function Greeting() {
   const name = profileQ.data ? firstName(profileQ.data.fullName) : '';
   return (
     <View style={{ gap: theme.spacing(1) }}>
-      <AppText variant="display" style={{ fontSize: 26, lineHeight: 32 }}>
+      {/* P5.6: the one hero-scale Fraunces statement on this screen. */}
+      <AppText variant="hero" numberOfLines={2} adjustsFontSizeToFit>
         {name ? t.greetingWithName(greeting, name) : greeting}
       </AppText>
       <AppText variant="body" muted>
@@ -81,7 +82,7 @@ function SearchPill() {
         flexDirection: 'row',
         alignItems: 'center',
         gap: theme.spacing(2),
-        backgroundColor: theme.colors['card'],
+        backgroundColor: theme.colors['secondary'],
         borderWidth: 1,
         borderColor: theme.colors['border'],
         borderRadius: 999,
@@ -247,9 +248,9 @@ export default function HomeScreen() {
               {[0, 1].map((i) => (
                 <Skeleton
                   key={i}
-                  width={260}
-                  height={300}
-                  borderRadius={theme.radius.lg}
+                  width={SHELF_CARD_WIDTH}
+                  height={Math.round(SHELF_CARD_WIDTH * 1.25) + 60}
+                  borderRadius={theme.radius.xl}
                 />
               ))}
             </View>
@@ -283,6 +284,9 @@ export default function HomeScreen() {
               ItemSeparatorComponent={() => (
                 <View style={{ width: theme.spacing(3) }} />
               )}
+              // P5.6: snap card-by-card so the next card's peek is consistent.
+              snapToInterval={SHELF_CARD_WIDTH + theme.spacing(3)}
+              decelerationRate="fast"
               showsHorizontalScrollIndicator={false}
             />
           ) : (

@@ -1,7 +1,6 @@
 import { Pressable, View } from 'react-native';
-import { Image } from 'expo-image';
 import { messages } from '@tourism/i18n';
-import { AppText, useTheme } from '@tourism/mobile-ui';
+import { AppText, ScrimImage, useTheme } from '@tourism/mobile-ui';
 import type { SavedTourVm } from '../lib/wishlist';
 
 const tf = messages.featuredTours;
@@ -27,18 +26,16 @@ export function SavedMiniCard({
         opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.85 : 1,
       })}
     >
-      <Image
-        source={tour.image ? { uri: tour.image } : undefined}
-        style={{
-          width: 160,
-          height: 108,
-          borderRadius: theme.radius.md,
-          backgroundColor: theme.colors['muted'],
-        }}
-        contentFit="cover"
-        transition={200}
-        accessibilityLabel={tour.title}
-      />
+      {/* P5.6: uniform grade via ScrimImage; no bottom scrim (no overlaid text). */}
+      <View style={{ width: 160 }}>
+        <ScrimImage
+          uri={tour.image}
+          alt={tour.title}
+          aspectRatio={160 / 108}
+          radius={theme.radius.md}
+          scrim={false}
+        />
+      </View>
       <AppText
         numberOfLines={2}
         style={{
