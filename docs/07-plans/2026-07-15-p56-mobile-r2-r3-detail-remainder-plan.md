@@ -18,11 +18,29 @@ data-layer change** (booking/auth/query logic byte-identical).
 
 ## STATUS
 
-- **State:** PLANNED.
-- **Baselines at start:** mobile 153 · mobile-ui 43 (api 541 · web 300 ·
-  admin 266 · core 42 · tokens 7).
-- **RESUME STATE:** execute tasks in order; per-task commits; adversarial
-  review after Task 5; final gate + hand-off at Task 9.
+- **State:** EXECUTED (2026-07-15) — all 9 tasks done inline, full gate green
+  (lint + typecheck + test ×9 · build ×6 excl. mobile). Awaiting the user's
+  full visual compare vs the Navel exports before merge.
+- **Tests:** mobile-ui **43 → 47** (+2 StickyCTABar · +2 GlowBadge); mobile
+  **153** (no assertion changes needed in R2/R3); all other baselines intact.
+- **Adversarial review (money path, Task 5): 6 findings — 2 MAJOR + 3 MINOR
+  fixed (`d68c4a8`), 1 MINOR accepted.** Fixed: iOS hero-swipe dead zone
+  (overlay now pointerEvents "none") · StickyCTABar under-clearance at large
+  font scales (padding now 96 + insets.bottom + spacing) · CTA slot clipping
+  (dropped maxWidth/flexShrink:0) · red X glow on REFUNDED (tone now follows
+  statusMeta) · stale gallery rail index (clamped). Accepted: filter-sheet
+  `ready` false-positive on bucket reorder (visual-only, idempotent apply).
+  Review verdict: result-screen phase machine, AppState verify, draft
+  guards, handlers, disabled semantics, testIDs — byte-identical to main.
+- **Deviations from plan:** account.tsx untouched in Task 8 (headings already
+  token-clean; nothing to change). Auth Task 7 = heading upgrade only (forms
+  were already sparse + themed). Trips thumbnails: BookingVm has no image
+  field → status badge stays in the text row per the plan's fallback.
+- **RESUME STATE:** hand to the user — `expo start --clear`, compare every
+  surface against `.png/Navel` exports. On approval: rebase + `--ff-only`
+  merge of the whole `feat/mobile-r1-dark-foundation` branch (R1+R2+R3),
+  then the standing docs sweep (CHANGELOG one entry for P5.6 · roadmap ·
+  CLAUDE.md rows · HANDOFF · memory · spec STATUS→SHIPPED).
 
 ## Global Constraints
 
