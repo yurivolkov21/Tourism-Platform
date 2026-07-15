@@ -80,14 +80,15 @@ export function OnboardingScreen({
               locations={[0.35, 1]}
               style={{ position: 'absolute', inset: 0 }}
             />
-            {/* Copy block — bottom-left, above the controls row. */}
+            {/* Copy block — bottom-left, well above the dash indicator
+                (Navel stacks: title → dashes → gap → controls). */}
             <View
               pointerEvents="none"
               style={{
                 position: 'absolute',
                 left: theme.spacing(5),
                 right: theme.spacing(5),
-                bottom: insets.bottom + 132,
+                bottom: insets.bottom + 180,
                 gap: theme.spacing(3),
               }}
             >
@@ -103,7 +104,7 @@ export function OnboardingScreen({
               style={{
                 position: 'absolute',
                 left: theme.spacing(5),
-                bottom: insets.bottom + theme.spacing(4),
+                bottom: insets.bottom + theme.spacing(5),
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: theme.spacing(1),
@@ -147,13 +148,15 @@ export function OnboardingScreen({
         </AppText>
       </Pressable>
 
-      {/* Dash page indicator — above the controls, left-aligned (Navel). */}
+      {/* Dash page indicator — right under the title block, clear of the
+          controls row (device finding 2026-07-15: 96 collided with the
+          full-width last-page buttons). */}
       <View
         pointerEvents="none"
         style={{
           position: 'absolute',
           left: theme.spacing(5),
-          bottom: insets.bottom + 96,
+          bottom: insets.bottom + 148,
           flexDirection: 'row',
           alignItems: 'center',
           gap: theme.spacing(2),
@@ -182,7 +185,7 @@ export function OnboardingScreen({
           position: 'absolute',
           right: theme.spacing(5),
           left: last ? theme.spacing(5) : undefined,
-          bottom: insets.bottom + 56,
+          bottom: insets.bottom + 64,
           flexDirection: 'row',
           justifyContent: 'flex-end',
           gap: theme.spacing(2),
