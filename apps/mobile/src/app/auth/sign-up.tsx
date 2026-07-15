@@ -64,7 +64,7 @@ export default function SignUpScreen() {
             size={48}
             color={theme.colors['primary']}
           />
-          <AppText variant="title">{t.checkInboxTitle}</AppText>
+          <AppText variant="display">{t.checkInboxTitle}</AppText>
           <AppText variant="body" muted style={{ textAlign: 'center' }}>
             {t.checkInboxBody}
           </AppText>
@@ -83,7 +83,7 @@ export default function SignUpScreen() {
         style={{ gap: theme.spacing(4), paddingVertical: theme.spacing(4) }}
       >
         <View style={{ gap: theme.spacing(1) }}>
-          <AppText variant="title">{t.title}</AppText>
+          <AppText variant="display">{t.title}</AppText>
           <AppText variant="body" muted>
             {t.subtitle}
           </AppText>

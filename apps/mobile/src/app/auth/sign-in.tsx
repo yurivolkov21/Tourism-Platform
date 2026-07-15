@@ -48,7 +48,7 @@ export default function SignInScreen() {
         style={{ gap: theme.spacing(4), paddingVertical: theme.spacing(4) }}
       >
         <View style={{ gap: theme.spacing(1) }}>
-          <AppText variant="title">{t.title}</AppText>
+          <AppText variant="display">{t.title}</AppText>
           <AppText variant="body" muted>
             {reason === 'wishlist'
               ? tp.wishlistReason

@@ -57,7 +57,7 @@ export default function ForgotScreen() {
             size={48}
             color={theme.colors['primary']}
           />
-          <AppText variant="title">{t.sentTitle}</AppText>
+          <AppText variant="display">{t.sentTitle}</AppText>
           <AppText variant="body" muted style={{ textAlign: 'center' }}>
             {t.sentBody}
           </AppText>
@@ -79,7 +79,7 @@ export default function ForgotScreen() {
         style={{ gap: theme.spacing(4), paddingVertical: theme.spacing(4) }}
       >
         <View style={{ gap: theme.spacing(1) }}>
-          <AppText variant="title">{t.title}</AppText>
+          <AppText variant="display">{t.title}</AppText>
           <AppText variant="body" muted>
             {t.subtitle}
           </AppText>
