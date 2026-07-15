@@ -70,3 +70,22 @@ jest.mock('@gorhom/bottom-sheet', () => {
 if (typeof global.structuredClone === 'undefined') {
   global.structuredClone = (object) => JSON.parse(JSON.stringify(object));
 }
+
+// expo-image's <Image> mounts via expo-modules-core's NativeViewManagerAdapter
+// (same issue documented in apps/mobile/src/test-setup.ts) — swap it and
+// expo-linear-gradient for plain Views. NO JSX in mock factories (babel-hoist).
+jest.mock('expo-image', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    Image: (props: Record<string, unknown>) => React.createElement(View, props),
+  };
+});
+jest.mock('expo-linear-gradient', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    LinearGradient: (props: Record<string, unknown>) =>
+      React.createElement(View, props),
+  };
+});

@@ -21,3 +21,5 @@ export { Skeleton } from './lib/skeleton';
 export type { SkeletonProps } from './lib/skeleton';
 export { AppSheet, AppSheetScrollView, AppSheetTextInput } from './lib/sheet';
 export type { AppSheetProps, AppSheetRef } from './lib/sheet';
+export { ScrimImage } from './lib/scrim-image';
+export type { ScrimImageProps } from './lib/scrim-image';
