@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { messages } from '@tourism/i18n';
-import { useTheme } from '@tourism/mobile-ui';
+import { FloatingTabBar, useTheme } from '@tourism/mobile-ui';
 
 const t = messages.mobile.tabs;
 
@@ -9,21 +9,17 @@ export default function TabsLayout() {
   const theme = useTheme();
   return (
     <Tabs
+      // P5.6: floating pill bar (absolute-positioned) replaces the attached
+      // tab bar; sceneStyle paddingBottom reserves scroll room beneath it.
+      tabBar={(props) => <FloatingTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: theme.colors['primary'],
-        tabBarInactiveTintColor: theme.colors['muted-foreground'],
-        tabBarLabelStyle: {
-          fontFamily: theme.fontFamilies.sansMedium,
-          fontSize: 11,
-        },
-        tabBarStyle: {
-          backgroundColor: theme.colors['background'],
-          borderTopColor: theme.colors['border'],
-        },
         // The tabs' scene wrapper defaults to react-navigation's (white) theme
         // background — it peeks through when a pushed screen slides back off.
-        sceneStyle: { backgroundColor: theme.colors['background'] },
+        sceneStyle: {
+          backgroundColor: theme.colors['background'],
+          paddingBottom: 96,
+        },
       }}
     >
       <Tabs.Screen
