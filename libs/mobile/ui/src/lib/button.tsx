@@ -7,6 +7,10 @@ export interface ButtonProps extends Omit<PressableProps, 'children'> {
   label: string;
   variant?: 'primary' | 'outline';
   loading?: boolean;
+  /** P5.6 two-tier readiness: `false` = resting (muted) treatment while a form
+   * is incomplete. A validity AFFORDANCE, not disabled — press still fires so
+   * submit-side validation can surface per-field errors. Default `true`. */
+  ready?: boolean;
 }
 
 export function Button({
@@ -14,11 +18,13 @@ export function Button({
   variant = 'primary',
   loading,
   disabled,
+  ready = true,
   style,
   ...rest
 }: ButtonProps) {
   const theme = useTheme();
   const primary = variant === 'primary';
+  const resting = primary && !ready;
   return (
     <Pressable
       accessibilityRole="button"
@@ -42,7 +48,11 @@ export function Button({
           paddingHorizontal: theme.spacing(5),
           borderRadius: theme.radius.md,
           overflow: 'hidden', // clip the ripple to the rounded shape
-          backgroundColor: primary ? theme.colors['primary'] : 'transparent',
+          backgroundColor: resting
+            ? theme.colors['secondary']
+            : primary
+              ? theme.colors['primary']
+              : 'transparent',
           borderWidth: primary ? 0 : 1,
           borderColor: theme.colors['border'],
           opacity: disabled
@@ -59,9 +69,11 @@ export function Button({
         variant="body"
         style={{
           fontFamily: theme.fontFamilies.sansSemiBold,
-          color: primary
-            ? theme.colors['primary-foreground']
-            : theme.colors['foreground'],
+          color: resting
+            ? theme.colors['muted-foreground']
+            : primary
+              ? theme.colors['primary-foreground']
+              : theme.colors['foreground'],
         }}
       >
         {label}

@@ -1,5 +1,6 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
+import { buildTheme } from './theme';
 import { ThemeProvider } from './theme-provider';
 import { Button } from './button';
 
@@ -48,4 +49,17 @@ test('merges caller style with the themed style', () => {
   );
   const flattened = StyleSheet.flatten(screen.getByTestId('btn').props.style);
   expect(flattened).toMatchObject({ marginTop: 24, minHeight: 44 });
+});
+
+test('ready={false} renders the resting (secondary) fill but stays pressable', async () => {
+  const onPress = jest.fn();
+  render(
+    <ThemeProvider>
+      <Button label="Next" onPress={onPress} ready={false} testID="resting" />
+    </ThemeProvider>,
+  );
+  const style = StyleSheet.flatten(screen.getByTestId('resting').props.style);
+  expect(style.backgroundColor).toBe(buildTheme('light').colors['secondary']);
+  await userEvent.press(screen.getByTestId('resting'));
+  expect(onPress).toHaveBeenCalledTimes(1);
 });
