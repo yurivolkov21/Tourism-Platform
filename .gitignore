@@ -95,3 +95,6 @@ docs/Lily Wireframes/
 
 # understand-anything plugin cache (generated)
 .understand-anything/
+
+# Local design-reference exports (licensed UI kits - never commit)
+.png/
