@@ -64,25 +64,27 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   subscribers · outbox · payment-events) + media library (reuse picker · alt ·
   bulk delete; avatars hidden by default) + Appearance + dashboard
   (date-range + per-currency + margin) + motion layer. **266 tests.**
-- **Mobile (P5 + P5.5)** — feature-complete (5 tabs · browse/detail · stepped
-  booking money-path · guest-first auth · wishlist · Trips). Expo Go dev loop
-  only (no store builds). **Combined device pass ✅ 2026-07-15** (Android,
-  after the Expo Go boot fix `13ad533`). **P5.6 dark redesign in flight**
-  ([spec](docs/06-specs/2026-07-15-p56-mobile-navel-redesign-design.md)).
-  **153 tests.**
+- **Mobile (P5 + P5.5 + P5.6)** — feature-complete AND fully on the
+  "Nexora Dark Heritage" skin (P5.6 R1→R3 shipped 2026-07-15, `bd67d54`:
+  dark-first tokens · ScrimImage/FloatingTabBar/StickyCTABar/GlowBadge ·
+  money-path presentation adversarially reviewed). Expo Go dev loop only.
+  Combined device pass ✅ 2026-07-15. **P5.7 screen-by-screen Navel parity
+  in flight** ([index](docs/06-specs/2026-07-15-navel-screen-index.md);
+  S1 = onboarding). **153 tests** (+ mobile-ui 47).
 
 Baselines: **api 541 · web 300 · admin 266 · mobile 153 · mobile-ui 34 · core 42.**
 
 ## Next actions
 
-1. **P5.6 mobile dark redesign — IN FLIGHT** (spec approved `53eac51`,
-   [design](docs/06-specs/2026-07-15-p56-mobile-navel-redesign-design.md)):
-   write the R1 plan, then execute R1 "Foundation + Browse" → R2 "Detail +
-   money-path skin" (adversarial review) → R3 "Remainder", gate + merge per
-   wave. Precondition met: the **combined on-device pass PASSED 2026-07-15**
-   (all four checklists incl. the W4 payment loop, Android Expo Go) after the
-   boot fix `13ad533` (worklets pin + explicit babel plugin +
-   `REACT_NATIVE_PACKAGER_HOSTNAME` for the QR IP).
+1. **P5.7 mobile screen-by-screen Navel parity — IN FLIGHT** (P5.6 R1→R3
+   SHIPPED `bd67d54` same day). Cadence: pick screen → analyze vs the
+   [102-export index](docs/06-specs/2026-07-15-navel-screen-index.md) →
+   user approves scope → small branch → gate → on-device look → merge.
+   Locked: onboarding→Home w/ OPTIONAL auth (guest-first stands). **S1 =
+   first-launch onboarding** (3 full-bleed pages, AsyncStorage flag, last
+   page "Sign in / Explore as guest"; bundled images from the user's own
+   tour media). Baselines: mobile 153 · mobile-ui 47. NOTE: ~23 local
+   commits on `main` are UNPUSHED (user pushes on their signal).
 2. **Contact Launcher — LIVE 2026-07-14:** `NEXT_PUBLIC_CHAT_WHATSAPP` set on
    Vercel with the owner's personal number; owner verified the wa.me chat
    end-to-end on production. Remaining: cross-account test (teammate opens the

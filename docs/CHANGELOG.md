@@ -4,6 +4,43 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-15 — P5.6 "Nexora Dark Heritage": full mobile dark redesign R1→R3 (`bd67d54`)
+
+- **The whole app moved to the Navel-translated dark language in one program**
+  (19 commits, user-approved wave-review at R1 then combined R2+R3 per the
+  user's one-pass decision): dark token ramp (emerald `#14231c` canvas ·
+  brass `#d2a657` dark CTA · cream text; light values untouched) + forced
+  dark scheme (`ThemeProvider scheme` prop; OS setting ignored; light toggle
+  backlog) + `hero` 40pt Fraunces type variant.
+- **6 new/upgraded `@tourism/mobile-ui` primitives:** `ScrimImage` (uniform
+  photo grade tint + legibility scrim — every image in the app renders
+  through one recipe) · `FloatingTabBar` (floating pill, icon-only, brass
+  active capsule; minimal structural props — @react-navigation/bottom-tabs
+  is not resolvable and adding it risked react-navigation duplication) ·
+  `StickyCTABar` · `GlowBadge` (one confirmation template, tone-swapped) ·
+  `Card` `media` variant · `Button` two-tier `ready` state (visual-only,
+  never blocks presses).
+- **Screens:** image-forward Home (hero greeting · peeking snap rails ·
+  media cards) · Explore (full-width media cards · count chip · filter-sheet
+  `ready` apply) · tour detail (full-bleed 420px hero pager w/ scrim overlay
+  - tappable vertical thumbnail rail + `StickyCTABar`) · booking sheets/steps
+  (skin only — money-path logic byte-identical) · result screens on
+  `GlowBadge` · shared `EmptyState` · auth display headings · trips/saved/
+  booking-detail polish.
+- **Adversarial review (money path): 6 findings, 5 fixed** (`d68c4a8`: iOS
+  hero-swipe dead zone under the overlay · StickyCTABar under-clearance at
+  large font scales · CTA slot clipping · red glow on REFUNDED · stale
+  gallery rail index), 1 accepted (filter `ready` false-positive on bucket
+  reorder). Verdict: result phase machine, AppState verify, guards,
+  handlers, testIDs — identical to main.
+- **P5.7 screen-by-screen program opened:** Navel 102-export index
+  (51 dark/light twin pairs) at
+  [06-specs/2026-07-15-navel-screen-index.md](06-specs/2026-07-15-navel-screen-index.md);
+  locked: onboarding→Home w/ optional auth (guest-first preserved) · merge
+  cadence = small branch per screen. First screen: onboarding (S1).
+- Tests after: **api 541 · web 300 · admin 266 · mobile 153 · mobile-ui 47
+  (34→47) · core 42.**
+
 ## 2026-07-15 — Mobile Expo Go revival · combined device pass ✅ · P5.6 spec (`13ad533`)
 
 - **Fix (`13ad533`):** three latent env bugs had killed Expo Go boot since

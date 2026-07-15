@@ -1,6 +1,6 @@
 # P5.6 — Mobile "Nexora Dark Heritage" redesign (Navel-inspired)
 
-**Date:** 2026-07-15 · **Status:** APPROVED (design), plan pending
+**Date:** 2026-07-15 · **Status:** SHIPPED 2026-07-15 (R1+R2+R3 merged, `bd67d54`)
 **Scope:** `apps/mobile` + `@tourism/mobile-ui` + `@tourism/tokens` (dark values)
 **Reference:** Navel — Tour & Travel Booking App UI Kit (Figma Community,
 50-screen audit 2026-07-15). Inspiration only — no assets/copy carried over
