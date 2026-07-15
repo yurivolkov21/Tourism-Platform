@@ -66,13 +66,19 @@ export const FilterSheet = forwardRef<
   const theme = useTheme();
   const sheetRef = useRef<AppSheetRef>(null);
   const [draft, setDraft] = useState<ExploreState>(defaultExploreState);
+  const [seeded, setSeeded] = useState<ExploreState>(defaultExploreState);
 
   useImperativeHandle(ref, () => ({
     open: (applied) => {
       setDraft(applied);
+      setSeeded(applied);
       sheetRef.current?.present();
     },
   }));
+
+  // P5.6 two-tier CTA: resting until the draft actually differs from what the
+  // sheet was seeded with (still pressable — applying a no-op is harmless).
+  const draftChanged = JSON.stringify(draft) !== JSON.stringify(seeded);
 
   return (
     <AppSheet ref={sheetRef} scrollable>
@@ -135,6 +141,7 @@ export const FilterSheet = forwardRef<
           <Button
             testID="apply-filters"
             label={t.showResults(previewCount(draft))}
+            ready={draftChanged}
             onPress={() => {
               onApply(draft);
               sheetRef.current?.dismiss();

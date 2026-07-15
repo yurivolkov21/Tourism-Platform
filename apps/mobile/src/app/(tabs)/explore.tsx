@@ -42,7 +42,8 @@ function SkeletonList() {
       {[0, 1, 2].map((i) => (
         <Card
           key={i}
-          style={{ height: 240, backgroundColor: theme.colors['muted'] }}
+          variant="media"
+          style={{ height: 300, backgroundColor: theme.colors['muted'] }}
         />
       ))}
     </View>
@@ -152,9 +153,26 @@ export default function ExploreScreen() {
         ) : null}
       </View>
       {toursQ.isSuccess ? (
-        <AppText variant="caption" muted>
-          {t.resultsCount(results.length)}
-        </AppText>
+        // P5.6: result count as a pill chip (Navel "Found N" treatment).
+        <View
+          style={{
+            alignSelf: 'flex-start',
+            backgroundColor: theme.colors['secondary'],
+            borderRadius: 999,
+            paddingHorizontal: theme.spacing(3),
+            paddingVertical: theme.spacing(1),
+          }}
+        >
+          <AppText
+            variant="caption"
+            style={{
+              color: theme.colors['secondary-foreground'],
+              fontFamily: theme.fontFamilies.sansSemiBold,
+            }}
+          >
+            {t.resultsCount(results.length)}
+          </AppText>
+        </View>
       ) : null}
     </View>
   );
