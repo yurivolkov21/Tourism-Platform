@@ -34,7 +34,9 @@ function BookingCard({ booking }: { booking: BookingVm }) {
       style={({ pressed }) => ({
         borderWidth: 1,
         borderColor: theme.colors['border'],
-        borderRadius: theme.radius.md,
+        borderRadius: theme.radius.lg,
+        borderCurve: 'continuous',
+        backgroundColor: theme.colors['secondary'],
         overflow: 'hidden',
         padding: theme.spacing(4),
         gap: theme.spacing(2),

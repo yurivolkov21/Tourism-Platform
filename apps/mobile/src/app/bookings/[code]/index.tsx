@@ -115,7 +115,9 @@ function Actions({ booking }: { booking: BookingVm }) {
           borderWidth: 1,
           borderStyle: 'dashed',
           borderColor: theme.colors['border'],
-          borderRadius: theme.radius.md,
+          borderRadius: theme.radius.lg,
+          borderCurve: 'continuous',
+          backgroundColor: theme.colors['secondary'],
           padding: theme.spacing(4),
         }}
       >
@@ -249,7 +251,9 @@ export default function BookingDetailScreen() {
             gap: theme.spacing(2),
             borderWidth: 1,
             borderColor: theme.colors['border'],
-            borderRadius: theme.radius.md,
+            borderRadius: theme.radius.lg,
+            borderCurve: 'continuous',
+            backgroundColor: theme.colors['secondary'],
             padding: theme.spacing(4),
           }}
         >

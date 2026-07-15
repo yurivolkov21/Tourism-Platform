@@ -1,6 +1,5 @@
 import { FlatList, Pressable, RefreshControl, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
@@ -9,6 +8,7 @@ import {
   AppText,
   Button,
   Screen,
+  ScrimImage,
   Skeleton,
   useTheme,
 } from '@tourism/mobile-ui';
@@ -48,18 +48,16 @@ function SavedRow({
         opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.85 : 1,
       })}
     >
-      <Image
-        source={tour.image ? { uri: tour.image } : undefined}
-        style={{
-          width: 96,
-          height: 72,
-          borderRadius: theme.radius.md,
-          backgroundColor: theme.colors['muted'],
-        }}
-        contentFit="cover"
-        transition={200}
-        accessibilityLabel={tour.title}
-      />
+      {/* P5.6: thumbnails share the uniform ScrimImage grade (no text scrim). */}
+      <View style={{ width: 96 }}>
+        <ScrimImage
+          uri={tour.image}
+          alt={tour.title}
+          aspectRatio={96 / 72}
+          radius={theme.radius.md}
+          scrim={false}
+        />
+      </View>
       <View style={{ flex: 1, gap: theme.spacing(1) }}>
         <AppText
           numberOfLines={2}
