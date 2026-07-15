@@ -21,11 +21,34 @@ expo-linear-gradient · expo-router Tabs custom `tabBar` · reanimated 4 (existi
 
 ## STATUS
 
-- **State:** PLANNED — not started.
-- **Branch:** `feat/mobile-r1-dark-foundation` (create from `main`).
-- **Baselines at start:** mobile 153 · mobile-ui 34 · tokens 7 (api 541 ·
-  web 300 · admin 266 · core 42).
-- **RESUME STATE:** execute tasks in order; each task commits.
+- **State:** EXECUTED (2026-07-15) — all 8 tasks done inline, full gate green
+  (lint + typecheck + test ×9 · build ×6 excl. mobile). Awaiting the user's
+  on-device look pass (Task 8 Steps 1+4) before merge.
+- **Branch:** `feat/mobile-r1-dark-foundation` (7 commits, on top of `main`
+  which still holds 4 unpushed commits from earlier today).
+- **Tests:** mobile-ui **34 → 43** (+2 theme · +3 ScrimImage · +1 card ·
+  +1 button · +2 FloatingTabBar); mobile **153** (unchanged — 1 assertion
+  rewritten: tour-card summary is gone by design); all other baselines intact.
+- **Deviations from plan:**
+  - `@react-navigation/bottom-tabs` is NOT resolvable anywhere in the
+    workspace (it lives inside expo-router's dep tree) → FloatingTabBar
+    declares a minimal structural `FloatingTabBarProps` instead of importing
+    the real type (adding the package risked duplicating react-navigation —
+    the same class of bug as the 2026-07-15 worklets incident).
+  - JSX inside `jest.mock` factories crashes babel-plugin-jest-hoist →
+    expo-image/expo-linear-gradient mocks live in mobile-ui's
+    `src/test-setup.ts` using `React.createElement` (mirrors the app's own
+    expo-image mock).
+  - Token generation runs via `nx run @tourism/tokens:tokens` (the `build`
+    target only compiles the TS stub) — plan Step 3 said `build`.
+  - Home's SearchPill already existed as a stadium pill — only the surface
+    color moved to `secondary`.
+- **RESUME STATE:** hand to the user — `expo start --clear` + on-device look
+  (dark everywhere · pill nav · Home/Explore media language · scrim
+  legibility vs 5-6 real photos; booking flow still old-skin = EXPECTED, R2
+  scope). Tune `scrim`/`media-tint` token alphas if a photo fails, then
+  rebase + `--ff-only` merge on approval + docs sweep. Next: R2 plan
+  (detail + money-path skin + confirmations, w/ adversarial review).
 
 ## Global Constraints
 
