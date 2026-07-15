@@ -1,6 +1,7 @@
 import * as ReactNative from 'react-native';
 import { Text } from 'react-native';
 import { render, screen } from '@testing-library/react-native';
+import { buildTheme } from './theme';
 import { ThemeProvider, useTheme } from './theme-provider';
 
 function Probe() {
@@ -41,4 +42,30 @@ test('ThemeProvider follows the OS dark color scheme', () => {
   } finally {
     useColorSchemeSpy.mockRestore();
   }
+});
+
+test('ThemeProvider scheme prop overrides the OS color scheme', () => {
+  const useColorSchemeSpy = jest
+    .spyOn(ReactNative, 'useColorScheme')
+    .mockReturnValue('light');
+
+  try {
+    render(
+      <ThemeProvider scheme="dark">
+        <SchemeProbe />
+      </ThemeProvider>,
+    );
+    expect(screen.getByText('dark')).toBeOnTheScreen();
+  } finally {
+    useColorSchemeSpy.mockRestore();
+  }
+});
+
+test('buildTheme exposes the hero display variant', () => {
+  const t = buildTheme('dark');
+  expect(t.typography.hero).toEqual({
+    fontSize: 40,
+    lineHeight: 46,
+    fontFamily: t.fontFamilies.headingBold,
+  });
 });

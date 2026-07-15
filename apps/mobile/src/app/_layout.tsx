@@ -160,12 +160,14 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider>
+      {/* P5.6 dark-first: the app pins the Dark Heritage scheme (OS setting
+          ignored); a light toggle is backlog. StatusBar stays light-on-dark. */}
+      <ThemeProvider scheme="dark">
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <BookingDraftProvider>
               <BottomSheetModalProvider>
-                <StatusBar style="auto" />
+                <StatusBar style="light" />
                 <ThemedStack />
               </BottomSheetModalProvider>
             </BookingDraftProvider>

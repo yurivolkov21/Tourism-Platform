@@ -36,6 +36,8 @@ export interface Theme {
   fontFamilies: FontFamilies;
   typography: {
     display: TypographyVariant;
+    /** P5.6: one Navel-scale statement per screen (hero titles, sheet titles). */
+    hero: TypographyVariant;
     title: TypographyVariant;
     body: TypographyVariant;
     caption: TypographyVariant;
@@ -59,6 +61,11 @@ export function buildTheme(scheme: ColorScheme): Theme {
       display: {
         fontSize: 28,
         lineHeight: 34,
+        fontFamily: fontFamilies.headingBold,
+      },
+      hero: {
+        fontSize: 40,
+        lineHeight: 46,
         fontFamily: fontFamilies.headingBold,
       },
       title: { fontSize: 20, lineHeight: 26, fontFamily: fontFamilies.heading },
