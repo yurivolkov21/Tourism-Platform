@@ -10,6 +10,7 @@ import {
   AppText,
   Badge,
   Button,
+  GlowBadge,
   Screen,
   Spinner,
   useTheme,
@@ -161,13 +162,16 @@ export default function BookingResultScreen() {
             entering={FadeIn.duration(200)}
             style={{ gap: theme.spacing(4) }}
           >
-            <View style={{ alignItems: 'center', gap: theme.spacing(2) }}>
+            <View style={{ alignItems: 'center', gap: theme.spacing(3) }}>
+              {/* P5.6 confirmation hero: brass glow halo (Navel Screen-39). */}
               <Animated.View entering={ZoomIn.springify().damping(12)}>
-                <Ionicons
-                  name="checkmark-circle"
-                  size={56}
-                  color={theme.colors['success']}
-                />
+                <GlowBadge tone="success">
+                  <Ionicons
+                    name="checkmark"
+                    size={48}
+                    color={theme.colors['primary']}
+                  />
+                </GlowBadge>
               </Animated.View>
               <AppText variant="display" style={{ textAlign: 'center' }}>
                 {ts.confirmedTitle}
@@ -181,7 +185,9 @@ export default function BookingResultScreen() {
                 gap: theme.spacing(2),
                 borderWidth: 1,
                 borderColor: theme.colors['border'],
-                borderRadius: theme.radius.md,
+                borderRadius: theme.radius.lg,
+                borderCurve: 'continuous',
+                backgroundColor: theme.colors['secondary'],
                 padding: theme.spacing(4),
               }}
             >
@@ -214,12 +220,14 @@ export default function BookingResultScreen() {
 
         {phase === 'pending' && booking ? (
           <View style={{ gap: theme.spacing(4) }}>
-            <View style={{ alignItems: 'center', gap: theme.spacing(2) }}>
-              <Ionicons
-                name="time-outline"
-                size={56}
-                color={theme.colors['warning']}
-              />
+            <View style={{ alignItems: 'center', gap: theme.spacing(3) }}>
+              <GlowBadge tone="neutral">
+                <Ionicons
+                  name="time-outline"
+                  size={44}
+                  color={theme.colors['warning']}
+                />
+              </GlowBadge>
               <AppText variant="display" style={{ textAlign: 'center' }}>
                 {tm.stillPendingTitle}
               </AppText>
@@ -253,6 +261,14 @@ export default function BookingResultScreen() {
               paddingVertical: theme.spacing(6),
             }}
           >
+            {/* Same template as success — only the glow tone + copy differ. */}
+            <GlowBadge tone="error">
+              <Ionicons
+                name="close"
+                size={44}
+                color={theme.colors['destructive']}
+              />
+            </GlowBadge>
             <Badge
               tone={booking.statusMeta.tone}
               label={booking.statusMeta.label}
