@@ -12,6 +12,7 @@ import {
   Button,
   Screen,
   Spinner,
+  StickyCTABar,
   useTheme,
 } from '@tourism/mobile-ui';
 import {
@@ -37,7 +38,13 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   const theme = useTheme();
   return (
     <View style={{ gap: theme.spacing(2) }}>
-      <AppText variant="title">{title}</AppText>
+      {/* P5.6: section titles carry the serif display voice. */}
+      <AppText
+        variant="title"
+        style={{ fontFamily: theme.fontFamilies.headingBold, fontSize: 20 }}
+      >
+        {title}
+      </AppText>
       {children}
     </View>
   );
@@ -161,11 +168,77 @@ export default function TourDetailScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors['background'] }}>
       <ScrollView
-        contentContainerStyle={{ paddingBottom: theme.spacing(6) }}
+        // 140 clears the StickyCTABar (its own height + safe-area).
+        contentContainerStyle={{ paddingBottom: 140 }}
         showsVerticalScrollIndicator={false}
       >
         <View>
-          <GalleryPager images={tour.gallery} title={tour.title} />
+          <GalleryPager
+            images={tour.gallery}
+            title={tour.title}
+            // P5.6: the identity block lives ON the hero (Navel Screen-28).
+            overlay={
+              <View style={{ gap: theme.spacing(1) }}>
+                {tour.reviewCount > 0 ? (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: theme.spacing(1),
+                    }}
+                  >
+                    <Ionicons
+                      name="star"
+                      size={14}
+                      color={theme.colors['rating']}
+                    />
+                    <AppText
+                      variant="caption"
+                      style={{ color: theme.colors['on-media'] }}
+                    >
+                      {tour.rating.toFixed(1)}
+                    </AppText>
+                    <AppText
+                      variant="caption"
+                      style={{ color: theme.colors['on-media'], opacity: 0.85 }}
+                    >
+                      ({tour.reviewCount} {messages.featuredTours.reviewsLabel})
+                    </AppText>
+                  </View>
+                ) : null}
+                <AppText
+                  numberOfLines={3}
+                  style={{
+                    fontFamily: theme.fontFamilies.headingBold,
+                    fontSize: 32,
+                    lineHeight: 38,
+                    color: theme.colors['on-media'],
+                  }}
+                >
+                  {tour.title}
+                </AppText>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: theme.spacing(1),
+                  }}
+                >
+                  <Ionicons
+                    name="location-outline"
+                    size={13}
+                    color={theme.colors['on-media']}
+                  />
+                  <AppText
+                    variant="caption"
+                    style={{ color: theme.colors['on-media'], opacity: 0.85 }}
+                  >
+                    {tour.destination}
+                  </AppText>
+                </View>
+              </View>
+            }
+          />
           <View
             style={{
               position: 'absolute',
@@ -188,29 +261,6 @@ export default function TourDetailScreen() {
           }}
         >
           <View style={{ gap: theme.spacing(1) }}>
-            <AppText variant="caption" muted>
-              {tour.destination}
-            </AppText>
-            <AppText variant="display">{tour.title}</AppText>
-            {tour.reviewCount > 0 ? (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: theme.spacing(1),
-                }}
-              >
-                <Ionicons
-                  name="star"
-                  size={14}
-                  color={theme.colors['rating']}
-                />
-                <AppText variant="caption">{tour.rating.toFixed(1)}</AppText>
-                <AppText variant="caption" muted>
-                  ({tour.reviewCount} {messages.featuredTours.reviewsLabel})
-                </AppText>
-              </View>
-            ) : null}
             <View
               style={{
                 flexDirection: 'row',
@@ -412,54 +462,45 @@ export default function TourDetailScreen() {
 
       <BackOverlay />
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: theme.spacing(3),
-          paddingHorizontal: theme.spacing(4),
-          paddingTop: theme.spacing(3),
-          paddingBottom: insets.bottom + theme.spacing(3),
-          borderTopWidth: 1,
-          borderTopColor: theme.colors['border'],
-          backgroundColor: theme.colors['background'],
-        }}
-      >
-        <View style={{ flexShrink: 1 }}>
-          <AppText variant="caption" muted>
-            {t.from}
-          </AppText>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'baseline',
-              gap: theme.spacing(2),
-            }}
-          >
-            <AppText
+      <StickyCTABar
+        leading={
+          <View>
+            <AppText variant="caption" muted>
+              {t.from}
+            </AppText>
+            <View
               style={{
-                fontFamily: theme.fontFamilies.sansSemiBold,
-                fontSize: 18,
-                lineHeight: 24,
-                color: theme.colors['foreground'],
+                flexDirection: 'row',
+                alignItems: 'baseline',
+                gap: theme.spacing(2),
               }}
             >
-              {dollar}
-              {tour.basePrice}
-            </AppText>
-            {tour.compareAtPrice ? (
+              {/* P5.6: money gets the display treatment. */}
               <AppText
-                variant="caption"
-                muted
-                style={{ textDecorationLine: 'line-through' }}
+                style={{
+                  fontFamily: theme.fontFamilies.sansSemiBold,
+                  fontSize: 22,
+                  lineHeight: 28,
+                  color: theme.colors['foreground'],
+                }}
               >
                 {dollar}
-                {tour.compareAtPrice}
+                {tour.basePrice}
               </AppText>
-            ) : null}
+              {tour.compareAtPrice ? (
+                <AppText
+                  variant="caption"
+                  muted
+                  style={{ textDecorationLine: 'line-through' }}
+                >
+                  {dollar}
+                  {tour.compareAtPrice}
+                </AppText>
+              ) : null}
+            </View>
           </View>
-        </View>
+        }
+      >
         <View style={{ flexDirection: 'row', gap: theme.spacing(2) }}>
           <Button
             variant="outline"
@@ -468,6 +509,7 @@ export default function TourDetailScreen() {
           />
           <Button
             label={tb.bookCta}
+            style={{ flexGrow: 1 }}
             onPress={() =>
               // Only a *known* guest goes to sign-in; while the session is still
               // restoring ('loading') open the sheet — the contact step re-checks.
@@ -477,7 +519,7 @@ export default function TourDetailScreen() {
             }
           />
         </View>
-      </View>
+      </StickyCTABar>
 
       <DepartureSheet
         ref={departureSheetRef}
