@@ -12,6 +12,7 @@ import {
   useTheme,
 } from '@tourism/mobile-ui';
 import { AuthGate } from '../../components/auth-gate';
+import { EmptyState } from '../../components/empty-state';
 import { SectionHeading } from '../../components/section-heading';
 import { useAuth } from '../../lib/auth-context';
 import { fetchMyBookings, type BookingVm } from '../../lib/booking';
@@ -130,18 +131,9 @@ export default function TripsScreen() {
             <Button label={tm.retry} onPress={() => listQ.refetch()} />
           </View>
         ) : listQ.data.length === 0 ? (
-          <View
-            style={{
-              alignItems: 'center',
-              gap: theme.spacing(3),
-              paddingVertical: theme.spacing(6),
-            }}
-          >
-            <AppText variant="body" muted style={{ textAlign: 'center' }}>
-              {t.empty}
-            </AppText>
+          <EmptyState icon="briefcase-outline" title={t.empty}>
             <Button label={t.browse} onPress={() => router.push('/explore')} />
-          </View>
+          </EmptyState>
         ) : (
           <Animated.View entering={FadeIn.duration(200)} style={{ flex: 1 }}>
             <FlatList

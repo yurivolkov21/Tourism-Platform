@@ -13,6 +13,7 @@ import {
   useTheme,
 } from '@tourism/mobile-ui';
 import { AuthGate } from '../../components/auth-gate';
+import { EmptyState } from '../../components/empty-state';
 import { SectionHeading } from '../../components/section-heading';
 import { useAuth } from '../../lib/auth-context';
 import { hapticSelect } from '../../lib/haptics';
@@ -177,22 +178,13 @@ export default function SavedScreen() {
               <Button label={t.retry} onPress={() => listQ.refetch()} />
             </View>
           ) : (
-            <View
-              style={{
-                alignItems: 'center',
-                gap: theme.spacing(3),
-                paddingVertical: theme.spacing(6),
-              }}
-            >
-              <AppText variant="body" muted style={{ textAlign: 'center' }}>
-                {t.empty}
-              </AppText>
+            <EmptyState icon="heart-outline" title={t.empty}>
               <Button
                 label={t.browse}
                 variant="outline"
                 onPress={() => router.push('/explore')}
               />
-            </View>
+            </EmptyState>
           )
         }
       />
