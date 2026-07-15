@@ -1992,6 +1992,26 @@ export const messages = {
       saved: 'Saved',
       account: 'Account',
     },
+    onboarding: {
+      skip: 'Skip',
+      next: 'Next page',
+      pages: [
+        {
+          title: 'Explore the wonders of Vietnam',
+          location: 'Hà Giang, Việt Nam',
+        },
+        {
+          title: 'Journeys crafted around you',
+          location: 'Hạ Long Bay, Việt Nam',
+        },
+        {
+          title: 'Travel with complete peace of mind',
+          location: 'Sa Pa, Việt Nam',
+        },
+      ],
+      signIn: 'Sign in',
+      guest: 'Explore as guest',
+    },
     home: {
       greetings: {
         morning: 'Good morning',

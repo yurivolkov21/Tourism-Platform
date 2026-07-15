@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   DarkTheme,
   DefaultTheme,
@@ -17,14 +17,19 @@ import {
 } from '@expo-google-fonts/geist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { messages } from '@tourism/i18n';
 import { ThemeProvider, useTheme } from '@tourism/mobile-ui';
+import {
+  OnboardingScreen,
+  type OnboardingIntent,
+} from '../components/onboarding-screen';
 import { AuthProvider } from '../lib/auth-context';
 import { BookingDraftProvider } from '../lib/booking-draft';
+import { markOnboarded, readOnboarded } from '../lib/onboarding';
 
 const queryClient = new QueryClient({
   // Render free tier cold-starts (~30s): keep retrying a bit before erroring.
@@ -46,8 +51,17 @@ SplashScreen.preventAutoHideAsync();
  * ios_from_right gives Android the smooth iOS-style parallax push (no-op on
  * iOS, which already has it).
  */
-function ThemedStack() {
+function ThemedStack({ initialSignIn }: { initialSignIn?: boolean }) {
   const theme = useTheme();
+
+  // "Sign in" chosen on the onboarding's last page: open the auth modal once
+  // the Stack has mounted (a tick later — navigating before the navigator is
+  // ready throws).
+  useEffect(() => {
+    if (!initialSignIn) return;
+    const id = setTimeout(() => router.push('/auth/sign-in'), 50);
+    return () => clearTimeout(id);
+  }, [initialSignIn]);
 
   const navTheme = useMemo(() => {
     const base = theme.scheme === 'dark' ? DarkTheme : DefaultTheme;
@@ -152,27 +166,52 @@ export default function RootLayout() {
     Geist_600SemiBold,
   });
 
+  // P5.7 S1: first-launch onboarding gate — resolved from AsyncStorage while
+  // the splash is still up, so neither Home nor the pager ever flashes.
+  const [onboarding, setOnboarding] = useState<'pending' | 'show' | 'done'>(
+    'pending',
+  );
+  const [signInAfter, setSignInAfter] = useState(false);
   useEffect(() => {
-    if (fontsLoaded) SplashScreen.hideAsync();
-  }, [fontsLoaded]);
+    readOnboarded().then((done) => setOnboarding(done ? 'done' : 'show'));
+  }, []);
 
-  if (!fontsLoaded) return null; // splash stays visible
+  const ready = fontsLoaded && onboarding !== 'pending';
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
+
+  if (!ready) return null; // splash stays visible
+
+  const finishOnboarding = (intent: OnboardingIntent) => {
+    void markOnboarded();
+    setSignInAfter(intent === 'signIn');
+    setOnboarding('done');
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       {/* P5.6 dark-first: the app pins the Dark Heritage scheme (OS setting
           ignored); a light toggle is backlog. StatusBar stays light-on-dark. */}
       <ThemeProvider scheme="dark">
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <BookingDraftProvider>
-              <BottomSheetModalProvider>
-                <StatusBar style="light" />
-                <ThemedStack />
-              </BottomSheetModalProvider>
-            </BookingDraftProvider>
-          </AuthProvider>
-        </QueryClientProvider>
+        {onboarding === 'show' ? (
+          // Root takeover BEFORE the router Stack — self-contained pager.
+          <>
+            <StatusBar style="light" />
+            <OnboardingScreen onDone={finishOnboarding} />
+          </>
+        ) : (
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <BookingDraftProvider>
+                <BottomSheetModalProvider>
+                  <StatusBar style="light" />
+                  <ThemedStack initialSignIn={signInAfter} />
+                </BottomSheetModalProvider>
+              </BookingDraftProvider>
+            </AuthProvider>
+          </QueryClientProvider>
+        )}
       </ThemeProvider>
     </GestureHandlerRootView>
   );
