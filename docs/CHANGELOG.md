@@ -4,6 +4,35 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-15 — Mobile Expo Go revival · combined device pass ✅ · P5.6 spec (`13ad533`)
+
+- **Fix (`13ad533`):** three latent env bugs had killed Expo Go boot since
+  reanimated landed 2026-07-08 (masked until now because the device pass was
+  deferred): (1) pnpm auto-resolved `react-native-worklets` **0.8.3** against
+  Expo Go 54.0.8's **0.5.1** native → `installTurboModule` arity crash;
+  (2) `babel-preset-expo`'s `hasModule('react-native-worklets')` resolves from
+  the preset's own context — blind under pnpm's strict layout — so the
+  worklets babel plugin was **never applied** → "[Worklets] Failed to create
+  a worklet"; (3) the `expo-router` subtree kept a stale 0.8.3 peer
+  resolution `pnpm dedupe` couldn't collapse. Fix: pin worklets 0.5.1 in
+  `apps/mobile` + `libs/mobile/ui`, add an explicit `apps/mobile/babel.config.js`
+  (preset + `react-native-worklets/plugin`), force-re-resolve expo-router.
+- **Dev-loop gotcha (no code change):** Metro can advertise a dead adapter's
+  `169.254.x.x` IP in the QR → Expo Go blue screen "Failed to download remote
+  update". Fix: `$env:REACT_NATIVE_PACKAGER_HOSTNAME = '<Wi-Fi LAN IP>'`
+  before `expo start` (re-set per terminal session / per network).
+- **Combined on-device pass PASSED (user, Android Expo Go):** N3 five-tab
+  IA + Home states · N2 sheets + stepped booking · N1 feel · W4 payment loop
+  (Stripe test card · PayPal sandbox · abandon→Pay now · cancel ·
+  cancellation-request · guest gating). **The standing device-pass debt is
+  cleared** — mobile is verified end-to-end on a real device.
+- **P5.6 "Nexora Dark Heritage" spec approved** (`53eac51`): Navel-inspired
+  dark-first redesign, Fraunces kept w/ Navel scale, 3 waves R1→R3,
+  presentation-layer only ([spec](06-specs/2026-07-15-p56-mobile-navel-redesign-design.md)).
+  Reference kit exports gitignored (`.png/`).
+- Tests after: **api 541 · web 300 · admin 266 · mobile 153 · mobile-ui 34 ·
+  core 42** (all unchanged — the fix is dependency/config-only).
+
 ## 2026-07-14 — AI Concierge Chat: bot-first web chat over the API (`74ef17f`)
 
 - **Phase 2 of the chat direction** (locked earlier the same day): visitors

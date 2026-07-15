@@ -16,14 +16,13 @@ progression: [CHANGELOG](CHANGELOG.md)** (the single home — status cells here 
 | **P3** | Web (customer): marketing · catalogue · booking · account | ✅ complete + deployed (Vercel) — all surfaces on real data, booking money-path live (Stripe/PayPal + private requests), a11y/SEO/perf polish done, brand chrome admin-managed. Debt program W1→W4 CLOSED 2026-07-12 (W4: shared AuthFormField · all 17 forms noValidate · auth titles i18n). Contact Launcher 2026-07-14 (WhatsApp deep-link + enquiry popover, env-driven) + AI concierge chat panel 2026-07-14 (useChat over the API). Current surface map: [frontend.md](01-architecture/frontend.md). **300 tests.** |
 | **P4** | Admin: CRUD + operations + media + appearance + dashboard | ✅ complete + deployed (Vercel) — full CRUD, bookings/refunds + cancellation queue, reviews/CRM, media library (reuse picker · alt · bulk delete), Appearance, dashboard (date-range + per-currency). Debt program B1→B2→C→D1→D2 closed 2026-07-12. **266 tests.** |
 | **DEPLOY** | Free-tier cloud deploy | ✅ live — web + admin on Vercel · API on Render (`/health` + cron-job.org keep-alive) · DB on Supabase · custom domain `nexora-travel.agency` + Resend outbound email since 2026-07-13. Runbook: [deploy](05-runbooks/deploy.md). |
-| **P5** | Mobile (Expo): browse → detail → booking → account | ✅ feature-complete (W1→W4) — money path ports web logic verbatim; hosted checkout + self-verifying result screen. **153 tests** (+ mobile-ui 34). ⚠️ combined on-device pass still owed. |
-| **P5.5** | Mobile app-native UX pass | ✅ complete — N1 Feel (ripple/haptics/motion) · N2 Patterns (bottom sheets + Airbnb-style stepped booking) · N3 IA & Home (5 tabs w/ Trips · task-first Home). Same on-device pass owed. |
+| **P5** | Mobile (Expo): browse → detail → booking → account | ✅ feature-complete (W1→W4) — money path ports web logic verbatim; hosted checkout + self-verifying result screen. **153 tests** (+ mobile-ui 34). Combined device pass ✅ 2026-07-15. |
+| **P5.5** | Mobile app-native UX pass | ✅ complete — N1 Feel (ripple/haptics/motion) · N2 Patterns (bottom sheets + Airbnb-style stepped booking) · N3 IA & Home (5 tabs w/ Trips · task-first Home). Device pass ✅ 2026-07-15 (incl. W4 payment loop, after Expo Go boot fix `13ad533`). |
+| **P5.6** | Mobile dark redesign "Nexora Dark Heritage" (Navel-inspired) | 🔵 in flight — spec approved 2026-07-15 ([design](06-specs/2026-07-15-p56-mobile-navel-redesign-design.md)): dark-first · Fraunces w/ Navel scale · 3 waves (R1 foundation+browse · R2 detail+money-skin · R3 remainder), presentation-layer only. |
 | **P6** | Content/SEO: blog + trust polish | ✅ complete — blog reader + blog-v2 all 5 waves (tags/related-tours · reader funnel · inline body images · reader polish · newsletter + RSS). |
 
 ## What remains (not phase work)
 
-- ⚠️ Combined **mobile on-device pass** (N1+N2+N3+W4 checklists) — see
-  [HANDOFF](../HANDOFF.md#next-actions).
 - User **visual pass** on the deployed admin (debt-program surfaces).
 - Deliberate cuts (unscheduled): notifications · category imagery · admin e2e.
 - API debt program — **CLOSED 2026-07-13**: W1 email ✅ (`7c64852`) · W2 ops

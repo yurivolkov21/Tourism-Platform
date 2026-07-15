@@ -37,7 +37,7 @@ via chat).
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward); brand **"Nexora"**, palette **"Emerald Heritage"** |
 
-## Current state (2026-07-14)
+## Current state (2026-07-15)
 
 **Every product phase is complete and deployed** — on the custom domain
 `www.nexora-travel.agency` (admin: `admin.`) since 2026-07-13. All three debt
@@ -51,8 +51,8 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   newsletter · site-media · dashboard stats w/ `?from&to` + per-currency
   **+ cost/margin** · pg-boss outbox/cron — **all 7 EmailTypes live, branded
   v2 templates** · **AI concierge chat — first SSE surface, AI SDK v7 + Claude
-  Haiku, tools over Tours/Enquiry, hard spend caps, key-optional**). **541 unit
-  + 8 e2e tests.**
+  Haiku, tools over Tours/Enquiry, hard spend caps, key-optional**). **541
+  unit + 8 e2e tests.**
 - **Design system (P2)** — `@tourism/tokens` (no-hex enforced) +
   `@tourism/ui` (59 shadcn/Base UI comps) + `@tourism/mobile-ui` (RN, 34 tests).
 - **Web (P3 + P6)** — live on **Vercel**. Marketing + catalogue + booking
@@ -66,16 +66,23 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   (date-range + per-currency + margin) + motion layer. **266 tests.**
 - **Mobile (P5 + P5.5)** — feature-complete (5 tabs · browse/detail · stepped
   booking money-path · guest-first auth · wishlist · Trips). Expo Go dev loop
-  only (no store builds). **153 tests.**
+  only (no store builds). **Combined device pass ✅ 2026-07-15** (Android,
+  after the Expo Go boot fix `13ad533`). **P5.6 dark redesign in flight**
+  ([spec](docs/06-specs/2026-07-15-p56-mobile-navel-redesign-design.md)).
+  **153 tests.**
 
 Baselines: **api 541 · web 300 · admin 266 · mobile 153 · mobile-ui 34 · core 42.**
 
 ## Next actions
 
-1. ⚠️ **Combined mobile on-device pass** (Expo Go, Android): N3 five-tab IA +
-   Home states · N2 sheets + stepped booking · N1 feel checklist · W4 payment
-   loop (Stripe test card · PayPal sandbox · abandon→Pay now ·
-   cancel/cancellation-request · guest gating).
+1. **P5.6 mobile dark redesign — IN FLIGHT** (spec approved `53eac51`,
+   [design](docs/06-specs/2026-07-15-p56-mobile-navel-redesign-design.md)):
+   write the R1 plan, then execute R1 "Foundation + Browse" → R2 "Detail +
+   money-path skin" (adversarial review) → R3 "Remainder", gate + merge per
+   wave. Precondition met: the **combined on-device pass PASSED 2026-07-15**
+   (all four checklists incl. the W4 payment loop, Android Expo Go) after the
+   boot fix `13ad533` (worklets pin + explicit babel plugin +
+   `REACT_NATIVE_PACKAGER_HOSTNAME` for the QR IP).
 2. **Contact Launcher — LIVE 2026-07-14:** `NEXT_PUBLIC_CHAT_WHATSAPP` set on
    Vercel with the owner's personal number; owner verified the wa.me chat
    end-to-end on production. Remaining: cross-account test (teammate opens the
