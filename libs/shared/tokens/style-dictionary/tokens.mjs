@@ -10,28 +10,35 @@ const c = (light, dark) => ({ value: light, darkValue: dark, type: 'color' });
 export default {
   color: {
     // "Emerald Heritage" (light luxury): deep emerald primary · warm ivory neutrals · brass accents.
-    background: c('oklch(0.985 0.006 95)', 'oklch(0.17 0.012 160)'),
-    foreground: c('oklch(0.23 0.012 155)', 'oklch(0.95 0.008 95)'),
-    card: c('oklch(0.995 0.004 95)', 'oklch(0.21 0.014 160)'),
-    'card-foreground': c('oklch(0.23 0.012 155)', 'oklch(0.95 0.008 95)'),
-    popover: c('oklch(0.995 0.004 95)', 'oklch(0.21 0.014 160)'),
-    'popover-foreground': c('oklch(0.23 0.012 155)', 'oklch(0.95 0.008 95)'),
-    primary: c('oklch(0.42 0.08 155)', 'oklch(0.72 0.1 155)'),
-    'primary-foreground': c('oklch(0.98 0.01 95)', 'oklch(0.18 0.02 155)'),
+    // P5.6 "Nexora Dark Heritage": dark values retuned to the Navel-translated
+    // ramp — deep emerald canvas, warm cream text, BRASS dark CTA (light stays
+    // emerald). Spec: docs/06-specs/2026-07-15-p56-mobile-navel-redesign-design.md
+    background: c('oklch(0.985 0.006 95)', 'oklch(0.24 0.025 165)'),
+    foreground: c('oklch(0.23 0.012 155)', 'oklch(0.94 0.015 90)'),
+    card: c('oklch(0.995 0.004 95)', 'oklch(0.28 0.025 165)'),
+    'card-foreground': c('oklch(0.23 0.012 155)', 'oklch(0.94 0.015 90)'),
+    popover: c('oklch(0.995 0.004 95)', 'oklch(0.28 0.025 165)'),
+    'popover-foreground': c('oklch(0.23 0.012 155)', 'oklch(0.94 0.015 90)'),
+    primary: c('oklch(0.42 0.08 155)', 'oklch(0.75 0.11 80)'),
+    'primary-foreground': c('oklch(0.98 0.01 95)', 'oklch(0.24 0.03 160)'),
     // Text/icons that sit ON dark media (image scrims via --overlay). Stays light in BOTH themes —
     // the scrim is always dark, so this must NOT flip like primary-foreground does.
     'on-media': c('oklch(0.98 0.01 95)', 'oklch(0.98 0.01 95)'),
-    secondary: c('oklch(0.93 0.012 120)', 'oklch(0.27 0.015 160)'),
-    'secondary-foreground': c('oklch(0.3 0.02 155)', 'oklch(0.95 0.008 95)'),
-    muted: c('oklch(0.95 0.008 105)', 'oklch(0.27 0.015 160)'),
-    'muted-foreground': c('oklch(0.5 0.015 150)', 'oklch(0.7 0.012 130)'),
-    accent: c('oklch(0.93 0.014 130)', 'oklch(0.3 0.018 160)'),
-    'accent-foreground': c('oklch(0.3 0.02 155)', 'oklch(0.95 0.008 95)'),
+    secondary: c('oklch(0.93 0.012 120)', 'oklch(0.31 0.022 165)'),
+    'secondary-foreground': c('oklch(0.3 0.02 155)', 'oklch(0.94 0.015 90)'),
+    muted: c('oklch(0.95 0.008 105)', 'oklch(0.31 0.022 165)'),
+    'muted-foreground': c('oklch(0.5 0.015 150)', 'oklch(0.72 0.02 150)'),
+    accent: c('oklch(0.93 0.014 130)', 'oklch(0.33 0.024 165)'),
+    'accent-foreground': c('oklch(0.3 0.02 155)', 'oklch(0.94 0.015 90)'),
     destructive: c('oklch(0.577 0.245 27.325)', 'oklch(0.704 0.191 22.216)'),
-    border: c('oklch(0.9 0.01 120)', 'oklch(1 0 0 / 10%)'),
-    input: c('oklch(0.9 0.01 120)', 'oklch(1 0 0 / 15%)'),
-    ring: c('oklch(0.55 0.07 155)', 'oklch(0.6 0.08 155)'),
+    border: c('oklch(0.9 0.01 120)', 'oklch(1 0 0 / 12%)'),
+    input: c('oklch(0.9 0.01 120)', 'oklch(1 0 0 / 16%)'),
+    ring: c('oklch(0.55 0.07 155)', 'oklch(0.72 0.1 80)'),
     overlay: c('oklch(0 0 0 / 0.5)', 'oklch(0 0 0 / 0.6)'),
+    // P5.6: uniform photo treatment — bottom scrim + full-bleed grade tint
+    // (consumed by mobile-ui ScrimImage; alpha-bearing like `overlay`).
+    scrim: c('oklch(0.15 0.03 170 / 0.75)', 'oklch(0.13 0.03 170 / 0.8)'),
+    'media-tint': c('oklch(0.35 0.05 180 / 0.1)', 'oklch(0.3 0.05 180 / 0.16)'),
     // Functional status colors (not brand "gu") — used by departure status, badges, alerts.
     success: c('oklch(0.62 0.17 145)', 'oklch(0.7 0.15 145)'),
     'success-foreground': c('oklch(0.985 0 0)', 'oklch(0.205 0 0)'),
@@ -50,7 +57,7 @@ export default {
     'chart-3': c('oklch(0.55 0.07 190)', 'oklch(0.65 0.08 190)'),
     'chart-4': c('oklch(0.65 0.06 135)', 'oklch(0.72 0.07 135)'),
     'chart-5': c('oklch(0.35 0.05 160)', 'oklch(0.5 0.06 160)'),
-    sidebar: c('oklch(0.97 0.008 110)', 'oklch(0.19 0.013 160)'),
+    sidebar: c('oklch(0.97 0.008 110)', 'oklch(0.26 0.025 165)'),
     'sidebar-foreground': c('oklch(0.23 0.012 155)', 'oklch(0.95 0.008 95)'),
     'sidebar-primary': c('oklch(0.42 0.08 155)', 'oklch(0.72 0.1 155)'),
     'sidebar-primary-foreground': c(

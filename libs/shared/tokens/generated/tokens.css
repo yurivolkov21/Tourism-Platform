@@ -24,6 +24,8 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-overlay: var(--overlay);
+  --color-scrim: var(--scrim);
+  --color-media-tint: var(--media-tint);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
@@ -125,6 +127,8 @@
   --input: oklch(0.9 0.01 120);
   --ring: oklch(0.55 0.07 155);
   --overlay: oklch(0 0 0 / 0.5);
+  --scrim: oklch(0.15 0.03 170 / 0.75);
+  --media-tint: oklch(0.35 0.05 180 / 0.1);
   --success: oklch(0.62 0.17 145);
   --success-foreground: oklch(0.985 0 0);
   --warning: oklch(0.78 0.15 80);
@@ -175,26 +179,28 @@
 }
 
 .dark {
-  --background: oklch(0.17 0.012 160);
-  --foreground: oklch(0.95 0.008 95);
-  --card: oklch(0.21 0.014 160);
-  --card-foreground: oklch(0.95 0.008 95);
-  --popover: oklch(0.21 0.014 160);
-  --popover-foreground: oklch(0.95 0.008 95);
-  --primary: oklch(0.72 0.1 155);
-  --primary-foreground: oklch(0.18 0.02 155);
+  --background: oklch(0.24 0.025 165);
+  --foreground: oklch(0.94 0.015 90);
+  --card: oklch(0.28 0.025 165);
+  --card-foreground: oklch(0.94 0.015 90);
+  --popover: oklch(0.28 0.025 165);
+  --popover-foreground: oklch(0.94 0.015 90);
+  --primary: oklch(0.75 0.11 80);
+  --primary-foreground: oklch(0.24 0.03 160);
   --on-media: oklch(0.98 0.01 95);
-  --secondary: oklch(0.27 0.015 160);
-  --secondary-foreground: oklch(0.95 0.008 95);
-  --muted: oklch(0.27 0.015 160);
-  --muted-foreground: oklch(0.7 0.012 130);
-  --accent: oklch(0.3 0.018 160);
-  --accent-foreground: oklch(0.95 0.008 95);
+  --secondary: oklch(0.31 0.022 165);
+  --secondary-foreground: oklch(0.94 0.015 90);
+  --muted: oklch(0.31 0.022 165);
+  --muted-foreground: oklch(0.72 0.02 150);
+  --accent: oklch(0.33 0.024 165);
+  --accent-foreground: oklch(0.94 0.015 90);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.6 0.08 155);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.72 0.1 80);
   --overlay: oklch(0 0 0 / 0.6);
+  --scrim: oklch(0.13 0.03 170 / 0.8);
+  --media-tint: oklch(0.3 0.05 180 / 0.16);
   --success: oklch(0.7 0.15 145);
   --success-foreground: oklch(0.205 0 0);
   --warning: oklch(0.82 0.14 80);
@@ -210,7 +216,7 @@
   --chart-3: oklch(0.65 0.08 190);
   --chart-4: oklch(0.72 0.07 135);
   --chart-5: oklch(0.5 0.06 160);
-  --sidebar: oklch(0.19 0.013 160);
+  --sidebar: oklch(0.26 0.025 165);
   --sidebar-foreground: oklch(0.95 0.008 95);
   --sidebar-primary: oklch(0.72 0.1 155);
   --sidebar-primary-foreground: oklch(0.18 0.02 155);
