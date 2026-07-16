@@ -70,9 +70,9 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   money-path presentation adversarially reviewed). Expo Go dev loop only.
   Combined device pass ✅ 2026-07-15. **P5.7 screen-by-screen Navel parity
   in flight** ([index](docs/06-specs/2026-07-15-navel-screen-index.md);
-  S1 = onboarding). **153 tests** (+ mobile-ui 47).
+  S1 ✅). **160 tests** (+ mobile-ui 47).
 
-Baselines: **api 541 · web 300 · admin 266 · mobile 153 · mobile-ui 34 · core 42.**
+Baselines: **api 541 · web 300 · admin 266 · mobile 160 · mobile-ui 47 · core 42.**
 
 ## Next actions
 
@@ -80,11 +80,12 @@ Baselines: **api 541 · web 300 · admin 266 · mobile 153 · mobile-ui 34 · co
    SHIPPED `bd67d54` same day). Cadence: pick screen → analyze vs the
    [102-export index](docs/06-specs/2026-07-15-navel-screen-index.md) →
    user approves scope → small branch → gate → on-device look → merge.
-   Locked: onboarding→Home w/ OPTIONAL auth (guest-first stands). **S1 =
-   first-launch onboarding** (3 full-bleed pages, AsyncStorage flag, last
-   page "Sign in / Explore as guest"; bundled images from the user's own
-   tour media). Baselines: mobile 153 · mobile-ui 47. NOTE: ~23 local
-   commits on `main` are UNPUSHED (user pushes on their signal).
+   Locked: onboarding→Home w/ OPTIONAL auth (guest-first stands). **S1
+   SHIPPED 2026-07-15** (`70f756e` — onboarding pager · BrandSplash ·
+   emerald native splash · `start-dev.ps1` auto-IP). Next screen: pick with
+   the user (candidates: auth Screen-4/10 · Home vertical-tabs Screen-17).
+   Baselines: mobile 160 · mobile-ui 47. NOTE: ~25 local commits on `main`
+   are UNPUSHED (user pushes on their signal).
 2. **Contact Launcher — LIVE 2026-07-14:** `NEXT_PUBLIC_CHAT_WHATSAPP` set on
    Vercel with the owner's personal number; owner verified the wa.me chat
    end-to-end on production. Remaining: cross-account test (teammate opens the

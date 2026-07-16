@@ -4,6 +4,30 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-15 — P5.7 S1: first-launch onboarding + branded splash (`70f756e`)
+
+- **Onboarding pager** (Navel Screens 1-3, guest-first adaptation): 3
+  full-bleed pages (bundled 1440x2880 portraits from the project's own seed
+  media) + dash indicator + brass arrow; last page = "Sign in / Explore as
+  guest" (auth never blocks — locked decision). AsyncStorage-gated root
+  takeover BEFORE the router Stack; splash held until the flag resolves (no
+  flash); "Sign in" opens the auth modal after Stack mount. TDD on the flag
+  helper (storage errors never block the app).
+- **BrandSplash (S1b, Navel Screen-0 spirit, own mark):** Fraunces "N"
+  monogram in a GlowBadge halo + `messages.brand` wordmark/tagline, ~1.1s
+  minimum display, FadeOut into onboarding/Home. Native splash background
+  `#ffffff` → `#14231c` (killed the day-one white flash).
+- **Dev loop:** `apps/mobile/start-dev.ps1` auto-detects the Wi-Fi IPv4 for
+  `REACT_NATIVE_PACKAGER_HOSTNAME` (survives home/school network hops).
+- **Gotcha (new variant of a known one):** `expo install expo` (54.0.35 →
+  54.0.36) left stale `expo@54.0.35` peer snapshots on the `expo-*` packages
+  → duplicated `expo-image` in `.pnpm` → jest mock resolution missed the
+  second copy ("getDevServer null.match"). Fix: `pnpm --filter
+  @tourism/mobile update expo "expo-*"` + delete orphaned `.pnpm` dirs —
+  same class as the 2026-07-15 worklets incident.
+- Tests after: **api 541 · web 300 · admin 266 · mobile 160 · mobile-ui 47 ·
+  core 42.**
+
 ## 2026-07-15 — P5.6 "Nexora Dark Heritage": full mobile dark redesign R1→R3 (`bd67d54`)
 
 - **The whole app moved to the Navel-translated dark language in one program**
