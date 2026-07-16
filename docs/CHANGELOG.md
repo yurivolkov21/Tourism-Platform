@@ -4,6 +4,23 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-15 — P5.7 S2: auth screens on the Navel language (`926ac28`)
+
+- **Sign-in / sign-up / forgot reskinned** (Navel Screen-4/10, modals kept):
+  shared `AuthHero` — photo owns ~42% of the window and dissolves into the
+  emerald background (gradient to the BACKGROUND color, no seam), Fraunces
+  hero title in the blend; images reuse the bundled onboarding set.
+- **`TextField` gains an `underline` variant** (mobile-ui): icon +
+  placeholder + hairline, no box/label; `accessibilityLabel` falls back to
+  the placeholder (tested) so screen readers and existing specs keep
+  working. Auth fields switch to it with brass leading icons.
+- Rhythm per device feedback (2 rounds): wide gaps, "Forgot password?"
+  inline with the password row, switch-links pinned to the screen bottom
+  via flexGrow, form gutters 28dp w/ hero title aligned. Deliberately NO
+  social/Face ID rows (no real OAuth/biometric behind them). Auth logic
+  byte-identical.
+- Tests after: **mobile 161 · mobile-ui 48** (others unchanged).
+
 ## 2026-07-15 — P5.7 S1: first-launch onboarding + branded splash (`70f756e`)
 
 - **Onboarding pager** (Navel Screens 1-3, guest-first adaptation): 3
