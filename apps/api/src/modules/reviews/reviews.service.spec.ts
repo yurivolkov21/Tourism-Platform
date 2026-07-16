@@ -353,15 +353,20 @@ describe('ReviewsService.moderateById', () => {
     expect(update).not.toHaveBeenCalled();
   });
 
-  function makeModeratePrisma(currentlyApproved: boolean) {
+  function makeModeratePrisma(
+    currentlyApproved: boolean,
+    slug: string | null = 'ha-long',
+  ) {
     const update = jest
       .fn()
       .mockResolvedValue({ id: 'r-1', isApproved: !currentlyApproved });
     const outboxCreateMany = jest.fn().mockResolvedValue({ count: 1 });
     const review = {
-      findUnique: jest
-        .fn()
-        .mockResolvedValue({ id: 'r-1', isApproved: currentlyApproved }),
+      findUnique: jest.fn().mockResolvedValue({
+        id: 'r-1',
+        isApproved: currentlyApproved,
+        tour: slug ? { slug } : null,
+      }),
       update,
     };
     const outbox = { createMany: outboxCreateMany };
@@ -375,6 +380,13 @@ describe('ReviewsService.moderateById', () => {
       ),
     };
     return { prisma, update, outboxCreateMany };
+  }
+
+  /** Mock web-revalidation collaborator (resolves unless a test overrides). */
+  function makeRevalidator(
+    revalidateTour = jest.fn().mockResolvedValue(undefined),
+  ) {
+    return { revalidator: { revalidateTour }, revalidateTour };
   }
 
   it('flips isApproved and enqueues an email on the false→true transition', async () => {
@@ -422,6 +434,59 @@ describe('ReviewsService.moderateById', () => {
     expect(calls[0][0].data.isApproved).toBe(false);
     expect(calls[0][0].data.moderatedById).toBe('admin-2');
     expect(outboxCreateMany).not.toHaveBeenCalled();
+  });
+
+  it('revalidates the tour page on the false→true transition', async () => {
+    const { prisma } = makeModeratePrisma(false);
+    const { revalidator, revalidateTour } = makeRevalidator();
+    const svc = new ReviewsService(prisma as never, revalidator as never);
+
+    await svc.moderateById('r-1', true, 'admin-1');
+
+    expect(revalidateTour).toHaveBeenCalledWith('ha-long');
+  });
+
+  it('revalidates the tour page on the true→false (un-approve) transition', async () => {
+    const { prisma } = makeModeratePrisma(true);
+    const { revalidator, revalidateTour } = makeRevalidator();
+    const svc = new ReviewsService(prisma as never, revalidator as never);
+
+    await svc.moderateById('r-1', false, 'admin-2');
+
+    expect(revalidateTour).toHaveBeenCalledWith('ha-long');
+  });
+
+  it('does not revalidate on a no-op same-value write', async () => {
+    const { prisma } = makeModeratePrisma(true);
+    const { revalidator, revalidateTour } = makeRevalidator();
+    const svc = new ReviewsService(prisma as never, revalidator as never);
+
+    await svc.moderateById('r-1', true, 'admin-1');
+
+    expect(revalidateTour).not.toHaveBeenCalled();
+  });
+
+  it('does not revalidate a CURATED review with no linked tour', async () => {
+    const { prisma } = makeModeratePrisma(false, null);
+    const { revalidator, revalidateTour } = makeRevalidator();
+    const svc = new ReviewsService(prisma as never, revalidator as never);
+
+    await svc.moderateById('r-1', true, 'admin-1');
+
+    expect(revalidateTour).not.toHaveBeenCalled();
+  });
+
+  it('still resolves moderation when revalidation rejects', async () => {
+    const { prisma, update } = makeModeratePrisma(false);
+    const { revalidator } = makeRevalidator(
+      jest.fn().mockRejectedValue(new Error('web down')),
+    );
+    const svc = new ReviewsService(prisma as never, revalidator as never);
+
+    await expect(
+      svc.moderateById('r-1', true, 'admin-1'),
+    ).resolves.toBeDefined();
+    expect(update).toHaveBeenCalled();
   });
 });
 

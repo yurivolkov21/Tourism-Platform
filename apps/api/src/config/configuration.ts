@@ -70,6 +70,14 @@ export const chatConfig = registerAs('chat', () => ({
   model: process.env.CHAT_MODEL ?? 'claude-haiku-4-5',
 }));
 
+// On-demand web cache revalidation. Optional by design: no secret ⇒ the API
+// skips the POST to the web `/api/revalidate` route and the public tour page
+// falls back to its 300s ISR timer. Shared with `@tourism/web` (API attaches the
+// secret, web validates it). The web origin reuses `app.frontendUrl`.
+export const revalidateConfig = registerAs('revalidate', () => ({
+  secret: process.env.REVALIDATE_SECRET || undefined,
+}));
+
 export const throttlerConfig = registerAs('throttler', () => ({
   ttlSeconds: parseInt(process.env.THROTTLE_TTL_SECONDS ?? '60', 10),
   limit: parseInt(process.env.THROTTLE_LIMIT ?? '100', 10),
@@ -85,5 +93,6 @@ export const configurations = [
   emailConfig,
   sentryConfig,
   chatConfig,
+  revalidateConfig,
   throttlerConfig,
 ];

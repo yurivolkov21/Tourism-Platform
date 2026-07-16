@@ -12,6 +12,7 @@ import {
   parseTransportLine,
   pickRelated,
 } from '../tour-detail-derive';
+import { tourTag } from '../revalidate';
 import { getApiClient } from './client';
 import { fetchTourCards, knownTravellerTypes } from './tours';
 
@@ -112,6 +113,10 @@ export async function fetchTourReviews(slug: string): Promise<TourReview[]> {
   const api = getApiClient();
   const { data } = await api.GET('/api/v1/tours/{slug}/reviews', {
     params: { path: { slug }, query: { pageSize: 9 } },
+    // Tagged so the API can bust this read via `revalidateTag('tour:<slug>')`
+    // the moment a review is (un)approved — otherwise it freezes into the ISR
+    // output for up to 300s.
+    next: { tags: [tourTag(slug)] },
   });
   const list = (data as unknown as { data: PublicReviewDto[] }).data ?? [];
   return list.map(toTourReview);
@@ -136,6 +141,9 @@ export const fetchTourDetail = cache(
     const api = getApiClient();
     const { data, error } = await api.GET('/api/v1/tours/{slug}', {
       params: { path: { slug } },
+      // Same tag as the reviews read: approving a review also shifts
+      // averageRating/reviewsCount on the detail DTO, so both refresh together.
+      next: { tags: [tourTag(slug)] },
     });
     const dto = (data as unknown as { data?: TourDetailDto } | undefined)?.data;
     if (error || !dto) return null;

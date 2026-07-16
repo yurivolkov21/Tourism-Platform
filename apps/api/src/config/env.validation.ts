@@ -84,6 +84,11 @@ export const envValidationSchema = Joi.object({
   ANTHROPIC_API_KEY: Joi.string().allow('').optional(),
   CHAT_MODEL: Joi.string().default('claude-haiku-4-5'),
 
+  // ── Web on-demand revalidation ──────────────────────────────────────────────
+  // Optional by design: unset ⇒ the API skips the revalidation POST and the
+  // public tour page relies on its 300s ISR timer. Shared with @tourism/web.
+  REVALIDATE_SECRET: Joi.string().allow('').optional(),
+
   // ── Throttler ──────────────────────────────────────────────────────────────
   THROTTLE_TTL_SECONDS: Joi.number().integer().min(1).default(60),
   THROTTLE_LIMIT: Joi.number().integer().min(1).default(100),

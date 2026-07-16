@@ -19,6 +19,7 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { ListAdminReviewsQueryDto } from './dto/list-admin-reviews-query.dto';
 import { ListReviewsQueryDto } from './dto/list-reviews-query.dto';
 import { UpdateCuratedReviewDto } from './dto/update-curated-review.dto';
+import { WebRevalidationService } from './web-revalidation.service';
 
 /**
  * Public review item — strips `bookingId`/`userId` so the customer's purchase
@@ -117,7 +118,12 @@ export interface FeaturedReview {
 export class ReviewsService {
   private readonly logger = new Logger(ReviewsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    // Optional so the many unit tests that construct the service by hand for
+    // non-moderation paths keep compiling; DI always injects it in the app.
+    private readonly revalidator?: WebRevalidationService,
+  ) {}
 
   async createForCustomer(
     customerUserId: string,
@@ -420,7 +426,9 @@ export class ReviewsService {
     }
     const existing = await this.prisma.review.findUnique({
       where: { id: reviewId },
-      select: { id: true, isApproved: true },
+      // `tour.slug` drives the post-commit web revalidation below; CURATED
+      // reviews have no linked tour (slug null) and are skipped.
+      select: { id: true, isApproved: true, tour: { select: { slug: true } } },
     });
     if (!existing) {
       throw new NotFoundException({
@@ -459,6 +467,17 @@ export class ReviewsService {
     this.logger.log(
       `Admin moderated review ${reviewId} → isApproved=${isApproved}`,
     );
+
+    // Post-commit, best-effort: when approval actually flipped (either
+    // direction), bust the public tour page's cache so the change shows within
+    // seconds instead of on the 300s ISR timer. Fire-and-forget — the `.catch`
+    // + the service's own swallow keep a revalidation failure from touching the
+    // (already-committed) moderation result.
+    const slug = existing.tour?.slug;
+    if (slug && existing.isApproved !== isApproved) {
+      void this.revalidator?.revalidateTour(slug).catch(() => undefined);
+    }
+
     return updated;
   }
 
