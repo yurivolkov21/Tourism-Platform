@@ -10,6 +10,7 @@ import {
   TextField,
   useTheme,
 } from '@tourism/mobile-ui';
+import { AuthHero } from '../../components/auth-hero';
 import { validateSignUp, type SignUpErrors } from '../../lib/auth';
 import { useAuth } from '../../lib/auth-context';
 
@@ -78,21 +79,36 @@ export default function SignUpScreen() {
   }
 
   return (
-    <Screen scrollProps={{ keyboardShouldPersistTaps: 'handled' }}>
+    <Screen
+      style={{ paddingHorizontal: 0, paddingTop: 0 }}
+      scrollProps={{ keyboardShouldPersistTaps: 'handled' }}
+    >
+      <AuthHero
+        image={require('../../../assets/onboarding/onboarding-1.jpg')}
+        title={t.title}
+      />
       <View
-        style={{ gap: theme.spacing(4), paddingVertical: theme.spacing(4) }}
+        style={{
+          gap: theme.spacing(4),
+          paddingHorizontal: theme.spacing(4),
+          paddingVertical: theme.spacing(4),
+        }}
       >
-        <View style={{ gap: theme.spacing(1) }}>
-          <AppText variant="display">{t.title}</AppText>
-          <AppText variant="body" muted>
-            {t.subtitle}
-          </AppText>
-        </View>
+        <AppText variant="body" muted>
+          {t.subtitle}
+        </AppText>
         <TextField
           label={t.fullNameLabel}
           value={fullName}
           onChangeText={setFullName}
           error={errors.fullName ? te[errors.fullName] : undefined}
+          leading={
+            <Ionicons
+              name="person-outline"
+              size={16}
+              color={theme.colors['primary']}
+            />
+          }
           autoCorrect={false}
           autoComplete="name"
           textContentType="name"
@@ -105,6 +121,13 @@ export default function SignUpScreen() {
           value={email}
           onChangeText={setEmail}
           error={errors.email ? te[errors.email] : undefined}
+          leading={
+            <Ionicons
+              name="mail-outline"
+              size={16}
+              color={theme.colors['primary']}
+            />
+          }
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
@@ -119,6 +142,13 @@ export default function SignUpScreen() {
           value={password}
           onChangeText={setPassword}
           error={errors.password ? te[errors.password] : undefined}
+          leading={
+            <Ionicons
+              name="lock-closed-outline"
+              size={16}
+              color={theme.colors['primary']}
+            />
+          }
           secureTextEntry
           autoComplete="new-password"
           textContentType="newPassword"
@@ -131,6 +161,13 @@ export default function SignUpScreen() {
           value={confirm}
           onChangeText={setConfirm}
           error={errors.confirm ? te[errors.confirm] : undefined}
+          leading={
+            <Ionicons
+              name="lock-closed-outline"
+              size={16}
+              color={theme.colors['primary']}
+            />
+          }
           secureTextEntry
           autoComplete="new-password"
           textContentType="newPassword"
@@ -156,8 +193,17 @@ export default function SignUpScreen() {
           hitSlop={8}
           style={{ alignSelf: 'center' }}
         >
-          <AppText variant="caption" style={{ color: theme.colors['primary'] }}>
-            {t.haveAccount} {t.loginCta}
+          <AppText variant="caption" muted>
+            {t.haveAccount}{' '}
+            <AppText
+              variant="caption"
+              style={{
+                color: theme.colors['primary'],
+                fontFamily: theme.fontFamilies.sansSemiBold,
+              }}
+            >
+              {t.loginCta}
+            </AppText>
           </AppText>
         </Pressable>
       </View>

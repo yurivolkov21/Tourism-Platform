@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Pressable, View, type TextInput } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { messages } from '@tourism/i18n';
 import {
   AppText,
@@ -9,6 +10,7 @@ import {
   TextField,
   useTheme,
 } from '@tourism/mobile-ui';
+import { AuthHero } from '../../components/auth-hero';
 import { validateSignIn, type SignInErrors } from '../../lib/auth';
 import { useAuth } from '../../lib/auth-context';
 
@@ -43,25 +45,41 @@ export default function SignInScreen() {
   };
 
   return (
-    <Screen scrollProps={{ keyboardShouldPersistTaps: 'handled' }}>
+    <Screen
+      style={{ paddingHorizontal: 0, paddingTop: 0 }}
+      scrollProps={{ keyboardShouldPersistTaps: 'handled' }}
+    >
+      {/* P5.7 S2: photo header dissolving into the background (Navel). */}
+      <AuthHero
+        image={require('../../../assets/onboarding/onboarding-2.jpg')}
+        title={t.title}
+      />
       <View
-        style={{ gap: theme.spacing(4), paddingVertical: theme.spacing(4) }}
+        style={{
+          gap: theme.spacing(4),
+          paddingHorizontal: theme.spacing(4),
+          paddingVertical: theme.spacing(4),
+        }}
       >
-        <View style={{ gap: theme.spacing(1) }}>
-          <AppText variant="display">{t.title}</AppText>
-          <AppText variant="body" muted>
-            {reason === 'wishlist'
-              ? tp.wishlistReason
-              : reason === 'booking'
-                ? tp.bookingReason
-                : t.subtitle}
-          </AppText>
-        </View>
+        <AppText variant="body" muted>
+          {reason === 'wishlist'
+            ? tp.wishlistReason
+            : reason === 'booking'
+              ? tp.bookingReason
+              : t.subtitle}
+        </AppText>
         <TextField
           label={t.emailLabel}
           value={email}
           onChangeText={setEmail}
           error={errors.email ? te[errors.email] : undefined}
+          leading={
+            <Ionicons
+              name="mail-outline"
+              size={16}
+              color={theme.colors['primary']}
+            />
+          }
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
@@ -70,18 +88,41 @@ export default function SignInScreen() {
           returnKeyType="next"
           onSubmitEditing={() => passwordRef.current?.focus()}
         />
-        <TextField
-          ref={passwordRef}
-          label={t.passwordLabel}
-          value={password}
-          onChangeText={setPassword}
-          error={errors.password ? te[errors.password] : undefined}
-          secureTextEntry
-          autoComplete="current-password"
-          textContentType="password"
-          returnKeyType="done"
-          onSubmitEditing={() => void onSubmit()}
-        />
+        <View>
+          <TextField
+            ref={passwordRef}
+            label={t.passwordLabel}
+            value={password}
+            onChangeText={setPassword}
+            error={errors.password ? te[errors.password] : undefined}
+            leading={
+              <Ionicons
+                name="lock-closed-outline"
+                size={16}
+                color={theme.colors['primary']}
+              />
+            }
+            secureTextEntry
+            autoComplete="current-password"
+            textContentType="password"
+            returnKeyType="done"
+            onSubmitEditing={() => void onSubmit()}
+          />
+          {/* "Forgot?" inline with the field label (Navel Screen-4). */}
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.replace('/auth/forgot')}
+            hitSlop={8}
+            style={{ position: 'absolute', right: 0, top: 0 }}
+          >
+            <AppText
+              variant="caption"
+              style={{ color: theme.colors['primary'] }}
+            >
+              {t.forgotCta}
+            </AppText>
+          </Pressable>
+        </View>
         {banner ? (
           <AppText
             variant="body"
@@ -95,32 +136,25 @@ export default function SignInScreen() {
           onPress={onSubmit}
           loading={submitting}
         />
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => router.replace('/auth/forgot')}
-            hitSlop={8}
-          >
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.replace('/auth/sign-up')}
+          hitSlop={8}
+          style={{ alignSelf: 'center' }}
+        >
+          <AppText variant="caption" muted>
+            {t.noAccount}{' '}
             <AppText
               variant="caption"
-              style={{ color: theme.colors['primary'] }}
+              style={{
+                color: theme.colors['primary'],
+                fontFamily: theme.fontFamilies.sansSemiBold,
+              }}
             >
-              {t.forgotCta}
+              {t.registerCta}
             </AppText>
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => router.replace('/auth/sign-up')}
-            hitSlop={8}
-          >
-            <AppText
-              variant="caption"
-              style={{ color: theme.colors['primary'] }}
-            >
-              {t.noAccount} {t.registerCta}
-            </AppText>
-          </Pressable>
-        </View>
+          </AppText>
+        </Pressable>
       </View>
     </Screen>
   );

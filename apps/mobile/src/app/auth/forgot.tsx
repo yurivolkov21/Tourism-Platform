@@ -10,6 +10,7 @@ import {
   TextField,
   useTheme,
 } from '@tourism/mobile-ui';
+import { AuthHero } from '../../components/auth-hero';
 import { validateForgot } from '../../lib/auth';
 import { useAuth } from '../../lib/auth-context';
 
@@ -74,21 +75,36 @@ export default function ForgotScreen() {
   }
 
   return (
-    <Screen scrollProps={{ keyboardShouldPersistTaps: 'handled' }}>
+    <Screen
+      style={{ paddingHorizontal: 0, paddingTop: 0 }}
+      scrollProps={{ keyboardShouldPersistTaps: 'handled' }}
+    >
+      <AuthHero
+        image={require('../../../assets/onboarding/onboarding-3.jpg')}
+        title={t.title}
+      />
       <View
-        style={{ gap: theme.spacing(4), paddingVertical: theme.spacing(4) }}
+        style={{
+          gap: theme.spacing(4),
+          paddingHorizontal: theme.spacing(4),
+          paddingVertical: theme.spacing(4),
+        }}
       >
-        <View style={{ gap: theme.spacing(1) }}>
-          <AppText variant="display">{t.title}</AppText>
-          <AppText variant="body" muted>
-            {t.subtitle}
-          </AppText>
-        </View>
+        <AppText variant="body" muted>
+          {t.subtitle}
+        </AppText>
         <TextField
           label={t.emailLabel}
           value={email}
           onChangeText={setEmail}
           error={error ?? undefined}
+          leading={
+            <Ionicons
+              name="mail-outline"
+              size={16}
+              color={theme.colors['primary']}
+            />
+          }
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
