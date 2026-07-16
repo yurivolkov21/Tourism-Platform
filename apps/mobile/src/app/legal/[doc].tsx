@@ -37,7 +37,7 @@ export default function LegalScreen() {
       {/* Native header: back chevron only — the title lives in the content. */}
       <Stack.Screen options={{ headerShown: true, title: '' }} />
       <View
-        style={{ gap: theme.spacing(5), paddingVertical: theme.spacing(4) }}
+        style={{ gap: theme.spacing(6), paddingVertical: theme.spacing(5) }}
       >
         <View
           style={{
@@ -48,9 +48,9 @@ export default function LegalScreen() {
         >
           <View
             style={{
-              width: 64,
-              height: 64,
-              borderRadius: theme.radius.lg,
+              width: 96,
+              height: 96,
+              borderRadius: theme.radius.xl,
               borderCurve: 'continuous',
               alignItems: 'center',
               justifyContent: 'center',
@@ -61,15 +61,15 @@ export default function LegalScreen() {
               // Record values are typed as string for brevity; the map only
               // holds valid Ionicons names.
               name={icon as keyof typeof Ionicons.glyphMap}
-              size={28}
+              size={40}
               color={theme.colors['primary']}
             />
           </View>
           <View style={{ flex: 1, gap: 2 }}>
-            <AppText variant="display" style={{ fontSize: 26, lineHeight: 32 }}>
+            <AppText variant="display" style={{ fontSize: 32, lineHeight: 38 }}>
               {legal.title}
             </AppText>
-            <AppText variant="caption" muted>
+            <AppText variant="body" muted>
               {tl.updated(legal.updated)}
             </AppText>
           </View>
@@ -93,29 +93,46 @@ export default function LegalScreen() {
         ) : null}
 
         {legal.intro.map((paragraph) => (
-          <AppText key={paragraph} variant="body" muted>
+          <AppText
+            key={paragraph}
+            variant="body"
+            muted
+            style={{ lineHeight: 24 }}
+          >
             {paragraph}
           </AppText>
         ))}
 
         {legal.sections.map((section, i) => (
-          <View key={section.heading} style={{ gap: theme.spacing(2) }}>
+          <View key={section.heading} style={{ gap: theme.spacing(3) }}>
             <AppText
               variant="body"
               style={{
                 fontFamily: theme.fontFamilies.sansSemiBold,
+                fontSize: 18,
+                lineHeight: 24,
                 letterSpacing: 0.4,
               }}
             >
               {i + 1}. {section.heading.toUpperCase()}
             </AppText>
             {section.paragraphs?.map((paragraph) => (
-              <AppText key={paragraph} variant="body" muted>
+              <AppText
+                key={paragraph}
+                variant="body"
+                muted
+                style={{ lineHeight: 24 }}
+              >
                 {paragraph}
               </AppText>
             ))}
             {section.bullets?.map((bullet) => (
-              <AppText key={bullet} variant="body" muted>
+              <AppText
+                key={bullet}
+                variant="body"
+                muted
+                style={{ lineHeight: 24 }}
+              >
                 {'•'} {bullet}
               </AppText>
             ))}
