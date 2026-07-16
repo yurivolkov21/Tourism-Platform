@@ -70,9 +70,9 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   money-path presentation adversarially reviewed). Expo Go dev loop only.
   Combined device pass ✅ 2026-07-15. **P5.7 screen-by-screen Navel parity
   in flight** ([index](docs/06-specs/2026-07-15-navel-screen-index.md);
-  S1+S2+S3 ✅). **164 tests** (+ mobile-ui 48).
+  S1+S2+S3+S4 ✅). **167 tests** (+ mobile-ui 50).
 
-Baselines: **api 541 · web 300 · admin 266 · mobile 164 · mobile-ui 48 · core 42.**
+Baselines: **api 541 · web 300 · admin 266 · mobile 167 · mobile-ui 50 · core 42.**
 
 ## Next actions
 
@@ -86,10 +86,14 @@ Baselines: **api 541 · web 300 · admin 266 · mobile 164 · mobile-ui 48 · co
    — AuthHero 42% dissolve · TextField `underline` variant · bottom-pinned
    footers; 2 device-feedback rounds) · **S3 SHIPPED 2026-07-16** (`9584c22`
    — LegalDoc single-source in `@tourism/i18n` · native legal/[doc] reader ·
-   Account rows native + cancellation policy · sign-up agree line). Next
-   screen: pick with the user (top candidate: Home vertical-tabs Screen-17).
-   Baselines: mobile 164 · mobile-ui 48. NOTE: ~39 local commits on `main`
-   are UNPUSHED (user pushes on their signal).
+   Account rows native + cancellation policy · sign-up agree line) · **S4
+   SHIPPED 2026-07-16** (`e6a74ce` — Home = Screen-17 region browser:
+   fixed full-height layout, rotated N/C/S rail, fill-height destination
+   cards → filtered Explore, container-less Navel tab bar w/ fade,
+   "Traveller" guest greeting; device look owed — user deferred to after
+   the push). Next screen: pick with the user. Baselines: mobile 167 ·
+   mobile-ui 50. NOTE: ~42 local commits on `main` are UNPUSHED (user
+   pushes on their signal).
 2. **Contact Launcher — LIVE 2026-07-14:** `NEXT_PUBLIC_CHAT_WHATSAPP` set on
    Vercel with the owner's personal number; owner verified the wa.me chat
    end-to-end on production. Remaining: cross-account test (teammate opens the

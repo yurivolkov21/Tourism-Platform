@@ -4,6 +4,34 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-16 — P5.7 S4: Home as the Navel region browser (`e6a74ce`)
+
+- **Home rebuilt to Navel Screen-17/18** (branch `feat/mobile-s4-home`,
+  `a8d3757` + device-findings pass `e6a74ce`): fixed full-height composition
+  (no vertical scroll — pull-to-refresh dropped, error state keeps retry).
+  Header = avatar tile + "Welcome {firstName|Traveller}" (brand name never
+  greets a guest); brass "Recommendations" headline with the bare search
+  glyph on the same row (→ Explore w/ keyboard up) over an edge-running
+  hairline; slim next-trip chip stays for signed-in users w/ an upcoming
+  booking (locked decision, as is the 5-tab nav).
+- **Region browser** (the user's own N/C/S idea grafted onto Navel's rail):
+  `RegionTabs` — rotated North/Central/South labels spread over the full
+  card height, brass active + horizontal dash UNDER the word (dash rendered
+  as the first child of the rotated row: after -90° row-start points down);
+  a11y reads full region names unrotated. `DestinationHeroCard` — 0.68-width
+  fill-height card, pin+region top-right, "Recommended" eyebrow + Fraunces
+  34pt name + tours row at the foot, translucent brass arrow panel (token
+  hex + '4D' alpha — no-hex rule intact); card → Explore filtered by
+  destination. `groupByRegion` from @tourism/core drives the rails
+  (`DestinationChipVm` gains required `region`).
+- **mobile-ui:** `ScrimImage` gains `fill` (flex:1 instead of aspectRatio);
+  `FloatingTabBar` goes container-less per Navel — bare outline icons, active
+  = 62px brass tile (exported `TAB_BAR_TILE`; tabs sceneStyle reserves from
+  it), background-fade gradient behind so scrolling tabs stay legible. Dead
+  `DestinationCard`/`SavedMiniCard` deleted.
+- Tests after: **api 541 · web 300 · admin 266 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
 ## 2026-07-16 — P5.7 S3: native legal screens + shared LegalDoc source (`9584c22`)
 
 - **Legal content moves to `@tourism/i18n`** (`0ee4bd9`, git mv): the
