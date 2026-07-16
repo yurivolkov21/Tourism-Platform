@@ -110,8 +110,11 @@ Admin approves review
 - `POST`: read `REVALIDATE_SECRET` from `process.env`. If unset ⇒ 503
   (misconfig, visible). Read `x-revalidate-secret` header; validate with
   `isValidRevalidateSecret`. Mismatch/missing ⇒ 401. Parse `{ slug }`; missing/
-  non-string ⇒ 400. On success `revalidateTag(tourTag(slug))` and return
-  `{ revalidated: true, tag }` 200. Wrap body parse in try/catch → 400.
+  non-string ⇒ 400. On success `revalidateTag(tourTag(slug), { expire: 0 })` and
+  return `{ revalidated: true, tag }` 200. Wrap body parse in try/catch → 400.
+  `{ expire: 0 }` = immediate expiry (blocking miss on the next request) rather
+  than the `'max'` stale-while-revalidate profile, since this webhook-style
+  trigger needs the change visible on the admin's very next reload.
 
 **Pure logic (TDD)** — `apps/web/src/lib/revalidate.ts` (+ `.spec.ts`):
 

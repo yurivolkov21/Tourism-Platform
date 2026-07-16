@@ -88,7 +88,10 @@ global `APP_*` providers in `AppModule`. `@SkipTransform` opts webhooks out of t
 
 CRUD: destinations · tours (+categories, M:N destinations, itinerary/FAQs/policies, media) ·
 departures · **bookings + Stripe/PayPal** · **media** (Cloudinary signed upload) · **reviews**
-(PAID-gated + moderation) · **wishlist** · **enquiry** (throttle + honeypot + lead fields) ·
+(PAID-gated + moderation; `moderateById` fires `WebRevalidationService` after commit to
+bust the web tour page's ISR cache — POST `${FRONTEND_URL}/api/revalidate` w/ shared
+`REVALIDATE_SECRET`, both approve/un-approve, CURATED skipped, best-effort) ·
+**wishlist** · **enquiry** (throttle + honeypot + lead fields) ·
 **chat** (AI concierge — the API's only SSE surface: `POST /chat/messages` streams an
 AI SDK v7 UIMessage response over raw `@Res()`, bypassing the Transform envelope;
 Claude Haiku via `@ai-sdk/anthropic`, tools call `ToursService`/`EnquiryService`

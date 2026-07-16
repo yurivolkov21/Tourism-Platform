@@ -5,16 +5,26 @@
 
 ## STATUS
 
-- [ ] T0 context7 confirm (Next 16 `revalidateTag` / Route Handler · openapi-fetch `next.tags`)
-- [ ] T1 web pure logic — `tourTag` + `isValidRevalidateSecret` (TDD)
-- [ ] T2 web revalidate route handler + tests
-- [ ] T3 web tag the tour fetches (reviews + detail)
-- [ ] T4 API `WebRevalidationService` + config/env + tests
-- [ ] T5 hook `moderateById` post-commit + tests
-- [ ] T6 env docs (`.env.example` ×2)
-- [ ] T7 gate + review
+- [x] T0 context7 confirm (Next 16 `revalidateTag` / Route Handler · openapi-fetch `next.tags`)
+- [x] T1 web pure logic — `tourTag` + `isValidRevalidateSecret` (TDD)
+- [x] T2 web revalidate route handler + tests
+- [x] T3 web tag the tour fetches (reviews + detail)
+- [x] T4 API `WebRevalidationService` + config/env + tests
+- [x] T5 hook `moderateById` post-commit + tests
+- [x] T6 env docs (`.env.example` ×2)
+- [x] T7 gate + review
 
-**RESUME STATE:** _(update as tasks complete)_
+**RESUME STATE:** all code tasks done on `feat/review-ondemand-revalidation`; gate
+GREEN (api 551 · web 314 · core 42) and web `build` includes `ƒ /api/revalidate`.
+Code review (1 finding): `revalidateTag` switched from `'max'` (stale-while-
+revalidate — next visit still stale) to `{ expire: 0 }` (immediate expiry) so the
+admin's very next reload shows the change; re-verified green. **Implementation not
+yet committed — awaiting user review before commit + merge.** T0 confirmations:
+`revalidateTag(tag, string | { expire?: number })` (profile REQUIRED in next
+16.2.9); Route Handler `POST(request): Response`; `openapi-fetch` `FetchOptions`
+extends `RequestInit` so `next: { tags }` forwards to `fetch`. Post-merge: rule-9
+docs sweep (CHANGELOG · CLAUDE.md rows · HANDOFF · roadmap) + set matching
+`REVALIDATE_SECRET` in Render (API) + Vercel (web).
 
 ## Sequencing
 

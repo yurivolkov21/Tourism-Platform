@@ -4,6 +4,35 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-16 — Review moderation → on-demand web revalidation (`a226da9`)
+
+- **Approved/un-approved reviews now show on the public tour page within
+  seconds**, not on the 300s ISR timer — without making the page dynamic.
+  Branch `feat/review-ondemand-revalidation` (spec+plan `b5c51d3`).
+- **Web:** the tour reviews + detail fetches are tagged `tour:<slug>`
+  (`fetchTourReviews` + `fetchTourDetail` in `lib/api/tour-detail.ts`; detail is
+  tagged too because approval shifts `averageRating`/`reviewsCount`). New
+  secret-guarded Route Handler `POST /api/revalidate` →
+  `revalidateTag(tag, { expire: 0 })` (immediate expiry, not `'max'`
+  stale-while-revalidate — the admin's very next reload must reflect the change).
+  503 unset-secret · 401 bad secret · 400 missing slug · 200.
+- **API:** new `WebRevalidationService` POSTs `${FRONTEND_URL}/api/revalidate`
+  (shared `REVALIDATE_SECRET`, 3s timeout) fire-and-forget from
+  `ReviewsService.moderateById` **after the `$transaction` commits**, on BOTH
+  approve and un-approve; CURATED reviews (no tour slug) skipped; any failure is
+  logged + swallowed so moderation never blocks. Chosen over hooking the outbox
+  drain (1-min cron · disabled without `RESEND_API_KEY` · never fires on
+  un-approve).
+- **Config:** new optional shared `REVALIDATE_SECRET` (Joi optional; unset ⇒ API
+  no-ops, web route 503s, 300s ISR is the backstop). API reuses the required
+  `FRONTEND_URL` as the web origin — no separate URL env. Documented in both
+  `.env.example` files. **Deploy to-do:** set a matching value in Render (API) +
+  Vercel (web).
+- Review findings: 1 — original `revalidateTag(tag, 'max')` was
+  stale-while-revalidate (next visit still stale); switched to `{ expire: 0 }`.
+- Tests after: **api 551 · web 314 · admin 266 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
 ## 2026-07-16 — P5.7 S4: Home as the Navel region browser (`e6a74ce`)
 
 - **Home rebuilt to Navel Screen-17/18** (branch `feat/mobile-s4-home`,
