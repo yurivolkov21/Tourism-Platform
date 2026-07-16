@@ -16,6 +16,7 @@ import { useAuth } from '../../lib/auth-context';
 
 const t = messages.auth.register;
 const te = messages.mobile.authErrors;
+const tl = messages.mobile.legal;
 
 export default function SignUpScreen() {
   const theme = useTheme();
@@ -192,6 +193,26 @@ export default function SignUpScreen() {
           onPress={onSubmit}
           loading={submitting}
         />
+        {/* Navel keeps Terms in the register flow — ours is a non-blocking
+            agree line (guest-first: no forced checkbox). */}
+        <AppText variant="caption" muted style={{ textAlign: 'center' }}>
+          {tl.agreePrefix}
+          <AppText
+            variant="caption"
+            style={{ color: theme.colors['primary'] }}
+            onPress={() => router.push('/legal/terms')}
+          >
+            {tl.agreeTerms}
+          </AppText>
+          {tl.agreeAnd}
+          <AppText
+            variant="caption"
+            style={{ color: theme.colors['primary'] }}
+            onPress={() => router.push('/legal/privacy')}
+          >
+            {tl.agreePrivacy}
+          </AppText>
+        </AppText>
         <View style={{ flex: 1 }} />
         <Pressable
           accessibilityRole="button"

@@ -1992,6 +1992,13 @@ export const messages = {
       saved: 'Saved',
       account: 'Account',
     },
+    legal: {
+      updated: (date: string) => `Last updated ${date}`,
+      agreePrefix: 'By creating an account you agree to our ',
+      agreeTerms: 'Terms',
+      agreeAnd: ' and ',
+      agreePrivacy: 'Privacy Policy',
+    },
     onboarding: {
       skip: 'Skip',
       next: 'Next page',
@@ -2163,6 +2170,7 @@ export const messages = {
       menuSaved: 'Saved tours',
       menuPrivacy: 'Privacy policy',
       menuTerms: 'Terms of service',
+      menuCancellation: 'Cancellation & refund policy',
       signOut: 'Sign out',
       loadError: "Couldn't load your profile.",
       retry: 'Try again',

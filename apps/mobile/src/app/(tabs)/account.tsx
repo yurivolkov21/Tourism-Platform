@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Linking, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -155,15 +155,21 @@ function Profile({ profile }: { profile: ProfileVm }) {
           label={t.menuSaved}
           onPress={() => router.push('/saved')}
         />
+        {/* P5.7 S3: legal docs are native screens now (shared LegalDoc source). */}
         <MenuRow
           icon="shield-checkmark-outline"
           label={t.menuPrivacy}
-          onPress={() => Linking.openURL(`${WEB_URL}/privacy`)}
+          onPress={() => router.push('/legal/privacy')}
         />
         <MenuRow
           icon="document-text-outline"
           label={t.menuTerms}
-          onPress={() => Linking.openURL(`${WEB_URL}/terms`)}
+          onPress={() => router.push('/legal/terms')}
+        />
+        <MenuRow
+          icon="calendar-clear-outline"
+          label={t.menuCancellation}
+          onPress={() => router.push('/legal/cancellation')}
         />
         <MenuRow
           icon="log-out-outline"
