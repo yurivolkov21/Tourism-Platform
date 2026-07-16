@@ -8,6 +8,9 @@ export interface DestinationChipVm {
   name: string;
   image?: string;
   toursCount: number;
+  /** P5.7 S4: drives the Home region browser (null = unassigned → the
+   * "Other" bucket, hidden from the region tabs). */
+  region: string | null;
 }
 
 export function toDestinationChipVm(dto: DestinationDto): DestinationChipVm {
@@ -17,6 +20,7 @@ export function toDestinationChipVm(dto: DestinationDto): DestinationChipVm {
     name: dto.name,
     image: hero?.url,
     toursCount: dto.toursCount ?? 0,
+    region: dto.region ?? null,
   };
 }
 

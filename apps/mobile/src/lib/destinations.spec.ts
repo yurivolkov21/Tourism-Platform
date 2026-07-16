@@ -36,6 +36,7 @@ test('prefers the hero image', () => {
     name: 'Ha Long',
     image: 'https://img.test/hero.jpg',
     toursCount: 3,
+    region: 'Northern Vietnam',
   });
 });
 

@@ -2040,6 +2040,16 @@ export const messages = {
       empty: 'No tours to show yet — check back soon.',
       from: 'From',
       durationDays: (days: number) => `${days} ${days === 1 ? 'day' : 'days'}`,
+      // P5.7 S4 — Screen-17 region browser
+      welcome: 'Welcome',
+      browseHeadline: 'Recommendations',
+      searchButton: 'Search tours and destinations',
+      regionShort: {
+        'Northern Vietnam': 'North',
+        'Central Vietnam': 'Central',
+        'Southern Vietnam': 'South',
+      } as Record<string, string>,
+      regionEmpty: 'No destinations in this region yet.',
     },
     explore: {
       title: 'Explore tours',

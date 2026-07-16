@@ -1,16 +1,18 @@
-import type { ReactNode } from 'react';
+import { useMemo, useState } from 'react';
 import {
   FlatList,
   Pressable,
   RefreshControl,
   ScrollView,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
+import { REGION_ORDER, groupByRegion } from '@tourism/core';
 import { messages } from '@tourism/i18n';
 import {
   AppText,
@@ -19,19 +21,14 @@ import {
   Skeleton,
   useTheme,
 } from '@tourism/mobile-ui';
-import { DestinationCard } from '../../components/destination-card';
-import { HeartButton } from '../../components/heart-button';
-import { SavedMiniCard } from '../../components/saved-mini-card';
-import { SectionHeading } from '../../components/section-heading';
-import { SHELF_CARD_WIDTH, TourCard } from '../../components/tour-card';
+import { DestinationHeroCard } from '../../components/destination-hero-card';
+import { RegionTabs } from '../../components/region-tabs';
 import { UpcomingTripCard } from '../../components/upcoming-trip-card';
 import { useAuth } from '../../lib/auth-context';
 import { fetchMyBookings } from '../../lib/booking';
 import { fetchDestinations } from '../../lib/destinations';
-import { firstName, selectUpcomingTrip, timeGreetingKey } from '../../lib/home';
+import { firstName, selectUpcomingTrip } from '../../lib/home';
 import { fetchProfile } from '../../lib/profile';
-import { fetchFeaturedTours } from '../../lib/tours';
-import { fetchSavedTours } from '../../lib/wishlist';
 
 const t = messages.mobile.home;
 
@@ -40,14 +37,11 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function Section({ children }: { children: ReactNode }) {
-  const theme = useTheme();
-  return (
-    <View style={{ paddingHorizontal: theme.spacing(4) }}>{children}</View>
-  );
-}
-
-function Greeting() {
+/**
+ * P5.7 S4 — Screen-17 header: avatar tile + "Welcome {name}" on the left,
+ * a round search button on the right (pushes Explore with the keyboard up).
+ */
+function HomeHeader() {
   const theme = useTheme();
   const { status } = useAuth();
   const profileQ = useQuery({
@@ -55,81 +49,80 @@ function Greeting() {
     queryFn: fetchProfile,
     enabled: status === 'signedIn',
   });
-  const greeting = t.greetings[timeGreetingKey(new Date().getHours())];
   const name = profileQ.data ? firstName(profileQ.data.fullName) : '';
   return (
-    <View style={{ gap: theme.spacing(1) }}>
-      {/* P5.6: the one hero-scale Fraunces statement on this screen. */}
-      <AppText variant="hero" numberOfLines={2} adjustsFontSizeToFit>
-        {name ? t.greetingWithName(greeting, name) : greeting}
-      </AppText>
-      <AppText variant="body" muted>
-        {t.tagline}
-      </AppText>
-    </View>
-  );
-}
-
-function SearchPill() {
-  const theme = useTheme();
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={t.searchPlaceholder}
-      onPress={() => router.push('/explore?focusSearch=1')}
-      android_ripple={{ color: theme.colors['muted'] }}
-      style={({ pressed }) => ({
+    <View
+      style={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: theme.spacing(2),
-        backgroundColor: theme.colors['secondary'],
-        borderWidth: 1,
-        borderColor: theme.colors['border'],
-        borderRadius: 999,
-        paddingLeft: theme.spacing(4),
-        paddingRight: theme.spacing(1),
-        paddingVertical: theme.spacing(1),
-        opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.9 : 1,
-      })}
+        gap: theme.spacing(3),
+      }}
     >
-      <Ionicons
-        name="search-outline"
-        size={18}
-        color={theme.colors['muted-foreground']}
-      />
-      <AppText variant="body" muted style={{ flex: 1 }}>
-        {t.searchPlaceholder}
-      </AppText>
       <View
         style={{
-          width: 40,
-          height: 40,
-          borderRadius: 20,
+          width: 44,
+          height: 44,
+          borderRadius: theme.radius.lg,
+          borderCurve: 'continuous',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: theme.colors['primary'],
+          backgroundColor: theme.colors['secondary'],
         }}
       >
-        <Ionicons
-          name="search"
-          size={18}
-          color={theme.colors['primary-foreground']}
-        />
+        {profileQ.data?.initial ? (
+          <AppText variant="title" style={{ color: theme.colors['primary'] }}>
+            {profileQ.data.initial}
+          </AppText>
+        ) : (
+          <Ionicons
+            name="person-outline"
+            size={20}
+            color={theme.colors['primary']}
+          />
+        )}
       </View>
-    </Pressable>
+      <View style={{ flex: 1, gap: 1 }}>
+        <AppText variant="caption" muted>
+          {t.welcome}
+        </AppText>
+        <AppText
+          variant="title"
+          numberOfLines={1}
+          style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+        >
+          {name || messages.brand.name}
+        </AppText>
+      </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t.searchButton}
+        testID="home-search"
+        onPress={() => router.push('/explore?focusSearch=1')}
+        android_ripple={{ color: theme.colors['muted'], borderless: true }}
+        style={({ pressed }) => ({
+          width: 44,
+          height: 44,
+          borderRadius: 22,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: theme.colors['secondary'],
+          opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.8 : 1,
+        })}
+      >
+        <Ionicons name="search" size={20} color={theme.colors['primary']} />
+      </Pressable>
+    </View>
   );
 }
 
 export default function HomeScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
   const { status } = useAuth();
   const signedIn = status === 'signedIn';
+  const [region, setRegion] = useState<string>(REGION_ORDER[0]);
 
-  const toursQ = useQuery({
-    queryKey: ['tours', 'featured'],
-    queryFn: fetchFeaturedTours,
-  });
   const destQ = useQuery({
     queryKey: ['destinations'],
     queryFn: fetchDestinations,
@@ -139,16 +132,14 @@ export default function HomeScreen() {
     queryFn: fetchMyBookings,
     enabled: signedIn,
   });
-  const savedQ = useQuery({
-    queryKey: ['wishlist', 'list'],
-    queryFn: fetchSavedTours,
-    enabled: signedIn,
-  });
 
+  const groups = useMemo(() => groupByRegion(destQ.data ?? []), [destQ.data]);
+  const current = groups.find((g) => g.region === region)?.items ?? [];
   const upcoming = bookingsQ.data
     ? selectUpcomingTrip(bookingsQ.data, todayIso())
     : null;
-  const saved = savedQ.data ?? [];
+
+  const cardWidth = Math.round(width * 0.68);
 
   return (
     <Screen scroll={false} style={{ paddingHorizontal: 0, paddingTop: 0 }}>
@@ -157,18 +148,14 @@ export default function HomeScreen() {
         contentContainerStyle={{
           paddingTop: insets.top + theme.spacing(3),
           paddingBottom: theme.spacing(8),
-          gap: theme.spacing(6),
+          gap: theme.spacing(5),
         }}
         refreshControl={
           <RefreshControl
-            refreshing={toursQ.isRefetching}
+            refreshing={destQ.isRefetching}
             onRefresh={() => {
-              toursQ.refetch();
               destQ.refetch();
-              if (signedIn) {
-                bookingsQ.refetch();
-                savedQ.refetch();
-              }
+              if (signedIn) bookingsQ.refetch();
             }}
             colors={[theme.colors['primary']]}
             tintColor={theme.colors['primary']}
@@ -176,151 +163,119 @@ export default function HomeScreen() {
           />
         }
       >
-        <Section>
-          <View style={{ gap: theme.spacing(4) }}>
-            <Greeting />
-            <SearchPill />
-          </View>
-        </Section>
+        <View style={{ paddingHorizontal: theme.spacing(4) }}>
+          <HomeHeader />
+        </View>
+
+        {/* Brass statement headline + hairline (Navel Screen-17). */}
+        <View
+          style={{ paddingHorizontal: theme.spacing(4), gap: theme.spacing(3) }}
+        >
+          <AppText
+            variant="display"
+            style={{
+              fontSize: 30,
+              lineHeight: 36,
+              color: theme.colors['primary'],
+            }}
+          >
+            {t.browseHeadline}
+          </AppText>
+          <View
+            style={{ height: 1, backgroundColor: theme.colors['border'] }}
+          />
+        </View>
 
         {signedIn && upcoming ? (
-          <Section>
-            <SectionHeading title={t.upcomingTitle} />
+          <View style={{ paddingHorizontal: theme.spacing(4) }}>
             <Animated.View entering={FadeIn.duration(200)}>
               <UpcomingTripCard
                 booking={upcoming}
                 onPress={() => router.push(`/bookings/${upcoming.code}`)}
               />
             </Animated.View>
-          </Section>
+          </View>
         ) : null}
 
-        {signedIn && saved.length > 0 ? (
-          <Section>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: theme.spacing(3),
-              }}
-            >
-              <AppText variant="title">{t.savedTitle}</AppText>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={t.seeAll}
-                onPress={() => router.push('/saved')}
-                hitSlop={8}
-              >
-                <AppText
-                  variant="caption"
-                  style={{
-                    color: theme.colors['primary'],
-                    fontFamily: theme.fontFamilies.sansSemiBold,
-                  }}
-                >
-                  {t.seeAll}
-                </AppText>
-              </Pressable>
-            </View>
-            <FlatList
-              horizontal
-              data={saved.slice(0, 6)}
-              keyExtractor={(item) => item.tourId}
-              renderItem={({ item }) => (
-                <SavedMiniCard
-                  tour={item}
-                  onPress={() => router.push(`/tours/${item.slug}`)}
-                />
-              )}
-              ItemSeparatorComponent={() => (
-                <View style={{ width: theme.spacing(3) }} />
-              )}
-              showsHorizontalScrollIndicator={false}
+        {/* Region browser: rotated tabs + giant destination cards. */}
+        {destQ.isPending ? (
+          <View
+            style={{
+              flexDirection: 'row',
+              gap: theme.spacing(3),
+              paddingLeft: theme.spacing(4),
+            }}
+          >
+            <Skeleton width={44} height={280} borderRadius={theme.radius.md} />
+            <Skeleton
+              width={cardWidth}
+              height={Math.round(cardWidth / 0.62)}
+              borderRadius={theme.radius.xl}
             />
-          </Section>
-        ) : null}
-
-        <Section>
-          <SectionHeading title={t.featuredTitle} />
-          {toursQ.isPending ? (
-            <View style={{ flexDirection: 'row', gap: theme.spacing(3) }}>
-              {[0, 1].map((i) => (
-                <Skeleton
-                  key={i}
-                  width={SHELF_CARD_WIDTH}
-                  height={Math.round(SHELF_CARD_WIDTH * 1.25) + 60}
-                  borderRadius={theme.radius.xl}
-                />
-              ))}
-            </View>
-          ) : toursQ.isError ? (
-            <View
-              style={{
-                alignItems: 'center',
-                gap: theme.spacing(3),
-                paddingVertical: theme.spacing(4),
-              }}
-            >
-              <AppText variant="body" style={{ textAlign: 'center' }}>
-                {t.error}
-              </AppText>
-              <Button label={t.retry} onPress={() => toursQ.refetch()} />
-            </View>
-          ) : toursQ.data && toursQ.data.length > 0 ? (
-            <FlatList
-              horizontal
-              data={toursQ.data}
-              keyExtractor={(item) => item.slug}
-              renderItem={({ item }) => (
-                <Animated.View entering={FadeIn.duration(200)}>
-                  <TourCard
-                    tour={item}
-                    heartSlot={<HeartButton tourId={item.id} />}
-                    onPress={() => router.push(`/tours/${item.slug}`)}
-                  />
-                </Animated.View>
-              )}
-              ItemSeparatorComponent={() => (
-                <View style={{ width: theme.spacing(3) }} />
-              )}
-              // P5.6: snap card-by-card so the next card's peek is consistent.
-              snapToInterval={SHELF_CARD_WIDTH + theme.spacing(3)}
-              decelerationRate="fast"
-              showsHorizontalScrollIndicator={false}
-            />
-          ) : (
-            <AppText variant="body" muted style={{ textAlign: 'center' }}>
-              {t.empty}
+          </View>
+        ) : destQ.isError ? (
+          <View
+            style={{
+              alignItems: 'center',
+              gap: theme.spacing(3),
+              paddingVertical: theme.spacing(6),
+            }}
+          >
+            <AppText variant="body" style={{ textAlign: 'center' }}>
+              {t.error}
             </AppText>
-          )}
-        </Section>
-
-        {destQ.data && destQ.data.length > 0 ? (
-          <Section>
-            <SectionHeading title={t.destinationsTitle} />
-            <FlatList
-              horizontal
-              data={destQ.data}
-              keyExtractor={(d) => d.slug}
-              renderItem={({ item }) => (
-                <DestinationCard
-                  destination={item}
-                  onPress={() =>
-                    router.push({
-                      pathname: '/explore',
-                      params: { destination: item.name },
-                    })
-                  }
-                />
-              )}
-              ItemSeparatorComponent={() => (
-                <View style={{ width: theme.spacing(3) }} />
-              )}
-              showsHorizontalScrollIndicator={false}
+            <Button label={t.retry} onPress={() => destQ.refetch()} />
+          </View>
+        ) : (
+          <View style={{ flexDirection: 'row' }}>
+            <RegionTabs
+              regions={REGION_ORDER}
+              active={region}
+              onChange={setRegion}
             />
-          </Section>
-        ) : null}
+            {current.length === 0 ? (
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingVertical: theme.spacing(10),
+                  paddingHorizontal: theme.spacing(4),
+                }}
+              >
+                <AppText variant="body" muted style={{ textAlign: 'center' }}>
+                  {t.regionEmpty}
+                </AppText>
+              </View>
+            ) : (
+              <FlatList
+                horizontal
+                data={current}
+                keyExtractor={(d) => d.slug}
+                renderItem={({ item }) => (
+                  <Animated.View entering={FadeIn.duration(200)}>
+                    <DestinationHeroCard
+                      destination={item}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/explore',
+                          params: { destination: item.name },
+                        })
+                      }
+                    />
+                  </Animated.View>
+                )}
+                ItemSeparatorComponent={() => (
+                  <View style={{ width: theme.spacing(3) }} />
+                )}
+                snapToInterval={cardWidth + theme.spacing(3)}
+                decelerationRate="fast"
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingRight: theme.spacing(4) }}
+              />
+            )}
+          </View>
+        )}
       </ScrollView>
     </Screen>
   );

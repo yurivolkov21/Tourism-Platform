@@ -11,8 +11,6 @@ import HomeScreen from '../app/(tabs)/index';
 import { fetchMyBookings, type BookingVm } from '../lib/booking';
 import { fetchDestinations } from '../lib/destinations';
 import { fetchProfile } from '../lib/profile';
-import { fetchFeaturedTours } from '../lib/tours';
-import { fetchSavedTours } from '../lib/wishlist';
 
 let mockStatus = 'signedOut';
 jest.mock('../lib/auth-context', () => ({
@@ -20,10 +18,6 @@ jest.mock('../lib/auth-context', () => ({
 }));
 jest.mock('expo-router', () => ({
   router: { push: jest.fn(), back: jest.fn() },
-}));
-jest.mock('../lib/tours', () => ({
-  ...jest.requireActual('../lib/tours'),
-  fetchFeaturedTours: jest.fn(),
 }));
 jest.mock('../lib/destinations', () => ({
   ...jest.requireActual('../lib/destinations'),
@@ -37,44 +31,30 @@ jest.mock('../lib/booking', () => ({
   ...jest.requireActual('../lib/booking'),
   fetchMyBookings: jest.fn(),
 }));
-jest.mock('../lib/wishlist', () => ({
-  ...jest.requireActual('../lib/wishlist'),
-  fetchSavedTours: jest.fn(),
-  useWishlist: () => ({
-    isGuest: true,
-    isSaved: () => false,
-    toggle: jest.fn(),
-  }),
-}));
 
 import { router } from 'expo-router';
 
-const mockFeatured = fetchFeaturedTours as jest.MockedFunction<
-  typeof fetchFeaturedTours
->;
 const mockDests = fetchDestinations as jest.MockedFunction<
   typeof fetchDestinations
 >;
 const mockBookings = fetchMyBookings as jest.MockedFunction<
   typeof fetchMyBookings
 >;
-const mockSaved = fetchSavedTours as jest.MockedFunction<
-  typeof fetchSavedTours
->;
 const mockProfile = fetchProfile as jest.MockedFunction<typeof fetchProfile>;
 
-const tourVm = {
-  id: 'uuid-1',
-  slug: 'ha-long-cruise',
-  title: 'Ha Long Bay Cruise',
-  destination: 'Ha Long',
-  durationDays: 3,
-  basePrice: 450,
-  currency: 'USD',
-  rating: 4.8,
-  reviewCount: 12,
-  badges: [],
-  image: 'https://img.test/h.jpg',
+const northVm = {
+  slug: 'ha-long-bay',
+  name: 'Hạ Long Bay',
+  image: 'https://img.test/hl.jpg',
+  toursCount: 4,
+  region: 'Northern Vietnam',
+};
+const centralVm = {
+  slug: 'hoi-an',
+  name: 'Hội An',
+  image: 'https://img.test/ha.jpg',
+  toursCount: 6,
+  region: 'Central Vietnam',
 };
 
 const bookingVm: BookingVm = {
@@ -94,22 +74,13 @@ const bookingVm: BookingVm = {
   contactEmail: 'a@a.com',
 };
 
-const savedVm = {
-  tourId: 'uuid-9',
-  slug: 'sapa-trek',
-  title: 'Sapa Trek',
-  image: 'https://img.test/s.jpg',
-  basePrice: 200,
-  currency: 'USD',
-};
-
 function renderHome() {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0 } },
   });
   return render(
     <SafeAreaProvider>
-      <ThemeProvider>
+      <ThemeProvider scheme="dark">
         <QueryClientProvider client={client}>
           <HomeScreen />
         </QueryClientProvider>
@@ -121,9 +92,8 @@ function renderHome() {
 beforeEach(() => {
   jest.clearAllMocks();
   mockStatus = 'signedOut';
-  mockDests.mockResolvedValue([]);
+  mockDests.mockResolvedValue([northVm, centralVm]);
   mockBookings.mockResolvedValue([]);
-  mockSaved.mockResolvedValue([]);
   mockProfile.mockResolvedValue({
     fullName: 'Yuri Volkov',
     email: 'y@e.com',
@@ -131,54 +101,58 @@ beforeEach(() => {
   });
 });
 
-test('guest home shows the tagline, search and featured tours', async () => {
-  mockFeatured.mockResolvedValueOnce([tourVm]);
+test('guest home shows the header, headline and the North region cards', async () => {
   renderHome();
-  expect(await screen.findByText('Ha Long Bay Cruise')).toBeOnTheScreen();
-  expect(screen.getByText('Where to next?')).toBeOnTheScreen();
+  expect(await screen.findByText('Hạ Long Bay')).toBeOnTheScreen();
+  expect(screen.getByText('Welcome')).toBeOnTheScreen();
+  expect(screen.getByText('Nexora')).toBeOnTheScreen();
+  expect(screen.getByText('Recommendations')).toBeOnTheScreen();
+  // Central destinations stay hidden until that tab is chosen.
+  expect(screen.queryByText('Hội An')).toBeNull();
 });
 
-test('search pill routes to Explore with focusSearch', async () => {
-  mockFeatured.mockResolvedValueOnce([tourVm]);
+test('switching the region tab swaps the card rail', async () => {
   renderHome();
-  await screen.findByText('Ha Long Bay Cruise');
-  await userEvent.press(
-    screen.getByRole('button', { name: /search tours & destinations/i }),
-  );
+  await screen.findByText('Hạ Long Bay');
+  fireEvent.press(screen.getByLabelText('Central Vietnam'));
+  expect(await screen.findByText('Hội An')).toBeOnTheScreen();
+  expect(screen.queryByText('Hạ Long Bay')).toBeNull();
+});
+
+test('a region card routes to Explore filtered by that destination', async () => {
+  renderHome();
+  await screen.findByText('Hạ Long Bay');
+  fireEvent.press(screen.getByTestId('region-card-ha-long-bay'));
+  expect(router.push).toHaveBeenCalledWith({
+    pathname: '/explore',
+    params: { destination: 'Hạ Long Bay' },
+  });
+});
+
+test('the search button routes to Explore with focusSearch', async () => {
+  renderHome();
+  await screen.findByText('Hạ Long Bay');
+  await userEvent.press(screen.getByTestId('home-search'));
   expect(router.push).toHaveBeenCalledWith('/explore?focusSearch=1');
 });
 
-test('guests do not load trips or saved', async () => {
-  mockFeatured.mockResolvedValueOnce([tourVm]);
+test('guests never load bookings', async () => {
   renderHome();
-  await screen.findByText('Ha Long Bay Cruise');
+  await screen.findByText('Hạ Long Bay');
   expect(mockBookings).not.toHaveBeenCalled();
-  expect(mockSaved).not.toHaveBeenCalled();
 });
 
 test('signed-in home surfaces the next trip and routes to its detail', async () => {
   mockStatus = 'signedIn';
-  mockFeatured.mockResolvedValueOnce([tourVm]);
   mockBookings.mockResolvedValue([bookingVm]);
   renderHome();
-  expect(await screen.findByText('Your next trip')).toBeOnTheScreen();
+  expect(await screen.findByTestId('upcoming-BK-1')).toBeOnTheScreen();
   fireEvent.press(screen.getByTestId('upcoming-BK-1'));
   expect(router.push).toHaveBeenCalledWith('/bookings/BK-1');
 });
 
-test('signed-in home shows the recently-saved rail with See all', async () => {
-  mockStatus = 'signedIn';
-  mockFeatured.mockResolvedValueOnce([tourVm]);
-  mockSaved.mockResolvedValue([savedVm]);
-  renderHome();
-  expect(await screen.findByText('Recently saved')).toBeOnTheScreen();
-  expect(screen.getByText('Sapa Trek')).toBeOnTheScreen();
-  await userEvent.press(screen.getByRole('button', { name: 'See all' }));
-  expect(router.push).toHaveBeenCalledWith('/saved');
-});
-
-test('renders the featured error state with retry', async () => {
-  mockFeatured.mockRejectedValueOnce(new Error('boom'));
+test('renders the destinations error state with retry', async () => {
+  mockDests.mockRejectedValue(new Error('boom'));
   renderHome();
   expect(await screen.findByText(/couldn't load tours/i)).toBeOnTheScreen();
   expect(screen.getByRole('button', { name: /try again/i })).toBeOnTheScreen();
