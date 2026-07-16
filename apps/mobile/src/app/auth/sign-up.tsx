@@ -94,7 +94,7 @@ export default function SignUpScreen() {
         style={{
           flex: 1,
           gap: theme.spacing(6),
-          paddingHorizontal: theme.spacing(5),
+          paddingHorizontal: theme.spacing(7),
           paddingTop: theme.spacing(6),
         }}
       >

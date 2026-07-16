@@ -44,7 +44,7 @@ export function AuthHero({
         locations={[0.3, 1]}
         style={{ position: 'absolute', inset: 0 }}
       />
-      <AppText variant="hero" style={{ paddingHorizontal: theme.spacing(5) }}>
+      <AppText variant="hero" style={{ paddingHorizontal: theme.spacing(7) }}>
         {title}
       </AppText>
     </View>
