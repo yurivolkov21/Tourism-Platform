@@ -1,6 +1,7 @@
+import { randomUUID } from 'node:crypto';
 import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { User, UserRole } from '@prisma/client';
+import { EmailType, User, UserRole } from '@prisma/client';
 import type { SupabaseAuthIdentity } from '../../common/types/authenticated-request';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SyncUserDto } from './dto/sync-user.dto';
@@ -109,10 +110,33 @@ export class AuthService {
 
     let user: User;
     if (bySub) {
-      // Known identity → refresh the profile.
-      user = await this.prisma.user.update({
-        where: { id: bySub.id },
-        data: profile,
+      // Known identity → refresh the profile. If the (Supabase-verified) email
+      // now differs from what we had mirrored, the user just completed an email
+      // change — notify the OLD address. `bySub.email` is the pre-update value;
+      // enqueue in the same tx as the update (idiom: moderateById). Single-enqueue
+      // per change comes from the `emailChanged` flag + the in-tx mirror update
+      // (the next sync sees mirror == JWT), so `dedupeKey` is a fresh uuid — a
+      // real dedupe on (user, newEmail) would silently drop the notice on a
+      // legitimate repeat change back to a previously-used address.
+      const emailChanged = bySub.email.toLowerCase() !== emailLower;
+      user = await this.prisma.$transaction(async (tx) => {
+        const updated = await tx.user.update({
+          where: { id: bySub.id },
+          data: profile,
+        });
+        if (emailChanged) {
+          await tx.outbox.createMany({
+            data: [
+              {
+                type: EmailType.EMAIL_CHANGED,
+                payload: { oldEmail: bySub.email, newEmail: emailLower },
+                dedupeKey: `email-changed:${bySub.id}:${randomUUID()}`,
+              },
+            ],
+            skipDuplicates: true,
+          });
+        }
+        return updated;
       });
     } else if (byEmail) {
       // No row for this Supabase id yet, but one already owns this (Supabase-verified) email — e.g. a

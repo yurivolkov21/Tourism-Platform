@@ -77,6 +77,15 @@ export interface NewsletterWelcomeVars {
   journalUrl: string;
 }
 
+export interface EmailChangedVars {
+  /** The address the account email was changed TO (shown in the notice). */
+  newEmail: string;
+  /** CTA target — the "if this wasn't you" support/contact link. */
+  supportUrl: string;
+  /** The customer's account page. */
+  manageUrl: string;
+}
+
 // ── Design tokens (Barebone port + Nexora deltas) ───────────────────────────
 
 const C = {
@@ -539,6 +548,38 @@ export const renderNewsletterWelcome = (
       button('Read the Journal', escapeHtml(vars.journalUrl)),
     footerReason: `You subscribed on ${SITE_LABEL}.`,
     unsubscribeHtml: `Unsubscribe any time by replying to this email with &quot;unsubscribe&quot;.`,
+  });
+
+  return { subject, html, text };
+};
+
+export const renderEmailChanged = (vars: EmailChangedVars): RenderedEmail => {
+  const subject = 'Your Nexora email was changed';
+
+  const text = [
+    `The email address on your Nexora account was changed to ${vars.newEmail}.`,
+    ``,
+    `If you made this change, no action is needed.`,
+    `If this wasn't you, contact us right away: ${vars.supportUrl}`,
+    ``,
+    `Manage your account: ${vars.manageUrl}`,
+  ].join('\n');
+
+  const html = renderShell({
+    // Snippet only — the actual (escaped) address appears in the body below.
+    preheader: `The email on your Nexora account was changed.`,
+    heading: 'Your email was changed',
+    contentHtml:
+      bodyParagraph(
+        `The email address on your Nexora account was changed to <strong>${escapeHtml(
+          vars.newEmail,
+        )}</strong>. If you made this change, no action is needed.`,
+      ) +
+      bodyParagraph(
+        `If this wasn't you, your account may be at risk — please contact us right away.`,
+      ) +
+      button('Contact support', escapeHtml(vars.supportUrl)),
+    footerReason: `You're receiving this because your ${SITE_LABEL} account email was changed.`,
   });
 
   return { subject, html, text };

@@ -47,6 +47,7 @@ function makeEmail() {
     sendCancellationRequested: jest.fn().mockResolvedValue(undefined),
     sendCancellationDenied: jest.fn().mockResolvedValue(undefined),
     sendNewsletterWelcome: jest.fn().mockResolvedValue(undefined),
+    sendEmailChangedNotice: jest.fn().mockResolvedValue(undefined),
   };
 }
 
@@ -385,6 +386,32 @@ describe('OutboxService.drainOutbox', () => {
     expect(email.sendNewsletterWelcome).toHaveBeenCalledWith({
       to: 'sub@example.com',
       vars: { journalUrl: 'https://web.example.com/blog' },
+    });
+  });
+
+  it('routes EMAIL_CHANGED to the OLD address straight from the payload', async () => {
+    const email = makeEmail();
+    const prisma = makePrisma({
+      findMany: jest.fn().mockResolvedValue([
+        {
+          ...bookingRow,
+          type: EmailType.EMAIL_CHANGED,
+          payload: { oldEmail: 'old@example.com', newEmail: 'new@example.com' },
+        },
+      ]),
+    });
+    const svc = makeService(prisma, email);
+
+    const result = await svc.drainOutbox();
+
+    expect(result).toEqual({ sent: 1, failed: 0 });
+    expect(email.sendEmailChangedNotice).toHaveBeenCalledWith({
+      to: 'old@example.com',
+      vars: {
+        newEmail: 'new@example.com',
+        supportUrl: 'https://web.example.com/contact',
+        manageUrl: 'https://web.example.com/account',
+      },
     });
   });
 

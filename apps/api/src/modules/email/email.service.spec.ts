@@ -78,6 +78,24 @@ describe('EmailService reply-to (API-W1)', () => {
 });
 
 describe('EmailService new senders (API-W1)', () => {
+  it('sends the email-changed notice to the given (old) address', async () => {
+    const svc = makeService(baseEnv);
+    await svc.sendEmailChangedNotice({
+      to: 'old@b.co',
+      vars: {
+        newEmail: 'new@b.co',
+        supportUrl: 'https://web/contact',
+        manageUrl: 'https://web/account',
+      },
+    });
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'old@b.co',
+        subject: 'Your Nexora email was changed',
+      }),
+    );
+  });
+
   it('sends the cancellation-requested email', async () => {
     const svc = makeService(baseEnv);
     await svc.sendCancellationRequested({

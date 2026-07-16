@@ -121,6 +121,7 @@ enum EmailType {
   CANCELLATION_REQUESTED
   CANCELLATION_DENIED
   NEWSLETTER_WELCOME
+  EMAIL_CHANGED
 }
 
 /// Outbox row lifecycle (ADR-0007). PENDING → SENT, or → FAILED after retries.

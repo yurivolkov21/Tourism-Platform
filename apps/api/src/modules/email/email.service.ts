@@ -6,6 +6,7 @@ import {
   BookingRefundedVars,
   CancellationDeniedVars,
   CancellationRequestedVars,
+  EmailChangedVars,
   EnquiryReceivedVars,
   NewsletterWelcomeVars,
   RenderedEmail,
@@ -14,6 +15,7 @@ import {
   renderBookingRefunded,
   renderCancellationDenied,
   renderCancellationRequested,
+  renderEmailChanged,
   renderEnquiryReceived,
   renderNewsletterWelcome,
   renderReviewApproved,
@@ -120,6 +122,17 @@ export class EmailService implements OnModuleInit {
       args.to,
       renderNewsletterWelcome(args.vars),
       `newsletter-welcome:${args.to}`,
+    );
+  }
+
+  sendEmailChangedNotice(args: {
+    to: string;
+    vars: EmailChangedVars;
+  }): Promise<void> {
+    return this.dispatch(
+      args.to,
+      renderEmailChanged(args.vars),
+      `email-changed:${args.to}`,
     );
   }
 

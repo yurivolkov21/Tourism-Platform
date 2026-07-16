@@ -4,6 +4,7 @@ import {
   renderBookingRefunded,
   renderCancellationDenied,
   renderCancellationRequested,
+  renderEmailChanged,
   renderEnquiryReceived,
   renderNewsletterWelcome,
   renderReviewApproved,
@@ -36,6 +37,31 @@ describe('the shared shell (via any renderer)', () => {
     expect(out.html).toContain('#2f6b4f'); // brand button
     expect(out.html).toContain('Inter'); // webfont + stack
     expect(out.html).toContain('nexora-travel.agency'); // footer
+  });
+});
+
+describe('renderEmailChanged', () => {
+  const out = renderEmailChanged({
+    newEmail: 'new@example.com',
+    supportUrl: 'https://web.example.com/contact',
+    manageUrl: 'https://web.example.com/account',
+  });
+
+  it('names the new address in subject, html, and text', () => {
+    expect(out.subject).toBe('Your Nexora email was changed');
+    expect(out.html).toContain('new@example.com');
+    expect(out.text).toContain('new@example.com');
+    expect(out.html).toContain('https://web.example.com/contact'); // support CTA
+  });
+
+  it('escapes the new-email value into the HTML', () => {
+    const evil = renderEmailChanged({
+      newEmail: 'a<b>@x.com',
+      supportUrl: 'https://web.example.com/contact',
+      manageUrl: 'https://web.example.com/account',
+    });
+    expect(evil.html).toContain(escapeHtml('a<b>@x.com'));
+    expect(evil.html).not.toContain('a<b>@x.com');
   });
 });
 

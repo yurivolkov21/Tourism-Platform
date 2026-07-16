@@ -9,6 +9,7 @@
 export type FieldErrorCode =
   | 'REQUIRED'
   | 'INVALID'
+  | 'INCORRECT'
   | 'TOO_SHORT'
   | 'MISMATCH'
   | 'RATING_REQUIRED'

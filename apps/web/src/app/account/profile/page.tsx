@@ -14,6 +14,7 @@ import { ConnectedAccounts } from '../../../components/account/connected-account
 import { DangerZone } from '../../../components/account/danger-zone';
 import { ProfileForm } from '../../../components/account/profile-form';
 import { fetchProfile } from '../../../lib/api/profile';
+import { canChangeEmail } from '../../../lib/auth/can-change-email';
 import { createClient } from '../../../lib/supabase/server';
 
 export const metadata: Metadata = {
@@ -76,7 +77,13 @@ export default async function AccountSettingsPage() {
 
         <AccountSection title={t.securityHeading} description={t.securityDesc}>
           <div className="space-y-8">
-            <ChangeEmailForm currentEmail={user.email ?? ''} />
+            {canChangeEmail(providers) ? (
+              <ChangeEmailForm currentEmail={user.email ?? ''} />
+            ) : (
+              <p className="text-muted-foreground text-sm">
+                {messages.auth.account.securityPage.email.managedNote}
+              </p>
+            )}
             <Separator />
             <ChangePasswordForm />
           </div>

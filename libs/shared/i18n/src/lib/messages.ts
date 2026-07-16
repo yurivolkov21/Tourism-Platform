@@ -130,12 +130,15 @@ export const messages = {
         email: {
           heading: 'Change email',
           currentLabel: 'Current email',
+          currentPasswordLabel: 'Current password',
           newLabel: 'New email',
           submit: 'Send confirmation',
           submitting: 'Sending…',
           sent: 'Confirmation sent.',
           sentHint:
-            'Check both your current and new inbox and confirm the change — your email updates once confirmed.',
+            'Check your new inbox and confirm the change — your email updates once you confirm. We’ll also email your old address to let you know.',
+          managedNote:
+            'This account’s email is managed by Google. To change it, use your Google account.',
         },
       },
       profile: {
@@ -235,6 +238,7 @@ export const messages = {
       password: {
         REQUIRED: 'Enter your password.',
         TOO_SHORT: 'Password must be at least 6 characters.',
+        INCORRECT: 'Incorrect password. Please try again.',
       },
       confirm: {
         REQUIRED: 'Confirm your password.',

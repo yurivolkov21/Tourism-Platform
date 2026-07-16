@@ -57,14 +57,27 @@ function make(
         return Promise.resolve({ ...base, id: where.id, ...data });
       },
     );
+  const outboxCreateMany = jest.fn().mockResolvedValue({ count: 1 });
+  const outbox = { createMany: outboxCreateMany };
   const prisma = {
     user: { findUnique, create, update },
+    outbox,
+    // The `bySub` branch wraps update + outbox enqueue in a tx (email-change notice).
+    $transaction: jest.fn((cb: (tx: unknown) => unknown) =>
+      cb({ user: { update }, outbox }),
+    ),
   } as unknown as PrismaService;
   const config = {
     get: (k: string) =>
       k === 'supabase.adminEmails' ? adminEmails : undefined,
   } as unknown as ConfigService;
-  return { svc: new AuthService(prisma, config), findUnique, create, update };
+  return {
+    svc: new AuthService(prisma, config),
+    findUnique,
+    create,
+    update,
+    outboxCreateMany,
+  };
 }
 
 describe('AuthService', () => {
@@ -95,6 +108,64 @@ describe('AuthService', () => {
     expect(arg.where).toEqual({ id: 'u1' });
     expect(arg.data.email).toBe('a@x.com');
     expect(arg.data.role).toBeUndefined(); // customer sync never sets role
+  });
+
+  it('enqueues an EMAIL_CHANGED notice to the OLD address when a known identity email changed', async () => {
+    const { svc, outboxCreateMany } = make([], {
+      bySub: {
+        id: 'u1',
+        role: UserRole.CUSTOMER,
+        supabaseId: 'sub-1',
+        email: 'old@x.com',
+      },
+    });
+    await svc.syncCustomer(identity('New@x.com'), {});
+
+    expect(outboxCreateMany).toHaveBeenCalledTimes(1);
+    const arg = outboxCreateMany.mock.calls[0][0] as {
+      data: Array<{ type: string; payload: unknown; dedupeKey: string }>;
+    };
+    expect(arg.data[0].type).toBe('EMAIL_CHANGED');
+    expect(arg.data[0].payload).toEqual({
+      oldEmail: 'old@x.com',
+      newEmail: 'new@x.com',
+    });
+    // Fresh per-enqueue uuid (NOT keyed by email) so a repeat change back to a
+    // previously-used address is never suppressed by the unique dedupeKey.
+    expect(arg.data[0].dedupeKey).toMatch(/^email-changed:u1:[0-9a-f-]{36}$/);
+  });
+
+  it('does NOT enqueue a notice when the known identity email is unchanged', async () => {
+    const { svc, outboxCreateMany } = make([], {
+      bySub: {
+        id: 'u1',
+        role: UserRole.CUSTOMER,
+        supabaseId: 'sub-1',
+        email: 'a@x.com',
+      },
+    });
+    await svc.syncCustomer(identity('A@X.com'), {});
+    expect(outboxCreateMany).not.toHaveBeenCalled();
+  });
+
+  it('does NOT enqueue a notice on the new-user or email-relink branches', async () => {
+    const created = make([]);
+    await created.svc.syncCustomer(identity('brand@new.com'), {});
+    expect(created.outboxCreateMany).not.toHaveBeenCalled();
+
+    const relinked = make([], {
+      byEmail: {
+        id: 'seed-1',
+        role: UserRole.CUSTOMER,
+        supabaseId: 'placeholder',
+        email: 'customer@tourism.test',
+      },
+    });
+    await relinked.svc.syncCustomer(
+      identity('customer@tourism.test', 'real-sub'),
+      {},
+    );
+    expect(relinked.outboxCreateMany).not.toHaveBeenCalled();
   });
 
   it('relinks an existing email-owner to the new Supabase id instead of colliding (seeded user)', async () => {

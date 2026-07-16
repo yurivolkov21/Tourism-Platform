@@ -119,6 +119,8 @@ export class OutboxService {
         return this.sendCancellationDenied(row);
       case EmailType.NEWSLETTER_WELCOME:
         return this.sendNewsletterWelcome(row);
+      case EmailType.EMAIL_CHANGED:
+        return this.sendEmailChanged(row);
       default:
         // Exhaustive on the enum; an unknown type is consumed (warn, no-op).
         this.logger.warn(`Outbox ${row.id}: unknown type ${String(row.type)}`);
@@ -322,6 +324,24 @@ export class OutboxService {
         contactName: request.booking.contactName,
         decisionNote: request.decisionNote,
         manageUrl: `${this.frontendUrl}/account/bookings`,
+      },
+    });
+  }
+
+  private async sendEmailChanged(row: Outbox): Promise<void> {
+    // Self-sufficient payload: the OLD address is gone from the user row after the
+    // change, so both addresses ride on the outbox row (enqueued by AuthService
+    // when a sync observed the email flip). The notice goes to the OLD address.
+    const { oldEmail, newEmail } = row.payload as {
+      oldEmail: string;
+      newEmail: string;
+    };
+    await this.email.sendEmailChangedNotice({
+      to: oldEmail,
+      vars: {
+        newEmail,
+        supportUrl: `${this.frontendUrl}/contact`,
+        manageUrl: `${this.frontendUrl}/account`,
       },
     });
   }
