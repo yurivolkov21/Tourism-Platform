@@ -59,7 +59,7 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
 - **Web (P3 + P6)** — live on **Vercel**. Marketing + catalogue + booking
   money-path + account + blog (v2 complete) on real data; a11y/SEO/perf polish
   done; brand chrome admin-managed via site-media; resilience layer (loading
-  skeletons · error/404/global-error boundaries · empty-vs-failed) → W4 ✅ (shared AuthFormField · noValidate completion · auth titles i18n) — **PROGRAM CLOSED 2026-07-12**. **Contact Launcher 2026-07-14** (WhatsApp `wa.me` deep-link w/ tour prefill + enquiry popover; env-driven, hides w/o `NEXT_PUBLIC_CHAT_WHATSAPP`); **AI concierge chat panel 2026-07-14** ("Chat with us" → Sheet w/ useChat + markdown; degrades when API has no key); **on-demand revalidation 2026-07-16** (tour fetches tagged `tour:<slug>` + secret-guarded `POST /api/revalidate` → moderated reviews show on next reload). **314 tests.**
+  skeletons · error/404/global-error boundaries · empty-vs-failed) → W4 ✅ (shared AuthFormField · noValidate completion · auth titles i18n) — **PROGRAM CLOSED 2026-07-12**. **Contact Launcher 2026-07-14** (WhatsApp `wa.me` deep-link w/ tour prefill + enquiry popover; env-driven, hides w/o `NEXT_PUBLIC_CHAT_WHATSAPP`); **AI concierge chat panel 2026-07-14** ("Chat with us" → Sheet w/ useChat + markdown; degrades when API has no key); **on-demand revalidation 2026-07-16** (tour fetches tagged `tour:<slug>` + secret-guarded `POST /api/revalidate` → moderated reviews show on next reload); **email-change confirm fix 2026-07-16** (`/auth/confirm` token_hash cross-browser + mirror re-sync). **329 tests.**
 - **Admin (P4)** — live on **Vercel** (dev :3002). Full CRUD + operations
   (bookings/refunds · cancellation queue · reviews/CRM · enquiries+notes ·
   subscribers · outbox · payment-events) + media library (reuse picker · alt ·
@@ -73,7 +73,15 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   in flight** ([index](docs/06-specs/2026-07-15-navel-screen-index.md);
   S1+S2+S3+S4 ✅). **167 tests** (+ mobile-ui 50).
 
-Baselines: **api 551 · web 314 · admin 266 · mobile 167 · mobile-ui 50 · core 42.**
+Baselines: **api 551 · web 329 · admin 266 · mobile 167 · mobile-ui 50 · core 42.**
+
+**Email-change confirmation fix (2026-07-16, `406f02c`):** `/auth/confirm` route
+(`verifyOtp` token_hash) completes signup/recovery/email-change confirmations
+**cross-browser** (no PKCE verifier), then `syncUser()` refreshes the API email
+mirror so a changed email shows immediately. 3 Supabase templates → `{{ .TokenHash }}`;
+`/auth/callback` kept for OAuth. **Deploy to-do (Supabase dashboard): allow
+`…/auth/confirm` in Redirect URLs + re-paste the 3 templates** — the code alone
+doesn't take effect until the dashboard uses the new templates.
 
 **Review moderation → on-demand web revalidation (2026-07-16, `a226da9`):** a
 (un)approved review now shows on the public tour page within seconds (page stays

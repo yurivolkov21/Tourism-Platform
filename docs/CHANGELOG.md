@@ -4,6 +4,34 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-16 — Fix email-change confirmation (cross-browser token_hash) (`406f02c`)
+
+- **Changing email in Account Settings now takes effect.** Two stacked bugs:
+  (1) the only auth route `/auth/callback` handled just PKCE
+  `exchangeCodeForSession`, so an email-confirmation link opened in a different
+  browser (no PKCE code verifier) bounced to `/login?error=auth` and the change
+  never committed at Supabase; (2) the API mirrors `User.email` locally and only
+  re-synced at sign-in, so even a committed change showed stale until re-login.
+  Branch `feat/fix-email-change-confirm` (spec+plan `a29af64`).
+- **New `apps/web/src/app/auth/confirm/route.ts`**: `verifyOtp({ type,
+  token_hash })` verifies the self-contained hash **server-side (no PKCE)** →
+  completes cross-browser. Handles `email_change | signup | recovery | invite`
+  (`parseConfirmParams` allow-list, TDD); `safeRedirect` + token stripped from
+  the redirect; failure → `/login?error=auth`. On success calls `syncUser()`
+  (`POST /auth/sync`) → refreshes the API email mirror immediately (fixes bug 2;
+  the session cookie `verifyOtp` sets is visible to `syncUser` in-request).
+- **The 3 Supabase templates** (`docs/email-templates/{change-email,confirm-signup,reset-password}.html`)
+  switch `{{ .ConfirmationURL }}` → `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=…`
+  (raw `&` so copy-paste works). `/auth/callback` kept for OAuth; `/reset-password`
+  reads the session `/auth/confirm` sets (no rework).
+- Review findings: none (clean). One typecheck fix mid-gate (`.includes` on the
+  literal tuple → widen to `string[]`).
+- **Deploy to-do (Supabase dashboard):** allow `…/auth/confirm` in Auth → URL
+  Configuration → Redirect URLs; re-paste the 3 updated templates. Secure email
+  change stays ON.
+- Tests after: **api 551 · web 329 · admin 266 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
 ## 2026-07-16 — Review moderation → on-demand web revalidation (`a226da9`)
 
 - **Approved/un-approved reviews now show on the public tour page within
