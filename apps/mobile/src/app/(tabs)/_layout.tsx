@@ -1,16 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Tabs } from 'expo-router';
 import { messages } from '@tourism/i18n';
-import { FloatingTabBar, useTheme } from '@tourism/mobile-ui';
+import { FloatingTabBar, TAB_BAR_TILE, useTheme } from '@tourism/mobile-ui';
 
 const t = messages.mobile.tabs;
 
 export default function TabsLayout() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   return (
     <Tabs
-      // P5.6: floating pill bar (absolute-positioned) replaces the attached
-      // tab bar; sceneStyle paddingBottom reserves scroll room beneath it.
+      // P5.6/P5.7: floating bar (absolute-positioned) replaces the attached
+      // tab bar; sceneStyle paddingBottom reserves scroll room beneath it
+      // (bar bottom offset + active tile + a breathing gap).
       tabBar={(props) => <FloatingTabBar {...props} />}
       screenOptions={{
         headerShown: false,
@@ -18,7 +21,8 @@ export default function TabsLayout() {
         // background — it peeks through when a pushed screen slides back off.
         sceneStyle: {
           backgroundColor: theme.colors['background'],
-          paddingBottom: 96,
+          paddingBottom:
+            insets.bottom + theme.spacing(2) + TAB_BAR_TILE + theme.spacing(3),
         },
       }}
     >

@@ -105,7 +105,8 @@ test('guest home shows the header, headline and the North region cards', async (
   renderHome();
   expect(await screen.findByText('Hạ Long Bay')).toBeOnTheScreen();
   expect(screen.getByText('Welcome')).toBeOnTheScreen();
-  expect(screen.getByText('Nexora')).toBeOnTheScreen();
+  // Guests are greeted as a traveller — never with the brand name.
+  expect(screen.getByText('Traveller')).toBeOnTheScreen();
   expect(screen.getByText('Recommendations')).toBeOnTheScreen();
   // Central destinations stay hidden until that tab is chosen.
   expect(screen.queryByText('Hội An')).toBeNull();

@@ -2042,7 +2042,9 @@ export const messages = {
       durationDays: (days: number) => `${days} ${days === 1 ? 'day' : 'days'}`,
       // P5.7 S4 — Screen-17 region browser
       welcome: 'Welcome',
+      guestName: 'Traveller',
       browseHeadline: 'Recommendations',
+      recommendedEyebrow: 'Recommended',
       searchButton: 'Search tours and destinations',
       regionShort: {
         'Northern Vietnam': 'North',

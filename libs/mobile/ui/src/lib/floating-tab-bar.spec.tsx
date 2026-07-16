@@ -48,6 +48,15 @@ test('renders tabs, marks the active one selected, navigates on press', () => {
   expect(navigate).toHaveBeenCalledWith('explore');
 });
 
+test('renders the bottom fade layer behind the icons', () => {
+  render(
+    <ThemeProvider scheme="dark">
+      <FloatingTabBar {...makeProps(jest.fn())} />
+    </ThemeProvider>,
+  );
+  expect(screen.getByTestId('tabbar-fade')).toBeOnTheScreen();
+});
+
 test('pressing the already-active tab does not navigate', () => {
   const navigate = jest.fn();
   render(

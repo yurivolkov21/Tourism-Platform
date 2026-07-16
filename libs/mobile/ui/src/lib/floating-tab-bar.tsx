@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from './theme-provider';
 
@@ -28,10 +29,15 @@ export interface FloatingTabBarProps {
   navigation: { navigate: (name: string) => void };
 }
 
+/** Height of the active brass tile — screens reserve space from this. */
+export const TAB_BAR_TILE = 62;
+
 /**
- * P5.6 "Nexora Dark Heritage": floating pill tab bar — detached from the
- * screen edges, icon-only, the active tab sits in a brass rounded-square
- * capsule. Screens must reserve space for it (Tabs sceneStyle paddingBottom).
+ * P5.7 S4 (Navel Screen-17/18): container-less tab bar — bare outline icons
+ * floating on the page, the active tab in a large brass rounded square. A
+ * bottom fade to the background color sits behind the icons so content
+ * scrolling underneath (other tabs) never fights them for legibility.
+ * Screens must reserve space for it (Tabs sceneStyle paddingBottom).
  */
 export function FloatingTabBar({
   state,
@@ -41,59 +47,72 @@ export function FloatingTabBar({
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   return (
-    <View
-      style={{
-        position: 'absolute',
-        left: theme.spacing(5),
-        right: theme.spacing(5),
-        bottom: insets.bottom + theme.spacing(3),
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: theme.colors['card'],
-        borderRadius: 999,
-        borderCurve: 'continuous',
-        borderWidth: 1,
-        borderColor: theme.colors['border'],
-        paddingHorizontal: theme.spacing(2),
-        paddingVertical: theme.spacing(2),
-      }}
-    >
-      {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
-        const focused = state.index === index;
-        const color = focused
-          ? theme.colors['primary-foreground']
-          : theme.colors['muted-foreground'];
-        return (
-          <Pressable
-            key={route.key}
-            accessibilityRole="button"
-            accessibilityLabel={options.title ?? route.name}
-            accessibilityState={{ selected: focused }}
-            android_ripple={{
-              color: theme.colors['accent'],
-              borderless: true,
-            }}
-            onPress={() => {
-              if (!focused) navigation.navigate(route.name);
-            }}
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: theme.radius.lg,
-              borderCurve: 'continuous',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: focused
-                ? theme.colors['primary']
-                : 'transparent',
-            }}
-          >
-            {options.tabBarIcon?.({ focused, color, size: 24 })}
-          </Pressable>
-        );
-      })}
-    </View>
+    <>
+      <LinearGradient
+        testID="tabbar-fade"
+        pointerEvents="none"
+        colors={[theme.colors['background'] + '00', theme.colors['background']]}
+        locations={[0, 0.6]}
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: insets.bottom + TAB_BAR_TILE + theme.spacing(10),
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: insets.bottom + theme.spacing(2),
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingHorizontal: theme.spacing(6),
+        }}
+      >
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+          const focused = state.index === index;
+          const color = focused
+            ? theme.colors['primary-foreground']
+            : theme.colors['muted-foreground'];
+          return (
+            <Pressable
+              key={route.key}
+              accessibilityRole="button"
+              accessibilityLabel={options.title ?? route.name}
+              accessibilityState={{ selected: focused }}
+              android_ripple={{
+                color: theme.colors['accent'],
+                borderless: true,
+              }}
+              onPress={() => {
+                if (!focused) navigation.navigate(route.name);
+              }}
+              style={{
+                width: focused ? TAB_BAR_TILE : 48,
+                height: focused ? TAB_BAR_TILE : 48,
+                borderRadius: theme.radius.xl,
+                borderCurve: 'continuous',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: focused
+                  ? theme.colors['primary']
+                  : 'transparent',
+              }}
+            >
+              {options.tabBarIcon?.({
+                focused,
+                color,
+                size: focused ? 26 : 24,
+              })}
+            </Pressable>
+          );
+        })}
+      </View>
+    </>
   );
 }

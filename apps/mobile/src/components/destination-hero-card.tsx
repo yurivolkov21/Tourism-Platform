@@ -4,9 +4,12 @@ import { messages } from '@tourism/i18n';
 import { AppText, ScrimImage, useTheme } from '@tourism/mobile-ui';
 import type { DestinationChipVm } from '../lib/destinations';
 
-/** Giant portrait card of the Home region browser (Navel Screen-17): tours
- * count pill on the photo, huge Fraunces name + region at the foot, brass
- * arrow — the whole card (and the arrow) push the filtered Explore. */
+const t = messages.mobile.home;
+
+/** Giant full-height card of the Home region browser (Navel Screen-18):
+ * location pin top-right on the photo, "Recommended" eyebrow + huge Fraunces
+ * name + tours row at the foot, and a translucent brass arrow panel — the
+ * whole card (arrow included) pushes the filtered Explore. */
 export function DestinationHeroCard({
   destination,
   onPress,
@@ -26,80 +29,103 @@ export function DestinationHeroCard({
       android_ripple={{ color: theme.colors['muted'], foreground: true }}
       style={({ pressed }) => ({
         width: cardWidth,
+        height: '100%',
         borderRadius: theme.radius.xl,
         overflow: 'hidden',
         opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.9 : 1,
       })}
     >
-      <ScrimImage
-        uri={destination.image}
-        alt={destination.name}
-        aspectRatio={0.62}
-      >
-        <View
-          style={{ gap: theme.spacing(1), paddingBottom: theme.spacing(1) }}
-        >
+      <ScrimImage uri={destination.image} alt={destination.name} fill>
+        {/* Foot content clears the arrow panel on the right. */}
+        <View style={{ gap: theme.spacing(1), paddingRight: 88 }}>
           <AppText
             variant="caption"
             style={{ color: theme.colors['on-media'], opacity: 0.85 }}
           >
-            {destination.toursCount} {messages.destinations.toursLabel}
+            {t.recommendedEyebrow}
           </AppText>
           <AppText
             numberOfLines={2}
             style={{
               fontFamily: theme.fontFamilies.headingBold,
-              fontSize: 30,
-              lineHeight: 36,
+              fontSize: 34,
+              lineHeight: 40,
               color: theme.colors['on-media'],
             }}
           >
             {destination.name}
           </AppText>
-          {destination.region ? (
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: theme.spacing(1),
-              }}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: theme.spacing(1),
+              marginTop: theme.spacing(1),
+            }}
+          >
+            <Ionicons
+              name="compass-outline"
+              size={14}
+              color={theme.colors['on-media']}
+            />
+            <AppText
+              variant="caption"
+              style={{ color: theme.colors['on-media'], opacity: 0.85 }}
             >
-              <Ionicons
-                name="location-outline"
-                size={13}
-                color={theme.colors['on-media']}
-              />
-              <AppText
-                variant="caption"
-                style={{ color: theme.colors['on-media'], opacity: 0.85 }}
-              >
-                {destination.region}
-              </AppText>
-            </View>
-          ) : null}
+              {destination.toursCount} {messages.destinations.toursLabel}
+            </AppText>
+          </View>
         </View>
       </ScrimImage>
-      {/* Brass arrow — visual affordance; the whole card is the button. */}
+      {/* Location pin — top-right on the photo (Navel Screen-18). */}
+      {destination.region ? (
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            top: theme.spacing(4),
+            right: theme.spacing(4),
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.spacing(1),
+            maxWidth: cardWidth - theme.spacing(8),
+          }}
+        >
+          <Ionicons
+            name="location-sharp"
+            size={13}
+            color={theme.colors['on-media']}
+          />
+          <AppText
+            variant="caption"
+            numberOfLines={1}
+            style={{ color: theme.colors['on-media'] }}
+          >
+            {destination.region}
+          </AppText>
+        </View>
+      ) : null}
+      {/* Translucent brass arrow panel — visual affordance; the whole card is
+          the button. Token hex + alpha suffix keeps the no-hex rule intact. */}
       <View
         pointerEvents="none"
         style={{
           position: 'absolute',
-          right: theme.spacing(3),
-          bottom: theme.spacing(3),
-          width: 64,
-          height: 44,
+          right: theme.spacing(4),
+          bottom: theme.spacing(4),
+          width: 84,
+          height: 56,
           borderRadius: theme.radius.lg,
           borderCurve: 'continuous',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: theme.colors['primary'],
-          opacity: 0.92,
+          backgroundColor: theme.colors['primary'] + '4D',
         }}
       >
         <Ionicons
           name="arrow-forward"
-          size={20}
-          color={theme.colors['primary-foreground']}
+          size={24}
+          color={theme.colors['primary']}
         />
       </View>
     </Pressable>

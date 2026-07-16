@@ -1,12 +1,5 @@
 import { useMemo, useState } from 'react';
-import {
-  FlatList,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { FlatList, Pressable, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -38,8 +31,9 @@ function todayIso(): string {
 }
 
 /**
- * P5.7 S4 — Screen-17 header: avatar tile + "Welcome {name}" on the left,
- * a round search button on the right (pushes Explore with the keyboard up).
+ * P5.7 S4 — Screen-17 header: avatar tile + "Welcome {name}" ("Traveller"
+ * for guests — never the brand). The search glyph lives NOT here but on the
+ * Recommendations headline row, as in Navel.
  */
 function HomeHeader() {
   const theme = useTheme();
@@ -60,8 +54,8 @@ function HomeHeader() {
     >
       <View
         style={{
-          width: 44,
-          height: 44,
+          width: 48,
+          height: 48,
           borderRadius: theme.radius.lg,
           borderCurve: 'continuous',
           alignItems: 'center',
@@ -86,31 +80,17 @@ function HomeHeader() {
           {t.welcome}
         </AppText>
         <AppText
-          variant="title"
           numberOfLines={1}
-          style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+          style={{
+            fontFamily: theme.fontFamilies.sansSemiBold,
+            fontSize: 20,
+            lineHeight: 26,
+            color: theme.colors['foreground'],
+          }}
         >
-          {name || messages.brand.name}
+          {name || t.guestName}
         </AppText>
       </View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={t.searchButton}
-        testID="home-search"
-        onPress={() => router.push('/explore?focusSearch=1')}
-        android_ripple={{ color: theme.colors['muted'], borderless: true }}
-        style={({ pressed }) => ({
-          width: 44,
-          height: 44,
-          borderRadius: 22,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: theme.colors['secondary'],
-          opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.8 : 1,
-        })}
-      >
-        <Ionicons name="search" size={20} color={theme.colors['primary']} />
-      </Pressable>
     </View>
   );
 }
@@ -118,7 +98,7 @@ function HomeHeader() {
 export default function HomeScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const { status } = useAuth();
   const signedIn = status === 'signedIn';
   const [region, setRegion] = useState<string>(REGION_ORDER[0]);
@@ -143,46 +123,71 @@ export default function HomeScreen() {
 
   return (
     <Screen scroll={false} style={{ paddingHorizontal: 0, paddingTop: 0 }}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
+      {/* Fixed full-height composition (Navel Screen-17) — no vertical
+          scroll; the region browser stretches to fill everything between
+          the hairline and the tab bar. */}
+      <View
+        style={{
+          flex: 1,
           paddingTop: insets.top + theme.spacing(3),
-          paddingBottom: theme.spacing(8),
           gap: theme.spacing(5),
         }}
-        refreshControl={
-          <RefreshControl
-            refreshing={destQ.isRefetching}
-            onRefresh={() => {
-              destQ.refetch();
-              if (signedIn) bookingsQ.refetch();
-            }}
-            colors={[theme.colors['primary']]}
-            tintColor={theme.colors['primary']}
-            progressBackgroundColor={theme.colors['card']}
-          />
-        }
       >
         <View style={{ paddingHorizontal: theme.spacing(4) }}>
           <HomeHeader />
         </View>
 
-        {/* Brass statement headline + hairline (Navel Screen-17). */}
-        <View
-          style={{ paddingHorizontal: theme.spacing(4), gap: theme.spacing(3) }}
-        >
-          <AppText
-            variant="display"
+        {/* Brass statement headline + bare search glyph on the same row,
+            hairline running from the left gutter to the screen edge. */}
+        <View style={{ gap: theme.spacing(3) }}>
+          <View
             style={{
-              fontSize: 30,
-              lineHeight: 36,
-              color: theme.colors['primary'],
+              paddingHorizontal: theme.spacing(4),
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: theme.spacing(3),
             }}
           >
-            {t.browseHeadline}
-          </AppText>
+            <AppText
+              variant="display"
+              numberOfLines={1}
+              style={{
+                flex: 1,
+                fontSize: 32,
+                lineHeight: 38,
+                color: theme.colors['primary'],
+              }}
+            >
+              {t.browseHeadline}
+            </AppText>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t.searchButton}
+              testID="home-search"
+              hitSlop={10}
+              onPress={() => router.push('/explore?focusSearch=1')}
+              android_ripple={{
+                color: theme.colors['muted'],
+                borderless: true,
+              }}
+              style={({ pressed }) => ({
+                opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.7 : 1,
+              })}
+            >
+              <Ionicons
+                name="search"
+                size={24}
+                color={theme.colors['primary']}
+              />
+            </Pressable>
+          </View>
           <View
-            style={{ height: 1, backgroundColor: theme.colors['border'] }}
+            style={{
+              height: 1,
+              marginLeft: theme.spacing(4),
+              backgroundColor: theme.colors['border'],
+            }}
           />
         </View>
 
@@ -197,28 +202,32 @@ export default function HomeScreen() {
           </View>
         ) : null}
 
-        {/* Region browser: rotated tabs + giant destination cards. */}
+        {/* Region browser: rotated full-height tabs + fill-height cards. */}
         {destQ.isPending ? (
           <View
             style={{
+              flex: 1,
               flexDirection: 'row',
+              alignItems: 'center',
               gap: theme.spacing(3),
               paddingLeft: theme.spacing(4),
             }}
           >
-            <Skeleton width={44} height={280} borderRadius={theme.radius.md} />
+            <Skeleton width={44} height={Math.round(height * 0.4)} />
             <Skeleton
               width={cardWidth}
-              height={Math.round(cardWidth / 0.62)}
+              height={Math.round(height * 0.52)}
               borderRadius={theme.radius.xl}
             />
           </View>
         ) : destQ.isError ? (
           <View
             style={{
+              flex: 1,
               alignItems: 'center',
+              justifyContent: 'center',
               gap: theme.spacing(3),
-              paddingVertical: theme.spacing(6),
+              paddingHorizontal: theme.spacing(4),
             }}
           >
             <AppText variant="body" style={{ textAlign: 'center' }}>
@@ -227,7 +236,7 @@ export default function HomeScreen() {
             <Button label={t.retry} onPress={() => destQ.refetch()} />
           </View>
         ) : (
-          <View style={{ flexDirection: 'row' }}>
+          <View style={{ flex: 1, flexDirection: 'row' }}>
             <RegionTabs
               regions={REGION_ORDER}
               active={region}
@@ -239,7 +248,6 @@ export default function HomeScreen() {
                   flex: 1,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  paddingVertical: theme.spacing(10),
                   paddingHorizontal: theme.spacing(4),
                 }}
               >
@@ -250,10 +258,14 @@ export default function HomeScreen() {
             ) : (
               <FlatList
                 horizontal
+                style={{ flex: 1 }}
                 data={current}
                 keyExtractor={(d) => d.slug}
                 renderItem={({ item }) => (
-                  <Animated.View entering={FadeIn.duration(200)}>
+                  <Animated.View
+                    entering={FadeIn.duration(200)}
+                    style={{ height: '100%' }}
+                  >
                     <DestinationHeroCard
                       destination={item}
                       onPress={() =>
@@ -276,7 +288,7 @@ export default function HomeScreen() {
             )}
           </View>
         )}
-      </ScrollView>
+      </View>
     </Screen>
   );
 }

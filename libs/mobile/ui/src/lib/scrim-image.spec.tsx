@@ -31,3 +31,10 @@ test('scrim={false} drops the legibility gradient', () => {
   renderIt(<ScrimImage uri="https://x/img.jpg" alt="a" scrim={false} />);
   expect(screen.queryByTestId('scrim-grad')).toBeNull();
 });
+
+test('fill stretches to the parent height instead of an aspect ratio', () => {
+  renderIt(<ScrimImage uri="https://x/img.jpg" alt="a" fill />);
+  const style = screen.getByLabelText('a').props.style;
+  expect(style.flex).toBe(1);
+  expect(style.aspectRatio).toBeUndefined();
+});

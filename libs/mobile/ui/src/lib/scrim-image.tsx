@@ -9,6 +9,8 @@ export interface ScrimImageProps {
   alt: string;
   /** width/height, e.g. 4/3 (default) or 3/4 for tall hero cards. */
   aspectRatio?: number;
+  /** Fill the parent's height (flex: 1) instead of deriving it from width. */
+  fill?: boolean;
   radius?: number;
   /** Brand grade tint layer — the ONE uniform "color grade" over any photo. */
   tint?: boolean;
@@ -28,6 +30,7 @@ export function ScrimImage({
   uri,
   alt,
   aspectRatio = 4 / 3,
+  fill = false,
   radius,
   tint = true,
   scrim = true,
@@ -38,7 +41,7 @@ export function ScrimImage({
     <View
       accessibilityLabel={alt}
       style={{
-        aspectRatio,
+        ...(fill ? { flex: 1 } : { aspectRatio }),
         borderRadius: radius ?? theme.radius.xl,
         borderCurve: 'continuous',
         overflow: 'hidden',

@@ -23,7 +23,7 @@ export { AppSheet, AppSheetScrollView, AppSheetTextInput } from './lib/sheet';
 export type { AppSheetProps, AppSheetRef } from './lib/sheet';
 export { ScrimImage } from './lib/scrim-image';
 export type { ScrimImageProps } from './lib/scrim-image';
-export { FloatingTabBar } from './lib/floating-tab-bar';
+export { FloatingTabBar, TAB_BAR_TILE } from './lib/floating-tab-bar';
 export type { FloatingTabBarProps } from './lib/floating-tab-bar';
 export { StickyCTABar } from './lib/sticky-cta-bar';
 export type { StickyCTABarProps } from './lib/sticky-cta-bar';
