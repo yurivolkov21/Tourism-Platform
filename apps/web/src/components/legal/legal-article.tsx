@@ -1,6 +1,6 @@
 import { TriangleAlertIcon } from 'lucide-react';
 
-import type { LegalDoc } from '../../content/legal-page';
+import type { LegalDoc } from '@tourism/i18n';
 import { slugify } from '../../lib/slug';
 import { ContentHero } from '../content/content-hero';
 import { OnThisPage, type TocItem } from '../content/on-this-page';

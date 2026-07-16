@@ -1,4 +1,4 @@
-import type { LegalDoc } from './legal-page';
+import type { LegalDoc } from './legal-page.js';
 
 /**
  * Privacy Statement — grounded in the platform's actual data practices (account auth via Supabase,

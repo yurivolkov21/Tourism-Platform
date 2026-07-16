@@ -1,4 +1,4 @@
-import type { LegalDoc } from './legal-page';
+import type { LegalDoc } from './legal-page.js';
 
 /**
  * Terms & Conditions — tour-operator booking terms grounded in the platform's actual flow

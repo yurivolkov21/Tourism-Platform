@@ -1,4 +1,4 @@
-import type { LegalDoc } from './legal-page';
+import type { LegalDoc } from './legal-page.js';
 
 /**
  * Cancellation & Refund Policy — describes the platform's actual refund flow: the customer sends a
