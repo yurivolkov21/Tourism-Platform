@@ -4,6 +4,30 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-16 — P5.7 S3: native legal screens + shared LegalDoc source (`9584c22`)
+
+- **Legal content moves to `@tourism/i18n`** (`0ee4bd9`, git mv): the
+  privacy/terms/cancellation `LegalDoc` modules leave `apps/web/src/content`
+  so web AND mobile render ONE source. Web pages + `legal-article` swap only
+  their import; content byte-identical; web 300 tests + production build
+  verified green. DB/API/admin: zero touch (analyzed before approval).
+- **Mobile `legal/[doc]` reader** (Navel Screen-13): icon tile 96px +
+  Fraunces 32pt title + "Last updated" + numbered UPPERCASE section headings
+  + line-height-24 body (rescaled once on device feedback — proportions/air,
+  not components, were what was "missing"). Unknown doc → redirect home.
+- **Account tab**: privacy/terms rows stop opening the web browser → native
+  pushes; NEW "Cancellation & refund policy" row (content mobile never had).
+  **Sign-up** gains a non-blocking "agree to Terms and Privacy" line with
+  tappable links (Navel keeps Terms in the register flow; guest-first kept —
+  no forced checkbox).
+- Also same-day (pre-merge, on main): **email fixes** (`0667c46` + `f1cc7b4`)
+  — hidden preheaders w/ collapse-proof padding for the 3 Supabase auth
+  templates AND the API layout (the "N Nexora N" Gmail-snippet leak), CTA
+  buttons centered + wrappable across all templates. User re-pastes the
+  Supabase three; API side lands on next deploy.
+- Tests after: **api 541 · web 300 · admin 266 · mobile 164 · mobile-ui 48 ·
+  core 42.**
+
 ## 2026-07-15 — P5.7 S2: auth screens on the Navel language (`926ac28`)
 
 - **Sign-in / sign-up / forgot reskinned** (Navel Screen-4/10, modals kept):

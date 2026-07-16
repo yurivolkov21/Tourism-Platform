@@ -70,9 +70,9 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   money-path presentation adversarially reviewed). Expo Go dev loop only.
   Combined device pass ✅ 2026-07-15. **P5.7 screen-by-screen Navel parity
   in flight** ([index](docs/06-specs/2026-07-15-navel-screen-index.md);
-  S1+S2 ✅). **161 tests** (+ mobile-ui 48).
+  S1+S2+S3 ✅). **164 tests** (+ mobile-ui 48).
 
-Baselines: **api 541 · web 300 · admin 266 · mobile 161 · mobile-ui 48 · core 42.**
+Baselines: **api 541 · web 300 · admin 266 · mobile 164 · mobile-ui 48 · core 42.**
 
 ## Next actions
 
