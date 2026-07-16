@@ -173,7 +173,7 @@
                         style="border-radius: 8px; background: #2f6b4f"
                       >
                         <a
-                          href="{{ .ConfirmationURL }}"
+                          href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email_change&redirect=/account"
                           target="_blank"
                           style="
                             display: inline-block;
@@ -216,7 +216,8 @@
                       color: #2f6b4f;
                     "
                   >
-                    {{ .ConfirmationURL }}
+                    {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash
+                    }}&type=email_change&redirect=/account
                   </p>
                   <p
                     style="

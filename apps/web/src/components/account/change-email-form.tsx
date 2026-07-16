@@ -15,7 +15,8 @@ import { AuthFormField } from '../auth/auth-form-field';
 
 /**
  * Change email while signed in. Supabase emails a confirmation (to both addresses); the change lands
- * once confirmed — the link returns through `/auth/callback`. We just show "confirmation sent".
+ * once confirmed — the link returns through `/auth/confirm` (token_hash verifyOtp, which also re-syncs
+ * the API email mirror). We just show "confirmation sent".
  */
 export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
   const t = messages.auth.account.securityPage.email;

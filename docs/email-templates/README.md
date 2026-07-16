@@ -30,8 +30,19 @@ template by swapping the heading + button label.)
   fallback; brand hex hardcoded (`#2f6b4f` emerald, ink `#14171e`/`#43454b`/
   `#7b7d81`) — the app's oklch tokens don't exist in an inbox. The no-hex rule
   applies to app CSS, not these pasted templates.
-- **Don't remove `{{ .ConfirmationURL }}`** — it's the action link Supabase injects (button href + the
-  copy-paste fallback). Other vars available: `{{ .SiteURL }}`, `{{ .Email }}`, `{{ .Token }}`.
+- **Action link uses `{{ .TokenHash }}`, NOT `{{ .ConfirmationURL }}`** (2026-07-16).
+  The button href + copy-paste fallback point at the app's own server route so
+  confirmation completes **cross-browser** (the default `{{ .ConfirmationURL }}` →
+  Supabase hosted verify → `/auth/callback` PKCE flow breaks when the link is
+  opened in a different browser/mail-client). Each file links to `/auth/confirm`
+  with its own `type` (`&` kept raw so the copy-paste URL stays valid):
+  - `confirm-signup.html` → `type=signup&redirect=/account`
+  - `reset-password.html` → `type=recovery&redirect=/reset-password`
+  - `change-email.html` → `type=email_change&redirect=/account`
+  Other vars available: `{{ .SiteURL }}`, `{{ .Email }}`, `{{ .Token }}`. OAuth is
+  unaffected (still `/auth/callback`).
+- **Redirect URLs:** Supabase → Auth → URL Configuration must allow
+  `…/auth/confirm` (keep `/auth/callback` for OAuth), else the link is rejected.
 - Keep the layout in sync across the three files if you restyle (they share one shell).
 
 ## Production note

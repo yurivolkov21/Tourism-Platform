@@ -11,7 +11,8 @@ export const metadata: Metadata = {
   title: messages.auth.reset.title,
 };
 
-// Reached via a recovery session (the callback exchanges the link's code first). Per-user → dynamic.
+// Reached via a recovery session that `/auth/confirm` establishes (verifyOtp on the
+// email's token_hash) before redirecting here. Per-user → dynamic.
 export const dynamic = 'force-dynamic';
 
 export default async function ResetPasswordPage() {
