@@ -46,37 +46,41 @@ export default function SignInScreen() {
 
   return (
     <Screen
-      style={{ paddingHorizontal: 0, paddingTop: 0 }}
-      scrollProps={{ keyboardShouldPersistTaps: 'handled' }}
+      style={{ paddingTop: 0 }}
+      scrollProps={{
+        keyboardShouldPersistTaps: 'handled',
+        // flexGrow lets the footer pin to the screen bottom (Navel rhythm).
+        contentContainerStyle: { flexGrow: 1, paddingBottom: theme.spacing(8) },
+      }}
     >
-      {/* P5.7 S2: photo header dissolving into the background (Navel). */}
+      {/* P5.7 S2 v2: tall photo header dissolving into the background. */}
       <AuthHero
         image={require('../../../assets/onboarding/onboarding-2.jpg')}
         title={t.title}
       />
       <View
         style={{
-          gap: theme.spacing(4),
-          paddingHorizontal: theme.spacing(4),
-          paddingVertical: theme.spacing(4),
+          flex: 1,
+          gap: theme.spacing(6),
+          paddingHorizontal: theme.spacing(5),
+          paddingTop: theme.spacing(6),
         }}
       >
-        <AppText variant="body" muted>
-          {reason === 'wishlist'
-            ? tp.wishlistReason
-            : reason === 'booking'
-              ? tp.bookingReason
-              : t.subtitle}
-        </AppText>
+        {reason === 'wishlist' || reason === 'booking' ? (
+          <AppText variant="body" muted>
+            {reason === 'wishlist' ? tp.wishlistReason : tp.bookingReason}
+          </AppText>
+        ) : null}
         <TextField
-          label={t.emailLabel}
+          variant="underline"
+          placeholder={t.emailLabel}
           value={email}
           onChangeText={setEmail}
           error={errors.email ? te[errors.email] : undefined}
           leading={
             <Ionicons
               name="mail-outline"
-              size={16}
+              size={18}
               color={theme.colors['primary']}
             />
           }
@@ -91,14 +95,15 @@ export default function SignInScreen() {
         <View>
           <TextField
             ref={passwordRef}
-            label={t.passwordLabel}
+            variant="underline"
+            placeholder={t.passwordLabel}
             value={password}
             onChangeText={setPassword}
             error={errors.password ? te[errors.password] : undefined}
             leading={
               <Ionicons
                 name="lock-closed-outline"
-                size={16}
+                size={18}
                 color={theme.colors['primary']}
               />
             }
@@ -108,12 +113,12 @@ export default function SignInScreen() {
             returnKeyType="done"
             onSubmitEditing={() => void onSubmit()}
           />
-          {/* "Forgot?" inline with the field label (Navel Screen-4). */}
+          {/* "Forgot?" inline with the password row (Navel Screen-4). */}
           <Pressable
             accessibilityRole="button"
             onPress={() => router.replace('/auth/forgot')}
             hitSlop={8}
-            style={{ position: 'absolute', right: 0, top: 0 }}
+            style={{ position: 'absolute', right: 0, top: theme.spacing(4) }}
           >
             <AppText
               variant="caption"
@@ -126,6 +131,7 @@ export default function SignInScreen() {
         {banner ? (
           <AppText
             variant="body"
+            accessibilityRole="alert"
             style={{ color: theme.colors['destructive'] }}
           >
             {banner}
@@ -136,6 +142,7 @@ export default function SignInScreen() {
           onPress={onSubmit}
           loading={submitting}
         />
+        <View style={{ flex: 1 }} />
         <Pressable
           accessibilityRole="button"
           onPress={() => router.replace('/auth/sign-up')}

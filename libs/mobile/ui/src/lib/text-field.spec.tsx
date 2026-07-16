@@ -33,3 +33,14 @@ test('renders the leading slot', () => {
   );
   expect(screen.getByText('go')).toBeOnTheScreen();
 });
+
+test('underline variant hides the label text and falls back a11y to the placeholder', () => {
+  render(
+    <ThemeProvider scheme="dark">
+      <TextField variant="underline" placeholder="Email ID" />
+    </ThemeProvider>,
+  );
+  expect(screen.getByPlaceholderText('Email ID')).toBeOnTheScreen();
+  expect(screen.getByLabelText('Email ID')).toBeOnTheScreen();
+  expect(screen.queryByText('Email ID')).toBeNull();
+});

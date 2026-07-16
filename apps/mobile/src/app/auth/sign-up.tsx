@@ -80,8 +80,11 @@ export default function SignUpScreen() {
 
   return (
     <Screen
-      style={{ paddingHorizontal: 0, paddingTop: 0 }}
-      scrollProps={{ keyboardShouldPersistTaps: 'handled' }}
+      style={{ paddingTop: 0 }}
+      scrollProps={{
+        keyboardShouldPersistTaps: 'handled',
+        contentContainerStyle: { flexGrow: 1, paddingBottom: theme.spacing(8) },
+      }}
     >
       <AuthHero
         image={require('../../../assets/onboarding/onboarding-1.jpg')}
@@ -89,16 +92,15 @@ export default function SignUpScreen() {
       />
       <View
         style={{
-          gap: theme.spacing(4),
-          paddingHorizontal: theme.spacing(4),
-          paddingVertical: theme.spacing(4),
+          flex: 1,
+          gap: theme.spacing(6),
+          paddingHorizontal: theme.spacing(5),
+          paddingTop: theme.spacing(6),
         }}
       >
-        <AppText variant="body" muted>
-          {t.subtitle}
-        </AppText>
         <TextField
-          label={t.fullNameLabel}
+          variant="underline"
+          placeholder={t.fullNameLabel}
           value={fullName}
           onChangeText={setFullName}
           error={errors.fullName ? te[errors.fullName] : undefined}
@@ -117,7 +119,8 @@ export default function SignUpScreen() {
         />
         <TextField
           ref={emailRef}
-          label={t.emailLabel}
+          variant="underline"
+          placeholder={t.emailLabel}
           value={email}
           onChangeText={setEmail}
           error={errors.email ? te[errors.email] : undefined}
@@ -138,7 +141,8 @@ export default function SignUpScreen() {
         />
         <TextField
           ref={passwordRef}
-          label={t.passwordLabel}
+          variant="underline"
+          placeholder={t.passwordLabel}
           value={password}
           onChangeText={setPassword}
           error={errors.password ? te[errors.password] : undefined}
@@ -157,7 +161,8 @@ export default function SignUpScreen() {
         />
         <TextField
           ref={confirmRef}
-          label={t.confirmLabel}
+          variant="underline"
+          placeholder={t.confirmLabel}
           value={confirm}
           onChangeText={setConfirm}
           error={errors.confirm ? te[errors.confirm] : undefined}
@@ -187,6 +192,7 @@ export default function SignUpScreen() {
           onPress={onSubmit}
           loading={submitting}
         />
+        <View style={{ flex: 1 }} />
         <Pressable
           accessibilityRole="button"
           onPress={() => router.replace('/auth/sign-in')}

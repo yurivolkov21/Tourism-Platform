@@ -1,15 +1,13 @@
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 import { Image, type ImageProps } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AppText, useTheme } from '@tourism/mobile-ui';
 
-const HEIGHT = 240;
-
 /**
- * P5.7 S2 — auth screens' photo header (Navel Screen-4): the image DISSOLVES
- * into the emerald background (gradient to the background color, not a black
- * scrim) so there is no visible seam; the Fraunces display title sits on the
- * blend. Decorative — pointerEvents none except nothing interactive anyway.
+ * P5.7 S2 v2 — auth screens' photo header (Navel Screen-4): the image owns
+ * ~42% of the screen and DISSOLVES into the emerald background over a long
+ * gradient (to the background color, not a black scrim) — no visible seam.
+ * The Fraunces display title sits in the blend zone at the bottom.
  */
 export function AuthHero({
   image,
@@ -19,8 +17,10 @@ export function AuthHero({
   title: string;
 }) {
   const theme = useTheme();
+  const { height } = useWindowDimensions();
+  const heroHeight = Math.round(height * 0.42);
   return (
-    <View style={{ height: HEIGHT, justifyContent: 'flex-end' }}>
+    <View style={{ height: heroHeight, justifyContent: 'flex-end' }}>
       <Image
         source={image}
         style={{ position: 'absolute', inset: 0 }}
@@ -41,13 +41,10 @@ export function AuthHero({
         testID="auth-hero-fade"
         pointerEvents="none"
         colors={['transparent', theme.colors['background']]}
-        locations={[0.15, 1]}
+        locations={[0.3, 1]}
         style={{ position: 'absolute', inset: 0 }}
       />
-      <AppText
-        variant="display"
-        style={{ paddingHorizontal: theme.spacing(4) }}
-      >
+      <AppText variant="hero" style={{ paddingHorizontal: theme.spacing(5) }}>
         {title}
       </AppText>
     </View>

@@ -76,8 +76,11 @@ export default function ForgotScreen() {
 
   return (
     <Screen
-      style={{ paddingHorizontal: 0, paddingTop: 0 }}
-      scrollProps={{ keyboardShouldPersistTaps: 'handled' }}
+      style={{ paddingTop: 0 }}
+      scrollProps={{
+        keyboardShouldPersistTaps: 'handled',
+        contentContainerStyle: { flexGrow: 1, paddingBottom: theme.spacing(8) },
+      }}
     >
       <AuthHero
         image={require('../../../assets/onboarding/onboarding-3.jpg')}
@@ -85,16 +88,18 @@ export default function ForgotScreen() {
       />
       <View
         style={{
-          gap: theme.spacing(4),
-          paddingHorizontal: theme.spacing(4),
-          paddingVertical: theme.spacing(4),
+          flex: 1,
+          gap: theme.spacing(6),
+          paddingHorizontal: theme.spacing(5),
+          paddingTop: theme.spacing(6),
         }}
       >
         <AppText variant="body" muted>
           {t.subtitle}
         </AppText>
         <TextField
-          label={t.emailLabel}
+          variant="underline"
+          placeholder={t.emailLabel}
           value={email}
           onChangeText={setEmail}
           error={error ?? undefined}
@@ -126,6 +131,7 @@ export default function ForgotScreen() {
           onPress={onSubmit}
           loading={submitting}
         />
+        <View style={{ flex: 1 }} />
         <Pressable
           accessibilityRole="button"
           onPress={() => router.replace('/auth/sign-in')}
