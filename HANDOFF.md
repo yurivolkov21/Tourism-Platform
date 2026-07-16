@@ -37,7 +37,7 @@ via chat).
 | i18n | **English-only** (ADR-0005; was EN/VI) |
 | Direction | Lily-adapted (warm, trust-forward); brand **"Nexora"**, palette **"Emerald Heritage"** |
 
-## Current state (2026-07-15)
+## Current state (2026-07-16)
 
 **Every product phase is complete and deployed** — on the custom domain
 `www.nexora-travel.agency` (admin: `admin.`) since 2026-07-13. All three debt
@@ -84,10 +84,12 @@ Baselines: **api 541 · web 300 · admin 266 · mobile 164 · mobile-ui 48 · co
    SHIPPED** (`70f756e` — onboarding pager · BrandSplash · emerald native
    splash · `start-dev.ps1` auto-IP) · **S2 SHIPPED 2026-07-15** (`926ac28`
    — AuthHero 42% dissolve · TextField `underline` variant · bottom-pinned
-   footers; 2 device-feedback rounds). Next screen: pick with the user (top
-   candidate: Home vertical-tabs Screen-17). Baselines: mobile 161 ·
-   mobile-ui 48. NOTE: ~30 local commits on `main` are UNPUSHED (user
-   pushes on their signal).
+   footers; 2 device-feedback rounds) · **S3 SHIPPED 2026-07-16** (`9584c22`
+   — LegalDoc single-source in `@tourism/i18n` · native legal/[doc] reader ·
+   Account rows native + cancellation policy · sign-up agree line). Next
+   screen: pick with the user (top candidate: Home vertical-tabs Screen-17).
+   Baselines: mobile 164 · mobile-ui 48. NOTE: ~39 local commits on `main`
+   are UNPUSHED (user pushes on their signal).
 2. **Contact Launcher — LIVE 2026-07-14:** `NEXT_PUBLIC_CHAT_WHATSAPP` set on
    Vercel with the owner's personal number; owner verified the wa.me chat
    end-to-end on production. Remaining: cross-account test (teammate opens the

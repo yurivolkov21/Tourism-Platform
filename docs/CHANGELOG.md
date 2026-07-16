@@ -11,9 +11,9 @@
   so web AND mobile render ONE source. Web pages + `legal-article` swap only
   their import; content byte-identical; web 300 tests + production build
   verified green. DB/API/admin: zero touch (analyzed before approval).
-- **Mobile `legal/[doc]` reader** (Navel Screen-13): icon tile 96px +
-  Fraunces 32pt title + "Last updated" + numbered UPPERCASE section headings
-  + line-height-24 body (rescaled once on device feedback — proportions/air,
+- **Mobile `legal/[doc]` reader** (Navel Screen-13): 96px icon tile, Fraunces
+  32pt title, "Last updated" line, numbered UPPERCASE section headings and
+  line-height-24 body (rescaled once on device feedback — proportions/air,
   not components, were what was "missing"). Unknown doc → redirect home.
 - **Account tab**: privacy/terms rows stop opening the web browser → native
   pushes; NEW "Cancellation & refund policy" row (content mobile never had).
