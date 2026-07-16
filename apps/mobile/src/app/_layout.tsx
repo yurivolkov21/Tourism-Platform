@@ -23,6 +23,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { messages } from '@tourism/i18n';
 import { ThemeProvider, useTheme } from '@tourism/mobile-ui';
+import { BrandSplash } from '../components/brand-splash';
 import {
   OnboardingScreen,
   type OnboardingIntent,
@@ -181,7 +182,27 @@ export default function RootLayout() {
     if (ready) SplashScreen.hideAsync();
   }, [ready]);
 
-  if (!ready) return null; // splash stays visible
+  // P5.7 S1b: branded boot moment — the JS BrandSplash holds ~1.1s after the
+  // native splash lifts (locked decision: minimum-display for the brand beat).
+  const [bootDone, setBootDone] = useState(false);
+  useEffect(() => {
+    if (!ready) return;
+    const id = setTimeout(() => setBootDone(true), 1100);
+    return () => clearTimeout(id);
+  }, [ready]);
+
+  if (!ready) return null; // native splash stays visible
+
+  if (!bootDone) {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <ThemeProvider scheme="dark">
+          <StatusBar style="light" />
+          <BrandSplash />
+        </ThemeProvider>
+      </GestureHandlerRootView>
+    );
+  }
 
   const finishOnboarding = (intent: OnboardingIntent) => {
     void markOnboarded();
