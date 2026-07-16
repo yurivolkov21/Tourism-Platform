@@ -4,6 +4,35 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-16 — Email change: password re-auth + old-address notice + password-only gate (`83d76a0`)
+
+- **Reshaped email change to the mainstream low-friction pattern** (confirm the
+  NEW address only + notify the OLD address + re-auth), replacing Supabase's
+  dual-inbox "Secure email change". Research-backed (OWASP + Google/GitHub/Amazon
+  all use confirm-new + notify-old). Branch `feat/email-change-notify-reauth`
+  (spec+plan `297cf71`).
+- **Restrict to password-only accounts** — `canChangeEmail(providers)` (over
+  `app_metadata.providers`) allows the change form only when the account has an
+  `email` identity and **no** OAuth provider; Google-linked accounts (Google-only
+  or password+Google auto-linked) get a managed-by-Google note. Avoids the
+  primary-email vs Google-identity-email mismatch. (Identity analysis: the app
+  never calls `linkIdentity`, so "password A + Google B" can't arise.)
+- **Password re-auth** — the change form adds a current-password field;
+  `signInWithPassword` verifies it before `updateUser` (Supabase has no
+  verify-password API). Wrong password → field error, no change.
+- **Notify the OLD address** — `AuthService.upsert` detects the mirror email flip
+  (`bySub.email` ≠ JWT email) and enqueues an `EMAIL_CHANGED` outbox row
+  (`$transaction` with the update; payload `{oldEmail,newEmail}`, fresh-uuid
+  `dedupeKey` so a repeat change to a prior address is never suppressed) → Resend
+  branded "your email was changed" notice. New `EmailType.EMAIL_CHANGED` (migration).
+- Review findings: 1 (fixed) — an email-keyed `dedupeKey` would permanently drop
+  the notice on a repeat A→B→A→B change (SENT outbox rows are kept forever);
+  switched to a per-enqueue uuid.
+- **Deploy to-do:** apply the migration + Supabase → Auth → Providers → Email →
+  **Secure email change: OFF**.
+- Tests after: **api 558 · web 336 · admin 266 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
 ## 2026-07-16 — Fix email-change confirmation (cross-browser token_hash) (`406f02c`)
 
 - **Changing email in Account Settings now takes effect.** Two stacked bugs:

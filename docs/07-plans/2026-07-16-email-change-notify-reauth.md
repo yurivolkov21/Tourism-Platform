@@ -5,15 +5,23 @@
 
 ## STATUS
 
-- [ ] T0 context7 confirm (`signInWithPassword` re-auth · `user.identities` shape)
-- [ ] T1 web gate helper `canChangeEmail` (TDD) + wire profile page
-- [ ] T2 web re-auth on `change-email-form` + tests + i18n
-- [ ] T3 api migration: `EmailType.EMAIL_CHANGED`
-- [ ] T4 api enqueue on detected change (`auth.service`) + tests
-- [ ] T5 api email: renderer + sender + outbox dispatch + tests
-- [ ] T6 gate + review
+- [x] T0 context7 confirm — re-auth via `signInWithPassword({email,password})` then
+  `updateUser({email})` (`current_password` is documented for password change only,
+  not email-only). Gate reuses the profile page's existing
+  `readProviders(user.app_metadata)` → helper takes `providers: string[]` (page also
+  already has a `ConnectedAccounts` section).
+- [x] T1 web gate helper `canChangeEmail` (TDD) + wire profile page
+- [x] T2 web re-auth on `change-email-form` + tests + i18n
+- [x] T3 api migration: `EmailType.EMAIL_CHANGED`
+- [x] T4 api enqueue on detected change (`auth.service`) + tests
+- [x] T5 api email: renderer + sender + outbox dispatch + tests
+- [x] T6 gate + review
 
-**RESUME STATE:** _(update as tasks complete)_
+**RESUME STATE:** MERGED to `main` (feat `83d76a0` + docs sweep). Gate green
+(api 558 · web 336). Review 1 finding fixed: email-keyed `dedupeKey` would drop
+the notice on a repeat A→B→A→B change (SENT rows kept forever) → switched to a
+per-enqueue uuid. **Deploy to-do (outside repo): apply the migration to Supabase
++ Auth → Providers → Email → Secure email change OFF.**
 
 ## Sequencing
 

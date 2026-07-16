@@ -52,14 +52,15 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   **+ cost/margin** · pg-boss outbox/cron — **all 7 EmailTypes live, branded
   v2 templates** · **AI concierge chat — first SSE surface, AI SDK v7 + Claude
   Haiku, tools over Tours/Enquiry, hard spend caps, key-optional**;
-  **review moderation → on-demand web revalidation 2026-07-16**). **551
+  **review moderation → on-demand web revalidation 2026-07-16** ·
+  **EMAIL_CHANGED old-address notice 2026-07-16**). **558
   unit + 8 e2e tests.**
 - **Design system (P2)** — `@tourism/tokens` (no-hex enforced) +
   `@tourism/ui` (59 shadcn/Base UI comps) + `@tourism/mobile-ui` (RN, 34 tests).
 - **Web (P3 + P6)** — live on **Vercel**. Marketing + catalogue + booking
   money-path + account + blog (v2 complete) on real data; a11y/SEO/perf polish
   done; brand chrome admin-managed via site-media; resilience layer (loading
-  skeletons · error/404/global-error boundaries · empty-vs-failed) → W4 ✅ (shared AuthFormField · noValidate completion · auth titles i18n) — **PROGRAM CLOSED 2026-07-12**. **Contact Launcher 2026-07-14** (WhatsApp `wa.me` deep-link w/ tour prefill + enquiry popover; env-driven, hides w/o `NEXT_PUBLIC_CHAT_WHATSAPP`); **AI concierge chat panel 2026-07-14** ("Chat with us" → Sheet w/ useChat + markdown; degrades when API has no key); **on-demand revalidation 2026-07-16** (tour fetches tagged `tour:<slug>` + secret-guarded `POST /api/revalidate` → moderated reviews show on next reload); **email-change confirm fix 2026-07-16** (`/auth/confirm` token_hash cross-browser + mirror re-sync). **329 tests.**
+  skeletons · error/404/global-error boundaries · empty-vs-failed) → W4 ✅ (shared AuthFormField · noValidate completion · auth titles i18n) — **PROGRAM CLOSED 2026-07-12**. **Contact Launcher 2026-07-14** (WhatsApp `wa.me` deep-link w/ tour prefill + enquiry popover; env-driven, hides w/o `NEXT_PUBLIC_CHAT_WHATSAPP`); **AI concierge chat panel 2026-07-14** ("Chat with us" → Sheet w/ useChat + markdown; degrades when API has no key); **on-demand revalidation 2026-07-16** (tour fetches tagged `tour:<slug>` + secret-guarded `POST /api/revalidate` → moderated reviews show on next reload); **email-change confirm fix 2026-07-16** (`/auth/confirm` token_hash cross-browser + mirror re-sync); **email-change UX 2026-07-16** (single-confirm + password re-auth + password-only gate). **336 tests.**
 - **Admin (P4)** — live on **Vercel** (dev :3002). Full CRUD + operations
   (bookings/refunds · cancellation queue · reviews/CRM · enquiries+notes ·
   subscribers · outbox · payment-events) + media library (reuse picker · alt ·
@@ -73,7 +74,14 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   in flight** ([index](docs/06-specs/2026-07-15-navel-screen-index.md);
   S1+S2+S3+S4 ✅). **167 tests** (+ mobile-ui 50).
 
-Baselines: **api 551 · web 329 · admin 266 · mobile 167 · mobile-ui 50 · core 42.**
+Baselines: **api 558 · web 336 · admin 266 · mobile 167 · mobile-ui 50 · core 42.**
+
+**Email-change UX (2026-07-16, `83d76a0`):** single-confirm (pairs with Supabase
+Secure-email-change **OFF**) + password re-auth (`signInWithPassword` before
+`updateUser`) + an `EMAIL_CHANGED` notice to the OLD address (`AuthService.upsert`
+detects the mirror flip → Resend). Email change is restricted to password-only
+accounts (`canChangeEmail`); Google-linked → managed-by-Google note. **Deploy
+to-do: apply the migration + turn Supabase "Secure email change" OFF.**
 
 **Email-change confirmation fix (2026-07-16, `406f02c`):** `/auth/confirm` route
 (`verifyOtp` token_hash) completes signup/recovery/email-change confirmations

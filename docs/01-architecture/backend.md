@@ -6,7 +6,7 @@ NestJS service. Ports the donor's proven structure; hardened per
 > **Status: P1 + blog-v2 BE + API debt program W1→W3 (2026-07-13) complete.**
 > **105 endpoints / 20 modules · 499 unit + 8 e2e tests.** Canonical surface: the
 > running Swagger spec (`/api/docs`) + `schema.prisma`.
-> Debt-program deltas: all **7 EmailTypes** dispatch w/ branded v2 templates +
+> Debt-program deltas: all **8 EmailTypes** dispatch w/ branded v2 templates +
 > Reply-To (W1) · cancel-departure **auto-refund** + unpublish guard
 > `TOUR_HAS_ACTIVE_BOOKINGS` + orphaned-capture refund (`claimSeatsForPaid`
 > outcome `cancelled`) + PayPal client id/secret required at boot + throttle env
@@ -62,7 +62,10 @@ dynamic-imported so it stays out of Jest; disabled in `test` / when `RESEND_API_
 
 - **Outbox drain** (cron 1m) — `OutboxService.drainOutbox` sends PENDING `outbox` rows via
   Resend (`EmailService`), retries to a cap then parks `FAILED`. Rows are written atomically
-  with their state change (PAID/refund in a CTE; review-approved/enquiry in a short tx).
+  with their state change (PAID/refund in a CTE; review-approved/enquiry in a short tx). 8
+  `EmailType`s — **`EMAIL_CHANGED` (2026-07-16)** rides a self-sufficient `{oldEmail,newEmail}`
+  payload, enqueued by `AuthService.upsert` when a sync sees the mirrored email flip, sent to
+  the OLD address (fresh-uuid `dedupeKey` — never suppress a repeat change).
 - **Abandoned-booking cleanup** (cron 15m) — stale `PENDING` → `CANCELLED`.
 - **Media reconcile** (cron daily) — destroys orphaned Cloudinary assets recorded in
   `MediaGarbage` (`CloudinaryService.destroy`). **Ref-safe GC (wave D1, 2026-07-11)** — since the
