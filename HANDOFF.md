@@ -65,7 +65,9 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   (bookings/refunds · cancellation queue · reviews/CRM · enquiries+notes ·
   subscribers · outbox · payment-events) + media library (reuse picker · alt ·
   bulk delete; avatars hidden by default) + Appearance + dashboard
-  (date-range + per-currency + margin) + motion layer. **266 tests.**
+  (date-range + per-currency + margin) + motion layer; **PARTIALLY_REFUNDED
+  first-class across the dashboard 2026-07-17** (tab · pipeline · URL parse ·
+  widget · detail timeline). **268 tests.**
 - **Mobile (P5 + P5.5 + P5.6)** — feature-complete AND fully on the
   "Nexora Dark Heritage" skin (P5.6 R1→R3 shipped 2026-07-15, `bd67d54`:
   dark-first tokens · ScrimImage/FloatingTabBar/StickyCTABar/GlowBadge ·
@@ -74,7 +76,7 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   in flight** ([index](docs/06-specs/2026-07-15-navel-screen-index.md);
   S1+S2+S3+S4 ✅). **167 tests** (+ mobile-ui 50).
 
-Baselines: **api 558 · web 375 · admin 266 · mobile 167 · mobile-ui 50 · core 42.**
+Baselines: **api 558 · web 375 · admin 268 · mobile 167 · mobile-ui 50 · core 42.**
 
 **Email-change UX (2026-07-16, `83d76a0`):** single-confirm (pairs with Supabase
 Secure-email-change **OFF**) + password re-auth (`signInWithPassword` before

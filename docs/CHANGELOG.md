@@ -4,6 +4,27 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-17 — Admin: PARTIALLY_REFUNDED surfaced across the dashboard (`4bac638`)
+
+- **Fixed the 38-vs-37 drift** (branch `feat/admin-partial-refunded-visibility`,
+  spec+plan `7199bdc`): the API counts all five booking statuses but the admin
+  UI enumerated only four, hiding the real partially-refunded booking. Now
+  first-class everywhere: bookings **tab** ("Partially refunded", badge from
+  `statusCounts`) · **pipeline** fifth bar/label/dot (totals = KPI) ·
+  **`?status=` URL validation** (the tab actually filters server-side) ·
+  5-key `bookingsByStatus` **type** · recent-bookings **widget** (variant +
+  mini tab + underscore-free labels) · booking-detail **timeline** now shows a
+  "Partially refunded" step (audit catch — partial refunds previously had no
+  refund step at all). API untouched (DTO already accepted the full enum).
+- Review findings: 2 (fixed) — the timeline step first reused key `'refunded'`,
+  which the detail page's `LIFECYCLE_LABELS[step.key]` lookup relabels
+  "Refunded" → distinct `partially_refunded` key; and the widget's mini tab
+  still leaked the raw underscore.
+- Invariant by construction: Σ(tab badges) = "All" = KPI totalBookings =
+  Σ(pipeline).
+- Tests after: **api 558 · web 375 · admin 268 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
 ## 2026-07-17 — Home trust band + testimonials: real data only (`c9a472e`)
 
 - **Honesty pass on the marketing surface** (branch `feat/home-trust-real-data`,
