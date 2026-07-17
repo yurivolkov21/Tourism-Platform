@@ -4,6 +4,15 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-16 — Email change: no autofill on the re-auth password field (`cc0435b`)
+
+- Follow-up to the email-change UX: the current-password re-auth field switched
+  from `autoComplete="current-password"` to `"off"` so the browser no longer
+  pre-fills the saved password — confirming an email change is a deliberate typed
+  action (best-effort; autofill suppression is browser-dependent, `new-password`
+  is the fallback if a browser still fills it). Branch
+  `fix/change-email-password-no-autofill`. Tests unchanged (web 336).
+
 ## 2026-07-16 — Email change: password re-auth + old-address notice + password-only gate (`83d76a0`)
 
 - **Reshaped email change to the mainstream low-friction pattern** (confirm the
