@@ -6,12 +6,12 @@ import type { DestinationSort } from '@tourism/core';
 import { messages } from '@tourism/i18n';
 import { AppText, Button, Checkbox, color, useTheme } from '@tourism/mobile-ui';
 
-import { ListingSortSection } from '../listing/listing-sort-section';
-import { DraggableSheet, type DraggableSheetHandle } from '../draggable-sheet';
 import type {
   DestinationFacetKey,
   DestinationsFilterState,
 } from '../../lib/destinations/destination-filter-types';
+import { ListingSortSection } from '../listing/listing-sort-section';
+import { DraggableSheet, type DraggableSheetHandle } from '../draggable-sheet';
 
 type Option = { value: string; label: string };
 

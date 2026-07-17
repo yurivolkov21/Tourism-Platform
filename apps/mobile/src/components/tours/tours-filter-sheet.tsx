@@ -2,7 +2,12 @@ import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-import type { DurationBucket, PriceBucket, TourSort } from '@tourism/core';
+import type {
+  DurationBucket,
+  PriceBucket,
+  RatingBucket,
+  TourSort,
+} from '@tourism/core';
 import { messages } from '@tourism/i18n';
 import { AppText, Button, Checkbox, color, useTheme } from '@tourism/mobile-ui';
 
@@ -12,6 +17,7 @@ import type { FacetKey, ToursFilterState } from './tours-filter-types';
 
 const DURATIONS: DurationBucket[] = ['1', '2-3', '4+'];
 const PRICES: PriceBucket[] = ['<100', '100-300', '300+'];
+const RATINGS: RatingBucket[] = ['4.5+', '4+', '3.5+'];
 
 const SORT_KEYS: TourSort[] = ['popular', 'price-asc', 'price-desc', 'rating'];
 
@@ -30,7 +36,9 @@ function FacetGroup({
 }) {
   const theme = useTheme();
   const styles = createFacetStyles(theme);
-  const activeInGroup = options.filter((o) => selected.includes(o.value)).length;
+  const activeInGroup = options.filter((o) =>
+    selected.includes(o.value),
+  ).length;
   const [open, setOpen] = useState(activeInGroup > 0);
 
   if (options.length === 0) return null;
@@ -131,7 +139,11 @@ export function ToursFilterSheet({
             onPress={() => sheetRef.current?.dismiss()}
             hitSlop={8}
           >
-            <Ionicons name="close" size={22} color={color(theme, 'foreground')} />
+            <Ionicons
+              name="close"
+              size={22}
+              color={color(theme, 'foreground')}
+            />
           </Pressable>
         </View>
       }
@@ -143,7 +155,10 @@ export function ToursFilterSheet({
       >
         <ListingSortSection
           heading={t.sortLabel}
-          options={SORT_KEYS.map((key) => ({ value: key, label: sortLabels[key] }))}
+          options={SORT_KEYS.map((key) => ({
+            value: key,
+            label: sortLabels[key],
+          }))}
           value={sort}
           onChange={onSortChange}
         />
@@ -155,7 +170,10 @@ export function ToursFilterSheet({
         />
         <FacetGroup
           heading={t.facets.duration}
-          options={DURATIONS.map((d) => ({ value: d, label: t.durationLabels[d] }))}
+          options={DURATIONS.map((d) => ({
+            value: d,
+            label: t.durationLabels[d],
+          }))}
           selected={value.durations}
           onToggle={(v) => onToggle('durations', v)}
         />
@@ -164,6 +182,12 @@ export function ToursFilterSheet({
           options={PRICES.map((p) => ({ value: p, label: t.priceLabels[p] }))}
           selected={value.prices}
           onToggle={(v) => onToggle('prices', v)}
+        />
+        <FacetGroup
+          heading={t.facets.rating}
+          options={RATINGS.map((r) => ({ value: r, label: t.ratingLabels[r] }))}
+          selected={value.ratings}
+          onToggle={(v) => onToggle('ratings', v)}
         />
       </ScrollView>
 

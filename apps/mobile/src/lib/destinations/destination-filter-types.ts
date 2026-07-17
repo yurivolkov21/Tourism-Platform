@@ -2,6 +2,8 @@ import { DESTINATION_OTHER_REGION } from '@tourism/core';
 
 export type DestinationFacetKey = 'regions';
 
+export type DestinationViewMode = 'vertical' | 'horizontal';
+
 export type DestinationsFilterState = {
   regions: string[];
 };

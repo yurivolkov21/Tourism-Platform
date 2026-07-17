@@ -23,13 +23,17 @@ const facetLabels: FacetLabelMaps = {
     beach: 'Beach',
     nature: 'Nature',
   },
+  rating: { '4.5+': '4.5 & up', '4+': '4.0 & up', '3.5+': '3.5 & up' },
 };
 
-const categoryLabel = (slug: string) => (slug === 'trekking' ? 'Trekking' : slug);
+const categoryLabel = (slug: string) =>
+  slug === 'trekking' ? 'Trekking' : slug;
 
 describe('buildActiveFilterChips', () => {
   it('returns empty array when no filters are selected', () => {
-    expect(buildActiveFilterChips({}, { categoryLabel, facetLabels })).toEqual([]);
+    expect(buildActiveFilterChips({}, { categoryLabel, facetLabels })).toEqual(
+      [],
+    );
     expect(
       buildActiveFilterChips(
         {
@@ -39,6 +43,7 @@ describe('buildActiveFilterChips', () => {
           styles: [],
           themes: [],
           prices: [],
+          ratings: [],
         },
         { categoryLabel, facetLabels },
       ),
@@ -53,25 +58,37 @@ describe('buildActiveFilterChips', () => {
       styles: ['adventure'],
       themes: ['cultural'],
       prices: ['100-300'],
+      ratings: ['4+'],
     };
 
-    expect(buildActiveFilterChips(filters, { categoryLabel, facetLabels })).toEqual([
+    expect(
+      buildActiveFilterChips(filters, { categoryLabel, facetLabels }),
+    ).toEqual([
       { facet: 'destinations', value: 'Hà Nội', label: 'Hà Nội' },
       { facet: 'categories', value: 'trekking', label: 'Trekking' },
       { facet: 'durations', value: '2-3', label: '2–3 days' },
       { facet: 'styles', value: 'adventure', label: 'Adventure' },
       { facet: 'themes', value: 'cultural', label: 'Cultural' },
       { facet: 'prices', value: '100-300', label: '$100–$300' },
+      { facet: 'ratings', value: '4+', label: '4.0 & up' },
     ]);
   });
 
-  it('preserves facet order: destinations → categories → durations → styles → themes → prices', () => {
+  it('preserves facet order: destinations → categories → durations → styles → themes → prices → ratings', () => {
     const filters: TourFilters = {
+      ratings: ['4.5+'],
       prices: ['<100'],
       destinations: ['Sa Pa'],
     };
 
-    const chips = buildActiveFilterChips(filters, { categoryLabel, facetLabels });
-    expect(chips.map((c) => c.facet)).toEqual(['destinations', 'prices']);
+    const chips = buildActiveFilterChips(filters, {
+      categoryLabel,
+      facetLabels,
+    });
+    expect(chips.map((c) => c.facet)).toEqual([
+      'destinations',
+      'prices',
+      'ratings',
+    ]);
   });
 });

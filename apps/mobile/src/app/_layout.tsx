@@ -18,6 +18,8 @@ import {
 } from '@tourism/mobile-ui';
 
 import { appFontAssets } from '../lib/load-app-fonts';
+import { AuthProvider } from '../lib/auth/auth-provider';
+import { WishlistProvider } from '../lib/wishlist/wishlist-provider';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -51,6 +53,7 @@ function Navigation() {
       }}
     >
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="(auth)" options={{ presentation: 'modal' }} />
       <Stack.Screen
         name="contact"
         options={{ headerShown: true, title: 'Contact', presentation: 'card' }}
@@ -104,8 +107,12 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ThemeProvider preference="light">
-          <SystemChrome />
-          <Navigation />
+          <AuthProvider>
+            <WishlistProvider>
+              <SystemChrome />
+              <Navigation />
+            </WishlistProvider>
+          </AuthProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

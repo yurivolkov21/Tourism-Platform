@@ -3,6 +3,7 @@
 module.exports = {
   displayName: 'mobile-ui',
   preset: 'jest-expo',
+  passWithNoTests: true,
   moduleFileExtensions: ['ts', 'js', 'html', 'tsx', 'jsx'],
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   moduleNameMapper: {

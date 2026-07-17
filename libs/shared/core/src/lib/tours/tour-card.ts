@@ -16,6 +16,8 @@ export const TOUR_CARD_IMAGE_FALLBACK =
   'https://images.unsplash.com/photo-1528127269322-539801943592?w=1100&q=70&auto=format&fit=crop';
 
 export type TourCardData = {
+  /** Tour UUID — required for wishlist API. */
+  id: string;
   slug: string;
   title: string;
   destination: string;
@@ -41,6 +43,7 @@ export function toTourCard(dto: TourSummaryDto): TourCardData {
     dto.destinations.find((d) => d.isPrimary) ?? dto.destinations[0];
   const hero = dto.media.find((m) => m.role === 'hero') ?? dto.media[0];
   return {
+    id: dto.id,
     slug: dto.slug,
     title: dto.title,
     destination: primary?.destination.name ?? '',

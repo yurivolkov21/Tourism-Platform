@@ -7,7 +7,12 @@ export type { ThemePreference } from './theme/ThemeProvider';
 export { color, createTheme } from './theme/theme';
 export type { AppTheme, ColorScheme } from './theme/theme';
 export { appFonts } from './theme/fonts';
-export { cardElevation, cardShell, cardPressedStyle, cardSectionDivider } from './theme/card-chrome';
+export {
+  cardElevation,
+  cardShell,
+  cardPressedStyle,
+  cardSectionDivider,
+} from './theme/card-chrome';
 export { useBottomSafeInset, useTopSafeInset } from './theme/safe-area';
 export { useKeyboardInsets } from './hooks/use-keyboard-insets';
 export { useScrollToFocusedInput } from './hooks/use-scroll-to-focused-input';
@@ -44,4 +49,5 @@ export {
   SpotlightEmptyState,
 } from './components/Feedback';
 export { LegalDocument } from './components/LegalDocument';
+export { Snackbar } from './components/Snackbar';
 export { StatGrid } from './components/StatGrid';

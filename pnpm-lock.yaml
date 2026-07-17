@@ -441,12 +441,18 @@ importers:
       '@gorhom/bottom-sheet':
         specifier: ^5.2.14
         version: 5.2.14(@types/react@19.2.17)(react-native-gesture-handler@2.28.0(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0))(react-native-reanimated@4.1.7(react-native-worklets@0.5.1(@babel/core@7.29.7)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0)
+      '@react-native-async-storage/async-storage':
+        specifier: 2.2.0
+        version: 2.2.0(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))
       '@react-navigation/bottom-tabs':
         specifier: ^7.18.3
         version: 7.18.3(@react-navigation/native@7.3.4(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0))(react-native-safe-area-context@5.6.2(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0))(react-native-screens@4.16.0(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0)
       '@react-navigation/elements':
         specifier: ^2.9.26
         version: 2.9.26(@react-navigation/native@7.3.4(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0))(react-native-safe-area-context@5.6.2(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0)
+      '@supabase/supabase-js':
+        specifier: ^2.108.2
+        version: 2.108.2
       '@testing-library/react-native':
         specifier: ^13.2.2
         version: 13.2.2(jest@30.3.0(@types/node@20.19.9)(babel-plugin-macros@3.1.0)(ts-node@10.9.1(@swc/core@1.15.8(@swc/helpers@0.5.18))(@types/node@20.19.9)(typescript@5.9.3)))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react-test-renderer@19.1.0(react@19.1.0))(react@19.1.0)
@@ -619,6 +625,9 @@ importers:
       react-native-safe-area-context:
         specifier: '>=5.0.0'
         version: 5.6.2(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0)
+      react-native-svg:
+        specifier: '>=15.0.0'
+        version: 15.12.1(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0)
 
   libs/shared/core:
     dependencies:
@@ -3727,6 +3736,11 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  '@react-native-async-storage/async-storage@2.2.0':
+    resolution: {integrity: sha512-gvRvjR5JAaUZF8tv2Kcq/Gbt3JHwbKFYfmb445rhOj6NUMx3qPLixmDx5pZAyb9at1bYvJ4/eTUipU5aki45xw==}
+    peerDependencies:
+      react-native: ^0.0.0-0 || >=0.65 <1.0
 
   '@react-native/assets-registry@0.81.5':
     resolution: {integrity: sha512-705B6x/5Kxm1RKRvSv0ADYWm5JOnoiQ1ufW7h8uu2E6G9Of/eE6hP/Ivw3U5jI16ERqZxiKQwk34VJbB0niX9w==}
@@ -8952,6 +8966,10 @@ packages:
   merge-descriptors@2.0.0:
     resolution: {integrity: sha512-Snk314V5ayFLhp3fkUREub6WtjBfPdCPY1Ln8/8munuLuiYhsABgBVWsozAG+MWMbVEvcdcpbi9R7ww22l9Q3g==}
     engines: {node: '>=18'}
+
+  merge-options@3.0.4:
+    resolution: {integrity: sha512-2Sug1+knBjkaMsMgf1ctR1Ujx+Ayku4EdJN4Z+C2+JzoeF7A3OZ9KM2GY0CpQS51NR61LTurMJrRKPhSs3ZRTQ==}
+    engines: {node: '>=10'}
 
   merge-stream@2.0.0:
     resolution: {integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==}
@@ -16583,6 +16601,11 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.17
 
+  '@react-native-async-storage/async-storage@2.2.0(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))':
+    dependencies:
+      merge-options: 3.0.4
+      react-native: 0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0)
+
   '@react-native/assets-registry@0.81.5': {}
 
   '@react-native/babel-plugin-codegen@0.81.5(@babel/core@7.29.7)':
@@ -21176,8 +21199,7 @@ snapshots:
 
   is-plain-obj@1.1.0: {}
 
-  is-plain-obj@2.1.0:
-    optional: true
+  is-plain-obj@2.1.0: {}
 
   is-plain-obj@4.1.0: {}
 
@@ -22568,6 +22590,10 @@ snapshots:
   merge-descriptors@1.0.3: {}
 
   merge-descriptors@2.0.0: {}
+
+  merge-options@3.0.4:
+    dependencies:
+      is-plain-obj: 2.1.0
 
   merge-stream@2.0.0: {}
 

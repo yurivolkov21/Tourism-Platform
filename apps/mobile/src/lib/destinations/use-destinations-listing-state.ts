@@ -14,6 +14,7 @@ import { messages } from '@tourism/i18n';
 import {
   DESTINATION_REGION_OPTIONS,
   EMPTY_DESTINATIONS_FILTERS,
+  type DestinationViewMode,
   type DestinationsFilterState,
 } from './destination-filter-types';
 
@@ -29,6 +30,7 @@ export function useDestinationsListingState({
   const t = messages.mobile.destinations;
   const [filters, setFilters] = useState<DestinationsFilterState>(EMPTY_DESTINATIONS_FILTERS);
   const [sort, setSort] = useState<DestinationSort>('tours-desc');
+  const [viewMode, setViewMode] = useState<DestinationViewMode>('vertical');
   const [listingSheetOpen, setListingSheetOpen] = useState(false);
 
   const regionLabel = useCallback(
@@ -118,6 +120,7 @@ export function useDestinationsListingState({
   return {
     filters,
     sort,
+    viewMode,
     results,
     resultCount,
     activeCount,
@@ -132,6 +135,7 @@ export function useDestinationsListingState({
     removeChip,
     clearFilters,
     setSort,
+    setViewMode,
     displayRegion,
   };
 }

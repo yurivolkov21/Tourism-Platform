@@ -33,7 +33,7 @@ const buildArtifactBlockList = [
  * @type {import('metro-config').MetroConfig}
  */
 const customConfig = {
-  cacheVersion: '@tourism/mobile-v4',
+  cacheVersion: '@tourism/mobile-v10-mobile-ui-snackbar',
   transformer: {
     babelTransformerPath: require.resolve('react-native-svg-transformer'),
   },
@@ -45,26 +45,6 @@ const customConfig = {
       path.resolve(projectRoot, 'node_modules'),
       path.resolve(workspaceRoot, 'node_modules'),
     ],
-    resolveRequest: (context, moduleName, platform) => {
-      // Native modules that break when Metro resolves two copies in the pnpm
-      // monorepo — always pin to the app's single instance.
-      const singletonModules = [
-        'react-native-safe-area-context',
-        'whatwg-fetch',
-        'react-native-gesture-handler',
-        'react-native-reanimated',
-        'react-native-worklets',
-      ];
-      if (singletonModules.includes(moduleName)) {
-        return {
-          type: 'sourceFile',
-          filePath: require.resolve(moduleName, {
-            paths: [projectRoot, workspaceRoot],
-          }),
-        };
-      }
-      return context.resolveRequest(context, moduleName, platform);
-    },
   },
 };
 
@@ -88,6 +68,8 @@ const mergedBlockList = [
   ...buildArtifactBlockList,
 ];
 
+const nxResolveRequest = nxMetroConfig.resolver?.resolveRequest;
+
 module.exports = {
   ...nxMetroConfig,
   projectRoot,
@@ -102,5 +84,41 @@ module.exports = {
     ...nxMetroConfig.resolver,
     ...customConfig.resolver,
     blockList: mergedBlockList,
+    resolveRequest: (context, moduleName, platform) => {
+      // Native modules that break when Metro resolves two copies in the pnpm
+      // monorepo — always pin to the app's single instance.
+      const singletonModules = [
+        'react-native-safe-area-context',
+        'whatwg-fetch',
+        'react-native-gesture-handler',
+        'react-native-reanimated',
+        'react-native-worklets',
+        '@react-native-async-storage/async-storage',
+      ];
+      if (singletonModules.includes(moduleName)) {
+        // AsyncStorage publishes `react-native: src/index.ts`; Metro+pnpm on Windows
+        // often fails SHA-1 on that source path — pin the built commonjs entry.
+        if (moduleName === '@react-native-async-storage/async-storage') {
+          const pkgJson = require.resolve(
+            '@react-native-async-storage/async-storage/package.json',
+            { paths: [projectRoot, workspaceRoot] },
+          );
+          return {
+            type: 'sourceFile',
+            filePath: path.join(path.dirname(pkgJson), 'lib/commonjs/index.js'),
+          };
+        }
+        return {
+          type: 'sourceFile',
+          filePath: require.resolve(moduleName, {
+            paths: [projectRoot, workspaceRoot],
+          }),
+        };
+      }
+      if (nxResolveRequest) {
+        return nxResolveRequest(context, moduleName, platform);
+      }
+      return context.resolveRequest(context, moduleName, platform);
+    },
   },
 };

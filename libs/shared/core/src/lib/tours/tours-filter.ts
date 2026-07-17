@@ -4,15 +4,36 @@
  */
 
 /** How a traveller travels. */
-export type TravelStyle = 'family' | 'couples' | 'adventure' | 'luxury' | 'group' | 'private';
+export type TravelStyle =
+  | 'family'
+  | 'couples'
+  | 'adventure'
+  | 'luxury'
+  | 'group'
+  | 'private';
 /** What a tour is about. */
-export type TourTheme = 'cruise' | 'trekking' | 'cultural' | 'culinary' | 'beach' | 'nature';
+export type TourTheme =
+  | 'cruise'
+  | 'trekking'
+  | 'cultural'
+  | 'culinary'
+  | 'beach'
+  | 'nature';
 /** Duration facet buckets. */
 export type DurationBucket = '1' | '2-3' | '4+';
 /** Price facet buckets (USD per person). */
 export type PriceBucket = '<100' | '100-300' | '300+';
+/** Minimum-rating facet buckets ("4+" keeps tours rated 4.0 or higher). */
+export type RatingBucket = '4.5+' | '4+' | '3.5+';
 /** Result ordering. */
 export type TourSort = 'popular' | 'price-asc' | 'price-desc' | 'rating';
+
+/** Lowest rating a tour needs to fall inside each bucket. */
+export const RATING_BUCKET_MINIMUM: Record<RatingBucket, number> = {
+  '4.5+': 4.5,
+  '4+': 4,
+  '3.5+': 3.5,
+};
 
 /** Minimal tour shape the filters operate on (the web `TourCardData` is structurally compatible). */
 export interface FilterableTour {
@@ -41,6 +62,7 @@ export interface TourFilters {
   styles?: TravelStyle[];
   themes?: TourTheme[];
   prices?: PriceBucket[];
+  ratings?: RatingBucket[];
 }
 
 /** Map a day count to its duration bucket (`1` / `2-3` / `4+`). */
@@ -65,15 +87,27 @@ export function filterTours<T extends FilterableTour>(
   tours: readonly T[],
   filters: TourFilters = {},
 ): T[] {
-  const { destinations, categories, durations, styles, themes, prices } = filters;
+  const {
+    destinations,
+    categories,
+    durations,
+    styles,
+    themes,
+    prices,
+    ratings,
+  } = filters;
   const normalizedDestinations =
     destinations && destinations.length > 0
       ? new Set(destinations.map((d) => normalizeText(d)))
       : null;
   return tours.filter((tour) => {
     if (normalizedDestinations) {
-      const pool = tour.destinations?.length ? tour.destinations : [tour.destination];
-      const matches = pool.some((value) => normalizedDestinations.has(normalizeText(value)));
+      const pool = tour.destinations?.length
+        ? tour.destinations
+        : [tour.destination];
+      const matches = pool.some((value) =>
+        normalizedDestinations.has(normalizeText(value)),
+      );
       if (!matches) return false;
     }
     if (
@@ -90,7 +124,11 @@ export function filterTours<T extends FilterableTour>(
     ) {
       return false;
     }
-    if (prices && prices.length > 0 && !prices.includes(priceBucket(tour.basePrice))) {
+    if (
+      prices &&
+      prices.length > 0 &&
+      !prices.includes(priceBucket(tour.basePrice))
+    ) {
       return false;
     }
     if (
@@ -100,7 +138,18 @@ export function filterTours<T extends FilterableTour>(
     ) {
       return false;
     }
-    if (themes && themes.length > 0 && !(tour.themes ?? []).some((theme) => themes.includes(theme))) {
+    if (
+      themes &&
+      themes.length > 0 &&
+      !(tour.themes ?? []).some((theme) => themes.includes(theme))
+    ) {
+      return false;
+    }
+    if (
+      ratings &&
+      ratings.length > 0 &&
+      !ratings.some((bucket) => tour.rating >= RATING_BUCKET_MINIMUM[bucket])
+    ) {
       return false;
     }
     return true;
@@ -134,16 +183,24 @@ export interface SearchableTour {
  * case-insensitive (see {@link normalizeText}). An empty/whitespace query returns a copy of all
  * tours. Input order is preserved; input is not mutated.
  */
-export function searchTours<T extends SearchableTour>(tours: readonly T[], query: string): T[] {
+export function searchTours<T extends SearchableTour>(
+  tours: readonly T[],
+  query: string,
+): T[] {
   const q = normalizeText(query);
   if (q === '') return [...tours];
   return tours.filter((tour) =>
-    normalizeText(`${tour.title} ${tour.destination} ${tour.categoryName ?? ''}`).includes(q),
+    normalizeText(
+      `${tour.title} ${tour.destination} ${tour.categoryName ?? ''}`,
+    ).includes(q),
   );
 }
 
 /** Return a sorted copy of the tours (does not mutate the input). */
-export function sortTours<T extends FilterableTour>(tours: readonly T[], sort: TourSort): T[] {
+export function sortTours<T extends FilterableTour>(
+  tours: readonly T[],
+  sort: TourSort,
+): T[] {
   const copy = [...tours];
   switch (sort) {
     case 'price-asc':
@@ -151,7 +208,9 @@ export function sortTours<T extends FilterableTour>(tours: readonly T[], sort: T
     case 'price-desc':
       return copy.sort((a, b) => b.basePrice - a.basePrice);
     case 'rating':
-      return copy.sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount);
+      return copy.sort(
+        (a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount,
+      );
     case 'popular':
     default:
       return copy.sort((a, b) => b.reviewCount - a.reviewCount);

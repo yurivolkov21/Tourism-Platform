@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ComponentProps } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -19,6 +19,7 @@ type ActiveChip = {
   facet: string;
   value: string;
   label: string;
+  icon?: ComponentProps<typeof Ionicons>['name'];
 };
 
 type ToursListingControlsBaseProps = {
@@ -32,6 +33,10 @@ type ToursListingControlsBaseProps = {
   activeChips: ActiveChip[];
   onRemoveChip: (facet: string, value: string) => void;
   onClearAll: () => void;
+  /** Optional layout toggle — shown left of the filter button (Destinations). */
+  viewMode?: 'vertical' | 'horizontal';
+  viewModeLabel?: string;
+  onViewModePress?: () => void;
 };
 
 type ToursListingControlsProps = ToursListingControlsBaseProps &
@@ -51,6 +56,31 @@ type ToursListingControlsProps = ToursListingControlsBaseProps &
   );
 
 const AnimatedView = Animated.createAnimatedComponent(View);
+
+function ChromeIconButton({
+  label,
+  icon,
+  onPress,
+}: {
+  label: string;
+  icon: ComponentProps<typeof Ionicons>['name'];
+  onPress: () => void;
+}) {
+  const theme = useTheme();
+  const styles = createRefineStyles(theme);
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      hitSlop={8}
+      onPress={onPress}
+      style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+    >
+      <Ionicons name={icon} size={20} color={color(theme, 'primary')} />
+    </Pressable>
+  );
+}
 
 function RefineButton({
   label,
@@ -87,7 +117,11 @@ function RefineButton({
       onPress={onPress}
       style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
     >
-      <Ionicons name="options-outline" size={20} color={color(theme, 'primary')} />
+      <Ionicons
+        name="options-outline"
+        size={20}
+        color={color(theme, 'primary')}
+      />
       {badge > 0 ? (
         <AnimatedView style={[styles.badge, badgeStyle]}>
           <AppText variant="caption" style={styles.badgeText}>
@@ -113,9 +147,14 @@ export function ToursListingControls({
   activeChips,
   onRemoveChip,
   onClearAll,
+  viewMode,
+  viewModeLabel,
+  onViewModePress,
 }: ToursListingControlsProps) {
   const theme = useTheme();
   const styles = createStyles(theme, embedded);
+  const showViewMode =
+    viewMode != null && onViewModePress != null && viewModeLabel != null;
 
   return (
     <View style={styles.root}>
@@ -145,7 +184,24 @@ export function ToursListingControls({
         <AppText variant="body" style={styles.resultCount} numberOfLines={1}>
           {resultCountLabel}
         </AppText>
-        <RefineButton label={refineLabel} badge={activeCount} onPress={onRefinePress} />
+        <View style={styles.actions}>
+          {showViewMode ? (
+            <ChromeIconButton
+              label={viewModeLabel}
+              icon={
+                viewMode === 'vertical'
+                  ? 'phone-portrait-outline'
+                  : 'phone-landscape-outline'
+              }
+              onPress={onViewModePress}
+            />
+          ) : null}
+          <RefineButton
+            label={refineLabel}
+            badge={activeCount}
+            onPress={onRefinePress}
+          />
+        </View>
       </View>
 
       {activeChips.length > 0 ? (
@@ -165,14 +221,29 @@ export function ToursListingControls({
                   pressed ? styles.chipPressed : null,
                 ]}
               >
+                {chip.icon ? (
+                  <Ionicons
+                    name={chip.icon}
+                    size={13}
+                    color={color(theme, 'primary')}
+                  />
+                ) : null}
                 <AppText variant="caption" style={styles.chipText}>
                   {chip.label}
                 </AppText>
-                <Ionicons name="close" size={13} color={color(theme, 'primary')} />
+                <Ionicons
+                  name="close"
+                  size={13}
+                  color={color(theme, 'primary')}
+                />
               </Pressable>
             ))}
           </ScrollView>
-          <Pressable onPress={onClearAll} hitSlop={8} style={styles.clearAllButton}>
+          <Pressable
+            onPress={onClearAll}
+            hitSlop={8}
+            style={styles.clearAllButton}
+          >
             <AppText variant="caption" style={styles.clearAll}>
               {clearAllLabel}
             </AppText>
@@ -262,6 +333,11 @@ function createStyles(theme: ReturnType<typeof useTheme>, embedded: boolean) {
       flex: 1,
       fontFamily: theme.fonts.sansSemibold,
       color: color(theme, 'foreground'),
+    },
+    actions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
     },
     clearAll: {
       color: color(theme, 'primary'),

@@ -25,9 +25,11 @@ import { ToursSearchRecentPanel } from '../../components/tours/tours-recommendat
 import { ToursSearchBackdrop } from '../../components/tours/tours-search-backdrop';
 import { useToursSearchMode } from '../../lib/search/use-tours-search-mode';
 import { useDestinationCatalog } from '../../lib/destinations/use-destination-catalog';
+import { destinationsUiCopy } from '../../lib/destinations/destinations-ui-copy';
 import { useDestinationsListingState } from '../../lib/destinations/use-destinations-listing-state';
 import { useTourCatalog } from '../../lib/tours/use-tour-catalog';
 import { useToursListingState } from '../../lib/tours/use-tours-listing-state';
+import { toursUiCopy } from '../../lib/tours/tours-ui-copy';
 import {
   AnimatedBrowsePager,
   useBrowsePagerRef,
@@ -157,9 +159,24 @@ export default function ToursScreen() {
         activeCount={listing.activeCount}
         onRefinePress={listing.openListingSheet}
         clearAllLabel={tp.clearAll}
-        activeChips={listing.activeChips}
+        activeChips={listing.activeChips.map((chip) =>
+          chip.facet === 'destinations'
+            ? { ...chip, icon: 'location-outline' as const }
+            : chip,
+        )}
         onRemoveChip={listing.removeChip}
         onClearAll={listing.clearFilters}
+        viewMode={listing.viewMode}
+        viewModeLabel={
+          listing.viewMode === 'vertical'
+            ? toursUiCopy.viewModeToggleToHorizontal
+            : toursUiCopy.viewModeToggleToVertical
+        }
+        onViewModePress={() =>
+          listing.setViewMode(
+            listing.viewMode === 'vertical' ? 'horizontal' : 'vertical',
+          )
+        }
       />
     ) : (
       <ToursListingControls
@@ -173,6 +190,17 @@ export default function ToursScreen() {
         activeChips={destListing.activeChips}
         onRemoveChip={destListing.removeChip}
         onClearAll={destListing.clearFilters}
+        viewMode={destListing.viewMode}
+        viewModeLabel={
+          destListing.viewMode === 'vertical'
+            ? destinationsUiCopy.viewModeToggleToHorizontal
+            : destinationsUiCopy.viewModeToggleToVertical
+        }
+        onViewModePress={() =>
+          destListing.setViewMode(
+            destListing.viewMode === 'vertical' ? 'horizontal' : 'vertical',
+          )
+        }
       />
     );
 
@@ -202,7 +230,9 @@ export default function ToursScreen() {
       <View style={styles.contentStack}>
         <View
           style={styles.pagerStack}
-          pointerEvents={search.isActive && !search.hasSubmitted ? 'none' : 'auto'}
+          pointerEvents={
+            search.isActive && !search.hasSubmitted ? 'none' : 'auto'
+          }
         >
           <ToursBrowseTabs
             activeBrowseTab={activeBrowseTab}
@@ -215,11 +245,22 @@ export default function ToursScreen() {
             style={styles.pager}
             initialPage={BrowseTabIndex.tours}
             offscreenPageLimit={1}
-            scrollEnabled={!search.isActive}
-            onPageScroll={
-              pageScrollHandler as unknown as NonNullable<PagerViewProps['onPageScroll']>
+            scrollEnabled={
+              !search.isActive &&
+              !(
+                activeBrowseTab === 'destinations' &&
+                destListing.viewMode === 'vertical'
+              ) &&
+              !(activeBrowseTab === 'tours' && listing.viewMode === 'vertical')
             }
-            onPageSelected={(event) => onPageSelected(event.nativeEvent.position)}
+            onPageScroll={
+              pageScrollHandler as unknown as NonNullable<
+                PagerViewProps['onPageScroll']
+              >
+            }
+            onPageSelected={(event) =>
+              onPageSelected(event.nativeEvent.position)
+            }
           >
             <View key="tours" style={styles.page} collapsable={false}>
               <ToursCatalogList
@@ -231,16 +272,9 @@ export default function ToursScreen() {
                 onRefresh={() => void catalog.loadCatalog({ refresh: true })}
                 debouncedQuery={search.debouncedQuery}
                 activeFilterCount={listing.listingFilterCount}
-                destinationPrefilter={listing.destinationPrefilter}
-                destinationPrefilterLabel={
-                  listing.destinationPrefilter
-                    ? t.toursInDestination(listing.destinationPrefilter)
-                    : undefined
-                }
-                changeDestinationLabel={t.changeDestination}
-                onClearDestinationPrefilter={listing.clearDestinationPrefilter}
                 searchActive={search.isActive}
                 searchSubmitted={search.hasSubmitted}
+                viewMode={listing.viewMode}
                 onClearFilters={listing.clearFilters}
                 onTourOpen={handleTourOpen}
               />
@@ -252,11 +286,14 @@ export default function ToursScreen() {
                 loading={destCatalog.loading}
                 refreshing={destCatalog.refreshing}
                 error={destCatalog.error}
-                onRefresh={() => void destCatalog.loadCatalog({ refresh: true })}
+                onRefresh={() =>
+                  void destCatalog.loadCatalog({ refresh: true })
+                }
                 debouncedQuery={search.debouncedQuery}
                 activeFilterCount={destListing.activeCount}
                 searchActive={search.isActive}
                 searchSubmitted={search.hasSubmitted}
+                viewMode={destListing.viewMode}
                 regionLabel={destListing.displayRegion}
                 onClearFilters={destListing.clearFilters}
                 onDestinationPress={handleDestinationPress}

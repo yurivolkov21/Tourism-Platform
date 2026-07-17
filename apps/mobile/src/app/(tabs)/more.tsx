@@ -10,6 +10,7 @@ import { NexoraLogo } from '../../components/brand/nexora-logo';
 import { MoreMenuGroup } from '../../components/more/more-menu-group';
 import { MoreMenuSection } from '../../components/more/more-menu-section';
 import { MoreProfileHeader } from '../../components/more/more-profile-header';
+import { useAuth } from '../../lib/auth/auth-provider';
 
 const demoAvatar = require('../../../assets/images/avatar-dog.png');
 
@@ -17,27 +18,42 @@ export default function MoreScreen() {
   const router = useRouter();
   const theme = useTheme();
   const t = messages.mobile.more;
+  const at = messages.mobile.auth;
   const profile = t.profile;
   const styles = createStyles(theme);
   const version = Constants.expoConfig?.version ?? '1.0.0';
+  const { status, user, signOut } = useAuth();
+  const signedIn = status === 'signedIn';
 
   const openAccountPreview = () => {
-    Alert.alert(t.accountCard.title, t.accountCard.comingSoon);
+    if (!signedIn) {
+      router.push('/(auth)/login');
+      return;
+    }
+    Alert.alert(t.accountCard.title, user?.email ?? t.accountCard.comingSoon);
   };
 
   const openMenuPreview = (title: string) => {
     Alert.alert(title, t.menuComingSoon);
   };
 
+  const onLogoutPress = () => {
+    if (signedIn) {
+      void signOut();
+    } else {
+      router.push('/(auth)/login');
+    }
+  };
+
   return (
     <TabScreen largeTitle={false}>
       <MoreProfileHeader
-        name={profile.name}
+        name={signedIn ? (user?.email ?? profile.name) : profile.name}
         location={profile.location}
         locationFlag={profile.locationFlag}
         avatarSource={demoAvatar}
-        logoutLabel={t.logout}
-        onLogoutPress={() => openMenuPreview(t.logout)}
+        logoutLabel={signedIn ? at.signOut : at.signInCta}
+        onLogoutPress={onLogoutPress}
       />
 
       <MoreMenuSection title={t.account}>

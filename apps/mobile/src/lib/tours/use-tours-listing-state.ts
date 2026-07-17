@@ -13,6 +13,7 @@ import { messages } from '@tourism/i18n';
 import {
   EMPTY_TOURS_FILTERS,
   type FacetKey,
+  type TourViewMode,
   type ToursFilterState,
 } from '../../components/tours/tours-filter-types';
 
@@ -21,10 +22,14 @@ type UseToursListingStateOptions = {
   query: string;
 };
 
-export function useToursListingState({ allTours, query }: UseToursListingStateOptions) {
+export function useToursListingState({
+  allTours,
+  query,
+}: UseToursListingStateOptions) {
   const t = messages.toursPage;
   const [filters, setFilters] = useState<ToursFilterState>(EMPTY_TOURS_FILTERS);
   const [sort, setSort] = useState<TourSort>('popular');
+  const [viewMode, setViewMode] = useState<TourViewMode>('vertical');
   const [listingSheetOpen, setListingSheetOpen] = useState(false);
 
   const categoryOptions = useMemo(() => {
@@ -38,7 +43,8 @@ export function useToursListingState({ allTours, query }: UseToursListingStateOp
   }, [allTours]);
 
   const categoryLabel = useCallback(
-    (slug: string) => categoryOptions.find((o) => o.value === slug)?.label ?? slug,
+    (slug: string) =>
+      categoryOptions.find((o) => o.value === slug)?.label ?? slug,
     [categoryOptions],
   );
 
@@ -48,8 +54,15 @@ export function useToursListingState({ allTours, query }: UseToursListingStateOp
       price: t.priceLabels,
       style: t.styleLabels,
       theme: t.themeLabels,
+      rating: t.ratingLabels,
     }),
-    [t.durationLabels, t.priceLabels, t.styleLabels, t.themeLabels],
+    [
+      t.durationLabels,
+      t.priceLabels,
+      t.styleLabels,
+      t.themeLabels,
+      t.ratingLabels,
+    ],
   );
 
   const activeChips = useMemo(
@@ -65,7 +78,6 @@ export function useToursListingState({ allTours, query }: UseToursListingStateOp
 
   const activeCount = sheetActiveChips.length;
   const listingFilterCount = activeChips.length;
-  const destinationPrefilter = filters.destinations[0] ?? null;
 
   const results = useMemo(
     () => sortTours(searchTours(filterTours(allTours, filters), query), sort),
@@ -107,10 +119,6 @@ export function useToursListingState({ allTours, query }: UseToursListingStateOp
     setFilters(EMPTY_TOURS_FILTERS);
   }, []);
 
-  const clearDestinationPrefilter = useCallback(() => {
-    setFilters((prev) => ({ ...prev, destinations: [] }));
-  }, []);
-
   const prefilterDestination = useCallback((name: string) => {
     setFilters({
       ...EMPTY_TOURS_FILTERS,
@@ -121,12 +129,14 @@ export function useToursListingState({ allTours, query }: UseToursListingStateOp
   return {
     filters,
     sort,
+    viewMode,
+    setViewMode,
     results,
     resultCount,
     activeCount,
-    activeChips: sheetActiveChips,
+    /** All active chips (destination first) — the listing chips row. */
+    activeChips,
     listingFilterCount,
-    destinationPrefilter,
     categoryOptions,
     sortLabels,
     currentSortLabel: sortLabels[sort],
@@ -136,7 +146,6 @@ export function useToursListingState({ allTours, query }: UseToursListingStateOp
     toggleFilter,
     removeChip,
     clearFilters,
-    clearDestinationPrefilter,
     prefilterDestination,
     setSort,
   };

@@ -1,6 +1,7 @@
 import type {
   DurationBucket,
   PriceBucket,
+  RatingBucket,
   TourFilters,
   TourTheme,
   TravelStyle,
@@ -21,6 +22,7 @@ export type FacetLabelMaps = {
   price: Record<PriceBucket, string>;
   style: Record<TravelStyle, string>;
   theme: Record<TourTheme, string>;
+  rating: Record<RatingBucket, string>;
 };
 
 export type BuildActiveFilterChipsOptions = {
@@ -47,7 +49,11 @@ export function buildActiveFilterChips(
     chips.push({ facet: 'categories', value, label: categoryLabel(value) });
   }
   for (const value of facetValues(filters.durations)) {
-    chips.push({ facet: 'durations', value, label: facetLabels.duration[value] });
+    chips.push({
+      facet: 'durations',
+      value,
+      label: facetLabels.duration[value],
+    });
   }
   for (const value of facetValues(filters.styles)) {
     chips.push({ facet: 'styles', value, label: facetLabels.style[value] });
@@ -57,6 +63,9 @@ export function buildActiveFilterChips(
   }
   for (const value of facetValues(filters.prices)) {
     chips.push({ facet: 'prices', value, label: facetLabels.price[value] });
+  }
+  for (const value of facetValues(filters.ratings)) {
+    chips.push({ facet: 'ratings', value, label: facetLabels.rating[value] });
   }
 
   return chips;

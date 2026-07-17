@@ -3,10 +3,21 @@ import {
   ActivityIndicator,
   RefreshControl,
   StyleSheet,
+  useWindowDimensions,
   View,
+  type StyleProp,
+  type ViewStyle,
 } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
-import Animated from 'react-native-reanimated';
+import Animated, {
+  Extrapolation,
+  FadeInDown,
+  interpolate,
+  type SharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 
 import type { TourCardData } from '@tourism/core';
@@ -21,18 +32,23 @@ import {
   useTheme,
 } from '@tourism/mobile-ui';
 
-import { useTabBarScrollPadding } from '../floating-pill-tab-bar';
-import { useHideTabBarOnScroll } from '../tab-bar-visibility';
-import { ToursSearchEmptyState } from './tours-search-empty-state';
-import { ToursDestinationPrefilterBar } from './tours-destination-prefilter-bar';
+import type { TourViewMode } from './tours-filter-types';
+import { toursUiCopy } from '../../lib/tours/tours-ui-copy';
 import {
   getTourAvailabilityProps,
   getTourBadgeLabel,
 } from '../../lib/tours/card-labels';
+import { useWishlist } from '../../lib/wishlist/wishlist-provider';
+import { useTabBarScrollPadding } from '../floating-pill-tab-bar';
+import { useHideTabBarOnScroll } from '../tab-bar-visibility';
+import { ToursSearchEmptyState } from './tours-search-empty-state';
 
 const PAGE_SIZE = 10;
+const CAROUSEL_SIDE_INSET = 36;
 
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList<TourCardData>);
+const AnimatedFlatList = Animated.createAnimatedComponent(
+  FlatList<TourCardData>,
+);
 
 type ToursCatalogListProps = {
   tours: TourCardData[];
@@ -43,15 +59,148 @@ type ToursCatalogListProps = {
   onRefresh: () => void;
   debouncedQuery: string;
   activeFilterCount: number;
-  destinationPrefilter?: string | null;
-  destinationPrefilterLabel?: string;
-  changeDestinationLabel?: string;
-  onClearDestinationPrefilter?: () => void;
   searchActive: boolean;
   searchSubmitted: boolean;
+  viewMode: TourViewMode;
   onClearFilters: () => void;
   onTourOpen: (slug: string) => void;
 };
+
+type CarouselCardItemProps = {
+  item: TourCardData;
+  index: number;
+  scrollX: SharedValue<number>;
+  snapInterval: number;
+  cardWidth: number;
+  cardHeight: number;
+  cardGap: number;
+  daysLabel: (n: number) => string;
+  reviewsLabel: (n: number) => string;
+  viewTourLabel: string;
+  saved: boolean;
+  onToggleSave: () => void;
+  onPress: () => void;
+};
+
+function CarouselCardItem({
+  item,
+  index,
+  scrollX,
+  snapInterval,
+  cardWidth,
+  cardHeight,
+  cardGap,
+  daysLabel,
+  reviewsLabel,
+  viewTourLabel,
+  saved,
+  onToggleSave,
+  onPress,
+}: CarouselCardItemProps) {
+  const animatedStyle = useAnimatedStyle(() => {
+    const center = index * snapInterval;
+    const inputRange = [center - snapInterval, center, center + snapInterval];
+    const scale = interpolate(
+      scrollX.value,
+      inputRange,
+      [0.96, 1, 0.96],
+      Extrapolation.CLAMP,
+    );
+    const opacity = interpolate(
+      scrollX.value,
+      inputRange,
+      [0.82, 1, 0.82],
+      Extrapolation.CLAMP,
+    );
+    return {
+      opacity,
+      transform: [{ scale }],
+    };
+  });
+
+  const availability = getTourAvailabilityProps(item);
+
+  return (
+    <View style={{ width: cardWidth, marginRight: cardGap }}>
+      <Animated.View style={animatedStyle}>
+        <TourCard
+          tour={item}
+          viewMode="vertical"
+          width={cardWidth}
+          height={cardHeight}
+          daysLabel={daysLabel}
+          reviewsLabel={reviewsLabel}
+          viewTourLabel={viewTourLabel}
+          badgeLabel={getTourBadgeLabel(item)}
+          availabilityLabel={availability.label}
+          availabilityUrgent={availability.urgent}
+          saved={saved}
+          saveLabel={toursUiCopy.saveTour}
+          unsaveLabel={toursUiCopy.unsaveTour}
+          onToggleSave={onToggleSave}
+          onPress={onPress}
+        />
+      </Animated.View>
+    </View>
+  );
+}
+
+type HorizontalListCardProps = {
+  item: TourCardData;
+  index: number;
+  width: number;
+  style?: StyleProp<ViewStyle>;
+  daysLabel: (n: number) => string;
+  reviewsLabel: (n: number) => string;
+  viewTourLabel: string;
+  saved: boolean;
+  onToggleSave: () => void;
+  onPress: () => void;
+};
+
+function HorizontalListCard({
+  item,
+  index,
+  width,
+  style,
+  daysLabel,
+  reviewsLabel,
+  viewTourLabel,
+  saved,
+  onToggleSave,
+  onPress,
+}: HorizontalListCardProps) {
+  const availability = getTourAvailabilityProps(item);
+
+  return (
+    <Animated.View
+      entering={FadeInDown.duration(340)
+        .delay(Math.min(index, 10) * 42)
+        .springify()
+        .damping(18)
+        .stiffness(160)}
+    >
+      <TourCard
+        tour={item}
+        viewMode="horizontal"
+        width={width}
+        height={220}
+        style={style}
+        daysLabel={daysLabel}
+        reviewsLabel={reviewsLabel}
+        viewTourLabel={viewTourLabel}
+        badgeLabel={getTourBadgeLabel(item)}
+        availabilityLabel={availability.label}
+        availabilityUrgent={availability.urgent}
+        saved={saved}
+        saveLabel={toursUiCopy.saveTour}
+        unsaveLabel={toursUiCopy.unsaveTour}
+        onToggleSave={onToggleSave}
+        onPress={onPress}
+      />
+    </Animated.View>
+  );
+}
 
 export function ToursCatalogList({
   tours: results,
@@ -62,12 +211,9 @@ export function ToursCatalogList({
   onRefresh,
   debouncedQuery,
   activeFilterCount,
-  destinationPrefilter,
-  destinationPrefilterLabel,
-  changeDestinationLabel,
-  onClearDestinationPrefilter,
   searchActive,
   searchSubmitted,
+  viewMode,
   onClearFilters,
   onTourOpen,
 }: ToursCatalogListProps) {
@@ -75,21 +221,60 @@ export function ToursCatalogList({
   const theme = useTheme();
   const t = messages.mobile.tours;
   const tp = messages.toursPage;
+  const { isSaved, toggleSave } = useWishlist();
+  const { width: windowWidth } = useWindowDimensions();
   const { keyboardHeight } = useKeyboardInsets();
 
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [carouselHeight, setCarouselHeight] = useState(0);
 
   const listRef = useRef<FlatList<TourCardData>>(null);
   const { onScroll, scrollEventThrottle } = useHideTabBarOnScroll();
+  const carouselScrollX = useSharedValue(0);
 
-  const tours = useMemo(() => results.slice(0, visibleCount), [results, visibleCount]);
+  const tours = useMemo(
+    () => results.slice(0, visibleCount),
+    [results, visibleCount],
+  );
   const hasMore = visibleCount < results.length;
+  const isCarousel = viewMode === 'vertical';
+
+  const listBottomPadding = useTabBarScrollPadding(theme.spacing.sm);
+  const keyboardPadding = searchActive ? keyboardHeight : 0;
+  const bottomClearance = listBottomPadding + keyboardPadding;
+
+  const cardGap = theme.spacing.sm;
+  const topPad = theme.spacing.sm;
+  const sideInset = CAROUSEL_SIDE_INSET;
+  const carouselCardWidth = Math.max(260, windowWidth - sideInset * 2);
+  const snapInterval = carouselCardWidth + cardGap;
+  const listCardWidth = windowWidth - theme.spacing.md * 2;
+
+  const carouselCardHeight =
+    carouselHeight > 0
+      ? Math.max(280, carouselHeight - topPad - bottomClearance)
+      : 320;
+
+  const styles = createStyles(theme, bottomClearance);
+
+  const onCarouselScroll = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      carouselScrollX.value = event.contentOffset.x;
+    },
+  });
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
+    carouselScrollX.value = 0;
     listRef.current?.scrollToOffset({ offset: 0, animated: false });
-  }, [debouncedQuery, activeFilterCount, results.length]);
+  }, [
+    debouncedQuery,
+    activeFilterCount,
+    results.length,
+    viewMode,
+    carouselScrollX,
+  ]);
 
   const loadMore = useCallback(() => {
     if (!hasMore || loadingMore || loading) return;
@@ -98,27 +283,127 @@ export function ToursCatalogList({
     setLoadingMore(false);
   }, [hasMore, loading, loadingMore, results.length]);
 
-  const listBottomPadding = useTabBarScrollPadding(theme.spacing.sm);
-  const keyboardPadding = searchActive ? keyboardHeight : 0;
-  const styles = createStyles(theme, listBottomPadding + keyboardPadding);
-
   const showInitialLoading = loading && sourceTourCount === 0;
   const showInitialError = error && sourceTourCount === 0;
   const hasQuery = (debouncedQuery ?? '').trim().length > 0;
   const isSearchEmpty = hasQuery && results.length === 0;
-  const isFilterEmpty = !hasQuery && activeFilterCount > 0 && results.length === 0;
+  const isFilterEmpty =
+    !hasQuery && activeFilterCount > 0 && results.length === 0;
+
+  const openTour = useCallback(
+    (slug: string) => {
+      onTourOpen(slug);
+      router.push({
+        pathname: '/tour/[slug]',
+        params: { slug },
+      });
+    },
+    [onTourOpen, router],
+  );
+
+  const emptyComponent =
+    !loading && !error ? (
+      isSearchEmpty ? (
+        <ToursSearchEmptyState
+          title={t.searchNoResults?.tourTitle ?? 'Tour not found'}
+          message={
+            t.searchNoResults?.hint ?? 'Try search with a different keyword'
+          }
+        />
+      ) : isFilterEmpty ? (
+        <EmptyState
+          message={tp.empty.title}
+          actionLabel={tp.empty.cta}
+          onAction={onClearFilters}
+        />
+      ) : (
+        <EmptyState message={tp.empty.title} />
+      )
+    ) : null;
 
   if (showInitialLoading) {
-    return <LoadingSkeleton />;
+    return <LoadingSkeleton variant={isCarousel ? 'portrait' : 'landscape'} />;
   }
 
   if (showInitialError) {
     return (
-      <ErrorState
-        message={t.error}
-        retryLabel={t.retry}
-        onRetry={onRefresh}
-      />
+      <ErrorState message={t.error} retryLabel={t.retry} onRetry={onRefresh} />
+    );
+  }
+
+  if (isCarousel) {
+    return (
+      <View
+        style={styles.flex}
+        onLayout={(event) => {
+          const next = Math.round(event.nativeEvent.layout.height);
+          if (next > 0 && next !== carouselHeight) {
+            setCarouselHeight(next);
+          }
+        }}
+      >
+        <AnimatedFlatList
+          ref={listRef}
+          style={styles.carouselList}
+          data={tours}
+          keyExtractor={(item) => item.slug}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          scrollEnabled={!searchActive || searchSubmitted}
+          nestedScrollEnabled
+          decelerationRate="fast"
+          snapToInterval={snapInterval}
+          snapToAlignment="start"
+          disableIntervalMomentum
+          onScroll={onCarouselScroll}
+          scrollEventThrottle={16}
+          getItemLayout={(_, index) => ({
+            length: snapInterval,
+            offset: snapInterval * index,
+            index,
+          })}
+          accessibilityLabel={toursUiCopy.carouselA11yLabel}
+          accessibilityHint={toursUiCopy.carouselA11yHint}
+          onEndReached={() => loadMore()}
+          onEndReachedThreshold={0.6}
+          contentContainerStyle={
+            tours.length === 0
+              ? styles.emptyList
+              : [styles.carouselContent, { paddingTop: topPad }]
+          }
+          ListHeaderComponent={<View style={{ width: sideInset }} />}
+          ListFooterComponent={
+            <View style={styles.carouselFooterRow}>
+              {loadingMore ? (
+                <View style={styles.carouselFooter}>
+                  <ActivityIndicator color={color(theme, 'primary')} />
+                </View>
+              ) : null}
+              <View style={{ width: sideInset }} />
+            </View>
+          }
+          ListEmptyComponent={emptyComponent}
+          renderItem={({ item, index }) => (
+            <CarouselCardItem
+              item={item}
+              index={index}
+              scrollX={carouselScrollX}
+              snapInterval={snapInterval}
+              cardWidth={carouselCardWidth}
+              cardHeight={carouselCardHeight}
+              cardGap={index === tours.length - 1 ? 0 : cardGap}
+              daysLabel={t.days}
+              reviewsLabel={t.reviews}
+              viewTourLabel={t.viewTour}
+              saved={isSaved(item.id)}
+              onToggleSave={() => void toggleSave(item)}
+              onPress={() => openTour(item.slug)}
+            />
+          )}
+        />
+      </View>
     );
   }
 
@@ -143,34 +428,10 @@ export function ToursCatalogList({
           tintColor={color(theme, 'primary')}
         />
       }
-      contentContainerStyle={tours.length === 0 ? styles.emptyList : styles.list}
-      ListHeaderComponent={
-        destinationPrefilter && destinationPrefilterLabel && changeDestinationLabel ? (
-          <ToursDestinationPrefilterBar
-            label={destinationPrefilterLabel}
-            clearLabel={changeDestinationLabel}
-            onClear={() => onClearDestinationPrefilter?.()}
-          />
-        ) : null
+      contentContainerStyle={
+        tours.length === 0 ? styles.emptyList : styles.list
       }
-      ListEmptyComponent={
-        !loading && !error ? (
-          isSearchEmpty ? (
-            <ToursSearchEmptyState
-              title={t.searchNoResults?.tourTitle ?? 'Tour not found'}
-              message={t.searchNoResults?.hint ?? 'Try search with a different keyword'}
-            />
-          ) : isFilterEmpty ? (
-            <EmptyState
-              message={tp.empty.title}
-              actionLabel={tp.empty.cta}
-              onAction={onClearFilters}
-            />
-          ) : (
-            <EmptyState message={tp.empty.title} />
-          )
-        ) : null
-      }
+      ListEmptyComponent={emptyComponent}
       ListFooterComponent={
         loadingMore ? (
           <View style={styles.footer}>
@@ -178,44 +439,57 @@ export function ToursCatalogList({
           </View>
         ) : null
       }
-      renderItem={({ item }) => {
-        const availability = getTourAvailabilityProps(item);
-        return (
-          <TourCard
-            tour={item}
-            daysLabel={t.days}
-            reviewsLabel={t.reviews}
-            viewTourLabel={t.viewTour}
-            perPersonLabel={tp.perPerson}
-            badgeLabel={getTourBadgeLabel(item)}
-            availabilityLabel={availability.label}
-            availabilityUrgent={availability.urgent}
-            onPress={() => {
-              onTourOpen(item.slug);
-              router.push({
-                pathname: '/tour/[slug]',
-                params: { slug: item.slug },
-              });
-            }}
-          />
-        );
-      }}
+      renderItem={({ item, index }) => (
+        <HorizontalListCard
+          item={item}
+          index={index}
+          width={listCardWidth}
+          style={styles.listCard}
+          daysLabel={t.days}
+          reviewsLabel={t.reviews}
+          viewTourLabel={t.viewTour}
+          saved={isSaved(item.id)}
+          onToggleSave={() => void toggleSave(item)}
+          onPress={() => openTour(item.slug)}
+        />
+      )}
     />
   );
 }
 
-function createStyles(theme: ReturnType<typeof useTheme>, listBottomPadding: number) {
+function createStyles(
+  theme: ReturnType<typeof useTheme>,
+  listBottomPadding: number,
+) {
   return StyleSheet.create({
-    flex: {
-      flex: 1,
+    flex: { flex: 1 },
+    carouselList: { flex: 1 },
+    list: {
+      paddingTop: theme.spacing.sm,
+      paddingBottom: listBottomPadding,
+      paddingHorizontal: theme.spacing.md,
     },
-    list: { paddingBottom: listBottomPadding },
+    listCard: {
+      marginBottom: theme.spacing.md,
+    },
+    carouselContent: {
+      alignItems: 'flex-start',
+    },
     emptyList: {
       flexGrow: 1,
       paddingBottom: listBottomPadding,
     },
     footer: {
       paddingVertical: theme.spacing.md,
+      alignItems: 'center',
+    },
+    carouselFooter: {
+      width: 48,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    carouselFooterRow: {
+      flexDirection: 'row',
       alignItems: 'center',
     },
   });

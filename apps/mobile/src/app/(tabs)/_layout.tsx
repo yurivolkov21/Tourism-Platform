@@ -6,17 +6,14 @@ import { color, useTheme } from '@tourism/mobile-ui';
 import { FloatingPillTabBar } from '../../components/floating-pill-tab-bar';
 import { TabBarIcon } from '../../components/tab-bar-icon';
 import { TabBarVisibilityProvider } from '../../components/tab-bar-visibility';
-import {
-  MOCK_TRIP_BOOKINGS,
-  splitMockBookings,
-} from '../../lib/demo/mock-trip-bookings';
-
-const upcomingTripCount = splitMockBookings(MOCK_TRIP_BOOKINGS).upcoming.length;
+import { splitBookings, useDemoBookings } from '../../lib/demo/demo-bookings';
 
 export default function TabLayout() {
   const theme = useTheme();
   const t = messages.mobile.tabs;
   const background = color(theme, 'background');
+  const { bookings } = useDemoBookings();
+  const upcomingTripCount = splitBookings(bookings).upcoming.length;
 
   return (
     <TabBarVisibilityProvider>
@@ -47,7 +44,11 @@ export default function TabLayout() {
           options={{
             title: t.tours,
             tabBarIcon: ({ color: c, size, focused }) => (
-              <TabBarIcon name={focused ? 'map' : 'map-outline'} color={c} size={size} />
+              <TabBarIcon
+                name={focused ? 'map' : 'map-outline'}
+                color={c}
+                size={size}
+              />
             ),
           }}
         />
@@ -71,7 +72,7 @@ export default function TabLayout() {
             title: t.saved,
             tabBarIcon: ({ color: c, size, focused }) => (
               <TabBarIcon
-                name={focused ? 'bookmark' : 'bookmark-outline'}
+                name={focused ? 'heart' : 'heart-outline'}
                 color={c}
                 size={size}
               />
@@ -83,7 +84,11 @@ export default function TabLayout() {
           options={{
             title: t.more,
             tabBarIcon: ({ color: c, size, focused }) => (
-              <TabBarIcon name={focused ? 'grid' : 'grid-outline'} color={c} size={size} />
+              <TabBarIcon
+                name={focused ? 'grid' : 'grid-outline'}
+                color={c}
+                size={size}
+              />
             ),
           }}
         />

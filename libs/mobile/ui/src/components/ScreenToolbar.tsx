@@ -10,7 +10,7 @@ type ScreenToolbarProps = {
   right?: ReactNode;
 };
 
-/** Compact title row + divider — bookmark-style screens. */
+/** Compact title row + divider — saved / account-style screens. */
 export function ScreenToolbar({ title, right }: ScreenToolbarProps) {
   const theme = useTheme();
   const styles = createStyles(theme);

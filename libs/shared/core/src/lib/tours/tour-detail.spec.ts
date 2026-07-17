@@ -10,6 +10,7 @@ import {
 
 const cards: TourCardData[] = [
   {
+    id: 'a',
     slug: 'a',
     title: 'A',
     destination: 'Hanoi',
@@ -21,6 +22,7 @@ const cards: TourCardData[] = [
     badges: [],
   },
   {
+    id: 'b',
     slug: 'b',
     title: 'B',
     destination: 'Da Nang',
