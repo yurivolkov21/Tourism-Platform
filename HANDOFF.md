@@ -76,7 +76,7 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   in flight** ([index](docs/06-specs/2026-07-15-navel-screen-index.md);
   S1+S2+S3+S4 ✅). **167 tests** (+ mobile-ui 50).
 
-Baselines: **api 569 · web 385 · admin 268 · mobile 167 · mobile-ui 50 · core 42.**
+Baselines: **api 572 · web 385 · admin 268 · mobile 167 · mobile-ui 50 · core 42.**
 
 **Email-change UX (2026-07-16, `83d76a0`):** single-confirm (pairs with Supabase
 Secure-email-change **OFF**) + password re-auth (`signInWithPassword` before

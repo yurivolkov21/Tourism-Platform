@@ -4,6 +4,18 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-17 — Uploads: accept real-world filenames (`c2dc568`)
+
+- Signed-upload requests no longer reject everyday filenames — Windows
+  screenshots with spaces, Vietnamese/unicode names, `image (1).png` (found
+  while verifying the Appearance flow). The DTO regex was stricter than its own
+  security intent; it now enforces only no-slashes/no-control-chars + a 1-8
+  char extension, since the service already re-sanitizes the stem into the
+  Cloudinary public_id and whitelists extensions. DTO spec added (accepted
+  real-world names + still-rejected traversal/extension-less cases).
+- Tests after: **api 572 · web 385 · admin 268 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
 ## 2026-07-17 — Generalized on-demand revalidation (`4ad1187`)
 
 - **Public pages now reflect content/admin mutations within seconds** — ISR
