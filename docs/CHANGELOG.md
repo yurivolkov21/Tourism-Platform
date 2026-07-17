@@ -4,6 +4,36 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-17 — Tour reviews: clamp + full-review & see-all dialogs (`e3815e0`)
+
+- **"Traveller reviews" on `/tours/[slug]` is now layout-stable** (branch
+  `feat/tour-reviews-clamp-modal`, spec+plan `16090a8`): quotes clamp to five
+  lines (`line-clamp-5`) so cards in a row stay equal-height; at most
+  `MAX_INLINE_REVIEWS = 6` cards render inline (server-side slice — more
+  reviews never shift the layout).
+- **Per-card "Read more"** renders only when the quote actually overflows
+  (measured — `ResizeObserver` + `scrollHeight > clientHeight`, never guessed
+  from string length) and opens the full review in a `Dialog` (stars + full
+  quote + author + date + verified).
+- **"See all {N} reviews"** (when `reviewCount > 6`) opens a scrollable dialog
+  that pages through every approved review browser-side via
+  `GET /tours/:slug/reviews?page&pageSize=9` — seeded from the inline items,
+  id-deduped (`appendReviewPage`), "Load more" while pages remain and it
+  doubles as the manual retry after a failed page.
+- Architecture: section shell stays a **Server Component**; `ReviewCard` +
+  `SeeAllReviews` are the client islands. `toTourReview`/`formatReviewDate`
+  extracted to a client-safe `review-mapper.ts` (out of `tour-detail.ts`,
+  which imports server-only React `cache`). Tagged inline fetch +
+  `tour:<slug>` revalidation seam untouched.
+- Review findings: 1 CRITICAL (fixed) — the first-open effect auto-retried a
+  failed page 1 in an unbounded loop (`loading` in deps, `fetchedPages` never
+  advancing on failure); replaced with a synchronously-set `requestedRef`
+  guard + a regression test (exactly one API call after a failed first page).
+  Lint gotcha recorded: `react-hooks/exhaustive-deps` is not registered in
+  this repo's eslint config — a disable comment referencing it ERRORS.
+- Tests after: **api 558 · web 366 · admin 266 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
 ## 2026-07-16 — Login: no saved-password autofill (`e4d9c63`)
 
 - Owner preference: the login password field no longer auto-fills the saved
