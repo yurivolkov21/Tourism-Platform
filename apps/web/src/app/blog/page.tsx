@@ -32,6 +32,10 @@ export const metadata: Metadata = {
   },
 };
 
+// ISR backstop — without this the list was static-until-redeploy (new posts
+// never appeared). Primary freshness is the `posts` tag busted by the API.
+export const revalidate = 300;
+
 const PAGE_SIZE = 12;
 
 /** `?page=` → positive int; anything else clamps to 1 (friendlier than a 404). */

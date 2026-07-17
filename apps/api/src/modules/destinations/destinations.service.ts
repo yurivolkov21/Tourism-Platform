@@ -10,6 +10,10 @@ import { slugify } from '../../common/slugify';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MediaItemDto, MediaInputDto } from '../media/dto/media.dto';
 import { MediaService } from '../media/media.service';
+import {
+  WEB_TAGS,
+  WebRevalidationService,
+} from '../revalidation/web-revalidation.service';
 import { CreateDestinationDto } from './dto/create-destination.dto';
 import { ListDestinationsQueryDto } from './dto/list-destinations-query.dto';
 import { UpdateDestinationDto } from './dto/update-destination.dto';
@@ -50,7 +54,16 @@ export class DestinationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly media: MediaService,
+    // Optional so hand-constructed unit tests keep compiling; DI always injects.
+    private readonly revalidator?: WebRevalidationService,
   ) {}
+
+  /** Post-commit, fire-and-forget: tiles/region pages/counts read this set. */
+  private bustWebCache(): void {
+    void this.revalidator
+      ?.revalidateTags([WEB_TAGS.DESTINATIONS])
+      .catch(() => undefined);
+  }
 
   /**
    * Replace-all the destination's media set (admin). Resolves slug→id, syncs in a
@@ -78,6 +91,7 @@ export class DestinationsService {
       { id: destination.id },
     );
     this.logger.log(`Set ${media.length} media on destination ${slug}`);
+    this.bustWebCache();
     return withMedia.media;
   }
 
@@ -160,6 +174,7 @@ export class DestinationsService {
         },
       });
       this.logger.log(`Created destination ${destination.slug}`);
+      this.bustWebCache();
       return this.media.attachToOwner(MediaOwnerType.DESTINATION, destination);
     } catch (err) {
       if (this.isUniqueConstraintError(err)) throw this.slugConflict(slug);
@@ -182,6 +197,7 @@ export class DestinationsService {
         where: { slug },
         data,
       });
+      this.bustWebCache();
       return this.media.attachToOwner(MediaOwnerType.DESTINATION, updated);
     } catch (err) {
       if (this.isUniqueConstraintError(err)) {
@@ -214,6 +230,7 @@ export class DestinationsService {
         return tx.destination.delete({ where: { slug } });
       });
       this.logger.log(`Deleted destination ${deleted.slug}`);
+      this.bustWebCache();
       return deleted;
     } catch (err) {
       if (this.isForeignKeyError(err)) {

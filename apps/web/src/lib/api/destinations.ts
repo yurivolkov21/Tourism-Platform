@@ -6,6 +6,7 @@ import {
   selectRegionBookables,
   type RegionBookables,
 } from '../region-bookables';
+import { TAGS } from '../revalidate';
 import { fetchTourCards } from './tours';
 import { getApiClient } from './client';
 
@@ -44,6 +45,8 @@ export async function fetchDestinationTiles(): Promise<DestinationTileVM[]> {
   const api = getApiClient();
   const { data } = await api.GET('/api/v1/destinations', {
     params: { query: { pageSize: 100 } },
+    // Tagged: the API busts `destinations` on destination create/update/delete.
+    next: { tags: [TAGS.DESTINATIONS] },
   });
   const list = (data as unknown as { data: DestinationDto[] }).data ?? [];
   return list.map(toDestinationTile);
@@ -79,6 +82,8 @@ export async function fetchTourDestinationCounts(): Promise<
   const api = getApiClient();
   const { data } = await api.GET('/api/v1/tours', {
     params: { query: { pageSize: 100 } },
+    // Counts change when tours change (they tally tour→destination links).
+    next: { tags: [TAGS.TOURS, TAGS.DESTINATIONS] },
   });
   const list = (data as unknown as { data: TourSummaryDto[] }).data ?? [];
   return tallyToursByDestination(list);

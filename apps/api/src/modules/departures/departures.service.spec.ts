@@ -49,8 +49,12 @@ function makeBookings(over: Record<string, unknown> = {}) {
   return { refundByAdmin: jest.fn().mockResolvedValue({}), ...over };
 }
 
-function makeSvc(prisma: PrismaService, bookings = makeBookings()) {
-  return new DeparturesService(prisma, bookings as never);
+function makeSvc(
+  prisma: PrismaService,
+  bookings = makeBookings(),
+  revalidator?: { revalidateTags: jest.Mock },
+) {
+  return new DeparturesService(prisma, bookings as never, revalidator as never);
 }
 
 function body(overrides: Partial<CreateDepartureDto> = {}): CreateDepartureDto {
@@ -63,6 +67,23 @@ function body(overrides: Partial<CreateDepartureDto> = {}): CreateDepartureDto {
 }
 
 describe('DeparturesService', () => {
+  it('create busts that tour page cache post-commit (bust failure never surfaces)', async () => {
+    const create = jest
+      .fn()
+      .mockImplementation(({ data }) =>
+        Promise.resolve({ id: 'd-1', startDate: new Date(FUTURE), ...data }),
+      );
+    const revalidateTags = jest.fn().mockRejectedValue(new Error('web down'));
+    const svc = makeSvc(
+      makePrisma({ tourDeparture: { create } }),
+      makeBookings(),
+      { revalidateTags },
+    );
+
+    await expect(svc.create('hoi-an', body())).resolves.toBeDefined();
+    expect(revalidateTags).toHaveBeenCalledWith(['tour:hoi-an']);
+  });
+
   // ── create ────────────────────────────────────────────────────────────────
 
   it('create resolves the tour, connects it, and never sets seatsBooked', async () => {

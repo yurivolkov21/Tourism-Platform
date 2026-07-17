@@ -384,9 +384,9 @@ describe('ReviewsService.moderateById', () => {
 
   /** Mock web-revalidation collaborator (resolves unless a test overrides). */
   function makeRevalidator(
-    revalidateTour = jest.fn().mockResolvedValue(undefined),
+    revalidateTags = jest.fn().mockResolvedValue(undefined),
   ) {
-    return { revalidator: { revalidateTour }, revalidateTour };
+    return { revalidator: { revalidateTags }, revalidateTags };
   }
 
   it('flips isApproved and enqueues an email on the false→true transition', async () => {
@@ -436,44 +436,50 @@ describe('ReviewsService.moderateById', () => {
     expect(outboxCreateMany).not.toHaveBeenCalled();
   });
 
-  it('revalidates the tour page on the false→true transition', async () => {
+  it('revalidates the tour page + trust band on the false→true transition', async () => {
     const { prisma } = makeModeratePrisma(false);
-    const { revalidator, revalidateTour } = makeRevalidator();
+    const { revalidator, revalidateTags } = makeRevalidator();
     const svc = new ReviewsService(prisma as never, revalidator as never);
 
     await svc.moderateById('r-1', true, 'admin-1');
 
-    expect(revalidateTour).toHaveBeenCalledWith('ha-long');
+    expect(revalidateTags).toHaveBeenCalledWith([
+      'tour:ha-long',
+      'trust-stats',
+    ]);
   });
 
-  it('revalidates the tour page on the true→false (un-approve) transition', async () => {
+  it('revalidates on the true→false (un-approve) transition too', async () => {
     const { prisma } = makeModeratePrisma(true);
-    const { revalidator, revalidateTour } = makeRevalidator();
+    const { revalidator, revalidateTags } = makeRevalidator();
     const svc = new ReviewsService(prisma as never, revalidator as never);
 
     await svc.moderateById('r-1', false, 'admin-2');
 
-    expect(revalidateTour).toHaveBeenCalledWith('ha-long');
+    expect(revalidateTags).toHaveBeenCalledWith([
+      'tour:ha-long',
+      'trust-stats',
+    ]);
   });
 
   it('does not revalidate on a no-op same-value write', async () => {
     const { prisma } = makeModeratePrisma(true);
-    const { revalidator, revalidateTour } = makeRevalidator();
+    const { revalidator, revalidateTags } = makeRevalidator();
     const svc = new ReviewsService(prisma as never, revalidator as never);
 
     await svc.moderateById('r-1', true, 'admin-1');
 
-    expect(revalidateTour).not.toHaveBeenCalled();
+    expect(revalidateTags).not.toHaveBeenCalled();
   });
 
   it('does not revalidate a CURATED review with no linked tour', async () => {
     const { prisma } = makeModeratePrisma(false, null);
-    const { revalidator, revalidateTour } = makeRevalidator();
+    const { revalidator, revalidateTags } = makeRevalidator();
     const svc = new ReviewsService(prisma as never, revalidator as never);
 
     await svc.moderateById('r-1', true, 'admin-1');
 
-    expect(revalidateTour).not.toHaveBeenCalled();
+    expect(revalidateTags).not.toHaveBeenCalled();
   });
 
   it('still resolves moderation when revalidation rejects', async () => {
@@ -558,6 +564,70 @@ describe('ReviewsService.setFeatured', () => {
     const calls = update.mock.calls as unknown as UpdCall[][];
     expect(calls[0][0].data.isFeatured).toBe(true);
     expect(calls[0][0].where.id).toBe('r-1');
+  });
+
+  it('busts the homepage testimonials cache post-commit', async () => {
+    const revalidateTags = jest.fn().mockResolvedValue(undefined);
+    const prisma = {
+      review: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'r-1' }),
+        update: jest.fn().mockResolvedValue({ id: 'r-1', isFeatured: true }),
+      },
+    };
+    const svc = new ReviewsService(
+      prisma as never,
+      { revalidateTags } as never,
+    );
+    await svc.setFeatured('r-1', true);
+    expect(revalidateTags).toHaveBeenCalledWith(['featured-reviews']);
+  });
+});
+
+describe('ReviewsService curated CRUD → web cache busts', () => {
+  const curatedDto = {
+    authorName: 'A',
+    rating: 5,
+    body: 'Curated words.',
+  } as never;
+
+  it('createCurated busts testimonials + trust band (bust failure never surfaces)', async () => {
+    const revalidateTags = jest.fn().mockRejectedValue(new Error('web down'));
+    const prisma = {
+      review: { create: jest.fn().mockResolvedValue({ id: 'c-1' }) },
+    };
+    const svc = new ReviewsService(
+      prisma as never,
+      { revalidateTags } as never,
+    );
+    await expect(svc.createCurated(curatedDto)).resolves.toBeDefined();
+    expect(revalidateTags).toHaveBeenCalledWith([
+      'featured-reviews',
+      'trust-stats',
+    ]);
+  });
+
+  it('updateCuratedById and deleteCuratedById bust the same surfaces', async () => {
+    const revalidateTags = jest.fn().mockResolvedValue(undefined);
+    const prisma = {
+      review: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ id: 'c-1', source: 'CURATED' }),
+        update: jest.fn().mockResolvedValue({ id: 'c-1' }),
+        delete: jest.fn().mockResolvedValue({ id: 'c-1' }),
+      },
+    };
+    const svc = new ReviewsService(
+      prisma as never,
+      { revalidateTags } as never,
+    );
+    await svc.updateCuratedById('c-1', { body: 'edit' } as never);
+    await svc.deleteCuratedById('c-1');
+    expect(revalidateTags).toHaveBeenCalledTimes(2);
+    expect(revalidateTags).toHaveBeenNthCalledWith(1, [
+      'featured-reviews',
+      'trust-stats',
+    ]);
   });
 });
 

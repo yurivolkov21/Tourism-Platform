@@ -6,6 +6,7 @@ import type {
   TourCardData,
   TravellerTypeKey,
 } from '../../components/tours/tour-card';
+import { TAGS } from '../revalidate';
 import { getApiClient } from './client';
 
 type TourSummaryDto = components['schemas']['TourSummaryDto'];
@@ -61,6 +62,8 @@ export async function fetchTourCards(
     params: {
       query: { pageSize: params.pageSize ?? 100, featured: params.featured },
     },
+    // Tagged: the API busts `tours` on any tour create/update/(un)publish/delete.
+    next: { tags: [TAGS.TOURS] },
   });
   const list = (data as unknown as { data: TourSummaryDto[] }).data ?? [];
   return list.map(toTourCard);

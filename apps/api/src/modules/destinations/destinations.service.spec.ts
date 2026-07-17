@@ -53,8 +53,9 @@ function makeMedia(over: Record<string, unknown> = {}) {
 function makeService(
   prisma: PrismaService,
   media = makeMedia(),
+  revalidator?: { revalidateTags: jest.Mock },
 ): DestinationsService {
-  return new DestinationsService(prisma, media);
+  return new DestinationsService(prisma, media, revalidator as never);
 }
 
 describe('DestinationsService', () => {
@@ -75,6 +76,21 @@ describe('DestinationsService', () => {
     await expect(
       svc.create({ name: '!!!' } as CreateDestinationDto),
     ).rejects.toThrow(BadRequestException);
+  });
+
+  it('create busts the web destinations cache post-commit (bust failure never surfaces)', async () => {
+    const create = jest
+      .fn()
+      .mockImplementation(({ data }) => Promise.resolve({ id: '1', ...data }));
+    const revalidateTags = jest.fn().mockRejectedValue(new Error('web down'));
+    const svc = makeService(makePrisma({ create }), undefined, {
+      revalidateTags,
+    });
+
+    await expect(
+      svc.create({ name: 'Hội An' } as CreateDestinationDto),
+    ).resolves.toBeDefined();
+    expect(revalidateTags).toHaveBeenCalledWith(['destinations']);
   });
 
   it('create maps a unique-constraint (P2002) to 409', async () => {

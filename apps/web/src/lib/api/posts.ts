@@ -8,6 +8,7 @@ import {
   type PostDetailVM,
   type PostSummaryVM,
 } from '../blog/post-vm';
+import { TAGS, postTag } from '../revalidate';
 import { getApiClient } from './client';
 
 type PaginatedPostsDto = components['schemas']['PaginatedPostsDto'];
@@ -43,6 +44,8 @@ export async function fetchPosts(
         ...(opts.search ? { search: opts.search } : {}),
       },
     },
+    // Tagged: the API busts `posts` on post create/update/(un)publish/delete.
+    next: { tags: [TAGS.POSTS] },
   });
   const body = data as unknown as PaginatedPostsDto | undefined;
   if (error || !body) throw new Error('Failed to load posts');
@@ -65,6 +68,8 @@ export const fetchPost = cache(
     const api = getApiClient();
     const { data, error } = await api.GET('/api/v1/posts/{slug}', {
       params: { path: { slug } },
+      // Tagged per post so an edit busts exactly this article.
+      next: { tags: [postTag(slug)] },
     });
     const dto = (data as unknown as { data?: PostDetailDto } | undefined)?.data;
     if (error || !dto) return null;
@@ -75,7 +80,9 @@ export const fetchPost = cache(
 /** Public tags in use (bare-array endpoint → enveloped at runtime). [] on error. */
 export async function fetchPostTags(): Promise<PostTagWithCountDto[]> {
   const api = getApiClient();
-  const { data, error } = await api.GET('/api/v1/posts/tags');
+  const { data, error } = await api.GET('/api/v1/posts/tags', {
+    next: { tags: [TAGS.POSTS] },
+  });
   const list = (data as unknown as { data?: PostTagWithCountDto[] } | undefined)
     ?.data;
   if (error || !list) return [];

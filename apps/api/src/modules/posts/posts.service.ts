@@ -17,6 +17,11 @@ import { slugify } from '../../common/slugify';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MediaService } from '../media/media.service';
 import { MediaInputDto, MediaItemDto } from '../media/dto/media.dto';
+import {
+  WEB_TAGS,
+  WebRevalidationService,
+  webPostTag,
+} from '../revalidation/web-revalidation.service';
 import { ToursService, TourWithStats } from '../tours/tours.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { ListPostsQueryDto } from './dto/list-posts-query.dto';
@@ -87,7 +92,19 @@ export class PostsService {
     private readonly prisma: PrismaService,
     private readonly media: MediaService,
     private readonly tours: ToursService,
+    // Optional so hand-constructed unit tests keep compiling; DI always injects.
+    private readonly revalidator?: WebRevalidationService,
   ) {}
+
+  /**
+   * Post-commit, fire-and-forget: bust the blog list/teaser + the touched
+   * article(s). Never throws.
+   */
+  private bustWebCache(...slugs: string[]): void {
+    void this.revalidator
+      ?.revalidateTags([WEB_TAGS.POSTS, ...slugs.map(webPostTag)])
+      .catch(() => undefined);
+  }
 
   // ── Public reads ──────────────────────────────────────────────────────────
 
@@ -250,6 +267,7 @@ export class PostsService {
         include: PostsService.READ_INCLUDE,
       });
       this.logger.log(`Created post ${post.slug}`);
+      this.bustWebCache(post.slug);
       return this.hydrate(post);
     } catch (err) {
       if (this.isUniqueConstraintError(err)) throw this.slugConflict(slug);
@@ -323,6 +341,10 @@ export class PostsService {
         data,
         include: PostsService.READ_INCLUDE,
       });
+      // Bust the old slug too when it changed (its cached article is stale/404).
+      this.bustWebCache(
+        ...(updated.slug === slug ? [slug] : [slug, updated.slug]),
+      );
       return this.hydrate(updated);
     } catch (err) {
       if (this.isUniqueConstraintError(err)) {
@@ -354,6 +376,7 @@ export class PostsService {
       id: post.id,
     });
     this.logger.log(`Set ${media.length} media on post ${slug}`);
+    this.bustWebCache(slug);
     return withMedia.media;
   }
 
@@ -383,6 +406,7 @@ export class PostsService {
       return tx.post.delete({ where: { slug } });
     });
     this.logger.log(`Deleted post ${deleted.slug}`);
+    this.bustWebCache(deleted.slug);
     return deleted;
   }
 

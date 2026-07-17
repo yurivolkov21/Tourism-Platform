@@ -1,25 +1,30 @@
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 
-import { isValidRevalidateSecret, tourTag } from '../../../lib/revalidate';
+import {
+  isValidRevalidateSecret,
+  parseRevalidatePayload,
+} from '../../../lib/revalidate';
 
 // Server-only, uncached: this handler mutates the Data Cache, it is never a read.
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 /**
- * On-demand revalidation endpoint. The NestJS API POSTs here right after a
- * review is (un)approved so the public tour page reflects the change within
- * seconds instead of waiting out the 300s ISR timer (see
- * `docs/06-specs/2026-07-16-review-ondemand-revalidation-design.md`).
+ * Generalized on-demand revalidation endpoint
+ * (spec: docs/06-specs/2026-07-17-generalized-ondemand-revalidation-design.md).
+ *
+ * The NestJS API POSTs `{ tags?: string[], paths?: string[] }` here right after
+ * a content mutation commits (tours, posts, site-media, …) so the public pages
+ * reflect the change within seconds; the legacy `{ slug }` body still maps to
+ * `tour:<slug>`. Tags are validated STRICTLY against the taxonomy allow-list
+ * (`parseRevalidatePayload`) — unknown tags reject the whole request (400) so
+ * the endpoint can't be used to force arbitrary recompute.
  *
  * Guarded by the shared `REVALIDATE_SECRET` (constant-time compare). Unset on
- * the server ⇒ 503 (visible misconfig); bad/missing header ⇒ 401. `revalidateTag`
- * uses `{ expire: 0 }` (immediate expiry) rather than the `'max'`
- * stale-while-revalidate profile: this is a webhook-style trigger where the very
- * next visit must reflect the change (an admin approving then reloading), so we
- * want a blocking cache miss on that request, not one-more-stale-render. The
- * 300s ISR remains the backstop if this call never arrives.
+ * the server ⇒ 503 (visible misconfig); bad/missing header ⇒ 401. Tags expire
+ * immediately (`{ expire: 0 }`): this is a webhook-style trigger where the very
+ * next visit must reflect the change — the ISR timers remain the backstop.
  */
 export async function POST(request: Request): Promise<Response> {
   const expected = process.env.REVALIDATE_SECRET;
@@ -38,24 +43,32 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  let slug: unknown;
+  let body: unknown;
   try {
-    const body = (await request.json()) as { slug?: unknown } | null;
-    slug = body?.slug;
+    body = await request.json();
   } catch {
     return NextResponse.json(
       { revalidated: false, error: 'INVALID_BODY' },
       { status: 400 },
     );
   }
-  if (typeof slug !== 'string' || slug.length === 0) {
+  const payload = parseRevalidatePayload(body);
+  if (!payload) {
     return NextResponse.json(
-      { revalidated: false, error: 'MISSING_SLUG' },
+      { revalidated: false, error: 'INVALID_TAGS_OR_PATHS' },
       { status: 400 },
     );
   }
 
-  const tag = tourTag(slug);
-  revalidateTag(tag, { expire: 0 });
-  return NextResponse.json({ revalidated: true, tag });
+  for (const tag of payload.tags) {
+    revalidateTag(tag, { expire: 0 });
+  }
+  for (const path of payload.paths) {
+    revalidatePath(path);
+  }
+  return NextResponse.json({
+    revalidated: true,
+    tags: payload.tags,
+    paths: payload.paths,
+  });
 }

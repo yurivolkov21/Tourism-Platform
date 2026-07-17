@@ -8,6 +8,10 @@ import {
 import { Prisma, TourCategory } from '@prisma/client';
 import { slugify } from '../../common/slugify';
 import { PrismaService } from '../../prisma/prisma.service';
+import {
+  WEB_TAGS,
+  WebRevalidationService,
+} from '../revalidation/web-revalidation.service';
 import { CreateTourCategoryDto } from './dto/create-tour-category.dto';
 import { ListTourCategoriesQueryDto } from './dto/list-tour-categories-query.dto';
 import { UpdateTourCategoryDto } from './dto/update-tour-category.dto';
@@ -45,7 +49,18 @@ export class TourCategoriesService {
   /** DB column cap for `TourCategory.slug` (`@db.VarChar(60)`). */
   private static readonly SLUG_MAX = 60;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    // Optional so hand-constructed unit tests keep compiling; DI always injects.
+    private readonly revalidator?: WebRevalidationService,
+  ) {}
+
+  /** Post-commit, fire-and-forget: the footer "Browse tours" reads this set. */
+  private bustWebCache(): void {
+    void this.revalidator
+      ?.revalidateTags([WEB_TAGS.CATEGORIES])
+      .catch(() => undefined);
+  }
 
   // ── Public reads ──────────────────────────────────────────────────────────
 
@@ -109,6 +124,7 @@ export class TourCategoriesService {
         },
       });
       this.logger.log(`Created tour category ${category.slug}`);
+      this.bustWebCache();
       return category;
     } catch (err) {
       if (this.isUniqueConstraintError(err)) throw this.slugConflict(slug);
@@ -127,7 +143,12 @@ export class TourCategoriesService {
       data.slug = this.normalizeSlug(body.slug, body.name);
     }
     try {
-      return await this.prisma.tourCategory.update({ where: { slug }, data });
+      const updated = await this.prisma.tourCategory.update({
+        where: { slug },
+        data,
+      });
+      this.bustWebCache();
+      return updated;
     } catch (err) {
       if (this.isUniqueConstraintError(err)) {
         throw this.slugConflict(String(data.slug ?? slug));
@@ -153,6 +174,7 @@ export class TourCategoriesService {
         where: { slug },
       });
       this.logger.log(`Deleted tour category ${deleted.slug}`);
+      this.bustWebCache();
       return deleted;
     } catch (err) {
       if (this.isForeignKeyError(err)) {

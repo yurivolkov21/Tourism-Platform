@@ -159,4 +159,8 @@ failure can never affect the mutation.
 
 ## Status
 
-📄 Draft — plan at [../07-plans/2026-07-17-generalized-ondemand-revalidation.md](../07-plans/2026-07-17-generalized-ondemand-revalidation.md). Not started.
+✅ Implemented 2026-07-17 (tasks 1–7; gate green) — plan + deltas at
+[../07-plans/2026-07-17-generalized-ondemand-revalidation.md](../07-plans/2026-07-17-generalized-ondemand-revalidation.md).
+Addendum to §4's table: **curated-testimonial CRUD** (create/update/delete)
+also busts `featured-reviews` + `trust-stats` (review-pass catch — same
+surfaces as setFeatured). Awaiting user review before merge.

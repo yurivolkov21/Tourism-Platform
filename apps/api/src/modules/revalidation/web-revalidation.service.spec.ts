@@ -46,11 +46,11 @@ describe('WebRevalidationService', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('POSTs to the web revalidate route with the secret header + slug body', async () => {
+  it('POSTs to the web revalidate route with the secret header + tags body', async () => {
     fetchMock.mockResolvedValue({ ok: true, status: 200 });
     const svc = new WebRevalidationService(makeConfig(CONFIGURED));
 
-    await svc.revalidateTour('ha-long');
+    await svc.revalidateTags(['tours', 'trust-stats']);
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
@@ -59,7 +59,27 @@ describe('WebRevalidationService', () => {
     expect(
       (init.headers as Record<string, string>)['x-revalidate-secret'],
     ).toBe('s3cr3t-value');
-    expect(JSON.parse(init.body as string)).toEqual({ slug: 'ha-long' });
+    expect(JSON.parse(init.body as string)).toEqual({
+      tags: ['tours', 'trust-stats'],
+    });
+  });
+
+  it('revalidateTour is a thin wrapper mapping the slug to its tag', async () => {
+    fetchMock.mockResolvedValue({ ok: true, status: 200 });
+    const svc = new WebRevalidationService(makeConfig(CONFIGURED));
+
+    await svc.revalidateTour('ha-long');
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(init.body as string)).toEqual({
+      tags: ['tour:ha-long'],
+    });
+  });
+
+  it('no-ops on an empty tag list (nothing to bust)', async () => {
+    const svc = new WebRevalidationService(makeConfig(CONFIGURED));
+    await svc.revalidateTags([]);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('strips a trailing slash from FRONTEND_URL', async () => {

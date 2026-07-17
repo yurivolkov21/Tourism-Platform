@@ -7,6 +7,21 @@ Dependency-ordered. TDD on pure logic (tag builders, allow-list validation,
 trigger wiring assertions). Revalidation is **post-commit + fire-and-forget** —
 a bust failure must never affect a mutation. `/gate` before green.
 
+## STATUS (2026-07-17)
+
+Tasks 1–7 DONE on `feat/generalized-ondemand-revalidation`; gate GREEN
+(**api 569 · web 385**). Deltas vs the outline: the API service moved to a new
+`@Global()` `modules/revalidation/` module (7 modules consume it — cleaner than
+re-importing ReviewsModule); "categories" is the `tour-categories` module;
+`/blog` renders dynamically (reads searchParams) so its `revalidate = 300` is
+the backstop and the `posts` fetch tag is the primary freshness. Review pass: 1
+finding FIXED — curated-testimonial CRUD (create/update/delete) is a third
+review-mutation path hitting the testimonials/trust surfaces that §4's table
+missed; now busts `featured-reviews` + `trust-stats` (tests added). Money-path
+safety verified: every trigger is post-commit, `void` + `.catch`, service-level
+swallow, 3s timeout; departures' cancel/auto-refund path unaffected.
+**Awaiting user review before merge (task 8).**
+
 ## Tasks
 
 1. **Tag taxonomy module** — `apps/web/src/lib/revalidate.ts`: export tag

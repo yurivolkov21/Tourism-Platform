@@ -3,7 +3,6 @@ import { AdminReviewsController } from './admin-reviews.controller';
 import { PublicReviewsController } from './public-reviews.controller';
 import { ReviewsController } from './reviews.controller';
 import { ReviewsService } from './reviews.service';
-import { WebRevalidationService } from './web-revalidation.service';
 
 /**
  * Reviews module — customer create (`POST /reviews`), public approved list
@@ -16,7 +15,7 @@ import { WebRevalidationService } from './web-revalidation.service';
     PublicReviewsController,
     AdminReviewsController,
   ],
-  providers: [ReviewsService, WebRevalidationService],
+  providers: [ReviewsService],
   exports: [ReviewsService],
 })
 export class ReviewsModule {}
