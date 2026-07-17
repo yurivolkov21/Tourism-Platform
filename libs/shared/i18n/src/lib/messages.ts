@@ -237,7 +237,8 @@ export const messages = {
       },
       password: {
         REQUIRED: 'Enter your password.',
-        TOO_SHORT: 'Password must be at least 6 characters.',
+        TOO_SHORT: 'Password must be at least 8 characters.',
+        WEAK: 'Use 8+ characters with upper- and lower-case letters, a number, and a symbol.',
         INCORRECT: 'Incorrect password. Please try again.',
       },
       confirm: {

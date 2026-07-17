@@ -57,8 +57,8 @@ describe('validateSignUpFields', () => {
   const valid = {
     fullName: 'Nguyen Van A',
     email: 'you@example.com',
-    password: 'secret123',
-    confirm: 'secret123',
+    password: 'Secret12!',
+    confirm: 'Secret12!',
   };
 
   it('passes a valid form', () => {
@@ -87,14 +87,14 @@ describe('validateSignUpFields', () => {
     });
   });
 
-  it('flags a too-short password on the password field', () => {
+  it('flags a policy-failing password on the password field', () => {
     expect(
       validateSignUpFields({ ...valid, password: 'abc', confirm: 'abc' }),
-    ).toEqual({ password: 'TOO_SHORT' });
+    ).toEqual({ password: 'WEAK' });
   });
 
   it('flags a mismatch on the confirm field', () => {
-    expect(validateSignUpFields({ ...valid, confirm: 'secret124' })).toEqual({
+    expect(validateSignUpFields({ ...valid, confirm: 'Secret34@' })).toEqual({
       confirm: 'MISMATCH',
     });
   });
@@ -103,26 +103,26 @@ describe('validateSignUpFields', () => {
 describe('validateResetFields', () => {
   it('passes a valid pair', () => {
     expect(
-      validateResetFields({ password: 'secret123', confirm: 'secret123' }),
+      validateResetFields({ password: 'Secret12!', confirm: 'Secret12!' }),
     ).toEqual({});
   });
 
-  it('flags empty fields as required (not too-short)', () => {
+  it('flags empty fields as required (not weak)', () => {
     expect(validateResetFields({ password: '', confirm: '' })).toEqual({
       password: 'REQUIRED',
       confirm: 'REQUIRED',
     });
   });
 
-  it('flags a too-short password', () => {
+  it('flags a policy-failing password', () => {
     expect(validateResetFields({ password: 'abc', confirm: 'abc' })).toEqual({
-      password: 'TOO_SHORT',
+      password: 'WEAK',
     });
   });
 
   it('flags a mismatch on the confirm field', () => {
     expect(
-      validateResetFields({ password: 'secret123', confirm: 'secret124' }),
+      validateResetFields({ password: 'Secret12!', confirm: 'Secret34@' }),
     ).toEqual({ confirm: 'MISMATCH' });
   });
 });

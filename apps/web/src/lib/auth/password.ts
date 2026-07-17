@@ -1,22 +1,18 @@
-/** Shared password-pair validation for the register + reset-password forms (copy lives in i18n). */
+/** Shared password policy for the register + reset + change-password forms (copy lives in i18n). */
 
-export const MIN_PASSWORD = 6;
+export const MIN_PASSWORD = 8;
 
-export type PasswordError = 'TOO_SHORT' | 'MISMATCH';
+export type PasswordError = 'WEAK' | 'MISMATCH';
 
-/** `null` when valid; otherwise a stable error code (`validateResetFields` maps it per field). */
-export function validatePasswordPair(
-  password: string,
-  confirm: string,
-): PasswordError | null {
-  if (password.length < MIN_PASSWORD) return 'TOO_SHORT';
-  if (password !== confirm) return 'MISMATCH';
-  return null;
-}
-
-// Advisory strength requirements (the submit rule is still `validatePasswordPair`'s min length).
+/**
+ * The enforced password policy (2026-07-16): min length + one of each character
+ * class. These mirror the Supabase Auth settings (Minimum password length +
+ * Password requirements) so the client rejects a weak password up-front instead
+ * of round-tripping to a server `weak_password` error. The forms also visualise
+ * these rules (strength meter); `validatePasswordPair` gates them.
+ */
 const STRENGTH_RULES: { key: string; regex: RegExp }[] = [
-  { key: 'length', regex: /.{8,}/ },
+  { key: 'length', regex: new RegExp(`.{${MIN_PASSWORD},}`) },
   { key: 'lower', regex: /[a-z]/ },
   { key: 'upper', regex: /[A-Z]/ },
   { key: 'number', regex: /[0-9]/ },
@@ -35,6 +31,24 @@ export function scorePassword(password: string): PasswordStrength {
     met: r.regex.test(password),
   }));
   return { score: rules.filter((r) => r.met).length, rules };
+}
+
+/** True only when the password meets EVERY policy rule (length + all char classes). */
+export function meetsPasswordPolicy(password: string): boolean {
+  return STRENGTH_RULES.every((r) => r.regex.test(password));
+}
+
+/**
+ * `null` when valid; `'WEAK'` when the policy isn't fully met; `'MISMATCH'` when
+ * the pair differs (checked after the policy, so the stronger signal wins).
+ */
+export function validatePasswordPair(
+  password: string,
+  confirm: string,
+): PasswordError | null {
+  if (!meetsPasswordPolicy(password)) return 'WEAK';
+  if (password !== confirm) return 'MISMATCH';
+  return null;
 }
 
 /** Token-based bar colour for a strength score (no raw palette). */

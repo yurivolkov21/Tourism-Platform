@@ -11,6 +11,7 @@ export type FieldErrorCode =
   | 'INVALID'
   | 'INCORRECT'
   | 'TOO_SHORT'
+  | 'WEAK'
   | 'MISMATCH'
   | 'RATING_REQUIRED'
   | 'BODY_REQUIRED'

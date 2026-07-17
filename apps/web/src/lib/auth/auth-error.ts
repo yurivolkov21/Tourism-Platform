@@ -20,8 +20,16 @@ export function authErrorMessage(error: unknown): string {
   ) {
     return 'That email is already registered.';
   }
-  if (hay.includes('weak_password') || hay.includes('password should be')) {
-    return 'Password is too weak — use at least 6 characters.';
+  // New password equals the current one — Supabase's message ("New password
+  // should be different from the old password") contains "password should be",
+  // so this MUST be matched before any weak-password check.
+  if (hay.includes('same_password') || hay.includes('different from the old')) {
+    return 'Your new password must be different from your current password.';
+  }
+  if (hay.includes('weak_password')) {
+    // Surface Supabase's own reason (it states the real requirement) rather than
+    // a hardcoded length that can drift from the configured policy.
+    return message || 'Password is too weak — please choose a stronger one.';
   }
   if (hay.includes('rate') && hay.includes('limit')) {
     return 'Too many attempts — please wait a moment and try again.';

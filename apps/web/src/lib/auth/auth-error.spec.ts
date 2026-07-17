@@ -25,9 +25,30 @@ describe('authErrorMessage', () => {
     );
   });
 
-  it('maps a weak password', () => {
-    expect(authErrorMessage({ code: 'weak_password', message: 'x' })).toBe(
-      'Password is too weak — use at least 6 characters.',
+  it('maps same-password (new equals current) — not "too weak"', () => {
+    // Regression: Supabase's message contains "password should be", which used to
+    // be mislabelled as a weak-password / 6-char error.
+    expect(
+      authErrorMessage({
+        code: 'same_password',
+        message: 'New password should be different from the old password',
+      }),
+    ).toBe('Your new password must be different from your current password.');
+  });
+
+  it('surfaces the Supabase reason for a weak password', () => {
+    const err = Object.assign(
+      new Error('Password should contain at least one symbol.'),
+      { code: 'weak_password' },
+    );
+    expect(authErrorMessage(err)).toBe(
+      'Password should contain at least one symbol.',
+    );
+  });
+
+  it('falls back for a weak password with no message', () => {
+    expect(authErrorMessage({ code: 'weak_password', message: '' })).toBe(
+      'Password is too weak — please choose a stronger one.',
     );
   });
 

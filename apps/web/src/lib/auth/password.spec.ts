@@ -1,31 +1,37 @@
 import {
-  MIN_PASSWORD,
+  meetsPasswordPolicy,
   passwordStrengthTone,
   scorePassword,
   validatePasswordPair,
 } from './password';
 
+describe('meetsPasswordPolicy', () => {
+  it('requires length + all four character classes', () => {
+    expect(meetsPasswordPolicy('Abcdef1!')).toBe(true);
+    expect(meetsPasswordPolicy('abcdef1!')).toBe(false); // no uppercase
+    expect(meetsPasswordPolicy('Abcdefg!')).toBe(false); // no number
+    expect(meetsPasswordPolicy('Abcdef12')).toBe(false); // no symbol
+    expect(meetsPasswordPolicy('Ab1!')).toBe(false); // too short
+    expect(meetsPasswordPolicy('secret123')).toBe(false); // no upper/symbol
+  });
+});
+
 describe('validatePasswordPair', () => {
-  it('accepts a long-enough matching pair', () => {
-    expect(validatePasswordPair('secret123', 'secret123')).toBeNull();
+  it('accepts a policy-compliant matching pair', () => {
+    expect(validatePasswordPair('Abcdef1!', 'Abcdef1!')).toBeNull();
   });
 
-  it('rejects a too-short password', () => {
-    expect(validatePasswordPair('abc', 'abc')).toBe('TOO_SHORT');
-    expect(
-      validatePasswordPair(
-        'a'.repeat(MIN_PASSWORD - 1),
-        'a'.repeat(MIN_PASSWORD - 1),
-      ),
-    ).toBe('TOO_SHORT');
+  it('rejects a password that does not meet the policy', () => {
+    expect(validatePasswordPair('abc', 'abc')).toBe('WEAK');
+    expect(validatePasswordPair('secret123', 'secret123')).toBe('WEAK');
   });
 
-  it('rejects a mismatch (checked after length)', () => {
-    expect(validatePasswordPair('secret123', 'secret124')).toBe('MISMATCH');
+  it('rejects a mismatch (checked after the policy)', () => {
+    expect(validatePasswordPair('Abcdef1!', 'Abcdef2@')).toBe('MISMATCH');
   });
 
-  it('reports length before mismatch', () => {
-    expect(validatePasswordPair('abc', 'xyz')).toBe('TOO_SHORT');
+  it('reports WEAK before mismatch', () => {
+    expect(validatePasswordPair('abc', 'xyz')).toBe('WEAK');
   });
 });
 

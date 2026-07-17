@@ -44,7 +44,7 @@ export function validateResetFields(fields: {
   if (errors.password || errors.confirm) return errors;
 
   const pair = validatePasswordPair(fields.password, fields.confirm);
-  if (pair === 'TOO_SHORT') errors.password = 'TOO_SHORT';
+  if (pair === 'WEAK') errors.password = 'WEAK';
   else if (pair === 'MISMATCH') errors.confirm = 'MISMATCH';
   return errors;
 }
