@@ -36,6 +36,27 @@ export enum UploadPurpose {
  * Backend's job: validate purpose + filename + format↔resource-type, derive a
  * sanitized timestamped folder/public_id, and sign with the api_secret.
  */
+/**
+ * First-line-of-defence filename shape: no slashes/backslashes/control chars
+ * and a single 1-8 char extension — and nothing more (spaces, unicode,
+ * parentheses all pass; the service re-sanitizes the stem into the Cloudinary
+ * public_id). Built via RegExp-from-string so no literal control characters
+ * appear in this source file.
+ */
+// Built without any backslash in source (escape-mangling-proof): the char
+// class excludes backslash (92,92 = escaped-backslash), forward slash, and
+// control chars 0-31; '[.]' is the literal dot.
+const FILENAME_PATTERN = new RegExp(
+  '^[^' +
+    String.fromCharCode(92) +
+    String.fromCharCode(92) +
+    '/' +
+    String.fromCharCode(0) +
+    '-' +
+    String.fromCharCode(31) +
+    ']+[.][A-Za-z0-9]{1,8}$',
+);
+
 export class CreateSignedUploadUrlDto {
   @ApiProperty({
     enum: UploadPurpose,
@@ -46,8 +67,11 @@ export class CreateSignedUploadUrlDto {
 
   /**
    * Original filename from the FE. The regex is the first line of defence against
-   * path traversal (`../../etc/passwd`) — rejects slashes/backslashes/null bytes
-   * and requires a single 1-8 char extension. The service re-sanitizes before use.
+   * path traversal (`../../etc/passwd`) — it rejects slashes/backslashes/control
+   * chars and requires a 1-8 char extension, and NOTHING more: real-world names
+   * (Windows "Screenshot 2026-07-17 ….png" with spaces, Vietnamese/unicode
+   * names, "image (1).png") must pass, because the service re-sanitizes the stem
+   * into the Cloudinary public_id anyway (`derivePublicId`).
    */
   @ApiProperty({
     example: 'hero-shot.jpg',
@@ -57,9 +81,9 @@ export class CreateSignedUploadUrlDto {
   })
   @IsString()
   @MaxLength(120)
-  @Matches(/^[A-Za-z0-9._-]+\.[A-Za-z0-9]{1,8}$/, {
+  @Matches(FILENAME_PATTERN, {
     message:
-      'filename must contain only letters, digits, hyphen, underscore, dot, and end with a 1-8 char extension',
+      'filename must not contain slashes or control characters and must end with a 1-8 character extension',
   })
   filename!: string;
 
