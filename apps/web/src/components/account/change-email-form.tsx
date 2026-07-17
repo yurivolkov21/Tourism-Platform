@@ -101,10 +101,11 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
         label={t.currentPasswordLabel}
         name="password"
         type="password"
-        // Re-auth field: discourage the browser from autofilling the saved
-        // password so confirming an email change is a deliberate, typed action
-        // (best-effort — autofill suppression is browser-dependent).
-        autoComplete="off"
+        // Re-auth field: `new-password` (not `current-password`/`off`) is the
+        // reliable way to stop Chrome autofilling the saved login password here,
+        // so confirming an email change stays a deliberate, typed action. Chrome
+        // may offer "suggest strong password" on focus — it does not pre-fill.
+        autoComplete="new-password"
         required
         field="password"
         code={passwordError}
