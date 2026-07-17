@@ -28,6 +28,11 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
   const [error, setError] = useState<string>();
   const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const [pending, setPending] = useState(false);
+  // Suppress the browser auto-filling the saved password on load: a `readOnly`
+  // field is skipped by autofill, and we drop `readOnly` on first focus so the
+  // user can still type (or opt in via their password manager). More reliable
+  // than autocomplete hints, which Chrome ignores for login forms.
+  const [pwReadOnly, setPwReadOnly] = useState(true);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -89,6 +94,8 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
         type="password"
         autoComplete="current-password"
         required
+        readOnly={pwReadOnly}
+        onFocus={() => setPwReadOnly(false)}
         field="password"
         code={fieldErrors.password}
         after={
