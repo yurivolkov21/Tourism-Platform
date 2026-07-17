@@ -4,6 +4,29 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-17 — Home trust band + testimonials: real data only (`c9a472e`)
+
+- **Honesty pass on the marketing surface** (branch `feat/home-trust-real-data`,
+  spec+plan `34a3c31`): the "Trusted by travellers worldwide" band no longer
+  hardcodes fake values ("4.9/5" · "12,000+" · "60+"). `Trust` is prop-fed the
+  home page's already-fetched `TrustStats` (zero extra requests):
+  **rating** = real approved-review average (`x.x/5`, hidden when no reviews) ·
+  **curated itineraries** = real published-tour count (hidden when 0) ·
+  **24/7 support** stays as a static pledge · **"Happy travellers" removed
+  outright** (no honest source; PAID-count endpoint or admin-entered value noted
+  as follow-ups in the spec). `trustGridClass` (static 1→4 map) keeps the grid
+  balanced as rows hide. Pure logic in `lib/trust-section.ts` (TDD).
+- **Testimonials fixture fallback removed** — with no approved+featured reviews
+  the section hides (`return null`); `/destinations`' existing real-data feed
+  (`GET /reviews/featured`) unchanged. The four invented reviewers (Emily
+  Carter…) and fake stat values are deleted from `messages.ts` (+ regression
+  test that the fixture never resurfaces).
+- Review findings: none (clean — verified no stale consumers of the deleted
+  i18n keys across web/admin/mobile, Tailwind literal classes, `parseMetric`
+  passthrough for `"4.8/5"`/`"24/7"`).
+- Tests after: **api 558 · web 375 · admin 266 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
 ## 2026-07-17 — Tour reviews: clamp + full-review & see-all dialogs (`e3815e0`)
 
 - **"Traveller reviews" on `/tours/[slug]` is now layout-stable** (branch
