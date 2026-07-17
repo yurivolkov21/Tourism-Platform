@@ -5,12 +5,24 @@
 
 ## STATUS
 
-- [ ] T1 transforms: PIPELINE_ORDER/LABEL + spec (TDD)
-- [ ] T2 filters tab + URL `STATUSES` + stats type
-- [ ] T3 dashboard widget (BookingRowStatus, STATUS_VARIANT, mini tabs, label) + DOT_CLASS
-- [ ] T4 gate + review
+- [x] T1 transforms: PIPELINE_ORDER/LABEL + spec (TDD)
+- [x] T2 filters tab + URL `STATUSES` + stats type
+- [x] T3 dashboard widget (BookingRowStatus, STATUS_VARIANT, mini tabs, label) + DOT_CLASS
+- [x] T4 gate + review
 
-**RESUME STATE:** _(update as tasks complete)_
+**RESUME STATE:** all tasks done on `feat/admin-partial-refunded-visibility`;
+gate GREEN (admin **268** — +2 over 266). Audit caught a 5th omission beyond
+the brief: `buildBookingTimeline` gave partial-refund bookings NO refund step —
+fixed with a DISTINCT step key `partially_refunded` (review caught that reusing
+`'refunded'` would be relabelled "Refunded" by the detail page's
+`LIFECYCLE_LABELS[step.key] ?? step.label` lookup). Review's 2nd finding also
+fixed: the dashboard widget's mini tab trigger still rendered the raw
+underscore (`Partially_refunded`) — same `replace(/_/g,' ')` as the cell.
+Review confirmed: consistency equations hold by construction; web's own status
+maps already handle partial; no exhaustive switch breaks on the widened types.
+**Implementation not yet committed — awaiting user review before commit +
+merge.** Verify on deploy: All=38 = Σtabs = Σpipeline = KPI; each tab's rows
+match its badge.
 
 ## Sequencing
 

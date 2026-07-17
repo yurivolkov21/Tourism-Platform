@@ -33,12 +33,14 @@ const STATUS_VARIANT: Record<
   PENDING: 'outline',
   CANCELLED: 'secondary',
   REFUNDED: 'destructive',
+  PARTIALLY_REFUNDED: 'destructive',
 };
 const STATUSES: BookingRowStatus[] = [
   'PAID',
   'PENDING',
   'CANCELLED',
   'REFUNDED',
+  'PARTIALLY_REFUNDED',
 ];
 
 /**
@@ -90,7 +92,8 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
             variant={STATUS_VARIANT[row.original.status]}
             className="capitalize"
           >
-            {row.original.status.toLowerCase()}
+            {/* Underscores → spaces so PARTIALLY_REFUNDED reads as two words. */}
+            {row.original.status.replace(/_/g, ' ').toLowerCase()}
           </Badge>
         ),
       },
@@ -168,7 +171,7 @@ export function DataTable({ rows }: { rows: AdminBookingRow[] }) {
             </TabsTrigger>
             {STATUSES.map((s) => (
               <TabsTrigger key={s} value={s} className="capitalize">
-                {s.toLowerCase()}{' '}
+                {s.replace(/_/g, ' ').toLowerCase()}{' '}
                 <Badge variant="secondary" className="ml-1.5">
                   {counts[s]}
                 </Badge>

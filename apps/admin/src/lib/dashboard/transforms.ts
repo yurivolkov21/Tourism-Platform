@@ -129,6 +129,7 @@ export const PIPELINE_ORDER = [
   'PAID',
   'CANCELLED',
   'REFUNDED',
+  'PARTIALLY_REFUNDED',
 ] as const;
 export type PipelineStatus = (typeof PIPELINE_ORDER)[number];
 
@@ -145,6 +146,7 @@ const PIPELINE_LABEL: Record<PipelineStatus, string> = {
   PAID: 'Paid',
   CANCELLED: 'Cancelled',
   REFUNDED: 'Refunded',
+  PARTIALLY_REFUNDED: 'Partially refunded',
 };
 
 /** Fixed-order status breakdown with each status's share of the total (zero-safe). */

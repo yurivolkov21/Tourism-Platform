@@ -62,6 +62,29 @@ describe('buildBookingTimeline', () => {
     expect(steps.map((s) => s.key)).toEqual(['created', 'paid', 'refunded']);
     expect(steps[2].at).toBe('2026-07-02T09:00:00.000Z');
   });
+
+  test('PARTIALLY_REFUNDED → Created + Paid + Partially refunded (not an empty tail)', () => {
+    // Partial refunds keep the booking alive — cancelledAt stays null.
+    const steps = buildBookingTimeline({
+      status: 'PARTIALLY_REFUNDED',
+      createdAt: '2026-06-30T08:00:00.000Z',
+      paidAt: '2026-07-01T10:00:00.000Z',
+      cancelledAt: null,
+    });
+    // Distinct key — the detail page maps step.key → label, so reusing
+    // 'refunded' would silently relabel this step "Refunded".
+    expect(steps.map((s) => s.key)).toEqual([
+      'created',
+      'paid',
+      'partially_refunded',
+    ]);
+    expect(steps[2]).toEqual({
+      key: 'partially_refunded',
+      label: 'Partially refunded',
+      at: null,
+      done: true,
+    });
+  });
 });
 
 describe('formatRelativeTime', () => {

@@ -47,6 +47,17 @@ export function buildBookingTimeline(b: TimelineInput): TimelineStep[] {
       at: b.cancelledAt,
       done: true,
     });
+  } else if (b.status === 'PARTIALLY_REFUNDED') {
+    // Partial refunds keep the booking alive (no cancelledAt) — the timeline
+    // still owes the admin a step saying money went back. Distinct key: the
+    // detail page maps step.key → label (LIFECYCLE_LABELS), so sharing
+    // 'refunded' would relabel this step "Refunded".
+    steps.push({
+      key: 'partially_refunded',
+      label: 'Partially refunded',
+      at: b.cancelledAt,
+      done: true,
+    });
   } else if (b.status === 'CANCELLED') {
     steps.push({
       key: 'cancelled',

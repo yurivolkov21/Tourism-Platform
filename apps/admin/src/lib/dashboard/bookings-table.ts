@@ -1,6 +1,11 @@
 import { getApiClient } from '../api/client';
 
-export type BookingRowStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'REFUNDED';
+export type BookingRowStatus =
+  | 'PENDING'
+  | 'PAID'
+  | 'CANCELLED'
+  | 'REFUNDED'
+  | 'PARTIALLY_REFUNDED';
 
 /** Flattened booking row for the dashboard data-table (from `GET /admin/bookings`). */
 export interface AdminBookingRow {

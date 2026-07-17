@@ -16,6 +16,7 @@ const DOT_CLASS: Record<PipelineStatus, string> = {
   PAID: 'bg-emerald-600',
   CANCELLED: 'bg-muted-foreground',
   REFUNDED: 'bg-sky-600',
+  PARTIALLY_REFUNDED: 'bg-violet-500',
 };
 
 /** Bookings-by-status breakdown — counts + share bars in a fixed pipeline order. */

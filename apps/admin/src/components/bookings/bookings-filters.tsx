@@ -29,6 +29,9 @@ const TABS: { value: TabValue; label: string }[] = [
   { value: 'PAID', label: 'Paid' },
   { value: 'CANCELLED', label: 'Cancelled' },
   { value: 'REFUNDED', label: 'Refunded' },
+  // Every lifecycle status gets a tab — the "All" badge sums the FULL
+  // statusCounts map, so omitting one silently desyncs All vs Σ(tabs).
+  { value: 'PARTIALLY_REFUNDED', label: 'Partially refunded' },
 ];
 
 const SEARCH_DEBOUNCE_MS = 350;

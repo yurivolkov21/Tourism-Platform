@@ -18,7 +18,13 @@ import { ServerTablePagination } from '../../../components/crud/server-table-pag
 import { parsePageSize } from '../../../lib/pagination';
 import { parseUuidParam } from '../../../lib/params';
 
-const STATUSES: BookingStatus[] = ['PENDING', 'PAID', 'CANCELLED', 'REFUNDED'];
+const STATUSES: BookingStatus[] = [
+  'PENDING',
+  'PAID',
+  'CANCELLED',
+  'REFUNDED',
+  'PARTIALLY_REFUNDED',
+];
 
 /** Narrows a raw `?status=` value to a valid enum member (or undefined = all). */
 function parseStatus(raw?: string): BookingStatus | undefined {
