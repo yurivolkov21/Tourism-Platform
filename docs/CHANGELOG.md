@@ -4,6 +4,15 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-16 — Login: no saved-password autofill (`e4d9c63`)
+
+- Owner preference: the login password field no longer auto-fills the saved
+  credential on load — it renders `readOnly` (autofill skips it) and drops
+  `readOnly` on first focus so the user can still type / opt in via their
+  password manager. Autofill-suppression via `autocomplete` alone is ignored by
+  Chrome on login forms. Set-password fields already used `new-password`; email /
+  name / phone keep their (helpful, non-sensitive) autofill. Tests unchanged (345).
+
 ## 2026-07-16 — Password: accurate change errors, 8+ strong policy, shared meter (`951345d`, `f50584c`)
 
 - **Bug fix (root-caused):** changing password to the *current* one showed
