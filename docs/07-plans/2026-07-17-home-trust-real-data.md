@@ -5,13 +5,20 @@
 
 ## STATUS
 
-- [ ] T1 `trust-section.ts` row builder + grid map (TDD)
-- [ ] T2 i18n reshape (`trust.labels`, delete fake stats + testimonial fixture)
-- [ ] T3 `Trust` → prop-fed; wire `page.tsx`
-- [ ] T4 `Testimonials` fallback removal + tests (+ destinations comment refresh)
-- [ ] T5 gate + review
+- [x] T1 `trust-section.ts` row builder + grid map (TDD)
+- [x] T2 i18n reshape (`trust.labels`, delete fake stats + testimonial fixture)
+- [x] T3 `Trust` → prop-fed; wire `page.tsx`
+- [x] T4 `Testimonials` fallback removal + tests (+ destinations comment refresh)
+- [x] T5 gate + review
 
-**RESUME STATE:** _(update as tasks complete)_
+**RESUME STATE:** all tasks done on `feat/home-trust-real-data`; gate GREEN
+(web **375** — +9 over 366; i18n 1). Review pass CLEAN (verified: no remaining
+consumers of the deleted i18n keys across web/admin/mobile; Tailwind literal
+classes intact; `parseMetric` handles `"4.8/5"`/`"24/7"` as passthrough and
+`"12"` as count-up; fabricated-value sweep found nothing reachable).
+**Implementation not yet committed — awaiting user review before commit +
+merge.** Post-merge: rule-9 docs sweep + verify per brief (empty-DB home hides
+the rating row + testimonials; seeded/featured reviews light them up).
 
 ## Sequencing
 

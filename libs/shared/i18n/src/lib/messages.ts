@@ -1028,52 +1028,23 @@ export const messages = {
     heading: 'Trusted by travellers worldwide',
     subtitle:
       'Real journeys, honest service, and the kind of care that turns first-time guests into lifelong travellers.',
-    stats: [
-      { value: '4.9/5', label: 'Average tour rating' },
-      { value: '12,000+', label: 'Happy travellers' },
-      { value: '60+', label: 'Curated itineraries' },
-      { value: '24/7', label: 'On-trip support' },
-    ],
+    // Labels only — the VALUES come from live API data (review aggregate +
+    // published-tour count); rows with no real data are hidden. The support
+    // pair is a static pledge, not a metric. No fabricated numbers here.
+    labels: {
+      rating: 'Average tour rating',
+      itineraries: 'Curated itineraries',
+      supportValue: '24/7',
+      supportLabel: 'On-trip support',
+    },
   },
   testimonials: {
     eyebrow: 'Traveller stories',
     heading: 'Loved by travellers',
     subtitle:
       'Real words from guests who explored Vietnam with us — their journeys, told in their own voice.',
-    items: [
-      {
-        name: 'Emily Carter',
-        trip: 'Hạ Long Bay Cruise',
-        location: 'Sydney, Australia',
-        rating: 5,
-        content:
-          'Our overnight cruise was flawless from start to finish. The guide knew every hidden cave, and the sunrise over the karsts is something I will never forget.',
-      },
-      {
-        name: 'Lukas Meyer',
-        trip: 'Hội An Heritage Walk',
-        location: 'Munich, Germany',
-        rating: 5,
-        content:
-          'Wandering the lantern-lit old town with a local historian made Hội An come alive. Every detail of the trip was thoughtfully arranged.',
-      },
-      {
-        name: 'Sophie Laurent',
-        trip: 'Sa Pa Trekking',
-        location: 'Lyon, France',
-        rating: 4,
-        content:
-          'The hill-tribe trek was the highlight of our month in Vietnam — challenging, beautiful, and our guide looked after us the whole way.',
-      },
-      {
-        name: 'Daniel Kim',
-        trip: 'Mekong Delta Discovery',
-        location: 'Seoul, South Korea',
-        rating: 5,
-        content:
-          'Floating markets at dawn and home-cooked meals on the river — this tour showed us a side of Vietnam we would never have found alone.',
-      },
-    ],
+    // No fixture list — the section renders ONLY real approved+featured
+    // reviews (GET /reviews/featured) and hides itself when there are none.
   },
   about: {
     hero: {
