@@ -1671,6 +1671,13 @@ export const messages = {
     reviewsSection: {
       heading: 'Traveller reviews',
       verified: 'Verified traveller',
+      readMore: 'Read more',
+      seeAll: (count: number): string => `See all ${count} reviews`,
+      dialogTitle: 'Traveller review',
+      listDialogTitle: 'All reviews',
+      loadMore: 'Load more reviews',
+      loading: 'Loading reviews…',
+      loadError: 'Could not load more reviews — please try again.',
     },
     // "Why travel with us" trust grid
     trust: {

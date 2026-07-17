@@ -14,18 +14,11 @@ import {
 } from '../tour-detail-derive';
 import { tourTag } from '../revalidate';
 import { getApiClient } from './client';
+import { toTourReview } from './review-mapper';
 import { fetchTourCards, knownTravellerTypes } from './tours';
 
 type TourDetailDto = components['schemas']['TourDetailDto'];
 type PublicReviewDto = components['schemas']['PublicReviewDto'];
-
-/** "May 2024" from an ISO timestamp (graceful on a bad/empty value). */
-function formatReviewDate(iso: string): string {
-  const date = new Date(iso);
-  return Number.isNaN(date.getTime())
-    ? ''
-    : date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
-}
 
 /** Duration-derived stay summary (the detail DTO has no accommodation field). */
 function buildAccommodation(durationDays: number): string {
@@ -39,16 +32,6 @@ function deriveBadge(badges: readonly string[]): TourDetailVM['badge'] {
   return badges.includes('POPULAR') || badges.includes('BEST_VALUE')
     ? 'bestSeller'
     : undefined;
-}
-
-function toTourReview(dto: PublicReviewDto): TourReview {
-  return {
-    id: dto.id,
-    author: dto.reviewer.fullName,
-    date: formatReviewDate(dto.createdAt),
-    rating: dto.rating,
-    quote: dto.body,
-  };
 }
 
 /** Maps a `TourDetailDto` (+ resolved reviews & related) into the detail view-model. */

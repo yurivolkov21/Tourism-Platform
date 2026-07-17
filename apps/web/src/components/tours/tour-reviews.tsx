@@ -1,22 +1,32 @@
 import { StarIcon } from 'lucide-react';
 
-import { Card, CardContent, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { MAX_INLINE_REVIEWS, shouldShowSeeAll } from '../../lib/reviews-pager';
 import type { TourReview } from '../../lib/tours';
+import { ReviewCard } from './review-card';
+import { SeeAllReviews } from './see-all-reviews';
 
-/** Traveller reviews — a 3-up grid of quote cards with star ratings (Lily-style social proof). */
+/**
+ * Traveller reviews — server shell (heading + rating badge + 3-up grid). At most
+ * {@link MAX_INLINE_REVIEWS} clamped cards render inline so the layout is stable
+ * regardless of review length/count; the interactive pieces (per-card Read-more
+ * dialog, See-all pagination dialog) are client components.
+ */
 export function TourReviews({
+  slug,
   reviews,
   rating,
   reviewCount,
 }: {
+  slug: string;
   reviews: TourReview[];
   rating: number;
   reviewCount: number;
 }) {
   if (reviews.length === 0) return null;
   const t = messages.tourDetail.reviewsSection;
+  const inline = reviews.slice(0, MAX_INLINE_REVIEWS);
 
   return (
     <section className="py-12 sm:py-16">
@@ -40,38 +50,18 @@ export function TourReviews({
         </div>
 
         <div className="grid gap-5 md:grid-cols-3">
-          {reviews.map((review) => (
-            <Card key={review.id} className="h-full">
-              <CardContent className="flex h-full flex-col gap-3 p-6">
-                <div
-                  className="flex gap-0.5"
-                  role="img"
-                  aria-label={`${review.rating} out of 5`}
-                >
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <StarIcon
-                      key={i}
-                      aria-hidden="true"
-                      className={cn(
-                        'size-4',
-                        i < review.rating
-                          ? 'fill-rating text-rating'
-                          : 'text-muted-foreground/30',
-                      )}
-                    />
-                  ))}
-                </div>
-                <p className="text-pretty">“{review.quote}”</p>
-                <div className="mt-auto pt-2">
-                  <div className="font-semibold">{review.author}</div>
-                  <div className="text-muted-foreground text-xs">
-                    {review.date} · {t.verified}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {inline.map((review) => (
+            <ReviewCard key={review.id} review={review} />
           ))}
         </div>
+
+        {shouldShowSeeAll(reviewCount, MAX_INLINE_REVIEWS) ? (
+          <SeeAllReviews
+            slug={slug}
+            reviewCount={reviewCount}
+            initial={inline}
+          />
+        ) : null}
       </div>
     </section>
   );

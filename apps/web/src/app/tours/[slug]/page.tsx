@@ -228,6 +228,7 @@ export default async function TourDetailPage({
       </section>
 
       <TourReviews
+        slug={slug}
         reviews={tour.reviews}
         rating={tour.rating}
         reviewCount={tour.reviewCount}

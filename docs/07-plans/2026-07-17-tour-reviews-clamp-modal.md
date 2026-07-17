@@ -5,15 +5,30 @@
 
 ## STATUS
 
-- [ ] T0 context7 confirm (Base UI Dialog usage via `@tourism/ui` · ResizeObserver in client components)
-- [ ] T1 pure logic `reviews-pager.ts` (TDD) + client-safe `review-mapper.ts` extraction
-- [ ] T2 i18n `reviewsSection` keys
-- [ ] T3 `ReviewCard` client (clamp + measured truncation + Read-more dialog) + tests
-- [ ] T4 `SeeAllReviews` client (dialog + browser API paging) + tests
-- [ ] T5 wire `tour-reviews.tsx` server shell (slice 6 + client pieces)
-- [ ] T6 gate + review
+- [x] T0 context7 confirm — Base UI `Dialog.Root` takes `open`/`onOpenChange`
+  (controlled); our wrapper exports Dialog/DialogTrigger/DialogContent/
+  DialogHeader/DialogTitle/DialogDescription/DialogClose; web precedents:
+  `danger-zone.tsx`, `booking-actions.tsx`.
+- [x] T1 pure logic `reviews-pager.ts` (TDD) + client-safe `review-mapper.ts` extraction
+- [x] T2 i18n `reviewsSection` keys
+- [x] T3 `ReviewCard` client (clamp + measured truncation + Read-more dialog) + tests
+- [x] T4 `SeeAllReviews` client (dialog + browser API paging) + tests
+- [x] T5 wire `tour-reviews.tsx` server shell (slice 6 + client pieces)
+- [x] T6 gate + review
 
-**RESUME STATE:** _(update as tasks complete)_
+**RESUME STATE:** all code tasks done on `feat/tour-reviews-clamp-modal`; gate
+GREEN (web **366** — +21 over the 345 baseline; i18n 1; build includes
+`/tours/[slug]` unchanged). Code review: 1 CRITICAL finding FIXED — the
+see-all first-open effect had `loading` in its deps while `fetchedPages` stays 0
+on failure → a failed page 1 auto-retried in an unbounded loop; replaced with a
+synchronously-set `requestedRef` guard (`[open]` deps) so the auto-fetch fires
+at most once per mount and "Load more" is the only retry path (+ regression
+test asserting exactly one API call after a failed first page). Lint gotcha:
+`react-hooks/exhaustive-deps` is NOT registered in this repo's eslint config —
+any eslint-disable referencing it ERRORS ("definition not found"); don't write
+one. **Implementation not yet committed — awaiting user review before
+commit + merge.** Post-merge: rule-9 docs sweep + verify on Vercel (long-review
+tour → clamp + Read more; >9-review tour → See all + Load more).
 
 ## Sequencing
 
