@@ -13,6 +13,7 @@ import {
 } from '../../lib/auth/validate';
 import { createClient } from '../../lib/supabase/client';
 import { AuthFormField } from './auth-form-field';
+import { PasswordField } from './password-field';
 
 /**
  * Set a new password. Reached via the recovery session the callback established (the page guards that
@@ -24,6 +25,7 @@ export function ResetPasswordForm() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string>();
   const [fieldErrors, setFieldErrors] = useState<ResetFieldErrors>({});
+  const [pw, setPw] = useState('');
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -57,15 +59,14 @@ export function ResetPasswordForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-4">
-      <AuthFormField
+      <PasswordField
         id="password"
-        label={t.passwordLabel}
         name="password"
-        type="password"
-        autoComplete="new-password"
-        required
-        field="password"
+        label={t.passwordLabel}
+        value={pw}
+        onChange={setPw}
         code={fieldErrors.password}
+        showMeter
       />
 
       <AuthFormField

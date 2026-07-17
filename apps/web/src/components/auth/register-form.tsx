@@ -1,17 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 
 import { Button } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { signUp, type SignUpState } from '../../lib/auth/actions';
 import { AuthFormField } from './auth-form-field';
+import { PasswordField } from './password-field';
 import { ResendConfirmation } from './resend-confirmation';
 
 export function RegisterForm() {
   const t = messages.auth.register;
+  const [pw, setPw] = useState('');
   const [state, formAction, pending] = useActionState<SignUpState, FormData>(
     signUp,
     {},
@@ -71,15 +73,14 @@ export function RegisterForm() {
         code={fieldErrors.email}
       />
 
-      <AuthFormField
+      <PasswordField
         id="password"
-        label={t.passwordLabel}
         name="password"
-        type="password"
-        autoComplete="new-password"
-        required
-        field="password"
+        label={t.passwordLabel}
+        value={pw}
+        onChange={setPw}
         code={fieldErrors.password}
+        showMeter
       />
 
       <AuthFormField
