@@ -4,6 +4,34 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-17 — Generalized on-demand revalidation (`4ad1187`)
+
+- **Public pages now reflect content/admin mutations within seconds** — ISR
+  timers (≤300s) become a pure backstop ([ADR-0013](02-decisions/0013-api-driven-web-revalidation.md);
+  branch `feat/generalized-ondemand-revalidation`, spec+plan `d9bb707`,
+  user-authored spec).
+- **Web:** `lib/revalidate.ts` is the single tag taxonomy (`site-media` ·
+  `tours` · `tour:<slug>` · `destinations` · `posts` · `post:<slug>` ·
+  `categories` · `featured-reviews` · `trust-stats`) with strict allow-list
+  validation; `POST /api/revalidate` generalized to `{ tags?, paths? }` (legacy
+  `{ slug }` kept; unknown tag → 400 whole-request). Every public fetch tagged;
+  **`/blog` gains `revalidate = 300` + the `posts` tag (new posts no longer
+  wait for a redeploy)**; footer categories timer 3600→300.
+- **API:** `WebRevalidationService` moves to a `@Global()`
+  `modules/revalidation/` module and gains `revalidateTags(tags)`
+  (fire-and-forget, 3s timeout, swallow, no-op without `REVALIDATE_SECRET`).
+  Post-commit triggers wired in **7 modules**: tours (incl. old+new slug on
+  rename), departures (incl. the cancel/auto-refund path), site-media, posts,
+  destinations, tour-categories, reviews (moderation → tour + trust-stats;
+  setFeatured + **curated CRUD** → featured-reviews + trust-stats).
+- Review findings: 1 (fixed) — curated-testimonial CRUD was a third
+  review-mutation path hitting the testimonials/trust surfaces that the spec's
+  trigger table missed; now busts both (spec addendum recorded). Money-path
+  safety verified: every trigger is outside the transaction, `void`+`.catch`,
+  service-level swallow.
+- Tests after: **api 569 · web 385 · admin 268 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
 ## 2026-07-17 — Admin: PARTIALLY_REFUNDED surfaced across the dashboard (`4bac638`)
 
 - **Fixed the 38-vs-37 drift** (branch `feat/admin-partial-refunded-visibility`,
