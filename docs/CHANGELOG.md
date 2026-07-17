@@ -4,6 +4,29 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-16 — Password: accurate change errors, 8+ strong policy, shared meter (`951345d`, `f50584c`)
+
+- **Bug fix (root-caused):** changing password to the *current* one showed
+  "Password is too weak — use at least 6 characters." The `authErrorMessage`
+  mapper matched `password should be` too broadly and collapsed Supabase's
+  `same_password` ("New password should be different from the old password") into
+  the weak-password message. Now `same_password` → *"Your new password must be
+  different from your current password."*; `weak_password` surfaces Supabase's own
+  reason (no hardcoded length).
+- **Strong policy:** raised to 8+ chars with lower/upper/number/symbol, mirroring
+  the Supabase Auth settings (Minimum length 8 + Password requirements). Enforced
+  client-side via `validatePasswordPair` (new `WEAK` code) across register / reset
+  / change-password; **login is unchanged** so existing users are never locked out
+  (covered by a test).
+- **Consistent UX:** extracted a shared `PasswordField` (strength bars + rules
+  checklist + show/hide toggle) now used on register, reset-password, AND
+  change-password, so every set-password surface looks identical. Defaults to
+  `autoComplete="new-password"` (no saved-password autofill).
+- **Deploy (done):** Supabase → Auth → Providers → Email → Minimum password
+  length = 8, Password requirements = lowercase/uppercase/digits/symbols.
+- Tests after: **api 558 · web 345 · admin 266 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
 ## 2026-07-16 — Email change: no autofill on the re-auth password field (`cc0435b`)
 
 - Follow-up to the email-change UX: the current-password re-auth field switched
