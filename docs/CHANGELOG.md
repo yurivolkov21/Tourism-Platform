@@ -12,6 +12,9 @@
   action (best-effort; autofill suppression is browser-dependent, `new-password`
   is the fallback if a browser still fills it). Branch
   `fix/change-email-password-no-autofill`. Tests unchanged (web 336).
+- **Follow-up (`de91901`):** `"off"` didn't hold in Chrome → switched to
+  `autoComplete="new-password"`, which reliably stops autofill of the saved login
+  password (may offer "suggest strong password" on focus; never pre-fills).
 
 ## 2026-07-16 — Email change: password re-auth + old-address notice + password-only gate (`83d76a0`)
 
