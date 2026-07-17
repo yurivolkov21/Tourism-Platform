@@ -101,7 +101,10 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
         label={t.currentPasswordLabel}
         name="password"
         type="password"
-        autoComplete="current-password"
+        // Re-auth field: discourage the browser from autofilling the saved
+        // password so confirming an email change is a deliberate, typed action
+        // (best-effort — autofill suppression is browser-dependent).
+        autoComplete="off"
         required
         field="password"
         code={passwordError}
