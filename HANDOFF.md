@@ -100,9 +100,13 @@ ISR). Web tags the tour fetches `tour:<slug>` + a secret-guarded `POST
 **Deploy to-do: set a matching `REVALIDATE_SECRET` in Render (API) + Vercel
 (web)** — until then it no-ops and the 300s ISR is the backstop.
 
-**Dependency security sweep (2026-07-31, `61f6243` + `383d49c`):** all **38
-Dependabot alerts closed** (1 critical · 16 high · 20 medium · 1 low; #122
-landed mid-sweep) — 18 packages pinned
+**Dependency security sweep (2026-07-31, `61f6243` + `383d49c` + `aab5f4f`):**
+all **38 Dependabot alerts closed** (1 critical · 16 high · 20 medium · 1 low;
+#122 landed mid-sweep and needed a second pass — the advisory's own "first
+patched version" 5.0.8 was incomplete, so the floors point at the 2026-07-30
+`brace-expansion` releases 1.1.18 / 2.1.4 / 5.0.9; **never collapse those three
+overrides into one** — 5.x is a named export, 1.x/2.x are not) — 18 packages
+pinned
 in `pnpm-workspace.yaml` `overrides` (pnpm 11 reads them there, **not**
 `package.json`). Headline bumps: `next` 16.2.9→**16.2.12** (SSRF ·
 middleware bypass · cache confusion) · `tar`→7.5.22 (CRITICAL decompression

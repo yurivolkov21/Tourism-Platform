@@ -4,7 +4,7 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
-## 2026-07-31 — Security: all Dependabot alerts closed (`61f6243`, `383d49c`)
+## 2026-07-31 — Security: all Dependabot alerts closed (`61f6243`, `383d49c`, `aab5f4f`)
 
 - **Dependabot 0 open** (was 1 critical · 15 high · 20 medium · 1 low, every
   one against `pnpm-lock.yaml`). The repo has no `.github/dependabot.yml`, so
@@ -36,11 +36,23 @@
   (`@module-federation/dts-plugin` pins 0.5.10 exactly; module federation is
   unused in this workspace).
 - A **38th alert (#122) was filed by GitHub mid-sweep** — a second
-  `brace-expansion` advisory (unbounded expansion length → OOM crash) hitting
-  only the 5.x line (`<=5.0.7`). The `^5.0.7` floor had already resolved 5.0.8,
-  so the follow-up (`383d49c`) only raises the declared floor to `^5.0.8` to
-  match the advisory; `pnpm install` reported "Already up to date", leaving the
-  resolved graph — and therefore the gate result — untouched.
+  `brace-expansion` advisory (GHSA-mh99-v99m-4gvg / **CVE-2026-14257**,
+  unbounded expansion length → OOM process crash). It took two passes:
+  - `383d49c` raised the 5.x floor `^5.0.7`→`^5.0.8` to match the advisory's
+    stated fix. The lockfile had already resolved 5.0.8, so this changed
+    nothing — **and the alert stayed open, correctly.**
+  - `aab5f4f` is the real fix. Reading the installed sources (rather than
+    trusting version numbers) showed **5.0.8 is itself incomplete**: it — like
+    the 1.1.17 and 2.1.3 backports — *declares* `EXPANSION_MAX_LENGTH` but
+    never enforces it inside `expandSequence()`, so `{1..100000000}`-style
+    ranges still blow the heap. The **2026-07-30** releases (**1.1.18 /
+    2.1.4 / 5.0.9**) thread `maxLength` through that path; all three floors now
+    point there. Two traps recorded in the override comments: the advisory's
+    range is `<= 5.0.7` with **no lower bound**, so it semver-matches the
+    1.x/2.x copies too; and the three lines **must not** be collapsed into one
+    override — 5.x is a named export (`exports.expand`) while 1.x/2.x are
+    `module.exports = expandTop`, so forcing 5.x onto minimatch 3.1.5 breaks it
+    at `require()` time.
 - Dependency-only — **no source changes**, so the test baseline is unmoved.
   The 4 peer warnings `pnpm peers check` reports (eslint-config-prettier, detox
   `expect`, jest-watch-typeahead, reanimated) all predate this change. Not
