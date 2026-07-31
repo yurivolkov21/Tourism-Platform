@@ -100,6 +100,17 @@ ISR). Web tags the tour fetches `tour:<slug>` + a secret-guarded `POST
 **Deploy to-do: set a matching `REVALIDATE_SECRET` in Render (API) + Vercel
 (web)** — until then it no-ops and the 300s ISR is the backstop.
 
+**Dependency security sweep (2026-07-31, `61f6243`):** all **37 Dependabot
+alerts closed** (1 critical · 15 high · 20 medium · 1 low) — 18 packages pinned
+in `pnpm-workspace.yaml` `overrides` (pnpm 11 reads them there, **not**
+`package.json`). Headline bumps: `next` 16.2.9→**16.2.12** (SSRF ·
+middleware bypass · cache confusion) · `tar`→7.5.22 (CRITICAL decompression
+DoS) · `axios`→1.19.0 (reaches `@paypal/paypal-server-sdk`) · `sharp`→0.35.3.
+Three are forced past their parent's declared range and flagged inline —
+`sharp`, `@hono/node-server`, `adm-zip`; revert those first if tooling
+misbehaves. The repo has **no `.github/dependabot.yml`**, so new alerts stay
+manual-fix via the same overrides block.
+
 ## Next actions
 
 1. **P5.7 mobile screen-by-screen Navel parity — IN FLIGHT** (P5.6 R1→R3

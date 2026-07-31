@@ -4,6 +4,46 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-07-31 — Security: all 37 Dependabot alerts closed (`61f6243`)
+
+- **Dependabot 0 open** (was 1 critical · 15 high · 20 medium · 1 low, every
+  one against `pnpm-lock.yaml`). The repo has no `.github/dependabot.yml`, so
+  alerts are surfaced but never auto-PR'd — 18 packages pinned by hand to their
+  patched versions in `pnpm-workspace.yaml` `overrides` (pnpm 11 reads them
+  there, **not** `package.json`); the `next` bump additionally touched the root
+  + `apps/{web,admin}` `package.json`.
+- **Runtime-facing:** `next` 16.2.9→16.2.12 (8 alerts — SSRF in rewrites and in
+  Server Actions on custom servers, Turbopack middleware bypass, response-body
+  cache confusion ×2, Image-Optimization SVG DoS, Server-Function endpoint
+  disclosure, Server-Actions DoS) · `sharp` 0.34.5→0.35.3 (inherited libvips
+  CVE-2026-33327/33328/35590/35591) · `axios` 1.16.0→1.19.0 (proxy-after-clone
+  + prototype-pollution set; reaches `@paypal/paypal-server-sdk` on the money
+  path) · `body-parser@2` 2.2.2→2.3.0 (an invalid `limit` silently disabled
+  size enforcement — express 5 under the API).
+- **Build/dev tooling:** `tar` 7.5.16→7.5.22 (5 alerts incl. the CRITICAL
+  unlimited-input decompression DoS, via `@expo/cli`) · `hono` 4.12.25→4.12.32
+  (3) · `brace-expansion` (1.x/2.x/5.x lines) · `immutable` ·
+  `webpack-dev-server` · `fast-uri` · `svgo` (3.x + 4.x) · `js-yaml` 4.2.0→4.3.0
+  (widened for the merge-key-chain follow-up) · `valibot` · `@hono/node-server`
+  · `adm-zip`.
+- Three overrides are **forced past the parent's declared range** and are
+  flagged inline so they stay easy to revert: `sharp` 0.34→0.35 (next@16.2
+  declares `^0.34.5` as an *optional* dep, but `next@canary` already moved to
+  `^0.35.3`; no 0.34 backport exists) · `@hono/node-server` 1→2 (`@prisma/dev`
+  pins 1.19.11 and `@modelcontextprotocol/sdk` asks `^1.19.9`, but the advisory
+  has no 1.x backport, and both load it only for `prisma dev` / the shadcn MCP
+  server — neither runs here) · `adm-zip` 0.5→0.6
+  (`@module-federation/dts-plugin` pins 0.5.10 exactly; module federation is
+  unused in this workspace).
+- Dependency-only — **no source changes**, so the test baseline is unmoved.
+  The 4 peer warnings `pnpm peers check` reports (eslint-config-prettier, detox
+  `expect`, jest-watch-typeahead, reanimated) all predate this change. Not
+  covered by the gate: `sharp` 0.35 is only exercised by Next image
+  optimization at runtime, and web/admin run on Vercel's own image optimizer —
+  worth a glance at an image-heavy page after the next deploy.
+- Tests after: **api 572 · web 385 · admin 268 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
 ## 2026-07-17 — Uploads: accept real-world filenames (`c2dc568`)
 
 - Signed-upload requests no longer reject everyday filenames — Windows
