@@ -41,7 +41,8 @@ overrides:
   tar: '>=7.5.21' # 5 GHSAs incl. CRITICAL unlimited-input decompression DoS (<=7.5.20) — @expo/cli
   'brace-expansion@1': '^1.1.16' # GHSA exponential-time expansion of consecutive `{}` groups
   'brace-expansion@2': '^2.1.2' # ^ same advisory, 2.x line
-  'brace-expansion@5': '^5.0.7' # ^ same advisory, 5.x line
+  'brace-expansion@5': '^5.0.8' # ^ same advisory, 5.x line + the unbounded-expansion
+  # OOM crash advisory that lands only on the 5.x line (<=5.0.7), patched 5.0.8
   axios: '^1.18.0' # GHSA proxy-after-clone + prototype-pollution set (<1.18.0) — nx tooling
   # AND @paypal/paypal-server-sdk (money path); @apimatic asks ^1.8.4, so this stays in range
   immutable: '^5.1.8' # GHSA hash-collision DoS + List 32-bit trie overflow (<5.1.8) — sass
