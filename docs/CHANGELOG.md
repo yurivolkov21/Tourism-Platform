@@ -4,7 +4,7 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
-## 2026-07-31 — Security: all 37 Dependabot alerts closed (`61f6243`)
+## 2026-07-31 — Security: all Dependabot alerts closed (`61f6243`, `383d49c`)
 
 - **Dependabot 0 open** (was 1 critical · 15 high · 20 medium · 1 low, every
   one against `pnpm-lock.yaml`). The repo has no `.github/dependabot.yml`, so
@@ -35,6 +35,12 @@
   server — neither runs here) · `adm-zip` 0.5→0.6
   (`@module-federation/dts-plugin` pins 0.5.10 exactly; module federation is
   unused in this workspace).
+- A **38th alert (#122) was filed by GitHub mid-sweep** — a second
+  `brace-expansion` advisory (unbounded expansion length → OOM crash) hitting
+  only the 5.x line (`<=5.0.7`). The `^5.0.7` floor had already resolved 5.0.8,
+  so the follow-up (`383d49c`) only raises the declared floor to `^5.0.8` to
+  match the advisory; `pnpm install` reported "Already up to date", leaving the
+  resolved graph — and therefore the gate result — untouched.
 - Dependency-only — **no source changes**, so the test baseline is unmoved.
   The 4 peer warnings `pnpm peers check` reports (eslint-config-prettier, detox
   `expect`, jest-watch-typeahead, reanimated) all predate this change. Not
