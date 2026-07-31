@@ -39,10 +39,19 @@ overrides:
   # no 0.34 backport. next@16.2 declares `sharp: ^0.34.5` as an OPTIONAL dep, but
   # next@canary already moved to ^0.35.3 — the forced bump follows upstream.
   tar: '>=7.5.21' # 5 GHSAs incl. CRITICAL unlimited-input decompression DoS (<=7.5.20) — @expo/cli
-  'brace-expansion@1': '^1.1.16' # GHSA exponential-time expansion of consecutive `{}` groups
-  'brace-expansion@2': '^2.1.2' # ^ same advisory, 2.x line
-  'brace-expansion@5': '^5.0.8' # ^ same advisory, 5.x line + the unbounded-expansion
-  # OOM crash advisory that lands only on the 5.x line (<=5.0.7), patched 5.0.8
+  # Two DoS advisories a week apart: GHSA-3jxr-9vmj-r5cp (exponential-time
+  # expansion of consecutive `{}` groups) and GHSA-mh99-v99m-4gvg /
+  # CVE-2026-14257 (unbounded expansion length -> OOM process crash). The OOM
+  # fix shipped INCOMPLETE on every line first: 1.1.17 / 2.1.3 / 5.0.8 declare
+  # EXPANSION_MAX_LENGTH but never enforce it inside expandSequence(), so
+  # `{1..100000000}`-style ranges still blow the heap. The 2026-07-30 releases
+  # thread maxLength through that path — pin THOSE, not the advisory's stated
+  # 5.0.8 floor. Do NOT collapse these into one `brace-expansion` override:
+  # 5.x is a named export (`exports.expand`) while 1.x/2.x are
+  # `module.exports = expandTop`, so forcing 5.x onto minimatch 3.x breaks it.
+  'brace-expansion@1': '^1.1.18' # minimatch 3.x
+  'brace-expansion@2': '^2.1.4' # minimatch 5.x / 9.x
+  'brace-expansion@5': '^5.0.9' # minimatch 10.x, nx
   axios: '^1.18.0' # GHSA proxy-after-clone + prototype-pollution set (<1.18.0) — nx tooling
   # AND @paypal/paypal-server-sdk (money path); @apimatic asks ^1.8.4, so this stays in range
   immutable: '^5.1.8' # GHSA hash-collision DoS + List 32-bit trie overflow (<5.1.8) — sass
