@@ -10,6 +10,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { getApiClient } from './api';
 import { mapAuthError, type AuthErrorKey } from './auth';
+import { signInWithGoogle as googleSignIn } from './google-auth';
 import { supabase } from './supabase';
 
 export interface AuthContextValue {
@@ -21,6 +22,7 @@ export interface AuthContextValue {
     email: string,
     password: string,
   ): Promise<{ error?: AuthErrorKey; confirmationSent?: boolean }>;
+  signInWithGoogle(): Promise<{ error?: AuthErrorKey }>;
   sendReset(email: string): Promise<{ error?: AuthErrorKey }>;
   signOut(): Promise<void>;
 }
@@ -89,6 +91,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [queryClient],
   );
 
+  const signInWithGoogle = useCallback<
+    AuthContextValue['signInWithGoogle']
+  >(async () => {
+    const result = await googleSignIn();
+    if (result.error) return { error: result.error };
+    await syncUser(result.session.user.user_metadata?.['full_name']);
+    queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+    queryClient.invalidateQueries({ queryKey: ['profile'] });
+    queryClient.invalidateQueries({ queryKey: ['bookings'] });
+    return {};
+  }, [queryClient]);
+
   const sendReset = useCallback<AuthContextValue['sendReset']>(
     async (email) => {
       const { error } = await supabase.auth.resetPasswordForEmail(email);
@@ -106,8 +120,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [queryClient]);
 
   const value = useMemo(
-    () => ({ status, user, signIn, signUp, sendReset, signOut }),
-    [status, user, signIn, signUp, sendReset, signOut],
+    () => ({
+      status,
+      user,
+      signIn,
+      signUp,
+      signInWithGoogle,
+      sendReset,
+      signOut,
+    }),
+    [status, user, signIn, signUp, signInWithGoogle, sendReset, signOut],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

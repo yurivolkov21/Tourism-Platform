@@ -16,6 +16,8 @@ import {
   Geist_600SemiBold,
 } from '@expo-google-fonts/geist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -116,13 +118,6 @@ function ThemedStack({ initialSignIn }: { initialSignIn?: boolean }) {
           }}
         />
         <Stack.Screen
-          name="tours/[slug]/itinerary"
-          options={{
-            headerShown: true,
-            title: messages.mobile.tourDetail.itineraryTitle,
-          }}
-        />
-        <Stack.Screen
           name="tours/[slug]/faqs"
           options={{
             headerShown: true,
@@ -153,6 +148,7 @@ function ThemedStack({ initialSignIn }: { initialSignIn?: boolean }) {
           name="auth/forgot"
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
+        <Stack.Screen name="auth/callback" options={{ animation: 'none' }} />
       </Stack>
     </NavigationThemeProvider>
   );
@@ -212,28 +208,36 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      {/* P5.6 dark-first: the app pins the Dark Heritage scheme (OS setting
-          ignored); a light toggle is backlog. StatusBar stays light-on-dark. */}
-      <ThemeProvider scheme="dark">
-        {onboarding === 'show' ? (
-          // Root takeover BEFORE the router Stack — self-contained pager.
-          <>
-            <StatusBar style="light" />
-            <OnboardingScreen onDone={finishOnboarding} />
-          </>
-        ) : (
-          <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-              <BookingDraftProvider>
-                <BottomSheetModalProvider>
-                  <StatusBar style="light" />
-                  <ThemedStack initialSignIn={signInAfter} />
-                </BottomSheetModalProvider>
-              </BookingDraftProvider>
-            </AuthProvider>
-          </QueryClientProvider>
-        )}
-      </ThemeProvider>
+      {/* SafeAreaProvider must sit outside KeyboardProvider — without it,
+          insets get computed independently by react-native-screens (native
+          headers) and react-native-keyboard-controller and race, doubling
+          the top gap on headerShown screens. */}
+      <SafeAreaProvider>
+        <KeyboardProvider>
+          {/* P5.6 dark-first: the app pins the Dark Heritage scheme (OS setting
+              ignored); a light toggle is backlog. StatusBar stays light-on-dark. */}
+          <ThemeProvider scheme="dark">
+            {onboarding === 'show' ? (
+              // Root takeover BEFORE the router Stack — self-contained pager.
+              <>
+                <StatusBar style="light" />
+                <OnboardingScreen onDone={finishOnboarding} />
+              </>
+            ) : (
+              <QueryClientProvider client={queryClient}>
+                <AuthProvider>
+                  <BookingDraftProvider>
+                    <BottomSheetModalProvider>
+                      <StatusBar style="light" />
+                      <ThemedStack initialSignIn={signInAfter} />
+                    </BottomSheetModalProvider>
+                  </BookingDraftProvider>
+                </AuthProvider>
+              </QueryClientProvider>
+            )}
+          </ThemeProvider>
+        </KeyboardProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

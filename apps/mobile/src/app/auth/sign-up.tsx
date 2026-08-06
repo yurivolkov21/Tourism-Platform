@@ -1,5 +1,10 @@
 import { useRef, useState } from 'react';
-import { Pressable, View, type TextInput } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Pressable,
+  View,
+  type TextInput,
+} from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { messages } from '@tourism/i18n';
@@ -28,6 +33,8 @@ export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState<SignUpErrors>({});
   const [banner, setBanner] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -80,160 +87,203 @@ export default function SignUpScreen() {
   }
 
   return (
-    <Screen
-      style={{ paddingTop: 0 }}
-      scrollProps={{
-        keyboardShouldPersistTaps: 'handled',
-        contentContainerStyle: { flexGrow: 1, paddingBottom: theme.spacing(8) },
-      }}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      // 'undefined' on Android depends on windowSoftInputMode=adjustResize,
+      // which edgeToEdgeEnabled makes unreliable — 'height' measures the
+      // keyboard directly instead.
+      behavior={process.env.EXPO_OS === 'ios' ? 'padding' : 'height'}
     >
-      <AuthHero
-        image={require('../../../assets/onboarding/onboarding-1.jpg')}
-        title={t.title}
-      />
-      <View
-        style={{
-          flex: 1,
-          gap: theme.spacing(6),
-          paddingHorizontal: theme.spacing(7),
-          paddingTop: theme.spacing(6),
+      <Screen
+        style={{ paddingTop: 0 }}
+        scrollProps={{
+          keyboardShouldPersistTaps: 'handled',
+          contentContainerStyle: {
+            flexGrow: 1,
+            paddingBottom: theme.spacing(8),
+          },
         }}
       >
-        <TextField
-          variant="underline"
-          placeholder={t.fullNameLabel}
-          value={fullName}
-          onChangeText={setFullName}
-          error={errors.fullName ? te[errors.fullName] : undefined}
-          leading={
-            <Ionicons
-              name="person-outline"
-              size={16}
-              color={theme.colors['primary']}
-            />
-          }
-          autoCorrect={false}
-          autoComplete="name"
-          textContentType="name"
-          returnKeyType="next"
-          onSubmitEditing={() => emailRef.current?.focus()}
+        <AuthHero
+          image={require('../../../assets/onboarding/onboarding-1.jpg')}
+          title={t.title}
         />
-        <TextField
-          ref={emailRef}
-          variant="underline"
-          placeholder={t.emailLabel}
-          value={email}
-          onChangeText={setEmail}
-          error={errors.email ? te[errors.email] : undefined}
-          leading={
-            <Ionicons
-              name="mail-outline"
-              size={16}
-              color={theme.colors['primary']}
-            />
-          }
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          autoComplete="email"
-          textContentType="emailAddress"
-          returnKeyType="next"
-          onSubmitEditing={() => passwordRef.current?.focus()}
-        />
-        <TextField
-          ref={passwordRef}
-          variant="underline"
-          placeholder={t.passwordLabel}
-          value={password}
-          onChangeText={setPassword}
-          error={errors.password ? te[errors.password] : undefined}
-          leading={
-            <Ionicons
-              name="lock-closed-outline"
-              size={16}
-              color={theme.colors['primary']}
-            />
-          }
-          secureTextEntry
-          autoComplete="new-password"
-          textContentType="newPassword"
-          returnKeyType="next"
-          onSubmitEditing={() => confirmRef.current?.focus()}
-        />
-        <TextField
-          ref={confirmRef}
-          variant="underline"
-          placeholder={t.confirmLabel}
-          value={confirm}
-          onChangeText={setConfirm}
-          error={errors.confirm ? te[errors.confirm] : undefined}
-          leading={
-            <Ionicons
-              name="lock-closed-outline"
-              size={16}
-              color={theme.colors['primary']}
-            />
-          }
-          secureTextEntry
-          autoComplete="new-password"
-          textContentType="newPassword"
-          returnKeyType="done"
-          onSubmitEditing={() => void onSubmit()}
-        />
-        {banner ? (
-          <AppText
-            variant="body"
-            style={{ color: theme.colors['destructive'] }}
-          >
-            {banner}
-          </AppText>
-        ) : null}
-        <Button
-          label={submitting ? t.submitting : t.submit}
-          onPress={onSubmit}
-          loading={submitting}
-        />
-        {/* Navel keeps Terms in the register flow — ours is a non-blocking
-            agree line (guest-first: no forced checkbox). */}
-        <AppText variant="caption" muted style={{ textAlign: 'center' }}>
-          {tl.agreePrefix}
-          <AppText
-            variant="caption"
-            style={{ color: theme.colors['primary'] }}
-            onPress={() => router.push('/legal/terms')}
-          >
-            {tl.agreeTerms}
-          </AppText>
-          {tl.agreeAnd}
-          <AppText
-            variant="caption"
-            style={{ color: theme.colors['primary'] }}
-            onPress={() => router.push('/legal/privacy')}
-          >
-            {tl.agreePrivacy}
-          </AppText>
-        </AppText>
-        <View style={{ flex: 1 }} />
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => router.replace('/auth/sign-in')}
-          hitSlop={8}
-          style={{ alignSelf: 'center' }}
+        <View
+          style={{
+            flex: 1,
+            gap: theme.spacing(6),
+            paddingHorizontal: theme.spacing(7),
+            paddingTop: theme.spacing(6),
+          }}
         >
-          <AppText variant="caption" muted>
-            {t.haveAccount}{' '}
+          <TextField
+            variant="underline"
+            placeholder={t.fullNameLabel}
+            value={fullName}
+            onChangeText={setFullName}
+            error={errors.fullName ? te[errors.fullName] : undefined}
+            leading={
+              <Ionicons
+                name="person-outline"
+                size={16}
+                color={theme.colors['primary']}
+              />
+            }
+            autoCorrect={false}
+            autoComplete="name"
+            textContentType="name"
+            returnKeyType="next"
+            onSubmitEditing={() => emailRef.current?.focus()}
+          />
+          <TextField
+            ref={emailRef}
+            variant="underline"
+            placeholder={t.emailLabel}
+            value={email}
+            onChangeText={setEmail}
+            error={errors.email ? te[errors.email] : undefined}
+            leading={
+              <Ionicons
+                name="mail-outline"
+                size={16}
+                color={theme.colors['primary']}
+              />
+            }
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            autoComplete="email"
+            textContentType="emailAddress"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+          />
+          <TextField
+            ref={passwordRef}
+            variant="underline"
+            placeholder={t.passwordLabel}
+            value={password}
+            onChangeText={setPassword}
+            error={errors.password ? te[errors.password] : undefined}
+            leading={
+              <Ionicons
+                name="lock-closed-outline"
+                size={16}
+                color={theme.colors['primary']}
+              />
+            }
+            trailing={
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={
+                  showPassword ? t.hidePassword : t.showPassword
+                }
+                onPress={() => setShowPassword((v) => !v)}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={16}
+                  color={theme.colors['muted-foreground']}
+                />
+              </Pressable>
+            }
+            secureTextEntry={!showPassword}
+            autoComplete="new-password"
+            textContentType="newPassword"
+            returnKeyType="next"
+            onSubmitEditing={() => confirmRef.current?.focus()}
+          />
+          <TextField
+            ref={confirmRef}
+            variant="underline"
+            placeholder={t.confirmLabel}
+            value={confirm}
+            onChangeText={setConfirm}
+            error={errors.confirm ? te[errors.confirm] : undefined}
+            leading={
+              <Ionicons
+                name="lock-closed-outline"
+                size={16}
+                color={theme.colors['primary']}
+              />
+            }
+            trailing={
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={
+                  showConfirm ? t.hidePassword : t.showPassword
+                }
+                onPress={() => setShowConfirm((v) => !v)}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name={showConfirm ? 'eye-off-outline' : 'eye-outline'}
+                  size={16}
+                  color={theme.colors['muted-foreground']}
+                />
+              </Pressable>
+            }
+            secureTextEntry={!showConfirm}
+            autoComplete="new-password"
+            textContentType="newPassword"
+            returnKeyType="done"
+            onSubmitEditing={() => void onSubmit()}
+          />
+          {banner ? (
+            <AppText
+              variant="body"
+              style={{ color: theme.colors['destructive'] }}
+            >
+              {banner}
+            </AppText>
+          ) : null}
+          <Button
+            label={submitting ? t.submitting : t.submit}
+            onPress={onSubmit}
+            loading={submitting}
+          />
+          {/* Navel keeps Terms in the register flow — ours is a non-blocking
+            agree line (guest-first: no forced checkbox). */}
+          <AppText variant="caption" muted style={{ textAlign: 'center' }}>
+            {tl.agreePrefix}
             <AppText
               variant="caption"
-              style={{
-                color: theme.colors['primary'],
-                fontFamily: theme.fontFamilies.sansSemiBold,
-              }}
+              style={{ color: theme.colors['primary'] }}
+              onPress={() => router.push('/legal/terms')}
             >
-              {t.loginCta}
+              {tl.agreeTerms}
+            </AppText>
+            {tl.agreeAnd}
+            <AppText
+              variant="caption"
+              style={{ color: theme.colors['primary'] }}
+              onPress={() => router.push('/legal/privacy')}
+            >
+              {tl.agreePrivacy}
             </AppText>
           </AppText>
-        </Pressable>
-      </View>
-    </Screen>
+          <View style={{ flex: 1 }} />
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.replace('/auth/sign-in')}
+            hitSlop={8}
+            style={{ alignSelf: 'center' }}
+          >
+            <AppText variant="caption" muted>
+              {t.haveAccount}{' '}
+              <AppText
+                variant="caption"
+                style={{
+                  color: theme.colors['primary'],
+                  fontFamily: theme.fontFamilies.sansSemiBold,
+                }}
+              >
+                {t.loginCta}
+              </AppText>
+            </AppText>
+          </Pressable>
+        </View>
+      </Screen>
+    </KeyboardAvoidingView>
   );
 }

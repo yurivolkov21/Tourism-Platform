@@ -4,7 +4,8 @@ export type AuthErrorKey =
   | 'invalidCredentials'
   | 'emailTaken'
   | 'weakPassword'
-  | 'generic';
+  | 'generic'
+  | 'cancelled';
 
 export type SignInErrors = Partial<
   Record<'email' | 'password', 'emailInvalid' | 'passwordRequired'>

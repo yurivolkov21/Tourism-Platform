@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { KeyboardAvoidingView, Pressable, View } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { messages } from '@tourism/i18n';
@@ -75,74 +75,88 @@ export default function ForgotScreen() {
   }
 
   return (
-    <Screen
-      style={{ paddingTop: 0 }}
-      scrollProps={{
-        keyboardShouldPersistTaps: 'handled',
-        contentContainerStyle: { flexGrow: 1, paddingBottom: theme.spacing(8) },
-      }}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      // 'undefined' on Android depends on windowSoftInputMode=adjustResize,
+      // which edgeToEdgeEnabled makes unreliable — 'height' measures the
+      // keyboard directly instead.
+      behavior={process.env.EXPO_OS === 'ios' ? 'padding' : 'height'}
     >
-      <AuthHero
-        image={require('../../../assets/onboarding/onboarding-3.jpg')}
-        title={t.title}
-      />
-      <View
-        style={{
-          flex: 1,
-          gap: theme.spacing(6),
-          paddingHorizontal: theme.spacing(7),
-          paddingTop: theme.spacing(6),
+      <Screen
+        style={{ paddingTop: 0 }}
+        scrollProps={{
+          keyboardShouldPersistTaps: 'handled',
+          contentContainerStyle: {
+            flexGrow: 1,
+            paddingBottom: theme.spacing(8),
+          },
         }}
       >
-        <AppText variant="body" muted>
-          {t.subtitle}
-        </AppText>
-        <TextField
-          variant="underline"
-          placeholder={t.emailLabel}
-          value={email}
-          onChangeText={setEmail}
-          error={error ?? undefined}
-          leading={
-            <Ionicons
-              name="mail-outline"
-              size={16}
-              color={theme.colors['primary']}
-            />
-          }
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          autoComplete="email"
-          textContentType="emailAddress"
-          returnKeyType="done"
-          onSubmitEditing={() => void onSubmit()}
+        <AuthHero
+          image={require('../../../assets/onboarding/onboarding-3.jpg')}
+          title={t.title}
         />
-        {banner ? (
-          <AppText
-            variant="body"
-            style={{ color: theme.colors['destructive'] }}
-          >
-            {banner}
-          </AppText>
-        ) : null}
-        <Button
-          label={submitting ? t.submitting : t.submit}
-          onPress={onSubmit}
-          loading={submitting}
-        />
-        <View style={{ flex: 1 }} />
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => router.replace('/auth/sign-in')}
-          hitSlop={8}
-          style={{ alignSelf: 'center' }}
+        <View
+          style={{
+            flex: 1,
+            gap: theme.spacing(6),
+            paddingHorizontal: theme.spacing(7),
+            paddingTop: theme.spacing(6),
+          }}
         >
-          <AppText variant="caption" style={{ color: theme.colors['primary'] }}>
-            {t.backToLogin}
+          <AppText variant="body" muted>
+            {t.subtitle}
           </AppText>
-        </Pressable>
-      </View>
-    </Screen>
+          <TextField
+            variant="underline"
+            placeholder={t.emailLabel}
+            value={email}
+            onChangeText={setEmail}
+            error={error ?? undefined}
+            leading={
+              <Ionicons
+                name="mail-outline"
+                size={16}
+                color={theme.colors['primary']}
+              />
+            }
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            autoComplete="email"
+            textContentType="emailAddress"
+            returnKeyType="done"
+            onSubmitEditing={() => void onSubmit()}
+          />
+          {banner ? (
+            <AppText
+              variant="body"
+              style={{ color: theme.colors['destructive'] }}
+            >
+              {banner}
+            </AppText>
+          ) : null}
+          <Button
+            label={submitting ? t.submitting : t.submit}
+            onPress={onSubmit}
+            loading={submitting}
+          />
+          <View style={{ flex: 1 }} />
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.replace('/auth/sign-in')}
+            hitSlop={8}
+            style={{ alignSelf: 'center' }}
+          >
+            <AppText
+              variant="caption"
+              style={{ color: theme.colors['primary'] }}
+            >
+              {t.backToLogin}
+            </AppText>
+          </Pressable>
+        </View>
+      </Screen>
+    </KeyboardAvoidingView>
   );
 }

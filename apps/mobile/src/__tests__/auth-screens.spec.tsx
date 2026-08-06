@@ -13,6 +13,7 @@ jest.mock('expo-router', () => ({
 
 const mockSignIn = jest.fn();
 const mockSignUp = jest.fn();
+const mockSignInWithGoogle = jest.fn();
 const mockSendReset = jest.fn();
 jest.mock('../lib/auth-context', () => ({
   useAuth: () => ({
@@ -20,6 +21,7 @@ jest.mock('../lib/auth-context', () => ({
     user: null,
     signIn: mockSignIn,
     signUp: mockSignUp,
+    signInWithGoogle: mockSignInWithGoogle,
     sendReset: mockSendReset,
     signOut: jest.fn(),
   }),
@@ -62,6 +64,49 @@ test('sign-in success routes back; failure shows the banner', async () => {
   expect(
     await screen.findByText('Email or password is incorrect.'),
   ).toBeOnTheScreen();
+});
+
+test('sign-in Google button success routes back', async () => {
+  mockSignInWithGoogle.mockResolvedValueOnce({});
+  wrap(<SignInScreen />);
+  await userEvent.press(screen.getByLabelText('Continue with Google'));
+  expect(mockSignInWithGoogle).toHaveBeenCalled();
+  expect(router.back).toHaveBeenCalled();
+});
+
+test('sign-in Google button failure shows the banner', async () => {
+  mockSignInWithGoogle.mockResolvedValueOnce({ error: 'generic' });
+  wrap(<SignInScreen />);
+  await userEvent.press(screen.getByLabelText('Continue with Google'));
+  expect(
+    await screen.findByText('Something went wrong. Please try again.'),
+  ).toBeOnTheScreen();
+  expect(router.back).not.toHaveBeenCalled();
+});
+
+test('sign-in Google button cancellation shows no banner and does not navigate', async () => {
+  mockSignInWithGoogle.mockResolvedValueOnce({ error: 'cancelled' });
+  wrap(<SignInScreen />);
+  await userEvent.press(screen.getByLabelText('Continue with Google'));
+  await screen.findByLabelText('Continue with Google'); // let onGoogle settle
+  expect(router.back).not.toHaveBeenCalled();
+  expect(
+    screen.queryByText('Something went wrong. Please try again.'),
+  ).not.toBeOnTheScreen();
+});
+
+test('sign-in cross-disables the submit and Google buttons while the other is in flight', async () => {
+  let resolveGoogle!: (v: { error?: string }) => void;
+  mockSignInWithGoogle.mockReturnValueOnce(
+    new Promise((resolve) => {
+      resolveGoogle = resolve;
+    }),
+  );
+  wrap(<SignInScreen />);
+  await userEvent.press(screen.getByLabelText('Continue with Google'));
+  expect(screen.getByRole('button', { name: 'Sign in' })).toBeDisabled();
+  resolveGoogle({});
+  await screen.findByLabelText('Continue with Google'); // let the resolved promise settle under act()
 });
 
 test('sign-in shows the wishlist reason line', () => {
