@@ -25,6 +25,11 @@ const customConfig = {
       'require',
       'import',
     ],
+    // pnpm's node_modules is symlink-based (.pnpm store); without this,
+    // Metro's own crawler doesn't index files reached only via Nx's
+    // enhanced-resolve pnpm fallback, so freshly added deps 404 on SHA-1
+    // ("Failed to get the SHA-1 for: ...\.pnpm\...") until this is set.
+    unstable_enableSymlinks: true,
   },
 };
 

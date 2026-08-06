@@ -1,15 +1,18 @@
 {
   "build": {
     "production": {
+      "node": "22.16.0",
       "android": {
         "buildType": "app-bundle"
       }
     },
     "development": {
+      "node": "22.16.0",
       "developmentClient": true,
       "distribution": "internal"
     },
     "preview": {
+      "node": "22.16.0",
       "distribution": "internal",
       "ios": {
         "simulator": true
