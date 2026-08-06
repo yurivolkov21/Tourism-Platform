@@ -28,7 +28,14 @@ export type TourSort = 'popular' | 'price-asc' | 'price-desc' | 'rating';
 
 /** Minimal tour shape the filters operate on (the web `TourCardData` is structurally compatible). */
 export interface FilterableTour {
+  /** Primary destination display name (what the card shows). */
   destination: string;
+  /**
+   * Every destination the tour visits (display names, M:N) — the destination
+   * facet matches against these so a multi-stop tour surfaces under each stop.
+   * Absent → the facet falls back to `destination`.
+   */
+  destinations?: string[];
   durationDays: number;
   basePrice: number;
   rating: number;
@@ -74,12 +81,11 @@ export function filterTours<T extends FilterableTour>(
   const { destinations, categories, durations, styles, themes, prices } =
     filters;
   return tours.filter((tour) => {
-    if (
-      destinations &&
-      destinations.length > 0 &&
-      !destinations.includes(tour.destination)
-    ) {
-      return false;
+    if (destinations && destinations.length > 0) {
+      const visited = tour.destinations ?? [tour.destination];
+      if (!visited.some((name) => destinations.includes(name))) {
+        return false;
+      }
     }
     if (
       categories &&

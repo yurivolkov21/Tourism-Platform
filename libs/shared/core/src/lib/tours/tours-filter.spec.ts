@@ -15,6 +15,7 @@ const tours: Row[] = [
   {
     slug: 'a',
     destination: 'Hạ Long Bay',
+    destinations: ['Hạ Long Bay', 'Cát Bà'],
     durationDays: 2,
     basePrice: 320,
     rating: 4.8,
@@ -108,6 +109,18 @@ describe('filterTours', () => {
     expect(
       slugs(filterTours(tours, { destinations: ['Sa Pa', 'Hội An'] })),
     ).toEqual(['b', 'c']);
+  });
+
+  it('matches a tour by any destination it visits, not only the primary', () => {
+    expect(slugs(filterTours(tours, { destinations: ['Cát Bà'] }))).toEqual([
+      'a',
+    ]);
+  });
+
+  it('falls back to the primary destination when destinations[] is absent', () => {
+    expect(
+      slugs(filterTours(tours, { destinations: ['Hạ Long Bay'] })),
+    ).toEqual(['a']);
   });
 
   it('filters by category slug (OR within the facet)', () => {
