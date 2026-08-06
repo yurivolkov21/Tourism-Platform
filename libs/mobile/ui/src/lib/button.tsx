@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Pressable, type PressableProps } from 'react-native';
 import { AppText } from './app-text';
 import { Spinner } from './spinner';
@@ -11,6 +12,8 @@ export interface ButtonProps extends Omit<PressableProps, 'children'> {
    * is incomplete. A validity AFFORDANCE, not disabled — press still fires so
    * submit-side validation can surface per-field errors. Default `true`. */
   ready?: boolean;
+  /** Leading icon rendered before the label (hidden while `loading`). */
+  icon?: ReactNode;
 }
 
 export function Button({
@@ -19,6 +22,7 @@ export function Button({
   loading,
   disabled,
   ready = true,
+  icon,
   style,
   ...rest
 }: ButtonProps) {
@@ -64,7 +68,7 @@ export function Button({
         typeof style === 'function' ? style(state) : style,
       ]}
     >
-      {loading ? <Spinner size="small" /> : null}
+      {loading ? <Spinner size="small" /> : icon}
       <AppText
         variant="body"
         style={{

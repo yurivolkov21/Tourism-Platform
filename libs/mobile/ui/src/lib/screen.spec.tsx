@@ -1,5 +1,6 @@
 import { ScrollView, Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { render, screen } from '@testing-library/react-native';
 import { theme as tokens } from '@tourism/tokens/theme';
 import { ThemeProvider } from './theme-provider';
@@ -45,6 +46,32 @@ test('hides the vertical scroll indicator by default', () => {
   expect(
     screen.UNSAFE_getByType(ScrollView).props.showsVerticalScrollIndicator,
   ).toBe(false);
+});
+
+test('does not render KeyboardAwareScrollView by default', () => {
+  render(
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <Screen testID="screen">
+          <Text>Body</Text>
+        </Screen>
+      </ThemeProvider>
+    </SafeAreaProvider>,
+  );
+  expect(screen.UNSAFE_queryByType(KeyboardAwareScrollView)).toBeNull();
+});
+
+test('renders a KeyboardAwareScrollView when keyboardAware is true', () => {
+  render(
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <Screen testID="screen" keyboardAware>
+          <Text>Body</Text>
+        </Screen>
+      </ThemeProvider>
+    </SafeAreaProvider>,
+  );
+  expect(screen.UNSAFE_getByType(KeyboardAwareScrollView)).toBeTruthy();
 });
 
 test('renders a plain View with no ScrollView when scroll={false}', () => {

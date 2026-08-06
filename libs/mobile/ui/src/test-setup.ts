@@ -38,6 +38,26 @@ jest.mock('react-native-reanimated', () => {
     FadeOut: chain,
     ZoomIn: chain,
     LinearTransition: chain,
+    // Imperative hook API — plain-JS stand-ins good enough for synchronous
+    // render assertions under the test renderer; real motion isn't
+    // testable under RTL/jsdom regardless (worklets need the native part).
+    // useSharedValue persists its object via useRef — a fresh `{value}` per
+    // render (the naive mock) would silently discard mutations made between
+    // renders, since real Reanimated shared values keep identity across them.
+    useSharedValue: (init: unknown) => {
+      const { useRef } = require('react');
+      return useRef({ value: init }).current;
+    },
+    useAnimatedStyle: (fn: () => unknown) => fn(),
+    withTiming: (toValue: unknown) => toValue,
+    withSpring: (toValue: unknown) => toValue,
+    withSequence: (...animations: unknown[]) =>
+      animations[animations.length - 1],
+    interpolate: (value: number, input: number[], output: number[]) =>
+      output[Math.round(value)] ?? output[0],
+    interpolateColor: (value: number, input: number[], output: string[]) =>
+      output[Math.round(value)] ?? output[0],
+    Extrapolation: { IDENTITY: 'identity', CLAMP: 'clamp', EXTEND: 'extend' },
   };
 });
 
@@ -63,6 +83,21 @@ jest.mock('@gorhom/bottom-sheet', () => {
     BottomSheetScrollView: ScrollView,
     BottomSheetTextInput: TextInput,
     BottomSheetBackdrop: () => null,
+  };
+});
+
+// Keyboard controller has native keyboard-tracking internals — provider is a
+// passthrough, KeyboardAwareScrollView renders as a real ScrollView so
+// screen.spec.tsx can assert on `keyboardAware` without a native module.
+jest.mock('react-native-keyboard-controller', () => {
+  const React = require('react');
+  const { ScrollView } = require('react-native');
+  return {
+    KeyboardProvider: ({ children }: { children?: unknown }) => children,
+    KeyboardAwareScrollView: React.forwardRef(
+      (props: Record<string, unknown>, ref: unknown) =>
+        React.createElement(ScrollView, { ...props, ref }),
+    ),
   };
 });
 

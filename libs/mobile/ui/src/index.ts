@@ -29,3 +29,5 @@ export { StickyCTABar } from './lib/sticky-cta-bar';
 export type { StickyCTABarProps } from './lib/sticky-cta-bar';
 export { GlowBadge } from './lib/glow-badge';
 export type { GlowBadgeProps } from './lib/glow-badge';
+export { RatingInput } from './lib/rating-input';
+export type { RatingInputProps } from './lib/rating-input';

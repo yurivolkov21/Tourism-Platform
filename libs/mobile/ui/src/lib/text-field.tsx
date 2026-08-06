@@ -9,6 +9,8 @@ export interface TextFieldProps extends TextInputProps {
   error?: string;
   /** Leading adornment inside the field (e.g. a search icon). */
   leading?: ReactNode;
+  /** Trailing adornment inside the field (e.g. a show/hide password toggle). */
+  trailing?: ReactNode;
   /** P5.7 S2: `underline` = Navel-style hairline field (icon + placeholder,
    * no box, no visible label — pass `placeholder`; a11y falls back to it). */
   variant?: 'boxed' | 'underline';
@@ -17,7 +19,16 @@ export interface TextFieldProps extends TextInputProps {
 /** Ref forwards to the inner TextInput (return-key focus chaining). */
 export const TextField = forwardRef<TextInput, TextFieldProps>(
   function TextField(
-    { label, error, leading, multiline, variant = 'boxed', style, ...rest },
+    {
+      label,
+      error,
+      leading,
+      trailing,
+      multiline,
+      variant = 'boxed',
+      style,
+      ...rest
+    },
     ref,
   ) {
     const theme = useTheme();
@@ -75,6 +86,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(
               style,
             ]}
           />
+          {trailing}
         </View>
         {error ? (
           <AppText
