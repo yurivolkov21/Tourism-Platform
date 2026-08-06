@@ -13,6 +13,7 @@ const tour = (over: Partial<TourCardVm>): TourCardVm => ({
   slug: 'x',
   title: 'X',
   destination: 'Hanoi',
+  destinations: over.destinations ?? [over.destination ?? 'Hanoi'],
   durationDays: 2,
   basePrice: 150,
   currency: 'USD',
@@ -61,6 +62,20 @@ test('default state returns all tours sorted by popularity (reviewCount desc)', 
 test('query narrows accent-insensitively', () => {
   const state = { ...defaultExploreState, query: 'ha noi' };
   expect(applyExploreState(tours, state).map((t) => t.slug)).toEqual(['b']);
+});
+
+test('destination filter surfaces tours that visit it as a secondary stop', () => {
+  const rows = [
+    ...tours,
+    tour({
+      slug: 'd',
+      title: 'Lan Ha Cruise',
+      destination: 'Ha Long',
+      destinations: ['Ha Long', 'Cát Bà'],
+    }),
+  ];
+  const state = { ...defaultExploreState, destination: 'Cát Bà' };
+  expect(applyExploreState(rows, state).map((t) => t.slug)).toEqual(['d']);
 });
 
 test('destination + duration + price facets AND together', () => {

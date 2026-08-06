@@ -33,6 +33,7 @@ describe('toTourCardVm', () => {
       title: 'Ha Long Bay Cruise',
       summary: 'Two days among the karsts.',
       destination: 'Ha Long',
+      destinations: ['Hanoi', 'Ha Long'],
       durationDays: 3,
       basePrice: 450,
       compareAtPrice: 520,

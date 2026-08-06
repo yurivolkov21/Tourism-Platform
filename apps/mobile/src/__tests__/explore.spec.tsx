@@ -44,6 +44,7 @@ const tour = (over: Partial<TourCardVm>): TourCardVm => ({
   slug: 'x',
   title: 'X',
   destination: 'Hanoi',
+  destinations: over.destinations ?? [over.destination ?? 'Hanoi'],
   durationDays: 2,
   basePrice: 150,
   currency: 'USD',

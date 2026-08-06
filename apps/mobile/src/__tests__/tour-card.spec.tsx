@@ -10,6 +10,7 @@ const vm: TourCardVm = {
   title: 'Ha Long Bay Cruise',
   summary: 'Two days among the karsts.',
   destination: 'Ha Long',
+  destinations: ['Ha Long'],
   durationDays: 3,
   basePrice: 450,
   compareAtPrice: 520,

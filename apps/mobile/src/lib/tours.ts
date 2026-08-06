@@ -11,6 +11,10 @@ export interface TourCardVm {
   title: string;
   summary?: string;
   destination: string;
+  /** Every destination the tour visits (display names, M:N) — the Explore
+   * destination filter matches against these, so a multi-stop tour surfaces
+   * under each of its stops. */
+  destinations: string[];
   durationDays: number;
   basePrice: number;
   compareAtPrice?: number;
@@ -34,6 +38,7 @@ export function toTourCardVm(dto: TourSummaryDto): TourCardVm {
     title: dto.title,
     summary: dto.summary ?? undefined,
     destination: primary?.destination.name ?? '',
+    destinations: dto.destinations.map((d) => d.destination.name),
     durationDays: dto.durationDays,
     basePrice: Number(dto.basePrice),
     compareAtPrice: dto.compareAtPrice ? Number(dto.compareAtPrice) : undefined,
