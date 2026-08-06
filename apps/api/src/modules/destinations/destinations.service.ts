@@ -86,7 +86,11 @@ export class DestinationsService {
   findPublicList(
     query: ListDestinationsQueryDto,
   ): Promise<PaginatedDestinations> {
-    return this.list({ ...query, isActive: true });
+    // Public `toursCount` must match what browsing into the destination shows:
+    // the public tours list only returns PUBLISHED tours, so draft tours must
+    // not inflate the count. (Secondary stops DO count — the destination facet
+    // matches every destination a tour visits.)
+    return this.list({ ...query, isActive: true }, { publishedOnly: true });
   }
 
   async findPublicBySlug(slug: string): Promise<DestinationWithMedia> {
@@ -236,6 +240,7 @@ export class DestinationsService {
    */
   private async list(
     query: ListDestinationsQueryDto,
+    opts: { publishedOnly?: boolean } = {},
   ): Promise<PaginatedDestinations> {
     const page = query.page ?? 1;
     const pageSize = query.pageSize ?? 20;
@@ -254,7 +259,15 @@ export class DestinationsService {
         orderBy: { [sortBy]: sortOrder },
         skip: (page - 1) * pageSize,
         take: pageSize,
-        include: { _count: { select: { tours: true } } },
+        include: {
+          _count: {
+            select: {
+              tours: opts.publishedOnly
+                ? { where: { tour: { isPublished: true } } }
+                : true,
+            },
+          },
+        },
       }),
       this.prisma.destination.count({ where }),
     ]);

@@ -174,4 +174,36 @@ describe('DestinationsService', () => {
       (res.items[0] as unknown as { _count?: unknown })._count,
     ).toBeUndefined();
   });
+
+  it('findPublicList counts only PUBLISHED tours (matches the public tours list)', async () => {
+    const findMany = jest
+      .fn()
+      .mockResolvedValue([{ id: 'd1', slug: 'hanoi', _count: { tours: 5 } }]);
+    const count = jest.fn().mockResolvedValue(1);
+    const svc = makeService(makePrisma({ findMany, count }));
+
+    const res = await svc.findPublicList({});
+
+    expect(findMany.mock.calls[0][0].include).toEqual({
+      _count: {
+        select: { tours: { where: { tour: { isPublished: true } } } },
+      },
+    });
+    expect(res.items[0].toursCount).toBe(5);
+  });
+
+  it('findAll (admin) keeps the unfiltered link count', async () => {
+    const findMany = jest
+      .fn()
+      .mockResolvedValue([{ id: 'd1', slug: 'hanoi', _count: { tours: 6 } }]);
+    const count = jest.fn().mockResolvedValue(1);
+    const svc = makeService(makePrisma({ findMany, count }));
+
+    const res = await svc.findAll({});
+
+    expect(findMany.mock.calls[0][0].include).toEqual({
+      _count: { select: { tours: true } },
+    });
+    expect(res.items[0].toursCount).toBe(6);
+  });
 });
