@@ -26,8 +26,9 @@ export interface RegionTile {
 
 /**
  * Pure: pick a region's destinations + tours from the full catalogue. A destination belongs to the
- * region when its `region` matches `regionName`; a tour belongs when its (primary) `destination` is
- * one of those destinations. Input order is preserved; inputs are not mutated.
+ * region when its `region` matches `regionName`; a tour belongs when ANY destination it visits
+ * (`destinations`, falling back to the primary `destination`) is one of those destinations.
+ * Input order is preserved; inputs are not mutated.
  */
 export function selectRegionBookables(
   tiles: readonly RegionTile[],
@@ -42,6 +43,8 @@ export function selectRegionBookables(
       slug: d.slug,
       gallery: d.gallery,
     })),
-    tours: tours.filter((tour) => names.has(tour.destination)),
+    tours: tours.filter((tour) =>
+      (tour.destinations ?? [tour.destination]).some((name) => names.has(name)),
+    ),
   };
 }

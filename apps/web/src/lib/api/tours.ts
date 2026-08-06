@@ -30,6 +30,7 @@ export function toTourCard(dto: TourSummaryDto): TourCardData {
     slug: dto.slug,
     title: dto.title,
     destination: primary?.destination.name ?? '',
+    destinations: dto.destinations.map((d) => d.destination.name),
     durationDays: dto.durationDays,
     basePrice: Number(dto.basePrice),
     compareAtPrice: dto.compareAtPrice ? Number(dto.compareAtPrice) : undefined,

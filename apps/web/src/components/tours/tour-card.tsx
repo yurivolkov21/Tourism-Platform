@@ -24,6 +24,10 @@ export type TourCardData = {
   slug: string;
   title: string;
   destination: string;
+  // Every destination the tour visits (display names, M:N) — feeds the destination
+  // facet + region/destination browsing so multi-stop tours surface under each stop.
+  // Optional so fixtures without it fall back to `destination`.
+  destinations?: string[];
   durationDays: number;
   basePrice: number;
   compareAtPrice?: number;

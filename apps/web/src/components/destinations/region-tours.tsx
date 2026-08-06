@@ -53,7 +53,9 @@ export function RegionTours({
     () =>
       active === 'all'
         ? tours
-        : tours.filter((tr) => tr.destination === active),
+        : tours.filter((tr) =>
+            (tr.destinations ?? [tr.destination]).includes(active),
+          ),
     [active, tours],
   );
 

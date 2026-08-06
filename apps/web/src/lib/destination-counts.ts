@@ -8,7 +8,8 @@ export interface TourWithDestinations {
 /**
  * Count published tours per destination slug from the tours list. A tour counts
  * for every destination it visits (M:N), so a multi-stop package adds to each of
- * its destinations. Returns a slug → count map.
+ * its destinations — matching `filterTours` (@tourism/core), which browsing into
+ * a destination shows. Returns a slug → count map.
  */
 export function tallyToursByDestination(
   tours: readonly TourWithDestinations[],

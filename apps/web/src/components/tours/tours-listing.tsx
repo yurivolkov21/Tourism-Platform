@@ -88,8 +88,15 @@ export function ToursListing({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  // Facet options span every destination a tour visits (not just the primary),
+  // so a stop-only destination is still selectable.
   const destinationOptions = useMemo(
-    () => Array.from(new Set(tours.map((tour) => tour.destination))),
+    () =>
+      Array.from(
+        new Set(
+          tours.flatMap((tour) => tour.destinations ?? [tour.destination]),
+        ),
+      ),
     [tours],
   );
   // Category facet options (slug → name), de-duped, only for tours that carry a category.
