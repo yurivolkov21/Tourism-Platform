@@ -31,8 +31,13 @@ overrides:
   # @istanbuljs/load-nyc-config (Jest/nyc coverage tooling), which calls only
   # js-yaml.load() — present & safe-by-default in 4.x — so forcing 4.2.0 removes
   # the 3.x copy without breaking it, and Dependabot #63 auto-closes.
-  'undici@6': '^6.27.0' # GHSA Set-Cookie/header-injection/WS-DoS (<6.27.0) — dev tooling copy
-  'undici@7': '^7.28.0' # +SOCKS5/TLS bypass (<7.28.0) — nx (@nx/module-federation) tooling copy
+  'undici@6': '^6.28.0' # GHSA Set-Cookie/header-injection/WS-DoS (<6.27.0), then
+  # cookie-attribute injection via unsanitized domain + retry-interceptor response
+  # desync + CRLF injection via blob-like body `type` (<6.28.0) — @expo/cli copy
+  'undici@7': '^7.29.0' # +SOCKS5/TLS bypass (<7.28.0), then the same three 6.x
+  # advisories plus cross-user cache disclosure and a parse-time crash via
+  # degenerate private cache directives (<7.29.0) — @dotenvx/dotenvx +
+  # @module-federation/dts-plugin tooling copies
   'http-proxy-middleware': '^3.0.7' # GHSA field-injection/host-matching (<3.0.7) — next/webpack dev server (stay in 3.x; 4.x is breaking)
   multer: '^2.2.0' # GHSA DoS via nested field names (<2.2.0) — @nestjs/platform-express; stay in 2.x (minor bump)
   sharp: '^0.35.3' # GHSA inherited libvips CVE-2026-33327/33328/35590/35591 (<0.35.0),
@@ -55,10 +60,19 @@ overrides:
   axios: '^1.18.0' # GHSA proxy-after-clone + prototype-pollution set (<1.18.0) — nx tooling
   # AND @paypal/paypal-server-sdk (money path); @apimatic asks ^1.8.4, so this stays in range
   immutable: '^5.1.8' # GHSA hash-collision DoS + List 32-bit trie overflow (<5.1.8) — sass
-  hono: '^4.12.27' # GHSA cx() JSX escaping bypass + cross-request context leak (<4.12.27) — prisma/mcp tooling
+  hono: '^4.12.34' # GHSA cx() JSX escaping bypass + cross-request context leak (<4.12.27),
+  # then ReDoS in the CORS middleware via Access-Control-Request-Headers (<4.12.34) — prisma/mcp tooling
+  ip-address: '^10.3.1' # GHSA Address4 decodes leading-zero octets as decimal while
+  # resolvers read them as octal (<=10.3.0), plus a CIDR suffix suppressing
+  # special-use classification (<=10.2.1) and IPv4-mapped/NAT64 misclassification
+  # (<=10.2.0) — all three bypass SSRF/trust-boundary checks. Reached via
+  # express-rate-limit inside @modelcontextprotocol/sdk, which this workspace never runs.
   valibot: '^1.4.2' # GHSA record() flatten() throws on inherited Object keys (<=1.4.1) — @prisma/dev
   webpack-dev-server: '^5.2.6' # GHSA malformed Host/Origin DoS + CSRF on dev endpoints (<=5.2.5) — @nx/webpack
-  fast-uri: '^3.1.4' # GHSA host confusion via backslash authority + failed IDN canonicalization (<=3.1.3) — ajv
+  fast-uri: '^3.1.5' # GHSA host confusion via backslash authority + failed IDN
+  # canonicalization — 3.1.4 shipped an INCOMPLETE fix, the backslash authority
+  # introducer still slips through; 3.1.5 is the real floor (<=3.1.4 vulnerable).
+  # Stay in the 3.x line — ajv asks for ^3.
   'svgo@3': '^3.3.4' # GHSA removeScripts leaves some executable scripts intact — @svgr/plugin-svgo
   'svgo@4': '^4.0.2' # ^ same advisory, 4.x line — postcss-svgo
   'body-parser@2': '^2.3.0' # GHSA invalid `limit` silently disables size enforcement (<2.3.0) — express 5
