@@ -1,8 +1,10 @@
-import { useMemo, useRef, useState } from 'react';
-import { FlatList, RefreshControl, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { FlatList, RefreshControl, View, type TextInput } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useScrollToTop } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import {
@@ -60,6 +62,37 @@ export default function ExploreScreen() {
     initialExploreState(params),
   );
   const filterSheetRef = useRef<FilterSheetRef>(null);
+  const searchRef = useRef<TextInput>(null);
+  const listRef = useRef<FlatList>(null);
+  // Re-tapping the already-active Explore tab scrolls the list back to top
+  // (standard iOS/Android convention) — needs FloatingTabBar to actually
+  // emit 'tabPress' on a repeat tap, which it didn't until this was wired up.
+  useScrollToTop(listRef);
+
+  // Explore is a persistent tab screen (expo-router keeps it mounted across
+  // tab switches) — the `useState` initializer above only fires on first
+  // mount, so a later deep-link (Home's destination tile → router.push with a
+  // NEW `destination` param) wouldn't otherwise re-seed the filter.
+  useEffect(() => {
+    if (params.destination && params.destination !== state.destination) {
+      setState((s) => ({ ...s, destination: params.destination }));
+    }
+  }, [params.destination]);
+
+  // Same staleness as above: `autoFocus` only fires on the TextField's own
+  // first mount, so Home's search-glyph → router.push('/explore?focusSearch=…')
+  // does nothing once Explore is already mounted (the normal case, since
+  // tabs stay alive). Focus it imperatively instead. `focusSearch` is a
+  // timestamp (not a fixed '1') specifically so repeated presses keep
+  // changing the param and keep re-triggering this effect. The delay matters
+  // on Android: focus() during the tab transition lands the cursor but the
+  // system swallows the show-keyboard request — wait for the switch to
+  // settle first.
+  useEffect(() => {
+    if (!params.focusSearch) return;
+    const id = setTimeout(() => searchRef.current?.focus(), 300);
+    return () => clearTimeout(id);
+  }, [params.focusSearch]);
 
   const toursQ = useQuery({
     queryKey: ['tours', 'all'],
@@ -79,12 +112,12 @@ export default function ExploreScreen() {
     <View style={{ gap: theme.spacing(3), paddingVertical: theme.spacing(4) }}>
       <SectionHeading title={t.title} />
       <TextField
+        ref={searchRef}
         placeholder={t.searchPlaceholder}
         accessibilityLabel={t.searchPlaceholder}
         value={state.query}
         onChangeText={(query) => setState((s) => ({ ...s, query }))}
         autoCorrect={false}
-        autoFocus={params.focusSearch === '1'}
         leading={
           <Ionicons
             name="search-outline"
@@ -96,29 +129,46 @@ export default function ExploreScreen() {
       {destQ.data && destQ.data.length > 0 ? (
         <View style={{ gap: theme.spacing(2) }}>
           <AppText variant="title">{t.destinationsTitle}</AppText>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={destQ.data}
-            keyExtractor={(d) => d.slug}
-            renderItem={({ item }) => (
-              <Chip
-                label={item.name}
-                imageUri={item.image}
-                selected={state.destination === item.name}
-                onPress={() =>
-                  setState((s) => ({
-                    ...s,
-                    destination:
-                      s.destination === item.name ? undefined : item.name,
-                  }))
-                }
-              />
-            )}
-            ItemSeparatorComponent={() => (
-              <View style={{ width: theme.spacing(2) }} />
-            )}
-          />
+          <View style={{ position: 'relative' }}>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={destQ.data}
+              keyExtractor={(d) => d.slug}
+              renderItem={({ item }) => (
+                <Chip
+                  label={item.name}
+                  imageUri={item.image}
+                  selected={state.destination === item.name}
+                  onPress={() =>
+                    setState((s) => ({
+                      ...s,
+                      destination:
+                        s.destination === item.name ? undefined : item.name,
+                    }))
+                  }
+                />
+              )}
+              ItemSeparatorComponent={() => (
+                <View style={{ width: theme.spacing(2) }} />
+              )}
+            />
+            {/* Trailing fade hints there's more to scroll — the row otherwise
+                cuts the last chip flush against the screen edge. */}
+            <LinearGradient
+              pointerEvents="none"
+              colors={['transparent', theme.colors['background']]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{
+                position: 'absolute',
+                right: 0,
+                top: 0,
+                bottom: 0,
+                width: theme.spacing(8),
+              }}
+            />
+          </View>
         </View>
       ) : null}
       <View
@@ -128,58 +178,80 @@ export default function ExploreScreen() {
           gap: theme.spacing(2),
         }}
       >
-        <Button
-          testID="open-filters"
-          variant="outline"
-          label={
-            countActiveFilters(state) > 0
-              ? `${t.filtersCta} (${countActiveFilters(state)})`
-              : t.filtersCta
-          }
-          onPress={() => filterSheetRef.current?.open(state)}
-        />
-        {countActiveFilters(state) > 0 ? (
-          <Button
-            variant="outline"
-            label={t.clearAll}
-            onPress={() =>
-              setState((s) => ({
-                ...defaultExploreState,
-                query: s.query,
-                destination: s.destination,
-              }))
-            }
-          />
-        ) : null}
-      </View>
-      {toursQ.isSuccess ? (
-        // P5.6: result count as a pill chip (Navel "Found N" treatment).
-        <View
-          style={{
-            alignSelf: 'flex-start',
-            backgroundColor: theme.colors['secondary'],
-            borderRadius: 999,
-            paddingHorizontal: theme.spacing(3),
-            paddingVertical: theme.spacing(1),
-          }}
-        >
-          <AppText
-            variant="caption"
+        {toursQ.isSuccess ? (
+          // P5.6: result count as a pill chip (Navel "Found N" treatment).
+          // No alignSelf here — the row's own alignItems: 'center' should
+          // vertically center this against the (taller) Filters button.
+          <View
             style={{
-              color: theme.colors['secondary-foreground'],
-              fontFamily: theme.fontFamilies.sansSemiBold,
+              backgroundColor: theme.colors['secondary'],
+              borderRadius: 999,
+              paddingHorizontal: theme.spacing(3),
+              paddingVertical: theme.spacing(1),
             }}
           >
-            {t.resultsCount(results.length)}
-          </AppText>
+            <AppText
+              variant="caption"
+              style={{
+                color: theme.colors['secondary-foreground'],
+                fontFamily: theme.fontFamilies.sansSemiBold,
+              }}
+            >
+              {t.resultsCount(results.length)}
+            </AppText>
+          </View>
+        ) : (
+          <View />
+        )}
+        {/* marginLeft: auto pins this group to the right edge regardless of
+            whether the count pill above is rendered yet (still loading). */}
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.spacing(2),
+            marginLeft: 'auto',
+          }}
+        >
+          {countActiveFilters(state) > 0 ? (
+            <Button
+              variant="outline"
+              label={t.clearAll}
+              onPress={() =>
+                setState((s) => ({
+                  ...defaultExploreState,
+                  query: s.query,
+                  destination: s.destination,
+                }))
+              }
+            />
+          ) : null}
+          <Button
+            testID="open-filters"
+            variant="outline"
+            icon={
+              <Ionicons
+                name="filter-outline"
+                size={16}
+                color={theme.colors['foreground']}
+              />
+            }
+            label={
+              countActiveFilters(state) > 0
+                ? `${t.filtersCta} (${countActiveFilters(state)})`
+                : t.filtersCta
+            }
+            onPress={() => filterSheetRef.current?.open(state)}
+          />
         </View>
-      ) : null}
+      </View>
     </View>
   );
 
   return (
     <Screen scroll={false}>
       <FlatList
+        ref={listRef}
         data={toursQ.isSuccess ? results : []}
         keyExtractor={(tour) => tour.slug}
         renderItem={({ item }) => (

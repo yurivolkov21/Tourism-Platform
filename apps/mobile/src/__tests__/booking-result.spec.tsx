@@ -51,6 +51,7 @@ const paidVm: BookingVm = {
   paymentProvider: 'STRIPE',
   contactName: 'A',
   contactEmail: 'a@example.com',
+  hasReview: false,
 };
 
 function renderScreen() {
@@ -81,7 +82,11 @@ beforeEach(() => {
 test('opens the browser then confirms a PAID booking', async () => {
   (fetchBooking as jest.Mock).mockResolvedValue(paidVm);
   renderScreen();
-  expect(await screen.findByText(/booking confirmed/i)).toBeOnTheScreen();
+  // { timeout } covers PAYING_UI_DELAY_MS — openCheckout holds briefly on
+  // the "handing off to checkout" screen before actually launching it.
+  expect(
+    await screen.findByText(/booking confirmed/i, {}, { timeout: 3000 }),
+  ).toBeOnTheScreen();
   expect((WebBrowser.openBrowserAsync as jest.Mock).mock.calls[0][0]).toBe(
     'https://pay.example/session',
   );
@@ -98,7 +103,9 @@ test('PayPal + PENDING triggers the idempotent capture, then confirms', async ()
     })
     .mockResolvedValueOnce({ ...paidVm, paymentProvider: 'PAYPAL' });
   renderScreen();
-  expect(await screen.findByText(/booking confirmed/i)).toBeOnTheScreen();
+  expect(
+    await screen.findByText(/booking confirmed/i, {}, { timeout: 3000 }),
+  ).toBeOnTheScreen();
   expect(captureBooking).toHaveBeenCalledTimes(1);
 });
 
@@ -109,7 +116,11 @@ test('still-PENDING shows verify-again + pay-now actions', async () => {
   });
   renderScreen();
   expect(
-    await screen.findByText(/payment not confirmed yet/i),
+    await screen.findByText(
+      /payment not confirmed yet/i,
+      {},
+      { timeout: 3000 },
+    ),
   ).toBeOnTheScreen();
   (fetchBooking as jest.Mock).mockResolvedValue(paidVm);
   fireEvent.press(screen.getByTestId('verify-again'));
@@ -120,7 +131,11 @@ test('unknown booking renders the not-found copy', async () => {
   (fetchBooking as jest.Mock).mockResolvedValue(null);
   renderScreen();
   expect(
-    await screen.findByText(/couldn.t find that booking/i),
+    await screen.findByText(
+      /couldn.t find that booking/i,
+      {},
+      { timeout: 3000 },
+    ),
   ).toBeOnTheScreen();
 });
 
@@ -162,7 +177,9 @@ test('terminal statuses (CANCELLED/REFUNDED) never offer Pay now', async () => {
     statusMeta: { label: 'Cancelled', tone: 'muted' },
   });
   renderScreen();
-  expect(await screen.findByText('Cancelled')).toBeOnTheScreen();
+  expect(
+    await screen.findByText('Cancelled', {}, { timeout: 3000 }),
+  ).toBeOnTheScreen();
   expect(screen.queryByText(/pay now/i)).toBeNull();
   expect(screen.queryByText(/payment not confirmed/i)).toBeNull();
 });

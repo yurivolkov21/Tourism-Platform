@@ -13,6 +13,7 @@ import {
   useTheme,
 } from '@tourism/mobile-ui';
 import { FactRow } from '../../../components/fact-row';
+import { ReviewPrompt } from '../../../components/review-prompt';
 import {
   bookingErrorMessage,
   cancelBooking,
@@ -235,7 +236,13 @@ export default function BookingDetailScreen() {
   const booking = bookingQ.data;
 
   return (
-    <Screen scrollProps={{ keyboardShouldPersistTaps: 'handled' }}>
+    // paddingTop: 0 — the native header already clears the status bar;
+    // Screen's own insets.top would double the gap (same idiom as sign-in).
+    <Screen
+      keyboardAware
+      style={{ paddingTop: 0 }}
+      scrollProps={{ keyboardShouldPersistTaps: 'handled' }}
+    >
       <View
         style={{ gap: theme.spacing(5), paddingVertical: theme.spacing(4) }}
       >
@@ -291,6 +298,8 @@ export default function BookingDetailScreen() {
         </View>
 
         <Actions booking={booking} />
+
+        {booking.status === 'PAID' ? <ReviewPrompt booking={booking} /> : null}
       </View>
     </Screen>
   );

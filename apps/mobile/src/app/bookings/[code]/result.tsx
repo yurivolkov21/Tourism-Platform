@@ -25,6 +25,10 @@ import {
 import { hapticSuccess } from '../../../lib/haptics';
 import { formatMoney } from '../../../lib/money';
 
+// Long enough to register as a deliberate hand-off, short enough not to feel
+// like a stall before the real checkout opens.
+const PAYING_UI_DELAY_MS = 2000;
+
 const ts = messages.booking.success;
 const td = messages.booking.detail;
 const tm = messages.mobile.booking;
@@ -52,6 +56,12 @@ export default function BookingResultScreen() {
   // Pay-now can mint a fresh checkout session — always reopen the LATEST url,
   // never the (possibly superseded) route param.
   const [currentUrl, setCurrentUrl] = useState(checkoutUrl ?? null);
+  const [reopening, setReopening] = useState(false);
+  // The "Open payment page" fallback button should only appear once the
+  // automatic hand-off has actually launched the browser at least once —
+  // otherwise it shows during the hand-off delay too, looking like it's
+  // racing the auto-navigation instead of backing it up.
+  const [hasOpenedOnce, setHasOpenedOnce] = useState(false);
   const started = useRef(false);
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
@@ -95,6 +105,14 @@ export default function BookingResultScreen() {
     async (url: string) => {
       setCurrentUrl(url);
       setPhase('paying');
+      // The browser used to launch on the same tick as this screen mounted,
+      // so the "you're being handed off to checkout" UI never actually got
+      // seen (user feedback) — hold here just long enough for it to register.
+      await new Promise((resolve) => setTimeout(resolve, PAYING_UI_DELAY_MS));
+      // Set before awaiting, not after — on iOS this promise doesn't resolve
+      // until the browser CLOSES, so awaiting first would only reveal the
+      // fallback button once it's already too late to need it.
+      setHasOpenedOnce(true);
       const result = await WebBrowser.openBrowserAsync(url);
       // iOS resolves when the browser closes; Android resolves IMMEDIATELY with
       // { type: 'opened' } — there the AppState listener below verifies when
@@ -147,11 +165,16 @@ export default function BookingResultScreen() {
             <AppText variant="body" muted style={{ textAlign: 'center' }}>
               {phase === 'paying' ? tm.browserHint : tm.verifying}
             </AppText>
-            {phase === 'paying' && currentUrl ? (
+            {phase === 'paying' && currentUrl && hasOpenedOnce ? (
               <Button
                 variant="outline"
-                label={tm.openCheckout}
-                onPress={() => void openCheckout(currentUrl)}
+                label={reopening ? tm.openingCheckout : tm.openCheckout}
+                loading={reopening}
+                onPress={async () => {
+                  setReopening(true);
+                  await openCheckout(currentUrl);
+                  setReopening(false);
+                }}
               />
             ) : null}
           </View>

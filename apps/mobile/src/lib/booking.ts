@@ -104,6 +104,7 @@ export interface BookingVm {
   specialRequests?: string;
   cancellationStatus?: 'REQUESTED' | 'REFUNDED' | 'DENIED';
   refundedAmount?: number;
+  hasReview: boolean;
 }
 
 export function toBookingVm(dto: BookingDto): BookingVm {
@@ -127,6 +128,7 @@ export function toBookingVm(dto: BookingDto): BookingVm {
     cancellationStatus: dto.cancellationRequest?.status,
     refundedAmount:
       dto.refundedAmount != null ? Number(dto.refundedAmount) : undefined,
+    hasReview: dto.hasReview ?? false,
   };
 }
 

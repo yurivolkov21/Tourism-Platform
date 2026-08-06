@@ -36,6 +36,10 @@ export const messages = {
       noAccount: "Don't have an account?",
       registerCta: 'Create one',
       forgotCta: 'Forgot password?',
+      orDivider: 'Or sign in with',
+      googleCta: 'Continue with Google',
+      showPassword: 'Show password',
+      hidePassword: 'Hide password',
     },
     register: {
       title: 'Create your account',
@@ -55,6 +59,8 @@ export const messages = {
       resend: 'Resend email',
       resending: 'Sending…',
       resent: 'Sent — check your inbox again.',
+      showPassword: 'Show password',
+      hidePassword: 'Hide password',
     },
     account: {
       title: 'My account',
@@ -438,6 +444,7 @@ export const messages = {
       contactLabel: 'Contact',
       requestsLabel: 'Special requests',
       payNow: 'Pay now',
+      payNowRedirecting: 'Starting secure checkout…',
       // PENDING self-cancel
       cancel: 'Cancel booking',
       cancelConfirmTitle: 'Cancel this booking?',
@@ -2103,13 +2110,17 @@ export const messages = {
       reviewsTitle: 'Reviews',
       faqsTitle: 'FAQs',
       policiesTitle: 'Policies',
+      // Section tab bar (P5.8): 4 groups over the 8 content sections above.
+      detailsTabLabel: 'Details',
+      reviewsTabLabel: 'Reviews & FAQs',
+      readMore: 'Read more',
+      showLess: 'Show less',
       dayLabel: (day: number) => `Day ${day}`,
       maxGroup: (n: number) => `Up to ${n} guests`,
       reviewsLine: (rating: number, count: number) =>
         `★ ${rating.toFixed(1)} (${count} ${count === 1 ? 'review' : 'reviews'})`,
       nextDeparture: (date: string) => `Next departure: ${date}`,
       seatsLeft: (n: number) => `${n} ${n === 1 ? 'seat' : 'seats'} left`,
-      showAllDays: (n: number) => `Show all ${n} days`,
       showAllFaqs: (n: number) => `Show all ${n} FAQs`,
       seeAllReviews: (n: number) => `See all ${n} reviews`,
       from: 'From',
@@ -2149,6 +2160,7 @@ export const messages = {
       browserHint:
         "Complete your payment in the secure browser window - we'll confirm your booking here when you're back.",
       openCheckout: 'Open payment page',
+      openingCheckout: 'Opening secure checkout…',
       verifying: 'Confirming your payment…',
       verifyAgain: 'Verify again',
       stillPendingTitle: 'Payment not confirmed yet',
@@ -2179,6 +2191,7 @@ export const messages = {
       emailTaken: 'An account with this email already exists.',
       weakPassword: 'Password is too weak — use at least 8 characters.',
       generic: 'Something went wrong. Please try again.',
+      cancelled: 'Sign-in cancelled.',
       nameRequired: 'Please enter your name.',
       emailInvalid: 'Please enter a valid email address.',
       passwordRequired: 'Please enter your password.',
@@ -2208,6 +2221,8 @@ export const messages = {
       heartUnsaveLabel: 'Remove from saved',
       error: "Couldn't load your saved tours.",
       retry: 'Try again',
+      removedToast: (title: string) => `Removed "${title}" from saved`,
+      undo: 'Undo',
     },
   },
 } as const;

@@ -21,6 +21,7 @@ function mk(
     paymentProvider: 'STRIPE',
     contactName: 'A',
     contactEmail: 'a@a.com',
+    hasReview: false,
   };
 }
 

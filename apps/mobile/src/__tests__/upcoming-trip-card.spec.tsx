@@ -18,6 +18,7 @@ const vm: BookingVm = {
   paymentProvider: 'STRIPE',
   contactName: 'A',
   contactEmail: 'a@a.com',
+  hasReview: false,
 };
 
 test('renders the tour, departure and status and fires onPress', () => {

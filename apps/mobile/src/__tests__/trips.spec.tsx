@@ -38,6 +38,7 @@ const vm: BookingVm = {
   paymentProvider: 'STRIPE',
   contactName: 'A',
   contactEmail: 'a@example.com',
+  hasReview: false,
 };
 
 function renderScreen() {

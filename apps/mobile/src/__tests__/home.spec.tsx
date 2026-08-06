@@ -72,6 +72,7 @@ const bookingVm: BookingVm = {
   paymentProvider: 'STRIPE',
   contactName: 'A',
   contactEmail: 'a@a.com',
+  hasReview: false,
 };
 
 function renderHome() {
@@ -134,7 +135,11 @@ test('the search button routes to Explore with focusSearch', async () => {
   renderHome();
   await screen.findByText('Hạ Long Bay');
   await userEvent.press(screen.getByTestId('home-search'));
-  expect(router.push).toHaveBeenCalledWith('/explore?focusSearch=1');
+  // Timestamp, not a fixed '1' — see the onPress comment: repeated presses
+  // must keep changing the param so Explore's re-focus effect re-fires.
+  expect(router.push).toHaveBeenCalledWith(
+    expect.stringMatching(/^\/explore\?focusSearch=\d+$/),
+  );
 });
 
 test('guests never load bookings', async () => {

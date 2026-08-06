@@ -166,7 +166,11 @@ export default function HomeScreen() {
               accessibilityLabel={t.searchButton}
               testID="home-search"
               hitSlop={10}
-              onPress={() => router.push('/explore?focusSearch=1')}
+              // A timestamp, not a fixed '1' — Explore stays mounted across
+              // tab switches, so re-pressing this with the same param value
+              // wouldn't change `params.focusSearch` and the effect there
+              // (deps-gated) would silently skip re-focusing.
+              onPress={() => router.push(`/explore?focusSearch=${Date.now()}`)}
               android_ripple={{
                 color: theme.colors['muted'],
                 borderless: true,

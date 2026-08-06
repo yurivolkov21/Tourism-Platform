@@ -107,6 +107,15 @@ describe('toBookingVm', () => {
     expect(vm.contactPhone).toBeUndefined();
     expect(vm.refundedAmount).toBeUndefined();
     expect(vm.cancellationStatus).toBeUndefined();
+    expect(vm.hasReview).toBe(false);
+  });
+
+  test('maps hasReview: true through', () => {
+    const vm = toBookingVm({
+      ...bookingDto,
+      hasReview: true,
+    } as unknown as BookingDto);
+    expect(vm.hasReview).toBe(true);
   });
 
   test('singular party line and refund fields', () => {

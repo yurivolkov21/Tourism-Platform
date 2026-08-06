@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { FlatList, Pressable, RefreshControl, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
@@ -10,11 +12,13 @@ import {
   Screen,
   ScrimImage,
   Skeleton,
+  TAB_BAR_TILE,
   useTheme,
 } from '@tourism/mobile-ui';
 import { AuthGate } from '../../components/auth-gate';
 import { EmptyState } from '../../components/empty-state';
 import { SectionHeading } from '../../components/section-heading';
+import { Snackbar } from '../../components/snackbar';
 import { useAuth } from '../../lib/auth-context';
 import { hapticSelect } from '../../lib/haptics';
 import {
@@ -100,13 +104,25 @@ function SavedRow({
 
 export default function SavedScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { status } = useAuth();
   const { toggle } = useWishlist();
+  const [removedTour, setRemovedTour] = useState<SavedTourVm | null>(null);
   const listQ = useQuery({
     queryKey: ['wishlist', 'list'],
     queryFn: fetchSavedTours,
     enabled: status === 'signedIn',
   });
+
+  const removeTour = (tour: SavedTourVm) => {
+    hapticSelect();
+    toggle(tour.tourId);
+    setRemovedTour(tour);
+  };
+  const undoRemove = () => {
+    if (removedTour) toggle(removedTour.tourId);
+    setRemovedTour(null);
+  };
 
   if (status !== 'signedIn') {
     return (
@@ -127,13 +143,7 @@ export default function SavedScreen() {
         keyExtractor={(item) => item.tourId}
         renderItem={({ item }) => (
           <Animated.View entering={FadeIn.duration(200)}>
-            <SavedRow
-              tour={item}
-              onRemove={() => {
-                hapticSelect();
-                toggle(item.tourId);
-              }}
-            />
+            <SavedRow tour={item} onRemove={() => removeTour(item)} />
           </Animated.View>
         )}
         ItemSeparatorComponent={() => (
@@ -184,6 +194,16 @@ export default function SavedScreen() {
               />
             </EmptyState>
           )
+        }
+      />
+      <Snackbar
+        visible={removedTour != null}
+        message={removedTour ? t.removedToast(removedTour.title) : ''}
+        actionLabel={t.undo}
+        onAction={undoRemove}
+        onDismiss={() => setRemovedTour(null)}
+        bottomOffset={
+          insets.bottom + theme.spacing(2) + TAB_BAR_TILE + theme.spacing(1)
         }
       />
     </Screen>

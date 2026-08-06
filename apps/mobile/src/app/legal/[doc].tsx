@@ -33,7 +33,9 @@ export default function LegalScreen() {
   const { doc: legal, icon } = entry;
 
   return (
-    <Screen>
+    // paddingTop: 0 — the native header already clears the status bar;
+    // Screen's own insets.top would double the gap (same idiom as sign-in).
+    <Screen style={{ paddingTop: 0 }}>
       {/* Native header: back chevron only — the title lives in the content. */}
       <Stack.Screen options={{ headerShown: true, title: '' }} />
       <View

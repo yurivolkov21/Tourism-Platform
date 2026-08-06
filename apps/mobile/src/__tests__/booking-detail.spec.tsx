@@ -50,6 +50,7 @@ const base: BookingVm = {
   paymentProvider: 'STRIPE',
   contactName: 'Nguyen Van A',
   contactEmail: 'a@example.com',
+  hasReview: false,
 };
 
 function renderScreen() {
