@@ -4,6 +4,48 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-08-06 — Security: 13 new Dependabot alerts closed (`f415e47`)
+
+- **Dependabot back to 0 open** (2 high · 11 medium). Not a new class of
+  problem: every alert is a freshly-published advisory landing on a package the
+  2026-07-31 sweep *already pins*, so the whole fix is **raising five override
+  floors** in `pnpm-workspace.yaml` — no new subtrees, and for the first time in
+  three sweeps **no forced majors** (all five stay inside their current major).
+- `undici@7` `^7.28.0`→`^7.29.0` (**5 alerts** — cross-user information
+  disclosure and a parse-time crash via degenerate private cache directives,
+  cross-user disclosure via whitespace around `=` in Cache-Control,
+  cookie-attribute injection via unsanitized domain, retry-interceptor response
+  desync, CRLF via a blob-like body `type`) — `@dotenvx/dotenvx` +
+  `@module-federation/dts-plugin`.
+- `undici@6` `^6.27.0`→`^6.28.0` (**3** — the cookie-attribute, retry-desync and
+  CRLF advisories on the 6.x line) — `@expo/cli`.
+- `ip-address` **NEW override** `^10.3.1` (**3** — `Address4` decodes
+  leading-zero octets as decimal while resolvers read them as octal; a CIDR
+  suffix suppresses special-use classification; IPv4-mapped/NAT64 addresses are
+  misclassified — all three bypass SSRF / trust-boundary checks) — reached via
+  `express-rate-limit` inside `@modelcontextprotocol/sdk`.
+- `hono` `^4.12.27`→`^4.12.34` (ReDoS in the CORS middleware via
+  `Access-Control-Request-Headers`) · `fast-uri` `^3.1.4`→`^3.1.5`.
+- **`fast-uri` 3.1.4 was an incomplete fix** — the same trap as `brace-expansion`
+  in the last sweep. The July advisory named 3.1.4 as patched, but the backslash
+  authority introducer still slips through; 3.1.5 is the real floor. Recorded in
+  the override comment. Second time in two sweeps that an advisory's stated
+  "first patched version" was wrong — **verify the floor, don't trust the field.**
+- GitHub labels `ip-address`, `undici@6` and `hono` **`runtime`**, which is
+  misleading: that scope is read off the lockfile position, not the parent. All
+  three arrive under build/dev tooling (`@expo/cli`, `@prisma/dev`, the MCP SDK),
+  and the `prisma dev` / shadcn-MCP paths never run in this workspace. **Nothing
+  in this batch sits on the production request path** of api/web/admin — this was
+  alert hygiene, not an incident.
+- Dependency-only — no source changes, so the baseline is unmoved. pnpm
+  re-resolved from the `overrides` edit alone (`+6 -6`); the usual "also touch
+  `package.json` to force re-resolution" gotcha did **not** bite this time, so
+  try the plain edit first. Resolved above their floors: `undici` 6.28.0 /
+  7.29.0 · `ip-address` 10.4.0 · `hono` 4.13.0 · `fast-uri` 3.1.5, with no
+  vulnerable copies left anywhere in the lockfile.
+- Tests after: **api 572 · web 385 · admin 268 · mobile 167 · mobile-ui 50 ·
+  core 42 · tokens 7 · ui 2 · i18n 1** (1494 total).
+
 ## 2026-07-31 — Security: all Dependabot alerts closed (`61f6243`, `383d49c`, `aab5f4f`)
 
 - **Dependabot 0 open** (was 1 critical · 15 high · 20 medium · 1 low, every

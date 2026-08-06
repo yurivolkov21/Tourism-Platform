@@ -100,21 +100,25 @@ ISR). Web tags the tour fetches `tour:<slug>` + a secret-guarded `POST
 **Deploy to-do: set a matching `REVALIDATE_SECRET` in Render (API) + Vercel
 (web)** — until then it no-ops and the 300s ISR is the backstop.
 
-**Dependency security sweep (2026-07-31, `61f6243` + `383d49c` + `aab5f4f`):**
-all **38 Dependabot alerts closed** (1 critical · 16 high · 20 medium · 1 low;
-#122 landed mid-sweep and needed a second pass — the advisory's own "first
-patched version" 5.0.8 was incomplete, so the floors point at the 2026-07-30
-`brace-expansion` releases 1.1.18 / 2.1.4 / 5.0.9; **never collapse those three
-overrides into one** — 5.x is a named export, 1.x/2.x are not) — 18 packages
-pinned
-in `pnpm-workspace.yaml` `overrides` (pnpm 11 reads them there, **not**
-`package.json`). Headline bumps: `next` 16.2.9→**16.2.12** (SSRF ·
-middleware bypass · cache confusion) · `tar`→7.5.22 (CRITICAL decompression
-DoS) · `axios`→1.19.0 (reaches `@paypal/paypal-server-sdk`) · `sharp`→0.35.3.
-Three are forced past their parent's declared range and flagged inline —
-`sharp`, `@hono/node-server`, `adm-zip`; revert those first if tooling
-misbehaves. The repo has **no `.github/dependabot.yml`**, so new alerts stay
-manual-fix via the same overrides block.
+**Dependency security — Dependabot 0 open** (last swept 2026-08-06, `f415e47`).
+**23 packages pinned by hand** in `pnpm-workspace.yaml` `overrides` (27 entries —
+`brace-expansion`, `svgo` and `undici` each pin more than one major line; the
+three `react*` entries in the same block are Expo version alignment, not
+security) — pnpm 11 reads them there, **not** `package.json`. The repo has **no
+`.github/dependabot.yml`**, so every new alert is manual-fix via that block.
+Working method, in order: (1) `gh api .../dependabot/alerts?state=open` to list
+them; (2) trace each package's *parent* in `pnpm-lock.yaml` before judging
+severity — GitHub's `runtime` scope reads lockfile position, not the parent, and
+has been misleading every sweep so far; (3) raise the override floor; (4)
+`pnpm install`, then **grep the lockfile to confirm no vulnerable copy survives**
+— a partial resolution leaves the alert open. Two standing traps: an advisory's
+stated "first patched version" has been **wrong twice** (`brace-expansion` 5.0.8,
+`fast-uri` 3.1.4 — both declared the fix but never enforced it), so verify the
+floor against the installed source; and the three `brace-expansion` lines
+**must never be collapsed into one** override — 5.x is a named export
+(`exports.expand`), 1.x/2.x are `module.exports = expandTop`. Three overrides are
+forced past their parent's declared range and flagged inline — `sharp`,
+`@hono/node-server`, `adm-zip` — revert those first if tooling misbehaves.
 
 ## Next actions
 
