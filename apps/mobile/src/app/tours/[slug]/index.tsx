@@ -2,7 +2,7 @@ import { useRef, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import {
@@ -29,12 +29,20 @@ import { HeartButton } from '../../../components/heart-button';
 import { ItineraryDayTimeline } from '../../../components/itinerary-timeline';
 import { TourBadges } from '../../../components/tour-badges';
 import { useAuth } from '../../../lib/auth-context';
-import { fetchTourDetail, fetchTourReviews } from '../../../lib/tour-detail';
+import {
+  buildAccommodation,
+  fetchTourDetail,
+  fetchTourReviews,
+  parseMealsLine,
+  parseTransportLine,
+} from '../../../lib/tour-detail';
 import type { TourBadge } from '../../../lib/tours';
 
 const t = messages.mobile.tourDetail;
 const th = messages.mobile.home;
 const tb = messages.mobile.booking;
+// Same catalog entry the web's TourValue reads — single source for the copy.
+const tv = messages.tourDetail.value;
 
 type TabId = 'overview' | 'itinerary' | 'details' | 'reviews';
 
@@ -52,30 +60,328 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'reviews', label: t.reviewsTabLabel },
 ];
 
+/** Web TourSection parity: card panel with a primary accent-bar heading —
+ * the shared language for every tour-detail block. */
 function Section({ title, children }: { title: string; children: ReactNode }) {
   const theme = useTheme();
   return (
-    <View style={{ gap: theme.spacing(2) }}>
-      {/* P5.6: section titles carry the serif display voice. */}
-      <AppText
-        variant="title"
-        style={{ fontFamily: theme.fontFamilies.headingBold, fontSize: 20 }}
+    <View
+      style={{
+        gap: theme.spacing(3),
+        borderWidth: 1,
+        borderColor: theme.colors['border'],
+        borderRadius: theme.radius.lg,
+        borderCurve: 'continuous',
+        backgroundColor: theme.colors['card'],
+        padding: theme.spacing(4),
+      }}
+    >
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: theme.spacing(2),
+        }}
       >
-        {title}
-      </AppText>
+        <View
+          style={{
+            width: 5,
+            height: 22,
+            borderRadius: 999,
+            backgroundColor: theme.colors['primary'],
+          }}
+        />
+        {/* P5.6: section titles carry the serif display voice. */}
+        <AppText
+          variant="title"
+          style={{ fontFamily: theme.fontFamilies.headingBold, fontSize: 20 }}
+        >
+          {title}
+        </AppText>
+      </View>
       {children}
     </View>
   );
 }
 
-function Bullets({ items, mark }: { items: string[]; mark: string }) {
+/** "What's included" — web TourIncluded parity: meals/transport/accommodation
+ * spec rows, the included-activities checklist, then a compact exclusions
+ * list inside the same panel. */
+function InclusionsPanel({
+  included,
+  excluded,
+  durationDays,
+}: {
+  included: string[];
+  excluded: string[];
+  durationDays: number;
+}) {
+  const theme = useTheme();
+  const labels = messages.tourDetail.inclusionLabels;
+
+  const specRows: {
+    icon: keyof typeof Ionicons.glyphMap;
+    label: string;
+    value: string;
+  }[] = [
+    {
+      icon: 'restaurant-outline',
+      label: labels.meals,
+      value: parseMealsLine(included) ?? 'Meals as listed',
+    },
+    {
+      icon: 'car-outline',
+      label: labels.transport,
+      value: parseTransportLine(included) ?? 'Private transfers',
+    },
+    {
+      icon: 'bed-outline',
+      label: labels.accommodation,
+      value: buildAccommodation(durationDays),
+    },
+  ];
+
+  const divider = {
+    borderBottomWidth: 1,
+    borderColor: theme.colors['border'],
+  } as const;
+
+  return (
+    <Section title={t.includedTitle}>
+      <View>
+        {specRows.map((row) => (
+          <View
+            key={row.label}
+            style={{
+              flexDirection: 'row',
+              gap: theme.spacing(2),
+              paddingVertical: theme.spacing(3),
+              ...divider,
+            }}
+          >
+            <Ionicons
+              name={row.icon}
+              size={18}
+              color={theme.colors['primary']}
+              style={{ marginTop: 2 }}
+            />
+            <View style={{ flex: 1, gap: 2 }}>
+              <AppText
+                variant="caption"
+                muted
+                style={{
+                  fontFamily: theme.fontFamilies.sansSemiBold,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.8,
+                  fontSize: 11,
+                }}
+              >
+                {row.label}
+              </AppText>
+              <AppText
+                variant="body"
+                style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+              >
+                {row.value}
+              </AppText>
+            </View>
+          </View>
+        ))}
+
+        <View
+          style={{
+            flexDirection: 'row',
+            gap: theme.spacing(2),
+            paddingVertical: theme.spacing(3),
+          }}
+        >
+          <MaterialCommunityIcons
+            name="bag-personal-outline"
+            size={18}
+            color={theme.colors['primary']}
+            style={{ marginTop: 2 }}
+          />
+          <View style={{ flex: 1, gap: theme.spacing(2) }}>
+            <AppText
+              variant="caption"
+              muted
+              style={{
+                fontFamily: theme.fontFamilies.sansSemiBold,
+                textTransform: 'uppercase',
+                letterSpacing: 0.8,
+                fontSize: 11,
+              }}
+            >
+              {labels.activities}
+            </AppText>
+            {included.map((item) => (
+              <View
+                key={item}
+                style={{ flexDirection: 'row', gap: theme.spacing(2) }}
+              >
+                <Ionicons
+                  name="checkmark"
+                  size={15}
+                  color={theme.colors['success']}
+                  style={{ marginTop: 2 }}
+                />
+                <AppText variant="body" style={{ flex: 1 }}>
+                  {item}
+                </AppText>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {excluded.length > 0 ? (
+          <View
+            style={{
+              borderTopWidth: 1,
+              borderColor: theme.colors['border'],
+              paddingTop: theme.spacing(3),
+              gap: theme.spacing(2),
+            }}
+          >
+            <AppText
+              variant="body"
+              style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+            >
+              {messages.tourDetail.notIncluded}
+            </AppText>
+            {excluded.map((item) => (
+              <View
+                key={item}
+                style={{ flexDirection: 'row', gap: theme.spacing(2) }}
+              >
+                <Ionicons
+                  name="close"
+                  size={15}
+                  color={theme.colors['muted-foreground']}
+                  style={{ marginTop: 2 }}
+                />
+                <AppText variant="body" muted style={{ flex: 1 }}>
+                  {item}
+                </AppText>
+              </View>
+            ))}
+          </View>
+        ) : null}
+      </View>
+    </Section>
+  );
+}
+
+/** "Value of the package" — value props led by a primary dot (web TourValue). */
+function ValuePanel() {
   const theme = useTheme();
   return (
-    <View style={{ gap: theme.spacing(1) }}>
-      {items.map((item) => (
-        <AppText key={item} variant="body">
-          {mark} {item}
-        </AppText>
+    <Section title={tv.heading}>
+      <View style={{ gap: theme.spacing(4) }}>
+        {tv.props.map((prop) => (
+          <View
+            key={prop.title}
+            style={{ flexDirection: 'row', gap: theme.spacing(2) }}
+          >
+            <View
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: 3,
+                marginTop: 7,
+                backgroundColor: theme.colors['primary'],
+              }}
+            />
+            <View style={{ flex: 1, gap: theme.spacing(1) }}>
+              <AppText
+                variant="body"
+                style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+              >
+                {prop.title}
+              </AppText>
+              <AppText variant="body" muted>
+                {prop.body}
+              </AppText>
+            </View>
+          </View>
+        ))}
+      </View>
+    </Section>
+  );
+}
+
+/** Overview's icon-led spec grid (web TourOverview parity) — two columns of
+ * primary icon + uppercase label + value. */
+function SpecGrid({
+  tour,
+}: {
+  tour: { destination: string; durationDays: number };
+}) {
+  const theme = useTheme();
+  const s = messages.tourDetail.specs;
+  const rows: {
+    icon: keyof typeof Ionicons.glyphMap;
+    label: string;
+    value: string;
+  }[] = [
+    { icon: 'location-outline', label: s.destination, value: tour.destination },
+    {
+      icon: 'time-outline',
+      label: s.duration,
+      value: messages.tourDetail.durationValue(tour.durationDays),
+    },
+    // Same computed placeholders as the web until real data lands from the API.
+    { icon: 'calendar-outline', label: s.departure, value: 'Flexible dates' },
+    {
+      icon: 'bed-outline',
+      label: s.accommodation,
+      value: buildAccommodation(tour.durationDays),
+    },
+  ];
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        rowGap: theme.spacing(4),
+      }}
+    >
+      {rows.map((row) => (
+        <View
+          key={row.label}
+          style={{
+            flexDirection: 'row',
+            gap: theme.spacing(2),
+            width: '50%',
+            paddingRight: theme.spacing(2),
+          }}
+        >
+          <Ionicons
+            name={row.icon}
+            size={18}
+            color={theme.colors['primary']}
+            style={{ marginTop: 2 }}
+          />
+          <View style={{ flex: 1, gap: 2 }}>
+            <AppText
+              variant="caption"
+              muted
+              style={{
+                fontFamily: theme.fontFamilies.sansSemiBold,
+                textTransform: 'uppercase',
+                letterSpacing: 0.8,
+                fontSize: 11,
+              }}
+            >
+              {row.label}
+            </AppText>
+            <AppText
+              variant="body"
+              style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
+            >
+              {row.value}
+            </AppText>
+          </View>
+        </View>
       ))}
     </View>
   );
@@ -478,17 +784,45 @@ export default function TourDetailScreen() {
         >
           {activeTab === 'overview' ? (
             <>
-              {tour.overview !== '' ? (
-                <Section title={t.overviewTitle}>
-                  <AppText variant="body">{tour.overview}</AppText>
-                </Section>
-              ) : null}
+              <Section title={t.overviewTitle}>
+                <View style={{ gap: theme.spacing(4) }}>
+                  {tour.overview !== '' ? (
+                    <AppText variant="body" muted>
+                      {tour.overview}
+                    </AppText>
+                  ) : null}
+                  <SpecGrid tour={tour} />
+                </View>
+              </Section>
 
               {tour.highlights.length > 0 ? (
                 <Section title={t.highlightsTitle}>
-                  <Bullets items={tour.highlights} mark="•" />
+                  <View style={{ gap: theme.spacing(3) }}>
+                    {tour.highlights.map((item) => (
+                      <View
+                        key={item}
+                        style={{
+                          flexDirection: 'row',
+                          gap: theme.spacing(2),
+                        }}
+                      >
+                        <Ionicons
+                          name="sparkles-outline"
+                          size={15}
+                          color={theme.colors['primary']}
+                          style={{ marginTop: 3 }}
+                        />
+                        <AppText variant="body" muted style={{ flex: 1 }}>
+                          {item}
+                        </AppText>
+                      </View>
+                    ))}
+                  </View>
                 </Section>
               ) : null}
+
+              {/* Web order parity: Overview → Highlights → Value. */}
+              <ValuePanel />
             </>
           ) : null}
 
@@ -513,17 +847,11 @@ export default function TourDetailScreen() {
 
           {activeTab === 'details' ? (
             <>
-              {tour.included.length > 0 ? (
-                <Section title={t.includedTitle}>
-                  <Bullets items={tour.included} mark="✓" />
-                </Section>
-              ) : null}
-
-              {tour.excluded.length > 0 ? (
-                <Section title={t.excludedTitle}>
-                  <Bullets items={tour.excluded} mark="✕" />
-                </Section>
-              ) : null}
+              <InclusionsPanel
+                included={tour.included}
+                excluded={tour.excluded}
+                durationDays={tour.durationDays}
+              />
 
               {tour.policies.length > 0 ? (
                 <Section title={t.policiesTitle}>

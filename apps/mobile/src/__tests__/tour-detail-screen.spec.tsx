@@ -126,6 +126,13 @@ test('renders the full detail with itinerary accordion and CTA', async () => {
   expect(
     screen.getByText('Sunset kayaking', { exact: false }),
   ).toBeOnTheScreen();
+  // Web-parity "Value of the package" panel lives in the Overview tab.
+  expect(screen.getByText('Value of the package')).toBeOnTheScreen();
+  // Icon-led spec grid (web TourOverview parity): duration + derived stay.
+  // "2 days" also renders in the hero meta strip, hence getAllByText.
+  expect(screen.getAllByText('2 days').length).toBeGreaterThan(0);
+  expect(screen.getByText('Flexible dates')).toBeOnTheScreen();
+  expect(screen.getByText('Hotel · 1 night')).toBeOnTheScreen();
   expect(screen.queryByText('Board at noon.')).not.toBeOnTheScreen();
 
   // Each tab swaps in its own panel — Overview's content leaves the tree
@@ -135,10 +142,19 @@ test('renders the full detail with itinerary accordion and CTA', async () => {
   expect(
     screen.queryByText('Sunset kayaking', { exact: false }),
   ).not.toBeOnTheScreen();
+  expect(screen.queryByText('Value of the package')).not.toBeOnTheScreen();
   // itinerary body appears only after expanding its accordion
   expect(screen.queryByText('Board at noon.')).not.toBeOnTheScreen();
   await userEvent.press(screen.getByRole('button', { name: 'Day 1: Embark' }));
   expect(screen.getByText('Board at noon.')).toBeOnTheScreen();
+
+  // Details tab: web-parity inclusions panel (spec rows + checklist + exclusions).
+  await userEvent.press(screen.getByRole('button', { name: 'Details' }));
+  expect(screen.getByText('Meals as listed')).toBeOnTheScreen();
+  expect(screen.getByText('Private transfers')).toBeOnTheScreen();
+  expect(screen.getByText('All meals')).toBeOnTheScreen();
+  expect(screen.getByText('Not included')).toBeOnTheScreen();
+  expect(screen.getByText('Drinks')).toBeOnTheScreen();
 
   await userEvent.press(screen.getByRole('button', { name: 'Reviews & FAQs' }));
   expect(await screen.findByText('Wonderful trip.')).toBeOnTheScreen();

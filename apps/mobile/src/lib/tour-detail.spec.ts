@@ -1,5 +1,11 @@
 import type { components } from '@tourism/core';
-import { formatDepartureDate, toTourDetailVm } from './tour-detail';
+import {
+  buildAccommodation,
+  formatDepartureDate,
+  parseMealsLine,
+  parseTransportLine,
+  toTourDetailVm,
+} from './tour-detail';
 
 type TourDetailDto = components['schemas']['TourDetailDto'];
 
@@ -95,6 +101,28 @@ test('nulls map to undefined / empty', () => {
   expect(vm.compareAtPrice).toBeUndefined();
   expect(vm.nextDepartureDate).toBeUndefined();
   expect(vm.nextDepartureSeatsLeft).toBeUndefined();
+});
+
+// Mirrors the web's duration-derived stay summary (DTO has no accommodation).
+test('buildAccommodation derives the stay summary from duration', () => {
+  expect(buildAccommodation(1)).toBe('Day tour — no overnight stay');
+  expect(buildAccommodation(2)).toBe('Hotel · 1 night');
+  expect(buildAccommodation(5)).toBe('Hotel · 4 nights');
+});
+
+// Same extraction rules as the web's inclusion spec rows.
+test('parseMealsLine pulls the meal-count line from included', () => {
+  expect(
+    parseMealsLine(['4 breakfasts, 3 lunches, 2 dinners', 'Private car']),
+  ).toBe('4 breakfasts, 3 lunches, 2 dinners');
+  expect(parseMealsLine(['Buffet lunch', 'Local guide'])).toBeUndefined();
+});
+
+test('parseTransportLine finds a transport-looking line', () => {
+  expect(
+    parseTransportLine(['English guide', 'Private car & cruise transfers']),
+  ).toBe('Private car & cruise transfers');
+  expect(parseTransportLine(['Local guide', 'Lunch'])).toBeUndefined();
 });
 
 test('formatDepartureDate is graceful on garbage', () => {

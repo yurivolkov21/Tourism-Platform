@@ -1,4 +1,4 @@
-import { FlatList, Pressable, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -147,8 +147,16 @@ export default function TripsScreen() {
                 paddingBottom: theme.spacing(6),
               }}
               showsVerticalScrollIndicator={false}
-              refreshing={listQ.isRefetching}
-              onRefresh={() => listQ.refetch()}
+              // Branded pull-to-refresh — same treatment as Saved (sync 2026-08-06).
+              refreshControl={
+                <RefreshControl
+                  refreshing={listQ.isRefetching}
+                  onRefresh={() => listQ.refetch()}
+                  colors={[theme.colors['primary']]}
+                  tintColor={theme.colors['primary']}
+                  progressBackgroundColor={theme.colors['card']}
+                />
+              }
             />
           </Animated.View>
         )}

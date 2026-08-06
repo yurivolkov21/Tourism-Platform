@@ -31,6 +31,31 @@ export interface TourDetailVm {
   policies: { kind: string; title: string; body: string }[];
 }
 
+/** The meal-count line ("N breakfasts, N lunches…") out of `included` — same
+ * rule as the web; day tours without one fall back at the call site. */
+export function parseMealsLine(
+  included: readonly string[],
+): string | undefined {
+  return included.find((item) => /\d+\s*(breakfast|lunch|dinner)/i.test(item));
+}
+
+/** First `included` line that reads like transport (car / transfer / cruise / coach). */
+export function parseTransportLine(
+  included: readonly string[],
+): string | undefined {
+  return included.find((item) =>
+    /transfer|car|cruise|coach|transport|van/i.test(item),
+  );
+}
+
+/** Duration-derived stay summary — same rule as the web (the detail DTO has
+ * no accommodation field). */
+export function buildAccommodation(durationDays: number): string {
+  if (durationDays <= 1) return 'Day tour — no overnight stay';
+  const nights = durationDays - 1;
+  return `Hotel · ${nights} night${nights > 1 ? 's' : ''}`;
+}
+
 /** "15 Aug 2026" from an ISO date; echoes the input when unparseable. */
 export function formatDepartureDate(iso: string): string {
   const date = new Date(`${iso}T00:00:00Z`);

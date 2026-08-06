@@ -138,64 +138,70 @@ export default function SavedScreen() {
 
   return (
     <Screen scroll={false}>
-      <FlatList
-        data={listQ.data ?? []}
-        keyExtractor={(item) => item.tourId}
-        renderItem={({ item }) => (
-          <Animated.View entering={FadeIn.duration(200)}>
-            <SavedRow tour={item} onRemove={() => removeTour(item)} />
-          </Animated.View>
-        )}
-        ItemSeparatorComponent={() => (
-          <View style={{ height: theme.spacing(4) }} />
-        )}
-        ListHeaderComponent={
-          <View style={{ paddingVertical: theme.spacing(4) }}>
-            <SectionHeading title={t.title} />
-          </View>
-        }
-        ListFooterComponent={<View style={{ height: theme.spacing(6) }} />}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={listQ.isRefetching}
-            onRefresh={() => listQ.refetch()}
-            colors={[theme.colors['primary']]}
-            tintColor={theme.colors['primary']}
-            progressBackgroundColor={theme.colors['card']}
-          />
-        }
-        ListEmptyComponent={
-          listQ.isPending ? (
-            <View style={{ gap: theme.spacing(3) }}>
-              {[0, 1, 2].map((i) => (
-                <Skeleton key={i} height={72} borderRadius={theme.radius.md} />
-              ))}
-            </View>
-          ) : listQ.isError ? (
-            <View
-              style={{
-                alignItems: 'center',
-                gap: theme.spacing(3),
-                paddingVertical: theme.spacing(6),
-              }}
-            >
-              <AppText variant="body" style={{ textAlign: 'center' }}>
-                {t.error}
-              </AppText>
-              <Button label={t.retry} onPress={() => listQ.refetch()} />
-            </View>
-          ) : (
-            <EmptyState icon="heart-outline" title={t.empty}>
-              <Button
-                label={t.browse}
-                variant="outline"
-                onPress={() => router.push('/explore')}
-              />
-            </EmptyState>
-          )
-        }
-      />
+      {/* Trips-pattern layout (sync 2026-08-06): fixed heading above the
+          list — same top padding + heading→content gap as trips.tsx. */}
+      <View
+        style={{ flex: 1, paddingTop: theme.spacing(4), gap: theme.spacing(3) }}
+      >
+        <SectionHeading title={t.title} />
+        <FlatList
+          data={listQ.data ?? []}
+          keyExtractor={(item) => item.tourId}
+          renderItem={({ item }) => (
+            <Animated.View entering={FadeIn.duration(200)}>
+              <SavedRow tour={item} onRemove={() => removeTour(item)} />
+            </Animated.View>
+          )}
+          ItemSeparatorComponent={() => (
+            <View style={{ height: theme.spacing(4) }} />
+          )}
+          ListFooterComponent={<View style={{ height: theme.spacing(6) }} />}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={listQ.isRefetching}
+              onRefresh={() => listQ.refetch()}
+              colors={[theme.colors['primary']]}
+              tintColor={theme.colors['primary']}
+              progressBackgroundColor={theme.colors['card']}
+            />
+          }
+          ListEmptyComponent={
+            listQ.isPending ? (
+              <View style={{ gap: theme.spacing(3) }}>
+                {[0, 1, 2].map((i) => (
+                  <Skeleton
+                    key={i}
+                    height={72}
+                    borderRadius={theme.radius.md}
+                  />
+                ))}
+              </View>
+            ) : listQ.isError ? (
+              <View
+                style={{
+                  alignItems: 'center',
+                  gap: theme.spacing(3),
+                  paddingVertical: theme.spacing(6),
+                }}
+              >
+                <AppText variant="body" style={{ textAlign: 'center' }}>
+                  {t.error}
+                </AppText>
+                <Button label={t.retry} onPress={() => listQ.refetch()} />
+              </View>
+            ) : (
+              <EmptyState icon="heart-outline" title={t.empty}>
+                <Button
+                  label={t.browse}
+                  variant="outline"
+                  onPress={() => router.push('/explore')}
+                />
+              </EmptyState>
+            )
+          }
+        />
+      </View>
       <Snackbar
         visible={removedTour != null}
         message={removedTour ? t.removedToast(removedTour.title) : ''}
