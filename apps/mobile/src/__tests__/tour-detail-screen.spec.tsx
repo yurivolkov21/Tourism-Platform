@@ -122,14 +122,27 @@ test('renders the full detail with itinerary accordion and CTA', async () => {
   expect(screen.getByText('Popular')).toBeOnTheScreen();
   expect(screen.getByText(/next departure: 15 aug 2026/i)).toBeOnTheScreen();
   expect(screen.getByText(/6 seats left/i)).toBeOnTheScreen();
+  // The Overview tab is the default panel.
   expect(
     screen.getByText('Sunset kayaking', { exact: false }),
   ).toBeOnTheScreen();
-  // itinerary body appears only after expanding
+  expect(screen.queryByText('Board at noon.')).not.toBeOnTheScreen();
+
+  // Each tab swaps in its own panel — Overview's content leaves the tree
+  // once Itinerary is selected (P5.8: replaced jump-scroll after it hit a
+  // persistent RN sticky-header touch bug).
+  await userEvent.press(screen.getByRole('button', { name: 'Itinerary' }));
+  expect(
+    screen.queryByText('Sunset kayaking', { exact: false }),
+  ).not.toBeOnTheScreen();
+  // itinerary body appears only after expanding its accordion
   expect(screen.queryByText('Board at noon.')).not.toBeOnTheScreen();
   await userEvent.press(screen.getByRole('button', { name: 'Day 1: Embark' }));
   expect(screen.getByText('Board at noon.')).toBeOnTheScreen();
+
+  await userEvent.press(screen.getByRole('button', { name: 'Reviews & FAQs' }));
   expect(await screen.findByText('Wonderful trip.')).toBeOnTheScreen();
+
   expect(screen.getByRole('button', { name: 'Inquire now' })).toBeOnTheScreen();
 });
 

@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -10,6 +10,7 @@ import {
   AppText,
   Badge,
   Button,
+  Chip,
   Screen,
   Spinner,
   StickyCTABar,
@@ -25,6 +26,7 @@ import {
 } from '../../../components/enquiry-sheet';
 import { GalleryPager } from '../../../components/gallery-pager';
 import { HeartButton } from '../../../components/heart-button';
+import { ItineraryDayTimeline } from '../../../components/itinerary-timeline';
 import { TourBadges } from '../../../components/tour-badges';
 import { useAuth } from '../../../lib/auth-context';
 import { fetchTourDetail, fetchTourReviews } from '../../../lib/tour-detail';
@@ -33,6 +35,22 @@ import type { TourBadge } from '../../../lib/tours';
 const t = messages.mobile.tourDetail;
 const th = messages.mobile.home;
 const tb = messages.mobile.booking;
+
+type TabId = 'overview' | 'itinerary' | 'details' | 'reviews';
+
+// P5.8: the 8 content sections below are grouped into 4 tabs (user feedback
+// — the plain vertical list read as too long to scan). Each tab swaps in its
+// own panel; an earlier jump-scroll version (tap a tab, scroll the shared
+// list to it) hit a persistent RN bug where stickyHeaderIndices combined
+// with onScroll-driven state updates during an animated scrollTo left the
+// other tabs unresponsive to taps — swapping panels sidesteps that class of
+// bug entirely (no sticky header, no scroll-position tracking).
+const TABS: { id: TabId; label: string }[] = [
+  { id: 'overview', label: t.overviewTitle },
+  { id: 'itinerary', label: t.itineraryTitle },
+  { id: 'details', label: t.detailsTabLabel },
+  { id: 'reviews', label: t.reviewsTabLabel },
+];
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   const theme = useTheme();
@@ -59,6 +77,90 @@ function Bullets({ items, mark }: { items: string[]; mark: string }) {
           {mark} {item}
         </AppText>
       ))}
+    </View>
+  );
+}
+
+/** Tab row — plain in-flow (not sticky, not scrollable), a horizontal Chip
+ * row reused from Explore's destination filter. Tapping swaps which panel
+ * renders below (see `TABS` comment for why this replaced jump-scroll). */
+function SectionTabBar({
+  active,
+  onPress,
+}: {
+  active: TabId;
+  onPress: (id: TabId) => void;
+}) {
+  const theme = useTheme();
+  return (
+    <View
+      style={{
+        borderBottomWidth: 1,
+        borderColor: theme.colors['border'],
+      }}
+    >
+      {/* Horizontal scroll, not flexWrap — keeps all 4 chips on one row.
+          Safe to nest here now: the earlier touch-breaking bug was a
+          ScrollView-in-sticky-header conflict, and this bar isn't sticky
+          anymore (see the TABS comment above). */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          flexDirection: 'row',
+          gap: theme.spacing(2),
+          paddingHorizontal: theme.spacing(4),
+          paddingTop: theme.spacing(4),
+          paddingBottom: theme.spacing(3),
+        }}
+      >
+        {TABS.map((tab) => (
+          <Chip
+            key={tab.id}
+            label={tab.label}
+            selected={active === tab.id}
+            onPress={() => onPress(tab.id)}
+          />
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+// onTextLayout's `lines` count is POST-clamp (capped at numberOfLines
+// itself), not the text's true unclamped line count — it can never exceed 4
+// once numberOfLines={4} is set, so it can't tell us whether text overflowed.
+// A character-length heuristic sidesteps that: ~45 chars/line × 2 lines.
+const REVIEW_CLAMP_LINES = 2;
+const REVIEW_CLAMP_CHARS = 90;
+
+/** Review quote clamped to 2 lines with a tap-to-expand "Read more" — only
+ * shown for quotes long enough to actually overflow. */
+function ReviewQuote({ text }: { text: string }) {
+  const theme = useTheme();
+  const [expanded, setExpanded] = useState(false);
+  const truncated = text.length > REVIEW_CLAMP_CHARS;
+  return (
+    <View>
+      <AppText
+        variant="body"
+        numberOfLines={expanded ? undefined : REVIEW_CLAMP_LINES}
+      >
+        {text}
+      </AppText>
+      {truncated ? (
+        <Pressable onPress={() => setExpanded((v) => !v)} hitSlop={4}>
+          <AppText
+            variant="caption"
+            style={{
+              color: theme.colors['primary'],
+              marginTop: theme.spacing(1),
+            }}
+          >
+            {expanded ? t.showLess : t.readMore}
+          </AppText>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -100,6 +202,17 @@ export default function TourDetailScreen() {
   const { status } = useAuth();
   const departureSheetRef = useRef<DepartureSheetRef>(null);
   const enquirySheetRef = useRef<EnquirySheetRef>(null);
+  const scrollRef = useRef<ScrollView>(null);
+  const [activeTab, setActiveTab] = useState<TabId>('overview');
+
+  function selectTab(id: TabId) {
+    setActiveTab(id);
+    // Without this, switching tabs while scrolled deep into a long panel
+    // can land on a blank stretch of the new (shorter) panel — a single
+    // one-shot scroll, not tracked/re-fired on every scroll frame like the
+    // jump-scroll version was, so it doesn't reintroduce that bug class.
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  }
 
   const detailQ = useQuery({
     queryKey: ['tours', 'detail', slug],
@@ -168,6 +281,7 @@ export default function TourDetailScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors['background'] }}>
       <ScrollView
+        ref={scrollRef}
         // Clears the StickyCTABar: bar body (~96) + device bottom inset +
         // breathing room — a flat constant under-clears at large font scales
         // (adversarial-review finding).
@@ -256,15 +370,13 @@ export default function TourDetailScreen() {
             <HeartButton tourId={tour.id} />
             <TourBadges badges={tour.badges as TourBadge[]} />
           </View>
-        </View>
-        <View
-          style={{
-            paddingHorizontal: theme.spacing(4),
-            paddingTop: theme.spacing(4),
-            gap: theme.spacing(5),
-          }}
-        >
-          <View style={{ gap: theme.spacing(1) }}>
+          <View
+            style={{
+              paddingHorizontal: theme.spacing(4),
+              paddingTop: theme.spacing(3),
+              gap: theme.spacing(1),
+            }}
+          >
             <View
               style={{
                 flexDirection: 'row',
@@ -353,113 +465,143 @@ export default function TourDetailScreen() {
               </View>
             ) : null}
           </View>
+        </View>
 
-          {tour.overview !== '' ? (
-            <Section title={t.overviewTitle}>
-              <AppText variant="body">{tour.overview}</AppText>
-            </Section>
+        <SectionTabBar active={activeTab} onPress={selectTab} />
+
+        <View
+          style={{
+            paddingHorizontal: theme.spacing(4),
+            paddingTop: theme.spacing(4),
+            gap: theme.spacing(5),
+          }}
+        >
+          {activeTab === 'overview' ? (
+            <>
+              {tour.overview !== '' ? (
+                <Section title={t.overviewTitle}>
+                  <AppText variant="body">{tour.overview}</AppText>
+                </Section>
+              ) : null}
+
+              {tour.highlights.length > 0 ? (
+                <Section title={t.highlightsTitle}>
+                  <Bullets items={tour.highlights} mark="•" />
+                </Section>
+              ) : null}
+            </>
           ) : null}
 
-          {tour.highlights.length > 0 ? (
-            <Section title={t.highlightsTitle}>
-              <Bullets items={tour.highlights} mark="•" />
-            </Section>
-          ) : null}
-
-          {tour.itinerary.length > 0 ? (
+          {activeTab === 'itinerary' && tour.itinerary.length > 0 ? (
             <Section title={t.itineraryTitle}>
               <View style={{ gap: theme.spacing(2) }}>
-                {tour.itinerary.slice(0, 3).map((day) => (
+                {/* The Itinerary tab is already its own isolated panel now
+                    (P5.8) — no more reason to cap at 3 days + link out to a
+                    separate full-itinerary page like the old single-scroll
+                    layout needed. */}
+                {tour.itinerary.map((day) => (
                   <Accordion
                     key={day.day}
                     title={`${t.dayLabel(day.day)}: ${day.title}`}
                   >
-                    <AppText variant="body">{day.body}</AppText>
+                    <ItineraryDayTimeline body={day.body} />
                   </Accordion>
                 ))}
-                {tour.itinerary.length > 3 ? (
-                  <Button
-                    variant="outline"
-                    label={t.showAllDays(tour.itinerary.length)}
-                    onPress={() => router.push(`/tours/${slug}/itinerary`)}
-                  />
-                ) : null}
               </View>
             </Section>
           ) : null}
 
-          {tour.included.length > 0 ? (
-            <Section title={t.includedTitle}>
-              <Bullets items={tour.included} mark="✓" />
-            </Section>
-          ) : null}
+          {activeTab === 'details' ? (
+            <>
+              {tour.included.length > 0 ? (
+                <Section title={t.includedTitle}>
+                  <Bullets items={tour.included} mark="✓" />
+                </Section>
+              ) : null}
 
-          {tour.excluded.length > 0 ? (
-            <Section title={t.excludedTitle}>
-              <Bullets items={tour.excluded} mark="✕" />
-            </Section>
-          ) : null}
+              {tour.excluded.length > 0 ? (
+                <Section title={t.excludedTitle}>
+                  <Bullets items={tour.excluded} mark="✕" />
+                </Section>
+              ) : null}
 
-          {reviewsQ.data && reviewsQ.data.length > 0 ? (
-            <Section title={t.reviewsTitle}>
-              <View style={{ gap: theme.spacing(3) }}>
-                {reviewsQ.data.slice(0, 3).map((review) => (
-                  <View key={review.id} style={{ gap: theme.spacing(1) }}>
-                    <AppText variant="caption" muted>
-                      {'★'.repeat(review.rating)} · {review.author}
-                      {review.date ? ` · ${review.date}` : ''}
-                    </AppText>
-                    <AppText variant="body">{review.quote}</AppText>
+              {tour.policies.length > 0 ? (
+                <Section title={t.policiesTitle}>
+                  <View style={{ gap: theme.spacing(3) }}>
+                    {tour.policies.map((policy) => (
+                      <View
+                        key={policy.title}
+                        style={{ gap: theme.spacing(1) }}
+                      >
+                        <AppText
+                          variant="body"
+                          style={{
+                            fontFamily: theme.fontFamilies.sansSemiBold,
+                          }}
+                        >
+                          {policy.title}
+                        </AppText>
+                        <AppText variant="body" muted>
+                          {policy.body}
+                        </AppText>
+                      </View>
+                    ))}
                   </View>
-                ))}
-                {tour.reviewCount > 3 ? (
-                  <Button
-                    variant="outline"
-                    label={t.seeAllReviews(tour.reviewCount)}
-                    onPress={() => router.push(`/tours/${slug}/reviews`)}
-                  />
-                ) : null}
-              </View>
-            </Section>
+                </Section>
+              ) : null}
+            </>
           ) : null}
 
-          {tour.faqs.length > 0 ? (
-            <Section title={t.faqsTitle}>
-              <View style={{ gap: theme.spacing(2) }}>
-                {tour.faqs.slice(0, 3).map((faq) => (
-                  <Accordion key={faq.question} title={faq.question}>
-                    <AppText variant="body">{faq.answer}</AppText>
-                  </Accordion>
-                ))}
-                {tour.faqs.length > 3 ? (
-                  <Button
-                    variant="outline"
-                    label={t.showAllFaqs(tour.faqs.length)}
-                    onPress={() => router.push(`/tours/${slug}/faqs`)}
-                  />
-                ) : null}
-              </View>
-            </Section>
-          ) : null}
-
-          {tour.policies.length > 0 ? (
-            <Section title={t.policiesTitle}>
-              <View style={{ gap: theme.spacing(3) }}>
-                {tour.policies.map((policy) => (
-                  <View key={policy.title} style={{ gap: theme.spacing(1) }}>
-                    <AppText
-                      variant="body"
-                      style={{ fontFamily: theme.fontFamilies.sansSemiBold }}
-                    >
-                      {policy.title}
-                    </AppText>
-                    <AppText variant="body" muted>
-                      {policy.body}
-                    </AppText>
+          {activeTab === 'reviews' ? (
+            <>
+              {reviewsQ.data && reviewsQ.data.length > 0 ? (
+                <Section title={t.reviewsTitle}>
+                  <View style={{ gap: theme.spacing(3) }}>
+                    {reviewsQ.data.slice(0, 3).map((review) => (
+                      <View key={review.id} style={{ gap: theme.spacing(1) }}>
+                        <AppText variant="caption" muted>
+                          {/* Pad to 5 chars so every row's star run is the
+                              same width (a 4-star review previously read one
+                              char shorter than a 5-star one, misaligning the
+                              list). */}
+                          {'★'.repeat(review.rating)}
+                          {'☆'.repeat(Math.max(0, 5 - review.rating))} ·{' '}
+                          {review.author}
+                          {review.date ? ` · ${review.date}` : ''}
+                        </AppText>
+                        <ReviewQuote text={review.quote} />
+                      </View>
+                    ))}
+                    {tour.reviewCount > 3 ? (
+                      <Button
+                        variant="outline"
+                        label={t.seeAllReviews(tour.reviewCount)}
+                        onPress={() => router.push(`/tours/${slug}/reviews`)}
+                      />
+                    ) : null}
                   </View>
-                ))}
-              </View>
-            </Section>
+                </Section>
+              ) : null}
+
+              {tour.faqs.length > 0 ? (
+                <Section title={t.faqsTitle}>
+                  <View style={{ gap: theme.spacing(2) }}>
+                    {tour.faqs.slice(0, 3).map((faq) => (
+                      <Accordion key={faq.question} title={faq.question}>
+                        <AppText variant="body">{faq.answer}</AppText>
+                      </Accordion>
+                    ))}
+                    {tour.faqs.length > 3 ? (
+                      <Button
+                        variant="outline"
+                        label={t.showAllFaqs(tour.faqs.length)}
+                        onPress={() => router.push(`/tours/${slug}/faqs`)}
+                      />
+                    ) : null}
+                  </View>
+                </Section>
+              ) : null}
+            </>
           ) : null}
         </View>
       </ScrollView>
