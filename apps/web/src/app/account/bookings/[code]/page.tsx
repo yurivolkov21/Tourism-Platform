@@ -7,6 +7,7 @@ import { Badge, Card, CardContent, Separator, cn } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import { BookingActions } from '../../../../components/booking/booking-actions';
+import { BookingTimeline } from '../../../../components/booking/booking-timeline';
 import { formatPrice } from '../../../../components/booking/order-summary';
 import { ReviewPrompt } from '../../../../components/booking/review-prompt';
 import { fetchBooking } from '../../../../lib/api/booking';
@@ -141,14 +142,28 @@ export default async function BookingDetailPage({
             </>
           ) : null}
 
-          <Link
-            href={`/tours/${booking.tour.slug}`}
-            className="text-primary inline-flex text-sm font-medium hover:underline"
-          >
-            {l.viewTour}
-          </Link>
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            {(booking.status === 'PAID' || booking.status === 'PENDING') && (
+              <Link
+                href={`/checkout/success?code=${booking.code}`}
+                className="text-primary inline-flex text-sm font-medium hover:underline"
+              >
+                {t.viewTripDetails}
+              </Link>
+            )}
+            <Link
+              href={`/tours/${booking.tour.slug}`}
+              className="text-primary inline-flex text-sm font-medium hover:underline"
+            >
+              {l.viewTour}
+            </Link>
+          </div>
         </CardContent>
       </Card>
+
+      <div className="mt-6">
+        <BookingTimeline booking={booking} />
+      </div>
     </main>
   );
 }

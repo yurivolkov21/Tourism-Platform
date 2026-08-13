@@ -96,9 +96,11 @@ export class StripeService implements OnModuleInit {
         bookingId: args.bookingId,
         bookingCode: args.bookingCode,
       },
-      // 30-min expiry — explicit so abandoned sessions fire
-      // `checkout.session.expired` and the booking is auto-cancelled.
-      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+      // 30-min expiry (+60s buffer — Stripe requires >= 30 min from ITS OWN
+      // clock at session creation, and network latency can shave a few
+      // seconds off an exact +1800s, tripping "must be at least 30 minutes").
+      // Fires `checkout.session.expired` on abandonment; auto-cancels the booking.
+      expires_at: Math.floor(Date.now() / 1000) + 31 * 60,
     });
     this.logger.log(
       `Created Stripe Checkout session ${session.id} for booking ${args.bookingCode}`,

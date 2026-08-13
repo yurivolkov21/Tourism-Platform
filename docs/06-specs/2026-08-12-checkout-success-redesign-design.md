@@ -41,6 +41,23 @@ the trip.
 6. **PayPal capture / Stripe webhook flow is untouched** — `page.tsx`'s
    capture-then-refetch logic and `<AutoRefresh>` stay exactly as-is.
 7. **Booking not found / signed-out redirect: unchanged.**
+8. **Booking progress timeline** (added mid-flight 2026-08-12, user request —
+   "kiểu Shopee"): a read-only order-tracking rail, **Booked → Paid →
+   Departure → Completed**, rendered on **both** `/checkout/success` and
+   `/account/bookings/[code]` (one shared component). Every step is derived
+   from data the DTO already carries (`status`, `createdAt`,
+   `departure.startDate/endDate`) — no new BE fields, no "Nexora confirmed"
+   step (the API has no such state; inventing one would be fiction).
+   Cancelled/refunded bookings **stop** at a terminal end-cap instead of
+   showing steps that will never happen.
+   - Honesty rule inside the rail: `CANCELLED` alone does **not** prove a
+     payment happened (a PENDING booking can be self-cancelled), so no `paid`
+     step is emitted for it. `REFUNDED`/`PARTIALLY_REFUNDED` **do** prove it
+     (you can only refund a capture), so `paid` stays for those.
+9. **"View trip details" entry point** (added mid-flight): `/checkout/success`
+   was only reachable via the post-payment redirect. `/account/bookings/[code]`
+   now links back to it for PAID/PENDING bookings, so the trip prep is
+   re-readable later.
 
 ## Out of scope
 
@@ -170,6 +187,9 @@ EN-only (ADR-0005) — no VI parity needed, matches the rest of the repo.
 | File | Change |
 | --- | --- |
 | `apps/web/src/lib/api/trip-essentials.ts` (+ `.spec.ts`) | new — `toTripEssentials` + `fetchTripEssentials` |
+| `apps/web/src/lib/booking/timeline.ts` (+ `.spec.ts`) | new — `buildBookingTimeline` (decision #8, TDD) |
+| `apps/web/src/components/booking/booking-timeline.tsx` | new — the shared progress rail |
+| `apps/web/src/app/account/bookings/[code]/page.tsx` | render the rail + "View trip details" link (decisions #8/#9) |
 | `apps/web/src/lib/tours.ts` | none (kept separate — `TripEssentials` is its own lean type, not bolted onto `TourDetailVM`) |
 | `apps/web/src/app/checkout/success/page.tsx` | compose the new section stack, fetch `trip` alongside `booking` |
 | `apps/web/src/components/booking/checkout-hero.tsx` (+ spec) | new — full-bleed status hero |

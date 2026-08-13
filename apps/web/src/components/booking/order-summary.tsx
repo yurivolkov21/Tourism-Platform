@@ -3,9 +3,15 @@ import { messages } from '@tourism/i18n';
 
 import type { PriceLine } from '../../lib/booking/price';
 
+/** Prefix that precedes an amount: `$` for USD, else the code + a space ("VND 1,200"). Shared so a
+ * count-up ticker (which formats its own number) renders the same currency face as `formatPrice`. */
+export function currencyPrefix(currency: string): string {
+  return currency === 'USD' ? '$' : `${currency} `;
+}
+
 export function formatPrice(currency: string, amount: number): string {
   const value = amount.toLocaleString('en-US', { maximumFractionDigits: 2 });
-  return currency === 'USD' ? `$${value}` : `${currency} ${value}`;
+  return `${currencyPrefix(currency)}${value}`;
 }
 
 /**

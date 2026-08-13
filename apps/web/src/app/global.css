@@ -42,6 +42,109 @@
   }
 }
 
+/* Checkout-success hero "Ken Burns": a slow drift + zoom on the tour photo so the confirmation
+   reads as cinematic rather than a static receipt. GPU-composited (transform only, no layout
+   work); the reduced-motion baseline above already neutralises it for users who ask for less. */
+@keyframes nx-kenburns {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.08) translate3d(0, -1.5%, 0);
+  }
+}
+.nx-kenburns {
+  animation: nx-kenburns 24s ease-out forwards;
+  will-change: transform;
+}
+
+/* Booking progress rail (BookingTimeline). The connector draws itself in on mount — growing
+   downward on the stacked mobile layout, rightward once the rail turns horizontal at `md`. Both
+   are transform-only; the reduced-motion baseline above collapses them to an instant reveal. */
+@keyframes nx-rail-in-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes nx-rail-in-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.nx-rail {
+  animation: nx-rail-in-y 0.5s ease-out both;
+  transform-origin: top;
+}
+@media (min-width: 48rem) {
+  .nx-rail {
+    animation-name: nx-rail-in-x;
+    transform-origin: left;
+  }
+}
+
+/* The step the traveller is on breathes a soft halo, so "where am I now" lands before any label is
+   read. Sits behind the marker (::after + -z-10) and never intercepts pointer events. */
+@keyframes nx-pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  70%,
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+.nx-pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -10;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  animation: nx-pulse-ring 2.4s ease-out infinite;
+  pointer-events: none;
+}
+
+/* A saved form pulses its action bar once, so the confirmation lands where the eye already is
+   instead of only in the corner toast. Background only — no layout, no text colour change — and
+   purely decorative: the toast stays the channel assistive tech announces. */
+@keyframes nx-flash {
+  from {
+    background-color: color-mix(
+      in oklch,
+      var(--color-success) 22%,
+      transparent
+    );
+  }
+  to {
+    background-color: transparent;
+  }
+}
+.nx-flash {
+  animation: nx-flash 0.7s ease-out both;
+}
+
+/* Base UI collapsible panels animate their own height: the component publishes the measured height
+   as `--collapsible-panel-height`, and flags the transitional frames with `data-starting-style` /
+   `data-ending-style`. Without this the danger zone snaps open. The reduced-motion baseline above
+   collapses the transition to an instant reveal. */
+.nx-collapsible {
+  height: var(--collapsible-panel-height);
+  overflow: hidden;
+  transition: height 200ms ease-out;
+}
+.nx-collapsible[data-starting-style],
+.nx-collapsible[data-ending-style] {
+  height: 0;
+}
+
 /* Nexora "NEX" brandmark — an origami two-tone fold sweeping diagonally across
    the letters. Colour follows --nx-tone (defaults to the emerald primary; the
    dark footer overrides it to ivory). Forced-colors falls back to a flat fill. */

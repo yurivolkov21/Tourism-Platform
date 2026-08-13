@@ -5,16 +5,25 @@
 
 ## STATUS
 
-- [ ] T1 `trip-essentials.ts` — `toTripEssentials` mapper + `fetchTripEssentials` (TDD)
-- [ ] T2 i18n additions (`messages.booking.success` — hero/highlights/inclusions/before-you-go)
-- [ ] T3 `CheckoutHero` component (full-bleed status hero)
-- [ ] T4 `CheckoutResult` refactor (drop H1/status block, keep summary + footer)
-- [ ] T5 `TripHighlights` + `TripInclusions` components
-- [ ] T6 `BeforeYouGo` component
-- [ ] T7 `success/page.tsx` — compose the new stack, fetch `trip` alongside `booking`
+- [x] T1 `trip-essentials.ts` — `toTripEssentials` mapper + `fetchTripEssentials` (TDD)
+- [x] T2 i18n additions (`messages.booking.success` — hero/highlights/inclusions/before-you-go)
+- [x] T3 `CheckoutHero` component (full-bleed status hero)
+- [x] T4 `CheckoutResult` refactor (drop H1/status block, keep summary + footer)
+- [x] T5 `TripHighlights` + `TripInclusions` components
+- [x] T6 `BeforeYouGo` component
+- [x] T7 `success/page.tsx` — compose the new stack, fetch `trip` alongside `booking`
+- [x] T9 "View trip details" link from `/account/bookings/[code]` (added mid-flight: the
+      success page had no reachable entry point after the payment redirect)
+- [x] T10 booking progress timeline (spec decision #8) — `buildBookingTimeline` (TDD,
+      11 tests) + `BookingTimeline` rail on BOTH the success page and booking detail
 - [ ] T8 gate + manual PAID/PENDING/tour-lookup-failed check
 
-**RESUME STATE:** not started.
+**RESUME STATE:** implementation complete on `feat/checkout-success-redesign`;
+gate GREEN (`lint test build` for web + i18n — web **402** tests, i18n 1).
+Component specs from the spec's testing section were dropped: this repo has no
+`.spec.tsx` component tests anywhere (TDD covers pure logic only, UI is
+verified manually/e2e) — `trip-essentials.spec.ts` (6 tests) is the TDD piece.
+**Not yet committed — awaiting user review + manual browser verification.**
 
 ## Sequencing
 
