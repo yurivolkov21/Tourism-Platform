@@ -1,6 +1,34 @@
 # Account settings redesign — design spec
 
-**Date:** 2026-08-13 · **Scope:** `@tourism/web` + `@tourism/i18n` · **Status:** DRAFT
+**Date:** 2026-08-13 · **Scope:** `@tourism/web` + `@tourism/i18n` · **Status:** SUPERSEDED BY REVISION 2
+
+## Revision 2 (2026-08-13) — direction abandoned mid-build
+
+Everything below describes **direction A** (sticky rail + scroll-spy + identity
+hero + completeness ring). It was built, reviewed in the browser, and rejected
+by the user. What shipped instead is at the bottom of this file under
+"Revision 2 — what actually shipped".
+
+**Why it was rejected.** The page is too short to carry navigation. Four groups,
+two of them nearly empty (Connected = two pills, Danger = one button), fit in
+roughly two viewports. Everything the direction was built around degraded from
+that one fact:
+
+- the rail sat idle with an almost-static active state, over an empty left
+  column;
+- the scroll-spy needed a bottom-of-page clamp precisely *because* the last
+  sections could never reach the anchor line — machinery to paper over the fact
+  that there was nothing to spy on;
+- reveal-on-scroll stagger only pays off on a page long enough to scroll;
+- the identity hero spent a full viewport on a name, an email and a percentage
+  while the actual tasks (edit name, change password) were pushed below the
+  fold.
+
+**Kept from direction A:** the card shell (`SettingsCard`) and the collapsed
+danger zone. **Dropped:** the rail, the chip bar, scroll-spy, `SectionLink`,
+the hero, the completeness ring and its scoring, the reveal stagger, the
+save-button morph and the saved-field flash — with their i18n keys and both
+`nx-` keyframes.
 
 ## Goal
 
@@ -298,3 +326,86 @@ headers. No key is removed.
 5. **`Reveal` on a card containing forms** must not mount-block interactivity:
    it only toggles classes, never conditionally renders children, so inputs are
    in the DOM and focusable from the first paint.
+
+---
+
+## Revision 2 — what actually shipped
+
+**Two hand-paired columns, no navigation of any kind.**
+
+```
+main  max-w-5xl
+├─ back link
+├─ header       h1 title + subtitle
+└─ grid  items-start gap-6 lg:grid-cols-2
+   ├─ column 1  Personal (avatar + name/phone/email)  ·  Connected accounts
+   └─ column 2  Email & password (change email + change password)  ·  Danger zone
+```
+
+Locked decisions for this revision:
+
+1. **No rail, no chip bar, no tabs, no anchors.** With four groups on a
+   two-viewport page, any navigation costs more attention than the scrolling it
+   saves.
+2. **Columns are paired by hand, not auto-flowed.** The groups differ wildly in
+   height — a password form against a single delete button — so row-major
+   auto-flow would leave a ragged gap under the shorter card. Pairing the tall
+   Email & password card against Personal + Connected keeps both columns level.
+   Two explicit column `<div>`s, not `grid-flow`.
+3. **The avatar returns to the Personal card**, above a `Separator` and the
+   name/phone form. `AvatarUploader` is back to its original markup — its own
+   heading and file-type hint included.
+4. **Motion left in place: the danger-zone chevron, and nothing else.** No
+   hover-lift on the cards: they hold live form fields, and a card that shifts
+   under the pointer while you are aiming at an input is a cost, not a flourish.
+5. **`SettingsCard` survives** as the shared shell (header strip with a tinted
+   icon tile, `tone="danger"` variant). It lost `scroll-mt-28` along with the
+   anchors.
+6. **Copy is unchanged from before the redesign** — `personalDesc` went back to
+   mentioning the photo, and the only key added by this feature that remains is
+   `settings.dangerToggle.{show,hide}`.
+
+Testing: no new pure logic, so no new specs. `@tourism/web` is back to **423**
+tests, all passing; lint clean; build green.
+
+---
+
+## Revision 3 — back to the original shape, polished
+
+Revision 2's two-column card grid was also rejected. Final direction, at the
+user's instruction ("như thiết kế gốc ban đầu nhưng làm nó đẹp hơn thôi"): keep
+the **original** layout — four groups stacked in one column, each a
+label-left / content-right row, separated by `divide-y` — and spend the effort
+on finish rather than structure.
+
+What "polished" means concretely, against the pre-redesign page:
+
+1. **No icons.** An icon tile beside each group heading was tried and removed at
+   the user's request — decorative glyphs on every section read as generated
+   filler, not as design. The label column is heading + description, nothing
+   else.
+2. **The content sits in a panel** (`bg-card shadow-card rounded-2xl border`)
+   rather than floating on the page background. Previously nothing marked where
+   one group's controls ended and the next began.
+3. **Panels are divided into labelled rows** — Photo / Your details, Email /
+   Password — with the padding on the row, so each rule spans the panel's full
+   width. An inset hairline reads as a gap; a full-width one reads as a
+   boundary. This is what the user asked for with "chia ra từng phần rõ ràng".
+4. **The forms stopped rendering their own headings.** `ChangeEmailForm` and
+   `ChangePasswordForm` each emitted an `<h3>`; the row now owns that, so the
+   heading tier is consistent across every group.
+5. **The avatar row lost its "Photo" heading** (the row supplies it) and gained
+   `ring-1` plus a larger fallback initial.
+6. **The danger group is tinted** (`border-destructive/30 bg-destructive/5`) and
+   still hides the delete button behind a Show toggle.
+
+New i18n keys in this revision: `settings.photoHeading` · `detailsHeading` ·
+`emailHeading` · `passwordHeading` (row labels), alongside the surviving
+`settings.dangerToggle`.
+
+Components at the end of the feature: `account-section.tsx` (`AccountSection` +
+`AccountSectionRow`) and the existing `avatar-uploader` / `profile-form` /
+`change-email-form` / `change-password-form` / `connected-accounts` /
+`danger-zone`. `settings-card.tsx` was deleted with revision 2's grid.
+
+Gate: lint clean, build green, `@tourism/web` **423** tests passing.

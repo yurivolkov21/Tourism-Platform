@@ -1,15 +1,18 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
+import { type FormEvent } from 'react';
 
-import { Button, toast } from '@tourism/ui';
+import { toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { useSaveState } from '../../hooks/use-save-state';
 import { saveProfile } from '../../lib/account/actions';
 import { buildUpdateProfilePayload } from '../../lib/account/profile-form';
 import { createClient } from '../../lib/supabase/client';
 import { AuthFormField } from '../auth/auth-form-field';
+import { FormActions } from './form-actions';
+import { SaveButton } from './save-button';
 
 /**
  * Edit name + phone. Saves via the `saveProfile` server action (`PATCH /users/me`), then syncs the
@@ -26,12 +29,12 @@ export function ProfileForm({
 }) {
   const t = messages.auth.account.profile;
   const router = useRouter();
-  const [pending, setPending] = useState(false);
+  const save = useSaveState();
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending) return;
-    setPending(true);
+    if (save.busy) return;
+    save.start();
 
     const form = new FormData(event.currentTarget);
     const payload = buildUpdateProfilePayload({
@@ -42,7 +45,7 @@ export function ProfileForm({
     const result = await saveProfile(payload);
     if (result.error) {
       toast.error(result.error);
-      setPending(false);
+      save.fail();
       return;
     }
 
@@ -54,7 +57,7 @@ export function ProfileForm({
       });
 
     toast.success(t.saved);
-    setPending(false);
+    save.succeed();
     router.refresh();
   }
 
@@ -87,9 +90,14 @@ export function ProfileForm({
         hint={t.emailHint}
       />
 
-      <Button type="submit" disabled={pending}>
-        {pending ? t.saving : t.save}
-      </Button>
+      <FormActions flash={save.flash}>
+        <SaveButton
+          state={save.state}
+          label={t.save}
+          pendingLabel={t.saving}
+          doneLabel={messages.auth.account.settings.savedShort}
+        />
+      </FormActions>
     </form>
   );
 }

@@ -187,8 +187,92 @@ either cleared or updated with what was actually chosen.
 
 ---
 
-## STATUS / RESUME STATE
+## Revision 2 (2026-08-13) — T1–T14 above are obsolete
 
-**Not started.** Next action: T1.
+Direction A was built end to end, reviewed in the browser and rejected: the page
+is too short to carry navigation (see the spec's revision-2 block for the full
+reasoning). The tasks above are kept as the record of what was tried, not as
+work to resume.
 
-Tests before this feature: web **385**.
+What replaced them, in one pass:
+
+- **Deleted:** `settings-hero` · `completeness-ring` · `reveal` ·
+  `settings-nav` (component) · `section-link` · `save-button` ·
+  `lib/account/completeness{,.spec}` · `lib/account/settings-nav{,.spec}`.
+  Copies live in this session's scratchpad under `account-v1/` in case any of it
+  is wanted back.
+- **Reverted to `HEAD`:** `profile-form` · `avatar-uploader` ·
+  `connected-accounts`.
+- **Kept:** `settings-card` (minus `scroll-mt-28`) and the collapsible
+  `danger-zone`.
+- **Rewritten:** `app/account/profile/page.tsx` as two hand-paired columns;
+  `AccountSettingsSkeleton` to match.
+- **Cleaned:** the `nav` / `completeness` / `savedShort` / `saving` i18n keys and
+  both `nx-ring-in` / `nx-flash` keyframes are gone; `personalDesc` restored to
+  mentioning the photo. Only `settings.dangerToggle` remains of this feature's
+  new copy.
+
+Gate after revision 2: lint clean, build green, `@tourism/web` **423** tests
+passing (down from 442 — the 19 tests belonged to the two deleted helpers).
+
+Still unverified in the browser: the two-column pairing at `lg`, the stacked
+order below `lg`, and dark mode. `/account/profile` is auth-gated, so that pass
+needs a signed-in session in the preview pane.
+
+## STATUS / RESUME STATE (direction A — historical)
+
+**T1–T13 done. T14 partially done.** Gate is green — lint + typecheck clean
+(only pre-existing warnings), `@tourism/web` **439 tests passing**, build OK.
+
+Outstanding on T14: the browser pass. `/account/profile` is auth-gated and
+redirects to `/login` for a signed-out visitor, so the visual checks (sticky
+offsets, the two sticky layers below `lg`, the ring at 25 % vs 100 %, focus
+order through the revealed cards, dark mode, reduced motion) need a signed-in
+session in the preview pane.
+
+Deviations from the plan, decided during execution:
+
+- `CompletenessRing` is an **overlay**, not a wrapper. `AvatarUploader` owns the
+  image state after an upload, so the avatar has to stay inside it; the ring
+  takes a `relative` box from the uploader and sits over it via a new `overlay`
+  prop.
+- The nav ships as **two exported components sharing one `useActiveSection`
+  hook** (`SettingsRail`, `SettingsChipBar`) rather than one component. A sticky
+  element can only travel inside its parent's box, and the settings grid's first
+  column collapses to chip height once the layout stacks — so the chip bar has
+  to be a direct child of `main`, outside the grid.
+- The rail needs **`lg:self-start`** (fixed 2026-08-13 after the first browser
+  pass showed it scrolling away). `sticky` pins the element's *own* box; a grid
+  item left at the default `stretch` grows to the full row height, so the box
+  has no room to travel inside its grid area and the links scroll off with the
+  page. Shrinking the item to its content height is what turns the tall grid
+  area into the track it slides down.
+- Section links glide instead of jumping (user feedback, 2026-08-13). A shared
+  client `SectionLink` — used by the rail, the chip bar and the hero chips —
+  upgrades the anchor jump to `scrollIntoView({ behavior: 'smooth' })`, honours
+  `useReducedMotion()`, and moves focus to the target so a keyboard user's next
+  Tab resumes from the section rather than the link. Deliberately **not**
+  `scroll-smooth` on `<html>`: that is site-wide and would animate Next's
+  scroll-to-top on every route change.
+- Scroll-spy is driven by a **passive scroll listener behind a rAF gate**, not
+  by the IntersectionObserver T10 planned, and `pickActiveSection` grew an
+  `atBottom` argument (fixed 2026-08-13 after the second browser pass). The
+  sections at the foot of the page are short, so the page runs out of scroll
+  before their tops reach the anchor line — `connected` and `danger` could never
+  light up. An observer cannot cover that last stretch either: no edge crosses
+  while it happens, so nothing fires.
+- The loading skeleton is a **new** `AccountSettingsSkeleton` at
+  `app/account/profile/loading.tsx`, not a reshape of the shared
+  `AccountSkeleton` — that one still serves the `/account` dashboard.
+- `settings.personalDesc` copy dropped "photo" (`Your name and phone number.`),
+  since the avatar now lives in the hero.
+- `ChangePasswordForm` did **not** adopt `SaveButton` — its pending state is
+  wired through its own error handling, so it was not the drop-in T11 allowed.
+
+Nothing is committed yet beyond the spec + plan (`5739985`): `global.css` and
+`messages.ts` also carry the in-flight checkout-success work on this branch, so
+the two features cannot be split into separate commits without an interactive
+add.
+
+Tests before this feature: web **385** (**439** on this branch, which also
+carries the uncommitted checkout-success suites).
