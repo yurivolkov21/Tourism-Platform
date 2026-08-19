@@ -2,25 +2,34 @@ import { useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { Redirect, Stack, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import {
   AppText,
+  Avatar,
   Button,
   ConfirmSheet,
   Screen,
   Skeleton,
+  Spinner,
   TextField,
   useTheme,
   type ConfirmSheetRef,
 } from '@tourism/mobile-ui';
+import { removeAvatar, uploadAvatar } from '../lib/avatar';
 import { useAuth } from '../lib/auth-context';
 import {
   validateChangePassword,
   type ChangePasswordErrors,
 } from '../lib/change-password';
 import { hapticWarning } from '../lib/haptics';
-import { fetchProfile, updateProfile, type ProfileVm } from '../lib/profile';
+import {
+  fetchProfile,
+  toProfileVm,
+  updateProfile,
+  type ProfileVm,
+} from '../lib/profile';
 import { buildUpdateProfilePayload } from '../lib/profile-form';
 
 const t = messages.mobile.account;
@@ -60,10 +69,13 @@ function SectionHead({
   );
 }
 
+const ta = messages.auth.account.profile.avatar;
+
 function SettingsBody({ profile }: { profile: ProfileVm }) {
   const theme = useTheme();
   const queryClient = useQueryClient();
-  const { providers, changePassword, deleteAccount } = useAuth();
+  const { providers, changePassword, deleteAccount, googleAvatarUrl } =
+    useAuth();
   const [name, setName] = useState(profile.fullName);
   const [phone, setPhone] = useState(profile.phone);
   const [feedback, setFeedback] = useState<'saved' | 'error' | null>(null);
@@ -82,6 +94,52 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
     },
     onError: () => setFeedback('error'),
   });
+
+  const [avatarFeedback, setAvatarFeedback] = useState<
+    'saved' | 'error' | null
+  >(null);
+
+  const avatarM = useMutation({
+    mutationFn: uploadAvatar,
+    onSuccess: (dto) => {
+      queryClient.setQueryData(['profile'], toProfileVm(dto));
+      setAvatarFeedback('saved');
+    },
+    onError: () => setAvatarFeedback('error'),
+  });
+
+  const removeAvatarM = useMutation({
+    mutationFn: removeAvatar,
+    onSuccess: (dto) => {
+      queryClient.setQueryData(['profile'], toProfileVm(dto));
+      setAvatarFeedback('saved');
+    },
+    onError: () => setAvatarFeedback('error'),
+  });
+
+  const avatarBusy = avatarM.isPending || removeAvatarM.isPending;
+
+  const onPickAvatar = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      setAvatarFeedback('error');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.9,
+      allowsEditing: true,
+      aspect: [1, 1],
+    });
+    if (result.canceled) return;
+    const asset = result.assets[0];
+    setAvatarFeedback(null);
+    avatarM.mutate({
+      uri: asset.uri,
+      name: asset.fileName ?? 'avatar.jpg',
+      type: asset.mimeType ?? 'image/jpeg',
+    });
+  };
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -153,20 +211,49 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
           gap: theme.spacing(3),
         }}
       >
-        <View
-          style={{
-            width: 56,
-            height: 56,
-            borderRadius: 28,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: theme.colors['secondary'],
-          }}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={ta.change}
+          onPress={() => void onPickAvatar()}
+          disabled={avatarBusy}
+          style={{ opacity: avatarBusy ? 0.6 : 1 }}
         >
-          <AppText variant="title" style={{ color: theme.colors['primary'] }}>
-            {profile.initial}
-          </AppText>
-        </View>
+          <Avatar
+            uri={profile.avatarUrl ?? googleAvatarUrl}
+            size={56}
+            radius={28}
+          >
+            <AppText variant="title" style={{ color: theme.colors['primary'] }}>
+              {profile.initial}
+            </AppText>
+          </Avatar>
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              right: -2,
+              bottom: -2,
+              width: 24,
+              height: 24,
+              borderRadius: 12,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: theme.colors['background'],
+              borderWidth: 1,
+              borderColor: theme.colors['border'],
+            }}
+          >
+            {avatarBusy ? (
+              <Spinner size="small" />
+            ) : (
+              <Ionicons
+                name="camera"
+                size={13}
+                color={theme.colors['foreground']}
+              />
+            )}
+          </View>
+        </Pressable>
         <View style={{ flex: 1, gap: 2 }}>
           <AppText variant="title" numberOfLines={1}>
             {profile.fullName || profile.email}
@@ -174,8 +261,39 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
           <AppText variant="caption" muted numberOfLines={1}>
             {profile.email}
           </AppText>
+          {profile.avatarUrl ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={ta.remove}
+              disabled={avatarBusy}
+              onPress={() => {
+                setAvatarFeedback(null);
+                removeAvatarM.mutate();
+              }}
+              hitSlop={8}
+            >
+              <AppText
+                variant="caption"
+                style={{ color: theme.colors['destructive'] }}
+              >
+                {ta.remove}
+              </AppText>
+            </Pressable>
+          ) : null}
         </View>
       </View>
+      {avatarFeedback === 'saved' ? (
+        <AppText variant="caption" style={{ color: theme.colors['success'] }}>
+          {ta.saved}
+        </AppText>
+      ) : avatarFeedback === 'error' ? (
+        <AppText
+          variant="caption"
+          style={{ color: theme.colors['destructive'] }}
+        >
+          {ta.error}
+        </AppText>
+      ) : null}
 
       <View style={{ gap: theme.spacing(2) }}>
         <SectionHead title={ds.personalHeading} description={ds.personalDesc} />

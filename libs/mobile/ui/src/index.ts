@@ -33,3 +33,5 @@ export { GlowBadge } from './lib/glow-badge';
 export type { GlowBadgeProps } from './lib/glow-badge';
 export { RatingInput } from './lib/rating-input';
 export type { RatingInputProps } from './lib/rating-input';
+export { Avatar } from './lib/avatar';
+export type { AvatarProps } from './lib/avatar';

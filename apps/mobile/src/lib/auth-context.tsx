@@ -12,7 +12,7 @@ import { ApiRequestError } from '@tourism/core';
 import { getApiClient } from './api';
 import { mapAuthError, type AuthErrorKey } from './auth';
 import { signInWithGoogle as googleSignIn } from './google-auth';
-import { readProviders } from './providers';
+import { readGoogleAvatarUrl, readProviders } from './providers';
 import { supabase } from './supabase';
 
 export interface AuthContextValue {
@@ -20,6 +20,8 @@ export interface AuthContextValue {
   user: { id: string; email?: string } | null;
   /** Linked Supabase sign-in methods (`app_metadata.providers`) — Connected accounts is read-only. */
   providers: string[];
+  /** Google's profile photo from `user_metadata` — display-only fallback until the user uploads their own. */
+  googleAvatarUrl: string | null;
   signIn(email: string, password: string): Promise<{ error?: AuthErrorKey }>;
   signUp(
     fullName: string,
@@ -53,16 +55,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AuthContextValue['status']>('loading');
   const [user, setUser] = useState<AuthContextValue['user']>(null);
   const [providers, setProviders] = useState<string[]>([]);
+  const [googleAvatarUrl, setGoogleAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setUser(data.session?.user ?? null);
       setProviders(readProviders(data.session?.user.app_metadata));
+      setGoogleAvatarUrl(readGoogleAvatarUrl(data.session?.user.user_metadata));
       setStatus(data.session ? 'signedIn' : 'signedOut');
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setProviders(readProviders(session?.user.app_metadata));
+      setGoogleAvatarUrl(readGoogleAvatarUrl(session?.user.user_metadata));
       setStatus(session ? 'signedIn' : 'signedOut');
     });
     return () => sub.subscription.unsubscribe();
@@ -160,6 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       status,
       user,
       providers,
+      googleAvatarUrl,
       signIn,
       signUp,
       signInWithGoogle,
@@ -172,6 +178,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       status,
       user,
       providers,
+      googleAvatarUrl,
       signIn,
       signUp,
       signInWithGoogle,

@@ -8,3 +8,13 @@ export function readProviders(
   const single = appMetadata?.['provider'];
   return typeof single === 'string' ? [single] : [];
 }
+
+/** Read Google's profile photo off the Supabase user's `user_metadata` (`avatar_url` or `picture`). */
+export function readGoogleAvatarUrl(
+  userMetadata: Record<string, unknown> | undefined,
+): string | null {
+  const avatarUrl = userMetadata?.['avatar_url'];
+  if (typeof avatarUrl === 'string') return avatarUrl;
+  const picture = userMetadata?.['picture'];
+  return typeof picture === 'string' ? picture : null;
+}

@@ -100,6 +100,7 @@ beforeEach(() => {
     phone: '',
     email: 'y@e.com',
     initial: 'Y',
+    avatarUrl: null,
   });
 });
 

@@ -67,6 +67,9 @@ npm-debug.*
 *.orig.*
 web-build/
 cache/
+# `expo run:android`/`run:ios` prebuild output — managed workflow, don't commit native projects
+apps/mobile/android/
+apps/mobile/ios/
 # TS incremental build info
 *.tsbuildinfo
 

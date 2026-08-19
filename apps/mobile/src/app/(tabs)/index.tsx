@@ -9,6 +9,7 @@ import { REGION_ORDER, groupByRegion } from '@tourism/core';
 import { messages } from '@tourism/i18n';
 import {
   AppText,
+  Avatar,
   Button,
   Screen,
   Skeleton,
@@ -37,7 +38,7 @@ function todayIso(): string {
  */
 function HomeHeader() {
   const theme = useTheme();
-  const { status } = useAuth();
+  const { status, googleAvatarUrl } = useAuth();
   const profileQ = useQuery({
     queryKey: ['profile'],
     queryFn: fetchProfile,
@@ -52,16 +53,10 @@ function HomeHeader() {
         gap: theme.spacing(3),
       }}
     >
-      <View
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: theme.radius.lg,
-          borderCurve: 'continuous',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: theme.colors['secondary'],
-        }}
+      <Avatar
+        uri={profileQ.data?.avatarUrl ?? googleAvatarUrl}
+        size={48}
+        radius={theme.radius.lg}
       >
         {profileQ.data?.initial ? (
           <AppText variant="title" style={{ color: theme.colors['primary'] }}>
@@ -74,7 +69,7 @@ function HomeHeader() {
             color={theme.colors['primary']}
           />
         )}
-      </View>
+      </Avatar>
       <View style={{ flex: 1, gap: 1 }}>
         <AppText variant="caption" muted>
           {t.welcome}

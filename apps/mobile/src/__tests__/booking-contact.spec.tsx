@@ -92,6 +92,7 @@ beforeEach(() => {
     fullName: 'Nguyen Van A',
     email: 'a@example.com',
     initial: 'N',
+    avatarUrl: null,
   });
 });
 

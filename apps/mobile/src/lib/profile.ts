@@ -9,6 +9,7 @@ export interface ProfileVm {
   phone: string;
   email: string;
   initial: string;
+  avatarUrl: string | null;
 }
 
 export function toProfileVm(dto: UserDto): ProfileVm {
@@ -19,6 +20,7 @@ export function toProfileVm(dto: UserDto): ProfileVm {
     phone: dto.phone ?? '',
     email: dto.email,
     initial: (source[0] ?? '?').toUpperCase(),
+    avatarUrl: dto.avatarUrl ?? null,
   };
 }
 

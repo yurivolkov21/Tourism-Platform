@@ -42,6 +42,11 @@ function ProvidersProbe() {
   return <Text>providers:{providers.join(',') || 'none'}</Text>;
 }
 
+function GoogleAvatarProbe() {
+  const { googleAvatarUrl } = useAuth();
+  return <Text>googleAvatarUrl:{googleAvatarUrl ?? 'none'}</Text>;
+}
+
 function ChangePasswordProbe() {
   const { changePassword } = useAuth();
   const [result, setResult] = useState('idle');
@@ -184,6 +189,32 @@ test('a guest has no linked providers', async () => {
   mockGetSession.mockResolvedValueOnce({ data: { session: null } });
   renderProbe(<ProvidersProbe />);
   expect(await screen.findByText('providers:none')).toBeOnTheScreen();
+});
+
+test('exposes the Google profile photo from user_metadata', async () => {
+  mockGetSession.mockResolvedValueOnce({
+    data: {
+      session: {
+        user: {
+          id: 'u1',
+          email: 'jane@example.com',
+          user_metadata: { avatar_url: 'https://lh3.google/pic.jpg' },
+        },
+      },
+    },
+  });
+  renderProbe(<GoogleAvatarProbe />);
+  expect(
+    await screen.findByText('googleAvatarUrl:https://lh3.google/pic.jpg'),
+  ).toBeOnTheScreen();
+});
+
+test('a user with no Google metadata has no googleAvatarUrl', async () => {
+  mockGetSession.mockResolvedValueOnce({
+    data: { session: { user: { id: 'u1', email: 'jane@example.com' } } },
+  });
+  renderProbe(<GoogleAvatarProbe />);
+  expect(await screen.findByText('googleAvatarUrl:none')).toBeOnTheScreen();
 });
 
 test('changePassword calls Supabase updateUser and returns ok', async () => {

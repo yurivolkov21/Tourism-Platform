@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import {
   AppText,
+  Avatar,
   Button,
   ConfirmSheet,
   Screen,
@@ -131,7 +132,7 @@ function ProfileTile({
  */
 function Profile({ profile }: { profile: ProfileVm }) {
   const theme = useTheme();
-  const { signOut } = useAuth();
+  const { signOut, googleAvatarUrl } = useAuth();
   const signOutSheetRef = useRef<ConfirmSheetRef>(null);
 
   const confirmSignOut = () => {
@@ -148,20 +149,15 @@ function Profile({ profile }: { profile: ProfileVm }) {
           gap: theme.spacing(4),
         }}
       >
-        <View
-          style={{
-            width: 72,
-            height: 72,
-            borderRadius: 22,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: theme.colors['secondary'],
-          }}
+        <Avatar
+          uri={profile.avatarUrl ?? googleAvatarUrl}
+          size={72}
+          radius={22}
         >
           <AppText variant="display" style={{ color: theme.colors['primary'] }}>
             {profile.initial}
           </AppText>
-        </View>
+        </Avatar>
         <View style={{ flex: 1, gap: theme.spacing(1) }}>
           <AppText variant="display" numberOfLines={1}>
             {profile.fullName || profile.email.split('@')[0]}

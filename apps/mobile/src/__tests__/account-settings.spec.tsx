@@ -2,8 +2,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { render, screen, userEvent } from '@testing-library/react-native';
 import { ThemeProvider } from '@tourism/mobile-ui';
+import type { components } from '@tourism/core';
 import AccountSettingsScreen from '../app/account-settings';
 import { fetchProfile, updateProfile } from '../lib/profile';
+import { removeAvatar, uploadAvatar } from '../lib/avatar';
+
+type UserDto = components['schemas']['UserDto'];
 
 const mockReplace = jest.fn();
 jest.mock('expo-router', () => ({
@@ -14,6 +18,7 @@ jest.mock('expo-router', () => ({
 
 let mockStatus = 'signedIn';
 let mockProviders: string[] = [];
+let mockGoogleAvatarUrl: string | null = null;
 const mockChangePassword = jest.fn();
 const mockDeleteAccount = jest.fn();
 jest.mock('../lib/auth-context', () => ({
@@ -21,6 +26,7 @@ jest.mock('../lib/auth-context', () => ({
     status: mockStatus,
     user: null,
     providers: mockProviders,
+    googleAvatarUrl: mockGoogleAvatarUrl,
     signOut: jest.fn(),
     changePassword: mockChangePassword,
     deleteAccount: mockDeleteAccount,
@@ -33,8 +39,27 @@ jest.mock('../lib/profile', () => ({
   updateProfile: jest.fn(),
 }));
 
+jest.mock('../lib/avatar', () => ({
+  uploadAvatar: jest.fn(),
+  removeAvatar: jest.fn(),
+}));
+
+const mockRequestPermission = jest.fn();
+const mockLaunchLibrary = jest.fn();
+jest.mock('expo-image-picker', () => ({
+  requestMediaLibraryPermissionsAsync: (...a: unknown[]) =>
+    mockRequestPermission(...a),
+  launchImageLibraryAsync: (...a: unknown[]) => mockLaunchLibrary(...a),
+}));
+
 const mockFetch = fetchProfile as jest.MockedFunction<typeof fetchProfile>;
 const mockUpdate = updateProfile as jest.MockedFunction<typeof updateProfile>;
+const mockUploadAvatar = uploadAvatar as jest.MockedFunction<
+  typeof uploadAvatar
+>;
+const mockRemoveAvatar = removeAvatar as jest.MockedFunction<
+  typeof removeAvatar
+>;
 
 function renderScreen() {
   const client = new QueryClient({
@@ -58,6 +83,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockStatus = 'signedIn';
   mockProviders = [];
+  mockGoogleAvatarUrl = null;
 });
 
 test('shows the profile and can save a new name', async () => {
@@ -66,12 +92,14 @@ test('shows the profile and can save a new name', async () => {
     phone: '',
     email: 'jane@example.com',
     initial: 'J',
+    avatarUrl: null,
   });
   mockUpdate.mockResolvedValueOnce({
     fullName: 'Jane N. Doe',
     phone: '',
     email: 'jane@example.com',
     initial: 'J',
+    avatarUrl: null,
   });
   renderScreen();
   expect(await screen.findByText('jane@example.com')).toBeOnTheScreen();
@@ -89,6 +117,7 @@ test('Save stays disabled until the phone number actually changes', async () => 
     phone: '+84901234567',
     email: 'jane@example.com',
     initial: 'J',
+    avatarUrl: null,
   });
   renderScreen();
   await screen.findByText('jane@example.com');
@@ -106,6 +135,7 @@ test('change password validates locally before calling the API', async () => {
     phone: '',
     email: 'jane@example.com',
     initial: 'J',
+    avatarUrl: null,
   });
   renderScreen();
   await screen.findByText('jane@example.com');
@@ -127,6 +157,7 @@ test('change password calls the API once valid and shows the success line', asyn
     phone: '',
     email: 'jane@example.com',
     initial: 'J',
+    avatarUrl: null,
   });
   mockChangePassword.mockResolvedValueOnce({});
   renderScreen();
@@ -151,6 +182,7 @@ test('connected accounts: shows the empty state with no linked providers', async
     phone: '',
     email: 'jane@example.com',
     initial: 'J',
+    avatarUrl: null,
   });
   renderScreen();
   expect(
@@ -165,6 +197,7 @@ test('connected accounts: lists the linked providers read-only', async () => {
     phone: '',
     email: 'jane@example.com',
     initial: 'J',
+    avatarUrl: null,
   });
   renderScreen();
   expect(await screen.findByText('Google')).toBeOnTheScreen();
@@ -177,6 +210,7 @@ test('delete account asks for a confirm sheet, then deletes and leaves the scree
     phone: '',
     email: 'jane@example.com',
     initial: 'J',
+    avatarUrl: null,
   });
   mockDeleteAccount.mockResolvedValueOnce({});
   renderScreen();
@@ -199,6 +233,7 @@ test('delete account surfaces the server error inline and stays put', async () =
     phone: '',
     email: 'jane@example.com',
     initial: 'J',
+    avatarUrl: null,
   });
   mockDeleteAccount.mockResolvedValueOnce({
     error: 'You have active bookings.',
@@ -220,4 +255,83 @@ test('signed-out users are redirected away (Redirect renders in place of the for
   mockStatus = 'signedOut';
   renderScreen();
   expect(screen.queryByLabelText('Display name')).not.toBeOnTheScreen();
+});
+
+test('picking a photo uploads it and shows the success line', async () => {
+  mockFetch.mockResolvedValueOnce({
+    fullName: 'Jane',
+    phone: '',
+    email: 'jane@example.com',
+    initial: 'J',
+    avatarUrl: null,
+  });
+  mockRequestPermission.mockResolvedValueOnce({ granted: true });
+  mockLaunchLibrary.mockResolvedValueOnce({
+    canceled: false,
+    assets: [
+      {
+        uri: 'file:///tmp/photo.jpg',
+        fileName: 'photo.jpg',
+        mimeType: 'image/jpeg',
+      },
+    ],
+  });
+  mockUploadAvatar.mockResolvedValueOnce({
+    fullName: 'Jane',
+    phone: '',
+    email: 'jane@example.com',
+    avatarUrl: 'https://cdn/avatar.jpg',
+  } as UserDto);
+  renderScreen();
+  await screen.findByText('jane@example.com');
+
+  await userEvent.press(screen.getByRole('button', { name: 'Change photo' }));
+
+  expect(await screen.findByText('Photo updated.')).toBeOnTheScreen();
+  expect(mockUploadAvatar.mock.calls[0][0]).toEqual({
+    uri: 'file:///tmp/photo.jpg',
+    name: 'photo.jpg',
+    type: 'image/jpeg',
+  });
+});
+
+test('cancelling the picker does not call uploadAvatar', async () => {
+  mockFetch.mockResolvedValueOnce({
+    fullName: 'Jane',
+    phone: '',
+    email: 'jane@example.com',
+    initial: 'J',
+    avatarUrl: null,
+  });
+  mockRequestPermission.mockResolvedValueOnce({ granted: true });
+  mockLaunchLibrary.mockResolvedValueOnce({ canceled: true, assets: null });
+  renderScreen();
+  await screen.findByText('jane@example.com');
+
+  await userEvent.press(screen.getByRole('button', { name: 'Change photo' }));
+
+  expect(mockUploadAvatar).not.toHaveBeenCalled();
+});
+
+test('Remove appears once a photo is set and clears it', async () => {
+  mockFetch.mockResolvedValueOnce({
+    fullName: 'Jane',
+    phone: '',
+    email: 'jane@example.com',
+    initial: 'J',
+    avatarUrl: 'https://cdn/avatar.jpg',
+  });
+  mockRemoveAvatar.mockResolvedValueOnce({
+    fullName: 'Jane',
+    phone: '',
+    email: 'jane@example.com',
+    avatarUrl: null,
+  } as UserDto);
+  renderScreen();
+  await screen.findByText('jane@example.com');
+
+  await userEvent.press(screen.getByRole('button', { name: 'Remove' }));
+
+  expect(await screen.findByText('Photo updated.')).toBeOnTheScreen();
+  expect(mockRemoveAvatar).toHaveBeenCalled();
 });
