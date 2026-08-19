@@ -18,16 +18,19 @@ export function SaveButton({
   label,
   pendingLabel,
   doneLabel,
+  disabled = false,
 }: {
   state: SaveState;
   label: string;
   pendingLabel: string;
   doneLabel: string;
+  /** Locks the button on top of the saving state — e.g. while the form has nothing to save. */
+  disabled?: boolean;
 }) {
   return (
     <Button
       type="submit"
-      disabled={state === 'saving'}
+      disabled={disabled || state === 'saving'}
       className="min-w-36 justify-center gap-2"
     >
       {state === 'saving' ? (

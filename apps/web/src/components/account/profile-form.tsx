@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 
 import { toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
@@ -31,16 +31,24 @@ export function ProfileForm({
   const router = useRouter();
   const save = useSaveState();
 
+  const [values, setValues] = useState({ fullName, phone });
+  // What the server currently holds. Re-baselined after a save rather than read back from props:
+  // `router.refresh()` re-renders this same instance, so prop-derived state would not reset on its
+  // own and the button would stay enabled over values that are already stored.
+  const [saved, setSaved] = useState({ fullName, phone });
+
+  // Compared trimmed, because `buildUpdateProfilePayload` trims too — typing a trailing space is
+  // not a change the server would record, so it must not light the button up either.
+  const dirty =
+    values.fullName.trim() !== saved.fullName.trim() ||
+    values.phone.trim() !== saved.phone.trim();
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (save.busy) return;
+    if (save.busy || !dirty) return;
     save.start();
 
-    const form = new FormData(event.currentTarget);
-    const payload = buildUpdateProfilePayload({
-      fullName: String(form.get('fullName') ?? ''),
-      phone: String(form.get('phone') ?? ''),
-    });
+    const payload = buildUpdateProfilePayload(values);
 
     const result = await saveProfile(payload);
     if (result.error) {
@@ -57,6 +65,7 @@ export function ProfileForm({
       });
 
     toast.success(t.saved);
+    setSaved(values);
     save.succeed();
     router.refresh();
   }
@@ -68,7 +77,10 @@ export function ProfileForm({
         label={t.fullNameLabel}
         name="fullName"
         autoComplete="name"
-        defaultValue={fullName}
+        value={values.fullName}
+        onChange={(event) =>
+          setValues((v) => ({ ...v, fullName: event.target.value }))
+        }
       />
 
       <AuthFormField
@@ -77,7 +89,10 @@ export function ProfileForm({
         name="phone"
         type="tel"
         autoComplete="tel"
-        defaultValue={phone}
+        value={values.phone}
+        onChange={(event) =>
+          setValues((v) => ({ ...v, phone: event.target.value }))
+        }
       />
 
       <AuthFormField
@@ -96,6 +111,7 @@ export function ProfileForm({
           label={t.save}
           pendingLabel={t.saving}
           doneLabel={messages.auth.account.settings.savedShort}
+          disabled={!dirty}
         />
       </FormActions>
     </form>
