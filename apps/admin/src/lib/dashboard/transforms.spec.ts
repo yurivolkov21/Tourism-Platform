@@ -255,18 +255,20 @@ test('computeCardModels: every card carries a ticker matching its formatted valu
 });
 
 describe('bookingsPipeline', () => {
-  it('returns the four statuses in fixed order with shares of the total', () => {
+  it('returns all five statuses in fixed order with shares of the total', () => {
     const rows = bookingsPipeline({
       PENDING: 1,
       PAID: 3,
       CANCELLED: 0,
       REFUNDED: 0,
+      PARTIALLY_REFUNDED: 0,
     });
     expect(rows.map((r) => r.status)).toEqual([
       'PENDING',
       'PAID',
       'CANCELLED',
       'REFUNDED',
+      'PARTIALLY_REFUNDED',
     ]);
     expect(rows[1]).toEqual({
       status: 'PAID',
@@ -276,12 +278,36 @@ describe('bookingsPipeline', () => {
     });
   });
 
+  it('counts PARTIALLY_REFUNDED into the total (regression: 38-vs-37 drift)', () => {
+    // Real shape of the reported bug: 26+0+7+4 visible + 1 partial "lost".
+    const rows = bookingsPipeline({
+      PENDING: 0,
+      PAID: 26,
+      CANCELLED: 7,
+      REFUNDED: 4,
+      PARTIALLY_REFUNDED: 1,
+    });
+    const total = rows.reduce((sum, r) => sum + r.count, 0);
+    expect(total).toBe(38);
+    const partial = rows.find((r) => r.status === 'PARTIALLY_REFUNDED');
+    expect(partial).toEqual({
+      status: 'PARTIALLY_REFUNDED',
+      label: 'Partially refunded',
+      count: 1,
+      pct: 1 / 38,
+    });
+    // Shares are computed against the FULL total, partial included.
+    expect(rows.find((r) => r.status === 'PAID')?.pct).toBeCloseTo(26 / 38);
+    expect(rows.reduce((sum, r) => sum + r.pct, 0)).toBeCloseTo(1);
+  });
+
   it('is zero-safe when there are no bookings', () => {
     const rows = bookingsPipeline({
       PENDING: 0,
       PAID: 0,
       CANCELLED: 0,
       REFUNDED: 0,
+      PARTIALLY_REFUNDED: 0,
     });
     expect(rows.every((r) => r.count === 0 && r.pct === 0)).toBe(true);
   });

@@ -16,6 +16,11 @@ import { slugify } from '../../common/slugify';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MediaItemDto, MediaInputDto } from '../media/dto/media.dto';
 import { MediaService } from '../media/media.service';
+import {
+  WEB_TAGS,
+  WebRevalidationService,
+  webTourTag,
+} from '../revalidation/web-revalidation.service';
 import { CreateTourDto } from './dto/create-tour.dto';
 import { ListToursQueryDto } from './dto/list-tours-query.dto';
 import { TourFaqInput } from './dto/nested/tour-faq.input';
@@ -94,7 +99,24 @@ export class ToursService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly media: MediaService,
+    // Optional so hand-constructed unit tests keep compiling; DI always injects.
+    private readonly revalidator?: WebRevalidationService,
   ) {}
+
+  /**
+   * Post-commit, fire-and-forget web cache bust: tours surfaces + the touched
+   * tour page(s) + the trust band (published-tour count). Never throws — a
+   * revalidation failure must not affect the committed mutation.
+   */
+  private bustWebCache(...slugs: string[]): void {
+    void this.revalidator
+      ?.revalidateTags([
+        WEB_TAGS.TOURS,
+        WEB_TAGS.TRUST_STATS,
+        ...slugs.map(webTourTag),
+      ])
+      .catch(() => undefined);
+  }
 
   /**
    * Replace-all the tour's media set (admin). Resolves slug→id, syncs in a
@@ -117,6 +139,7 @@ export class ToursService {
       id: tour.id,
     });
     this.logger.log(`Set ${media.length} media on tour ${slug}`);
+    this.bustWebCache(slug);
     return withMedia.media;
   }
 
@@ -327,6 +350,7 @@ export class ToursService {
         include: DETAIL_INCLUDE,
       });
       this.logger.log(`Created tour ${tour.slug}`);
+      this.bustWebCache(tour.slug);
       return this.media.attachToOwner(MediaOwnerType.TOUR, tour);
     } catch (err) {
       if (this.isUniqueConstraintError(err)) throw this.slugConflict(slug);
@@ -463,6 +487,10 @@ export class ToursService {
         include: DETAIL_INCLUDE,
       });
       this.logger.log(`Updated tour ${updated.slug}`);
+      // Bust the old slug too when it changed (its cached page is now stale/404).
+      this.bustWebCache(
+        ...(updated.slug === slug ? [slug] : [slug, updated.slug]),
+      );
       return this.media.attachToOwner(MediaOwnerType.TOUR, updated);
     } catch (err) {
       if (this.isUniqueConstraintError(err)) {
@@ -492,6 +520,7 @@ export class ToursService {
         return tx.tour.delete({ where: { slug } });
       });
       this.logger.log(`Deleted tour ${deleted.slug}`);
+      this.bustWebCache(deleted.slug);
       return deleted;
     } catch (err) {
       if (this.isForeignKeyError(err)) {

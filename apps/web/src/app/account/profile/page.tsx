@@ -3,10 +3,12 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ArrowLeftIcon } from 'lucide-react';
 
-import { Separator } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
-import { AccountSection } from '../../../components/account/account-section';
+import {
+  AccountSection,
+  AccountSectionRow,
+} from '../../../components/account/account-section';
 import { AvatarUploader } from '../../../components/account/avatar-uploader';
 import { ChangeEmailForm } from '../../../components/account/change-email-form';
 import { ChangePasswordForm } from '../../../components/account/change-password-form';
@@ -61,43 +63,66 @@ export default async function AccountSettingsPage() {
       </header>
 
       <div className="divide-y">
-        <AccountSection title={t.personalHeading} description={t.personalDesc}>
-          <div className="space-y-6">
+        <AccountSection
+          id="personal"
+          title={t.personalHeading}
+          description={t.personalDesc}
+        >
+          <AccountSectionRow title={t.photoHeading}>
             <AvatarUploader
               initialUrl={profile?.avatarUrl ?? null}
               name={profile?.fullName ?? user.email ?? ''}
             />
+          </AccountSectionRow>
+
+          <AccountSectionRow title={t.detailsHeading}>
             <ProfileForm
               email={profile?.email ?? user.email ?? ''}
               fullName={profile?.fullName ?? ''}
               phone={profile?.phone ?? ''}
             />
-          </div>
-        </AccountSection>
-
-        <AccountSection title={t.securityHeading} description={t.securityDesc}>
-          <div className="space-y-8">
-            {canChangeEmail(providers) ? (
-              <ChangeEmailForm currentEmail={user.email ?? ''} />
-            ) : (
-              <p className="text-muted-foreground text-sm">
-                {messages.auth.account.securityPage.email.managedNote}
-              </p>
-            )}
-            <Separator />
-            <ChangePasswordForm />
-          </div>
+          </AccountSectionRow>
         </AccountSection>
 
         <AccountSection
+          id="security"
+          title={t.securityHeading}
+          description={t.securityDesc}
+        >
+          <AccountSectionRow title={t.emailHeading}>
+            {canChangeEmail(providers) ? (
+              <ChangeEmailForm currentEmail={user.email ?? ''} />
+            ) : (
+              <p className="text-muted-foreground text-sm text-pretty">
+                {messages.auth.account.securityPage.email.managedNote}
+              </p>
+            )}
+          </AccountSectionRow>
+
+          <AccountSectionRow title={t.passwordHeading}>
+            <ChangePasswordForm />
+          </AccountSectionRow>
+        </AccountSection>
+
+        <AccountSection
+          id="connected"
           title={t.connectedHeading}
           description={t.connectedDesc}
         >
-          <ConnectedAccounts providers={providers} />
+          <AccountSectionRow>
+            <ConnectedAccounts providers={providers} />
+          </AccountSectionRow>
         </AccountSection>
 
-        <AccountSection title={t.dangerHeading} description={t.dangerDesc}>
-          <DangerZone />
+        <AccountSection
+          id="danger"
+          title={t.dangerHeading}
+          description={t.dangerDesc}
+          tone="danger"
+        >
+          <AccountSectionRow>
+            <DangerZone />
+          </AccountSectionRow>
         </AccountSection>
       </div>
     </main>

@@ -40,6 +40,7 @@ const LIFECYCLE_LABELS: Record<string, string> = {
   paid: 'Paid',
   cancelled: 'Cancelled',
   refunded: 'Refunded',
+  partially_refunded: 'Partially refunded',
 };
 
 function formatDate(iso: string): string {

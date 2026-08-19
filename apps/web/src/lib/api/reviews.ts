@@ -4,6 +4,7 @@
 
 import type { components } from '@tourism/core';
 
+import { TAGS } from '../revalidate';
 import { authedJson } from './authed';
 
 const API_BASE =
@@ -27,7 +28,8 @@ export interface FeaturedReview {
 export async function fetchFeaturedReviews(): Promise<FeaturedReview[]> {
   try {
     const res = await fetch(`${API_BASE}/api/v1/reviews/featured`, {
-      next: { revalidate: 300 },
+      // Tagged: the API busts `featured-reviews` on setFeatured/unfeature.
+      next: { revalidate: 300, tags: [TAGS.FEATURED_REVIEWS] },
     });
     if (!res.ok) return [];
     const json = (await res.json()) as { data?: FeaturedReview[] };

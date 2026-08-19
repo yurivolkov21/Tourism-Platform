@@ -58,6 +58,21 @@ describe('TourCategoriesService', () => {
     ).rejects.toThrow(ConflictException);
   });
 
+  it('create busts the web categories cache post-commit (and a bust failure never surfaces)', async () => {
+    const create = jest
+      .fn()
+      .mockImplementation(({ data }) => Promise.resolve({ id: '1', ...data }));
+    const revalidateTags = jest.fn().mockRejectedValue(new Error('web down'));
+    const svc = new TourCategoriesService(makePrisma({ create }), {
+      revalidateTags,
+    } as never);
+
+    await expect(
+      svc.create({ name: 'Adventure Tours' } as CreateTourCategoryDto),
+    ).resolves.toBeDefined();
+    expect(revalidateTags).toHaveBeenCalledWith(['categories']);
+  });
+
   it('findPublicList forces isActive=true and computes pagination meta', async () => {
     const findMany = jest.fn().mockResolvedValue([{ id: '1' }]);
     const count = jest.fn().mockResolvedValue(21);

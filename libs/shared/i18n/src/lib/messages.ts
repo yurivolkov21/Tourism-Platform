@@ -140,6 +140,7 @@ export const messages = {
           newLabel: 'New email',
           submit: 'Send confirmation',
           submitting: 'Sending…',
+          sentShort: 'Sent',
           sent: 'Confirmation sent.',
           sentHint:
             'Check your new inbox and confirm the change — your email updates once you confirm. We’ll also email your old address to let you know.',
@@ -181,6 +182,17 @@ export const messages = {
         connectedDesc: 'Sign-in methods linked to your account.',
         dangerHeading: 'Danger zone',
         dangerDesc: 'Irreversible account actions.',
+        // Confirmation label the submit buttons morph into after a successful save.
+        savedShort: 'Saved',
+        // Row labels inside the settings cards.
+        photoHeading: 'Photo',
+        detailsHeading: 'Your details',
+        emailHeading: 'Email',
+        passwordHeading: 'Password',
+        dangerToggle: {
+          show: 'Show',
+          hide: 'Hide',
+        },
       },
       connected: {
         google: 'Google',
@@ -406,6 +418,75 @@ export const messages = {
       emailNote: 'A confirmation has been sent to your email.',
       viewTours: 'Browse more tours',
       notFound: 'We couldn’t find that booking.',
+      heroBadge: (code: string): string => `Booking ${code}`,
+      // Hero countdown — the emotional headline number. Kinds mirror `daysUntilDeparture`.
+      countdown: {
+        // The number itself is rendered separately (count-up ticker), so the copy is the frame.
+        upcomingSuffix: 'days until you go',
+        tomorrow: 'You leave tomorrow',
+        today: 'Today’s the day',
+        ongoing: 'Your trip is under way',
+        past: 'Trip completed',
+      },
+      // At-a-glance strip under the hero.
+      // No days-to-departure tile here on purpose — the hero countdown owns that number.
+      stats: {
+        tripLength: 'Trip length',
+        travellers: 'Travellers',
+        totalPaid: 'Total paid',
+        dayCount: (n: number): string => `${n} ${n === 1 ? 'day' : 'days'}`,
+      },
+      // Boarding-pass summary card.
+      ticket: {
+        eyebrow: 'Your ticket',
+        refCaption: 'Booking reference',
+      },
+      // Order-tracking rail (Booked → Paid → Departure → Completed, or a terminal end-cap).
+      timeline: {
+        heading: 'Booking progress',
+        stepOf: (step: number, total: number): string =>
+          `Step ${step} of ${total}`,
+        booked: { title: 'Booking placed', body: 'We’ve got your request.' },
+        paid: {
+          title: 'Payment confirmed',
+          body: 'Your seats are secured.',
+        },
+        departure: {
+          title: 'Departure day',
+          body: 'Your trip begins — meet your guide as arranged.',
+        },
+        completed: {
+          title: 'Trip completed',
+          body: 'We hope it was unforgettable.',
+        },
+        cancelled: {
+          title: 'Booking cancelled',
+          body: 'This booking is no longer active.',
+        },
+        refunded: {
+          title: 'Refunded',
+          body: 'Your refund has been issued to the original payment method.',
+        },
+      },
+      highlightsHeading: 'Trip highlights',
+      inclusionsHeading: 'What’s included',
+      notIncludedHeading: 'Not included',
+      beforeYouGo: {
+        heading: 'Before you go',
+        packingHeading: 'What to bring',
+        packingItems: [
+          'Passport or ID (matching your booking name)',
+          'Comfortable walking shoes',
+          'Weather-appropriate layers',
+          'Camera or phone for photos',
+          'A reusable water bottle',
+        ],
+        meetingHeading: 'Meeting point',
+        meetingFallback:
+          'Exact meeting details are in your confirmation email — reply to that thread if anything’s unclear.',
+        supportHeading: 'Need help?',
+        supportBody: 'Our team is on hand before and during your trip.',
+      },
     },
     // /checkout/cancel.
     cancel: {
@@ -440,6 +521,7 @@ export const messages = {
     detail: {
       back: 'Back to my bookings',
       title: 'Booking details',
+      viewTripDetails: 'View trip details',
       paymentLabel: 'Payment',
       contactLabel: 'Contact',
       requestsLabel: 'Special requests',
@@ -1035,52 +1117,23 @@ export const messages = {
     heading: 'Trusted by travellers worldwide',
     subtitle:
       'Real journeys, honest service, and the kind of care that turns first-time guests into lifelong travellers.',
-    stats: [
-      { value: '4.9/5', label: 'Average tour rating' },
-      { value: '12,000+', label: 'Happy travellers' },
-      { value: '60+', label: 'Curated itineraries' },
-      { value: '24/7', label: 'On-trip support' },
-    ],
+    // Labels only — the VALUES come from live API data (review aggregate +
+    // published-tour count); rows with no real data are hidden. The support
+    // pair is a static pledge, not a metric. No fabricated numbers here.
+    labels: {
+      rating: 'Average tour rating',
+      itineraries: 'Curated itineraries',
+      supportValue: '24/7',
+      supportLabel: 'On-trip support',
+    },
   },
   testimonials: {
     eyebrow: 'Traveller stories',
     heading: 'Loved by travellers',
     subtitle:
       'Real words from guests who explored Vietnam with us — their journeys, told in their own voice.',
-    items: [
-      {
-        name: 'Emily Carter',
-        trip: 'Hạ Long Bay Cruise',
-        location: 'Sydney, Australia',
-        rating: 5,
-        content:
-          'Our overnight cruise was flawless from start to finish. The guide knew every hidden cave, and the sunrise over the karsts is something I will never forget.',
-      },
-      {
-        name: 'Lukas Meyer',
-        trip: 'Hội An Heritage Walk',
-        location: 'Munich, Germany',
-        rating: 5,
-        content:
-          'Wandering the lantern-lit old town with a local historian made Hội An come alive. Every detail of the trip was thoughtfully arranged.',
-      },
-      {
-        name: 'Sophie Laurent',
-        trip: 'Sa Pa Trekking',
-        location: 'Lyon, France',
-        rating: 4,
-        content:
-          'The hill-tribe trek was the highlight of our month in Vietnam — challenging, beautiful, and our guide looked after us the whole way.',
-      },
-      {
-        name: 'Daniel Kim',
-        trip: 'Mekong Delta Discovery',
-        location: 'Seoul, South Korea',
-        rating: 5,
-        content:
-          'Floating markets at dawn and home-cooked meals on the river — this tour showed us a side of Vietnam we would never have found alone.',
-      },
-    ],
+    // No fixture list — the section renders ONLY real approved+featured
+    // reviews (GET /reviews/featured) and hides itself when there are none.
   },
   about: {
     hero: {

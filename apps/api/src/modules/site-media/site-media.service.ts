@@ -9,6 +9,10 @@ import { MediaOwnerType, MediaRole, MediaType } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MediaService } from '../media/media.service';
 import { MediaInputDto, MediaItemDto } from '../media/dto/media.dto';
+import {
+  WEB_TAGS,
+  WebRevalidationService,
+} from '../revalidation/web-revalidation.service';
 import { GALLERY_MAX, SITE_SLOTS, slotDef } from './slot-catalog';
 
 export interface SiteMediaSlotEntry {
@@ -37,6 +41,8 @@ export class SiteMediaService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly media: MediaService,
+    // Optional so hand-constructed unit tests keep compiling; DI always injects.
+    private readonly revalidator?: WebRevalidationService,
   ) {}
 
   /** Public map source — only slots that actually carry managed media. */
@@ -134,6 +140,10 @@ export class SiteMediaService {
       id: slot.id,
     });
     this.logger.log(`Set ${media.length} media on site slot ${key}`);
+    // Post-commit, fire-and-forget: brand chrome renders on the next request.
+    void this.revalidator
+      ?.revalidateTags([WEB_TAGS.SITE_MEDIA])
+      .catch(() => undefined);
     return withMedia.media;
   }
 }

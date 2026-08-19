@@ -19,7 +19,11 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { ListAdminReviewsQueryDto } from './dto/list-admin-reviews-query.dto';
 import { ListReviewsQueryDto } from './dto/list-reviews-query.dto';
 import { UpdateCuratedReviewDto } from './dto/update-curated-review.dto';
-import { WebRevalidationService } from './web-revalidation.service';
+import {
+  WEB_TAGS,
+  WebRevalidationService,
+  webTourTag,
+} from '../revalidation/web-revalidation.service';
 
 /**
  * Public review item — strips `bookingId`/`userId` so the customer's purchase
@@ -469,13 +473,15 @@ export class ReviewsService {
     );
 
     // Post-commit, best-effort: when approval actually flipped (either
-    // direction), bust the public tour page's cache so the change shows within
-    // seconds instead of on the 300s ISR timer. Fire-and-forget — the `.catch`
-    // + the service's own swallow keep a revalidation failure from touching the
+    // direction), bust the public tour page + the homepage trust band (the
+    // site-wide rating aggregate moved). Fire-and-forget — the `.catch` + the
+    // service's own swallow keep a revalidation failure from touching the
     // (already-committed) moderation result.
     const slug = existing.tour?.slug;
     if (slug && existing.isApproved !== isApproved) {
-      void this.revalidator?.revalidateTour(slug).catch(() => undefined);
+      void this.revalidator
+        ?.revalidateTags([webTourTag(slug), WEB_TAGS.TRUST_STATS])
+        .catch(() => undefined);
     }
 
     return updated;
@@ -493,10 +499,15 @@ export class ReviewsService {
         message: `Review "${reviewId}" not found`,
       });
     }
-    return this.prisma.review.update({
+    const updated = await this.prisma.review.update({
       where: { id: reviewId },
       data: { isFeatured },
     });
+    // Post-commit, best-effort: the homepage testimonials read this set.
+    void this.revalidator
+      ?.revalidateTags([WEB_TAGS.FEATURED_REVIEWS])
+      .catch(() => undefined);
+    return updated;
   }
 
   /**
@@ -525,7 +536,19 @@ export class ReviewsService {
       where: { id: reviewId },
     });
     this.logger.log(`Deleted curated review ${reviewId}`);
+    this.bustCuratedSurfaces();
     return deleted;
+  }
+
+  /**
+   * Post-commit, fire-and-forget: curated testimonials are approved+featured by
+   * construction, so their CRUD moves the homepage testimonials AND the
+   * trust-band aggregate. Never throws.
+   */
+  private bustCuratedSurfaces(): void {
+    void this.revalidator
+      ?.revalidateTags([WEB_TAGS.FEATURED_REVIEWS, WEB_TAGS.TRUST_STATS])
+      .catch(() => undefined);
   }
 
   /**
@@ -569,6 +592,7 @@ export class ReviewsService {
       data,
     });
     this.logger.log(`Updated curated review ${reviewId}`);
+    this.bustCuratedSurfaces();
     return updated;
   }
 
@@ -588,7 +612,7 @@ export class ReviewsService {
 
   /** Create an admin-authored testimonial (CURATED) — approved + featured immediately. */
   async createCurated(dto: CreateCuratedReviewDto): Promise<Review> {
-    return this.prisma.review.create({
+    const created = await this.prisma.review.create({
       data: {
         authorName: dto.authorName,
         authorLocation: dto.authorLocation ?? null,
@@ -601,5 +625,7 @@ export class ReviewsService {
         isFeatured: true,
       },
     });
+    this.bustCuratedSurfaces();
+    return created;
   }
 }

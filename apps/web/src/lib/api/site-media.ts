@@ -4,6 +4,7 @@
 
 import { cache } from 'react';
 
+import { TAGS } from '../revalidate';
 import type { SiteMediaImage, SiteMediaMap } from '../site-media';
 
 const API_BASE =
@@ -21,7 +22,8 @@ interface SiteMediaSlotDto {
 export const getSiteMedia = cache(async (): Promise<SiteMediaMap> => {
   try {
     const res = await fetch(`${API_BASE}/api/v1/site-media`, {
-      next: { revalidate: 300 },
+      // Tagged: the API busts `site-media` when an Appearance slot changes.
+      next: { revalidate: 300, tags: [TAGS.SITE_MEDIA] },
     });
     if (!res.ok) return {};
     const json = (await res.json()) as { data?: SiteMediaSlotDto[] };

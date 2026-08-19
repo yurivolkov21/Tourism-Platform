@@ -91,9 +91,11 @@ global `APP_*` providers in `AppModule`. `@SkipTransform` opts webhooks out of t
 
 CRUD: destinations · tours (+categories, M:N destinations, itinerary/FAQs/policies, media) ·
 departures · **bookings + Stripe/PayPal** · **media** (Cloudinary signed upload) · **reviews**
-(PAID-gated + moderation; `moderateById` fires `WebRevalidationService` after commit to
-bust the web tour page's ISR cache — POST `${FRONTEND_URL}/api/revalidate` w/ shared
-`REVALIDATE_SECRET`, both approve/un-approve, CURATED skipped, best-effort) ·
+(PAID-gated + moderation) · **revalidation** (`@Global()` module, [ADR-0013](../02-decisions/0013-api-driven-web-revalidation.md):
+`WebRevalidationService.revalidateTags` POSTs `${FRONTEND_URL}/api/revalidate` w/ shared
+`REVALIDATE_SECRET` — fired POST-COMMIT, fire-and-forget, from every content-mutating
+module (tours · departures · site-media · posts · destinations · tour-categories ·
+reviews incl. curated CRUD) so public web pages refresh within seconds; ISR = backstop) ·
 **wishlist** · **enquiry** (throttle + honeypot + lead fields) ·
 **chat** (AI concierge — the API's only SSE surface: `POST /chat/messages` streams an
 AI SDK v7 UIMessage response over raw `@Res()`, bypassing the Transform envelope;

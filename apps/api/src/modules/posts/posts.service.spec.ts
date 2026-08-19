@@ -74,7 +74,8 @@ const makeSvc = (
   prisma = makePrisma(),
   media = makeMedia(),
   tours = makeTours(),
-) => new PostsService(prisma, media, tours);
+  revalidator?: { revalidateTags: jest.Mock },
+) => new PostsService(prisma, media, tours, revalidator as never);
 
 const AUTHOR = 'admin-1';
 
@@ -100,6 +101,32 @@ describe('PostsService', () => {
     expect(data.status).toBe(PostStatus.DRAFT);
     expect(data.publishedAt).toBeNull();
     expect(data.authorId).toBe(AUTHOR);
+  });
+
+  it('create busts the blog caches post-commit (posts + article; bust failure never surfaces)', async () => {
+    const create = jest.fn().mockImplementation(({ data }) =>
+      Promise.resolve({
+        id: '1',
+        ...data,
+        tags: [],
+        author: { id: 'u', fullName: null },
+      }),
+    );
+    const revalidateTags = jest.fn().mockRejectedValue(new Error('web down'));
+    const svc = makeSvc(makePrisma({ create }), makeMedia(), makeTours(), {
+      revalidateTags,
+    });
+
+    await expect(
+      svc.create(
+        { title: 'Three Days in Hội An', content: '# hi' } as CreatePostDto,
+        AUTHOR,
+      ),
+    ).resolves.toBeDefined();
+    expect(revalidateTags).toHaveBeenCalledWith([
+      'posts',
+      'post:three-days-in-hoi-an',
+    ]);
   });
 
   it('create stamps publishedAt when created PUBLISHED', async () => {

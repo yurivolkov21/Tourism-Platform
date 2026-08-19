@@ -4,20 +4,31 @@ import { messages } from '@tourism/i18n';
 
 import { getSiteMedia } from '../../lib/api/site-media';
 import { siteImage } from '../../lib/site-media';
+import type { TrustStats } from '../../lib/trust-band';
+import {
+  buildTrustSectionStats,
+  trustGridClass,
+} from '../../lib/trust-section';
 import { MetricValue } from './metric-value';
 
 // Built-in default — overridable via the `home-trust` Appearance slot.
 const DEFAULT_TRUST_IMAGE =
   'https://images.unsplash.com/photo-1767768996421-9784fde0f946?w=1920&q=70&auto=format&fit=crop';
 
-// Full-bleed photo trust banner (Lily-style) with headline + our real stats overlaid.
-export async function Trust() {
+/**
+ * Full-bleed photo trust banner (Lily-style). The stat values are REAL — the
+ * home page passes its live `fetchTrustStats()` aggregate (review average +
+ * published-tour count) and rows with no honest data are hidden
+ * (`buildTrustSectionStats`); only the 24/7-support pledge is static copy.
+ */
+export async function Trust({ stats }: { stats: TrustStats }) {
   const t = messages.trust;
   const trustImage = siteImage(
     await getSiteMedia(),
     'home-trust',
     DEFAULT_TRUST_IMAGE,
   );
+  const rows = buildTrustSectionStats(stats, t.labels);
 
   return (
     <section className="relative isolate overflow-hidden py-20 sm:py-24 lg:py-28">
@@ -38,8 +49,8 @@ export async function Trust() {
           {t.subtitle}
         </p>
 
-        <dl className="mt-12 grid grid-cols-2 gap-8 lg:grid-cols-4">
-          {t.stats.map((s) => (
+        <dl className={`mt-12 ${trustGridClass(rows.length)}`}>
+          {rows.map((s) => (
             <div key={s.label} className="text-center">
               <dt className="font-heading text-4xl font-bold sm:text-5xl">
                 <MetricValue value={s.value} />

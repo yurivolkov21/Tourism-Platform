@@ -2,9 +2,10 @@
 
 import { useState, type FormEvent } from 'react';
 
-import { Button, toast } from '@tourism/ui';
+import { toast } from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
+import { useSaveState } from '../../hooks/use-save-state';
 import { authErrorMessage } from '../../lib/auth/auth-error';
 import {
   validateEmailField,
@@ -12,6 +13,8 @@ import {
 } from '../../lib/auth/validate';
 import { createClient } from '../../lib/supabase/client';
 import { AuthFormField } from '../auth/auth-form-field';
+import { FormActions } from './form-actions';
+import { SaveButton } from './save-button';
 
 /**
  * Change email while signed in — **password accounts only** (the profile page gates this via
@@ -23,14 +26,14 @@ import { AuthFormField } from '../auth/auth-form-field';
  */
 export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
   const t = messages.auth.account.securityPage.email;
-  const [pending, setPending] = useState(false);
+  const save = useSaveState();
   const [emailError, setEmailError] = useState<FieldErrorCode>();
   const [passwordError, setPasswordError] = useState<FieldErrorCode>();
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending) return;
-    setPending(true);
+    if (save.busy) return;
+    save.start();
 
     const form = new FormData(event.currentTarget);
     const email = String(form.get('email') ?? '').trim();
@@ -43,7 +46,7 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
     setEmailError(emailInvalid ?? undefined);
     setPasswordError(passwordInvalid);
     if (emailInvalid || passwordInvalid) {
-      setPending(false);
+      save.fail();
       return;
     }
 
@@ -55,7 +58,7 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
     });
     if (reauthError) {
       setPasswordError('INCORRECT');
-      setPending(false);
+      save.fail();
       return;
     }
 
@@ -67,17 +70,16 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
     );
     if (updateError) {
       toast.error(authErrorMessage(updateError));
-      setPending(false);
+      save.fail();
       return;
     }
 
     toast.success(`${t.sent} ${t.sentHint}`);
-    setPending(false);
+    save.succeed();
   }
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-4">
-      <h3 className="text-sm font-medium">{t.heading}</h3>
       <AuthFormField
         id="current-email"
         label={t.currentLabel}
@@ -110,9 +112,14 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
         field="password"
         code={passwordError}
       />
-      <Button type="submit" disabled={pending}>
-        {pending ? t.submitting : t.submit}
-      </Button>
+      <FormActions flash={save.flash}>
+        <SaveButton
+          state={save.state}
+          label={t.submit}
+          pendingLabel={t.submitting}
+          doneLabel={t.sentShort}
+        />
+      </FormActions>
     </form>
   );
 }

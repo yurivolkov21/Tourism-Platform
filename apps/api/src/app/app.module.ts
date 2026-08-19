@@ -19,6 +19,7 @@ import { EnquiryModule } from '../modules/enquiry/enquiry.module';
 import { JobsModule } from '../modules/jobs/jobs.module';
 import { NewsletterModule } from '../modules/newsletter/newsletter.module';
 import { PostsModule } from '../modules/posts/posts.module';
+import { RevalidationModule } from '../modules/revalidation/revalidation.module';
 import { ReviewsModule } from '../modules/reviews/reviews.module';
 import { SiteMediaModule } from '../modules/site-media/site-media.module';
 import { TourCategoriesModule } from '../modules/tour-categories/tour-categories.module';
@@ -40,6 +41,8 @@ import { AppService } from './app.service';
     }),
     PrismaModule,
     EmailModule,
+    // Global: post-commit web cache busting for every content-mutating module.
+    RevalidationModule,
     AuthModule,
     UsersModule,
     DestinationsModule,

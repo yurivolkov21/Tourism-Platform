@@ -34,13 +34,14 @@ function metaLine(item: TestimonialItem): string {
 
 /**
  * Minimal split testimonials: a sticky intro + control column on the left, and a one-up carousel
- * of large pull-quotes on the right (oversized quote mark, no card chrome). Renders real featured
- * reviews when supplied, falling back to the `@tourism/i18n` curated fixture.
+ * of large pull-quotes on the right (oversized quote mark, no card chrome). Renders ONLY real
+ * approved+featured reviews — with none to show, the section hides itself (no fixture fallback;
+ * fabricated testimonials are a credibility risk).
  */
 export function Testimonials({ items }: { items?: TestimonialItem[] }) {
   const t = messages.testimonials;
-  const list: readonly TestimonialItem[] =
-    items && items.length > 0 ? items : t.items;
+  if (!items || items.length === 0) return null;
+  const list: readonly TestimonialItem[] = items;
 
   return (
     <section className="py-16 sm:py-20 lg:py-24">

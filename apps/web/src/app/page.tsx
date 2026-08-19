@@ -65,7 +65,7 @@ export default async function HomePage() {
       {/* WhyChoose staggers its own cards on view (no section-level reveal) */}
       <WhyChoose />
       <Reveal>
-        <Trust />
+        <Trust stats={trustStats} />
       </Reveal>
       <Reveal>
         <BlogTeaser posts={posts} />

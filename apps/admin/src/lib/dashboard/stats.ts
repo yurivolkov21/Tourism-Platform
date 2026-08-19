@@ -22,7 +22,7 @@ export interface DashboardStats {
     }[];
   };
   bookingsByStatus: Record<
-    'PENDING' | 'PAID' | 'CANCELLED' | 'REFUNDED',
+    'PENDING' | 'PAID' | 'CANCELLED' | 'REFUNDED' | 'PARTIALLY_REFUNDED',
     number
   >;
   topToursByRevenue: {

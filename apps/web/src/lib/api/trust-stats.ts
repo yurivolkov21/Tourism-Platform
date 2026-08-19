@@ -1,3 +1,4 @@
+import { TAGS } from '../revalidate';
 import type { TrustStats } from '../trust-band';
 import { getApiClient } from './client';
 
@@ -8,7 +9,11 @@ async function count(
   path: '/api/v1/tours' | '/api/v1/destinations',
 ): Promise<number> {
   const api = getApiClient();
-  const { data } = await api.GET(path, { params: { query: { pageSize: 1 } } });
+  const { data } = await api.GET(path, {
+    params: { query: { pageSize: 1 } },
+    // Counts move when tours (publish/unpublish) or destinations change.
+    next: { tags: [TAGS.TRUST_STATS] },
+  });
   return (data as unknown as { meta?: { total?: number } }).meta?.total ?? 0;
 }
 
@@ -17,7 +22,8 @@ async function reviewSummary(): Promise<{
   averageRating: number | null;
 }> {
   const res = await fetch(`${API_BASE}/api/v1/reviews/summary`, {
-    next: { revalidate: 300 },
+    // Tagged: review approve/unapprove shifts the site-wide rating aggregate.
+    next: { revalidate: 300, tags: [TAGS.TRUST_STATS] },
   });
   if (!res.ok) return { count: 0, averageRating: null };
   const json = (await res.json()) as {

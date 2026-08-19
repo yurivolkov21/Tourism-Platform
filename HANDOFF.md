@@ -60,12 +60,14 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
 - **Web (P3 + P6)** — live on **Vercel**. Marketing + catalogue + booking
   money-path + account + blog (v2 complete) on real data; a11y/SEO/perf polish
   done; brand chrome admin-managed via site-media; resilience layer (loading
-  skeletons · error/404/global-error boundaries · empty-vs-failed) → W4 ✅ (shared AuthFormField · noValidate completion · auth titles i18n) — **PROGRAM CLOSED 2026-07-12**. **Contact Launcher 2026-07-14** (WhatsApp `wa.me` deep-link w/ tour prefill + enquiry popover; env-driven, hides w/o `NEXT_PUBLIC_CHAT_WHATSAPP`); **AI concierge chat panel 2026-07-14** ("Chat with us" → Sheet w/ useChat + markdown; degrades when API has no key); **on-demand revalidation 2026-07-16** (tour fetches tagged `tour:<slug>` + secret-guarded `POST /api/revalidate` → moderated reviews show on next reload); **email-change confirm fix 2026-07-16** (`/auth/confirm` token_hash cross-browser + mirror re-sync); **email-change UX 2026-07-16** (single-confirm + password re-auth + password-only gate); **password UX 2026-07-16** (accurate change errors + 8+ strong policy mirroring Supabase + shared `PasswordField` meter/show-hide on register/reset/change); **tour reviews clamp+dialogs 2026-07-17** (layout-stable cards + measured Read-more + See-all API paging). **366 tests.**
+  skeletons · error/404/global-error boundaries · empty-vs-failed) → W4 ✅ (shared AuthFormField · noValidate completion · auth titles i18n) — **PROGRAM CLOSED 2026-07-12**. **Contact Launcher 2026-07-14** (WhatsApp `wa.me` deep-link w/ tour prefill + enquiry popover; env-driven, hides w/o `NEXT_PUBLIC_CHAT_WHATSAPP`); **AI concierge chat panel 2026-07-14** ("Chat with us" → Sheet w/ useChat + markdown; degrades when API has no key); **on-demand revalidation 2026-07-16** (tour fetches tagged `tour:<slug>` + secret-guarded `POST /api/revalidate` → moderated reviews show on next reload); **email-change confirm fix 2026-07-16** (`/auth/confirm` token_hash cross-browser + mirror re-sync); **email-change UX 2026-07-16** (single-confirm + password re-auth + password-only gate); **password UX 2026-07-16** (accurate change errors + 8+ strong policy mirroring Supabase + shared `PasswordField` meter/show-hide on register/reset/change); **tour reviews clamp+dialogs 2026-07-17** (layout-stable cards + measured Read-more + See-all API paging); **home trust real-data 2026-07-17** (live rating + tour count, fake numbers/testimonial fixture deleted, empty ⇒ hidden); **generalized on-demand revalidation 2026-07-17** (every public fetch tagged; `/blog` no longer static-until-redeploy; timers = backstop — ADR-0013). **385 tests.**
 - **Admin (P4)** — live on **Vercel** (dev :3002). Full CRUD + operations
   (bookings/refunds · cancellation queue · reviews/CRM · enquiries+notes ·
   subscribers · outbox · payment-events) + media library (reuse picker · alt ·
   bulk delete; avatars hidden by default) + Appearance + dashboard
-  (date-range + per-currency + margin) + motion layer. **266 tests.**
+  (date-range + per-currency + margin) + motion layer; **PARTIALLY_REFUNDED
+  first-class across the dashboard 2026-07-17** (tab · pipeline · URL parse ·
+  widget · detail timeline). **268 tests.**
 - **Mobile (P5 + P5.5 + P5.6)** — feature-complete AND fully on the
   "Nexora Dark Heritage" skin (P5.6 R1→R3 shipped 2026-07-15, `bd67d54`:
   dark-first tokens · ScrimImage/FloatingTabBar/StickyCTABar/GlowBadge ·
@@ -74,7 +76,7 @@ programs are closed: admin B1→D2 (2026-07-12) · web W1→W4 (2026-07-12) ·
   in flight** ([index](docs/06-specs/2026-07-15-navel-screen-index.md);
   S1+S2+S3+S4 ✅). **167 tests** (+ mobile-ui 50).
 
-Baselines: **api 558 · web 366 · admin 266 · mobile 167 · mobile-ui 50 · core 42.**
+Baselines: **api 572 · web 385 · admin 268 · mobile 167 · mobile-ui 50 · core 42.**
 
 **Email-change UX (2026-07-16, `83d76a0`):** single-confirm (pairs with Supabase
 Secure-email-change **OFF**) + password re-auth (`signInWithPassword` before
@@ -97,6 +99,26 @@ ISR). Web tags the tour fetches `tour:<slug>` + a secret-guarded `POST
 /api/revalidate`; API POSTs it fire-and-forget after `moderateById` commits.
 **Deploy to-do: set a matching `REVALIDATE_SECRET` in Render (API) + Vercel
 (web)** — until then it no-ops and the 300s ISR is the backstop.
+
+**Dependency security — Dependabot 0 open** (last swept 2026-08-06, `f415e47`).
+**23 packages pinned by hand** in `pnpm-workspace.yaml` `overrides` (27 entries —
+`brace-expansion`, `svgo` and `undici` each pin more than one major line; the
+three `react*` entries in the same block are Expo version alignment, not
+security) — pnpm 11 reads them there, **not** `package.json`. The repo has **no
+`.github/dependabot.yml`**, so every new alert is manual-fix via that block.
+Working method, in order: (1) `gh api .../dependabot/alerts?state=open` to list
+them; (2) trace each package's *parent* in `pnpm-lock.yaml` before judging
+severity — GitHub's `runtime` scope reads lockfile position, not the parent, and
+has been misleading every sweep so far; (3) raise the override floor; (4)
+`pnpm install`, then **grep the lockfile to confirm no vulnerable copy survives**
+— a partial resolution leaves the alert open. Two standing traps: an advisory's
+stated "first patched version" has been **wrong twice** (`brace-expansion` 5.0.8,
+`fast-uri` 3.1.4 — both declared the fix but never enforced it), so verify the
+floor against the installed source; and the three `brace-expansion` lines
+**must never be collapsed into one** override — 5.x is a named export
+(`exports.expand`), 1.x/2.x are `module.exports = expandTop`. Three overrides are
+forced past their parent's declared range and flagged inline — `sharp`,
+`@hono/node-server`, `adm-zip` — revert those first if tooling misbehaves.
 
 ## Next actions
 

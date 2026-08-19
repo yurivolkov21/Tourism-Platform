@@ -63,10 +63,15 @@ function makePrisma(slots: Array<{ id: string; key: string }>) {
 function makeService(
   slots = [HERO_SLOT, STORY_SLOT],
   mediaByOwner: Record<string, unknown[]> = {},
+  revalidator?: { revalidateTags: jest.Mock },
 ) {
   const prisma = makePrisma(slots);
   const media = makeMedia(mediaByOwner);
-  const service = new SiteMediaService(prisma as never, media as never);
+  const service = new SiteMediaService(
+    prisma as never,
+    media as never,
+    revalidator as never,
+  );
   return { service, prisma, media };
 }
 
@@ -102,6 +107,22 @@ describe('findAllForAdmin', () => {
 });
 
 describe('setSlotMedia', () => {
+  it('busts the web site-media cache post-commit (bust failure never surfaces)', async () => {
+    const revalidateTags = jest.fn().mockRejectedValue(new Error('web down'));
+    const { service } = makeService(
+      [HERO_SLOT, STORY_SLOT],
+      {},
+      {
+        revalidateTags,
+      },
+    );
+
+    await expect(
+      service.setSlotMedia('home-hero', [heroInput]),
+    ).resolves.toBeDefined();
+    expect(revalidateTags).toHaveBeenCalledWith(['site-media']);
+  });
+
   it('rejects an unknown slot key with SITE_SLOT_NOT_FOUND', async () => {
     const { service } = makeService();
     await expect(service.setSlotMedia('nope', [heroInput])).rejects.toThrow(

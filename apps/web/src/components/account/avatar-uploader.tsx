@@ -2,6 +2,7 @@
 
 import { useRef, useState, type ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { Loader2Icon } from 'lucide-react';
 
 import {
   Avatar,
@@ -29,6 +30,10 @@ function initialsOf(name: string): string {
  * Avatar upload: sign via the API (`/users/me/avatar/sign`), POST the bytes straight to Cloudinary,
  * then attach by publicId (`PUT /users/me/avatar`). Mirrors the URL into Supabase metadata so the
  * navbar avatar updates live.
+ *
+ * Renders as a single row with no heading of its own — the card it sits in already announces the
+ * group, and a "Photo" heading directly under "Personal information" was one tier of heading too
+ * many.
  */
 export function AvatarUploader({
   initialUrl,
@@ -111,13 +116,38 @@ export function AvatarUploader({
   }
 
   return (
-    <div className="space-y-3">
-      <h2 className="font-heading text-lg font-semibold">{t.heading}</h2>
-      <div className="flex items-center gap-4">
-        <Avatar className="size-16">
-          {url ? <AvatarImage src={url} alt="" /> : null}
-          <AvatarFallback>{initialsOf(name)}</AvatarFallback>
+    <div className="flex items-center gap-4">
+      {/* The upload has no progress to report (the bytes go straight to Cloudinary), so the avatar
+          itself carries the busy state — dimmed under a spinner — and the new image fades in rather
+          than swapping on the frame the request returns. */}
+      <div className="relative shrink-0">
+        <Avatar
+          className={`ring-border size-16 ring-1 transition-opacity ${
+            busy ? 'opacity-50' : ''
+          }`}
+        >
+          {url ? (
+            <AvatarImage
+              key={url}
+              src={url}
+              alt=""
+              className="animate-in fade-in duration-500"
+            />
+          ) : null}
+          <AvatarFallback className="text-lg font-semibold">
+            {initialsOf(name)}
+          </AvatarFallback>
         </Avatar>
+        {busy ? (
+          <span className="absolute inset-0 flex items-center justify-center">
+            <Loader2Icon
+              className="text-foreground size-5 animate-spin"
+              aria-hidden="true"
+            />
+          </span>
+        ) : null}
+      </div>
+      <div className="min-w-0 space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <input
             ref={inputRef}
@@ -148,8 +178,8 @@ export function AvatarUploader({
             </Button>
           ) : null}
         </div>
+        <p className="text-muted-foreground text-xs">{t.hint}</p>
       </div>
-      <p className="text-muted-foreground text-xs">{t.hint}</p>
     </div>
   );
 }

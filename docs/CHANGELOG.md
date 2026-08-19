@@ -4,6 +4,190 @@
 > newest first. Current state lives in [roadmap](roadmap.md) ·
 > [HANDOFF](../HANDOFF.md) · [CLAUDE.md](../CLAUDE.md).
 
+## 2026-08-06 — Security: 13 new Dependabot alerts closed (`f415e47`)
+
+- **Dependabot back to 0 open** (2 high · 11 medium). Not a new class of
+  problem: every alert is a freshly-published advisory landing on a package the
+  2026-07-31 sweep *already pins*, so the whole fix is **raising five override
+  floors** in `pnpm-workspace.yaml` — no new subtrees, and for the first time in
+  three sweeps **no forced majors** (all five stay inside their current major).
+- `undici@7` `^7.28.0`→`^7.29.0` (**5 alerts** — cross-user information
+  disclosure and a parse-time crash via degenerate private cache directives,
+  cross-user disclosure via whitespace around `=` in Cache-Control,
+  cookie-attribute injection via unsanitized domain, retry-interceptor response
+  desync, CRLF via a blob-like body `type`) — `@dotenvx/dotenvx` +
+  `@module-federation/dts-plugin`.
+- `undici@6` `^6.27.0`→`^6.28.0` (**3** — the cookie-attribute, retry-desync and
+  CRLF advisories on the 6.x line) — `@expo/cli`.
+- `ip-address` **NEW override** `^10.3.1` (**3** — `Address4` decodes
+  leading-zero octets as decimal while resolvers read them as octal; a CIDR
+  suffix suppresses special-use classification; IPv4-mapped/NAT64 addresses are
+  misclassified — all three bypass SSRF / trust-boundary checks) — reached via
+  `express-rate-limit` inside `@modelcontextprotocol/sdk`.
+- `hono` `^4.12.27`→`^4.12.34` (ReDoS in the CORS middleware via
+  `Access-Control-Request-Headers`) · `fast-uri` `^3.1.4`→`^3.1.5`.
+- **`fast-uri` 3.1.4 was an incomplete fix** — the same trap as `brace-expansion`
+  in the last sweep. The July advisory named 3.1.4 as patched, but the backslash
+  authority introducer still slips through; 3.1.5 is the real floor. Recorded in
+  the override comment. Second time in two sweeps that an advisory's stated
+  "first patched version" was wrong — **verify the floor, don't trust the field.**
+- GitHub labels `ip-address`, `undici@6` and `hono` **`runtime`**, which is
+  misleading: that scope is read off the lockfile position, not the parent. All
+  three arrive under build/dev tooling (`@expo/cli`, `@prisma/dev`, the MCP SDK),
+  and the `prisma dev` / shadcn-MCP paths never run in this workspace. **Nothing
+  in this batch sits on the production request path** of api/web/admin — this was
+  alert hygiene, not an incident.
+- Dependency-only — no source changes, so the baseline is unmoved. pnpm
+  re-resolved from the `overrides` edit alone (`+6 -6`); the usual "also touch
+  `package.json` to force re-resolution" gotcha did **not** bite this time, so
+  try the plain edit first. Resolved above their floors: `undici` 6.28.0 /
+  7.29.0 · `ip-address` 10.4.0 · `hono` 4.13.0 · `fast-uri` 3.1.5, with no
+  vulnerable copies left anywhere in the lockfile.
+- Tests after: **api 572 · web 385 · admin 268 · mobile 167 · mobile-ui 50 ·
+  core 42 · tokens 7 · ui 2 · i18n 1** (1494 total).
+
+## 2026-07-31 — Security: all Dependabot alerts closed (`61f6243`, `383d49c`, `aab5f4f`)
+
+- **Dependabot 0 open** (was 1 critical · 15 high · 20 medium · 1 low, every
+  one against `pnpm-lock.yaml`). The repo has no `.github/dependabot.yml`, so
+  alerts are surfaced but never auto-PR'd — 18 packages pinned by hand to their
+  patched versions in `pnpm-workspace.yaml` `overrides` (pnpm 11 reads them
+  there, **not** `package.json`); the `next` bump additionally touched the root
+  + `apps/{web,admin}` `package.json`.
+- **Runtime-facing:** `next` 16.2.9→16.2.12 (8 alerts — SSRF in rewrites and in
+  Server Actions on custom servers, Turbopack middleware bypass, response-body
+  cache confusion ×2, Image-Optimization SVG DoS, Server-Function endpoint
+  disclosure, Server-Actions DoS) · `sharp` 0.34.5→0.35.3 (inherited libvips
+  CVE-2026-33327/33328/35590/35591) · `axios` 1.16.0→1.19.0 (proxy-after-clone
+  + prototype-pollution set; reaches `@paypal/paypal-server-sdk` on the money
+  path) · `body-parser@2` 2.2.2→2.3.0 (an invalid `limit` silently disabled
+  size enforcement — express 5 under the API).
+- **Build/dev tooling:** `tar` 7.5.16→7.5.22 (5 alerts incl. the CRITICAL
+  unlimited-input decompression DoS, via `@expo/cli`) · `hono` 4.12.25→4.12.32
+  (3) · `brace-expansion` (1.x/2.x/5.x lines) · `immutable` ·
+  `webpack-dev-server` · `fast-uri` · `svgo` (3.x + 4.x) · `js-yaml` 4.2.0→4.3.0
+  (widened for the merge-key-chain follow-up) · `valibot` · `@hono/node-server`
+  · `adm-zip`.
+- Three overrides are **forced past the parent's declared range** and are
+  flagged inline so they stay easy to revert: `sharp` 0.34→0.35 (next@16.2
+  declares `^0.34.5` as an *optional* dep, but `next@canary` already moved to
+  `^0.35.3`; no 0.34 backport exists) · `@hono/node-server` 1→2 (`@prisma/dev`
+  pins 1.19.11 and `@modelcontextprotocol/sdk` asks `^1.19.9`, but the advisory
+  has no 1.x backport, and both load it only for `prisma dev` / the shadcn MCP
+  server — neither runs here) · `adm-zip` 0.5→0.6
+  (`@module-federation/dts-plugin` pins 0.5.10 exactly; module federation is
+  unused in this workspace).
+- A **38th alert (#122) was filed by GitHub mid-sweep** — a second
+  `brace-expansion` advisory (GHSA-mh99-v99m-4gvg / **CVE-2026-14257**,
+  unbounded expansion length → OOM process crash). It took two passes:
+  - `383d49c` raised the 5.x floor `^5.0.7`→`^5.0.8` to match the advisory's
+    stated fix. The lockfile had already resolved 5.0.8, so this changed
+    nothing — **and the alert stayed open, correctly.**
+  - `aab5f4f` is the real fix. Reading the installed sources (rather than
+    trusting version numbers) showed **5.0.8 is itself incomplete**: it — like
+    the 1.1.17 and 2.1.3 backports — *declares* `EXPANSION_MAX_LENGTH` but
+    never enforces it inside `expandSequence()`, so `{1..100000000}`-style
+    ranges still blow the heap. The **2026-07-30** releases (**1.1.18 /
+    2.1.4 / 5.0.9**) thread `maxLength` through that path; all three floors now
+    point there. Two traps recorded in the override comments: the advisory's
+    range is `<= 5.0.7` with **no lower bound**, so it semver-matches the
+    1.x/2.x copies too; and the three lines **must not** be collapsed into one
+    override — 5.x is a named export (`exports.expand`) while 1.x/2.x are
+    `module.exports = expandTop`, so forcing 5.x onto minimatch 3.1.5 breaks it
+    at `require()` time.
+- Dependency-only — **no source changes**, so the test baseline is unmoved.
+  The 4 peer warnings `pnpm peers check` reports (eslint-config-prettier, detox
+  `expect`, jest-watch-typeahead, reanimated) all predate this change. Not
+  covered by the gate: `sharp` 0.35 is only exercised by Next image
+  optimization at runtime, and web/admin run on Vercel's own image optimizer —
+  worth a glance at an image-heavy page after the next deploy.
+- Tests after: **api 572 · web 385 · admin 268 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
+## 2026-07-17 — Uploads: accept real-world filenames (`c2dc568`)
+
+- Signed-upload requests no longer reject everyday filenames — Windows
+  screenshots with spaces, Vietnamese/unicode names, `image (1).png` (found
+  while verifying the Appearance flow). The DTO regex was stricter than its own
+  security intent; it now enforces only no-slashes/no-control-chars + a 1-8
+  char extension, since the service already re-sanitizes the stem into the
+  Cloudinary public_id and whitelists extensions. DTO spec added (accepted
+  real-world names + still-rejected traversal/extension-less cases).
+- Tests after: **api 572 · web 385 · admin 268 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
+## 2026-07-17 — Generalized on-demand revalidation (`4ad1187`)
+
+- **Public pages now reflect content/admin mutations within seconds** — ISR
+  timers (≤300s) become a pure backstop ([ADR-0013](02-decisions/0013-api-driven-web-revalidation.md);
+  branch `feat/generalized-ondemand-revalidation`, spec+plan `d9bb707`,
+  user-authored spec).
+- **Web:** `lib/revalidate.ts` is the single tag taxonomy (`site-media` ·
+  `tours` · `tour:<slug>` · `destinations` · `posts` · `post:<slug>` ·
+  `categories` · `featured-reviews` · `trust-stats`) with strict allow-list
+  validation; `POST /api/revalidate` generalized to `{ tags?, paths? }` (legacy
+  `{ slug }` kept; unknown tag → 400 whole-request). Every public fetch tagged;
+  **`/blog` gains `revalidate = 300` + the `posts` tag (new posts no longer
+  wait for a redeploy)**; footer categories timer 3600→300.
+- **API:** `WebRevalidationService` moves to a `@Global()`
+  `modules/revalidation/` module and gains `revalidateTags(tags)`
+  (fire-and-forget, 3s timeout, swallow, no-op without `REVALIDATE_SECRET`).
+  Post-commit triggers wired in **7 modules**: tours (incl. old+new slug on
+  rename), departures (incl. the cancel/auto-refund path), site-media, posts,
+  destinations, tour-categories, reviews (moderation → tour + trust-stats;
+  setFeatured + **curated CRUD** → featured-reviews + trust-stats).
+- Review findings: 1 (fixed) — curated-testimonial CRUD was a third
+  review-mutation path hitting the testimonials/trust surfaces that the spec's
+  trigger table missed; now busts both (spec addendum recorded). Money-path
+  safety verified: every trigger is outside the transaction, `void`+`.catch`,
+  service-level swallow.
+- Tests after: **api 569 · web 385 · admin 268 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
+## 2026-07-17 — Admin: PARTIALLY_REFUNDED surfaced across the dashboard (`4bac638`)
+
+- **Fixed the 38-vs-37 drift** (branch `feat/admin-partial-refunded-visibility`,
+  spec+plan `7199bdc`): the API counts all five booking statuses but the admin
+  UI enumerated only four, hiding the real partially-refunded booking. Now
+  first-class everywhere: bookings **tab** ("Partially refunded", badge from
+  `statusCounts`) · **pipeline** fifth bar/label/dot (totals = KPI) ·
+  **`?status=` URL validation** (the tab actually filters server-side) ·
+  5-key `bookingsByStatus` **type** · recent-bookings **widget** (variant +
+  mini tab + underscore-free labels) · booking-detail **timeline** now shows a
+  "Partially refunded" step (audit catch — partial refunds previously had no
+  refund step at all). API untouched (DTO already accepted the full enum).
+- Review findings: 2 (fixed) — the timeline step first reused key `'refunded'`,
+  which the detail page's `LIFECYCLE_LABELS[step.key]` lookup relabels
+  "Refunded" → distinct `partially_refunded` key; and the widget's mini tab
+  still leaked the raw underscore.
+- Invariant by construction: Σ(tab badges) = "All" = KPI totalBookings =
+  Σ(pipeline).
+- Tests after: **api 558 · web 375 · admin 268 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
+## 2026-07-17 — Home trust band + testimonials: real data only (`c9a472e`)
+
+- **Honesty pass on the marketing surface** (branch `feat/home-trust-real-data`,
+  spec+plan `34a3c31`): the "Trusted by travellers worldwide" band no longer
+  hardcodes fake values ("4.9/5" · "12,000+" · "60+"). `Trust` is prop-fed the
+  home page's already-fetched `TrustStats` (zero extra requests):
+  **rating** = real approved-review average (`x.x/5`, hidden when no reviews) ·
+  **curated itineraries** = real published-tour count (hidden when 0) ·
+  **24/7 support** stays as a static pledge · **"Happy travellers" removed
+  outright** (no honest source; PAID-count endpoint or admin-entered value noted
+  as follow-ups in the spec). `trustGridClass` (static 1→4 map) keeps the grid
+  balanced as rows hide. Pure logic in `lib/trust-section.ts` (TDD).
+- **Testimonials fixture fallback removed** — with no approved+featured reviews
+  the section hides (`return null`); `/destinations`' existing real-data feed
+  (`GET /reviews/featured`) unchanged. The four invented reviewers (Emily
+  Carter…) and fake stat values are deleted from `messages.ts` (+ regression
+  test that the fixture never resurfaces).
+- Review findings: none (clean — verified no stale consumers of the deleted
+  i18n keys across web/admin/mobile, Tailwind literal classes, `parseMetric`
+  passthrough for `"4.8/5"`/`"24/7"`).
+- Tests after: **api 558 · web 375 · admin 266 · mobile 167 · mobile-ui 50 ·
+  core 42.**
+
 ## 2026-07-17 — Tour reviews: clamp + full-review & see-all dialogs (`e3815e0`)
 
 - **"Traveller reviews" on `/tours/[slug]` is now layout-stable** (branch

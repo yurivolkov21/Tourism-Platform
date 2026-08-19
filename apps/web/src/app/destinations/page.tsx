@@ -52,7 +52,7 @@ export default async function DestinationsPage() {
   const tiles = tilesRes.data ?? [];
   const groups = groupByRegion(tiles);
   const editorialSections = deriveOverviewGallery(tiles, galleryFrames);
-  // Map featured reviews → testimonial items; the component falls back to the i18n fixture when empty.
+  // Map featured reviews → testimonial items; with none featured, the section hides itself.
   const testimonials = featured.map((r) => ({
     name: r.authorName,
     trip: r.tripLabel,

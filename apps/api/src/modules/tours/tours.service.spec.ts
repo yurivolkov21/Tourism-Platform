@@ -94,8 +94,12 @@ function makeMedia(over: Record<string, unknown> = {}) {
   } as unknown as import('../media/media.service').MediaService;
 }
 
-function makeService(prisma: PrismaService, media = makeMedia()): ToursService {
-  return new ToursService(prisma, media);
+function makeService(
+  prisma: PrismaService,
+  media = makeMedia(),
+  revalidator?: { revalidateTags: jest.Mock },
+): ToursService {
+  return new ToursService(prisma, media, revalidator as never);
 }
 
 /** Minimal valid create body (two destinations, primary = hoi-an). */
@@ -139,6 +143,25 @@ describe('ToursService', () => {
           l.destination.connect.id === 'd-2',
       ).isPrimary,
     ).toBe(false);
+  });
+
+  it('create busts the web caches post-commit (tours + tour page + trust band), and a bust failure never surfaces', async () => {
+    const create = jest
+      .fn()
+      .mockImplementation(({ data }) =>
+        Promise.resolve({ id: 't-1', ...data }),
+      );
+    const revalidateTags = jest.fn().mockRejectedValue(new Error('web down'));
+    const svc = makeService(makePrisma({ tour: { create } }), undefined, {
+      revalidateTags,
+    });
+
+    await expect(svc.create(body())).resolves.toBeDefined();
+    expect(revalidateTags).toHaveBeenCalledWith([
+      'tours',
+      'trust-stats',
+      'tour:hoi-an-walking-tour',
+    ]);
   });
 
   it('create maps merchandising fields (suitableFor / badges), defaulting to []', async () => {

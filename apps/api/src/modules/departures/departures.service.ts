@@ -13,6 +13,10 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { BookingsService } from '../bookings/bookings.service';
+import {
+  WebRevalidationService,
+  webTourTag,
+} from '../revalidation/web-revalidation.service';
 import { CreateDepartureDto } from './dto/create-departure.dto';
 import { ListDeparturesQueryDto } from './dto/list-departures-query.dto';
 import { UpdateDepartureDto } from './dto/update-departure.dto';
@@ -53,7 +57,19 @@ export class DeparturesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly bookings: BookingsService,
+    // Optional so hand-constructed unit tests keep compiling; DI always injects.
+    private readonly revalidator?: WebRevalidationService,
   ) {}
+
+  /**
+   * Post-commit, fire-and-forget: departures render on the tour detail page
+   * (seats-left, dates), so bust that tour's tag. Never throws.
+   */
+  private bustWebCache(slug: string): void {
+    void this.revalidator
+      ?.revalidateTags([webTourTag(slug)])
+      .catch(() => undefined);
+  }
 
   // ── Reads — public ──────────────────────────────────────────────────────────
 
@@ -128,6 +144,7 @@ export class DeparturesService {
         .toISOString()
         .slice(0, 10)})`,
     );
+    this.bustWebCache(slug);
     return departure;
   }
 
@@ -181,6 +198,8 @@ export class DeparturesService {
       where: { id: existing.id },
       data: this.mapUpdatePayload(body),
     });
+    // Post-commit (covers both the plain-update and the cancelling return path).
+    this.bustWebCache(slug);
 
     if (!cancelling) return updated;
     const cancellation = await this.runCancellationPass(
@@ -272,6 +291,7 @@ export class DeparturesService {
     try {
       await this.prisma.tourDeparture.delete({ where: { id: existing.id } });
       this.logger.log(`Deleted departure ${existing.id} (tour=${slug})`);
+      this.bustWebCache(slug);
       return existing;
     } catch (err) {
       if (this.isForeignKeyError(err)) {

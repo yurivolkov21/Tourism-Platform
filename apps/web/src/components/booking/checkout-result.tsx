@@ -1,7 +1,12 @@
 import Link from 'next/link';
-import { CheckCircle2Icon, Loader2Icon } from 'lucide-react';
 
-import { Card, CardContent, Separator, buttonVariants, cn } from '@tourism/ui';
+import {
+  Card,
+  CardContent,
+  ShineBorder,
+  buttonVariants,
+  cn,
+} from '@tourism/ui';
 import { messages } from '@tourism/i18n';
 
 import type { BookingDto } from '../../lib/api/booking';
@@ -20,18 +25,26 @@ function formatDate(isoDate: string): string {
   });
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Field({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-baseline justify-between gap-4">
-      <span className="text-muted-foreground text-sm">{label}</span>
-      <span className="text-right font-medium">{value}</span>
+    <div className="min-w-0">
+      <div className="text-muted-foreground text-xs tracking-wide uppercase">
+        {label}
+      </div>
+      <div className="mt-0.5 font-medium text-pretty">{value}</div>
     </div>
   );
 }
 
 /**
- * Confirmation panel for `/checkout/success`. PAID → a confirmed receipt; PENDING (Stripe webhook not
- * landed yet) → a "confirming…" state with a refresh control. Never claims PAID it can't see.
+ * Booking summary for `/checkout/success`, cut as a **boarding pass**: trip details up top, a
+ * punched tear line, then the reference stub. The ticket motif is pure CSS (dashed rule + two
+ * `bg-background` circles clipped by the card's `overflow-hidden`) — no images, no JS, no layout
+ * risk — and the `ShineBorder` sweep is used here and nowhere else on the page, so it reads as
+ * "this one is special" rather than decoration.
+ *
+ * Status banner lives in `CheckoutHero` above; PAID → email note + CTA, PENDING (webhook not landed
+ * yet) → the refresh control. Never claims PAID it can't see.
  */
 export function CheckoutResult({ booking }: { booking: BookingDto }) {
   const t = messages.booking.success;
@@ -42,66 +55,73 @@ export function CheckoutResult({ booking }: { booking: BookingDto }) {
       : `${booking.numAdults} adult${booking.numAdults > 1 ? 's' : ''}`;
 
   return (
-    <Card>
-      <CardContent className="space-y-6 p-6 sm:p-8">
-        <div
-          className="flex items-start gap-3"
-          role="status"
-          aria-live="polite"
-        >
-          {paid ? (
-            <CheckCircle2Icon
-              className="text-primary mt-0.5 size-7 shrink-0"
-              aria-hidden="true"
-            />
-          ) : (
-            <Loader2Icon
-              className="text-muted-foreground mt-0.5 size-7 shrink-0 animate-spin"
-              aria-hidden="true"
-            />
-          )}
-          <div>
-            <h1 className="font-heading text-2xl font-semibold">
-              {paid ? t.confirmedTitle : t.pendingTitle}
-            </h1>
-            <p className="text-muted-foreground mt-1 text-sm text-pretty">
-              {paid ? t.confirmedBody : t.pendingBody}
-            </p>
+    <ShineBorder radius={12} duration={9} className="rounded-xl">
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
+          <div className="space-y-5 p-6 sm:p-8">
+            <div>
+              <p className="text-primary text-xs font-bold tracking-wide uppercase">
+                {t.ticket.eyebrow}
+              </p>
+              <h2 className="font-heading mt-1 text-2xl font-semibold text-balance">
+                {booking.tour.title}
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Field
+                label={t.departureLabel}
+                value={formatDate(booking.departure.startDate)}
+              />
+              <Field label={t.travellersLabel} value={travellers} />
+            </div>
           </div>
-        </div>
 
-        <Separator />
+          {/* Punched tear line — the notches are clipped in half by the card's overflow. */}
+          <div className="relative" aria-hidden="true">
+            <span className="bg-background absolute top-1/2 left-0 size-5 -translate-x-1/2 -translate-y-1/2 rounded-full" />
+            <span className="bg-background absolute top-1/2 right-0 size-5 translate-x-1/2 -translate-y-1/2 rounded-full" />
+            <div className="border-border mx-6 border-t border-dashed" />
+          </div>
 
-        <div className="space-y-2.5">
-          <Row label={t.refLabel} value={booking.code} />
-          <Row label={t.tourLabel} value={booking.tour.title} />
-          <Row
-            label={t.departureLabel}
-            value={formatDate(booking.departure.startDate)}
-          />
-          <Row label={t.travellersLabel} value={travellers} />
-          <Row
-            label={t.totalLabel}
-            value={formatPrice(booking.currency, Number(booking.totalAmount))}
-          />
-          <Row label={t.contactLabel} value={booking.contactEmail} />
-        </div>
+          <div className="space-y-5 p-6 sm:p-8">
+            <div>
+              <div className="text-muted-foreground text-xs tracking-wide uppercase">
+                {t.ticket.refCaption}
+              </div>
+              <div className="font-heading mt-1 font-mono text-xl font-semibold tracking-[0.2em]">
+                {booking.code}
+              </div>
+            </div>
 
-        {paid ? (
-          <>
-            <p className="text-muted-foreground text-sm">{t.emailNote}</p>
-            <Link
-              href="/tours"
-              className={cn(buttonVariants({ size: 'lg' }), 'w-full')}
-            >
-              {t.viewTours}
-            </Link>
-          </>
-        ) : (
-          <AutoRefresh label={t.refresh} />
-        )}
-      </CardContent>
-    </Card>
+            <div className="grid grid-cols-2 gap-4">
+              <Field
+                label={t.totalLabel}
+                value={formatPrice(
+                  booking.currency,
+                  Number(booking.totalAmount),
+                )}
+              />
+              <Field label={t.contactLabel} value={booking.contactEmail} />
+            </div>
+
+            {paid ? (
+              <>
+                <p className="text-muted-foreground text-sm">{t.emailNote}</p>
+                <Link
+                  href="/tours"
+                  className={cn(buttonVariants({ size: 'lg' }), 'w-full')}
+                >
+                  {t.viewTours}
+                </Link>
+              </>
+            ) : (
+              <AutoRefresh label={t.refresh} />
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </ShineBorder>
   );
 }
 
