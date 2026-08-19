@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Pressable, Text } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { ApiRequestError } from '@tourism/core';
 import { AuthProvider, useAuth } from '../lib/auth-context';
 import { getApiClient } from '../lib/api';
 import { signInWithGoogle as mockGoogleSignIn } from '../lib/google-auth';
@@ -10,12 +11,16 @@ const mockGetSession = jest.fn();
 const mockOnChange = jest.fn(() => ({
   data: { subscription: { unsubscribe: jest.fn() } },
 }));
+const mockUpdateUser = jest.fn();
+const mockSignOut = jest.fn().mockResolvedValue({});
 
 jest.mock('../lib/supabase', () => ({
   supabase: {
     auth: {
       getSession: () => mockGetSession(),
       onAuthStateChange: () => mockOnChange(),
+      updateUser: (...a: unknown[]) => mockUpdateUser(...a),
+      signOut: () => mockSignOut(),
     },
   },
 }));
@@ -29,6 +34,49 @@ function Probe() {
     <Text>
       {status}:{user?.email ?? 'none'}
     </Text>
+  );
+}
+
+function ProvidersProbe() {
+  const { providers } = useAuth();
+  return <Text>providers:{providers.join(',') || 'none'}</Text>;
+}
+
+function ChangePasswordProbe() {
+  const { changePassword } = useAuth();
+  const [result, setResult] = useState('idle');
+  return (
+    <>
+      <Pressable
+        accessibilityLabel="change-password"
+        onPress={async () => {
+          const r = await changePassword('newSecret123');
+          setResult(r.error ?? 'ok');
+        }}
+      >
+        <Text>change</Text>
+      </Pressable>
+      <Text>result:{result}</Text>
+    </>
+  );
+}
+
+function DeleteAccountProbe() {
+  const { deleteAccount } = useAuth();
+  const [result, setResult] = useState('idle');
+  return (
+    <>
+      <Pressable
+        accessibilityLabel="delete-account"
+        onPress={async () => {
+          const r = await deleteAccount();
+          setResult(r.error ?? 'ok');
+        }}
+      >
+        <Text>delete</Text>
+      </Pressable>
+      <Text>result:{result}</Text>
+    </>
   );
 }
 
@@ -114,4 +162,83 @@ test('signInWithGoogle returns the error untouched and does not sync on failure'
   expect(await screen.findByText('result:cancelled')).toBeOnTheScreen();
   expect(POST).not.toHaveBeenCalled();
   expect(invalidateSpy).not.toHaveBeenCalled();
+});
+
+test('exposes the linked providers from app_metadata', async () => {
+  mockGetSession.mockResolvedValueOnce({
+    data: {
+      session: {
+        user: {
+          id: 'u1',
+          email: 'jane@example.com',
+          app_metadata: { providers: ['google', 'email'] },
+        },
+      },
+    },
+  });
+  renderProbe(<ProvidersProbe />);
+  expect(await screen.findByText('providers:google,email')).toBeOnTheScreen();
+});
+
+test('a guest has no linked providers', async () => {
+  mockGetSession.mockResolvedValueOnce({ data: { session: null } });
+  renderProbe(<ProvidersProbe />);
+  expect(await screen.findByText('providers:none')).toBeOnTheScreen();
+});
+
+test('changePassword calls Supabase updateUser and returns ok', async () => {
+  mockGetSession.mockResolvedValueOnce({ data: { session: null } });
+  mockUpdateUser.mockResolvedValueOnce({ error: null });
+
+  renderProbe(<ChangePasswordProbe />);
+  fireEvent.press(await screen.findByLabelText('change-password'));
+
+  expect(await screen.findByText('result:ok')).toBeOnTheScreen();
+  expect(mockUpdateUser).toHaveBeenCalledWith({ password: 'newSecret123' });
+});
+
+test('changePassword maps a Supabase error', async () => {
+  mockGetSession.mockResolvedValueOnce({ data: { session: null } });
+  mockUpdateUser.mockResolvedValueOnce({
+    error: { message: 'Password should be at least 8 characters' },
+  });
+
+  renderProbe(<ChangePasswordProbe />);
+  fireEvent.press(await screen.findByLabelText('change-password'));
+
+  expect(await screen.findByText('result:weakPassword')).toBeOnTheScreen();
+});
+
+test('deleteAccount calls DELETE then signs out on success', async () => {
+  mockGetSession.mockResolvedValueOnce({ data: { session: null } });
+  const DELETE = jest.fn().mockResolvedValue({});
+  (getApiClient as jest.Mock).mockReturnValue({ DELETE });
+  mockSignOut.mockClear();
+
+  renderProbe(<DeleteAccountProbe />);
+  fireEvent.press(await screen.findByLabelText('delete-account'));
+
+  expect(await screen.findByText('result:ok')).toBeOnTheScreen();
+  expect(DELETE).toHaveBeenCalledWith('/api/v1/users/me');
+  expect(mockSignOut).toHaveBeenCalled();
+});
+
+test('deleteAccount surfaces the server message and does not sign out', async () => {
+  mockGetSession.mockResolvedValueOnce({ data: { session: null } });
+  const DELETE = jest.fn().mockRejectedValue(
+    new ApiRequestError(409, {
+      code: 'HAS_BOOKINGS',
+      message: 'You have active bookings.',
+    }),
+  );
+  (getApiClient as jest.Mock).mockReturnValue({ DELETE });
+  mockSignOut.mockClear();
+
+  renderProbe(<DeleteAccountProbe />);
+  fireEvent.press(await screen.findByLabelText('delete-account'));
+
+  expect(
+    await screen.findByText('result:You have active bookings.'),
+  ).toBeOnTheScreen();
+  expect(mockSignOut).not.toHaveBeenCalled();
 });

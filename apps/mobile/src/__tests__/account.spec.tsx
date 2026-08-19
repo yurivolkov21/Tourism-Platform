@@ -3,26 +3,32 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { render, screen, userEvent } from '@testing-library/react-native';
 import { ThemeProvider } from '@tourism/mobile-ui';
 import AccountScreen from '../app/(tabs)/account';
-import { fetchProfile, updateProfile } from '../lib/profile';
+import { fetchProfile } from '../lib/profile';
 
+const mockPush = jest.fn();
 jest.mock('expo-router', () => ({
-  router: { push: jest.fn(), back: jest.fn() },
+  router: { push: (...a: unknown[]) => mockPush(...a), back: jest.fn() },
 }));
 
 let mockStatus = 'signedOut';
 const mockSignOut = jest.fn();
 jest.mock('../lib/auth-context', () => ({
-  useAuth: () => ({ status: mockStatus, user: null, signOut: mockSignOut }),
+  useAuth: () => ({
+    status: mockStatus,
+    user: null,
+    providers: [],
+    signOut: mockSignOut,
+    changePassword: jest.fn(),
+    deleteAccount: jest.fn(),
+  }),
 }));
 
 jest.mock('../lib/profile', () => ({
   ...jest.requireActual('../lib/profile'),
   fetchProfile: jest.fn(),
-  updateProfile: jest.fn(),
 }));
 
 const mockFetch = fetchProfile as jest.MockedFunction<typeof fetchProfile>;
-const mockUpdate = updateProfile as jest.MockedFunction<typeof updateProfile>;
 
 function renderAccount() {
   const client = new QueryClient({
@@ -53,37 +59,49 @@ test('guests see the account gate', () => {
   expect(screen.getByRole('button', { name: 'Sign in' })).toBeOnTheScreen();
 });
 
-test('signed-in users see the profile and can save a new name', async () => {
+test('signed-in users see a short menu — "Your Profile" opens the settings screen', async () => {
   mockStatus = 'signedIn';
   mockFetch.mockResolvedValueOnce({
     fullName: 'Jane Doe',
-    email: 'jane@example.com',
-    initial: 'J',
-  });
-  mockUpdate.mockResolvedValueOnce({
-    fullName: 'Jane N. Doe',
+    phone: '',
     email: 'jane@example.com',
     initial: 'J',
   });
   renderAccount();
   expect(await screen.findByText('jane@example.com')).toBeOnTheScreen();
-  const input = screen.getByLabelText('Display name');
-  await userEvent.clear(input);
-  await userEvent.type(input, 'Jane N. Doe');
-  await userEvent.press(screen.getByRole('button', { name: 'Save' }));
-  expect(await screen.findByText('Name updated.')).toBeOnTheScreen();
-  expect(mockUpdate.mock.calls[0][0]).toBe('Jane N. Doe');
+
+  await userEvent.press(screen.getByRole('button', { name: 'Your Profile' }));
+  expect(mockPush).toHaveBeenCalledWith('/account-settings');
 });
 
-test('sign out fires from the menu', async () => {
+test('sign out asks for a themed confirm sheet, then signs out', async () => {
   mockStatus = 'signedIn';
   mockFetch.mockResolvedValueOnce({
     fullName: 'Jane',
+    phone: '',
     email: 'jane@example.com',
     initial: 'J',
   });
   renderAccount();
   await screen.findByText('jane@example.com');
   await userEvent.press(screen.getByRole('button', { name: 'Sign out' }));
+  expect(mockSignOut).not.toHaveBeenCalled();
+
+  await userEvent.press(screen.getByRole('button', { name: 'Yes, sign out' }));
   expect(mockSignOut).toHaveBeenCalled();
+});
+
+test('sign out: dismissing the confirm sheet does not sign out', async () => {
+  mockStatus = 'signedIn';
+  mockFetch.mockResolvedValueOnce({
+    fullName: 'Jane',
+    phone: '',
+    email: 'jane@example.com',
+    initial: 'J',
+  });
+  renderAccount();
+  await screen.findByText('jane@example.com');
+  await userEvent.press(screen.getByRole('button', { name: 'Sign out' }));
+  await userEvent.press(screen.getByRole('button', { name: 'Stay signed in' }));
+  expect(mockSignOut).not.toHaveBeenCalled();
 });

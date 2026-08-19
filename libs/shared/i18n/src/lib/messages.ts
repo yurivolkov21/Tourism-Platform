@@ -2212,6 +2212,10 @@ export const messages = {
       stepperIncrease: (field: string) => `Increase ${field}`,
       browserHint:
         "Complete your payment in the secure browser window - we'll confirm your booking here when you're back.",
+      // Shown BEFORE the browser opens — the hand-off waits for a deliberate tap.
+      readyToPayTitle: 'Ready to pay',
+      readyToPayBody:
+        "Payment happens in a secure browser window. We'll confirm your booking here as soon as you're back.",
       openCheckout: 'Open payment page',
       openingCheckout: 'Opening secure checkout…',
       verifying: 'Confirming your payment…',
@@ -2257,11 +2261,17 @@ export const messages = {
       editNameSaving: 'Saving…',
       editNameSaved: 'Name updated.',
       editNameError: "Couldn't update your name. Please try again.",
+      menuProfile: 'Your Profile',
       menuSaved: 'Saved tours',
       menuPrivacy: 'Privacy policy',
       menuTerms: 'Terms of service',
       menuCancellation: 'Cancellation & refund policy',
       signOut: 'Sign out',
+      signOutConfirmTitle: 'Sign out?',
+      signOutConfirmBody:
+        "You'll need to sign in again to book or view your trips.",
+      signOutConfirmCta: 'Yes, sign out',
+      stayIn: 'Stay signed in',
       loadError: "Couldn't load your profile.",
       retry: 'Try again',
     },

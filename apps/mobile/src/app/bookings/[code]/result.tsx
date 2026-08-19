@@ -25,17 +25,18 @@ import {
 import { hapticSuccess } from '../../../lib/haptics';
 import { formatMoney } from '../../../lib/money';
 
-// Long enough to register as a deliberate hand-off, short enough not to feel
-// like a stall before the real checkout opens.
-const PAYING_UI_DELAY_MS = 2000;
-
 const ts = messages.booking.success;
 const td = messages.booking.detail;
 const tm = messages.mobile.booking;
 
+// 'ready'  = a checkout url is in hand, waiting for the user to tap through.
+//            The browser is NEVER opened automatically (user request
+//            2026-08-19): a payment hand-off should be a deliberate act, and an
+//            auto-launch that races the screen is easy to mistake for a bug.
 // 'closed' = terminal non-payable statuses (CANCELLED / REFUNDED / …) — never
-// offer Pay now on those.
+//            offer Pay now on those.
 type Phase =
+  | 'ready'
   | 'paying'
   | 'verifying'
   | 'paid'
@@ -51,17 +52,15 @@ export default function BookingResultScreen() {
   }>();
   const theme = useTheme();
   const queryClient = useQueryClient();
-  const [phase, setPhase] = useState<Phase>('paying');
+  const [phase, setPhase] = useState<Phase>(
+    checkoutUrl ? 'ready' : 'verifying',
+  );
   const [booking, setBooking] = useState<BookingVm | null>(null);
   // Pay-now can mint a fresh checkout session — always reopen the LATEST url,
   // never the (possibly superseded) route param.
   const [currentUrl, setCurrentUrl] = useState(checkoutUrl ?? null);
   const [reopening, setReopening] = useState(false);
-  // The "Open payment page" fallback button should only appear once the
-  // automatic hand-off has actually launched the browser at least once —
-  // otherwise it shows during the hand-off delay too, looking like it's
-  // racing the auto-navigation instead of backing it up.
-  const [hasOpenedOnce, setHasOpenedOnce] = useState(false);
+  const openingRef = useRef(false);
   const started = useRef(false);
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
@@ -104,16 +103,20 @@ export default function BookingResultScreen() {
   const openCheckout = useCallback(
     async (url: string) => {
       setCurrentUrl(url);
+      // Entering 'paying' is what arms the AppState return path below — it is
+      // only ever reached from here, i.e. from a browser we actually opened.
       setPhase('paying');
-      // The browser used to launch on the same tick as this screen mounted,
-      // so the "you're being handed off to checkout" UI never actually got
-      // seen (user feedback) — hold here just long enough for it to register.
-      await new Promise((resolve) => setTimeout(resolve, PAYING_UI_DELAY_MS));
-      // Set before awaiting, not after — on iOS this promise doesn't resolve
-      // until the browser CLOSES, so awaiting first would only reveal the
-      // fallback button once it's already too late to need it.
-      setHasOpenedOnce(true);
-      const result = await WebBrowser.openBrowserAsync(url);
+      let result: WebBrowser.WebBrowserResult;
+      try {
+        result = await WebBrowser.openBrowserAsync(url);
+      } catch {
+        // The launch itself failed (e.g. "Another WebBrowser is already being
+        // presented" after a double-tap). The session is still valid, so fall
+        // back to the ready screen instead of stranding the user under a
+        // spinner that will never resolve.
+        setPhase('ready');
+        return;
+      }
       // iOS resolves when the browser closes; Android resolves IMMEDIATELY with
       // { type: 'opened' } — there the AppState listener below verifies when
       // the user returns to the app.
@@ -122,22 +125,45 @@ export default function BookingResultScreen() {
     [verify],
   );
 
+  /** The button-side wrapper: one launch at a time, and the spinner always clears. */
+  const handleOpenCheckout = useCallback(
+    async (url: string) => {
+      if (openingRef.current) return; // a double-tap must not launch twice
+      openingRef.current = true;
+      setReopening(true);
+      try {
+        await openCheckout(url);
+      } finally {
+        // `finally`, not a trailing statement: a rejected launch used to leave
+        // the button spinning forever with no way back.
+        openingRef.current = false;
+        setReopening(false);
+      }
+    },
+    [openCheckout],
+  );
+
   const payAgain = useCallback(async () => {
     setPhase('verifying');
     try {
       const url = await startCheckout(code);
-      await openCheckout(url);
+      // Hand back to the ready screen rather than launching straight into the
+      // browser: minting a session is our work, opening checkout is the user's
+      // call — same deliberate tap the first attempt goes through.
+      setCurrentUrl(url);
+      setPhase('ready');
     } catch {
       setPhase('error');
     }
-  }, [code, openCheckout]);
+  }, [code]);
 
   useEffect(() => {
-    if (started.current) return; // never re-open the browser on re-render
+    if (started.current) return;
     started.current = true;
-    if (checkoutUrl) void openCheckout(checkoutUrl);
-    else void verify();
-  }, [checkoutUrl, openCheckout, verify]);
+    // With a checkout url we sit in 'ready' and wait for the tap; without one
+    // (returning to this screen later) go straight to verifying the status.
+    if (!checkoutUrl) void verify();
+  }, [checkoutUrl, verify]);
 
   // Android return path: the custom tab backgrounds the app; coming back to
   // 'active' while we're still in 'paying' means the user left the checkout.
@@ -153,6 +179,46 @@ export default function BookingResultScreen() {
       <View
         style={{ gap: theme.spacing(4), paddingVertical: theme.spacing(6) }}
       >
+        {/* Waiting on the user, not on the network — so no spinner: one here
+            would claim work is happening and make the button look redundant. */}
+        {phase === 'ready' && currentUrl ? (
+          <View style={{ gap: theme.spacing(7), paddingTop: theme.spacing(6) }}>
+            <View style={{ alignItems: 'center', gap: theme.spacing(2) }}>
+              <View style={{ marginBottom: theme.spacing(3) }}>
+                <GlowBadge tone="neutral">
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={40}
+                    color={theme.colors['primary']}
+                  />
+                </GlowBadge>
+              </View>
+              <AppText variant="display" style={{ textAlign: 'center' }}>
+                {tm.readyToPayTitle}
+              </AppText>
+              <AppText variant="body" muted style={{ textAlign: 'center' }}>
+                {tm.readyToPayBody}
+              </AppText>
+            </View>
+            <View style={{ gap: theme.spacing(2) }}>
+              <Button
+                testID="open-checkout"
+                label={reopening ? tm.openingCheckout : tm.openCheckout}
+                loading={reopening}
+                onPress={() => void handleOpenCheckout(currentUrl)}
+              />
+              {/* Changing your mind needs a door. Without this the screen is a
+                  dead end — the browser used to open on its own, so backing out
+                  of it was the way here. */}
+              <Button
+                variant="outline"
+                label={tm.viewBooking}
+                onPress={() => router.replace(`/bookings/${code}`)}
+              />
+            </View>
+          </View>
+        ) : null}
+
         {phase === 'paying' || phase === 'verifying' ? (
           <View
             style={{
@@ -165,29 +231,33 @@ export default function BookingResultScreen() {
             <AppText variant="body" muted style={{ textAlign: 'center' }}>
               {phase === 'paying' ? tm.browserHint : tm.verifying}
             </AppText>
-            {phase === 'paying' && currentUrl && hasOpenedOnce ? (
+            {/* Android resolves openBrowserAsync immediately, so we sit here
+                while the tab is up — offer a way back into it. */}
+            {phase === 'paying' && currentUrl ? (
               <Button
                 variant="outline"
                 label={reopening ? tm.openingCheckout : tm.openCheckout}
                 loading={reopening}
-                onPress={async () => {
-                  setReopening(true);
-                  await openCheckout(currentUrl);
-                  setReopening(false);
-                }}
+                onPress={() => void handleOpenCheckout(currentUrl)}
               />
             ) : null}
           </View>
         ) : null}
 
         {phase === 'paid' && booking ? (
+          // Three beats, not one flat stack: the hero, the receipt, then the
+          // actions. A single uniform gap spaced the title, the card, the note
+          // and both buttons identically, which read as a list of equals.
           <Animated.View
             entering={FadeIn.duration(200)}
-            style={{ gap: theme.spacing(4) }}
+            style={{ gap: theme.spacing(7) }}
           >
-            <View style={{ alignItems: 'center', gap: theme.spacing(3) }}>
+            <View style={{ alignItems: 'center', gap: theme.spacing(2) }}>
               {/* P5.6 confirmation hero: brass glow halo (Navel Screen-39). */}
-              <Animated.View entering={ZoomIn.springify().damping(12)}>
+              <Animated.View
+                entering={ZoomIn.springify().damping(12)}
+                style={{ marginBottom: theme.spacing(3) }}
+              >
                 <GlowBadge tone="success">
                   <Ionicons
                     name="checkmark"
@@ -205,13 +275,13 @@ export default function BookingResultScreen() {
             </View>
             <View
               style={{
-                gap: theme.spacing(2),
+                gap: theme.spacing(3),
                 borderWidth: 1,
                 borderColor: theme.colors['border'],
                 borderRadius: theme.radius.lg,
                 borderCurve: 'continuous',
                 backgroundColor: theme.colors['secondary'],
-                padding: theme.spacing(4),
+                padding: theme.spacing(5),
               }}
             >
               <FactRow label={ts.refLabel} value={booking.code} />
@@ -226,31 +296,39 @@ export default function BookingResultScreen() {
                 value={formatMoney(booking.currency, booking.totalAmount)}
               />
             </View>
-            <AppText variant="caption" muted style={{ textAlign: 'center' }}>
-              {ts.emailNote}
-            </AppText>
-            <Button
-              label={tm.viewBooking}
-              onPress={() => router.replace(`/bookings/${booking.code}`)}
-            />
-            <Button
-              variant="outline"
-              label={tm.browseTours}
-              onPress={() => router.replace('/')}
-            />
+            <View style={{ gap: theme.spacing(4) }}>
+              <AppText variant="caption" muted style={{ textAlign: 'center' }}>
+                {ts.emailNote}
+              </AppText>
+              {/* The two buttons are one control group — tighter to each other
+                  than to anything above them. */}
+              <View style={{ gap: theme.spacing(2) }}>
+                <Button
+                  label={tm.viewBooking}
+                  onPress={() => router.replace(`/bookings/${booking.code}`)}
+                />
+                <Button
+                  variant="outline"
+                  label={tm.browseTours}
+                  onPress={() => router.replace('/')}
+                />
+              </View>
+            </View>
           </Animated.View>
         ) : null}
 
         {phase === 'pending' && booking ? (
-          <View style={{ gap: theme.spacing(4) }}>
-            <View style={{ alignItems: 'center', gap: theme.spacing(3) }}>
-              <GlowBadge tone="neutral">
-                <Ionicons
-                  name="time-outline"
-                  size={44}
-                  color={theme.colors['warning']}
-                />
-              </GlowBadge>
+          <View style={{ gap: theme.spacing(7) }}>
+            <View style={{ alignItems: 'center', gap: theme.spacing(2) }}>
+              <View style={{ marginBottom: theme.spacing(3) }}>
+                <GlowBadge tone="neutral">
+                  <Ionicons
+                    name="time-outline"
+                    size={44}
+                    color={theme.colors['warning']}
+                  />
+                </GlowBadge>
+              </View>
               <AppText variant="display" style={{ textAlign: 'center' }}>
                 {tm.stillPendingTitle}
               </AppText>
@@ -258,21 +336,23 @@ export default function BookingResultScreen() {
                 {tm.stillPendingBody}
               </AppText>
             </View>
-            <Button
-              testID="verify-again"
-              label={tm.verifyAgain}
-              onPress={() => void verify()}
-            />
-            <Button
-              variant="outline"
-              label={td.payNow}
-              onPress={() => void payAgain()}
-            />
-            <Button
-              variant="outline"
-              label={tm.viewBooking}
-              onPress={() => router.replace(`/bookings/${booking.code}`)}
-            />
+            <View style={{ gap: theme.spacing(2) }}>
+              <Button
+                testID="verify-again"
+                label={tm.verifyAgain}
+                onPress={() => void verify()}
+              />
+              <Button
+                variant="outline"
+                label={td.payNow}
+                onPress={() => void payAgain()}
+              />
+              <Button
+                variant="outline"
+                label={tm.viewBooking}
+                onPress={() => router.replace(`/bookings/${booking.code}`)}
+              />
+            </View>
           </View>
         ) : null}
 

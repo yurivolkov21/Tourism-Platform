@@ -8,14 +8,18 @@ import {
   type ReactNode,
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { ApiRequestError } from '@tourism/core';
 import { getApiClient } from './api';
 import { mapAuthError, type AuthErrorKey } from './auth';
 import { signInWithGoogle as googleSignIn } from './google-auth';
+import { readProviders } from './providers';
 import { supabase } from './supabase';
 
 export interface AuthContextValue {
   status: 'loading' | 'signedIn' | 'signedOut';
   user: { id: string; email?: string } | null;
+  /** Linked Supabase sign-in methods (`app_metadata.providers`) — Connected accounts is read-only. */
+  providers: string[];
   signIn(email: string, password: string): Promise<{ error?: AuthErrorKey }>;
   signUp(
     fullName: string,
@@ -24,6 +28,10 @@ export interface AuthContextValue {
   ): Promise<{ error?: AuthErrorKey; confirmationSent?: boolean }>;
   signInWithGoogle(): Promise<{ error?: AuthErrorKey }>;
   sendReset(email: string): Promise<{ error?: AuthErrorKey }>;
+  changePassword(password: string): Promise<{ error?: AuthErrorKey }>;
+  /** Deletes the account server-side, then signs out. `error` is a server-provided message when
+   * available (e.g. active bookings block deletion), else a generic fallback. */
+  deleteAccount(): Promise<{ error?: string }>;
   signOut(): Promise<void>;
 }
 
@@ -44,14 +52,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<AuthContextValue['status']>('loading');
   const [user, setUser] = useState<AuthContextValue['user']>(null);
+  const [providers, setProviders] = useState<string[]>([]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setUser(data.session?.user ?? null);
+      setProviders(readProviders(data.session?.user.app_metadata));
       setStatus(data.session ? 'signedIn' : 'signedOut');
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      setProviders(readProviders(session?.user.app_metadata));
       setStatus(session ? 'signedIn' : 'signedOut');
     });
     return () => sub.subscription.unsubscribe();
@@ -119,17 +130,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryClient.removeQueries({ queryKey: ['bookings'] });
   }, [queryClient]);
 
+  const changePassword = useCallback<AuthContextValue['changePassword']>(
+    async (password) => {
+      const { error } = await supabase.auth.updateUser({ password });
+      return error ? { error: mapAuthError(error) } : {};
+    },
+    [],
+  );
+
+  const deleteAccount = useCallback<
+    AuthContextValue['deleteAccount']
+  >(async () => {
+    try {
+      await getApiClient().DELETE('/api/v1/users/me');
+    } catch (e) {
+      return {
+        error:
+          e instanceof ApiRequestError
+            ? e.message
+            : 'Could not delete your account.',
+      };
+    }
+    await signOut();
+    return {};
+  }, [signOut]);
+
   const value = useMemo(
     () => ({
       status,
       user,
+      providers,
       signIn,
       signUp,
       signInWithGoogle,
       sendReset,
+      changePassword,
+      deleteAccount,
       signOut,
     }),
-    [status, user, signIn, signUp, signInWithGoogle, sendReset, signOut],
+    [
+      status,
+      user,
+      providers,
+      signIn,
+      signUp,
+      signInWithGoogle,
+      sendReset,
+      changePassword,
+      deleteAccount,
+      signOut,
+    ],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

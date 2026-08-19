@@ -21,6 +21,8 @@ export { Skeleton } from './lib/skeleton';
 export type { SkeletonProps } from './lib/skeleton';
 export { AppSheet, AppSheetScrollView, AppSheetTextInput } from './lib/sheet';
 export type { AppSheetProps, AppSheetRef } from './lib/sheet';
+export { ConfirmSheet } from './lib/confirm-sheet';
+export type { ConfirmSheetProps, ConfirmSheetRef } from './lib/confirm-sheet';
 export { ScrimImage } from './lib/scrim-image';
 export type { ScrimImageProps } from './lib/scrim-image';
 export { FloatingTabBar, TAB_BAR_TILE } from './lib/floating-tab-bar';

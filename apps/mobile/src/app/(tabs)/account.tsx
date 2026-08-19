@@ -1,34 +1,36 @@
-import { useState } from 'react';
+import { useRef } from 'react';
 import { Pressable, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
 import {
   AppText,
   Button,
+  ConfirmSheet,
   Screen,
   Skeleton,
-  TextField,
   useTheme,
+  type ConfirmSheetRef,
 } from '@tourism/mobile-ui';
 import { AuthGate } from '../../components/auth-gate';
-import { SectionHeading } from '../../components/section-heading';
 import { useAuth } from '../../lib/auth-context';
-import { WEB_URL } from '../../lib/env';
-import { fetchProfile, updateProfile, type ProfileVm } from '../../lib/profile';
+import { hapticWarning } from '../../lib/haptics';
+import { fetchProfile, type ProfileVm } from '../../lib/profile';
 
 const t = messages.mobile.account;
 const tp = messages.mobile.authPrompts;
 
+/**
+ * A plain menu line: label, chevron, hairline underneath. No leading icon — the
+ * list reads as a column of destinations, and icons only add noise at this size.
+ */
 function MenuRow({
-  icon,
   label,
   onPress,
   destructive,
 }: {
-  icon: keyof typeof Ionicons.glyphMap;
   label: string;
   onPress: () => void;
   destructive?: boolean;
@@ -47,67 +49,122 @@ function MenuRow({
         flexDirection: 'row',
         alignItems: 'center',
         gap: theme.spacing(3),
-        paddingVertical: theme.spacing(3),
+        // 28 + 28 + a 22pt line ≈ the 78pt row height the reference uses — the
+        // airiness is what makes that list read as calm rather than cramped.
+        paddingVertical: theme.spacing(7),
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors['border'],
         opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.7 : 1,
       })}
     >
-      <Ionicons name={icon} size={20} color={color} />
       <AppText variant="body" style={{ flex: 1, color }}>
         {label}
       </AppText>
-      {!destructive ? (
-        <Ionicons
-          name="chevron-forward"
-          size={16}
-          color={theme.colors['muted-foreground']}
-        />
-      ) : null}
+      <Ionicons
+        name="chevron-forward"
+        size={18}
+        color={destructive ? color : theme.colors['muted-foreground']}
+      />
     </Pressable>
   );
 }
 
+/**
+ * The one promoted row: a filled tile with the chevron in its own inset square,
+ * so the entry point to account settings reads as a destination rather than one
+ * more line in the list below it.
+ */
+function ProfileTile({
+  label,
+  onPress,
+}: {
+  label: string;
+  onPress: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      android_ripple={{ color: theme.colors['muted'] }}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingLeft: theme.spacing(4),
+        paddingRight: theme.spacing(2),
+        paddingVertical: theme.spacing(2),
+        minHeight: 60,
+        borderRadius: 18,
+        backgroundColor: theme.colors['card'],
+        overflow: 'hidden', // clip the Android ripple to the rounded shape
+        opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.7 : 1,
+      })}
+    >
+      <AppText variant="body" style={{ flex: 1 }}>
+        {label}
+      </AppText>
+      <View
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: theme.radius.lg,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: theme.colors['secondary'],
+        }}
+      >
+        <Ionicons
+          name="chevron-forward"
+          size={18}
+          color={theme.colors['foreground']}
+        />
+      </View>
+    </Pressable>
+  );
+}
+
+/**
+ * Short menu, not a page of forms — editing (name/phone, password, connected
+ * accounts, delete) all lives behind the "Your Profile" row on its own screen
+ * (`account-settings.tsx`), split out 2026-08-19 at the user's request.
+ */
 function Profile({ profile }: { profile: ProfileVm }) {
   const theme = useTheme();
-  const queryClient = useQueryClient();
   const { signOut } = useAuth();
-  const [name, setName] = useState(profile.fullName);
-  const [feedback, setFeedback] = useState<'saved' | 'error' | null>(null);
+  const signOutSheetRef = useRef<ConfirmSheetRef>(null);
 
-  const saveM = useMutation({
-    mutationFn: updateProfile,
-    onSuccess: (vm) => {
-      queryClient.setQueryData(['profile'], vm);
-      setFeedback('saved');
-    },
-    onError: () => setFeedback('error'),
-  });
+  const confirmSignOut = () => {
+    hapticWarning();
+    signOutSheetRef.current?.present();
+  };
 
   return (
-    <View style={{ gap: theme.spacing(5), paddingVertical: theme.spacing(4) }}>
+    <View style={{ gap: theme.spacing(6), paddingVertical: theme.spacing(4) }}>
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          gap: theme.spacing(3),
+          gap: theme.spacing(4),
         }}
       >
         <View
           style={{
-            width: 56,
-            height: 56,
-            borderRadius: 28,
+            width: 72,
+            height: 72,
+            borderRadius: 22,
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: theme.colors['secondary'],
           }}
         >
-          <AppText variant="title" style={{ color: theme.colors['primary'] }}>
+          <AppText variant="display" style={{ color: theme.colors['primary'] }}>
             {profile.initial}
           </AppText>
         </View>
-        <View style={{ flex: 1, gap: 2 }}>
-          <AppText variant="title" numberOfLines={1}>
-            {profile.fullName || profile.email}
+        <View style={{ flex: 1, gap: theme.spacing(1) }}>
+          <AppText variant="display" numberOfLines={1}>
+            {profile.fullName || profile.email.split('@')[0]}
           </AppText>
           <AppText variant="caption" muted numberOfLines={1}>
             {profile.email}
@@ -115,69 +172,48 @@ function Profile({ profile }: { profile: ProfileVm }) {
         </View>
       </View>
 
-      <View style={{ gap: theme.spacing(2) }}>
-        <TextField
-          label={t.editNameLabel}
-          value={name}
-          onChangeText={setName}
-        />
-        <Button
-          label={saveM.isPending ? t.editNameSaving : t.editNameSave}
-          loading={saveM.isPending}
-          onPress={() => {
-            setFeedback(null);
-            saveM.mutate(name.trim());
-          }}
-          disabled={name.trim() === '' || name.trim() === profile.fullName}
-        />
-        {feedback === 'saved' ? (
-          <AppText variant="caption" style={{ color: theme.colors['success'] }}>
-            {t.editNameSaved}
-          </AppText>
-        ) : feedback === 'error' ? (
-          <AppText
-            variant="caption"
-            style={{ color: theme.colors['destructive'] }}
-          >
-            {t.editNameError}
-          </AppText>
-        ) : null}
-      </View>
+      <ProfileTile
+        label={t.menuProfile}
+        onPress={() => router.push('/account-settings')}
+      />
 
       <View>
         <MenuRow
-          icon="receipt-outline"
           label={messages.booking.list.menuLink}
           onPress={() => router.push('/trips')}
         />
-        <MenuRow
-          icon="heart-outline"
-          label={t.menuSaved}
-          onPress={() => router.push('/saved')}
-        />
+        <MenuRow label={t.menuSaved} onPress={() => router.push('/saved')} />
         {/* P5.7 S3: legal docs are native screens now (shared LegalDoc source). */}
         <MenuRow
-          icon="shield-checkmark-outline"
           label={t.menuPrivacy}
           onPress={() => router.push('/legal/privacy')}
         />
         <MenuRow
-          icon="document-text-outline"
           label={t.menuTerms}
           onPress={() => router.push('/legal/terms')}
         />
         <MenuRow
-          icon="calendar-clear-outline"
           label={t.menuCancellation}
           onPress={() => router.push('/legal/cancellation')}
         />
-        <MenuRow
-          icon="log-out-outline"
-          label={t.signOut}
-          destructive
-          onPress={() => signOut()}
-        />
+        <MenuRow label={t.signOut} destructive onPress={confirmSignOut} />
       </View>
+
+      <ConfirmSheet
+        ref={signOutSheetRef}
+        icon={
+          <Ionicons
+            name="log-out-outline"
+            size={22}
+            color={theme.colors['destructive']}
+          />
+        }
+        title={t.signOutConfirmTitle}
+        body={t.signOutConfirmBody}
+        confirmLabel={t.signOutConfirmCta}
+        cancelLabel={t.stayIn}
+        onConfirm={() => signOut()}
+      />
     </View>
   );
 }
@@ -205,12 +241,9 @@ export default function AccountScreen() {
 
   return (
     <Screen>
-      <View style={{ paddingTop: theme.spacing(4) }}>
-        <SectionHeading title={messages.auth.account.title} />
-      </View>
       {profileQ.isPending ? (
-        <View style={{ gap: theme.spacing(3) }}>
-          <Skeleton height={56} borderRadius={28} width={56} />
+        <View style={{ gap: theme.spacing(3), paddingTop: theme.spacing(4) }}>
+          <Skeleton height={72} borderRadius={22} width={72} />
           <Skeleton height={44} />
           <Skeleton height={44} />
         </View>

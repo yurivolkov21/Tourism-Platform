@@ -97,6 +97,7 @@ beforeEach(() => {
   mockBookings.mockResolvedValue([]);
   mockProfile.mockResolvedValue({
     fullName: 'Yuri Volkov',
+    phone: '',
     email: 'y@e.com',
     initial: 'Y',
   });

@@ -112,7 +112,7 @@ export default function TripsScreen() {
       <View
         style={{ flex: 1, paddingTop: theme.spacing(4), gap: theme.spacing(3) }}
       >
-        <SectionHeading title={t.title} subtitle={t.subtitle} />
+        <SectionHeading title={t.title} />
         {listQ.isPending ? (
           <View style={{ gap: theme.spacing(3) }}>
             <Skeleton height={104} />
