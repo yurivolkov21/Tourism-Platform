@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { render, screen, userEvent } from '@testing-library/react-native';
 import { ThemeProvider } from '@tourism/mobile-ui';
+import { messages } from '@tourism/i18n';
 import type { components } from '@tourism/core';
 import AccountSettingsScreen from '../app/account-settings';
 import { fetchProfile, updateProfile } from '../lib/profile';
@@ -20,6 +21,7 @@ let mockStatus = 'signedIn';
 let mockProviders: string[] = [];
 let mockGoogleAvatarUrl: string | null = null;
 const mockChangePassword = jest.fn();
+const mockChangeEmail = jest.fn();
 const mockDeleteAccount = jest.fn();
 jest.mock('../lib/auth-context', () => ({
   useAuth: () => ({
@@ -29,6 +31,7 @@ jest.mock('../lib/auth-context', () => ({
     googleAvatarUrl: mockGoogleAvatarUrl,
     signOut: jest.fn(),
     changePassword: mockChangePassword,
+    changeEmail: mockChangeEmail,
     deleteAccount: mockDeleteAccount,
   }),
 }));
@@ -334,4 +337,109 @@ test('Remove appears once a photo is set and clears it', async () => {
 
   expect(await screen.findByText('Photo updated.')).toBeOnTheScreen();
   expect(mockRemoveAvatar).toHaveBeenCalled();
+});
+
+test('a failed password change surfaces the mapped error instead of failing silently', async () => {
+  mockFetch.mockResolvedValueOnce({
+    fullName: 'Jane',
+    phone: '',
+    email: 'jane@example.com',
+    initial: 'J',
+    avatarUrl: null,
+  });
+  mockChangePassword.mockResolvedValueOnce({ error: 'weakPassword' });
+  renderScreen();
+  await screen.findByText('jane@example.com');
+
+  await userEvent.type(screen.getByLabelText('New password'), 'secret123');
+  await userEvent.type(
+    screen.getByLabelText('Confirm new password'),
+    'secret123',
+  );
+  await userEvent.press(
+    screen.getByRole('button', { name: 'Update password' }),
+  );
+
+  expect(
+    await screen.findByText(messages.mobile.authErrors.weakPassword),
+  ).toBeOnTheScreen();
+});
+
+const passwordOnly = {
+  fullName: 'Jane',
+  phone: '',
+  email: 'jane@example.com',
+  initial: 'J',
+  avatarUrl: null,
+};
+
+test('change email: password-only accounts get the form and send a confirmation', async () => {
+  mockProviders = ['email'];
+  mockFetch.mockResolvedValueOnce(passwordOnly);
+  mockChangeEmail.mockResolvedValueOnce({});
+  renderScreen();
+  await screen.findByText('jane@example.com');
+
+  await userEvent.type(screen.getByLabelText('New email'), 'new@example.com');
+  await userEvent.type(screen.getByLabelText('Current password'), 'secret123');
+  await userEvent.press(
+    screen.getByRole('button', { name: 'Send confirmation' }),
+  );
+
+  expect(mockChangeEmail).toHaveBeenCalledWith('new@example.com', 'secret123');
+  const email = messages.auth.account.securityPage.email;
+  expect(
+    await screen.findByText(`${email.sent} ${email.sentHint}`),
+  ).toBeOnTheScreen();
+});
+
+test('change email: a bad email never reaches the API', async () => {
+  mockProviders = ['email'];
+  mockFetch.mockResolvedValueOnce(passwordOnly);
+  renderScreen();
+  await screen.findByText('jane@example.com');
+
+  await userEvent.type(screen.getByLabelText('New email'), 'nope');
+  await userEvent.type(screen.getByLabelText('Current password'), 'secret123');
+  await userEvent.press(
+    screen.getByRole('button', { name: 'Send confirmation' }),
+  );
+
+  expect(
+    await screen.findByText(messages.mobile.authErrors.emailInvalid),
+  ).toBeOnTheScreen();
+  expect(mockChangeEmail).not.toHaveBeenCalled();
+});
+
+test('change email: a wrong current password is blamed on that field', async () => {
+  mockProviders = ['email'];
+  mockFetch.mockResolvedValueOnce(passwordOnly);
+  mockChangeEmail.mockResolvedValueOnce({
+    error: 'invalidCredentials',
+    field: 'password',
+  });
+  renderScreen();
+  await screen.findByText('jane@example.com');
+
+  await userEvent.type(screen.getByLabelText('New email'), 'new@example.com');
+  await userEvent.type(screen.getByLabelText('Current password'), 'wrong');
+  await userEvent.press(
+    screen.getByRole('button', { name: 'Send confirmation' }),
+  );
+
+  expect(
+    await screen.findByText(messages.mobile.authErrors.invalidCredentials),
+  ).toBeOnTheScreen();
+});
+
+test('change email: a Google-linked account sees the managed note instead', async () => {
+  mockProviders = ['google', 'email'];
+  mockFetch.mockResolvedValueOnce(passwordOnly);
+  renderScreen();
+  await screen.findByText('jane@example.com');
+
+  expect(
+    screen.getByText(messages.auth.account.securityPage.email.managedNote),
+  ).toBeOnTheScreen();
+  expect(screen.queryByLabelText('New email')).not.toBeOnTheScreen();
 });

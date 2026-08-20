@@ -24,12 +24,13 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { messages } from '@tourism/i18n';
-import { ThemeProvider, useTheme } from '@tourism/mobile-ui';
+import { useTheme } from '@tourism/mobile-ui';
 import { BrandSplash } from '../components/brand-splash';
 import {
   OnboardingScreen,
   type OnboardingIntent,
 } from '../components/onboarding-screen';
+import { AppearanceProvider } from '../lib/appearance-context';
 import { AuthProvider } from '../lib/auth-context';
 import { BookingDraftProvider } from '../lib/booking-draft';
 import { markOnboarded, readOnboarded } from '../lib/onboarding';
@@ -41,6 +42,12 @@ const queryClient = new QueryClient({
 
 // Hold the splash until the brand fonts are ready (no system-font flash).
 SplashScreen.preventAutoHideAsync();
+
+/** Status-bar contrast follows the RESOLVED scheme, not the OS setting. */
+function ThemedStatusBar() {
+  const theme = useTheme();
+  return <StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />;
+}
 
 /**
  * Needs useTheme, so it lives inside ThemeProvider. Three background layers
@@ -189,17 +196,6 @@ export default function RootLayout() {
 
   if (!ready) return null; // native splash stays visible
 
-  if (!bootDone) {
-    return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <ThemeProvider scheme="dark">
-          <StatusBar style="light" />
-          <BrandSplash />
-        </ThemeProvider>
-      </GestureHandlerRootView>
-    );
-  }
-
   const finishOnboarding = (intent: OnboardingIntent) => {
     void markOnboarded();
     setSignInAfter(intent === 'signIn');
@@ -208,36 +204,45 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      {/* SafeAreaProvider must sit outside KeyboardProvider — without it,
-          insets get computed independently by react-native-screens (native
-          headers) and react-native-keyboard-controller and race, doubling
-          the top gap on headerShown screens. */}
-      <SafeAreaProvider>
-        <KeyboardProvider>
-          {/* P5.6 dark-first: the app pins the Dark Heritage scheme (OS setting
-              ignored); a light toggle is backlog. StatusBar stays light-on-dark. */}
-          <ThemeProvider scheme="dark">
-            {onboarding === 'show' ? (
-              // Root takeover BEFORE the router Stack — self-contained pager.
-              <>
-                <StatusBar style="light" />
-                <OnboardingScreen onDone={finishOnboarding} />
-              </>
-            ) : (
-              <QueryClientProvider client={queryClient}>
-                <AuthProvider>
-                  <BookingDraftProvider>
-                    <BottomSheetModalProvider>
-                      <StatusBar style="light" />
-                      <ThemedStack initialSignIn={signInAfter} />
-                    </BottomSheetModalProvider>
-                  </BookingDraftProvider>
-                </AuthProvider>
-              </QueryClientProvider>
-            )}
-          </ThemeProvider>
-        </KeyboardProvider>
-      </SafeAreaProvider>
+      {/* AppearanceProvider owns the scheme (System / Light / Dark, persisted)
+          and mounts ThemeProvider with it. It sits ABOVE the splash branch so
+          flipping `bootDone` never remounts it — a remount would re-read the
+          stored preference and flash the default scheme. */}
+      <AppearanceProvider>
+        {!bootDone ? (
+          <>
+            <ThemedStatusBar />
+            <BrandSplash />
+          </>
+        ) : (
+          /* SafeAreaProvider must sit outside KeyboardProvider — without it,
+             insets get computed independently by react-native-screens (native
+             headers) and react-native-keyboard-controller and race, doubling
+             the top gap on headerShown screens. */
+          <SafeAreaProvider>
+            <KeyboardProvider>
+              {onboarding === 'show' ? (
+                // Root takeover BEFORE the router Stack — self-contained pager.
+                <>
+                  <ThemedStatusBar />
+                  <OnboardingScreen onDone={finishOnboarding} />
+                </>
+              ) : (
+                <QueryClientProvider client={queryClient}>
+                  <AuthProvider>
+                    <BookingDraftProvider>
+                      <BottomSheetModalProvider>
+                        <ThemedStatusBar />
+                        <ThemedStack initialSignIn={signInAfter} />
+                      </BottomSheetModalProvider>
+                    </BookingDraftProvider>
+                  </AuthProvider>
+                </QueryClientProvider>
+              )}
+            </KeyboardProvider>
+          </SafeAreaProvider>
+        )}
+      </AppearanceProvider>
     </GestureHandlerRootView>
   );
 }

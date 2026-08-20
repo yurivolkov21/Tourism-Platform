@@ -12,7 +12,8 @@ const mockOnChange = jest.fn(() => ({
   data: { subscription: { unsubscribe: jest.fn() } },
 }));
 const mockUpdateUser = jest.fn();
-const mockSignOut = jest.fn().mockResolvedValue({});
+const mockSignInWithPassword = jest.fn();
+const mockSignOut = jest.fn().mockResolvedValue({ error: null });
 
 jest.mock('../lib/supabase', () => ({
   supabase: {
@@ -20,7 +21,8 @@ jest.mock('../lib/supabase', () => ({
       getSession: () => mockGetSession(),
       onAuthStateChange: () => mockOnChange(),
       updateUser: (...a: unknown[]) => mockUpdateUser(...a),
-      signOut: () => mockSignOut(),
+      signInWithPassword: (...a: unknown[]) => mockSignInWithPassword(...a),
+      signOut: (...a: unknown[]) => mockSignOut(...a),
     },
   },
 }));
@@ -60,6 +62,44 @@ function ChangePasswordProbe() {
         }}
       >
         <Text>change</Text>
+      </Pressable>
+      <Text>result:{result}</Text>
+    </>
+  );
+}
+
+function ChangeEmailProbe() {
+  const { changeEmail } = useAuth();
+  const [result, setResult] = useState('idle');
+  return (
+    <>
+      <Pressable
+        accessibilityLabel="change-email"
+        onPress={async () => {
+          const r = await changeEmail('new@example.com', 'secret123');
+          setResult(r.error ? `${r.error}:${r.field ?? 'none'}` : 'ok');
+        }}
+      >
+        <Text>change email</Text>
+      </Pressable>
+      <Text>result:{result}</Text>
+    </>
+  );
+}
+
+function SignOutEverywhereProbe() {
+  const { signOutEverywhere } = useAuth();
+  const [result, setResult] = useState('idle');
+  return (
+    <>
+      <Pressable
+        accessibilityLabel="sign-out-everywhere"
+        onPress={async () => {
+          const r = await signOutEverywhere();
+          setResult(r.error ?? 'ok');
+        }}
+      >
+        <Text>sign out everywhere</Text>
       </Pressable>
       <Text>result:{result}</Text>
     </>
@@ -272,4 +312,62 @@ test('deleteAccount surfaces the server message and does not sign out', async ()
     await screen.findByText('result:You have active bookings.'),
   ).toBeOnTheScreen();
   expect(mockSignOut).not.toHaveBeenCalled();
+});
+
+test('changeEmail re-authenticates with the signed-in address, then updates', async () => {
+  mockGetSession.mockResolvedValueOnce({
+    data: { session: { user: { id: 'u1', email: 'jane@example.com' } } },
+  });
+  mockSignInWithPassword.mockResolvedValueOnce({ error: null });
+  mockUpdateUser.mockResolvedValueOnce({ error: null });
+
+  renderProbe(<ChangeEmailProbe />);
+  fireEvent.press(await screen.findByLabelText('change-email'));
+
+  expect(await screen.findByText('result:ok')).toBeOnTheScreen();
+  expect(mockSignInWithPassword).toHaveBeenCalledWith({
+    email: 'jane@example.com',
+    password: 'secret123',
+  });
+  expect(mockUpdateUser).toHaveBeenCalledWith({ email: 'new@example.com' });
+});
+
+test('changeEmail blames the password field when re-auth fails, and never updates', async () => {
+  // This spec shares module-level mocks across tests (no global clear).
+  mockUpdateUser.mockClear();
+  mockGetSession.mockResolvedValueOnce({
+    data: { session: { user: { id: 'u1', email: 'jane@example.com' } } },
+  });
+  mockSignInWithPassword.mockResolvedValueOnce({
+    error: { message: 'Invalid login credentials' },
+  });
+
+  renderProbe(<ChangeEmailProbe />);
+  fireEvent.press(await screen.findByLabelText('change-email'));
+
+  expect(
+    await screen.findByText('result:invalidCredentials:password'),
+  ).toBeOnTheScreen();
+  expect(mockUpdateUser).not.toHaveBeenCalled();
+});
+
+test('signOutEverywhere revokes every session, not just this device', async () => {
+  mockGetSession.mockResolvedValueOnce({ data: { session: null } });
+  mockSignOut.mockResolvedValueOnce({ error: null });
+
+  renderProbe(<SignOutEverywhereProbe />);
+  fireEvent.press(await screen.findByLabelText('sign-out-everywhere'));
+
+  expect(await screen.findByText('result:ok')).toBeOnTheScreen();
+  expect(mockSignOut).toHaveBeenCalledWith({ scope: 'global' });
+});
+
+test('signOutEverywhere maps a Supabase failure and keeps the session', async () => {
+  mockGetSession.mockResolvedValueOnce({ data: { session: null } });
+  mockSignOut.mockResolvedValueOnce({ error: { message: 'boom' } });
+
+  renderProbe(<SignOutEverywhereProbe />);
+  fireEvent.press(await screen.findByLabelText('sign-out-everywhere'));
+
+  expect(await screen.findByText('result:generic')).toBeOnTheScreen();
 });

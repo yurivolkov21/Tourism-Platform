@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useRef, type ReactNode } from 'react';
+import { forwardRef, useImperativeHandle, useRef } from 'react';
 import { View } from 'react-native';
 import { AppSheet, type AppSheetRef } from './sheet';
 import { AppText } from './app-text';
@@ -16,8 +16,6 @@ export interface ConfirmSheetProps {
   confirmLabel: string;
   cancelLabel: string;
   onConfirm: () => void;
-  /** Rendered above the title, e.g. an Ionicons glyph — kept icon-agnostic here. */
-  icon?: ReactNode;
 }
 
 /**
@@ -30,7 +28,7 @@ export interface ConfirmSheetProps {
  */
 export const ConfirmSheet = forwardRef<ConfirmSheetRef, ConfirmSheetProps>(
   function ConfirmSheet(
-    { title, body, confirmLabel, cancelLabel, onConfirm, icon },
+    { title, body, confirmLabel, cancelLabel, onConfirm },
     ref,
   ) {
     const theme = useTheme();
@@ -50,21 +48,6 @@ export const ConfirmSheet = forwardRef<ConfirmSheetRef, ConfirmSheetProps>(
             alignItems: 'center',
           }}
         >
-          {icon ? (
-            <View
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: 24,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: theme.colors['destructive'] + '1a',
-              }}
-            >
-              {icon}
-            </View>
-          ) : null}
-
           <View style={{ gap: theme.spacing(1), alignItems: 'center' }}>
             <AppText variant="title" style={{ textAlign: 'center' }}>
               {title}

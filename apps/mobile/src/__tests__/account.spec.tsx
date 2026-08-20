@@ -108,3 +108,25 @@ test('sign out: dismissing the confirm sheet does not sign out', async () => {
   await userEvent.press(screen.getByRole('button', { name: 'Stay signed in' }));
   expect(mockSignOut).not.toHaveBeenCalled();
 });
+
+test('the menu leads to app settings and to one Legal destination', async () => {
+  mockStatus = 'signedIn';
+  mockFetch.mockResolvedValueOnce({
+    fullName: 'Jane',
+    phone: '',
+    email: 'jane@example.com',
+    initial: 'J',
+    avatarUrl: null,
+  });
+  renderAccount();
+  await screen.findByText('jane@example.com');
+
+  // The three policy rows collapsed into one (2026-08-20).
+  expect(screen.queryByText('Privacy policy')).not.toBeOnTheScreen();
+
+  await userEvent.press(screen.getByRole('button', { name: 'App settings' }));
+  expect(mockPush).toHaveBeenCalledWith('/app-settings');
+
+  await userEvent.press(screen.getByRole('button', { name: 'Legal' }));
+  expect(mockPush).toHaveBeenCalledWith('/legal');
+});

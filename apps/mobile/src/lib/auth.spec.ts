@@ -1,5 +1,6 @@
 import {
   mapAuthError,
+  validateChangeEmail,
   validateForgot,
   validateSignIn,
   validateSignUp,
@@ -55,4 +56,16 @@ test('mapAuthError translates supabase messages to copy keys', () => {
   ).toBe('weakPassword');
   expect(mapAuthError({ message: 'boom' })).toBe('generic');
   expect(mapAuthError(null)).toBe('generic');
+});
+
+test('validateChangeEmail wants a valid new address and the current password', () => {
+  expect(
+    validateChangeEmail({ email: 'new@example.com', password: 'secret123' }),
+  ).toEqual({});
+  expect(validateChangeEmail({ email: 'nope', password: 'secret123' })).toEqual(
+    { email: 'emailInvalid' },
+  );
+  expect(
+    validateChangeEmail({ email: 'new@example.com', password: '' }),
+  ).toEqual({ password: 'passwordRequired' });
 });

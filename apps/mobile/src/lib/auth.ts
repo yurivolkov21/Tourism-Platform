@@ -41,6 +41,24 @@ export function validateSignUp(input: {
   return errors;
 }
 
+export type ChangeEmailErrors = Partial<
+  Record<'email' | 'password', 'emailInvalid' | 'passwordRequired'>
+>;
+
+/**
+ * Changing the sign-in email re-authenticates first, so the current password is
+ * required alongside the new address (web parity — `ChangeEmailForm`).
+ */
+export function validateChangeEmail(input: {
+  email: string;
+  password: string;
+}): ChangeEmailErrors {
+  const errors: ChangeEmailErrors = {};
+  if (!EMAIL_RE.test(input.email.trim())) errors.email = 'emailInvalid';
+  if (input.password === '') errors.password = 'passwordRequired';
+  return errors;
+}
+
 export function validateForgot(input: {
   email: string;
 }): Partial<Record<'email', 'emailInvalid'>> {

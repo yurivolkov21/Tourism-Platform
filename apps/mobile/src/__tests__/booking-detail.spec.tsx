@@ -1,4 +1,3 @@
-import { Alert } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   fireEvent,
@@ -83,17 +82,13 @@ test('PENDING: pay now starts checkout and pushes the result screen', async () =
   );
 });
 
-test('PENDING: cancel asks for a native confirm, then cancels', async () => {
+test('PENDING: cancel confirms in the themed sheet, then cancels', async () => {
   (fetchBooking as jest.Mock).mockResolvedValue(base);
   (cancelBooking as jest.Mock).mockResolvedValue(undefined);
-  const alertSpy = jest.spyOn(Alert, 'alert');
   renderScreen();
   fireEvent.press(await screen.findByTestId('cancel-booking'));
-  expect(alertSpy).toHaveBeenCalled();
-  // Invoke the destructive button from the Alert options.
-  const buttons = alertSpy.mock.calls[0][2] ?? [];
-  const destructive = buttons.find((b) => b.style === 'destructive');
-  destructive?.onPress?.();
+  expect(cancelBooking).not.toHaveBeenCalled();
+  fireEvent.press(screen.getByRole('button', { name: 'Yes, cancel it' }));
   await waitFor(() => expect(cancelBooking).toHaveBeenCalled());
   expect((cancelBooking as jest.Mock).mock.calls[0][0]).toBe('BK-1');
 });

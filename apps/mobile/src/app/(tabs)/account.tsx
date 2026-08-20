@@ -179,31 +179,19 @@ function Profile({ profile }: { profile: ProfileVm }) {
           onPress={() => router.push('/trips')}
         />
         <MenuRow label={t.menuSaved} onPress={() => router.push('/saved')} />
-        {/* P5.7 S3: legal docs are native screens now (shared LegalDoc source). */}
         <MenuRow
-          label={t.menuPrivacy}
-          onPress={() => router.push('/legal/privacy')}
+          label={t.menuSettings}
+          onPress={() => router.push('/app-settings')}
         />
-        <MenuRow
-          label={t.menuTerms}
-          onPress={() => router.push('/legal/terms')}
-        />
-        <MenuRow
-          label={t.menuCancellation}
-          onPress={() => router.push('/legal/cancellation')}
-        />
+        {/* One Legal row in place of the three policy rows (2026-08-20) — the
+            docs themselves are still native screens over the shared LegalDoc
+            source, now behind `legal/index`. */}
+        <MenuRow label={t.menuLegal} onPress={() => router.push('/legal')} />
         <MenuRow label={t.signOut} destructive onPress={confirmSignOut} />
       </View>
 
       <ConfirmSheet
         ref={signOutSheetRef}
-        icon={
-          <Ionicons
-            name="log-out-outline"
-            size={22}
-            color={theme.colors['destructive']}
-          />
-        }
         title={t.signOutConfirmTitle}
         body={t.signOutConfirmBody}
         confirmLabel={t.signOutConfirmCta}

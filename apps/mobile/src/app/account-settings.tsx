@@ -8,6 +8,7 @@ import { messages } from '@tourism/i18n';
 import {
   AppText,
   Avatar,
+  Badge,
   Button,
   ConfirmSheet,
   Screen,
@@ -16,14 +17,21 @@ import {
   TextField,
   useTheme,
   type ConfirmSheetRef,
+  type TextFieldProps,
 } from '@tourism/mobile-ui';
 import { removeAvatar, uploadAvatar } from '../lib/avatar';
+import {
+  validateChangeEmail,
+  type AuthErrorKey,
+  type ChangeEmailErrors,
+} from '../lib/auth';
 import { useAuth } from '../lib/auth-context';
 import {
   validateChangePassword,
   type ChangePasswordErrors,
 } from '../lib/change-password';
 import { hapticWarning } from '../lib/haptics';
+import { canChangeEmail } from '../lib/providers';
 import {
   fetchProfile,
   toProfileVm,
@@ -31,51 +39,50 @@ import {
   type ProfileVm,
 } from '../lib/profile';
 import { buildUpdateProfilePayload } from '../lib/profile-form';
+import {
+  FeedbackLine,
+  RowDivider,
+  Section,
+  SettingsRow,
+  useSurface,
+} from '../components/settings-ui';
 
 const t = messages.mobile.account;
 const te = messages.mobile.authErrors;
 const ts = messages.auth.account.securityPage.password;
+const tem = messages.auth.account.securityPage.email;
 const tc = messages.auth.account.connected;
 const ds = messages.auth.account.settings;
 const dz = messages.auth.account.danger;
+const ta = messages.auth.account.profile.avatar;
 
-/** Section label + optional description — same shape across all four groups below. */
-function SectionHead({
-  title,
-  description,
-  tone,
-}: {
-  title: string;
-  description?: string;
-  tone?: 'danger';
-}) {
+/**
+ * Caption label over a hairline field — no box inside the group's box. `label`
+ * still goes to TextField for the a11y name; `underline` doesn't render it.
+ */
+function Field({ label, ...rest }: TextFieldProps & { label: string }) {
   const theme = useTheme();
   return (
-    <View style={{ gap: 2 }}>
-      <AppText
-        variant="title"
-        style={
-          tone === 'danger' ? { color: theme.colors['destructive'] } : undefined
-        }
-      >
-        {title}
+    <View style={{ gap: theme.spacing(1) }}>
+      <AppText variant="caption" muted>
+        {label}
       </AppText>
-      {description ? (
-        <AppText variant="caption" muted>
-          {description}
-        </AppText>
-      ) : null}
+      <TextField variant="underline" label={label} {...rest} />
     </View>
   );
 }
 
-const ta = messages.auth.account.profile.avatar;
-
 function SettingsBody({ profile }: { profile: ProfileVm }) {
   const theme = useTheme();
+  const surface = useSurface();
   const queryClient = useQueryClient();
-  const { providers, changePassword, deleteAccount, googleAvatarUrl } =
-    useAuth();
+  const {
+    providers,
+    changeEmail,
+    changePassword,
+    deleteAccount,
+    googleAvatarUrl,
+  } = useAuth();
   const [name, setName] = useState(profile.fullName);
   const [phone, setPhone] = useState(profile.phone);
   const [feedback, setFeedback] = useState<'saved' | 'error' | null>(null);
@@ -85,6 +92,7 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
   // `buildUpdateProfilePayload` sends, so a trailing space alone doesn't count.
   const dirty =
     name.trim() !== profile.fullName || phone.trim() !== profile.phone;
+  const canSave = dirty && name.trim() !== '';
 
   const saveM = useMutation({
     mutationFn: updateProfile,
@@ -141,6 +149,39 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
     });
   };
 
+  const [newEmail, setNewEmail] = useState('');
+  const [emailPassword, setEmailPassword] = useState('');
+  const [showEmailPassword, setShowEmailPassword] = useState(false);
+  const [emailErrors, setEmailErrors] = useState<ChangeEmailErrors>({});
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailFail, setEmailFail] = useState<{
+    key: AuthErrorKey;
+    field?: 'password';
+  } | null>(null);
+  const [emailSubmitting, setEmailSubmitting] = useState(false);
+
+  const onChangeEmail = async () => {
+    const errors = validateChangeEmail({
+      email: newEmail,
+      password: emailPassword,
+    });
+    setEmailErrors(errors);
+    setEmailSent(false);
+    setEmailFail(null);
+    if (Object.keys(errors).length > 0) return;
+
+    setEmailSubmitting(true);
+    const result = await changeEmail(newEmail.trim(), emailPassword);
+    setEmailSubmitting(false);
+    if (result.error) {
+      setEmailFail({ key: result.error, field: result.field });
+      return;
+    }
+    setNewEmail('');
+    setEmailPassword('');
+    setEmailSent(true);
+  };
+
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -148,9 +189,10 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
   const [passwordErrors, setPasswordErrors] = useState<ChangePasswordErrors>(
     {},
   );
-  const [passwordFeedback, setPasswordFeedback] = useState<
-    'saved' | 'error' | null
-  >(null);
+  const [passwordDone, setPasswordDone] = useState(false);
+  // The mapped Supabase key, not a bare flag — a failed change has to SAY why
+  // (it used to be swallowed: the error branch set state nothing rendered).
+  const [passwordError, setPasswordError] = useState<AuthErrorKey | null>(null);
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
 
   const onChangePassword = async () => {
@@ -159,24 +201,29 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
       confirm: confirmPassword,
     });
     setPasswordErrors(errors);
-    setPasswordFeedback(null);
+    setPasswordDone(false);
+    setPasswordError(null);
     if (Object.keys(errors).length > 0) return;
 
     setPasswordSubmitting(true);
     const result = await changePassword(newPassword);
     setPasswordSubmitting(false);
     if (result.error) {
-      setPasswordFeedback('error');
+      setPasswordError(result.error);
       return;
     }
     setNewPassword('');
     setConfirmPassword('');
-    setPasswordFeedback('saved');
+    setPasswordDone(true);
   };
 
   const connectedLabels: Record<string, string> = {
     google: tc.google,
     email: tc.email,
+  };
+  const connectedIcons: Record<string, 'logo-google' | 'mail-outline'> = {
+    google: 'logo-google',
+    email: 'mail-outline',
   };
   const connectedItems = providers.filter((p) => p in connectedLabels);
 
@@ -202,107 +249,129 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
     router.replace('/');
   };
 
+  const eyeToggle = (shown: boolean, toggle: () => void) => (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={shown ? ts.hide : ts.show}
+      onPress={toggle}
+      hitSlop={8}
+    >
+      <Ionicons
+        name={shown ? 'eye-off-outline' : 'eye-outline'}
+        size={18}
+        color={theme.colors['muted-foreground']}
+      />
+    </Pressable>
+  );
+
   return (
-    <View style={{ gap: theme.spacing(6), paddingVertical: theme.spacing(4) }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: theme.spacing(3),
-        }}
-      >
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={ta.change}
-          onPress={() => void onPickAvatar()}
-          disabled={avatarBusy}
-          style={{ opacity: avatarBusy ? 0.6 : 1 }}
+    <View style={{ gap: theme.spacing(7), paddingVertical: theme.spacing(5) }}>
+      {/* Identity header — same avatar treatment as the account tab this opens
+          from (72 / squircle / display name), so the two read as one screen. */}
+      <View style={{ gap: theme.spacing(3) }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.spacing(4),
+          }}
         >
-          <Avatar
-            uri={profile.avatarUrl ?? googleAvatarUrl}
-            size={56}
-            radius={28}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={ta.change}
+            onPress={() => void onPickAvatar()}
+            disabled={avatarBusy}
+            style={{ opacity: avatarBusy ? 0.6 : 1 }}
           >
-            <AppText variant="title" style={{ color: theme.colors['primary'] }}>
-              {profile.initial}
-            </AppText>
-          </Avatar>
-          <View
-            pointerEvents="none"
-            style={{
-              position: 'absolute',
-              right: -2,
-              bottom: -2,
-              width: 24,
-              height: 24,
-              borderRadius: 12,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: theme.colors['background'],
-              borderWidth: 1,
-              borderColor: theme.colors['border'],
-            }}
-          >
-            {avatarBusy ? (
-              <Spinner size="small" />
-            ) : (
-              <Ionicons
-                name="camera"
-                size={13}
-                color={theme.colors['foreground']}
-              />
-            )}
-          </View>
-        </Pressable>
-        <View style={{ flex: 1, gap: 2 }}>
-          <AppText variant="title" numberOfLines={1}>
-            {profile.fullName || profile.email}
-          </AppText>
-          <AppText variant="caption" muted numberOfLines={1}>
-            {profile.email}
-          </AppText>
-          {profile.avatarUrl ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={ta.remove}
-              disabled={avatarBusy}
-              onPress={() => {
-                setAvatarFeedback(null);
-                removeAvatarM.mutate();
-              }}
-              hitSlop={8}
+            <Avatar
+              uri={profile.avatarUrl ?? googleAvatarUrl}
+              size={72}
+              radius={22}
             >
               <AppText
-                variant="caption"
-                style={{ color: theme.colors['destructive'] }}
+                variant="display"
+                style={{ color: theme.colors['primary'] }}
               >
-                {ta.remove}
+                {profile.initial}
               </AppText>
-            </Pressable>
-          ) : null}
+            </Avatar>
+            <View
+              pointerEvents="none"
+              style={{
+                position: 'absolute',
+                right: -4,
+                bottom: -4,
+                width: 28,
+                height: 28,
+                borderRadius: 14,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: theme.colors['background'],
+                borderWidth: 1,
+                borderColor: theme.colors['border'],
+              }}
+            >
+              {avatarBusy ? (
+                <Spinner size="small" />
+              ) : (
+                <Ionicons
+                  name="camera"
+                  size={15}
+                  color={theme.colors['foreground']}
+                />
+              )}
+            </View>
+          </Pressable>
+          <View style={{ flex: 1, gap: theme.spacing(1) }}>
+            <AppText variant="display" numberOfLines={1}>
+              {profile.fullName || profile.email.split('@')[0]}
+            </AppText>
+            <AppText variant="caption" muted numberOfLines={1}>
+              {profile.email}
+            </AppText>
+            {profile.avatarUrl ? (
+              // A quiet pill, not a red micro-link under the email: still
+              // destructive, but a real touch target.
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={ta.remove}
+                disabled={avatarBusy}
+                onPress={() => {
+                  setAvatarFeedback(null);
+                  removeAvatarM.mutate();
+                }}
+                android_ripple={{ color: theme.colors['muted'] }}
+                style={({ pressed }) => ({
+                  alignSelf: 'flex-start',
+                  marginTop: theme.spacing(1),
+                  paddingHorizontal: theme.spacing(3),
+                  paddingVertical: theme.spacing(1),
+                  borderRadius: 999,
+                  backgroundColor: surface,
+                  overflow: 'hidden',
+                  opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.7 : 1,
+                })}
+              >
+                <AppText
+                  variant="caption"
+                  style={{ color: theme.colors['destructive'] }}
+                >
+                  {ta.remove}
+                </AppText>
+              </Pressable>
+            ) : null}
+          </View>
         </View>
+        {avatarFeedback === 'saved' ? (
+          <FeedbackLine tone="success" text={ta.saved} />
+        ) : avatarFeedback === 'error' ? (
+          <FeedbackLine tone="error" text={ta.error} />
+        ) : null}
       </View>
-      {avatarFeedback === 'saved' ? (
-        <AppText variant="caption" style={{ color: theme.colors['success'] }}>
-          {ta.saved}
-        </AppText>
-      ) : avatarFeedback === 'error' ? (
-        <AppText
-          variant="caption"
-          style={{ color: theme.colors['destructive'] }}
-        >
-          {ta.error}
-        </AppText>
-      ) : null}
 
-      <View style={{ gap: theme.spacing(2) }}>
-        <SectionHead title={ds.personalHeading} description={ds.personalDesc} />
-        <TextField
-          label={t.editNameLabel}
-          value={name}
-          onChangeText={setName}
-        />
-        <TextField
+      <Section title={ds.personalHeading}>
+        <Field label={t.editNameLabel} value={name} onChangeText={setName} />
+        <Field
           label={messages.auth.account.profile.phoneLabel}
           value={phone}
           onChangeText={setPhone}
@@ -316,25 +385,76 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
             setFeedback(null);
             saveM.mutate(buildUpdateProfilePayload({ fullName: name, phone }));
           }}
-          disabled={name.trim() === '' || !dirty}
+          disabled={!canSave}
+          // `ready` supplies the resting (muted) fill; the disabled opacity is
+          // overridden so it reads "nothing to save yet", not greyed-out.
+          ready={canSave}
+          style={canSave ? undefined : { opacity: 1 }}
         />
         {feedback === 'saved' ? (
-          <AppText variant="caption" style={{ color: theme.colors['success'] }}>
-            {t.editNameSaved}
-          </AppText>
+          <FeedbackLine tone="success" text={t.editNameSaved} />
         ) : feedback === 'error' ? (
-          <AppText
-            variant="caption"
-            style={{ color: theme.colors['destructive'] }}
-          >
-            {t.editNameError}
-          </AppText>
+          <FeedbackLine tone="error" text={t.editNameError} />
         ) : null}
-      </View>
+      </Section>
 
-      <View style={{ gap: theme.spacing(2) }}>
-        <SectionHead title={ts.heading} />
-        <TextField
+      <Section title={tem.heading}>
+        {canChangeEmail(providers) ? (
+          <>
+            <Field
+              label={tem.newLabel}
+              value={newEmail}
+              onChangeText={setNewEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              textContentType="emailAddress"
+              error={emailErrors.email ? te[emailErrors.email] : undefined}
+            />
+            <Field
+              label={tem.currentPasswordLabel}
+              value={emailPassword}
+              onChangeText={setEmailPassword}
+              secureTextEntry={!showEmailPassword}
+              // `newPassword`, not `password`: stops the OS offering the saved
+              // login credential, so re-auth stays a typed, deliberate action.
+              textContentType="newPassword"
+              error={
+                emailErrors.password
+                  ? te[emailErrors.password]
+                  : emailFail?.field === 'password'
+                    ? te[emailFail.key]
+                    : undefined
+              }
+              trailing={eyeToggle(showEmailPassword, () =>
+                setShowEmailPassword((v) => !v),
+              )}
+            />
+            <Button
+              label={emailSubmitting ? tem.submitting : tem.submit}
+              loading={emailSubmitting}
+              onPress={() => void onChangeEmail()}
+              ready={newEmail !== '' && emailPassword !== ''}
+            />
+            {emailSent ? (
+              <FeedbackLine
+                tone="success"
+                text={`${tem.sent} ${tem.sentHint}`}
+              />
+            ) : emailFail && !emailFail.field ? (
+              <FeedbackLine tone="error" text={te[emailFail.key]} />
+            ) : null}
+          </>
+        ) : (
+          // Google-linked accounts: the address belongs to the identity provider.
+          <AppText variant="caption" muted>
+            {tem.managedNote}
+          </AppText>
+        )}
+      </Section>
+
+      <Section title={ts.heading}>
+        <Field
           label={ts.newLabel}
           value={newPassword}
           onChangeText={setNewPassword}
@@ -343,22 +463,11 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
           error={
             passwordErrors.password ? te[passwordErrors.password] : undefined
           }
-          trailing={
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={showNewPassword ? ts.hide : ts.show}
-              onPress={() => setShowNewPassword((v) => !v)}
-              hitSlop={8}
-            >
-              <Ionicons
-                name={showNewPassword ? 'eye-off-outline' : 'eye-outline'}
-                size={18}
-                color={theme.colors['muted-foreground']}
-              />
-            </Pressable>
-          }
+          trailing={eyeToggle(showNewPassword, () =>
+            setShowNewPassword((v) => !v),
+          )}
         />
-        <TextField
+        <Field
           label={ts.confirmLabel}
           value={confirmPassword}
           onChangeText={setConfirmPassword}
@@ -367,114 +476,87 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
           error={
             passwordErrors.confirm ? te[passwordErrors.confirm] : undefined
           }
-          trailing={
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={showConfirmPassword ? ts.hide : ts.show}
-              onPress={() => setShowConfirmPassword((v) => !v)}
-              hitSlop={8}
-            >
-              <Ionicons
-                name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
-                size={18}
-                color={theme.colors['muted-foreground']}
-              />
-            </Pressable>
-          }
+          trailing={eyeToggle(showConfirmPassword, () =>
+            setShowConfirmPassword((v) => !v),
+          )}
         />
         <Button
           label={passwordSubmitting ? ts.submitting : ts.submit}
           loading={passwordSubmitting}
           onPress={() => void onChangePassword()}
+          // Resting until both fields have something — still pressable, so
+          // submit-side validation can surface the per-field errors.
+          ready={newPassword !== '' && confirmPassword !== ''}
         />
-        {passwordFeedback === 'saved' ? (
-          <AppText variant="caption" style={{ color: theme.colors['success'] }}>
-            {ts.success}
-          </AppText>
+        {passwordDone ? (
+          <FeedbackLine tone="success" text={ts.success} />
+        ) : passwordError ? (
+          <FeedbackLine tone="error" text={te[passwordError]} />
         ) : null}
-      </View>
+      </Section>
 
-      <View style={{ gap: theme.spacing(2) }}>
-        <SectionHead
-          title={ds.connectedHeading}
-          description={ds.connectedDesc}
-        />
+      <Section title={ds.connectedHeading} variant="rows">
         {connectedItems.length === 0 ? (
-          <AppText variant="caption" muted>
-            {tc.none}
-          </AppText>
+          <View
+            style={{
+              paddingHorizontal: theme.spacing(5),
+              paddingVertical: theme.spacing(4),
+            }}
+          >
+            <AppText variant="caption" muted>
+              {tc.none}
+            </AppText>
+          </View>
         ) : (
-          connectedItems.map((p) => (
-            <View
-              key={p}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: theme.spacing(2),
-                paddingVertical: theme.spacing(1),
-              }}
-            >
-              <Ionicons
-                name="checkmark-circle"
-                size={18}
-                color={theme.colors['success']}
-              />
-              <AppText variant="body">{connectedLabels[p]}</AppText>
+          connectedItems.map((p, i) => (
+            <View key={p}>
+              {i > 0 ? <RowDivider inset /> : null}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: theme.spacing(3),
+                  // Matches SettingsRow's own padding — read-only rows, but the
+                  // same rhythm as the tappable ones.
+                  paddingHorizontal: theme.spacing(5),
+                  paddingVertical: theme.spacing(4),
+                  minHeight: 56,
+                }}
+              >
+                <Ionicons
+                  name={connectedIcons[p]}
+                  size={18}
+                  color={theme.colors['muted-foreground']}
+                />
+                <AppText variant="body" style={{ flex: 1 }}>
+                  {connectedLabels[p]}
+                </AppText>
+                <Badge label={tc.connectedBadge} tone="success" />
+              </View>
             </View>
           ))
         )}
-      </View>
+      </Section>
 
       <View style={{ gap: theme.spacing(2) }}>
-        <SectionHead
-          title={ds.dangerHeading}
-          description={ds.dangerDesc}
-          tone="danger"
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={dz.deleteCta}
-          onPress={confirmDeleteAccount}
-          android_ripple={{ color: theme.colors['muted'] }}
-          style={({ pressed }) => ({
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: theme.spacing(2),
-            paddingVertical: theme.spacing(2),
-            opacity: process.env.EXPO_OS === 'ios' && pressed ? 0.7 : 1,
-          })}
-        >
-          <Ionicons
-            name="trash-outline"
-            size={20}
-            color={theme.colors['destructive']}
+        <Section title={ds.dangerHeading} tone="danger" variant="rows">
+          <SettingsRow
+            label={deleting ? dz.deleting : dz.deleteCta}
+            description={dz.deleteDesc}
+            icon="trash-outline"
+            tone="danger"
+            onPress={confirmDeleteAccount}
           />
-          <AppText
-            variant="body"
-            style={{ color: theme.colors['destructive'] }}
-          >
-            {deleting ? dz.deleting : dz.deleteCta}
-          </AppText>
-        </Pressable>
+        </Section>
         {deleteError ? (
-          <AppText
-            variant="caption"
-            style={{ color: theme.colors['destructive'] }}
-          >
-            {deleteError}
-          </AppText>
+          <View style={{ paddingHorizontal: theme.spacing(2) }}>
+            <FeedbackLine tone="error" text={deleteError} />
+          </View>
         ) : null}
       </View>
 
       <ConfirmSheet
         ref={deleteSheetRef}
-        icon={
-          <Ionicons
-            name="trash-outline"
-            size={22}
-            color={theme.colors['destructive']}
-          />
-        }
         title={dz.confirmTitle}
         body={dz.confirmBody}
         confirmLabel={dz.confirmCta}
@@ -485,11 +567,44 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
   );
 }
 
+/** Loading state shaped like the real screen: identity row, then three groups. */
+function SettingsSkeleton() {
+  const theme = useTheme();
+  return (
+    <View style={{ gap: theme.spacing(7), paddingVertical: theme.spacing(5) }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: theme.spacing(4),
+        }}
+      >
+        <Skeleton height={72} width={72} borderRadius={22} />
+        <View style={{ flex: 1, gap: theme.spacing(2) }}>
+          <Skeleton height={20} width="70%" />
+          <Skeleton height={12} width="50%" />
+        </View>
+      </View>
+      {[0, 1, 2].map((i) => (
+        <View key={i} style={{ gap: theme.spacing(2) }}>
+          <Skeleton height={12} width="40%" />
+          <Skeleton
+            height={i === 2 ? 96 : 196}
+            borderRadius={theme.radius.xl}
+          />
+        </View>
+      ))}
+    </View>
+  );
+}
+
 /**
  * P5.7-style dedicated settings screen — everything the tab's "Your Profile" row
  * leads to: identity, editable name/phone, change password, connected accounts
  * (read-only) and account deletion. Split out of the account tab (2026-08-19,
  * user request) so the tab itself stays a short menu instead of a page of forms.
+ * Regrouped 2026-08-20 into borderless surfaces with hairline fields — the flat
+ * stack of boxed forms had no hierarchy, and card chrome only added noise.
  */
 export default function AccountSettingsScreen() {
   const theme = useTheme();
@@ -504,17 +619,12 @@ export default function AccountSettingsScreen() {
 
   return (
     // paddingTop: 0 — the native header already clears the status bar (same
-    // idiom as the legal reader).
-    <Screen style={{ paddingTop: 0 }}>
+    // idiom as the legal reader). keyboardAware — the password pair sits at the
+    // bottom of the scroll, where the keyboard would otherwise cover it.
+    <Screen keyboardAware style={{ paddingTop: 0 }}>
       <Stack.Screen options={{ headerShown: true, title: ds.title }} />
       {profileQ.isPending ? (
-        <View
-          style={{ gap: theme.spacing(3), paddingVertical: theme.spacing(4) }}
-        >
-          <Skeleton height={56} borderRadius={28} width={56} />
-          <Skeleton height={44} />
-          <Skeleton height={44} />
-        </View>
+        <SettingsSkeleton />
       ) : profileQ.isError || !profileQ.data ? (
         <View
           style={{

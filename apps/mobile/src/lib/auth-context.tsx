@@ -31,10 +31,26 @@ export interface AuthContextValue {
   signInWithGoogle(): Promise<{ error?: AuthErrorKey }>;
   sendReset(email: string): Promise<{ error?: AuthErrorKey }>;
   changePassword(password: string): Promise<{ error?: AuthErrorKey }>;
+  /**
+   * Change the sign-in email (password-only accounts — gate on `canChangeEmail`).
+   * Re-authenticates with the current password first, then asks Supabase to mail
+   * a confirmation to the NEW address; the change only lands once that link is
+   * confirmed on the web `/auth/confirm` route, which also re-syncs the API
+   * mirror and notifies the old address. `field` says which input to blame.
+   */
+  changeEmail(
+    email: string,
+    currentPassword: string,
+  ): Promise<{ error?: AuthErrorKey; field?: 'password' }>;
   /** Deletes the account server-side, then signs out. `error` is a server-provided message when
    * available (e.g. active bookings block deletion), else a generic fallback. */
   deleteAccount(): Promise<{ error?: string }>;
   signOut(): Promise<void>;
+  /**
+   * Revoke every session for this account (Supabase `scope: 'global'`) — the
+   * current device included, so the app lands back on the signed-out state.
+   */
+  signOutEverywhere(): Promise<{ error?: AuthErrorKey }>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -127,13 +143,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+  /** Drop everything account-scoped from the cache. Shared by both sign-outs. */
+  const clearAccountCaches = useCallback(() => {
     queryClient.removeQueries({ queryKey: ['wishlist'] });
     queryClient.removeQueries({ queryKey: ['profile'] });
     // Bookings are account-scoped PII — never let them survive an account switch.
     queryClient.removeQueries({ queryKey: ['bookings'] });
   }, [queryClient]);
+
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut();
+    clearAccountCaches();
+  }, [clearAccountCaches]);
+
+  const signOutEverywhere = useCallback<
+    AuthContextValue['signOutEverywhere']
+  >(async () => {
+    const { error } = await supabase.auth.signOut({ scope: 'global' });
+    // Leave the caches alone on failure: the session is still valid, and the
+    // screen stays put so the user can retry.
+    if (error) return { error: mapAuthError(error) };
+    clearAccountCaches();
+    return {};
+  }, [clearAccountCaches]);
 
   const changePassword = useCallback<AuthContextValue['changePassword']>(
     async (password) => {
@@ -141,6 +173,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return error ? { error: mapAuthError(error) } : {};
     },
     [],
+  );
+
+  const changeEmail = useCallback<AuthContextValue['changeEmail']>(
+    async (email, currentPassword) => {
+      // Supabase has no verify-password API — signing in again is the re-auth.
+      const { error: reauthError } = await supabase.auth.signInWithPassword({
+        email: user?.email ?? '',
+        password: currentPassword,
+      });
+      if (reauthError)
+        return { error: mapAuthError(reauthError), field: 'password' };
+
+      // No emailRedirectTo: the link follows the Supabase Site URL to the web
+      // `/auth/confirm` handler, the one place that completes a token_hash
+      // confirmation and refreshes the API's email mirror.
+      const { error } = await supabase.auth.updateUser({ email });
+      return error ? { error: mapAuthError(error) } : {};
+    },
+    [user],
   );
 
   const deleteAccount = useCallback<
@@ -171,8 +222,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signInWithGoogle,
       sendReset,
       changePassword,
+      changeEmail,
       deleteAccount,
       signOut,
+      signOutEverywhere,
     }),
     [
       status,
@@ -184,8 +237,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signInWithGoogle,
       sendReset,
       changePassword,
+      changeEmail,
       deleteAccount,
       signOut,
+      signOutEverywhere,
     ],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

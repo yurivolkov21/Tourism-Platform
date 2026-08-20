@@ -71,7 +71,15 @@ export function Button({
       {loading ? <Spinner size="small" /> : icon}
       <AppText
         variant="body"
+        // A button label is one line by definition. Without this it wraps when
+        // the parent measures narrow (bottom sheets size dynamically, so the
+        // first pass can be short) and the second line is eaten by the row's
+        // `overflow: hidden` — "Yes, delete my account" rendered as
+        // "Yes, delete my". `flexShrink` lets it ellipsize instead of clip.
+        numberOfLines={1}
         style={{
+          flexShrink: 1,
+          textAlign: 'center',
           fontFamily: theme.fontFamilies.sansSemiBold,
           color: resting
             ? theme.colors['muted-foreground']

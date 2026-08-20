@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Alert, Pressable, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Pressable, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { messages } from '@tourism/i18n';
@@ -7,10 +7,12 @@ import {
   AppText,
   Badge,
   Button,
+  ConfirmSheet,
   Screen,
   Spinner,
   TextField,
   useTheme,
+  type ConfirmSheetRef,
 } from '@tourism/mobile-ui';
 import { FactRow } from '../../../components/fact-row';
 import { ReviewPrompt } from '../../../components/review-prompt';
@@ -35,6 +37,7 @@ function Actions({ booking }: { booking: BookingVm }) {
   const [reasonOpen, setReasonOpen] = useState(false);
   const [reason, setReason] = useState('');
   const [banner, setBanner] = useState<string | null>(null);
+  const cancelSheetRef = useRef<ConfirmSheetRef>(null);
 
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: ['bookings'] });
@@ -61,16 +64,12 @@ function Actions({ booking }: { booking: BookingVm }) {
     onError: (error) => setBanner(bookingErrorMessage(error)),
   });
 
+  // ConfirmSheet, not `Alert.alert` — the OS dialog is unstyled and reads as
+  // foreign against the app's dark theme (same call the sign-out/delete
+  // confirms make).
   const confirmCancel = () => {
     hapticWarning();
-    Alert.alert(t.cancelConfirmTitle, t.cancelConfirmBody, [
-      { text: t.keep, style: 'cancel' },
-      {
-        text: t.cancelConfirmCta,
-        style: 'destructive',
-        onPress: () => cancelM.mutate(),
-      },
-    ]);
+    cancelSheetRef.current?.present();
   };
 
   const bannerEl = banner ? (
@@ -96,6 +95,14 @@ function Actions({ booking }: { booking: BookingVm }) {
           onPress={confirmCancel}
         />
         {bannerEl}
+        <ConfirmSheet
+          ref={cancelSheetRef}
+          title={t.cancelConfirmTitle}
+          body={t.cancelConfirmBody}
+          confirmLabel={t.cancelConfirmCta}
+          cancelLabel={t.keep}
+          onConfirm={() => cancelM.mutate()}
+        />
       </View>
     );
   }

@@ -198,6 +198,7 @@ export const messages = {
         google: 'Google',
         email: 'Email & password',
         none: 'No connected accounts yet.',
+        connectedBadge: 'Connected',
       },
       danger: {
         deleteTitle: 'Delete account',
@@ -2266,6 +2267,8 @@ export const messages = {
       menuPrivacy: 'Privacy policy',
       menuTerms: 'Terms of service',
       menuCancellation: 'Cancellation & refund policy',
+      menuSettings: 'App settings',
+      menuLegal: 'Legal',
       signOut: 'Sign out',
       signOutConfirmTitle: 'Sign out?',
       signOutConfirmBody:
@@ -2274,6 +2277,26 @@ export const messages = {
       stayIn: 'Stay signed in',
       loadError: "Couldn't load your profile.",
       retry: 'Try again',
+    },
+    appSettings: {
+      title: 'App settings',
+      appearanceHeading: 'Appearance',
+      appearanceSystem: 'System',
+      appearanceLight: 'Light',
+      appearanceDark: 'Dark',
+      securityHeading: 'Security',
+      signOutAll: 'Sign out of all devices',
+      signOutAllDesc: 'Ends every session, including this one.',
+      signOutAllConfirmTitle: 'Sign out everywhere?',
+      signOutAllConfirmBody:
+        'Every device signed in to this account gets signed out, including this one.',
+      signOutAllConfirmCta: 'Yes, sign out everywhere',
+      signOutAllCancel: 'Stay signed in',
+      signOutAllError: "Couldn't sign out everywhere. Please try again.",
+      version: (version: string) => `Version ${version}`,
+    },
+    legalIndex: {
+      title: 'Legal',
     },
     saved: {
       title: 'Saved tours',

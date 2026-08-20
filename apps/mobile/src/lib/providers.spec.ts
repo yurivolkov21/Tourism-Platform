@@ -1,4 +1,8 @@
-import { readGoogleAvatarUrl, readProviders } from './providers';
+import {
+  canChangeEmail,
+  readGoogleAvatarUrl,
+  readProviders,
+} from './providers';
 
 test('reads a providers array off app_metadata', () => {
   expect(readProviders({ providers: ['google', 'email'] })).toEqual([
@@ -37,4 +41,11 @@ test('readGoogleAvatarUrl falls back to the picture field', () => {
 test('readGoogleAvatarUrl returns null when neither field is present', () => {
   expect(readGoogleAvatarUrl({})).toBeNull();
   expect(readGoogleAvatarUrl(undefined)).toBeNull();
+});
+
+test('canChangeEmail allows password-only accounts and blocks linked/unknown ones', () => {
+  expect(canChangeEmail(['email'])).toBe(true);
+  expect(canChangeEmail(['email', 'google'])).toBe(false);
+  expect(canChangeEmail(['google'])).toBe(false);
+  expect(canChangeEmail([])).toBe(false);
 });
