@@ -12,7 +12,7 @@ test('renders the label on the tone background', () => {
   );
   expect(screen.getByText('Best value')).toBeOnTheScreen();
   const flattened = StyleSheet.flatten(screen.getByTestId('badge').props.style);
-  expect(flattened.backgroundColor).toBe(tokens.colors.light['success']);
+  expect(flattened.backgroundColor).toBe(tokens.colors.mobileLight['success']);
 });
 
 test('rating tone keeps foreground text (web parity)', () => {
@@ -23,7 +23,7 @@ test('rating tone keeps foreground text (web parity)', () => {
   );
   const text = screen.getByText('Popular');
   expect(StyleSheet.flatten(text.props.style).color).toBe(
-    tokens.colors.light['foreground'],
+    tokens.colors.mobileLight['foreground'],
   );
 });
 
@@ -34,9 +34,9 @@ test('muted tone renders the muted pair (booking CANCELLED)', () => {
     </ThemeProvider>,
   );
   const flattened = StyleSheet.flatten(screen.getByTestId('badge').props.style);
-  expect(flattened.backgroundColor).toBe(tokens.colors.light['muted']);
+  expect(flattened.backgroundColor).toBe(tokens.colors.mobileLight['muted']);
   const text = StyleSheet.flatten(screen.getByText('Cancelled').props.style);
-  expect(text.color).toBe(tokens.colors.light['muted-foreground']);
+  expect(text.color).toBe(tokens.colors.mobileLight['muted-foreground']);
 });
 
 test('destructive tone renders the destructive pair (booking REFUNDED)', () => {
@@ -46,8 +46,10 @@ test('destructive tone renders the destructive pair (booking REFUNDED)', () => {
     </ThemeProvider>,
   );
   const flattened = StyleSheet.flatten(screen.getByTestId('badge').props.style);
-  expect(flattened.backgroundColor).toBe(tokens.colors.light['destructive']);
+  expect(flattened.backgroundColor).toBe(
+    tokens.colors.mobileLight['destructive'],
+  );
   // No destructive-foreground token exists — the primary pair is reused.
   const text = StyleSheet.flatten(screen.getByText('Refunded').props.style);
-  expect(text.color).toBe(tokens.colors.light['primary-foreground']);
+  expect(text.color).toBe(tokens.colors.mobileLight['primary-foreground']);
 });

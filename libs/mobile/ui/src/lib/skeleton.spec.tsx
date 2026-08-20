@@ -13,6 +13,6 @@ test('renders a themed muted block', () => {
   const flattened = StyleSheet.flatten(
     screen.getByTestId('skeleton').props.style,
   );
-  expect(flattened.backgroundColor).toBe(tokens.colors.light['muted']);
+  expect(flattened.backgroundColor).toBe(tokens.colors.mobileLight['muted']);
   expect(flattened.width).toBe(240);
 });

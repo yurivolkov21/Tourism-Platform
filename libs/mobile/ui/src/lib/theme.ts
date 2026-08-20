@@ -48,7 +48,14 @@ export function buildTheme(scheme: ColorScheme): Theme {
   const base = tokens.radius.base;
   return {
     scheme,
-    colors: tokens.colors[scheme],
+    // Light on mobile is the Navel cream/brass palette (`mobileLight`), NOT the
+    // web's ivory/emerald light — the app's brass CTA stays brass in both
+    // schemes instead of flipping hue (user decision 2026-08-20). Dark is
+    // shared. The fallback keeps older generated themes working.
+    colors:
+      scheme === 'light'
+        ? (tokens.colors.mobileLight ?? tokens.colors.light)
+        : tokens.colors.dark,
     radius: {
       sm: Math.round(base * 0.5),
       md: base,

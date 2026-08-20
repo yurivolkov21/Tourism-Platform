@@ -101,7 +101,7 @@ test('applies the light theme background color to the root container', () => {
   expect(root.props.style).toEqual(
     expect.arrayContaining([
       expect.objectContaining({
-        backgroundColor: tokens.colors.light.background,
+        backgroundColor: tokens.colors.mobileLight.background,
       }),
     ]),
   );

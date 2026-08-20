@@ -3,6 +3,8 @@ export interface RnTheme {
   colors: {
     light: Record<string, string>;
     dark: Record<string, string>;
+    /** RN-only: the mobile light scheme (Navel cream/brass). */
+    mobileLight: Record<string, string>;
   };
   radius: { base: number };
 }

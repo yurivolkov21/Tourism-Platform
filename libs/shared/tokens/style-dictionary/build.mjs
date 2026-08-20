@@ -101,6 +101,11 @@ StyleDictionary.registerFormat({
       '    dark: {',
       entries((t) => t.original.darkValue),
       '    },',
+      // RN-only third scheme: the native app's light look (Navel cream/brass).
+      // Tokens without a `mobileLightValue` fall back to the web light value.
+      '    mobileLight: {',
+      entries((t) => t.original.mobileLightValue ?? t.original.value),
+      '    },',
       '  },',
       `  radius: { base: ${remToDp(radius.original.value)} },`,
       '};',
@@ -121,6 +126,8 @@ StyleDictionary.registerFormat({
       '  colors: {',
       '    light: Record<string, string>;',
       '    dark: Record<string, string>;',
+      '    /** RN-only: the mobile light scheme (Navel cream/brass). */',
+      '    mobileLight: Record<string, string>;',
       '  };',
       '  radius: { base: number };',
       '}',

@@ -101,7 +101,9 @@ jest.mock('react-native-keyboard-controller', () => {
   };
 });
 
-// jest-expo's useColorScheme() returns null → ThemeProvider resolves 'light'; specs assert against tokens.colors.light unless they mock the hook.
+// jest-expo's useColorScheme() returns null → ThemeProvider resolves 'light',
+// which on RN means the Navel cream palette; specs assert against
+// tokens.colors.mobileLight unless they mock the hook.
 if (typeof global.structuredClone === 'undefined') {
   global.structuredClone = (object) => JSON.parse(JSON.stringify(object));
 }
