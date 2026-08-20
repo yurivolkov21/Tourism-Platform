@@ -22,12 +22,23 @@
 
 ## Where each variable goes
 
+> **⚠️ Live prefix drift (checked 2026-08-20).** Production answers on
+> `https://api.nexora-travel.agency` with prefix **`/api`**, not the repo default
+> `/api/v1`: `GET /api/tours` → 200, `GET /api/v1/tours` → **404**, and readiness
+> is at `/health`. The generated client in `@tourism/core` calls `/api/v1/*`, so
+> anything built from this repo 404s against that host. The live `/health` body
+> (`{status, database, uptimeSec, timestamp}`) also differs from this repo's
+> (`{status, db, time}`) — production is running code this checkout does not
+> contain. Resolve before pointing an app at it: either set Render's
+> `API_PREFIX=api/v1` (matches `render.yaml`, the web and the mobile client) or
+> regenerate the client against what is actually deployed.
+
 ### API → Render (service `tourism-api`)
 
 | Variable | Secret? | Notes |
 | --- | --- | --- |
 | `NODE_ENV`, `PORT`, `API_PREFIX`, `LOG_LEVEL` | no | runtime config |
-| `CORS_ORIGINS` | no | comma-sep origins (no trailing slash) — the two `*.vercel.app` + `https://www.nexora-travel.agency` + `https://admin.nexora-travel.agency` |
+| `CORS_ORIGINS` | no | comma-sep origins (no trailing slash) — `https://www.nexora-travel.agency` + `https://admin.nexora-travel.agency` (the old `*.vercel.app` fallbacks are gone, see below) |
 | `FRONTEND_URL` | no | **required at boot (Joi)** — the web origin (`https://www.nexora-travel.agency`); payment return URLs are built from it |
 | `DATABASE_URL`, `DIRECT_URL` | **yes** | Supabase Postgres (pooled / direct) — contain the DB password |
 | `SUPABASE_URL`, `SUPABASE_JWKS_URL` | no | project URLs |
@@ -59,7 +70,7 @@
 | --- | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | no | public |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | no | client-safe by design |
-| `NEXT_PUBLIC_API_BASE_URL` | no | API origin **without** `/api/v1` (the client adds it) — e.g. `https://tourism-api-pqwr.onrender.com` |
+| `NEXT_PUBLIC_API_BASE_URL` | no | API origin **without** `/api/v1` (the client adds it) — e.g. `https://api.nexora-travel.agency` |
 | `NEXT_PUBLIC_SITE_URL` | no | **web only** — canonical origin for sitemap/robots/OG: `https://www.nexora-travel.agency` |
 | `NEXT_PUBLIC_CHAT_WHATSAPP` | no | **web only, optional** — WhatsApp number for the contact launcher, international digits (no `+`), e.g. `84912345678`; the channel hides itself while unset |
 

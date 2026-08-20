@@ -43,7 +43,7 @@ pnpm install          # installs every app + lib in the workspace
 
 ```bash
 cp apps/web/.env.example apps/web/.env
-# edit apps/web/.env → NEXT_PUBLIC_API_BASE_URL=https://tourism-api-pqwr.onrender.com   (the live API)
+# edit apps/web/.env → NEXT_PUBLIC_API_BASE_URL=https://api.nexora-travel.agency   (the live API)
 pnpm nx dev @tourism/web          # → http://localhost:3001
 ```
 

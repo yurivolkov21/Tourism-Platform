@@ -41,7 +41,7 @@ pg-boss jobs are **persisted in Postgres** → a spin-down only *delays* them; o
 1. Render Dashboard → **Blueprints** → **New Blueprint Instance** → connect this repo. It reads [`render.yaml`](../../render.yaml) and creates a free web service `tourism-api`.
    - Build: `pnpm install` → `prisma generate` → `nx build @tourism/api`. Start: `node apps/api/dist/main.js`. Health check: `/api/v1/health`.
 2. **Set the `sync: false` env vars** in the service's Environment tab (values from §1 + your Stripe/PayPal/Resend/Cloudinary keys). Leave `PORT` unset (Render injects it).
-   - ⚠️ **`FRONTEND_URL` is REQUIRED at boot** (Joi validation) and must be a valid URL — set it now to your planned web domain (e.g. `https://tourism-web.vercel.app`) or any temporary `https://…`; refine in §5. `CORS_ORIGINS` *is* optional (blank = reflect any origin) — fine to leave blank until §5.
+   - ⚠️ **`FRONTEND_URL` is REQUIRED at boot** (Joi validation) and must be a valid URL — set it now to your planned web domain (e.g. `https://www.nexora-travel.agency`) or any temporary `https://…`; refine in §5. `CORS_ORIGINS` *is* optional (blank = reflect any origin) — fine to leave blank until §5.
    - `NODE_ENV=production`, `PAYPAL_MODE=sandbox` (until you have live PayPal), `STRIPE_DEFAULT_CURRENCY=USD`.
 3. Deploy. When live, note the URL: `https://tourism-api-XXXX.onrender.com`. Verify:
 
@@ -73,13 +73,13 @@ For **each** app (`apps/web`, `apps/admin`) create a Vercel project from this re
   (the typed `@tourism/core` client already adds the `/api/v1` prefix; appending it doubles the path):
   - web: `NEXT_PUBLIC_API_BASE_URL=https://tourism-api-XXXX.onrender.com` (+ Supabase public keys when web auth lands).
   - admin: `NEXT_PUBLIC_API_BASE_URL=https://tourism-api-XXXX.onrender.com`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the **prod** Supabase project's public values).
-- Deploy → note the domains, e.g. `tourism-web.vercel.app`, `tourism-admin.vercel.app`.
+- Deploy → note the domains, e.g. `www.nexora-travel.agency`, `admin.nexora-travel.agency`.
 
 ## 5. Wire CORS (close the loop)
 
 Back on Render, set:
 
-- `CORS_ORIGINS` = the frontend origins, comma-separated, no trailing slash. Current live value covers both the `*.vercel.app` fallbacks and the custom domains (§5b).
+- `CORS_ORIGINS` = the frontend origins, comma-separated, no trailing slash. Current live value covers the custom domains (§5b); the old `*.vercel.app` deployments no longer exist.
 - `FRONTEND_URL` = the web origin (currently `https://www.nexora-travel.agency`).
 
 Redeploy the API (or it picks up env on next deploy). Sign in to the admin with the §1.5 admin user.
@@ -95,7 +95,7 @@ What was wired (all in dashboards, no repo change):
 
 1. **Vercel** — domain + `www` on the web project, `admin.` subdomain on the admin
    project; web env `NEXT_PUBLIC_SITE_URL=https://www.nexora-travel.agency` + redeploy.
-2. **Render** — `FRONTEND_URL` + `CORS_ORIGINS` per §5 (old `*.vercel.app` origins kept).
+2. **Render** — `FRONTEND_URL` + `CORS_ORIGINS` per §5 (custom domains only — the `*.vercel.app` deployments are gone).
 3. **Supabase** — Auth → URL Configuration: Site URL = the web origin;
    `https://www.nexora-travel.agency/auth/callback` added to redirect URLs.
 4. **Resend** — domain added (region Tokyo `ap-northeast-1`) via the **Vercel

@@ -69,7 +69,7 @@ pnpm nx dev @tourism/admin                    # → http://localhost:3002
 ```
 
 - **No backend needed to see the UI.** Point `NEXT_PUBLIC_API_BASE_URL` at the live Render API
-  (`https://tourism-api-pqwr.onrender.com`) for real data. With no API reachable, data-fed sections
+  (`https://api.nexora-travel.agency`) for real data. With no API reachable, data-fed sections
   render **empty by design** (the page hides them) — expected, not a bug.
 - **Web dev = webpack** (`next dev --webpack`, pinned) — see the Turbopack note at the bottom. To preview
   the real production output: `pnpm nx build @tourism/web && pnpm exec next start apps/web --port 3001`.
@@ -164,7 +164,7 @@ Dev loop is a **physical Android phone + Expo Go** (Windows host, no emulator ne
 1. Install "Expo Go" from the Play Store (once).
 2. `pnpm nx start @tourism/mobile` → scan the QR with Expo Go (phone + PC on the same Wi-Fi).
 3. The app calls the **deployed Render API** by default (`apps/mobile/.env` →
-   `EXPO_PUBLIC_API_BASE_URL=https://tourism-api-pqwr.onrender.com`). First fetch after idle
+   `EXPO_PUBLIC_API_BASE_URL=https://api.nexora-travel.agency`). First fetch after idle
    can take ~30s (free-tier cold start) — the Home screen shows a "waking the server" hint.
 4. **Local-API debugging:** run `pnpm nx serve @tourism/api`, find your PC's LAN IP
    (`ipconfig` → IPv4), set `EXPO_PUBLIC_API_BASE_URL=http://<LAN-IP>:3000` in

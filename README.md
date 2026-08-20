@@ -13,7 +13,7 @@ four apps (API, web, admin, mobile) are complete and live/on-device-ready. **Bra
 
 Details per phase: **[docs/roadmap.md](docs/roadmap.md)** · full history: **[docs/CHANGELOG.md](docs/CHANGELOG.md)**.
 
-**Live demo:** web → [www.nexora-travel.agency](https://www.nexora-travel.agency) · admin → [admin.nexora-travel.agency](https://admin.nexora-travel.agency) · API health → [/api/v1/health](https://tourism-api-pqwr.onrender.com/api/v1/health). *(The old `tourism-platform-{web,admin}.vercel.app` URLs still serve as fallbacks.)*
+**Live demo:** web → [www.nexora-travel.agency](https://www.nexora-travel.agency) · admin → [admin.nexora-travel.agency](https://admin.nexora-travel.agency) · API health → [/health](https://api.nexora-travel.agency/health). *(The old `tourism-api-pqwr.onrender.com` and `tourism-platform-{web,admin}.vercel.app` URLs are GONE — Vercel has even reissued `tourism-web.vercel.app` to an unrelated site.)*
 
 Full docs: **[docs/README.md](docs/README.md)** (map + reading path) · **new here? → [docs/04-guides/getting-started.md](docs/04-guides/getting-started.md)** · the operating contract: **[CLAUDE.md](CLAUDE.md)**.
 
@@ -100,7 +100,7 @@ pnpm nx dev @tourism/admin                  # → http://localhost:3002
 ```
 
 - **You don't need the backend running to see the UI.** Point `NEXT_PUBLIC_API_BASE_URL` at the
-  **live Render API** (`https://tourism-api-pqwr.onrender.com`) and the web app renders real data. With
+  **live API** (`https://api.nexora-travel.agency`) and the web app renders real data. With
   **no** API reachable, data-fed sections (featured tours, "Explore by destination"…) render **empty by
   design** — the page hides them rather than break. That's expected, not a bug.
 - **Web dev uses webpack, not Turbopack** (`next dev --webpack`, pinned in `apps/web/package.json`) — a
