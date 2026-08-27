@@ -16,7 +16,12 @@ import {
   useTheme,
 } from '@tourism/mobile-ui';
 import { AuthHero } from '../../components/auth-hero';
-import { validateSignUp, type SignUpErrors } from '../../lib/auth';
+import { PasswordStrength } from '../../components/password-strength';
+import {
+  mergeFieldError,
+  validateSignUp,
+  type SignUpErrors,
+} from '../../lib/auth';
 import { useAuth } from '../../lib/auth-context';
 
 const t = messages.auth.register;
@@ -39,6 +44,16 @@ export default function SignUpScreen() {
   const [banner, setBanner] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
+
+  /** On blur: judge this field only — fields the user hasn't reached stay quiet. */
+  const blurField = (field: keyof SignUpErrors) =>
+    setErrors((prev) =>
+      mergeFieldError(
+        prev,
+        validateSignUp({ fullName, email, password, confirm }),
+        field,
+      ),
+    );
 
   const onSubmit = async () => {
     const validation = validateSignUp({ fullName, email, password, confirm });
@@ -133,6 +148,7 @@ export default function SignUpScreen() {
             autoComplete="name"
             textContentType="name"
             returnKeyType="next"
+            onBlur={() => blurField('fullName')}
             onSubmitEditing={() => emailRef.current?.focus()}
           />
           <TextField
@@ -155,6 +171,7 @@ export default function SignUpScreen() {
             autoComplete="email"
             textContentType="emailAddress"
             returnKeyType="next"
+            onBlur={() => blurField('email')}
             onSubmitEditing={() => passwordRef.current?.focus()}
           />
           <TextField
@@ -191,8 +208,12 @@ export default function SignUpScreen() {
             autoComplete="new-password"
             textContentType="newPassword"
             returnKeyType="next"
+            onBlur={() => blurField('password')}
             onSubmitEditing={() => confirmRef.current?.focus()}
           />
+          {/* Live checklist — the policy is visible while typing, so "weak
+            password" is never the first the user hears of a rule. */}
+          <PasswordStrength password={password} />
           <TextField
             ref={confirmRef}
             variant="underline"
@@ -227,6 +248,7 @@ export default function SignUpScreen() {
             autoComplete="new-password"
             textContentType="newPassword"
             returnKeyType="done"
+            onBlur={() => blurField('confirm')}
             onSubmitEditing={() => void onSubmit()}
           />
           {banner ? (

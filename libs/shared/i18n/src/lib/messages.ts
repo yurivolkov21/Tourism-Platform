@@ -125,18 +125,25 @@ export const messages = {
         back: 'Back to account',
         password: {
           heading: 'Change password',
+          currentLabel: 'Current password',
           newLabel: 'New password',
           confirmLabel: 'Confirm new password',
           submit: 'Update password',
           submitting: 'Updating…',
           success: 'Password updated.',
+          // Shown after a successful change: other devices were signed out.
+          successHint:
+            'You have been signed out on your other devices. This one stays signed in.',
           show: 'Show password',
           hide: 'Hide password',
         },
         email: {
           heading: 'Change email',
           currentLabel: 'Current email',
-          currentPasswordLabel: 'Current password',
+          // Distinct from the change-password section's own "Current password"
+          // field — the two sit on one screen, and identical labels leave both
+          // the reader and a screen reader guessing which box is which.
+          currentPasswordLabel: 'Confirm your password',
           newLabel: 'New email',
           submit: 'Send confirmation',
           submitting: 'Sending…',
@@ -199,6 +206,42 @@ export const messages = {
         email: 'Email & password',
         none: 'No connected accounts yet.',
         connectedBadge: 'Connected',
+        // The password row, shown when the account can sign in with one. It is
+        // built from `hasPassword`, not from the identity list: Supabase adds no
+        // `email` identity when a password is set on an OAuth account.
+        passwordRow: 'Email & password',
+        passwordRowDesc: (email: string): string => `Sign in with ${email}.`,
+        confirmTitle: (provider: string): string => `Disconnect ${provider}?`,
+        confirmBody: (provider: string): string =>
+          `You will no longer be able to sign in with ${provider}. Your account, bookings and saved tours stay exactly as they are.`,
+        // Distinct from the row buttons' "Disconnect <provider>" labels, and
+        // parallel to the delete sheet's "Yes, delete my account".
+        confirmCta: 'Yes, disconnect',
+        cancel: 'Keep it connected',
+        disconnected: (provider: string): string => `${provider} disconnected.`,
+        // Adding email/password to an account that only signs in with Google.
+        // Done by email link rather than a form: setting a first password from
+        // an already-unlocked device would mint a credential that outlives even
+        // "Sign out of all devices", so control of the inbox is the proof.
+        addEmail: 'Email & password',
+        addEmailDesc: (email: string): string =>
+          `Add a password so you can also sign in with ${email}. We'll email you a link to set it.`,
+        addEmailCta: 'Set up',
+        addEmailSending: 'Sending…',
+        addEmailSent: (email: string): string =>
+          `Link sent to ${email}. Open it on this phone to set your password.`,
+        // Prefix only — the mapped reason is appended, so the user learns
+        // whether to wait, check their connection, or something else.
+        addEmailError: "Couldn't send the link.",
+        // Adding an OAuth method to an account that signs in with a password —
+        // the common direction: register with email, then link Google for the
+        // one-tap login afterwards.
+        connect: 'Connect',
+        connecting: 'Connecting…',
+        connectDesc: (provider: string): string =>
+          `Sign in with one tap using your ${provider} account.`,
+        connected: (provider: string): string => `${provider} connected.`,
+        connectError: "Couldn't connect it.",
       },
       danger: {
         deleteTitle: 'Delete account',
@@ -2241,27 +2284,64 @@ export const messages = {
       accountGateBody: 'Sign in to manage your profile and saved tours.',
       signIn: 'Sign in',
       createAccount: 'Create account',
+      // The link deep-links back into the app (`/auth/reset`) — it no longer
+      // hands the user off to the website to finish.
       resetSentHint:
-        'Open the link on any device — you will set the new password on our website.',
+        'Open the link on this phone and you can set the new password right here in the app.',
     },
+    /**
+     * Every message names the field it belongs to and what to do next — a user
+     * who mistypes should never have to guess which input the app is unhappy
+     * with. Keys split into per-field mistakes (what you typed) and flow
+     * failures (what the server said); see `apps/mobile/src/lib/auth.ts`.
+     */
     authErrors: {
-      invalidCredentials: 'Email or password is incorrect.',
-      emailTaken: 'An account with this email already exists.',
-      weakPassword: 'Password is too weak — use at least 8 characters.',
+      // ── Flow failures ──────────────────────────────────────────────────────
+      invalidCredentials:
+        'Email or password is incorrect. Check both and try again.',
+      wrongPassword: 'That password is incorrect. Try typing it again.',
+      emailTaken:
+        'An account already uses this email. Sign in instead, or use another address.',
+      samePassword:
+        'This is already your current password. Choose a different one.',
+      weakPassword:
+        'That password is too weak. Meet every requirement listed below.',
+      emailNotConfirmed:
+        'Confirm your email first — open the link we sent to your inbox.',
+      providerAlreadyLinked:
+        'That account is already connected somewhere else. Use a different one.',
+      manualLinkingDisabled:
+        'Disconnecting sign-in methods is turned off for this app right now.',
+      rateLimited: 'Too many attempts. Wait about a minute, then try again.',
+      network:
+        'No connection to our servers. Check your internet and try again.',
       generic: 'Something went wrong. Please try again.',
       cancelled: 'Sign-in cancelled.',
+      // ── Per-field mistakes ─────────────────────────────────────────────────
       nameRequired: 'Please enter your name.',
-      emailInvalid: 'Please enter a valid email address.',
+      nameTooLong: 'This name is too long — keep it under 60 characters.',
+      emailRequired: 'Please enter your email address.',
+      emailInvalid:
+        "This doesn't look like an email address — check for a typo (e.g. name@example.com).",
       passwordRequired: 'Please enter your password.',
-      passwordTooShort: 'Use at least 8 characters.',
-      confirmMismatch: 'Passwords do not match.',
+      passwordTooShort: 'Too short — use at least 8 characters.',
+      passwordPolicy: 'This password is missing the requirements listed below.',
+      passwordUnchanged:
+        'This is the same as your current password. Choose a different one.',
+      confirmRequired: 'Please re-type your new password.',
+      confirmMismatch:
+        "The two passwords don't match. Re-type them so they're identical.",
+      phoneInvalid:
+        'This phone number looks wrong — use 7–15 digits, e.g. +84 912 345 678.',
     },
     account: {
       editNameLabel: 'Display name',
       editNameSave: 'Save',
       editNameSaving: 'Saving…',
-      editNameSaved: 'Name updated.',
-      editNameError: "Couldn't update your name. Please try again.",
+      // The section saves name AND phone — the copy must not blame the name for
+      // a phone-shaped failure.
+      editNameSaved: 'Your details were saved.',
+      editNameError: "Couldn't save your details. Please try again.",
       menuProfile: 'Your Profile',
       menuSaved: 'Saved tours',
       menuPrivacy: 'Privacy policy',

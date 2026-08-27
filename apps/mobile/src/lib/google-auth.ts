@@ -2,6 +2,7 @@ import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 import type { AuthSession } from '@supabase/supabase-js';
 import { mapAuthError, type AuthErrorKey } from './auth';
+import { appRedirectUrl, oauthRedirectPath } from './deep-link';
 import { supabase } from './supabase';
 
 // Standard Expo AuthSession cleanup call — near-zero cost on native, relevant
@@ -13,15 +14,8 @@ export type GoogleSignInResult =
   | { error: AuthErrorKey | 'cancelled' };
 
 export async function signInWithGoogle(): Promise<GoogleSignInResult> {
-  // expo-linking's `isTripleSlashed: false` option is unreliable on EAS-distributed
-  // dev-client builds — it treats the build as "Expo-hosted" and produces a
-  // triple slash (`scheme:///path`) regardless. Normalize to the double-slash
-  // form (`scheme://path`) that matches the exact entry allowed in Supabase's
-  // Redirect URLs — a mismatched slash count fails Supabase's exact match.
-  const redirectTo = Linking.createURL('/auth/callback').replace(
-    /^([a-zA-Z0-9+.-]+):\/\/\//,
-    '$1://',
-  );
+  // Slash-count normalization lives in `appRedirectUrl` — see the note there.
+  const redirectTo = appRedirectUrl(oauthRedirectPath);
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -66,4 +60,43 @@ export async function signInWithGoogle(): Promise<GoogleSignInResult> {
     return { error: mapAuthError(exchangeError) };
   }
   return { session: exchangeData.session };
+}
+
+/**
+ * Adds Google as a sign-in method for the account already signed in — the
+ * common direction, since most people register with an email and password and
+ * then want the one-tap login afterwards.
+ *
+ * Unlike `signInWithGoogle`, the outcome lands SERVER-SIDE: Supabase attaches
+ * the identity to the current user, so there is no session in the redirect to
+ * adopt. The caller re-reads the JWT afterwards to see the new provider list.
+ * Requires "Manual linking" enabled on the Supabase project — the same setting
+ * unlinking needs.
+ */
+export async function linkGoogleIdentity(): Promise<{
+  error?: AuthErrorKey | 'cancelled';
+}> {
+  const redirectTo = appRedirectUrl(oauthRedirectPath);
+
+  const { data, error } = await supabase.auth.linkIdentity({
+    provider: 'google',
+    options: { redirectTo, skipBrowserRedirect: true },
+  });
+  if (error || !data?.url) return { error: mapAuthError(error) };
+
+  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+  if (result.type !== 'success') return { error: 'cancelled' };
+
+  // Supabase reports a refused link (e.g. the Google account already belongs to
+  // someone else) in the redirect URL, not as a thrown error — a browser that
+  // "succeeded" is not the same as a link that landed.
+  const params = new URLSearchParams(
+    [result.url.split('?')[1]?.split('#')[0], result.url.split('#')[1]]
+      .filter(Boolean)
+      .join('&'),
+  );
+  const failure = params.get('error_code') ?? params.get('error');
+  if (failure) return { error: mapAuthError({ code: failure }) };
+
+  return {};
 }

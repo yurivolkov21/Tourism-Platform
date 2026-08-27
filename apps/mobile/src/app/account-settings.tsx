@@ -20,25 +20,25 @@ import {
   type TextFieldProps,
 } from '@tourism/mobile-ui';
 import { removeAvatar, uploadAvatar } from '../lib/avatar';
-import {
-  validateChangeEmail,
-  type AuthErrorKey,
-  type ChangeEmailErrors,
-} from '../lib/auth';
+import { mergeFieldError, type AuthErrorKey } from '../lib/auth';
 import { useAuth } from '../lib/auth-context';
 import {
   validateChangePassword,
   type ChangePasswordErrors,
 } from '../lib/change-password';
 import { hapticWarning } from '../lib/haptics';
-import { canChangeEmail } from '../lib/providers';
 import {
   fetchProfile,
   toProfileVm,
   updateProfile,
   type ProfileVm,
 } from '../lib/profile';
-import { buildUpdateProfilePayload } from '../lib/profile-form';
+import {
+  buildUpdateProfilePayload,
+  validateProfile,
+  type ProfileErrors,
+} from '../lib/profile-form';
+import { PasswordStrength } from '../components/password-strength';
 import {
   FeedbackLine,
   RowDivider,
@@ -50,7 +50,6 @@ import {
 const t = messages.mobile.account;
 const te = messages.mobile.authErrors;
 const ts = messages.auth.account.securityPage.password;
-const tem = messages.auth.account.securityPage.email;
 const tc = messages.auth.account.connected;
 const ds = messages.auth.account.settings;
 const dz = messages.auth.account.danger;
@@ -78,21 +77,29 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
   const queryClient = useQueryClient();
   const {
     providers,
-    changeEmail,
     changePassword,
+    linkProvider,
     deleteAccount,
     googleAvatarUrl,
   } = useAuth();
   const [name, setName] = useState(profile.fullName);
   const [phone, setPhone] = useState(profile.phone);
+  const [profileErrors, setProfileErrors] = useState<ProfileErrors>({});
   const [feedback, setFeedback] = useState<'saved' | 'error' | null>(null);
   const deleteSheetRef = useRef<ConfirmSheetRef>(null);
 
   // Enables Save only once something actually changed — trimmed, matching what
   // `buildUpdateProfilePayload` sends, so a trailing space alone doesn't count.
-  const dirty =
+  // Validity is deliberately NOT part of this: a dirty-but-invalid form stays
+  // pressable so the press can SAY what's wrong instead of going quietly grey.
+  const canSave =
     name.trim() !== profile.fullName || phone.trim() !== profile.phone;
-  const canSave = dirty && name.trim() !== '';
+
+  /** On blur: judge this field only, leaving the other's error as it stands. */
+  const blurProfileField = (field: 'fullName' | 'phone') =>
+    setProfileErrors((prev) =>
+      mergeFieldError(prev, validateProfile({ fullName: name, phone }), field),
+    );
 
   const saveM = useMutation({
     mutationFn: updateProfile,
@@ -102,6 +109,14 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
     },
     onError: () => setFeedback('error'),
   });
+
+  const onSaveProfile = () => {
+    const errors = validateProfile({ fullName: name, phone });
+    setProfileErrors(errors);
+    setFeedback(null);
+    if (Object.keys(errors).length > 0) return;
+    saveM.mutate(buildUpdateProfilePayload({ fullName: name, phone }));
+  };
 
   const [avatarFeedback, setAvatarFeedback] = useState<
     'saved' | 'error' | null
@@ -149,41 +164,10 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
     });
   };
 
-  const [newEmail, setNewEmail] = useState('');
-  const [emailPassword, setEmailPassword] = useState('');
-  const [showEmailPassword, setShowEmailPassword] = useState(false);
-  const [emailErrors, setEmailErrors] = useState<ChangeEmailErrors>({});
-  const [emailSent, setEmailSent] = useState(false);
-  const [emailFail, setEmailFail] = useState<{
-    key: AuthErrorKey;
-    field?: 'password';
-  } | null>(null);
-  const [emailSubmitting, setEmailSubmitting] = useState(false);
-
-  const onChangeEmail = async () => {
-    const errors = validateChangeEmail({
-      email: newEmail,
-      password: emailPassword,
-    });
-    setEmailErrors(errors);
-    setEmailSent(false);
-    setEmailFail(null);
-    if (Object.keys(errors).length > 0) return;
-
-    setEmailSubmitting(true);
-    const result = await changeEmail(newEmail.trim(), emailPassword);
-    setEmailSubmitting(false);
-    if (result.error) {
-      setEmailFail({ key: result.error, field: result.field });
-      return;
-    }
-    setNewEmail('');
-    setEmailPassword('');
-    setEmailSent(true);
-  };
-
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<ChangePasswordErrors>(
@@ -195,23 +179,44 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
   const [passwordError, setPasswordError] = useState<AuthErrorKey | null>(null);
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
 
+  // Straight from the API. NOT `providers.includes('email')`: Supabase fills
+  // `encrypted_password` without creating an `email` identity when a password
+  // is added to an OAuth-only account, so the provider list says `['google']`
+  // forever even though email sign-in works — the account screen would keep
+  // offering to set up a password the user already has.
+  const hasPassword = profile.hasPassword;
+
+  const passwordInput = {
+    password: newPassword,
+    confirm: confirmPassword,
+    currentPassword,
+    requireCurrent: true,
+  };
+
+  const blurPasswordField = (field: keyof ChangePasswordErrors) =>
+    setPasswordErrors((prev) =>
+      mergeFieldError(prev, validateChangePassword(passwordInput), field),
+    );
+
   const onChangePassword = async () => {
-    const errors = validateChangePassword({
-      password: newPassword,
-      confirm: confirmPassword,
-    });
+    const errors = validateChangePassword(passwordInput);
     setPasswordErrors(errors);
     setPasswordDone(false);
     setPasswordError(null);
     if (Object.keys(errors).length > 0) return;
 
     setPasswordSubmitting(true);
-    const result = await changePassword(newPassword);
+    const result = await changePassword(newPassword, currentPassword);
     setPasswordSubmitting(false);
     if (result.error) {
-      setPasswordError(result.error);
+      // A rejected re-auth belongs on the current-password field, not on a
+      // banner that leaves the user guessing which input to fix.
+      if (result.field === 'currentPassword')
+        setPasswordErrors({ currentPassword: 'wrongPassword' });
+      else setPasswordError(result.error);
       return;
     }
+    setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
     setPasswordDone(true);
@@ -226,6 +231,23 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
     email: 'mail-outline',
   };
   const connectedItems = providers.filter((p) => p in connectedLabels);
+
+  const [connectState, setConnectState] = useState<
+    { kind: 'idle' | 'connecting' } | { kind: 'error'; key: AuthErrorKey }
+  >({ kind: 'idle' });
+
+  const connectFeedbackStyle = {
+    paddingHorizontal: theme.spacing(5),
+    paddingBottom: theme.spacing(4),
+  };
+
+  const onConnectGoogle = async () => {
+    setConnectState({ kind: 'connecting' });
+    const result = await linkProvider('google');
+    setConnectState(
+      result.error ? { kind: 'error', key: result.error } : { kind: 'idle' },
+    );
+  };
 
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -370,21 +392,28 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
       </View>
 
       <Section title={ds.personalHeading}>
-        <Field label={t.editNameLabel} value={name} onChangeText={setName} />
+        <Field
+          label={t.editNameLabel}
+          value={name}
+          onChangeText={setName}
+          onBlur={() => blurProfileField('fullName')}
+          error={
+            profileErrors.fullName ? te[profileErrors.fullName] : undefined
+          }
+        />
         <Field
           label={messages.auth.account.profile.phoneLabel}
           value={phone}
           onChangeText={setPhone}
+          onBlur={() => blurProfileField('phone')}
+          error={profileErrors.phone ? te[profileErrors.phone] : undefined}
           keyboardType="phone-pad"
           textContentType="telephoneNumber"
         />
         <Button
           label={saveM.isPending ? t.editNameSaving : t.editNameSave}
           loading={saveM.isPending}
-          onPress={() => {
-            setFeedback(null);
-            saveM.mutate(buildUpdateProfilePayload({ fullName: name, phone }));
-          }}
+          onPress={onSaveProfile}
           disabled={!canSave}
           // `ready` supplies the resting (muted) fill; the disabled opacity is
           // overridden so it reads "nothing to save yet", not greyed-out.
@@ -398,102 +427,81 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
         ) : null}
       </Section>
 
-      <Section title={tem.heading}>
-        {canChangeEmail(providers) ? (
-          <>
-            <Field
-              label={tem.newLabel}
-              value={newEmail}
-              onChangeText={setNewEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              textContentType="emailAddress"
-              error={emailErrors.email ? te[emailErrors.email] : undefined}
+      {/* Google-only accounts don't get this section at all: with no password
+        on file there is nothing to re-prove, and letting an unlocked device
+        MINT a first password would create a credential that survives even
+        "Sign out of all devices". They sign in with Google, full stop. */}
+      {hasPassword ? (
+        <Section title={ts.heading}>
+          <Field
+            label={ts.currentLabel}
+            value={currentPassword}
+            onChangeText={setCurrentPassword}
+            onBlur={() => blurPasswordField('currentPassword')}
+            secureTextEntry={!showCurrentPassword}
+            // `newPassword`, not `password`: stops the OS offering the saved
+            // login credential, so re-auth stays a typed, deliberate action.
+            textContentType="newPassword"
+            error={
+              passwordErrors.currentPassword
+                ? te[passwordErrors.currentPassword]
+                : undefined
+            }
+            trailing={eyeToggle(showCurrentPassword, () =>
+              setShowCurrentPassword((v) => !v),
+            )}
+          />
+          <Field
+            label={ts.newLabel}
+            value={newPassword}
+            onChangeText={setNewPassword}
+            onBlur={() => blurPasswordField('password')}
+            secureTextEntry={!showNewPassword}
+            textContentType="newPassword"
+            error={
+              passwordErrors.password ? te[passwordErrors.password] : undefined
+            }
+            trailing={eyeToggle(showNewPassword, () =>
+              setShowNewPassword((v) => !v),
+            )}
+          />
+          {/* Live checklist — turns "too weak" from a verdict into instructions. */}
+          <PasswordStrength password={newPassword} />
+          <Field
+            label={ts.confirmLabel}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            onBlur={() => blurPasswordField('confirm')}
+            secureTextEntry={!showConfirmPassword}
+            textContentType="newPassword"
+            error={
+              passwordErrors.confirm ? te[passwordErrors.confirm] : undefined
+            }
+            trailing={eyeToggle(showConfirmPassword, () =>
+              setShowConfirmPassword((v) => !v),
+            )}
+          />
+          <Button
+            label={passwordSubmitting ? ts.submitting : ts.submit}
+            loading={passwordSubmitting}
+            onPress={() => void onChangePassword()}
+            // Resting until both fields have something — still pressable, so
+            // submit-side validation can surface the per-field errors.
+            ready={newPassword !== '' && confirmPassword !== ''}
+          />
+          {passwordDone ? (
+            <FeedbackLine
+              tone="success"
+              // Say that the other devices were signed out — it happened, and a
+              // silent session revocation is exactly the kind of surprise that
+              // makes people distrust an account screen.
+              text={`${ts.success} ${ts.successHint}`}
             />
-            <Field
-              label={tem.currentPasswordLabel}
-              value={emailPassword}
-              onChangeText={setEmailPassword}
-              secureTextEntry={!showEmailPassword}
-              // `newPassword`, not `password`: stops the OS offering the saved
-              // login credential, so re-auth stays a typed, deliberate action.
-              textContentType="newPassword"
-              error={
-                emailErrors.password
-                  ? te[emailErrors.password]
-                  : emailFail?.field === 'password'
-                    ? te[emailFail.key]
-                    : undefined
-              }
-              trailing={eyeToggle(showEmailPassword, () =>
-                setShowEmailPassword((v) => !v),
-              )}
-            />
-            <Button
-              label={emailSubmitting ? tem.submitting : tem.submit}
-              loading={emailSubmitting}
-              onPress={() => void onChangeEmail()}
-              ready={newEmail !== '' && emailPassword !== ''}
-            />
-            {emailSent ? (
-              <FeedbackLine
-                tone="success"
-                text={`${tem.sent} ${tem.sentHint}`}
-              />
-            ) : emailFail && !emailFail.field ? (
-              <FeedbackLine tone="error" text={te[emailFail.key]} />
-            ) : null}
-          </>
-        ) : (
-          // Google-linked accounts: the address belongs to the identity provider.
-          <AppText variant="caption" muted>
-            {tem.managedNote}
-          </AppText>
-        )}
-      </Section>
-
-      <Section title={ts.heading}>
-        <Field
-          label={ts.newLabel}
-          value={newPassword}
-          onChangeText={setNewPassword}
-          secureTextEntry={!showNewPassword}
-          textContentType="newPassword"
-          error={
-            passwordErrors.password ? te[passwordErrors.password] : undefined
-          }
-          trailing={eyeToggle(showNewPassword, () =>
-            setShowNewPassword((v) => !v),
-          )}
-        />
-        <Field
-          label={ts.confirmLabel}
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry={!showConfirmPassword}
-          textContentType="newPassword"
-          error={
-            passwordErrors.confirm ? te[passwordErrors.confirm] : undefined
-          }
-          trailing={eyeToggle(showConfirmPassword, () =>
-            setShowConfirmPassword((v) => !v),
-          )}
-        />
-        <Button
-          label={passwordSubmitting ? ts.submitting : ts.submit}
-          loading={passwordSubmitting}
-          onPress={() => void onChangePassword()}
-          // Resting until both fields have something — still pressable, so
-          // submit-side validation can surface the per-field errors.
-          ready={newPassword !== '' && confirmPassword !== ''}
-        />
-        {passwordDone ? (
-          <FeedbackLine tone="success" text={ts.success} />
-        ) : passwordError ? (
-          <FeedbackLine tone="error" text={te[passwordError]} />
-        ) : null}
-      </Section>
+          ) : passwordError ? (
+            <FeedbackLine tone="error" text={te[passwordError]} />
+          ) : null}
+        </Section>
+      ) : null}
 
       <Section title={ds.connectedHeading} variant="rows">
         {connectedItems.length === 0 ? (
@@ -536,6 +544,103 @@ function SettingsBody({ profile }: { profile: ProfileVm }) {
             </View>
           ))
         )}
+        {hasPassword && !providers.includes('email') ? (
+          // The account signs in with a password, but Supabase holds no `email`
+          // identity for it — so it never appears in the list above. Shown here
+          // instead, because leaving it out told the user their password login
+          // did not exist. No Disconnect: there is no identity to unlink.
+          <View>
+            {connectedItems.length > 0 ? <RowDivider inset /> : null}
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: theme.spacing(3),
+                paddingHorizontal: theme.spacing(5),
+                paddingVertical: theme.spacing(4),
+                minHeight: 56,
+              }}
+            >
+              <Ionicons
+                name="mail-outline"
+                size={18}
+                color={theme.colors['muted-foreground']}
+              />
+              <View style={{ flex: 1, gap: theme.spacing(1) }}>
+                <AppText variant="body">{tc.passwordRow}</AppText>
+                <AppText variant="caption" muted>
+                  {tc.passwordRowDesc(profile.email)}
+                </AppText>
+              </View>
+              <Badge label={tc.connectedBadge} tone="success" />
+            </View>
+          </View>
+        ) : null}
+        {!providers.includes('google') ? (
+          <View>
+            {connectedItems.length > 0 ? <RowDivider inset /> : null}
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: theme.spacing(3),
+                paddingHorizontal: theme.spacing(5),
+                paddingVertical: theme.spacing(4),
+                minHeight: 56,
+              }}
+            >
+              <Ionicons
+                name="logo-google"
+                size={18}
+                color={theme.colors['muted-foreground']}
+              />
+              <View style={{ flex: 1, gap: theme.spacing(1) }}>
+                <AppText variant="body">{tc.google}</AppText>
+                <AppText variant="caption" muted>
+                  {tc.connectDesc(tc.google)}
+                </AppText>
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`${tc.connect} ${tc.google}`}
+                disabled={connectState.kind === 'connecting'}
+                onPress={() => void onConnectGoogle()}
+                hitSlop={8}
+                android_ripple={{ color: theme.colors['muted'] }}
+                style={({ pressed }) => ({
+                  paddingHorizontal: theme.spacing(3),
+                  paddingVertical: theme.spacing(1),
+                  borderRadius: 999,
+                  backgroundColor: surface,
+                  overflow: 'hidden',
+                  opacity:
+                    connectState.kind === 'connecting'
+                      ? 0.5
+                      : process.env.EXPO_OS === 'ios' && pressed
+                        ? 0.7
+                        : 1,
+                })}
+              >
+                <AppText
+                  variant="caption"
+                  style={{ color: theme.colors['primary'] }}
+                >
+                  {connectState.kind === 'connecting'
+                    ? tc.connecting
+                    : tc.connect}
+                </AppText>
+              </Pressable>
+            </View>
+            {connectState.kind === 'error' ? (
+              <View style={connectFeedbackStyle}>
+                <FeedbackLine
+                  tone="error"
+                  text={`${tc.connectError} ${te[connectState.key]}`}
+                />
+              </View>
+            ) : null}
+          </View>
+        ) : null}
       </Section>
 
       <View style={{ gap: theme.spacing(2) }}>

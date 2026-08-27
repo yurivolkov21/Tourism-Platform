@@ -33,6 +33,10 @@ import {
 import { AppearanceProvider } from '../lib/appearance-context';
 import { AuthProvider } from '../lib/auth-context';
 import { BookingDraftProvider } from '../lib/booking-draft';
+// Imported for its side effect: starts recording incoming deep links here, at
+// the root, so a link that arrives while the app is already running is still
+// readable by the screen it routes to (which mounts afterwards).
+import '../lib/deep-link';
 import { markOnboarded, readOnboarded } from '../lib/onboarding';
 
 const queryClient = new QueryClient({

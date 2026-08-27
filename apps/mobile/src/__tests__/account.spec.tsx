@@ -67,6 +67,7 @@ test('signed-in users see a short menu — "Your Profile" opens the settings scr
     email: 'jane@example.com',
     initial: 'J',
     avatarUrl: null,
+    hasPassword: false,
   });
   renderAccount();
   expect(await screen.findByText('jane@example.com')).toBeOnTheScreen();
@@ -83,6 +84,7 @@ test('sign out asks for a themed confirm sheet, then signs out', async () => {
     email: 'jane@example.com',
     initial: 'J',
     avatarUrl: null,
+    hasPassword: false,
   });
   renderAccount();
   await screen.findByText('jane@example.com');
@@ -101,6 +103,7 @@ test('sign out: dismissing the confirm sheet does not sign out', async () => {
     email: 'jane@example.com',
     initial: 'J',
     avatarUrl: null,
+    hasPassword: false,
   });
   renderAccount();
   await screen.findByText('jane@example.com');
@@ -117,6 +120,7 @@ test('the menu leads to app settings and to one Legal destination', async () => 
     email: 'jane@example.com',
     initial: 'J',
     avatarUrl: null,
+    hasPassword: false,
   });
   renderAccount();
   await screen.findByText('jane@example.com');

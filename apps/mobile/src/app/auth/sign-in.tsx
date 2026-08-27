@@ -17,7 +17,11 @@ import {
   useTheme,
 } from '@tourism/mobile-ui';
 import { AuthHero } from '../../components/auth-hero';
-import { validateSignIn, type SignInErrors } from '../../lib/auth';
+import {
+  mergeFieldError,
+  validateSignIn,
+  type SignInErrors,
+} from '../../lib/auth';
 import { useAuth } from '../../lib/auth-context';
 
 const t = messages.auth.login;
@@ -36,6 +40,12 @@ export default function SignInScreen() {
   const [banner, setBanner] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [googleSubmitting, setGoogleSubmitting] = useState(false);
+
+  /** On blur: judge this field only — the untouched one keeps its own verdict. */
+  const blurField = (field: 'email' | 'password') =>
+    setErrors((prev) =>
+      mergeFieldError(prev, validateSignIn({ email, password }), field),
+    );
 
   const onSubmit = async () => {
     const validation = validateSignIn({ email, password });
@@ -121,6 +131,7 @@ export default function SignInScreen() {
             autoComplete="email"
             textContentType="emailAddress"
             returnKeyType="next"
+            onBlur={() => blurField('email')}
             onSubmitEditing={() => passwordRef.current?.focus()}
           />
           <View style={{ gap: theme.spacing(2) }}>
@@ -158,6 +169,7 @@ export default function SignInScreen() {
               autoComplete="current-password"
               textContentType="password"
               returnKeyType="done"
+              onBlur={() => blurField('password')}
               onSubmitEditing={() => void onSubmit()}
             />
             {/* Own row below the field — the trailing eye icon now occupies

@@ -2,12 +2,16 @@ const mockCreateURL = jest.fn((_path: string) => 'nexora://auth/callback');
 const mockParse = jest.fn();
 const mockOpenAuthSessionAsync = jest.fn();
 const mockSignInWithOAuth = jest.fn();
+const mockLinkIdentity = jest.fn();
 const mockExchangeCodeForSession = jest.fn();
 const mockSetSession = jest.fn();
 
 jest.mock('expo-linking', () => ({
   createURL: (path: string) => mockCreateURL(path),
   parse: (url: string) => mockParse(url),
+  // `deep-link` (imported transitively) subscribes at module scope.
+  addEventListener: () => ({ remove: jest.fn() }),
+  getInitialURL: () => Promise.resolve(null),
 }));
 
 jest.mock('expo-web-browser', () => ({
@@ -20,6 +24,7 @@ jest.mock('./supabase', () => ({
   supabase: {
     auth: {
       signInWithOAuth: (options: unknown) => mockSignInWithOAuth(options),
+      linkIdentity: (options: unknown) => mockLinkIdentity(options),
       exchangeCodeForSession: (code: string) =>
         mockExchangeCodeForSession(code),
       setSession: (session: unknown) => mockSetSession(session),
@@ -27,7 +32,7 @@ jest.mock('./supabase', () => ({
   },
 }));
 
-import { signInWithGoogle } from './google-auth';
+import { linkGoogleIdentity, signInWithGoogle } from './google-auth';
 
 const authorizeUrl = 'https://project.supabase.co/auth/v1/authorize?...';
 
@@ -162,4 +167,69 @@ test('returns a generic error when the redirect URL has no code param', async ()
 
   expect(result).toEqual({ error: 'generic' });
   expect(mockExchangeCodeForSession).not.toHaveBeenCalled();
+});
+
+describe('linkGoogleIdentity', () => {
+  it('opens the consent browser and reports success with nothing to adopt', async () => {
+    // The identity is attached SERVER-side, so unlike a sign-in there is no
+    // session in the redirect — the caller re-reads the JWT instead.
+    mockLinkIdentity.mockResolvedValueOnce({
+      data: { url: authorizeUrl },
+      error: null,
+    });
+    mockOpenAuthSessionAsync.mockResolvedValueOnce({
+      type: 'success',
+      url: 'nexora://auth/callback',
+    });
+
+    await expect(linkGoogleIdentity()).resolves.toEqual({});
+    expect(mockLinkIdentity).toHaveBeenCalledWith({
+      provider: 'google',
+      options: {
+        redirectTo: 'nexora://auth/callback',
+        skipBrowserRedirect: true,
+      },
+    });
+  });
+
+  it('treats a closed browser as a cancellation, not a failure', async () => {
+    mockLinkIdentity.mockResolvedValueOnce({
+      data: { url: authorizeUrl },
+      error: null,
+    });
+    mockOpenAuthSessionAsync.mockResolvedValueOnce({ type: 'dismiss' });
+
+    await expect(linkGoogleIdentity()).resolves.toEqual({
+      error: 'cancelled',
+    });
+  });
+
+  it('reads a refusal out of the redirect, which "success" alone would hide', async () => {
+    // A browser that completed is not the same as a link that landed: Supabase
+    // reports "this Google account belongs to someone else" in the URL.
+    mockLinkIdentity.mockResolvedValueOnce({
+      data: { url: authorizeUrl },
+      error: null,
+    });
+    mockOpenAuthSessionAsync.mockResolvedValueOnce({
+      type: 'success',
+      url: 'nexora://auth/callback#error_code=identity_already_exists',
+    });
+
+    await expect(linkGoogleIdentity()).resolves.toEqual({
+      error: 'providerAlreadyLinked',
+    });
+  });
+
+  it('maps a refused linkIdentity without opening the browser', async () => {
+    mockLinkIdentity.mockResolvedValueOnce({
+      data: null,
+      error: { code: 'manual_linking_disabled', message: 'disabled' },
+    });
+
+    await expect(linkGoogleIdentity()).resolves.toEqual({
+      error: 'manualLinkingDisabled',
+    });
+    expect(mockOpenAuthSessionAsync).not.toHaveBeenCalled();
+  });
 });

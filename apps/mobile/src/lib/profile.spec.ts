@@ -16,6 +16,7 @@ test('maps name, phone, email, initial and avatarUrl', () => {
     email: 'jane@example.com',
     initial: 'J',
     avatarUrl: 'https://cdn/avatar.jpg',
+    hasPassword: false,
   });
 });
 
@@ -32,5 +33,6 @@ test('falls back to the email initial when the name is null, phone/avatar null',
     email: 'zed@example.com',
     initial: 'Z',
     avatarUrl: null,
+    hasPassword: false,
   });
 });

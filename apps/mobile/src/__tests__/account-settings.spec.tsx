@@ -21,8 +21,8 @@ let mockStatus = 'signedIn';
 let mockProviders: string[] = [];
 let mockGoogleAvatarUrl: string | null = null;
 const mockChangePassword = jest.fn();
-const mockChangeEmail = jest.fn();
 const mockDeleteAccount = jest.fn();
+const mockLinkProvider = jest.fn();
 jest.mock('../lib/auth-context', () => ({
   useAuth: () => ({
     status: mockStatus,
@@ -31,7 +31,7 @@ jest.mock('../lib/auth-context', () => ({
     googleAvatarUrl: mockGoogleAvatarUrl,
     signOut: jest.fn(),
     changePassword: mockChangePassword,
-    changeEmail: mockChangeEmail,
+    linkProvider: mockLinkProvider,
     deleteAccount: mockDeleteAccount,
   }),
 }));
@@ -82,6 +82,16 @@ function renderScreen() {
   );
 }
 
+/** Base profile for the tests; spread to vary a field. */
+const janeProfile = {
+  fullName: 'Jane',
+  phone: '',
+  email: 'jane@example.com',
+  initial: 'J',
+  avatarUrl: null,
+  hasPassword: false,
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockStatus = 'signedIn';
@@ -91,17 +101,15 @@ beforeEach(() => {
 
 test('shows the profile and can save a new name', async () => {
   mockFetch.mockResolvedValueOnce({
+    ...janeProfile,
     fullName: 'Jane Doe',
     phone: '',
-    email: 'jane@example.com',
-    initial: 'J',
     avatarUrl: null,
   });
   mockUpdate.mockResolvedValueOnce({
+    ...janeProfile,
     fullName: 'Jane N. Doe',
     phone: '',
-    email: 'jane@example.com',
-    initial: 'J',
     avatarUrl: null,
   });
   renderScreen();
@@ -110,16 +118,17 @@ test('shows the profile and can save a new name', async () => {
   await userEvent.clear(input);
   await userEvent.type(input, 'Jane N. Doe');
   await userEvent.press(screen.getByRole('button', { name: 'Save' }));
-  expect(await screen.findByText('Name updated.')).toBeOnTheScreen();
+  expect(
+    await screen.findByText(messages.mobile.account.editNameSaved),
+  ).toBeOnTheScreen();
   expect(mockUpdate.mock.calls[0][0]).toEqual({ fullName: 'Jane N. Doe' });
 });
 
 test('Save stays disabled until the phone number actually changes', async () => {
   mockFetch.mockResolvedValueOnce({
+    ...janeProfile,
     fullName: 'Jane',
     phone: '+84901234567',
-    email: 'jane@example.com',
-    initial: 'J',
     avatarUrl: null,
   });
   renderScreen();
@@ -133,60 +142,68 @@ test('Save stays disabled until the phone number actually changes', async () => 
 });
 
 test('change password validates locally before calling the API', async () => {
-  mockFetch.mockResolvedValueOnce({
-    fullName: 'Jane',
-    phone: '',
-    email: 'jane@example.com',
-    initial: 'J',
-    avatarUrl: null,
-  });
+  mockProviders = ['email'];
+  mockFetch.mockResolvedValueOnce({ ...janeProfile, hasPassword: true });
   renderScreen();
   await screen.findByText('jane@example.com');
 
-  await userEvent.type(screen.getByLabelText('New password'), 'short');
-  await userEvent.type(screen.getByLabelText('Confirm new password'), 'short');
+  // Every character class present, only length missing → the message says so.
+  await userEvent.type(screen.getByLabelText('New password'), 'Ab1!');
+  await userEvent.type(screen.getByLabelText('Confirm new password'), 'Ab1!');
   await userEvent.press(
     screen.getByRole('button', { name: 'Update password' }),
   );
   expect(
-    await screen.findByText('Use at least 8 characters.'),
+    await screen.findByText(messages.mobile.authErrors.passwordTooShort),
   ).toBeOnTheScreen();
   expect(mockChangePassword).not.toHaveBeenCalled();
 });
 
 test('change password calls the API once valid and shows the success line', async () => {
-  mockFetch.mockResolvedValueOnce({
-    fullName: 'Jane',
-    phone: '',
-    email: 'jane@example.com',
-    initial: 'J',
-    avatarUrl: null,
-  });
+  mockProviders = ['email'];
+  mockFetch.mockResolvedValueOnce({ ...janeProfile, hasPassword: true });
   mockChangePassword.mockResolvedValueOnce({});
   renderScreen();
   await screen.findByText('jane@example.com');
 
-  await userEvent.type(screen.getByLabelText('New password'), 'secret123');
+  await userEvent.type(screen.getByLabelText('Current password'), 'OldPass1!');
+  await userEvent.type(screen.getByLabelText('New password'), 'Secret12!');
   await userEvent.type(
     screen.getByLabelText('Confirm new password'),
-    'secret123',
+    'Secret12!',
   );
   await userEvent.press(
     screen.getByRole('button', { name: 'Update password' }),
   );
-  expect(await screen.findByText('Password updated.')).toBeOnTheScreen();
-  expect(mockChangePassword).toHaveBeenCalledWith('secret123');
+  expect(await screen.findByText(/Password updated\./)).toBeOnTheScreen();
+  expect(mockChangePassword).toHaveBeenCalledWith('Secret12!', 'OldPass1!');
+});
+
+test('a Google-only account gets no change-password section at all', async () => {
+  // Minting a FIRST password from an unlocked device would create a credential
+  // that outlives even "Sign out of all devices".
+  mockProviders = ['google'];
+  mockFetch.mockResolvedValueOnce({ ...janeProfile, hasPassword: false });
+  renderScreen();
+  await screen.findByText('jane@example.com');
+
+  expect(screen.queryByLabelText('New password')).not.toBeOnTheScreen();
+  expect(screen.queryByLabelText('Current password')).not.toBeOnTheScreen();
+});
+
+test('an account with both Google and a password still gets the section', async () => {
+  mockProviders = ['google', 'email'];
+  mockFetch.mockResolvedValueOnce({ ...janeProfile, hasPassword: true });
+  renderScreen();
+  await screen.findByText('jane@example.com');
+
+  expect(screen.getByLabelText('Current password')).toBeOnTheScreen();
+  expect(screen.getByLabelText('New password')).toBeOnTheScreen();
 });
 
 test('connected accounts: shows the empty state with no linked providers', async () => {
   mockProviders = [];
-  mockFetch.mockResolvedValueOnce({
-    fullName: 'Jane',
-    phone: '',
-    email: 'jane@example.com',
-    initial: 'J',
-    avatarUrl: null,
-  });
+  mockFetch.mockResolvedValueOnce(janeProfile);
   renderScreen();
   expect(
     await screen.findByText('No connected accounts yet.'),
@@ -195,26 +212,14 @@ test('connected accounts: shows the empty state with no linked providers', async
 
 test('connected accounts: lists the linked providers read-only', async () => {
   mockProviders = ['google', 'email'];
-  mockFetch.mockResolvedValueOnce({
-    fullName: 'Jane',
-    phone: '',
-    email: 'jane@example.com',
-    initial: 'J',
-    avatarUrl: null,
-  });
+  mockFetch.mockResolvedValueOnce({ ...janeProfile, hasPassword: true });
   renderScreen();
   expect(await screen.findByText('Google')).toBeOnTheScreen();
   expect(screen.getByText('Email & password')).toBeOnTheScreen();
 });
 
 test('delete account asks for a confirm sheet, then deletes and leaves the screen', async () => {
-  mockFetch.mockResolvedValueOnce({
-    fullName: 'Jane',
-    phone: '',
-    email: 'jane@example.com',
-    initial: 'J',
-    avatarUrl: null,
-  });
+  mockFetch.mockResolvedValueOnce(janeProfile);
   mockDeleteAccount.mockResolvedValueOnce({});
   renderScreen();
   await screen.findByText('jane@example.com');
@@ -231,13 +236,7 @@ test('delete account asks for a confirm sheet, then deletes and leaves the scree
 });
 
 test('delete account surfaces the server error inline and stays put', async () => {
-  mockFetch.mockResolvedValueOnce({
-    fullName: 'Jane',
-    phone: '',
-    email: 'jane@example.com',
-    initial: 'J',
-    avatarUrl: null,
-  });
+  mockFetch.mockResolvedValueOnce(janeProfile);
   mockDeleteAccount.mockResolvedValueOnce({
     error: 'You have active bookings.',
   });
@@ -261,13 +260,7 @@ test('signed-out users are redirected away (Redirect renders in place of the for
 });
 
 test('picking a photo uploads it and shows the success line', async () => {
-  mockFetch.mockResolvedValueOnce({
-    fullName: 'Jane',
-    phone: '',
-    email: 'jane@example.com',
-    initial: 'J',
-    avatarUrl: null,
-  });
+  mockFetch.mockResolvedValueOnce(janeProfile);
   mockRequestPermission.mockResolvedValueOnce({ granted: true });
   mockLaunchLibrary.mockResolvedValueOnce({
     canceled: false,
@@ -299,13 +292,7 @@ test('picking a photo uploads it and shows the success line', async () => {
 });
 
 test('cancelling the picker does not call uploadAvatar', async () => {
-  mockFetch.mockResolvedValueOnce({
-    fullName: 'Jane',
-    phone: '',
-    email: 'jane@example.com',
-    initial: 'J',
-    avatarUrl: null,
-  });
+  mockFetch.mockResolvedValueOnce(janeProfile);
   mockRequestPermission.mockResolvedValueOnce({ granted: true });
   mockLaunchLibrary.mockResolvedValueOnce({ canceled: true, assets: null });
   renderScreen();
@@ -318,10 +305,9 @@ test('cancelling the picker does not call uploadAvatar', async () => {
 
 test('Remove appears once a photo is set and clears it', async () => {
   mockFetch.mockResolvedValueOnce({
+    ...janeProfile,
     fullName: 'Jane',
     phone: '',
-    email: 'jane@example.com',
-    initial: 'J',
     avatarUrl: 'https://cdn/avatar.jpg',
   });
   mockRemoveAvatar.mockResolvedValueOnce({
@@ -340,21 +326,18 @@ test('Remove appears once a photo is set and clears it', async () => {
 });
 
 test('a failed password change surfaces the mapped error instead of failing silently', async () => {
-  mockFetch.mockResolvedValueOnce({
-    fullName: 'Jane',
-    phone: '',
-    email: 'jane@example.com',
-    initial: 'J',
-    avatarUrl: null,
-  });
+  mockProviders = ['email'];
+  mockFetch.mockResolvedValueOnce({ ...janeProfile, hasPassword: true });
   mockChangePassword.mockResolvedValueOnce({ error: 'weakPassword' });
+  // The section is gated on the API's verdict, not on the provider list.
   renderScreen();
   await screen.findByText('jane@example.com');
 
-  await userEvent.type(screen.getByLabelText('New password'), 'secret123');
+  await userEvent.type(screen.getByLabelText('Current password'), 'OldPass1!');
+  await userEvent.type(screen.getByLabelText('New password'), 'Secret12!');
   await userEvent.type(
     screen.getByLabelText('Confirm new password'),
-    'secret123',
+    'Secret12!',
   );
   await userEvent.press(
     screen.getByRole('button', { name: 'Update password' }),
@@ -365,81 +348,127 @@ test('a failed password change surfaces the mapped error instead of failing sile
   ).toBeOnTheScreen();
 });
 
-const passwordOnly = {
-  fullName: 'Jane',
-  phone: '',
-  email: 'jane@example.com',
-  initial: 'J',
-  avatarUrl: null,
-};
+// ── Per-field error clarity (2026-08-27) ────────────────────────────────────
+// Every case below used to end in a message that either named the wrong field
+// or said nothing at all ("Something went wrong", a greyed-out Save button).
 
-test('change email: password-only accounts get the form and send a confirmation', async () => {
-  mockProviders = ['email'];
-  mockFetch.mockResolvedValueOnce(passwordOnly);
-  mockChangeEmail.mockResolvedValueOnce({});
+test('an emptied name explains itself on blur instead of greying Save out', async () => {
+  mockFetch.mockResolvedValueOnce(janeProfile);
   renderScreen();
   await screen.findByText('jane@example.com');
 
-  await userEvent.type(screen.getByLabelText('New email'), 'new@example.com');
-  await userEvent.type(screen.getByLabelText('Current password'), 'secret123');
-  await userEvent.press(
-    screen.getByRole('button', { name: 'Send confirmation' }),
-  );
+  const name = screen.getByLabelText('Display name');
+  await userEvent.clear(name);
+  // Leaving the field is enough — no submit needed.
+  await userEvent.type(screen.getByLabelText('Phone'), '+84901234567');
 
-  expect(mockChangeEmail).toHaveBeenCalledWith('new@example.com', 'secret123');
-  const email = messages.auth.account.securityPage.email;
   expect(
-    await screen.findByText(`${email.sent} ${email.sentHint}`),
+    await screen.findByText(messages.mobile.authErrors.nameRequired),
   ).toBeOnTheScreen();
 });
 
-test('change email: a bad email never reaches the API', async () => {
-  mockProviders = ['email'];
-  mockFetch.mockResolvedValueOnce(passwordOnly);
+test('a malformed phone blames the phone, not the name', async () => {
+  mockFetch.mockResolvedValueOnce(janeProfile);
   renderScreen();
   await screen.findByText('jane@example.com');
 
-  await userEvent.type(screen.getByLabelText('New email'), 'nope');
-  await userEvent.type(screen.getByLabelText('Current password'), 'secret123');
-  await userEvent.press(
-    screen.getByRole('button', { name: 'Send confirmation' }),
-  );
+  await userEvent.type(screen.getByLabelText('Phone'), '09-abc');
+  await userEvent.press(screen.getByRole('button', { name: 'Save' }));
 
   expect(
-    await screen.findByText(messages.mobile.authErrors.emailInvalid),
+    await screen.findByText(messages.mobile.authErrors.phoneInvalid),
   ).toBeOnTheScreen();
-  expect(mockChangeEmail).not.toHaveBeenCalled();
+  expect(
+    screen.queryByText(messages.mobile.authErrors.nameRequired),
+  ).not.toBeOnTheScreen();
+  expect(mockUpdate).not.toHaveBeenCalled();
 });
 
-test('change email: a wrong current password is blamed on that field', async () => {
+test('the new-password field shows a live requirements checklist', async () => {
   mockProviders = ['email'];
-  mockFetch.mockResolvedValueOnce(passwordOnly);
-  mockChangeEmail.mockResolvedValueOnce({
-    error: 'invalidCredentials',
-    field: 'password',
-  });
+  mockFetch.mockResolvedValueOnce({ ...janeProfile, hasPassword: true });
   renderScreen();
   await screen.findByText('jane@example.com');
 
-  await userEvent.type(screen.getByLabelText('New email'), 'new@example.com');
-  await userEvent.type(screen.getByLabelText('Current password'), 'wrong');
-  await userEvent.press(
-    screen.getByRole('button', { name: 'Send confirmation' }),
-  );
+  // Nothing typed yet: no checklist shouting at an untouched field.
+  expect(
+    screen.queryByText(messages.auth.passwordRules['upper']),
+  ).not.toBeOnTheScreen();
+
+  await userEvent.type(screen.getByLabelText('New password'), 'abc');
+  expect(
+    await screen.findByText(messages.auth.passwordRules['upper']),
+  ).toBeOnTheScreen();
+  expect(screen.getByText(messages.auth.passwordStrength(1))).toBeOnTheScreen();
+});
+
+const tc = messages.auth.account.connected;
+
+// ── Connecting Google to a password account (2026-08-27) ──────────────────
+// The common direction: register with an email, then link Google so later
+// logins are one tap. (Adding a password to a Google account is the rare one.)
+
+test('an account without Google is offered a Connect button', async () => {
+  mockProviders = ['email'];
+  mockFetch.mockResolvedValueOnce({ ...janeProfile, hasPassword: true });
+  mockLinkProvider.mockResolvedValueOnce({});
+  renderScreen();
+  await screen.findByText('jane@example.com');
+
+  await userEvent.press(screen.getByLabelText(`${tc.connect} ${tc.google}`));
+  expect(mockLinkProvider).toHaveBeenCalledWith('google');
+});
+
+test('an account that already has Google is not offered it again', async () => {
+  mockProviders = ['email', 'google'];
+  mockFetch.mockResolvedValueOnce({ ...janeProfile, hasPassword: true });
+  renderScreen();
+  await screen.findByText('jane@example.com');
 
   expect(
-    await screen.findByText(messages.mobile.authErrors.invalidCredentials),
+    screen.queryByLabelText(`${tc.connect} ${tc.google}`),
+  ).not.toBeOnTheScreen();
+});
+
+test('a refused link says why rather than failing quietly', async () => {
+  mockProviders = ['email'];
+  mockFetch.mockResolvedValueOnce({ ...janeProfile, hasPassword: true });
+  mockLinkProvider.mockResolvedValueOnce({ error: 'providerAlreadyLinked' });
+  renderScreen();
+  await screen.findByText('jane@example.com');
+
+  await userEvent.press(screen.getByLabelText(`${tc.connect} ${tc.google}`));
+  expect(
+    await screen.findByText(
+      `${tc.connectError} ${messages.mobile.authErrors.providerAlreadyLinked}`,
+    ),
   ).toBeOnTheScreen();
 });
 
-test('change email: a Google-linked account sees the managed note instead', async () => {
+test('a password with no email identity is still listed as a sign-in method', async () => {
+  // Supabase adds no `email` identity when a password is set on an OAuth
+  // account, so the list built from identities would show Google alone and
+  // call it "the only sign-in method" — while email login demonstrably works.
+  mockProviders = ['google'];
+  mockFetch.mockResolvedValueOnce({ ...janeProfile, hasPassword: true });
+  renderScreen();
+  await screen.findByText('jane@example.com');
+
+  expect(screen.getByText(tc.passwordRow)).toBeOnTheScreen();
+  expect(
+    screen.getByText(tc.passwordRowDesc('jane@example.com')),
+  ).toBeOnTheScreen();
+});
+
+test('the password row is not duplicated when an email identity does exist', async () => {
   mockProviders = ['google', 'email'];
-  mockFetch.mockResolvedValueOnce(passwordOnly);
+  mockFetch.mockResolvedValueOnce({ ...janeProfile, hasPassword: true });
   renderScreen();
   await screen.findByText('jane@example.com');
 
+  // The identity row already covers it — `tc.email` and `tc.passwordRow` read
+  // the same, so a second row would look like a duplicate entry.
   expect(
-    screen.getByText(messages.auth.account.securityPage.email.managedNote),
-  ).toBeOnTheScreen();
-  expect(screen.queryByLabelText('New email')).not.toBeOnTheScreen();
+    screen.queryByText(tc.passwordRowDesc('jane@example.com')),
+  ).not.toBeOnTheScreen();
 });

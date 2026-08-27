@@ -1,5 +1,6 @@
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { render, screen, userEvent } from '@testing-library/react-native';
+import { messages } from '@tourism/i18n';
 import { ThemeProvider } from '@tourism/mobile-ui';
 import SignInScreen from '../app/auth/sign-in';
 import SignUpScreen from '../app/auth/sign-up';
@@ -46,7 +47,7 @@ test('sign-in validates before calling supabase', async () => {
   wrap(<SignInScreen />);
   await userEvent.press(screen.getByRole('button', { name: 'Sign in' }));
   expect(
-    screen.getByText('Please enter a valid email address.'),
+    screen.getByText(messages.mobile.authErrors.emailRequired),
   ).toBeOnTheScreen();
   expect(mockSignIn).not.toHaveBeenCalled();
 });
@@ -62,7 +63,7 @@ test('sign-in success routes back; failure shows the banner', async () => {
   mockSignIn.mockResolvedValueOnce({ error: 'invalidCredentials' });
   await userEvent.press(screen.getByRole('button', { name: 'Sign in' }));
   expect(
-    await screen.findByText('Email or password is incorrect.'),
+    await screen.findByText(messages.mobile.authErrors.invalidCredentials),
   ).toBeOnTheScreen();
 });
 
@@ -120,13 +121,18 @@ test('sign-up shows confirm mismatch and the confirmation-sent state', async () 
   wrap(<SignUpScreen />);
   await userEvent.type(screen.getByLabelText('Full name'), 'Jane');
   await userEvent.type(screen.getByLabelText('Email'), 'jane@example.com');
-  await userEvent.type(screen.getByLabelText('Password'), 'secret123');
-  await userEvent.type(screen.getByLabelText('Confirm password'), 'different1');
+  await userEvent.type(screen.getByLabelText('Password'), 'Secret12!');
+  await userEvent.type(
+    screen.getByLabelText('Confirm password'),
+    'Different1!',
+  );
   await userEvent.press(screen.getByRole('button', { name: 'Create account' }));
-  expect(screen.getByText('Passwords do not match.')).toBeOnTheScreen();
+  expect(
+    screen.getByText(messages.mobile.authErrors.confirmMismatch),
+  ).toBeOnTheScreen();
 
   await userEvent.clear(screen.getByLabelText('Confirm password'));
-  await userEvent.type(screen.getByLabelText('Confirm password'), 'secret123');
+  await userEvent.type(screen.getByLabelText('Confirm password'), 'Secret12!');
   await userEvent.press(screen.getByRole('button', { name: 'Create account' }));
   expect(await screen.findByText('Check your inbox')).toBeOnTheScreen();
 });
@@ -140,4 +146,37 @@ test('forgot sends and shows the sent state', async () => {
   );
   expect(await screen.findByText('Check your inbox')).toBeOnTheScreen();
   expect(mockSendReset).toHaveBeenCalledWith('jane@example.com');
+});
+
+// ── Per-field error clarity (2026-08-27) ────────────────────────────────────
+
+test('sign-up judges a field on blur without lighting up the untouched ones', async () => {
+  wrap(<SignUpScreen />);
+  await userEvent.type(screen.getByLabelText('Full name'), 'Jane');
+  await userEvent.type(screen.getByLabelText('Email'), 'not-an-email');
+  // Moving on is enough to get a verdict on the email...
+  await userEvent.type(screen.getByLabelText('Password'), 'Secret12!');
+
+  expect(
+    await screen.findByText(messages.mobile.authErrors.emailInvalid),
+  ).toBeOnTheScreen();
+  // ...and the confirm field, never visited, stays quiet.
+  expect(
+    screen.queryByText(messages.mobile.authErrors.confirmRequired),
+  ).not.toBeOnTheScreen();
+});
+
+test('sign-up shows the strength checklist and names the missing rules', async () => {
+  wrap(<SignUpScreen />);
+  await userEvent.type(screen.getByLabelText('Password'), 'abcdefgh');
+
+  expect(
+    await screen.findByText(messages.auth.passwordRules['number']),
+  ).toBeOnTheScreen();
+  await userEvent.press(screen.getByRole('button', { name: 'Create account' }));
+  // Long enough, so the message points at the checklist rather than length.
+  expect(
+    await screen.findByText(messages.mobile.authErrors.passwordPolicy),
+  ).toBeOnTheScreen();
+  expect(mockSignUp).not.toHaveBeenCalled();
 });

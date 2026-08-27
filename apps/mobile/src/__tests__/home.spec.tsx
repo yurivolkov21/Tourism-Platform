@@ -101,6 +101,7 @@ beforeEach(() => {
     email: 'y@e.com',
     initial: 'Y',
     avatarUrl: null,
+    hasPassword: false,
   });
 });
 

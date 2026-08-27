@@ -1,5 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
+import { messages } from '@tourism/i18n';
+
 import { ChangeEmailForm } from './change-email-form';
 
 const mockSignIn = jest.fn();
@@ -50,9 +52,14 @@ function fill(email: string, password: string) {
       target: { value: email },
     });
   if (password)
-    fireEvent.change(screen.getByLabelText('Current password'), {
-      target: { value: password },
-    });
+    fireEvent.change(
+      screen.getByLabelText(
+        messages.auth.account.securityPage.email.currentPasswordLabel,
+      ),
+      {
+        target: { value: password },
+      },
+    );
   fireEvent.submit(screen.getByLabelText('New email').closest('form')!);
 }
 

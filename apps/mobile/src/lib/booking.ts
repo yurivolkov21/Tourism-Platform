@@ -2,6 +2,7 @@ import { ApiRequestError, type components } from '@tourism/core';
 import { messages } from '@tourism/i18n';
 import type { BadgeTone } from '@tourism/mobile-ui';
 import { getApiClient } from './api';
+import { withUserSync } from './user-sync';
 import type { CreateBookingPayload } from './booking-form';
 
 export type BookingDto = components['schemas']['BookingDto'];
@@ -156,10 +157,12 @@ export async function fetchTourDepartures(
 
 /** The caller's bookings, newest first (top 50 on the API). Throws on failure. */
 export async function fetchMyBookings(): Promise<BookingVm[]> {
-  const { data } = await getApiClient().GET('/api/v1/bookings/me');
-  const list =
-    (data as unknown as { data?: BookingDto[] } | undefined)?.data ?? [];
-  return list.map(toBookingVm);
+  return withUserSync(async () => {
+    const { data } = await getApiClient().GET('/api/v1/bookings/me');
+    const list =
+      (data as unknown as { data?: BookingDto[] } | undefined)?.data ?? [];
+    return list.map(toBookingVm);
+  });
 }
 
 /** One booking by code (owner-only; the API collapses forbidden to 404 → null). */
@@ -189,24 +192,14 @@ async function postBooking(payload: CreateBookingPayload): Promise<BookingDto> {
 
 /**
  * Create a PENDING booking. The first authed write can race the user mirror —
- * re-sync once and retry, exactly like web's createBookingWithSync (which also
- * treats a plain 401 as the unmirrored-user case, not just USER_NOT_SYNCED).
+ * `withUserSync` re-syncs once and retries, exactly like web's
+ * createBookingWithSync. (The retry used to be inlined here; it now backs every
+ * account-scoped call, not just this one.)
  */
 export async function createBooking(
   payload: CreateBookingPayload,
 ): Promise<BookingDto> {
-  try {
-    return await postBooking(payload);
-  } catch (error) {
-    if (
-      error instanceof ApiRequestError &&
-      (error.code === 'USER_NOT_SYNCED' || error.status === 401)
-    ) {
-      await getApiClient().POST('/api/v1/auth/sync', { body: {} });
-      return postBooking(payload);
-    }
-    throw error;
-  }
+  return withUserSync(() => postBooking(payload));
 }
 
 /** Start a hosted-checkout session for a PENDING booking → the gateway URL. */

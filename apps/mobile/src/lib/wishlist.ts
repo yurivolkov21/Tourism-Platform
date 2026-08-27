@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { components } from '@tourism/core';
 import { getApiClient } from './api';
+import { withUserSync } from './user-sync';
 import { useAuth } from './auth-context';
 
 type WishlistItemDto = components['schemas']['WishlistItemDto'];
@@ -29,10 +30,11 @@ export function toSavedTourVm(dto: WishlistItemDto): SavedTourVm {
 }
 
 export async function fetchSavedTours(): Promise<SavedTourVm[]> {
-  const api = getApiClient();
-  const { data } = await api.GET('/api/v1/wishlist/me');
-  const list = (data as unknown as { data: WishlistItemDto[] }).data ?? [];
-  return list.map(toSavedTourVm);
+  return withUserSync(async () => {
+    const { data } = await getApiClient().GET('/api/v1/wishlist/me');
+    const list = (data as unknown as { data: WishlistItemDto[] }).data ?? [];
+    return list.map(toSavedTourVm);
+  });
 }
 
 export async function fetchSavedTourIds(): Promise<string[]> {
@@ -41,15 +43,19 @@ export async function fetchSavedTourIds(): Promise<string[]> {
 }
 
 export async function addToWishlist(tourId: string): Promise<void> {
-  await getApiClient().POST('/api/v1/wishlist/{tourId}', {
-    params: { path: { tourId } },
-  });
+  await withUserSync(() =>
+    getApiClient().POST('/api/v1/wishlist/{tourId}', {
+      params: { path: { tourId } },
+    }),
+  );
 }
 
 export async function removeFromWishlist(tourId: string): Promise<void> {
-  await getApiClient().DELETE('/api/v1/wishlist/{tourId}', {
-    params: { path: { tourId } },
-  });
+  await withUserSync(() =>
+    getApiClient().DELETE('/api/v1/wishlist/{tourId}', {
+      params: { path: { tourId } },
+    }),
+  );
 }
 
 /** Wishlist state + optimistic toggle. Guests get `isGuest: true` and no queries. */

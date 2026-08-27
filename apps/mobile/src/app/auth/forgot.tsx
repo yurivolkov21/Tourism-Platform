@@ -126,6 +126,12 @@ export default function ForgotScreen() {
             autoComplete="email"
             textContentType="emailAddress"
             returnKeyType="done"
+            // Verdict on leaving the field, so a typo is caught before the
+            // submit round-trip rather than after it.
+            onBlur={() => {
+              const { email: code } = validateForgot({ email });
+              setError(code ? te[code] : null);
+            }}
             onSubmitEditing={() => void onSubmit()}
           />
           {banner ? (
