@@ -13,7 +13,10 @@ import { createClient } from '../../lib/supabase/client';
 export function useSignOut(): () => Promise<void> {
   const router = useRouter();
   return useCallback(async () => {
-    await createClient().auth.signOut();
+    // `scope: 'local'` explicitly — supabase-js defaults signOut to 'global',
+    // which quietly revoked the user's sessions on every other device (their
+    // phone included) when they only meant to sign out of this browser.
+    await createClient().auth.signOut({ scope: 'local' });
     router.push('/');
     router.refresh();
   }, [router]);
