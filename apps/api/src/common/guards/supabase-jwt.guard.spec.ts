@@ -1,5 +1,5 @@
 import type { ExecutionContext } from '@nestjs/common';
-import { UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 
 // jose is ESM-only — mock the whole surface the guard touches so the CJS jest
 // runtime never loads the real package.
@@ -83,5 +83,59 @@ describe('SupabaseJwtGuard — optional identity on @Public routes', () => {
     await expect(guard.canActivate(context)).rejects.toBeInstanceOf(
       UnauthorizedException,
     );
+  });
+});
+
+describe('SupabaseJwtGuard - email confirmation', () => {
+  beforeEach(() => {
+    mockJwtVerify.mockReset();
+  });
+
+  it('rejects a protected request from an explicitly unconfirmed address', async () => {
+    // Enforced here rather than left to the project's "Confirm email" toggle:
+    // the mirror relinks rows by email, which is only safe while the JWT proves
+    // the caller owns it.
+    mockJwtVerify.mockResolvedValue({
+      payload: {
+        sub: 'sb-1',
+        email: 'a@b.co',
+        user_metadata: { email_verified: false },
+      },
+    });
+    const { guard, prisma } = makeGuard({ isPublic: false });
+    const { context } = makeContext('Bearer good-token');
+    await expect(guard.canActivate(context)).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
+  });
+
+  it('accepts every place Supabase may state the address is confirmed', async () => {
+    for (const claims of [
+      // Where a real access token actually carries it: inside user_metadata.
+      { user_metadata: { email_verified: true } },
+      { email_verified: true },
+      { email_confirmed_at: '2026-01-01T00:00:00Z' },
+      // No claim at all: the token shape simply does not carry the fact, and
+      // reading silence as a denial locked EVERY caller out.
+      {},
+    ]) {
+      mockJwtVerify.mockResolvedValue({
+        payload: { sub: 'sb-1', email: 'a@b.co', ...claims },
+      });
+      const { guard } = makeGuard({ isPublic: false });
+      const { context, req } = makeContext('Bearer good-token');
+      await expect(guard.canActivate(context)).resolves.toBe(true);
+      expect(req.currentUser).toEqual({ id: 'user-1' });
+    }
+  });
+
+  it('leaves public routes alone - an unconfirmed caller is just anonymous-ish', async () => {
+    mockJwtVerify.mockResolvedValue({
+      payload: { sub: 'sb-1', email: 'a@b.co' },
+    });
+    const { guard } = makeGuard({ isPublic: true });
+    const { context } = makeContext('Bearer good-token');
+    await expect(guard.canActivate(context)).resolves.toBe(true);
   });
 });

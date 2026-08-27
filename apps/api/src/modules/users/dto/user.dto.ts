@@ -34,6 +34,16 @@ export class UserDto {
   })
   avatarUrl!: string | null;
 
+  @ApiProperty({
+    description:
+      'Whether the account can sign in with an email + password. Supabase does NOT ' +
+      'create an `email` identity when a password is set on an OAuth-only account — ' +
+      'it only fills `auth.users.encrypted_password` — so `app_metadata.providers` ' +
+      'never reveals this and only the server can answer it.',
+    example: true,
+  })
+  hasPassword!: boolean;
+
   @ApiProperty({ format: 'date-time' })
   createdAt!: string;
 

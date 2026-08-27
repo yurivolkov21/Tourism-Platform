@@ -15,6 +15,7 @@ function makePrisma(opts: {
   findUnique?: jest.Mock;
   update?: jest.Mock;
   transaction?: jest.Mock;
+  queryRaw?: jest.Mock;
 }) {
   return {
     user: {
@@ -24,6 +25,9 @@ function makePrisma(opts: {
     // syncAssets is invoked with the tx; a passthrough callback is enough here.
     $transaction:
       opts.transaction ?? jest.fn((cb: (tx: unknown) => unknown) => cb({})),
+    // The `auth.users` password lookup behind `hasPassword`.
+    $queryRaw:
+      opts.queryRaw ?? jest.fn().mockResolvedValue([{ has_password: false }]),
   };
 }
 
@@ -201,5 +205,53 @@ describe('UsersService.clearAvatar', () => {
     type SyncCall = [unknown, MediaOwnerType, string, unknown[]];
     const calls = media.syncAssets.mock.calls as unknown as SyncCall[];
     expect(calls[0][3]).toEqual([]);
+  });
+});
+
+describe('UsersService — hasPassword', () => {
+  it('reports a password held by Supabase, which no identity would reveal', async () => {
+    // Setting a password on an OAuth-only account fills `encrypted_password`
+    // but creates no `email` identity, so `app_metadata.providers` still says
+    // `['google']` — only this read can answer the question.
+    const queryRaw = jest.fn().mockResolvedValue([{ has_password: true }]);
+    const svc = new UsersService(
+      makePrisma({ queryRaw }) as never,
+      makeMedia(null) as never,
+      makeConfig() as never,
+    );
+    await expect(svc.getMe('u-1')).resolves.toMatchObject({
+      hasPassword: true,
+    });
+    expect(queryRaw).toHaveBeenCalled();
+  });
+
+  it('reports false when the account has none', async () => {
+    const svc = new UsersService(
+      makePrisma({
+        queryRaw: jest.fn().mockResolvedValue([{ has_password: false }]),
+      }) as never,
+      makeMedia(null) as never,
+      makeConfig() as never,
+    );
+    await expect(svc.getMe('u-1')).resolves.toMatchObject({
+      hasPassword: false,
+    });
+  });
+
+  it('degrades to false rather than failing the whole profile read', async () => {
+    // Worst case is offering a setup link that was not needed — far better
+    // than a 500 on the account screen.
+    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    const svc = new UsersService(
+      makePrisma({
+        queryRaw: jest.fn().mockRejectedValue(new Error('permission denied')),
+      }) as never,
+      makeMedia('https://cdn/a.jpg') as never,
+      makeConfig() as never,
+    );
+    await expect(svc.getMe('u-1')).resolves.toMatchObject({
+      hasPassword: false,
+      avatarUrl: 'https://cdn/a.jpg',
+    });
   });
 });

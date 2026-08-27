@@ -12,8 +12,14 @@ import { MediaService } from '../media/media.service';
 import { SetAvatarDto } from './dto/set-avatar.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
 
-/** A `User` enriched with the Cloudinary delivery URL of its avatar (if any). */
-export type UserWithAvatar = User & { avatarUrl: string | null };
+/**
+ * A `User` enriched for a profile response: the Cloudinary delivery URL of its
+ * avatar (if any), plus whether the account can sign in with a password.
+ */
+export type UserWithAvatar = User & {
+  avatarUrl: string | null;
+  hasPassword: boolean;
+};
 
 /**
  * Read + self-update on the local `users` table. Scope: what a user may do to
@@ -156,9 +162,48 @@ export class UsersService {
     return user;
   }
 
-  /** A USER owner has at most one media asset (the avatar) → first url, or null. */
+  /**
+   * A USER owner has at most one media asset (the avatar) → first url, or null.
+   * Paired with the password lookup because both feed the same profile response
+   * (parallel, not batched — the transaction pooler can't start a `$transaction`
+   * under concurrency, BLUEPRINT gotcha).
+   */
   private async attachAvatar(user: User): Promise<UserWithAvatar> {
-    const withMedia = await this.media.attachToOwner(MediaOwnerType.USER, user);
-    return { ...user, avatarUrl: withMedia.media[0]?.url ?? null };
+    const [withMedia, hasPassword] = await Promise.all([
+      this.media.attachToOwner(MediaOwnerType.USER, user),
+      this.readHasPassword(user.supabaseId),
+    ]);
+    return {
+      ...user,
+      avatarUrl: withMedia.media[0]?.url ?? null,
+      hasPassword,
+    };
+  }
+
+  /**
+   * Whether Supabase holds a password for this identity.
+   *
+   * Read straight from `auth.users` because there is no other way to know:
+   * setting a password on an OAuth-only account fills `encrypted_password` but
+   * creates NO `email` identity and leaves `app_metadata.providers` untouched,
+   * so the client sees `['google']` forever even though email sign-in works.
+   * A failure here is reported as "no password" rather than failing the whole
+   * profile read — the worst case is offering a setup link that isn't needed.
+   */
+  private async readHasPassword(supabaseId: string): Promise<boolean> {
+    try {
+      const rows = await this.prisma.$queryRaw<{ has_password: boolean }[]>`
+        SELECT encrypted_password IS NOT NULL AND encrypted_password <> ''
+          AS has_password
+        FROM auth.users
+        WHERE id = ${supabaseId}::uuid
+      `;
+      return rows[0]?.has_password ?? false;
+    } catch (e) {
+      this.logger.warn(
+        `Could not read the password flag for ${supabaseId}: ${String(e)}`,
+      );
+      return false;
+    }
   }
 }

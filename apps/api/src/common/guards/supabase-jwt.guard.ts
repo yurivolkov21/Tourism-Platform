@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   Logger,
   UnauthorizedException,
@@ -21,6 +22,29 @@ import type {
   AuthenticatedRequest,
   SupabaseAuthIdentity,
 } from '../types/authenticated-request';
+
+/**
+ * Reads the email-confirmation state out of a Supabase access token.
+ *
+ * The claim is NOT where it first appears to be: an access token carries no
+ * top-level `email_confirmed_at`, and `email_verified` lives inside
+ * `user_metadata` — that is where the OAuth providers and the email provider
+ * both write it. Reading only the top level marked EVERY caller unverified.
+ *
+ * When nothing states it anywhere, the answer is "verified": the token shape
+ * simply does not carry the fact, and treating silence as a denial locks out
+ * every user of such a token. Only an explicit falsy value denies.
+ */
+function readEmailVerified(claims: Record<string, unknown>): boolean {
+  const meta = claims.user_metadata as Record<string, unknown> | undefined;
+  const stated = [
+    claims.email_verified,
+    claims.email_confirmed_at,
+    meta?.['email_verified'],
+    meta?.['email_confirmed_at'],
+  ].find((value) => value !== undefined && value !== null);
+  return stated === undefined ? true : Boolean(stated);
+}
 
 /**
  * Global guard that verifies a Supabase JWT in the `Authorization` header and
@@ -95,9 +119,7 @@ export class SupabaseJwtGuard implements CanActivate {
     const identity: SupabaseAuthIdentity = {
       sub: typeof subClaim === 'string' ? subClaim : '',
       email: typeof emailClaim === 'string' ? emailClaim : '',
-      emailVerified: Boolean(
-        claims.email_verified ?? claims.email_confirmed_at,
-      ),
+      emailVerified: readEmailVerified(claims),
       raw: claims,
     };
 
@@ -111,6 +133,16 @@ export class SupabaseJwtGuard implements CanActivate {
       throw new UnauthorizedException({
         code: 'UNAUTHORIZED',
         message: 'JWT missing email claim',
+      });
+    }
+    // Enforced here, not left to the Supabase project's "Confirm email" toggle:
+    // the whole mirror relies on a JWT proving the caller owns the address (it
+    // is what makes relinking an existing row by email safe), so an unconfirmed
+    // address must not reach a protected route even if that toggle is off.
+    if (!identity.emailVerified) {
+      throw new ForbiddenException({
+        code: 'EMAIL_NOT_VERIFIED',
+        message: 'Confirm your email address before using your account',
       });
     }
 
@@ -136,9 +168,7 @@ export class SupabaseJwtGuard implements CanActivate {
       req.supabaseUser = {
         sub,
         email,
-        emailVerified: Boolean(
-          claims.email_verified ?? claims.email_confirmed_at,
-        ),
+        emailVerified: readEmailVerified(claims),
         raw: claims,
       };
       req.currentUser = await this.prisma.user.findUnique({
