@@ -7,6 +7,9 @@ import { useTheme } from './theme-provider';
 export interface ButtonProps extends Omit<PressableProps, 'children'> {
   label: string;
   variant?: 'primary' | 'outline';
+  /** `destructive` fills with the destructive pair. Not a `variant`: it is
+   * orthogonal to primary/outline and to `ready`, which still wins. */
+  tone?: 'default' | 'destructive';
   loading?: boolean;
   /** P5.6 two-tier readiness: `false` = resting (muted) treatment while a form
    * is incomplete. A validity AFFORDANCE, not disabled — press still fires so
@@ -19,6 +22,7 @@ export interface ButtonProps extends Omit<PressableProps, 'children'> {
 export function Button({
   label,
   variant = 'primary',
+  tone = 'default',
   loading,
   disabled,
   ready = true,
@@ -29,6 +33,14 @@ export function Button({
   const theme = useTheme();
   const primary = variant === 'primary';
   const resting = primary && !ready;
+  // Only a FILLED, non-resting button carries the destructive pair — an outline
+  // one has no fill for pale ink to sit on.
+  const danger = tone === 'destructive' && primary && !resting;
+  // Filled buttons flip their ink with the fill. Kept as one value so a caller
+  // can never move the background without the text following it.
+  const filledInk = danger
+    ? theme.colors['destructive-foreground']
+    : theme.colors['primary-foreground'];
   return (
     <Pressable
       accessibilityRole="button"
@@ -36,9 +48,7 @@ export function Button({
       disabled={disabled || loading}
       // Muted ripple is invisible on the emerald fill — use the primary pair there.
       android_ripple={{
-        color: primary
-          ? theme.colors['primary-foreground']
-          : theme.colors['muted'],
+        color: primary ? filledInk : theme.colors['muted'],
         foreground: true,
       }}
       {...rest}
@@ -54,9 +64,11 @@ export function Button({
           overflow: 'hidden', // clip the ripple to the rounded shape
           backgroundColor: resting
             ? theme.colors['secondary']
-            : primary
-              ? theme.colors['primary']
-              : 'transparent',
+            : danger
+              ? theme.colors['destructive']
+              : primary
+                ? theme.colors['primary']
+                : 'transparent',
           borderWidth: primary ? 0 : 1,
           borderColor: theme.colors['border'],
           opacity: disabled
@@ -84,7 +96,7 @@ export function Button({
           color: resting
             ? theme.colors['muted-foreground']
             : primary
-              ? theme.colors['primary-foreground']
+              ? filledInk
               : theme.colors['foreground'],
         }}
       >

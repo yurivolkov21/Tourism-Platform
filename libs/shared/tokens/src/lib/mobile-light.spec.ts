@@ -3,11 +3,20 @@ import { theme } from '../../generated/theme.js';
 /**
  * The RN-only `mobileLight` scheme (Navel cream/brass) must be a COMPLETE
  * palette, not a partial patch over the web's ivory/emerald light values.
- * Only the media tokens are meant to be shared — a photo scrim is dark in every
- * scheme. Anything else that matches the web value is an unfinished token: add
- * a third argument to its `c(...)` call in style-dictionary/tokens.mjs.
+ * Only tokens whose SURFACE is scheme-independent may be shared — a photo scrim
+ * is dark in every scheme, and `rating` is brass in every scheme, so an ink for
+ * it that changed per scheme would be wrong in one of them by construction (see
+ * contrast.spec.ts). Anything else that matches the web value is an unfinished
+ * token: add a third argument to its `c(...)` call in
+ * style-dictionary/tokens.mjs.
  */
-const SHARED_WITH_WEB_LIGHT = ['on-media', 'overlay', 'scrim', 'media-tint'];
+const SHARED_WITH_WEB_LIGHT = [
+  'on-media',
+  'overlay',
+  'scrim',
+  'media-tint',
+  'rating-foreground',
+];
 
 test('mobileLight covers every token the other schemes define', () => {
   expect(Object.keys(theme.colors.mobileLight).sort()).toEqual(

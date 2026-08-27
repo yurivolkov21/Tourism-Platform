@@ -63,3 +63,49 @@ test('ready={false} renders the resting (secondary) fill but stays pressable', a
   await userEvent.press(screen.getByTestId('resting'));
   expect(onPress).toHaveBeenCalledTimes(1);
 });
+
+test('tone="destructive" pairs the destructive fill with ITS OWN ink', () => {
+  // The mobile light primary is brass, so `primary-foreground` is a dark
+  // emerald — legible on brass, nearly invisible on the dark red. A caller that
+  // only overrode `backgroundColor` (the confirm sheet did) got exactly that,
+  // and "Yes, sign out" was unreadable. The pair has to travel together.
+  render(
+    <ThemeProvider>
+      <Button
+        label="Yes, sign out"
+        onPress={jest.fn()}
+        tone="destructive"
+        testID="danger"
+      />
+    </ThemeProvider>,
+  );
+  const theme = buildTheme('light');
+  const style = StyleSheet.flatten(screen.getByTestId('danger').props.style);
+  expect(style.backgroundColor).toBe(theme.colors['destructive']);
+  const label = StyleSheet.flatten(
+    screen.getByText('Yes, sign out').props.style,
+  );
+  expect(label.color).toBe(theme.colors['destructive-foreground']);
+  expect(label.color).not.toBe(theme.colors['primary-foreground']);
+});
+
+test('tone="destructive" still defers to ready={false}', () => {
+  // Resting is a validity affordance, not a colour scheme: a form that is not
+  // yet submittable must read as muted even when the action is destructive.
+  render(
+    <ThemeProvider>
+      <Button
+        label="Delete"
+        onPress={jest.fn()}
+        tone="destructive"
+        ready={false}
+        testID="resting-danger"
+      />
+    </ThemeProvider>,
+  );
+  const theme = buildTheme('light');
+  const style = StyleSheet.flatten(
+    screen.getByTestId('resting-danger').props.style,
+  );
+  expect(style.backgroundColor).toBe(theme.colors['secondary']);
+});

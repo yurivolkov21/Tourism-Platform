@@ -17,15 +17,10 @@ export interface BadgeProps extends ViewProps {
 
 export function Badge({ label, tone = 'primary', style, ...rest }: BadgeProps) {
   const theme = useTheme();
-  // Web parity: the amber "rating" badge keeps dark foreground text. The theme
-  // has no destructive-foreground pair (web tints that badge instead of filling
-  // it) — the primary pair flips light/dark correctly against the solid red.
-  const color =
-    tone === 'rating'
-      ? theme.colors['foreground']
-      : tone === 'destructive'
-        ? theme.colors['primary-foreground']
-        : theme.colors[`${tone}-foreground`];
+  // Every tone now owns a real `-foreground` pair, so there is nothing left to
+  // special-case: no tone borrows another's ink, and none reads a scheme value
+  // that flips independently of the fill it sits on.
+  const color = theme.colors[`${tone}-foreground`];
   return (
     <View
       {...rest}

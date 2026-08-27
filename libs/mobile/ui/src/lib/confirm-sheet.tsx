@@ -60,7 +60,7 @@ export const ConfirmSheet = forwardRef<ConfirmSheetRef, ConfirmSheetProps>(
           <View style={{ width: '100%', gap: theme.spacing(2) }}>
             <Button
               label={confirmLabel}
-              style={{ backgroundColor: theme.colors['destructive'] }}
+              tone="destructive"
               onPress={() => {
                 sheetRef.current?.dismiss();
                 onConfirm();

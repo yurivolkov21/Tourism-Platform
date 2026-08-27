@@ -80,7 +80,10 @@ export function Snackbar({
             <AppText
               variant="body"
               style={{
-                color: theme.colors['primary'],
+                // NOT `primary`: this bar is filled with `foreground`, which
+                // flips with the scheme, while the brass primary does not — in
+                // dark that put brass on cream at 1.89:1.
+                color: theme.colors['inverse-primary'],
                 fontFamily: theme.fontFamilies.sansSemiBold,
               }}
             >

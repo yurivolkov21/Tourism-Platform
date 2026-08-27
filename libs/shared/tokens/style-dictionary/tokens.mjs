@@ -62,6 +62,14 @@ export default {
       'oklch(0.24 0.03 160)',
       'oklch(0.326 0.040 172)',
     ),
+    // The accent for a surface filled with `foreground` (the snackbar). `primary`
+    // cannot serve: it is brass in every scheme while the fill flips, so dark
+    // put brass on cream (1.89:1). This is `primary` from the OPPOSITE scheme.
+    'inverse-primary': c(
+      'oklch(0.74 0.11 80)',
+      'oklch(0.42 0.08 155)',
+      'oklch(0.770 0.118 71)',
+    ),
     // Text/icons that sit ON dark media (image scrims via --overlay). Stays light in BOTH themes —
     // the scrim is always dark, so this must NOT flip like primary-foreground does.
     'on-media': c('oklch(0.98 0.01 95)', 'oklch(0.98 0.01 95)'),
@@ -83,7 +91,10 @@ export default {
     'muted-foreground': c(
       'oklch(0.5 0.015 150)',
       'oklch(0.72 0.02 150)',
-      'oklch(0.545 0.026 161)',
+      // Darkened from 0.545 (2026-08-27): on the cream palette it read 4.39:1
+      // against `card` and 3.78:1 as the muted badge's ink — under AA for every
+      // caption in the app, not just the badge.
+      'oklch(0.48 0.026 161)',
     ),
     accent: c(
       'oklch(0.93 0.014 130)',
@@ -99,6 +110,20 @@ export default {
       'oklch(0.577 0.245 27.325)',
       'oklch(0.704 0.191 22.216)',
       'oklch(0.501 0.178 29)',
+    ),
+    // Text/icons that sit ON a `destructive` fill. It cannot borrow
+    // `primary-foreground` the way filled surfaces usually do: the mobile light
+    // primary is BRASS, so its ink is a dark emerald — legible on brass, and
+    // near-invisible on the dark red (what made "Yes, sign out" unreadable).
+    // Each scheme therefore names its own contrast partner: the light and
+    // mobile-light destructives are dark reds wanting pale ink, while the dark
+    // scheme's is a light coral wanting dark ink.
+    'destructive-foreground': c(
+      // Slightly brighter than the usual ivory ink: the web light destructive
+      // is a vivid red, and #faf8f1 landed on 4.49:1 — a hair under AA.
+      'oklch(1 0 0)',
+      'oklch(0.24 0.03 160)',
+      'oklch(0.963 0.028 79)',
     ),
     border: c(
       'oklch(0.9 0.01 120)',
@@ -134,7 +159,9 @@ export default {
     warning: c(
       'oklch(0.78 0.15 80)',
       'oklch(0.82 0.14 80)',
-      'oklch(0.611 0.127 63)',
+      // Darkened from 0.611 (2026-08-27): the cream badge ink only reached
+      // 3.5:1 on it, and PENDING bookings / "Limited offer" wear this daily.
+      'oklch(0.54 0.127 63)',
     ),
     'warning-foreground': c(
       'oklch(0.27 0.04 80)',
@@ -156,6 +183,14 @@ export default {
       'oklch(0.74 0.11 80)',
       'oklch(0.8 0.12 82)',
       'oklch(0.693 0.117 71)',
+    ),
+    // `rating` is brass in EVERY scheme, so its ink must be too. Reading the
+    // scheme's `foreground` instead — which does flip — put cream on brass in
+    // dark (1.58:1: the "Popular" chip on a tour card was effectively blank).
+    'rating-foreground': c(
+      'oklch(0.23 0.012 155)',
+      'oklch(0.23 0.012 155)',
+      'oklch(0.23 0.012 155)',
     ),
     'rating-muted': c(
       'oklch(0.9 0.01 120)',
