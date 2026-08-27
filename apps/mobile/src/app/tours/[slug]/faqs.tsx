@@ -1,7 +1,6 @@
 import { View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { messages } from '@tourism/i18n';
 import {
   Accordion,
   AppText,
@@ -10,8 +9,6 @@ import {
   useTheme,
 } from '@tourism/mobile-ui';
 import { fetchTourDetail } from '../../../lib/tour-detail';
-
-const t = messages.mobile.tourDetail;
 
 /** All FAQs (the detail screen teases the first few + Show all). */
 export default function FaqsScreen() {
