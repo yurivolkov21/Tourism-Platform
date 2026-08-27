@@ -1048,6 +1048,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/chat/messages': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Send a chat message; streams the concierge reply (SSE) */
+    post: operations['ChatController_send'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/chat/conversations/{id}/messages': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Replay a conversation history (ownership-gated) */
+    get: operations['ChatController_getMessages'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/newsletter/subscribe': {
     parameters: {
       query?: never;
@@ -1480,6 +1514,11 @@ export interface components {
        * @description Cloudinary avatar delivery URL (null if none set)
        */
       avatarUrl: string | null;
+      /**
+       * @description Whether the account can sign in with an email + password. Supabase does NOT create an `email` identity when a password is set on an OAuth-only account — it only fills `auth.users.encrypted_password` — so `app_metadata.providers` never reveals this and only the server can answer it.
+       * @example true
+       */
+      hasPassword: boolean;
       /** Format: date-time */
       createdAt: string;
       /** Format: date-time */
@@ -3390,6 +3429,17 @@ export interface components {
       /** @example Called them back — wants a private departure in October. */
       body: string;
     };
+    SendChatMessageDto: {
+      /**
+       * Format: uuid
+       * @description Existing conversation to continue; omit to start a new one.
+       */
+      conversationId?: string;
+      /** @description The newest AI SDK UIMessage (role "user") from the client. */
+      message: {
+        [key: string]: unknown;
+      };
+    };
     SubscribeDto: {
       /** @example jane@example.com */
       email: string;
@@ -3798,7 +3848,8 @@ export interface components {
         | 'ENQUIRY_RECEIVED'
         | 'CANCELLATION_REQUESTED'
         | 'CANCELLATION_DENIED'
-        | 'NEWSLETTER_WELCOME';
+        | 'NEWSLETTER_WELCOME'
+        | 'EMAIL_CHANGED';
       /** @enum {string} */
       status: 'PENDING' | 'SENT' | 'FAILED';
       /** @example 0 */
@@ -6625,6 +6676,82 @@ export interface operations {
       };
       /** @description Enquiry not found */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ChatController_send: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SendChatMessageDto'];
+      };
+    };
+    responses: {
+      /** @description UIMessage SSE stream */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid message payload */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not your conversation */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conversation full */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Too many messages */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Concierge not configured */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ChatController_getMessages: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
         headers: {
           [name: string]: unknown;
         };
